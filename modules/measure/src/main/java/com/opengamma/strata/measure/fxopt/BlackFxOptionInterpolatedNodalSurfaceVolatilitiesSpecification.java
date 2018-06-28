@@ -137,7 +137,7 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
     DoubleArray expiries = DoubleArray.of(nNodes, i -> nodes.get(i).timeToExpiry(valuationDateTime, dayCount, refData));
     SurfaceMetadata metadata = Surfaces.blackVolatilityByExpiryStrike(SurfaceName.of(name.getName()), dayCount)
         .withParameterMetadata(parameterMetadata(expiries));
-    
+
     SurfaceInterpolator interp = GridSurfaceInterpolator.of(
         timeInterpolator,
         timeExtrapolatorLeft,

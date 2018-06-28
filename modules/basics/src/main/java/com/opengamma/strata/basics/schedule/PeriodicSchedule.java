@@ -66,7 +66,7 @@ import com.opengamma.strata.collect.ArgChecker;
  *      .rollConvention(RollConventions.EOM)
  *      .build();
  *  Schedule schedule = definition.createSchedule();
- *  
+ * 
  *  // result
  *  period 1: 2014-02-12 to 2014-06-30
  *  period 2: 2014-06-30 to 2014-09-30
@@ -833,12 +833,12 @@ public final class PeriodicSchedule
   // For 'StandardRollConventions', such as IMM, adjusted date is identified by finding the closest valid roll date
   // and applying the the trade level business day adjustment
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
-    // change date if 
+    // change date if
     // reference data is available
     // and explicit start adjustment must be NONE (not ideal, but meets backwards compatibility)
     // and either
-    // numeric roll convention and day-of-month actually differs 
-    // or  
+    // numeric roll convention and day-of-month actually differs
+    // or
     // StandardDayConvention is used and the day is not a valid roll date
 
     if (refData != null &&
@@ -889,10 +889,10 @@ public final class PeriodicSchedule
       if (!rollImpliedDate.equals(baseDate)) {
 
         //If roll date is relative to the month the assumption is that the adjusted date is not in a different month to
-        //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically 
+        //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically
         //not close to the end of the month and hence any reasonable adjustment will not move into the next month.
         //adjust() method for "day of week" roll conventions will roll forward from the passed date; hence this logic
-        //will not work for "day of week" conventions if the passed baseDate has been adjusted to be after the original 
+        //will not work for "day of week" conventions if the passed baseDate has been adjusted to be after the original
         //unadjusted date (i.e. has been rolled forward).
 
         //Calculate the expected adjusted roll date, based on the valid unadjusted roll date

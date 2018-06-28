@@ -142,7 +142,7 @@ final class FullSwapTradeCsvLoader {
   private static final String INFLATION_LAG_FIELD = "Inflation Lag";
   private static final String INFLATION_METHOD_FIELD = "Inflation Method";
   private static final String INFLATION_FIRST_INDEX_VALUE_FIELD = "Inflation First Index Value";
-  
+
   private static final String GEARING_FIELD = "Gearing";
   private static final String SPREAD_FIELD = "Spread";
 
@@ -530,15 +530,15 @@ final class FullSwapTradeCsvLoader {
 
   // an Ibor stub
   private static Optional<IborRateStubCalculation> parseIborStub(
-      CsvRow row, 
-      String leg, 
-      Currency currency, 
+      CsvRow row,
+      String leg,
+      Currency currency,
       IborRateCalculation.Builder builder,
-      String rateField, 
-      String amountField, 
-      String indexField, 
+      String rateField,
+      String amountField,
+      String indexField,
       String interpolatedField) {
-    
+
     Optional<Double> stubRateOpt = findValue(row, leg, rateField).map(s -> LoaderUtils.parseDoublePercent(s));
     Optional<Double> stubAmountOpt = findValue(row, leg, amountField).map(s -> LoaderUtils.parseDouble(s));
     Optional<IborIndex> stubIndexOpt = findValue(row, leg, indexField).map(s -> IborIndex.of(s));

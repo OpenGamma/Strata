@@ -261,9 +261,9 @@ public enum StubConvention implements NamedEnum {
       if (start.getDayOfMonth() != end.getDayOfMonth() &&
           start.getLong(PROLEPTIC_MONTH) != end.getLong(PROLEPTIC_MONTH) &&
           (start.getDayOfMonth() == start.lengthOfMonth() || end.getDayOfMonth() == end.lengthOfMonth())) {
-        
-        return preferEndOfMonth ?  
-            RollConventions.EOM : 
+
+        return preferEndOfMonth ?
+            RollConventions.EOM :
             RollConvention.ofDayOfMonth(Math.max(start.getDayOfMonth(), end.getDayOfMonth()));
       }
     }

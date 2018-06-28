@@ -84,7 +84,7 @@ final class CdsImmDateLogic {
     int day = date.getDayOfMonth();
     int month = date.getMonthValue();
     int year = date.getYear();
-    if (isSemiAnnualRollDate(date)) { //on an index roll 
+    if (isSemiAnnualRollDate(date)) { //on an index roll
       if (month == INDEX_ROLL_MONTHS.get(0)) {
         return LocalDate.of(year, INDEX_ROLL_MONTHS.get(1), IMM_DAY);
       } else {

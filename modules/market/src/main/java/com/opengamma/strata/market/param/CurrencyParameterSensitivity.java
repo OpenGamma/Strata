@@ -200,7 +200,7 @@ public final class CurrencyParameterSensitivity
       split.add(ParameterSize.of(sens.getMarketDataName(), sens.getParameterCount()));
       count += sens.getParameterCount();
     }
-    
+
     return new CurrencyParameterSensitivity(
         marketDataName, combinedMeta.build(), currency, DoubleArray.ofUnsafe(combinedSensitivities), split.build());
   }
@@ -311,7 +311,8 @@ public final class CurrencyParameterSensitivity
 
   // maps the sensitivities and potentially changes the currency
   private CurrencyParameterSensitivity mapSensitivity(DoubleUnaryOperator operator, Currency currency) {
-    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity.map(operator), parameterSplit);
+    return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity.map(operator),
+        parameterSplit);
   }
 
   /**

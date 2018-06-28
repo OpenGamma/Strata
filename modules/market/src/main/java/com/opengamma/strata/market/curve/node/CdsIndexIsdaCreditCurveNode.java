@@ -189,9 +189,9 @@ public final class CdsIndexIsdaCreditCurveNode
   private static void preBuild(Builder builder) {
     if (builder.template != null) {
       if (builder.label == null) {
-        builder.label = builder.template instanceof TenorCdsTemplate
-            ? ((TenorCdsTemplate) builder.template).getTenor().toString()
-            : ((DatesCdsTemplate) builder.template).getEndDate().toString();
+        builder.label = builder.template instanceof TenorCdsTemplate ?
+            ((TenorCdsTemplate) builder.template).getTenor().toString() :
+            ((DatesCdsTemplate) builder.template).getEndDate().toString();
       }
     }
   }
@@ -215,9 +215,9 @@ public final class CdsIndexIsdaCreditCurveNode
 
   @Override
   public DatedParameterMetadata metadata(LocalDate nodeDate) {
-    return template instanceof TenorCdsTemplate
-        ? TenorDateParameterMetadata.of(nodeDate, ((TenorCdsTemplate) template).getTenor(), label)
-        : LabelDateParameterMetadata.of(nodeDate, label);
+    return template instanceof TenorCdsTemplate ?
+        TenorDateParameterMetadata.of(nodeDate, ((TenorCdsTemplate) template).getTenor(), label) :
+        LabelDateParameterMetadata.of(nodeDate, label);
   }
 
   /**

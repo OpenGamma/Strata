@@ -1109,9 +1109,9 @@ final class GlobalHolidayCalendars {
       holidays.add(first(year, 6).with(dayOfWeekInMonth(2, MONDAY)));
       // bank holiday
       holidays.add(first(year, 8).with(dayOfWeekInMonth(1, MONDAY)));
-      // labour day 
+      // labour day
       holidays.add(first(year, 10).with(dayOfWeekInMonth(1, MONDAY)));
-      // christmas 
+      // christmas
       holidays.add(christmasBumpedSatSun(year));
       // boxing
       holidays.add(boxingDayBumpedSatSun(year));
@@ -1150,7 +1150,7 @@ final class GlobalHolidayCalendars {
       holidays.add(bumpSunToMon(date(year, 9, 24)));
       // reconcilliation
       holidays.add(bumpSunToMon(date(year, 12, 16)));
-      // christmas 
+      // christmas
       holidays.add(christmasBumpedSun(year));
       // goodwill
       holidays.add(boxingDayBumpedSun(year));

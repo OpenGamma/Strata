@@ -114,11 +114,11 @@ public final class FxSwap
     Currency currency1 = amount.getCurrency();
     if (!nearRate.getPair().contains(currency1)) {
       throw new IllegalArgumentException(Messages.format(
-        "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", nearRate, amount));
+          "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", nearRate, amount));
     }
     if (!nearRate.getPair().toConventional().equals(farRate.getPair().toConventional())) {
       throw new IllegalArgumentException(Messages.format(
-        "FxRate '{}' and FxRate '{}' must contain the same currencies", nearRate, farRate));
+          "FxRate '{}' and FxRate '{}' must contain the same currencies", nearRate, farRate));
     }
     FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate);
     FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate);
@@ -159,11 +159,11 @@ public final class FxSwap
     Currency currency1 = amount.getCurrency();
     if (!nearRate.getPair().contains(currency1)) {
       throw new IllegalArgumentException(Messages.format(
-        "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", nearRate, amount));
+          "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", nearRate, amount));
     }
     if (!nearRate.getPair().toConventional().equals(farRate.getPair().toConventional())) {
       throw new IllegalArgumentException(Messages.format(
-        "FxRate '{}' and FxRate '{}' must contain the same currencies", nearRate, farRate));
+          "FxRate '{}' and FxRate '{}' must contain the same currencies", nearRate, farRate));
     }
     FxSingle nearLeg = FxSingle.of(amount, nearRate, nearDate, paymentDateAdjustment);
     FxSingle farLeg = FxSingle.of(amount.negated(), farRate, farDate, paymentDateAdjustment);

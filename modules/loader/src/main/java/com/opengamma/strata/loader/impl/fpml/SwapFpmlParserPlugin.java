@@ -475,7 +475,7 @@ final class SwapFpmlParserPlugin
           iborRateBuilder.resetPeriods(resetScheduleBuilder.build());
         }
       });
-      
+
       // stubs
       legEl.findChild("stubCalculationPeriodAmount").ifPresent(stubsEl -> {
         stubsEl.findChild("initialStub").ifPresent(el -> {

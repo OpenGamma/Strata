@@ -142,7 +142,7 @@ public final class ParameterizedFunctionalCurveDefinition
 
   //-------------------------------------------------------------------------
   @Override
-  public ParameterizedFunctionalCurveDefinition filtered(LocalDate valuationDate, ReferenceData refData) { 
+  public ParameterizedFunctionalCurveDefinition filtered(LocalDate valuationDate, ReferenceData refData) {
     // mutable list of date-node pairs
     ArrayList<Pair<LocalDate, CurveNode>> nodeDates = nodes.stream()
         .map(node -> Pair.of(node.date(valuationDate, refData), node))

@@ -329,7 +329,7 @@ public final class RatesCurveGroupDefinition
    * @return the number of parameters
    */
   public int getTotalParameterCount() {
-    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum(); 
+    return curveDefinitionsByName.entrySet().stream().mapToInt(entry -> entry.getValue().getParameterCount()).sum();
   }
 
   /**

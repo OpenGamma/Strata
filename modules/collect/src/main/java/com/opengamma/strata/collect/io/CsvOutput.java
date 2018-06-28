@@ -36,7 +36,7 @@ public final class CsvOutput {
   private static final String DIGITS = "([0-9]+)";
   private static final String EXPONENT = "[eE][+-]?" + DIGITS;
   private static final Pattern FP_REGEX = Pattern.compile(
-          "(" + DIGITS + "(\\.)?(" + DIGITS + "?)(" + EXPONENT + ")?)|" +
+      "(" + DIGITS + "(\\.)?(" + DIGITS + "?)(" + EXPONENT + ")?)|" +
           "(\\.(" + DIGITS + ")(" + EXPONENT + ")?)");
   private static final String COMMA = ",";
   private static final String NEW_LINE = System.lineSeparator();

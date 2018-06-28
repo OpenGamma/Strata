@@ -93,9 +93,9 @@ public final class BlackScholesFormulaRepository {
     int sign = isCall ? 1 : -1;
     double rescaledSpot = factor * spot;
     if (sigmaRootT < SMALL) {
-      double res =
-          isCall ? (rescaledSpot > strike ? discount * (rescaledSpot - strike) : 0d) : (rescaledSpot < strike ? discount *
-              (strike - rescaledSpot) : 0d);
+      double res = isCall ?
+          (rescaledSpot > strike ? discount * (rescaledSpot - strike) : 0d) :
+          (rescaledSpot < strike ? discount * (strike - rescaledSpot) : 0d);
       return Double.isNaN(res) ? sign * (spot - discount * strike) : res;
     }
 
@@ -666,11 +666,17 @@ public final class BlackScholesFormulaRepository {
     double normForStrike = NORMAL.getCDF(sign * d2);
     double spotTerm = normForSpot < SMALL ?
         0d :
-        (Double.isNaN(rescaledSpot) ? -sign * Math.signum((costOfCarry - interestRate)) * rescaledSpot : -sign *
-            ((costOfCarry - interestRate) * rescaledSpot * normForSpot));
+        (Double.isNaN(rescaledSpot) ?
+            -sign * Math.signum((costOfCarry - interestRate)) * rescaledSpot :
+            -sign *
+                ((costOfCarry - interestRate) * rescaledSpot * normForSpot));
     double strikeTerm =
-        normForStrike < SMALL ? 0d : (Double.isNaN(rescaledSpot) ? sign * (-Math.signum(interestRate) * discount) : sign *
-            (-interestRate * rescaledStrike * normForStrike));
+        normForStrike < SMALL ?
+            0d :
+            (Double.isNaN(rescaledSpot) ?
+                sign * (-Math.signum(interestRate) * discount) :
+                sign *
+                    (-interestRate * rescaledStrike * normForStrike));
 
     double coef = rescaledSpot * lognormalVol / rootT;
     if (Double.isNaN(coef)) {
@@ -1469,8 +1475,12 @@ public final class BlackScholesFormulaRepository {
       d1 = Double.isNaN(tmp) ? 0d : tmp;
     } else {
       if (sigmaRootT < SMALL) {
-        return isCall ? (rescaledSpot > strike ? coef * timeToExpiry * spot : 0d) : (rescaledSpot < strike ? -coef *
-            timeToExpiry * spot : 0d);
+        return isCall ?
+            (rescaledSpot > strike ? coef * timeToExpiry * spot : 0d) :
+            (rescaledSpot < strike ?
+                -coef *
+                    timeToExpiry * spot :
+                0d);
       }
       double tmp = costOfCarry * rootT / lognormalVol;
       double sig = (costOfCarry >= 0d) ? 1d : -1d;

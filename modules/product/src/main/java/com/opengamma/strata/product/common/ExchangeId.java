@@ -22,8 +22,8 @@ public final class ExchangeId implements Named, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-  /**
 
+  /**
    * The Market Identifier Code (MIC) identifying the exchange.
    */
   private final String name;

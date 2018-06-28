@@ -732,8 +732,9 @@ public final class BlackFormulaRepository {
         double nF = NORMAL.getCDF(sign * d1);
         double nS = NORMAL.getCDF(sign * d2);
         double first = nF == 0d ? 0d : forward * nF;
-        double second = ((nS == 0d) | (Math.exp(-interestRate * timeToExpiry) == 0d)) ? 0d : strike *
-            Math.exp(-interestRate * timeToExpiry) * nS;
+        double second = ((nS == 0d) | (Math.exp(-interestRate * timeToExpiry) == 0d)) ?
+            0d :
+            strike * Math.exp(-interestRate * timeToExpiry) * nS;
         priceLike = sign * (first - second);
       }
     }
@@ -860,8 +861,11 @@ public final class BlackFormulaRepository {
       }
       log.info("log(1)/0 ambiguous");
       if (rootT < SMALL) {
-        return forward < SMALL ? -NORMAL.getPDF(0d) * lognormalVol / 2. : (lognormalVol < SMALL ? -forward *
-            NORMAL.getPDF(0d) / 2. : -forward * NORMAL.getPDF(0d) * lognormalVol / 2. / rootT);
+        return forward < SMALL ?
+            -NORMAL.getPDF(0d) * lognormalVol / 2. :
+            (lognormalVol < SMALL ?
+                -forward * NORMAL.getPDF(0d) / 2. :
+                -forward * NORMAL.getPDF(0d) * lognormalVol / 2. / rootT);
       }
       if (lognormalVol < SMALL) {
         return bFwd ? -NORMAL.getPDF(0d) / 2. / rootT : -forward * NORMAL.getPDF(0d) * lognormalVol / 2. / rootT;
@@ -1080,8 +1084,9 @@ public final class BlackFormulaRepository {
       if (bFwd) {
         return rootT < SMALL ? NORMAL.getPDF(0d) / lognormalVol : forward * NORMAL.getPDF(0d) * rootT / lognormalVol;
       }
-      return lognormalVol < SMALL ? forward * NORMAL.getPDF(0d) * rootT / lognormalVol : -forward * NORMAL.getPDF(0d) *
-          timeToExpiry * lognormalVol / 4.;
+      return lognormalVol < SMALL ?
+          forward * NORMAL.getPDF(0d) * rootT / lognormalVol :
+          -forward * NORMAL.getPDF(0d) * timeToExpiry * lognormalVol / 4.;
     }
     if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
       d1 = 0.5 * sigmaRootT;

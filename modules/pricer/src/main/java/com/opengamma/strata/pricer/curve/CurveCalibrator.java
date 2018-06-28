@@ -24,11 +24,11 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataFxRateProvider;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
 import com.opengamma.strata.market.curve.JacobianCalibrationMatrix;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -257,7 +257,8 @@ public final class CurveCalibrator {
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (RatesCurveGroupDefinition groupDefn : allGroupsDefn) {
-      RatesCurveGroupDefinition groupDefnBound = groupDefn.bindTimeSeries(knownData.getValuationDate(), knownData.getTimeSeries());
+      RatesCurveGroupDefinition groupDefnBound =
+          groupDefn.bindTimeSeries(knownData.getValuationDate(), knownData.getTimeSeries());
       // combine all data in the group into flat lists
       ImmutableList<ResolvedTrade> trades = groupDefnBound.resolvedTrades(marketData, refData);
       ImmutableList<Double> initialGuesses = groupDefnBound.initialGuesses(marketData);

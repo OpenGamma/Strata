@@ -344,7 +344,7 @@ public final class SabrSwaptionCalibrator {
     nuStart[1] = 0.50; // High vol of vol
     nuStart[2] = 0.10;
     nuStart[3] = 0.50;
-    double chi2 = 1.0E+12; // Large number 
+    double chi2 = 1.0E+12; // Large number
     Pair<LeastSquareResultsWithTransform, DoubleArray> sabrCalibrationResult = null;
     for (int i = 0; i < 4; i++) { // Try different starting points and take the best
       DoubleArray startParameters = DoubleArray.of(alphaStart[i], beta, rhoStart, nuStart[i]);

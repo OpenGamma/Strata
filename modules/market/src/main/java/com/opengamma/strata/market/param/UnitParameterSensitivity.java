@@ -180,7 +180,7 @@ public final class UnitParameterSensitivity
       split.add(ParameterSize.of(sens.getMarketDataName(), sens.getParameterCount()));
       count += sens.getParameterCount();
     }
-    
+
     return new UnitParameterSensitivity(
         marketDataName, combinedMeta.build(), DoubleArray.ofUnsafe(combinedSensitivities), split.build());
   }

@@ -227,7 +227,7 @@ public final class PaymentSchedule
               .map(stub -> stub.getUnadjustedStartDate())
               .orElse(accrualSchedule.getUnadjustedEndDate());
       paySchedule = accrualSchedule.merge(
-          accrualPeriodsPerPayment, 
+          accrualPeriodsPerPayment,
           firstRegular,
           lastRegular);
 

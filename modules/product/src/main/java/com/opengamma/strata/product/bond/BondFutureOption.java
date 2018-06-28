@@ -73,7 +73,7 @@ public final class BondFutureOption
    * The strike price, represented in decimal form.
    * <p>
    * This is the price at which the option applies and refers to the price of the underlying future.
-   * This must be represented in decimal form, {@code (1.0 - decimalRate)}. 
+   * This must be represented in decimal form, {@code (1.0 - decimalRate)}.
    * As such, the common market price of 99.3 for a 0.7% rate must be input as 0.993.
    * The rate implied by the strike can take negative values.
    */

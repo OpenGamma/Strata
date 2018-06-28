@@ -39,12 +39,12 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.RatesCurveGroup;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.NodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 
 /**
  * Loads a set of curve group definitions into memory by reading from CSV resources.

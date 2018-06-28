@@ -195,12 +195,12 @@ public final class CsvFile {
   //------------------------------------------------------------------------
   // parses the CSV file format
   private static CsvFile parseAll(
-      List<String> lines, 
+      List<String> lines,
       int lineIndex,
       char separator,
       ImmutableList<String> headers,
       ImmutableMap<String, Integer> searchHeaders) {
-    
+
     ImmutableList.Builder<CsvRow> rows = ImmutableList.builder();
     for (int i = lineIndex; i < lines.size(); i++) {
       ImmutableList<String> fields = parseLine(lines.get(i), i + 1, separator);

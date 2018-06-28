@@ -126,9 +126,9 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapper extends IborCapletF
       DoubleArray strikeShifted = DoubleArray.of(nTotal, n -> strikeList.get(n) + shiftCurve.yValue(timeList.get(n)));
       if (capFloorData.getDataType().equals(NORMAL_VOLATILITY)) { // correct initial surface
         metadata = Surfaces.blackVolatilityByExpiryStrike(bsDefinition.getName().getName(), bsDefinition.getDayCount())
-          .withParameterMetadata(metadata.getParameterMetadata().get());
+            .withParameterMetadata(metadata.getParameterMetadata().get());
         initialVol = DoubleArray.of(nTotal, n -> volList.get(n) /
-                (ratesProvider.iborIndexRates(index).rate(capList.get(n).getFinalPeriod().getIborRate().getObservation()) +
+            (ratesProvider.iborIndexRates(index).rate(capList.get(n).getFinalPeriod().getIborRate().getObservation()) +
                 shiftCurve.yValue(timeList.get(n))));
       }
       InterpolatedNodalSurface surface = InterpolatedNodalSurface.of(

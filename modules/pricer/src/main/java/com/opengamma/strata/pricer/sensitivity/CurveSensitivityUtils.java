@@ -241,7 +241,7 @@ public class CurveSensitivityUtils {
       int indexSensitivityDate = 0;
       while (sensitivityDate.isAfter(targetDates.get(indexSensitivityDate))) {
         indexSensitivityDate++;
-      } // 'indexSensitivityDate' contains the index of the node after the sensitivity date 
+      } // 'indexSensitivityDate' contains the index of the node after the sensitivity date
       long intervalLength =
           targetDates.get(indexSensitivityDate).toEpochDay() - targetDates.get(indexSensitivityDate - 1).toEpochDay();
       double weight =

@@ -245,7 +245,7 @@ public final class FxSingle
     CurrencyPair pair = fxRate.getPair();
     if (!pair.contains(amount.getCurrency())) {
       throw new IllegalArgumentException(Messages.format(
-        "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", fxRate, amount));
+          "FxRate '{}' and CurrencyAmount '{}' must have a currency in common", fxRate, amount));
     }
     Currency currency2 = pair.getBase().equals(amount.getCurrency()) ? pair.getCounter() : pair.getBase();
     CurrencyAmount amountCurrency2 = amount.convertedTo(currency2, fxRate).negated();
