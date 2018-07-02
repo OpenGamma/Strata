@@ -40,10 +40,12 @@ import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.Bill;
 import com.opengamma.strata.product.bond.BillYieldConvention;
@@ -111,6 +113,8 @@ public class DiscountingBillProductPricerTest {
   
   // pricers
   private static final DiscountingBillProductPricer PRICER = DiscountingBillProductPricer.DEFAULT;
+  private static final double EPS = 1.0e-7;
+  private static final RatesFiniteDifferenceSensitivityCalculator FD_CALC = new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   private static final double Z_SPREAD = 0.035;
   private static final double TOLERANCE_PV = 1.0e-6;
@@ -152,6 +156,9 @@ public class DiscountingBillProductPricerTest {
         .zeroRatePointSensitivity(MATURITY_DATE)
         .multipliedBy(NOTIONAL.getAmount()).build();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(sensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(PROVIDER, p -> PRICER.presentValue(BILL, p));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT));
   }
   
   public void presentValueSensitivity_aftermaturity() {
@@ -163,10 +170,16 @@ public class DiscountingBillProductPricerTest {
   public void presentValueSensitivity_zspread() {
     PointSensitivities sensiComputed = 
         PRICER.presentValueSensitivityWithZSpread(BILL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
-    PointSensitivities sensiExpected = DSC_FACTORS_ISSUER
-        .zeroRatePointSensitivityWithSpread(MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
-        .multipliedBy(NOTIONAL.getAmount()).build();
+    PointSensitivities sensiExpected = IssuerCurveZeroRateSensitivity.of(
+        DSC_FACTORS_ISSUER.zeroRatePointSensitivityWithSpread(MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0),
+        GROUP_ISSUER)
+        .multipliedBy(NOTIONAL.getAmount())
+        .build();
     assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(sensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER, p -> PRICER.presentValueWithZSpread(BILL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT));
   }
   
   public void presentValueSensitivity_zspread_aftermaturity() {

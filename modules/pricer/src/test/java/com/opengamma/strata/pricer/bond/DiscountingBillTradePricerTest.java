@@ -40,11 +40,14 @@ import com.opengamma.strata.market.curve.LegalEntityGroup;
 import com.opengamma.strata.market.curve.RepoGroup;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.Bill;
@@ -147,6 +150,8 @@ public class DiscountingBillTradePricerTest {
   private static final DiscountingBillProductPricer PRICER_PRODUCT = DiscountingBillProductPricer.DEFAULT;
   private static final DiscountingBillTradePricer PRICER_TRADE = DiscountingBillTradePricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
+  private static final double EPS = 1.0e-7;
+  private static final RatesFiniteDifferenceSensitivityCalculator FD_CALC = new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   private static final double Z_SPREAD = 0.035;
   private static final double TOLERANCE_PV = 1.0e-6;
@@ -264,26 +269,50 @@ public class DiscountingBillTradePricerTest {
     PointSensitivities pvsensiExpected = PRICER_PRODUCT.presentValueSensitivity(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
         .multipliedBy(QUANTITY);
     assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER, p -> PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_BEFORE_VAL, p));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
   }
   
   public void test_pvsensi_settle_on_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE.presentValueSensitivity(BILL_TRADE_SETTLE_ON_VAL, PROVIDER);
     PointSensitivities pvsensiExpected = PRICER_PRODUCT.presentValueSensitivity(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
         .multipliedBy(QUANTITY)
-        .combinedWith(PRICER_PAYMENT.presentValueSensitivity(BILL_TRADE_SETTLE_ON_VAL.getSettlement().get(), 
-        PROVIDER.repoCurveDiscountFactors(BILL_PRODUCT.getSecurityId(), BILL_PRODUCT.getLegalEntityId(), BILL_PRODUCT.getCurrency())
-        .getDiscountFactors()).build());
+        .combinedWith(RepoCurveZeroRateSensitivity.of(
+            (ZeroRateSensitivity) PRICER_PAYMENT.presentValueSensitivity(
+                BILL_TRADE_SETTLE_ON_VAL.getSettlement().get(),
+                PROVIDER.repoCurveDiscountFactors(
+                    BILL_PRODUCT.getSecurityId(),
+                    BILL_PRODUCT.getLegalEntityId(),
+                    BILL_PRODUCT.getCurrency())
+                    .getDiscountFactors()),
+            GROUP_REPO).build());
     assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER, p -> PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_ON_VAL, p));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
   }
   
   public void test_pvsensi_settle_after_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE.presentValueSensitivity(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER);
     PointSensitivities pvsensiExpected = PRICER_PRODUCT.presentValueSensitivity(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
         .multipliedBy(QUANTITY)
-        .combinedWith(PRICER_PAYMENT.presentValueSensitivity(BILL_TRADE_SETTLE_AFTER_VAL.getSettlement().get(), 
-            PROVIDER.repoCurveDiscountFactors(BILL_PRODUCT.getSecurityId(), BILL_PRODUCT.getLegalEntityId(), BILL_PRODUCT.getCurrency())
-            .getDiscountFactors()).build());
+        .combinedWith(RepoCurveZeroRateSensitivity.of(
+            (ZeroRateSensitivity) PRICER_PAYMENT.presentValueSensitivity(
+                BILL_TRADE_SETTLE_AFTER_VAL.getSettlement().get(),
+                PROVIDER.repoCurveDiscountFactors(
+                    BILL_PRODUCT.getSecurityId(),
+                    BILL_PRODUCT.getLegalEntityId(),
+                    BILL_PRODUCT.getCurrency())
+                    .getDiscountFactors()),
+            GROUP_REPO).build());
     assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER, p -> PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_AFTER_VAL, p));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
   }
 
   //-------------------------------------------------------------------------
@@ -294,6 +323,11 @@ public class DiscountingBillTradePricerTest {
         .presentValueSensitivityWithZSpread(BILL_PRODUCT.resolve(REF_DATA), PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
         .multipliedBy(QUANTITY);
     assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER,
+        p -> PRICER_TRADE.presentValueWithZSpread(BILL_TRADE_SETTLE_BEFORE_VAL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
   }
   
   public void test_pvsensiZSpread_settle_on_val() {
@@ -302,10 +336,21 @@ public class DiscountingBillTradePricerTest {
     PointSensitivities pvsensiExpected = PRICER_PRODUCT
         .presentValueSensitivityWithZSpread(BILL_PRODUCT.resolve(REF_DATA), PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
         .multipliedBy(QUANTITY)
-        .combinedWith(PRICER_PAYMENT.presentValueSensitivity(BILL_TRADE_SETTLE_ON_VAL.getSettlement().get(), 
-        PROVIDER.repoCurveDiscountFactors(BILL_PRODUCT.getSecurityId(), BILL_PRODUCT.getLegalEntityId(), BILL_PRODUCT.getCurrency())
-        .getDiscountFactors()).build());
+        .combinedWith(RepoCurveZeroRateSensitivity.of(
+            (ZeroRateSensitivity) PRICER_PAYMENT.presentValueSensitivity(
+                BILL_TRADE_SETTLE_ON_VAL.getSettlement().get(),
+                PROVIDER.repoCurveDiscountFactors(
+                    BILL_PRODUCT.getSecurityId(),
+                    BILL_PRODUCT.getLegalEntityId(),
+                    BILL_PRODUCT.getCurrency())
+                    .getDiscountFactors()),
+            GROUP_REPO).build());
     assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER,
+        p -> PRICER_TRADE.presentValueWithZSpread(BILL_TRADE_SETTLE_ON_VAL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
   }
   
   public void test_pvsensiZSpread_settle_after_val() {
@@ -314,10 +359,21 @@ public class DiscountingBillTradePricerTest {
     PointSensitivities pvsensiExpected = PRICER_PRODUCT
         .presentValueSensitivityWithZSpread(BILL_PRODUCT.resolve(REF_DATA), PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
         .multipliedBy(QUANTITY)
-        .combinedWith(PRICER_PAYMENT.presentValueSensitivity(BILL_TRADE_SETTLE_AFTER_VAL.getSettlement().get(), 
-            PROVIDER.repoCurveDiscountFactors(BILL_PRODUCT.getSecurityId(), BILL_PRODUCT.getLegalEntityId(), BILL_PRODUCT.getCurrency())
-            .getDiscountFactors()).build());
+        .combinedWith(RepoCurveZeroRateSensitivity.of(
+            (ZeroRateSensitivity) PRICER_PAYMENT.presentValueSensitivity(
+                BILL_TRADE_SETTLE_AFTER_VAL.getSettlement().get(),
+                PROVIDER.repoCurveDiscountFactors(
+                    BILL_PRODUCT.getSecurityId(),
+                    BILL_PRODUCT.getLegalEntityId(),
+                    BILL_PRODUCT.getCurrency())
+                    .getDiscountFactors()),
+            GROUP_REPO).build());
     assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
+    CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
+        PROVIDER,
+        p -> PRICER_TRADE.presentValueWithZSpread(BILL_TRADE_SETTLE_AFTER_VAL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
+    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
   }
   
 }

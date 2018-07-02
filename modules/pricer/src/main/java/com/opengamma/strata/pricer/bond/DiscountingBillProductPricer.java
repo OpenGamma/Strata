@@ -12,6 +12,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.product.bond.ResolvedBill;
 
 /**
@@ -131,10 +132,13 @@ public class DiscountingBillProductPricer {
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
         bill.getLegalEntityId(), bill.getCurrency());
     double dfEndBar = bill.getNotional().getAmount();
-    PointSensitivityBuilder sensMaturity = discountFactors.getDiscountFactors()
-        .zeroRatePointSensitivityWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear)
+    ZeroRateSensitivity zeroSensMaturity = discountFactors.getDiscountFactors()
+        .zeroRatePointSensitivityWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
+    IssuerCurveZeroRateSensitivity dscSensMaturity =
+        IssuerCurveZeroRateSensitivity.of(zeroSensMaturity, discountFactors.getLegalEntityGroup())
         .multipliedBy(dfEndBar);
-    return sensMaturity.build();
+
+    return dscSensMaturity.build();
   }
   
   //-------------------------------------------------------------------------

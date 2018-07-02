@@ -12,9 +12,12 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.product.bond.ResolvedBill;
 import com.opengamma.strata.product.bond.ResolvedBillTrade;
 
 /**
@@ -139,11 +142,10 @@ public class DiscountingBillTradePricer {
     PointSensitivities sensiProduct = productPricer.presentValueSensitivity(bill.getProduct(), provider)
         .multipliedBy(bill.getQuantity());
     if (bill.getSettlement().isPresent()) {
-      DiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency())
-          .getDiscountFactors();
-      PointSensitivities sensiSettle = 
-          paymentPricer.presentValueSensitivity(bill.getSettlement().get(), discountFactorsRepo).build();
+      Payment settlement = bill.getSettlement().get();
+      RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
+          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency());
+      PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
       return sensiProduct.combinedWith(sensiSettle);
     }
     return sensiProduct;
@@ -181,11 +183,10 @@ public class DiscountingBillTradePricer {
         .presentValueSensitivityWithZSpread(bill.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear)
         .multipliedBy(bill.getQuantity());
     if (bill.getSettlement().isPresent()) {
-      DiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency())
-          .getDiscountFactors();
-      PointSensitivities sensiSettle = 
-          paymentPricer.presentValueSensitivity(bill.getSettlement().get(), discountFactorsRepo).build();
+      Payment settlement = bill.getSettlement().get();
+      RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
+          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency());
+      PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
       return sensiProduct.combinedWith(sensiSettle);
     }
     return sensiProduct;
@@ -237,6 +238,19 @@ public class DiscountingBillTradePricer {
       return bill.getSettlement().get().getValue();
     }
     return CurrencyAmount.zero(bill.getProduct().getCurrency());
+  }
+
+  //-------------------------------------------------------------------------
+  private PointSensitivities presentValueSensitivitySettlement(
+      Payment settlement,
+      RepoCurveDiscountFactors discountFactorsRepo) {
+
+    PointSensitivityBuilder pointSettle = paymentPricer.presentValueSensitivity(
+        settlement, discountFactorsRepo.getDiscountFactors());
+    if (pointSettle instanceof ZeroRateSensitivity) {
+      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pointSettle, discountFactorsRepo.getRepoGroup()).build();
+    }
+    return pointSettle.build(); // NoPointSensitivity
   }
 
 }
