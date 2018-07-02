@@ -69,7 +69,6 @@ public class DiscountingBillTradePricerTest {
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final BillYieldConvention YIELD_CONVENTION = BillYieldConvention.INTEREST_AT_MATURITY;
   
-
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;
   private static final BusinessDayAdjustment BUSINESS_ADJUST =
       BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUR_CALENDAR);

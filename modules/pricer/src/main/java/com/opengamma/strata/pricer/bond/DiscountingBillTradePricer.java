@@ -52,6 +52,7 @@ public class DiscountingBillTradePricer {
   public DiscountingBillTradePricer(
       DiscountingBillProductPricer productPricer,
       DiscountingPaymentPricer paymentPricer) {
+
     this.productPricer = ArgChecker.notNull(productPricer, "productPricer");
     this.paymentPricer = ArgChecker.notNull(paymentPricer, "paymentPricer");
   }
@@ -63,21 +64,21 @@ public class DiscountingBillTradePricer {
    * multiplied by the quantity and the present value of the settlement payment if still due at the valuation date. 
    * If not it is the underlying product's present value multiplied by the quantity.
    * 
-   * @param bill  the bill
+   * @param trade  the trade
    * @param provider  the discounting provider
-   * @return  the present value
+   * @return the present value
    */
-  public CurrencyAmount presentValue(ResolvedBillTrade bill, LegalEntityDiscountingProvider provider) {
-    if (provider.getValuationDate().isAfter(bill.getProduct().getNotional().getDate())) {
-      return CurrencyAmount.of(bill.getProduct().getCurrency(), 0.0d);
+  public CurrencyAmount presentValue(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
+    if (provider.getValuationDate().isAfter(trade.getProduct().getNotional().getDate())) {
+      return CurrencyAmount.of(trade.getProduct().getCurrency(), 0.0d);
     }
-    CurrencyAmount pvProduct = productPricer.presentValue(bill.getProduct(), provider)
-        .multipliedBy(bill.getQuantity());
-    if (bill.getSettlement().isPresent()) {
+    CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), provider)
+        .multipliedBy(trade.getQuantity());
+    if (trade.getSettlement().isPresent()) {
       DiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency())
+          trade.getProduct().getSecurityId(), trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
           .getDiscountFactors();
-      CurrencyAmount pvSettle = paymentPricer.presentValue(bill.getSettlement().get(), discountFactorsRepo);
+      CurrencyAmount pvSettle = paymentPricer.presentValue(trade.getSettlement().get(), discountFactorsRepo);
       return pvProduct.plus(pvSettle);
     }
     return pvProduct;
@@ -94,31 +95,31 @@ public class DiscountingBillTradePricer {
    * the issuer discounting curve. The z-spread is applied only on the legal entity curve, not on the repo curve used
    * for the settlement amount.
    * 
-   * @param bill  the bill
+   * @param trade  the trade
    * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
-   * @return  the present value
+   * @return the present value
    */
   public CurrencyAmount presentValueWithZSpread(
-      ResolvedBillTrade bill, 
+      ResolvedBillTrade trade,
       LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    if (provider.getValuationDate().isAfter(bill.getProduct().getNotional().getDate())) {
-      return CurrencyAmount.of(bill.getProduct().getCurrency(), 0.0d);
+    if (provider.getValuationDate().isAfter(trade.getProduct().getNotional().getDate())) {
+      return CurrencyAmount.of(trade.getProduct().getCurrency(), 0.0d);
     }
     CurrencyAmount pvProduct = productPricer
-        .presentValueWithZSpread(bill.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear)
-        .multipliedBy(bill.getQuantity());
-    if (bill.getSettlement().isPresent()) {
+        .presentValueWithZSpread(trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear)
+        .multipliedBy(trade.getQuantity());
+    if (trade.getSettlement().isPresent()) {
       DiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency())
+          trade.getProduct().getSecurityId(), trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
           .getDiscountFactors();
-      CurrencyAmount pvSettle = paymentPricer.presentValue(bill.getSettlement().get(), discountFactorsRepo);
+      CurrencyAmount pvSettle = paymentPricer.presentValue(trade.getSettlement().get(), discountFactorsRepo);
       return pvProduct.plus(pvSettle);
     }
     return pvProduct;
@@ -131,24 +132,26 @@ public class DiscountingBillTradePricer {
    * multiplied by the quantity and the sensitivity of the settlement payment if still due at the valuation date. 
    * If not it is the underlying product's sensitivity multiplied by the quantity.
    * 
-   * @param bill  the bill
+   * @param trade  the trade
    * @param provider  the discounting provider
-   * @return  the present value sensitivity
+   * @return the present value sensitivity
    */
-  public PointSensitivities presentValueSensitivity(ResolvedBillTrade bill, LegalEntityDiscountingProvider provider) {
-    if (provider.getValuationDate().isAfter(bill.getProduct().getNotional().getDate())) {
+  public PointSensitivities presentValueSensitivity(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
+    if (provider.getValuationDate().isAfter(trade.getProduct().getNotional().getDate())) {
       return PointSensitivities.empty();
     }
-    PointSensitivities sensiProduct = productPricer.presentValueSensitivity(bill.getProduct(), provider)
-        .multipliedBy(bill.getQuantity());
-    if (bill.getSettlement().isPresent()) {
-      Payment settlement = bill.getSettlement().get();
-      RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency());
-      PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
-      return sensiProduct.combinedWith(sensiSettle);
+    PointSensitivities sensiProduct = productPricer.presentValueSensitivity(trade.getProduct(), provider)
+        .multipliedBy(trade.getQuantity());
+    if (!trade.getSettlement().isPresent()) {
+      return sensiProduct;
     }
-    return sensiProduct;
+    Payment settlement = trade.getSettlement().get();
+    RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
+        trade.getProduct().getSecurityId(),
+        trade.getProduct().getLegalEntityId(),
+        trade.getProduct().getCurrency());
+    PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
+    return sensiProduct.combinedWith(sensiSettle);
   }
 
   /**
@@ -162,52 +165,55 @@ public class DiscountingBillTradePricer {
    * the issuer discounting curve. The z-spread is applied only on the legal entity curve, not on the repo curve used
    * for the settlement amount.
    * 
-   * @param bill  the bill
+   * @param trade  the trade
    * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
    * @param periodsPerYear  the number of periods per year
-   * @return  the present value sensitivity
+   * @return the present value sensitivity
    */
   public PointSensitivities presentValueSensitivityWithZSpread(
-      ResolvedBillTrade bill, 
+      ResolvedBillTrade trade,
       LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    if (provider.getValuationDate().isAfter(bill.getProduct().getNotional().getDate())) {
+    if (provider.getValuationDate().isAfter(trade.getProduct().getNotional().getDate())) {
       return PointSensitivities.empty();
     }
     PointSensitivities sensiProduct = productPricer
-        .presentValueSensitivityWithZSpread(bill.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear)
-        .multipliedBy(bill.getQuantity());
-    if (bill.getSettlement().isPresent()) {
-      Payment settlement = bill.getSettlement().get();
-      RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          bill.getProduct().getSecurityId(), bill.getProduct().getLegalEntityId(), bill.getProduct().getCurrency());
-      PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
-      return sensiProduct.combinedWith(sensiSettle);
+        .presentValueSensitivityWithZSpread(trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear)
+        .multipliedBy(trade.getQuantity());
+    if (!trade.getSettlement().isPresent()) {
+      return sensiProduct;
     }
-    return sensiProduct;
+    Payment settlement = trade.getSettlement().get();
+    RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
+        trade.getProduct().getSecurityId(),
+        trade.getProduct().getLegalEntityId(),
+        trade.getProduct().getCurrency());
+    PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
+    return sensiProduct.combinedWith(sensiSettle);
+
   }
 
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of a bill trade.
    * 
-   * @param bill  the bill's trade
+   * @param trade  the trade
    * @param provider  the discounting provider
    * @return the currency exposure
    */
-  public MultiCurrencyAmount currencyExposure(ResolvedBillTrade bill, LegalEntityDiscountingProvider provider) {
-    return MultiCurrencyAmount.of(presentValue(bill, provider));
+  public MultiCurrencyAmount currencyExposure(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
+    return MultiCurrencyAmount.of(presentValue(trade, provider));
   }
   
   /**
    * Calculates the currency exposure of a bill trade with z-spread.
    * 
-   * @param bill  the bill's trade
+   * @param trade  the trade
    * @param provider  the discounting provider
    * @param zSpread  the z-spread
    * @param compoundedRateType  the compounded rate type
@@ -215,29 +221,30 @@ public class DiscountingBillTradePricer {
    * @return the currency exposure
    */
   public MultiCurrencyAmount currencyExposureWithZSpread(
-      ResolvedBillTrade bill, 
+      ResolvedBillTrade trade,
       LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
-    return MultiCurrencyAmount.of(presentValueWithZSpread(bill, provider, zSpread, compoundedRateType, periodsPerYear));
+
+    return MultiCurrencyAmount.of(presentValueWithZSpread(trade, provider, zSpread, compoundedRateType, periodsPerYear));
   }
 
   /**
    * Calculates the current cash of a bill trade.
    * 
-   * @param bill  the bill's trade
+   * @param trade  the trade
    * @param valuationDate  the valuation date
    * @return the current cash amount
    */
-  public CurrencyAmount currentCash(ResolvedBillTrade bill, LocalDate valuationDate) {
-    if (bill.getProduct().getNotional().getDate().equals(valuationDate)) {
-      return bill.getProduct().getNotional().getValue().multipliedBy(bill.getQuantity());
+  public CurrencyAmount currentCash(ResolvedBillTrade trade, LocalDate valuationDate) {
+    if (trade.getProduct().getNotional().getDate().equals(valuationDate)) {
+      return trade.getProduct().getNotional().getValue().multipliedBy(trade.getQuantity());
     }
-    if (bill.getSettlement().isPresent() && bill.getSettlement().get().getDate().equals(valuationDate)) {
-      return bill.getSettlement().get().getValue();
+    if (trade.getSettlement().isPresent() && trade.getSettlement().get().getDate().equals(valuationDate)) {
+      return trade.getSettlement().get().getValue();
     }
-    return CurrencyAmount.zero(bill.getProduct().getCurrency());
+    return CurrencyAmount.zero(trade.getProduct().getCurrency());
   }
 
   //-------------------------------------------------------------------------

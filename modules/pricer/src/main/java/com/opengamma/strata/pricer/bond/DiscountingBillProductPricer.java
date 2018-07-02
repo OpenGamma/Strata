@@ -151,18 +151,15 @@ public class DiscountingBillProductPricer {
    * @return the price
    */
   public double priceFromCurves(ResolvedBill bill, LegalEntityDiscountingProvider provider, LocalDate settlementDate) {
-    ArgChecker.isTrue(settlementDate.isBefore(bill.getNotional().getDate()), 
-        "settlement date must be before maturity date");
-    ArgChecker.isTrue(!settlementDate.isBefore(provider.getValuationDate()), 
-        "settlement date must be on or after valuation date");
+    ArgChecker.inOrderNotEqual(settlementDate, bill.getNotional().getDate(), "settlementDate", "endDate");
+    ArgChecker.inOrderOrEqual(provider.getValuationDate(), settlementDate, "valuationDate", "settlementDate");
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
         bill.getLegalEntityId(), bill.getCurrency());
     double dfMaturity = discountFactors.discountFactor(bill.getNotional().getDate());
     RepoCurveDiscountFactors discountFactorsRepo =
         provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
     double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
-    double price = dfMaturity / dfRepoSettle;
-    return price;
+    return dfMaturity / dfRepoSettle;
   }
   
   /**
@@ -189,10 +186,8 @@ public class DiscountingBillProductPricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    ArgChecker.isTrue(settlementDate.isBefore(bill.getNotional().getDate()), 
-        "settlement date must be before maturity date");
-    ArgChecker.isTrue(!settlementDate.isBefore(provider.getValuationDate()), 
-        "settlement date must be on or after valuation date");
+    ArgChecker.inOrderNotEqual(settlementDate, bill.getNotional().getDate(), "settlementDate", "endDate");
+    ArgChecker.inOrderOrEqual(provider.getValuationDate(), settlementDate, "valuationDate", "settlementDate");
     IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
         bill.getLegalEntityId(), bill.getCurrency());
     double dfMaturity = discountFactors.getDiscountFactors()
@@ -200,8 +195,7 @@ public class DiscountingBillProductPricer {
     RepoCurveDiscountFactors discountFactorsRepo =
         provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
     double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
-    double price = dfMaturity / dfRepoSettle;
-    return price;
+    return dfMaturity / dfRepoSettle;
   }
   
   /**
