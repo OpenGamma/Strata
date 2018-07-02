@@ -480,6 +480,9 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "KRW-CD-13W");
+
+    IborIndex test2 = IborIndex.of("KRW-CD-3M");
+    assertEquals(test2.getName(), "KRW-CD-13W");
   }
 
   public void test_mxn_tiie() {
