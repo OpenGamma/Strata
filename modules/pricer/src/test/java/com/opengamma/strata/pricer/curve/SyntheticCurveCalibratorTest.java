@@ -31,9 +31,9 @@ import com.opengamma.strata.loader.csv.FxRatesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveNode;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -163,6 +163,19 @@ public class SyntheticCurveCalibratorTest {
     assertEquals(
         madTsLarge.getTimeSeriesIds(),
         ImmutableSet.of(IndexQuoteId.of(EUR_EURIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_6M)));
+  }
+
+  // Check synthetic calibration in case no definitions
+  public void calibrate_noDefinitions() {
+    RatesCurveGroupDefinition empty =
+        RatesCurveGroupDefinition.of(CurveGroupName.of("Group"), ImmutableList.of(), ImmutableList.of());
+    MarketData mad = CALIBRATOR_SYNTHETIC.marketData(empty, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
+    RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(empty, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
+    assertEquals(multicurveSyn.getDiscountCurrencies(), ImmutableSet.of());
+    assertEquals(multicurveSyn.getIborIndices(), ImmutableSet.of());
+    assertEquals(multicurveSyn.getOvernightIndices(), ImmutableSet.of());
+    assertEquals(multicurveSyn.getPriceIndices(), ImmutableSet.of());
+    assertEquals(mad.getTimeSeriesIds(), ImmutableSet.of());
   }
 
   // Check synthetic calibration in case no time-series is present

@@ -257,6 +257,9 @@ public final class CurveCalibrator {
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
     for (RatesCurveGroupDefinition groupDefn : allGroupsDefn) {
+      if (groupDefn.getEntries().isEmpty()) {
+        continue;
+      }
       RatesCurveGroupDefinition groupDefnBound =
           groupDefn.bindTimeSeries(knownData.getValuationDate(), knownData.getTimeSeries());
       // combine all data in the group into flat lists
