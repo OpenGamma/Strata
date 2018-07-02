@@ -195,7 +195,6 @@ public class DiscountingBillTradePricer {
         trade.getProduct().getCurrency());
     PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
     return sensiProduct.combinedWith(sensiSettle);
-
   }
 
   //-------------------------------------------------------------------------
