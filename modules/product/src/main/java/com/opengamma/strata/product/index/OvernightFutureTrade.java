@@ -125,10 +125,11 @@ public final class OvernightFutureTrade
 
   @Override
   public ResolvedOvernightFutureTrade resolve(ReferenceData refData) {
+    if (!info.getTradeDate().isPresent()) {
+      throw new IllegalArgumentException("Trade date on TradeInfo must be present");
+    }
     ResolvedOvernightFuture resolved = getProduct().resolve(refData);
-    TradedPrice tradedPrice = info.getTradeDate()
-        .map(tradeDate -> TradedPrice.of(tradeDate, price))
-        .orElse(null);
+    TradedPrice tradedPrice = TradedPrice.of(info.getTradeDate().get(), price);
     return new ResolvedOvernightFutureTrade(info, resolved, quantity, tradedPrice);
   }
 

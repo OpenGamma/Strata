@@ -34,6 +34,9 @@ import com.opengamma.strata.collect.ArgChecker;
  * An interest rate determined directly from an Overnight index by averaging the value
  * of each day's rate over the period strictly between the start date and end date. 
  * <p>
+ * The start date and end date can be non-business days. 
+ * The average is taken on calendar days between the start and end dates.
+ * <p>
  * If a day in the period is not a business day on the fixing calendar of the Overnight index, 
  * the overnight rate fixed on the previous business day is used.
  * <p>

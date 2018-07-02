@@ -45,11 +45,6 @@ public class OvernightAveragedDailyRateComputationTest {
         USD_FED_FUND, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
   }
 
-  public void test_of_rateCutoff_negative() {
-    assertThrowsIllegalArg(() -> OvernightAveragedRateComputation.of(
-        USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), -1, REF_DATA));
-  }
-
   //-------------------------------------------------------------------------
   public void test_calculate() {
     OvernightAveragedDailyRateComputation test =

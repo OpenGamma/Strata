@@ -90,9 +90,7 @@ public class DiscountingOvernightFutureTradePricerTest {
   private static final DiscountingOvernightFutureProductPricer PRICER_PRODUCT = DiscountingOvernightFutureProductPricer.DEFAULT;
   private static final DiscountingOvernightFutureTradePricer PRICER_TRADE = DiscountingOvernightFutureTradePricer.DEFAULT;
   private static final double TOLERANCE_PRICE = 1.0e-9;
-  private static final double TOLERANCE_PRICE_DELTA = 1.0e-9;
   private static final double TOLERANCE_PV = 1.0e-4;
-  private static final double TOLERANCE_PV_DELTA = 1.0e-2;
 
   //------------------------------------------------------------------------- 
   public void test_price() {
