@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -47,6 +46,7 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.bond.DiscountingBillTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.Bill;
@@ -64,7 +64,7 @@ public class BillTradeCalculationFunctionTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate VALUATION_DATE = date(2015, 3, 26);
-  private static final StandardId ISSUER_ID = StandardId.of("A", "B");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("A", "B");
   public static final BillTrade TRADE = BillTrade.builder()
       .product(Bill.builder()
           .notional(AdjustablePayment.of(CurrencyAmount.of(GBP, 100_000), date(2016, 3, 1)))

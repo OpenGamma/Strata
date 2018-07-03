@@ -14,7 +14,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
@@ -27,6 +26,7 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecuritizedProductPortfolioItem;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
@@ -132,7 +132,7 @@ public class CapitalIndexedBondTradeCalculationFunction<T extends SecuritizedPro
     CapitalIndexedBond product = target.getProduct();
     Currency currency = product.getCurrency();
     SecurityId securityId = product.getSecurityId();
-    StandardId legalEntityId = product.getLegalEntityId();
+    LegalEntityId legalEntityId = product.getLegalEntityId();
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);

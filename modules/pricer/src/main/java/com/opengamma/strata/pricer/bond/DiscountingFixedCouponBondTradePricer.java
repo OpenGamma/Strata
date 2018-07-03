@@ -18,6 +18,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondSettlement;

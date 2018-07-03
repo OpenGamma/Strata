@@ -24,7 +24,6 @@ import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -43,6 +42,7 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.LegalEntityId;
 
 /**
  * RatesProvider data sets for testing.
@@ -240,9 +240,9 @@ public class RatesProviderDataSets {
   private static final LegalEntityGroup US_ISSUER_1_GROUP = LegalEntityGroup.of("US-ISSUER-1-GROUP");
   private static final LegalEntityGroup US_ISSUER_2_GROUP = LegalEntityGroup.of("US-ISSUER-2-GROUP");
 
-  public static final StandardId US_ISSUER_1_ID = StandardId.of("OG", "US-ISSUER-1");
-  public static final StandardId US_ISSUER_2_ID = StandardId.of("OG", "US-ISSUER-2");
-  public static final StandardId US_ISSUER_3_ID = StandardId.of("OG", "US-ISSUER-3");
+  public static final LegalEntityId US_ISSUER_1_ID = LegalEntityId.of("OG", "US-ISSUER-1");
+  public static final LegalEntityId US_ISSUER_2_ID = LegalEntityId.of("OG", "US-ISSUER-2");
+  public static final LegalEntityId US_ISSUER_3_ID = LegalEntityId.of("OG", "US-ISSUER-3");
 
   public static final ImmutableLegalEntityDiscountingProvider MULTI_BOND = multiBond(VAL_DATE_2014_01_22);
 
@@ -254,9 +254,9 @@ public class RatesProviderDataSets {
         Pair.of(US_ISSUER_1_GROUP, USD), DiscountFactors.of(USD, valDate, US_ISSUER_CURVE_1),
         Pair.of(US_ISSUER_2_GROUP, USD), DiscountFactors.of(USD, valDate, US_ISSUER_CURVE_2));
 
-    ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
+    ImmutableMap<LegalEntityId, RepoGroup> repoGroups = ImmutableMap.of(
         US_ISSUER_1_ID, US_REPO_GROUP, US_ISSUER_2_ID, US_REPO_GROUP, US_ISSUER_3_ID, US_REPO_GROUP);
-    ImmutableMap<StandardId, LegalEntityGroup> legalEntityGroups = ImmutableMap.of(
+    ImmutableMap<LegalEntityId, LegalEntityGroup> legalEntityGroups = ImmutableMap.of(
         US_ISSUER_1_ID, US_ISSUER_1_GROUP, US_ISSUER_2_ID, US_ISSUER_2_GROUP, US_ISSUER_3_ID, US_ISSUER_2_GROUP);
 
     return ImmutableLegalEntityDiscountingProvider.builder()
@@ -278,11 +278,11 @@ public class RatesProviderDataSets {
         Pair.of(US_ISSUER_1_GROUP, USD), DiscountFactors.of(USD, valDate, CombinedCurve.of(USD_L3_BASE, US_ISSUER_CURVE_1)),
         Pair.of(US_ISSUER_2_GROUP, USD), DiscountFactors.of(USD, valDate, CombinedCurve.of(USD_L3_BASE, US_ISSUER_CURVE_2)));
 
-    ImmutableMap<StandardId, RepoGroup> repoGroups = ImmutableMap.of(
+    ImmutableMap<LegalEntityId, RepoGroup> repoGroups = ImmutableMap.of(
         US_ISSUER_1_ID, US_REPO_GROUP,
         US_ISSUER_2_ID, US_REPO_GROUP,
         US_ISSUER_3_ID, US_REPO_GROUP);
-    ImmutableMap<StandardId, LegalEntityGroup> legalEntityGroups = ImmutableMap.of(
+    ImmutableMap<LegalEntityId, LegalEntityGroup> legalEntityGroups = ImmutableMap.of(
         US_ISSUER_1_ID, US_ISSUER_1_GROUP,
         US_ISSUER_2_ID, US_ISSUER_2_GROUP,
         US_ISSUER_3_ID, US_ISSUER_2_GROUP);

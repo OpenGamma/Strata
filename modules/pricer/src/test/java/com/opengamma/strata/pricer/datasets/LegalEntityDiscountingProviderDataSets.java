@@ -12,7 +12,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -28,6 +27,7 @@ import com.opengamma.strata.pricer.SimpleDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.LegalEntityId;
 
 /**
  * LegalEntityDiscountingProvider data sets for testing.
@@ -38,7 +38,7 @@ public class LegalEntityDiscountingProviderDataSets {
 
   //  =====     issuer curve + repo curve in USD      =====     
   private static final LocalDate VAL_DATE_USD = LocalDate.of(2011, 6, 20);
-  private static final StandardId ISSUER_ID_USD = StandardId.of("OG-Ticker", "GOVT1");
+  private static final LegalEntityId ISSUER_ID_USD = LegalEntityId.of("OG-Ticker", "GOVT1");
   private static final CurveName NAME_REPO_USD = CurveName.of("TestRepoCurve");
   private static final CurveName NAME_ISSUER_USD = CurveName.of("TestIssuerCurve");
   /** time data for repo rate curve */
@@ -84,7 +84,7 @@ public class LegalEntityDiscountingProviderDataSets {
 
   //  =====     issuer curve + repo curve in EUR      =====     
   private static final LocalDate VAL_DATE_EUR = LocalDate.of(2014, 3, 31);
-  private static final StandardId ISSUER_ID_EUR = StandardId.of("OG-Ticker", "GOVT2");
+  private static final LegalEntityId ISSUER_ID_EUR = LegalEntityId.of("OG-Ticker", "GOVT2");
   private static final CurveName NAME_REPO_EUR = CurveName.of("TestRepoCurve2");
   private static final CurveName NAME_ISSUER_EUR = CurveName.of("TestIssuerCurve2");
   /** time data for repo rate curve */

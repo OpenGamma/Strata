@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -32,6 +31,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.Rounding;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -44,7 +44,7 @@ public class BondFutureTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   // Underlying bonds
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("OG-Ticker", "GOVT1");
   private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.US_STREET;
   private static final double NOTIONAL = 100000d;
   private static final DaysAdjustment SETTLEMENT_DAYS = DaysAdjustment.ofBusinessDays(1, SAT_SUN);

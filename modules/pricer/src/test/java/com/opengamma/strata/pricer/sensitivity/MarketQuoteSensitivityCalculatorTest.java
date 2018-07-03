@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -39,6 +38,7 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.curve.CalibrationDiscountingSimpleEur3Test;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -54,7 +54,7 @@ public class MarketQuoteSensitivityCalculatorTest {
   private static final SecurityId ID_SECURITY = SecurityId.of("OG-Ticker", "Bond-5Y");
   private static final RepoGroup GROUP_REPO_SECURITY = RepoGroup.of("ISSUER1 BND 5Y");
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("ISSUER1");
-  private static final StandardId ID_ISSUER = StandardId.of("OG-Ticker", "Issuer-1");
+  private static final LegalEntityId ID_ISSUER = LegalEntityId.of("OG-Ticker", "Issuer-1");
   private static final MarketQuoteSensitivityCalculator CALC = MarketQuoteSensitivityCalculator.DEFAULT;
   private static final MatrixAlgebra MATRIX_ALGEBRA = new OGMatrixAlgebra();
   // curve data
@@ -105,7 +105,7 @@ public class MarketQuoteSensitivityCalculatorTest {
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, USD), dscIssuer))
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_SECURITY, GBP), dscRepo))
-        .repoCurveGroups(ImmutableMap.of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
+        .repoCurveSecurityGroups(ImmutableMap.of(ID_SECURITY, GROUP_REPO_SECURITY))
         .build();
   }
 

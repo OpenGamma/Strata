@@ -31,13 +31,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.rate.RateComputation;
 import com.opengamma.strata.product.swap.InflationRateCalculation;
 
@@ -50,7 +50,7 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 public class ResolvedCapitalIndexedBondTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "US-Govt");
+  private static final LegalEntityId LEGAL_ENTITY = LegalEntityId.of("OG-Ticker", "US-Govt");
   private static final double COUPON = 0.01;
   private static final InflationRateCalculation RATE_CALC = InflationRateCalculation.builder()
       .gearing(ValueSchedule.of(COUPON))
@@ -197,7 +197,7 @@ public class ResolvedCapitalIndexedBondTest {
     return ResolvedCapitalIndexedBond.builder()
         .securityId(CapitalIndexedBondTest.sut2().getSecurityId())
         .dayCount(NL_365)
-        .legalEntityId(StandardId.of("OG-Ticker", "US-Govt1"))
+        .legalEntityId(LegalEntityId.of("OG-Ticker", "US-Govt1"))
         .nominalPayment(PERIODIC[1].withUnitCoupon(PERIODIC[0].getStartDate(), PERIODIC[0].getUnadjustedStartDate()))
         .periodicPayments(PERIODIC[0], PERIODIC[1])
         .frequency(CapitalIndexedBondTest.sut2().getAccrualSchedule().getFrequency())

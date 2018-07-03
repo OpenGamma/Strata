@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -51,6 +50,7 @@ import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.FixedCouponBond;
 import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
@@ -67,7 +67,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
   // fixed coupon bond
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Ticker", "GOVT1-BOND1");
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("OG-Ticker", "GOVT1");
   private static final LocalDate VAL_DATE = date(2016, 4, 25);
   private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.DE_BONDS;
   private static final double NOTIONAL = 1.0e7;
@@ -128,7 +128,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
       .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, EUR), DSC_FACTORS_ISSUER))
       .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
       .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, EUR), DSC_FACTORS_REPO))
-      .repoCurveGroups(ImmutableMap.of(SECURITY_ID.getStandardId(), GROUP_REPO))
+      .repoCurveSecurityGroups(ImmutableMap.of(SECURITY_ID, GROUP_REPO))
       .valuationDate(VAL_DATE)
       .build();
 

@@ -20,7 +20,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -30,6 +29,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
@@ -45,7 +45,7 @@ public class BillSecurityTest {
   private static final BusinessDayAdjustment BUSINESS_ADJUST =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY);
   private static final BillYieldConvention YIELD_CONVENTION = BillYieldConvention.DISCOUNT;
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "US GOVT");
+  private static final LegalEntityId LEGAL_ENTITY = LegalEntityId.of("OG-Ticker", "US GOVT");
   private static final Currency CCY = Currency.USD;
   private static final double NOTIONAL_AMOUNT = 1_000_000;
   private static final LocalDate MATURITY_DATE = LocalDate.of(2019, 5, 23);
@@ -196,7 +196,7 @@ public class BillSecurityTest {
     BillSecurity test2 = BillSecurity.builder()
         .dayCount(DayCounts.ACT_365F)
         .info(SecurityInfo.of(SecurityId.of("OG-Test", "ID2"), PRICE_INFO))
-        .legalEntityId(StandardId.of("OG-Ticker", "LE2"))
+        .legalEntityId(LegalEntityId.of("OG-Ticker", "LE2"))
         .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, 10), MATURITY_DATE_ADJ))
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA, BUSINESS_ADJUST))
         .yieldConvention(BillYieldConvention.INTEREST_AT_MATURITY)
