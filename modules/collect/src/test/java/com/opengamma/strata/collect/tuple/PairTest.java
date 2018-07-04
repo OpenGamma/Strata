@@ -20,6 +20,8 @@ import com.opengamma.strata.collect.TestHelper;
 @Test
 public class PairTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
   public static Object[][] data_factory() {
@@ -124,7 +126,7 @@ public class PairTest {
   public void test_equals_bad() {
     Pair<Integer, String> a = Pair.of(1, "Hello");
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
   public void test_hashCode() {

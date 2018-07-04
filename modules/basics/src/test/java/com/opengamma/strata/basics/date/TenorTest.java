@@ -59,6 +59,8 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class TenorTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   @DataProvider(name = "ofPeriod")
   public static Object[][] data_ofPeriod() {
     return new Object[][] {
@@ -328,7 +330,7 @@ public class TenorTest {
 
   public void test_equals_bad() {
     assertEquals(TENOR_3D.equals(null), false);
-    assertEquals(TENOR_3D.equals("String"), false);
+    assertEquals(TENOR_3D.equals(ANOTHER_TYPE), false);
     assertEquals(TENOR_3D.equals(new Object()), false);
   }
 

@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 @Test
 public class DoubleMatrixTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_EMPTY() {
     assertMatrix(DoubleMatrix.EMPTY);
   }
@@ -306,7 +308,7 @@ public class DoubleMatrixTest {
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
     assertEquals(a1.equals(d), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.equals(null), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }

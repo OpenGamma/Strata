@@ -37,6 +37,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 @Test
 public class CurveInterpolatorTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {
@@ -136,7 +138,7 @@ public class CurveInterpolatorTest {
     coverPrivateConstructor(CurveInterpolators.class);
     coverPrivateConstructor(StandardCurveInterpolators.class);
     assertFalse(LINEAR.equals(null));
-    assertFalse(LINEAR.equals(""));
+    assertFalse(LINEAR.equals(ANOTHER_TYPE));
   }
 
   public void test_serialization() {

@@ -22,6 +22,7 @@ public class LocalDateDoublePointTest {
   private static final LocalDate DATE_2012_06_30 = LocalDate.of(2012, 6, 30);
   private static final LocalDate DATE_2012_07_01 = LocalDate.of(2012, 7, 1);
   private static final double TOLERANCE = 0.00001d;
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_of() {
@@ -102,7 +103,7 @@ public class LocalDateDoublePointTest {
 
   public void test_equalsBad() {
     LocalDateDoublePoint a = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
     assertEquals(a.equals(null), false);
   }
 

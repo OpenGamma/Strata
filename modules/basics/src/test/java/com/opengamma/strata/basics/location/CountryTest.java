@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 @Test
 public class CountryTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-----------------------------------------------------------------------
   public void test_constants() {
     assertEquals(Country.of("EU"), Country.EU);
@@ -198,7 +200,7 @@ public class CountryTest {
   public void test_equals_bad() {
     Country a = Country.GB;
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals("String"), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
     assertEquals(a.equals(new Object()), false);
   }
 

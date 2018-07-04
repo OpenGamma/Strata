@@ -34,6 +34,8 @@ import com.google.common.collect.ImmutableSet;
 @Test
 public class CurrencyPairTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-----------------------------------------------------------------------
   public void test_getAvailable() {
     Set<CurrencyPair> available = CurrencyPair.getAvailablePairs();
@@ -268,7 +270,7 @@ public class CurrencyPairTest {
 
   public void test_equals_bad() {
     CurrencyPair test = CurrencyPair.of(AUD, GBP);
-    assertFalse(test.equals(""));
+    assertFalse(test.equals(ANOTHER_TYPE));
     assertFalse(test.equals(null));
   }
 

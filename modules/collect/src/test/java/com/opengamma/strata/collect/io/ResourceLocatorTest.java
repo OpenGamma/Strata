@@ -27,6 +27,8 @@ import com.google.common.io.Resources;
 @Test
 public class ResourceLocatorTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of_filePrefixed() throws Exception {
     ResourceLocator test = ResourceLocator.of("file:src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
     assertEquals(test.getLocator(), "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
@@ -167,7 +169,7 @@ public class ResourceLocatorTest {
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(null), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

@@ -21,6 +21,7 @@ public class StandardIdTest {
 
   private static final String SCHEME = "Scheme";
   private static final String OTHER_SCHEME = "Other";
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_factory_String_String() {
@@ -147,7 +148,7 @@ public class StandardIdTest {
     assertEquals((Object) d3.equals(d1a), false);
     assertEquals((Object) d3.equals(d2), false);
     assertEquals((Object) d3.equals(d3), true);
-    assertEquals((Object) d1b.equals("d1"), false);
+    assertEquals((Object) d1b.equals(ANOTHER_TYPE), false);
     assertEquals((Object) d1b.equals(null), false);
   }
 

@@ -57,6 +57,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
       DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01);
   private static final ImmutableList<Double> VALUES_10_12 = values(10, 11, 12);
   private static final double TOLERANCE = 0.00001d;
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_emptySeries() {
@@ -581,7 +582,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
 
   public void test_equals_bad() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
-    assertEquals(test.equals(""), false);
+    assertEquals(test.equals(ANOTHER_TYPE), false);
     assertEquals(test.equals(null), false);
   }
 

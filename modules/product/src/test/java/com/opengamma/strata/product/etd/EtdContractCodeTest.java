@@ -15,7 +15,8 @@ import org.testng.annotations.Test;
 @Test
 public class EtdContractCodeTest {
 
-  //-------------------------------------------------------------------------
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of() {
     EtdContractCode test = EtdContractCode.of("test");
     assertEquals(test.toString(), "test");
@@ -30,7 +31,7 @@ public class EtdContractCodeTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
 }

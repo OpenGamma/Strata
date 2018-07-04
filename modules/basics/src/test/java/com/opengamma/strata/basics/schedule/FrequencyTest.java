@@ -38,6 +38,8 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class FrequencyTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   @DataProvider(name = "create")
   public static Object[][] data_create() {
     return new Object[][] {
@@ -436,7 +438,7 @@ public class FrequencyTest {
 
   public void test_equals_bad() {
     assertEquals(P3M.equals(null), false);
-    assertEquals(P3M.equals("String"), false);
+    assertEquals(P3M.equals(ANOTHER_TYPE), false);
     assertEquals(P3M.equals(new Object()), false);
   }
 

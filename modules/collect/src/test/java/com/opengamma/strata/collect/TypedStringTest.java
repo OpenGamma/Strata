@@ -18,6 +18,8 @@ import org.testng.annotations.Test;
 @Test
 public class TypedStringTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of() {
     SampleType test = SampleType.of("A");
     assertEquals(test.toString(), "A");
@@ -47,7 +49,7 @@ public class TypedStringTest {
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(null), false);
-    assertEquals(a1.equals("A"), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

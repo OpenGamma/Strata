@@ -30,6 +30,8 @@ import com.google.common.collect.ImmutableList;
 @Test
 public class DoubleArrayTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   private static final double DELTA = 1e-14;
 
   public void test_EMPTY() {
@@ -451,7 +453,7 @@ public class DoubleArrayTest {
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.equals(null), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }
