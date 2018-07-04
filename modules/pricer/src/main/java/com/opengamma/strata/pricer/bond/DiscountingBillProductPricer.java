@@ -38,7 +38,7 @@ public class DiscountingBillProductPricer {
    * 
    * @param bill  the product
    * @param provider  the discounting provider
-   * @return the present value of the fixed coupon bond product
+   * @return the present value of the bill product
    */
   public CurrencyAmount presentValue(ResolvedBill bill, LegalEntityDiscountingProvider provider) {
     if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
