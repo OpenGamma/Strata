@@ -23,6 +23,7 @@ import com.opengamma.strata.collect.TestHelper;
 public class LongDoublePairTest {
 
   private static final double TOLERANCE = 0.00001d;
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
@@ -162,8 +163,9 @@ public class LongDoublePairTest {
   public void test_equals_bad() {
     LongDoublePair a = LongDoublePair.of(1L, 1.7d);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
-    assertEquals(a.equals(Pair.of(Long.valueOf(1L), Double.valueOf(1.7d))), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
+    Object unrelatedType = Pair.of(Long.valueOf(1L), Double.valueOf(1.7d));
+    assertEquals(a.equals(unrelatedType), false);
   }
 
   public void test_hashCode() {

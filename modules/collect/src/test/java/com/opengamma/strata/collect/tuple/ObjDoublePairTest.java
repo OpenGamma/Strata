@@ -21,6 +21,7 @@ import com.opengamma.strata.collect.TestHelper;
 public class ObjDoublePairTest {
 
   private static final double TOLERANCE = 0.00001d;
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
@@ -128,8 +129,9 @@ public class ObjDoublePairTest {
   public void test_equals_bad() {
     ObjDoublePair<String> a = ObjDoublePair.of("1", 1.7d);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
-    assertEquals(a.equals(Pair.of(Integer.valueOf(1), Double.valueOf(1.7d))), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
+    Object unrelatedType = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
+    assertEquals(a.equals(unrelatedType), false);
   }
 
   public void test_hashCode() {

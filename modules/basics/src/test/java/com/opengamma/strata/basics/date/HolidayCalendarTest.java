@@ -51,6 +51,7 @@ public class HolidayCalendarTest {
 
   private static final LocalDate WED_2014_07_30 = LocalDate.of(2014, 7, 30);
   private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_NO_HOLIDAYS() {
@@ -575,7 +576,7 @@ public class HolidayCalendarTest {
     assertEquals(test.toString(), "HolidayCalendar[Fri/Sat+Mock]");
     assertEquals(test.getName(), "Fri/Sat+Mock");
     assertEquals(test.equals(base1.combinedWith(base2)), true);
-    assertEquals(test.equals(""), false);
+    assertEquals(test.equals(ANOTHER_TYPE), false);
     assertEquals(test.equals(null), false);
     assertEquals(test.hashCode(), base1.combinedWith(base2).hashCode());
 

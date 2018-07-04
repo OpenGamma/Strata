@@ -42,6 +42,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 public class DenseLocalDateDoubleTimeSeriesTest {
 
   private static final double TOLERANCE = 1e-5;
+  private static final Object ANOTHER_TYPE = "";
 
   private static final LocalDate DATE_2015_06_01 = date(2015, 6, 1);
   private static final LocalDate DATE_2014_06_01 = date(2014, 6, 1);
@@ -784,7 +785,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_equals_bad() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
-    assertEquals(test.equals(""), false);
+    assertEquals(test.equals(ANOTHER_TYPE), false);
     assertEquals(test.equals(null), false);
   }
 

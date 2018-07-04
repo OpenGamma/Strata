@@ -26,6 +26,8 @@ import com.google.common.collect.ImmutableMap;
 @Test
 public class CurveExtrapolatorTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {
@@ -75,7 +77,7 @@ public class CurveExtrapolatorTest {
     coverPrivateConstructor(CurveExtrapolators.class);
     coverPrivateConstructor(StandardCurveExtrapolators.class);
     assertFalse(FLAT.equals(null));
-    assertFalse(FLAT.equals(""));
+    assertFalse(FLAT.equals(ANOTHER_TYPE));
   }
 
   public void test_serialization() {

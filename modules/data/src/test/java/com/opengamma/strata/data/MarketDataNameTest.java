@@ -15,6 +15,8 @@ import org.testng.annotations.Test;
 @Test
 public class MarketDataNameTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of() {
     TestingName test = new TestingName("Foo");
     assertEquals(test.getName(), "Foo");
@@ -28,7 +30,7 @@ public class MarketDataNameTest {
     assertEquals(test.hashCode(), test.hashCode());
     assertEquals(test.equals(new TestingName("Eoo")), false);
     assertEquals(test.equals(new TestingName("Foo")), true);
-    assertEquals(test.equals("Foo"), false);
+    assertEquals(test.equals(ANOTHER_TYPE), false);
     assertEquals(test.equals(null), false);
     assertEquals(test.compareTo(new TestingName("Eoo")) > 0, true);
     assertEquals(test.compareTo(new TestingName("Foo")) == 0, true);

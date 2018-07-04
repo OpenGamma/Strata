@@ -17,6 +17,8 @@ import org.testng.annotations.Test;
 @Test
 public class ExchangeIdTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of() {
     ExchangeId test = ExchangeId.of("GB");
     assertEquals(test.getName(), "GB");
@@ -33,7 +35,7 @@ public class ExchangeIdTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals("Rubbish"), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
   //-------------------------------------------------------------------------

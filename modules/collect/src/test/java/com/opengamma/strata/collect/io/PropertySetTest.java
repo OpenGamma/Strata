@@ -25,6 +25,8 @@ import com.google.common.collect.Multimap;
 @Test
 public class PropertySetTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_empty() {
     PropertySet test = PropertySet.empty();
 
@@ -124,7 +126,7 @@ public class PropertySetTest {
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(null), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 

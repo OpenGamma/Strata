@@ -40,6 +40,7 @@ public class FxMatrixTest {
 
   private static final double TOLERANCE = 1e-6;
   public static final Offset<Double> TOL = offset(TOLERANCE);
+  private static final Object ANOTHER_TYPE = "";
 
   public void emptyMatrixCanHandleTrivialRate() {
     FxMatrix matrix = FxMatrix.empty();
@@ -548,7 +549,7 @@ public class FxMatrixTest {
     FxMatrix test = FxMatrix.builder()
         .addRate(USD, GBP, 1.4)
         .build();
-    assertThat(test.equals("")).isFalse();
+    assertThat(test.equals(ANOTHER_TYPE)).isFalse();
     assertThat(test.equals(null)).isFalse();
   }
 

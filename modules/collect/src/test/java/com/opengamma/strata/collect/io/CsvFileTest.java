@@ -32,6 +32,8 @@ import com.google.common.io.Files;
 @Test
 public class CsvFileTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   private final String CSV1 = "" +
       "h1,h2\n" +
       "r11,r12\n" +
@@ -418,7 +420,7 @@ public class CsvFileTest {
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(c), false);
     assertEquals(a1.equals(null), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.hashCode(), a2.hashCode());
     assertNotNull(a1.toString());
     // row
@@ -426,7 +428,7 @@ public class CsvFileTest {
     assertEquals(a1.row(0).equals(a2.row(0)), true);
     assertEquals(a1.row(0).equals(b.row(0)), false);
     assertEquals(c.row(0).equals(c.row(1)), false);
-    assertEquals(a1.row(0).equals(""), false);
+    assertEquals(a1.row(0).equals(ANOTHER_TYPE), false);
     assertEquals(a1.row(0).equals(null), false);
     assertEquals(a1.row(0).hashCode(), a2.row(0).hashCode());
     assertNotNull(a1.row(0).toString());

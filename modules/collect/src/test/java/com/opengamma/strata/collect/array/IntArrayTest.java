@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableList;
 public class IntArrayTest {
 
   private static final int[] EMPTY_INT_ARRAY = new int[0];
+  private static final Object ANOTHER_TYPE = "";
 
   public void test_EMPTY() {
     assertContent(IntArray.EMPTY);
@@ -197,13 +198,13 @@ public class IntArrayTest {
     assertEquals(list.get(2).intValue(), 3);
     assertEquals(list.contains(2), true);
     assertEquals(list.contains(5), false);
-    assertEquals(list.contains(""), false);
+    assertEquals(list.contains(ANOTHER_TYPE), false);
     assertEquals(list.indexOf(2), 1);
     assertEquals(list.indexOf(5), -1);
-    assertEquals(list.indexOf(""), -1);
+    assertEquals(list.indexOf(ANOTHER_TYPE), -1);
     assertEquals(list.lastIndexOf(3), 2);
     assertEquals(list.lastIndexOf(5), -1);
-    assertEquals(list.lastIndexOf(""), -1);
+    assertEquals(list.lastIndexOf(ANOTHER_TYPE), -1);
 
     assertThrows(() -> list.clear(), UnsupportedOperationException.class);
     assertThrows(() -> list.set(0, 3), UnsupportedOperationException.class);
@@ -427,7 +428,7 @@ public class IntArrayTest {
     assertEquals(a1.equals(a1), true);
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.equals(null), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }

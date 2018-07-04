@@ -63,6 +63,7 @@ public class XmlFileTest {
   private static final XmlElement LEAF2A = XmlElement.ofContent("leaf2", ATTR_MAP_EMPTY, "a");
   private static final XmlElement LEAF2B = XmlElement.ofContent("leaf2", ATTR_MAP_EMPTY, "b");
   private static final List<XmlElement> CHILD_LIST_MULTI = ImmutableList.of(LEAF1, LEAF2A, LEAF2B);
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_of_ByteSource() {
@@ -136,7 +137,7 @@ public class XmlFileTest {
     XmlFile test = XmlFile.of(source);
     XmlFile test2 = XmlFile.of(source);
     assertFalse(test.equals(null));
-    assertFalse(test.equals(""));
+    assertFalse(test.equals(ANOTHER_TYPE));
     assertEquals(test, test);
     assertEquals(test, test2);
     assertEquals(test.hashCode(), test2.hashCode());

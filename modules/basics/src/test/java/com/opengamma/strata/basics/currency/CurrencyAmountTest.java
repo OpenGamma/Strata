@@ -27,6 +27,7 @@ public class CurrencyAmountTest {
   private static final double AMT2 = 200;
   private static final CurrencyAmount CCY_AMOUNT = CurrencyAmount.of(CCY1, AMT1);
   private static final CurrencyAmount CCY_AMOUNT_NEGATIVE = CurrencyAmount.of(CCY1, -AMT1);
+  private static final Object ANOTHER_TYPE = "";
 
   public void test_fixture() {
     assertEquals(CCY_AMOUNT.getCurrency(), CCY1);
@@ -204,7 +205,7 @@ public class CurrencyAmountTest {
   }
 
   public void test_equals_bad() {
-    assertFalse(CCY_AMOUNT.equals(""));
+    assertFalse(CCY_AMOUNT.equals(ANOTHER_TYPE));
     assertFalse(CCY_AMOUNT.equals(null));
   }
 

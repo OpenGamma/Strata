@@ -16,6 +16,8 @@ import org.testng.annotations.Test;
 @Test
 public class AttributeTypeTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-------------------------------------------------------------------------
   public void test_constant_description() {
     AttributeType<String> test = AttributeType.DESCRIPTION;
@@ -42,7 +44,7 @@ public class AttributeTypeTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
   public void test_jodaConvert() throws Exception {

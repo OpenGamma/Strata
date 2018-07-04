@@ -25,6 +25,7 @@ public class FxRateTest {
   private static final Currency EUR = Currency.EUR;
   private static final Currency GBP = Currency.GBP;
   private static final Currency USD = Currency.USD;
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_of_CurrencyCurrencyDouble() {
@@ -230,7 +231,7 @@ public class FxRateTest {
 
   public void test_equals_bad() {
     FxRate test = FxRate.of(AUD, GBP, 1.25d);
-    assertFalse(test.equals(""));
+    assertFalse(test.equals(ANOTHER_TYPE));
     assertFalse(test.equals(null));
   }
 

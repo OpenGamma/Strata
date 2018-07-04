@@ -28,6 +28,7 @@ public class MutablePointSensitivitiesTest {
   private static final PointSensitivity CS2 = DummyPointSensitivity.of(GBP, date(2015, 7, 30), 22d);
   private static final PointSensitivity CS3 = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 32d);
   private static final PointSensitivity CS3B = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 3d);
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_size_add_getSensitivities() {
@@ -177,7 +178,7 @@ public class MutablePointSensitivitiesTest {
     assertEquals(test.equals(test), true);
     assertEquals(test.equals(test2), true);
     assertEquals(test.equals(test3), false);
-    assertEquals(test.equals("Bad"), false);
+    assertEquals(test.equals(ANOTHER_TYPE), false);
     assertEquals(test.equals(null), false);
     assertEquals(test.hashCode(), test2.hashCode());
   }
