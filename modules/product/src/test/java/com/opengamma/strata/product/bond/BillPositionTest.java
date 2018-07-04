@@ -73,6 +73,21 @@ public class BillPositionTest {
     assertEquals(base.summarize(), expected);
   }
 
+  public void test_withInfo() {
+    BillPosition base = BillPosition.builder()
+        .info(POSITION_INFO1)
+        .product(PRODUCT1)
+        .longQuantity(QUANTITY1)
+        .build();
+    BillPosition computed1 = base.withInfo(POSITION_INFO2);
+    BillPosition expected1 = BillPosition.builder()
+        .info(POSITION_INFO2)
+        .product(PRODUCT1)
+        .longQuantity(QUANTITY1)
+        .build();
+    assertEquals(computed1, expected1);
+  }
+
   public void test_withQuantity() {
     BillPosition base = BillPosition.builder()
         .info(POSITION_INFO1)

@@ -72,4 +72,5 @@ public class BillTradeCalculationsTest {
     assertEquals(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, provider), expectedPv01Cal);
     assertEquals(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, provider), expectedPv01CalBucketed);
   }
+
 }

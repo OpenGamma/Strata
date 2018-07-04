@@ -12,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Set;
 
 import org.testng.annotations.Test;
@@ -65,12 +64,6 @@ public class BillTradeCalculationFunctionTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   private static final LocalDate VALUATION_DATE = date(2015, 3, 26);
-  private static final LocalDate TRADE_DATE = date(2015, 3, 25);
-  private static final LocalDate SETTLEMENT_DATE = date(2015, 3, 30);
-  private static final TradeInfo TRADE_INFO = TradeInfo.builder()
-      .tradeDate(TRADE_DATE)
-      .settlementDate(SETTLEMENT_DATE)
-      .build();
   private static final StandardId ISSUER_ID = StandardId.of("A", "B");
   public static final BillTrade TRADE = BillTrade.builder()
       .product(Bill.builder()
@@ -166,7 +159,6 @@ public class BillTradeCalculationFunctionTest {
     BillTradeCalculationFunction<BillTrade> function = BillTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     Set<Measure> measures = ImmutableSet.of(Measures.FORWARD_FX_RATE);
-    Map<Measure, Result<?>> res = function.calculate(TRADE, measures, PARAMS, md, REF_DATA);
     assertTrue(function.calculate(TRADE, measures, PARAMS, md, REF_DATA).get(Measures.FORWARD_FX_RATE).isFailure());
   }
 
