@@ -6,7 +6,6 @@
 package com.opengamma.strata.product.bond;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -23,19 +22,21 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecurityInfo;
+import com.opengamma.strata.product.TradeInfo;
 
 /**
- * A bill.
+ * A security representing a bill.
  * <p>
  * A bill is a financial instrument that represents a unique fixed payment.
  * 
@@ -43,17 +44,17 @@ import com.opengamma.strata.product.SecurityId;
  * Strata uses <i>decimal</i> yields and prices for bills in the trade model, pricers and market data.
  * For example, a price of 99.32% is represented in Strata by 0.9932 and a yield of 1.32% is represented by 0.0132.
  */
-@BeanDefinition(constructorScope = "package")
-public final class Bill
-    implements SecuritizedProduct, Resolvable<ResolvedBill>, ImmutableBean, Serializable {
+@BeanDefinition
+public final class BillSecurity
+    implements LegalEntitySecurity, ImmutableBean, Serializable {
 
   /**
-   * The security identifier.
+   * The standard security information.
    * <p>
-   * This identifier uniquely identifies the security within the system.
+   * This includes the security identifier.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final SecurityId securityId;
+  private final SecurityInfo info;
   /**
    * The adjustable notional payment of the bill notional, the amount must be positive.
    */
@@ -78,7 +79,7 @@ public final class Bill
    * <p>
    * This identifier is used for the legal entity that issues the bill.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final StandardId legalEntityId;
   /**
    * The number of days between valuation date and settlement date.
@@ -88,64 +89,66 @@ public final class Bill
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
 
+  //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
     ArgChecker.isTrue(settlementDateOffset.getDays() >= 0, "The settlement date offset must be non-negative");
     ArgChecker.isTrue(notional.getAmount() > 0, "Notional must be strictly positive");
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public Currency getCurrency() {
     return notional.getCurrency();
   }
 
-  /**
-   * Computes the price from the yield at a given settlement date.
-   * 
-   * @param yield  the yield
-   * @param settlementDate  the settlement date
-   * @return the price
-   */
-  public double priceFromYield(double yield, LocalDate settlementDate) {
-    double accrualFactor = dayCount.relativeYearFraction(settlementDate, notional.getDate().getUnadjusted());
-    return yieldConvention.priceFromYield(yield, accrualFactor);
+  @Override
+  public ImmutableSet<SecurityId> getUnderlyingIds() {
+    return ImmutableSet.of();
   }
 
-  /**
-   * Computes the yield from the price at a given settlement date.
-   * 
-   * @param price  the price
-   * @param settlementDate  the settlement date
-   * @return the yield
-   */
-  public double yieldFromPrice(double price, LocalDate settlementDate) {
-    double accrualFactor = dayCount.relativeYearFraction(settlementDate, notional.getDate().getUnadjusted());
-    return yieldConvention.yieldFromPrice(price, accrualFactor);
+  @Override
+  public BillSecurity withInfo(SecurityInfo info) {
+    return toBuilder().info(info).build();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ResolvedBill resolve(ReferenceData refData) {
-    return ResolvedBill.builder()
-        .securityId(securityId)
-        .notional(notional.resolve(refData))
-        .dayCount(dayCount)
-        .yieldConvention(yieldConvention)
-        .legalEntityId(legalEntityId)
-        .settlementDateOffset(settlementDateOffset).build();
+  public Bill createProduct(ReferenceData refData) {
+    return new Bill(getSecurityId(), notional, dayCount, yieldConvention, legalEntityId, settlementDateOffset);
+  }
+
+  @Override
+  public BillTrade createTrade(TradeInfo info, double quantity, double tradePrice, ReferenceData refData) {
+    return new BillTrade(info, createProduct(refData), quantity, tradePrice);
+  }
+
+  @Override
+  public BillPosition createPosition(PositionInfo positionInfo, double quantity, ReferenceData refData) {
+    return BillPosition.ofNet(positionInfo, createProduct(refData), quantity);
+  }
+
+  @Override
+  public BillPosition createPosition(
+      PositionInfo positionInfo,
+      double longQuantity,
+      double shortQuantity,
+      ReferenceData refData) {
+
+    return BillPosition.ofLongShort(positionInfo, createProduct(refData), longQuantity, shortQuantity);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   /**
-   * The meta-bean for {@code Bill}.
+   * The meta-bean for {@code BillSecurity}.
    * @return the meta-bean, not null
    */
-  public static Bill.Meta meta() {
-    return Bill.Meta.INSTANCE;
+  public static BillSecurity.Meta meta() {
+    return BillSecurity.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(Bill.Meta.INSTANCE);
+    MetaBean.register(BillSecurity.Meta.INSTANCE);
   }
 
   /**
@@ -157,33 +160,24 @@ public final class Bill
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static Bill.Builder builder() {
-    return new Bill.Builder();
+  public static BillSecurity.Builder builder() {
+    return new BillSecurity.Builder();
   }
 
-  /**
-   * Creates an instance.
-   * @param securityId  the value of the property, not null
-   * @param notional  the value of the property, not null
-   * @param dayCount  the value of the property, not null
-   * @param yieldConvention  the value of the property, not null
-   * @param legalEntityId  the value of the property, not null
-   * @param settlementDateOffset  the value of the property, not null
-   */
-  Bill(
-      SecurityId securityId,
+  private BillSecurity(
+      SecurityInfo info,
       AdjustablePayment notional,
       DayCount dayCount,
       BillYieldConvention yieldConvention,
       StandardId legalEntityId,
       DaysAdjustment settlementDateOffset) {
-    JodaBeanUtils.notNull(securityId, "securityId");
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(notional, "notional");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
-    this.securityId = securityId;
+    this.info = info;
     this.notional = notional;
     this.dayCount = dayCount;
     this.yieldConvention = yieldConvention;
@@ -193,20 +187,20 @@ public final class Bill
   }
 
   @Override
-  public Bill.Meta metaBean() {
-    return Bill.Meta.INSTANCE;
+  public BillSecurity.Meta metaBean() {
+    return BillSecurity.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the security identifier.
+   * Gets the standard security information.
    * <p>
-   * This identifier uniquely identifies the security within the system.
+   * This includes the security identifier.
    * @return the value of the property, not null
    */
   @Override
-  public SecurityId getSecurityId() {
-    return securityId;
+  public SecurityInfo getInfo() {
+    return info;
   }
 
   //-----------------------------------------------------------------------
@@ -247,6 +241,7 @@ public final class Bill
    * This identifier is used for the legal entity that issues the bill.
    * @return the value of the property, not null
    */
+  @Override
   public StandardId getLegalEntityId() {
     return legalEntityId;
   }
@@ -277,8 +272,8 @@ public final class Bill
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      Bill other = (Bill) obj;
-      return JodaBeanUtils.equal(securityId, other.securityId) &&
+      BillSecurity other = (BillSecurity) obj;
+      return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(notional, other.notional) &&
           JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(yieldConvention, other.yieldConvention) &&
@@ -291,7 +286,7 @@ public final class Bill
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash = hash * 31 + JodaBeanUtils.hashCode(securityId);
+    hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     hash = hash * 31 + JodaBeanUtils.hashCode(dayCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(yieldConvention);
@@ -303,8 +298,8 @@ public final class Bill
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
-    buf.append("Bill{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
+    buf.append("BillSecurity{");
+    buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
@@ -316,7 +311,7 @@ public final class Bill
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code Bill}.
+   * The meta-bean for {@code BillSecurity}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -325,41 +320,41 @@ public final class Bill
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code securityId} property.
+     * The meta-property for the {@code info} property.
      */
-    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofImmutable(
-        this, "securityId", Bill.class, SecurityId.class);
+    private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
+        this, "info", BillSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<AdjustablePayment> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", Bill.class, AdjustablePayment.class);
+        this, "notional", BillSecurity.class, AdjustablePayment.class);
     /**
      * The meta-property for the {@code dayCount} property.
      */
     private final MetaProperty<DayCount> dayCount = DirectMetaProperty.ofImmutable(
-        this, "dayCount", Bill.class, DayCount.class);
+        this, "dayCount", BillSecurity.class, DayCount.class);
     /**
      * The meta-property for the {@code yieldConvention} property.
      */
     private final MetaProperty<BillYieldConvention> yieldConvention = DirectMetaProperty.ofImmutable(
-        this, "yieldConvention", Bill.class, BillYieldConvention.class);
+        this, "yieldConvention", BillSecurity.class, BillYieldConvention.class);
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
     private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", Bill.class, StandardId.class);
+        this, "legalEntityId", BillSecurity.class, StandardId.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
     private final MetaProperty<DaysAdjustment> settlementDateOffset = DirectMetaProperty.ofImmutable(
-        this, "settlementDateOffset", Bill.class, DaysAdjustment.class);
+        this, "settlementDateOffset", BillSecurity.class, DaysAdjustment.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "securityId",
+        "info",
         "notional",
         "dayCount",
         "yieldConvention",
@@ -375,8 +370,8 @@ public final class Bill
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1574023291:  // securityId
-          return securityId;
+        case 3237038:  // info
+          return info;
         case 1585636160:  // notional
           return notional;
         case 1905311443:  // dayCount
@@ -392,13 +387,13 @@ public final class Bill
     }
 
     @Override
-    public Bill.Builder builder() {
-      return new Bill.Builder();
+    public BillSecurity.Builder builder() {
+      return new BillSecurity.Builder();
     }
 
     @Override
-    public Class<? extends Bill> beanType() {
-      return Bill.class;
+    public Class<? extends BillSecurity> beanType() {
+      return BillSecurity.class;
     }
 
     @Override
@@ -408,11 +403,11 @@ public final class Bill
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code securityId} property.
+     * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<SecurityId> securityId() {
-      return securityId;
+    public MetaProperty<SecurityInfo> info() {
+      return info;
     }
 
     /**
@@ -459,18 +454,18 @@ public final class Bill
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1574023291:  // securityId
-          return ((Bill) bean).getSecurityId();
+        case 3237038:  // info
+          return ((BillSecurity) bean).getInfo();
         case 1585636160:  // notional
-          return ((Bill) bean).getNotional();
+          return ((BillSecurity) bean).getNotional();
         case 1905311443:  // dayCount
-          return ((Bill) bean).getDayCount();
+          return ((BillSecurity) bean).getDayCount();
         case -1895216418:  // yieldConvention
-          return ((Bill) bean).getYieldConvention();
+          return ((BillSecurity) bean).getYieldConvention();
         case 866287159:  // legalEntityId
-          return ((Bill) bean).getLegalEntityId();
+          return ((BillSecurity) bean).getLegalEntityId();
         case 135924714:  // settlementDateOffset
-          return ((Bill) bean).getSettlementDateOffset();
+          return ((BillSecurity) bean).getSettlementDateOffset();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -488,11 +483,11 @@ public final class Bill
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code Bill}.
+   * The bean-builder for {@code BillSecurity}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<Bill> {
+  public static final class Builder extends DirectFieldsBeanBuilder<BillSecurity> {
 
-    private SecurityId securityId;
+    private SecurityInfo info;
     private AdjustablePayment notional;
     private DayCount dayCount;
     private BillYieldConvention yieldConvention;
@@ -509,8 +504,8 @@ public final class Bill
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(Bill beanToCopy) {
-      this.securityId = beanToCopy.getSecurityId();
+    private Builder(BillSecurity beanToCopy) {
+      this.info = beanToCopy.getInfo();
       this.notional = beanToCopy.getNotional();
       this.dayCount = beanToCopy.getDayCount();
       this.yieldConvention = beanToCopy.getYieldConvention();
@@ -522,8 +517,8 @@ public final class Bill
     @Override
     public Object get(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1574023291:  // securityId
-          return securityId;
+        case 3237038:  // info
+          return info;
         case 1585636160:  // notional
           return notional;
         case 1905311443:  // dayCount
@@ -542,8 +537,8 @@ public final class Bill
     @Override
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
-        case 1574023291:  // securityId
-          this.securityId = (SecurityId) newValue;
+        case 3237038:  // info
+          this.info = (SecurityInfo) newValue;
           break;
         case 1585636160:  // notional
           this.notional = (AdjustablePayment) newValue;
@@ -573,9 +568,9 @@ public final class Bill
     }
 
     @Override
-    public Bill build() {
-      return new Bill(
-          securityId,
+    public BillSecurity build() {
+      return new BillSecurity(
+          info,
           notional,
           dayCount,
           yieldConvention,
@@ -585,15 +580,15 @@ public final class Bill
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the security identifier.
+     * Sets the standard security information.
      * <p>
-     * This identifier uniquely identifies the security within the system.
-     * @param securityId  the new value, not null
+     * This includes the security identifier.
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder securityId(SecurityId securityId) {
-      JodaBeanUtils.notNull(securityId, "securityId");
-      this.securityId = securityId;
+    public Builder info(SecurityInfo info) {
+      JodaBeanUtils.notNull(info, "info");
+      this.info = info;
       return this;
     }
 
@@ -664,8 +659,8 @@ public final class Bill
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
-      buf.append("Bill.Builder{");
-      buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+      buf.append("BillSecurity.Builder{");
+      buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');

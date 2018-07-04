@@ -6,12 +6,23 @@
 package com.opengamma.strata.product.bond;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
+import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableDefaults;
 import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Payment;
@@ -19,19 +30,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.TradeInfo;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  * A trade in a bill, resolved for pricing.
@@ -49,7 +47,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
  * For example, a yield of 1.32% is represented in Strata by 0.0132.
  */
 @BeanDefinition(constructorScope = "package")
-public class ResolvedBillTrade
+public final class ResolvedBillTrade
     implements ResolvedTrade, ImmutableBean, Serializable {
 
   /**
@@ -121,16 +119,23 @@ public class ResolvedBillTrade
   }
 
   /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
+   * Creates an instance.
+   * @param info  the value of the property, not null
+   * @param product  the value of the property, not null
+   * @param quantity  the value of the property
+   * @param settlement  the value of the property
    */
-  protected ResolvedBillTrade(ResolvedBillTrade.Builder builder) {
-    JodaBeanUtils.notNull(builder.info, "info");
-    JodaBeanUtils.notNull(builder.product, "product");
-    this.info = builder.info;
-    this.product = builder.product;
-    this.quantity = builder.quantity;
-    this.settlement = builder.settlement;
+  ResolvedBillTrade(
+      PortfolioItemInfo info,
+      ResolvedBill product,
+      double quantity,
+      Payment settlement) {
+    JodaBeanUtils.notNull(info, "info");
+    JodaBeanUtils.notNull(product, "product");
+    this.info = info;
+    this.product = product;
+    this.quantity = quantity;
+    this.settlement = settlement;
   }
 
   @Override
@@ -222,27 +227,19 @@ public class ResolvedBillTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ResolvedBillTrade{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("settlement").append('=').append(JodaBeanUtils.toString(settlement));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
-    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
-    buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-    buf.append("settlement").append('=').append(JodaBeanUtils.toString(settlement)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvedBillTrade}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -281,7 +278,7 @@ public class ResolvedBillTrade
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -319,7 +316,7 @@ public class ResolvedBillTrade
      * The meta-property for the {@code info} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<PortfolioItemInfo> info() {
+    public MetaProperty<PortfolioItemInfo> info() {
       return info;
     }
 
@@ -327,7 +324,7 @@ public class ResolvedBillTrade
      * The meta-property for the {@code product} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ResolvedBill> product() {
+    public MetaProperty<ResolvedBill> product() {
       return product;
     }
 
@@ -335,7 +332,7 @@ public class ResolvedBillTrade
      * The meta-property for the {@code quantity} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> quantity() {
+    public MetaProperty<Double> quantity() {
       return quantity;
     }
 
@@ -343,7 +340,7 @@ public class ResolvedBillTrade
      * The meta-property for the {@code settlement} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Payment> settlement() {
+    public MetaProperty<Payment> settlement() {
       return settlement;
     }
 
@@ -378,7 +375,7 @@ public class ResolvedBillTrade
   /**
    * The bean-builder for {@code ResolvedBillTrade}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ResolvedBillTrade> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ResolvedBillTrade> {
 
     private PortfolioItemInfo info;
     private ResolvedBill product;
@@ -388,7 +385,7 @@ public class ResolvedBillTrade
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
       applyDefaults(this);
     }
 
@@ -396,7 +393,7 @@ public class ResolvedBillTrade
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ResolvedBillTrade beanToCopy) {
+    private Builder(ResolvedBillTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
       this.quantity = beanToCopy.getQuantity();
@@ -450,7 +447,11 @@ public class ResolvedBillTrade
     @Override
     public ResolvedBillTrade build() {
       preBuild(this);
-      return new ResolvedBillTrade(this);
+      return new ResolvedBillTrade(
+          info,
+          product,
+          quantity,
+          settlement);
     }
 
     //-----------------------------------------------------------------------
@@ -509,20 +510,12 @@ public class ResolvedBillTrade
     public String toString() {
       StringBuilder buf = new StringBuilder(160);
       buf.append("ResolvedBillTrade.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
-      buf.append("settlement").append('=').append(JodaBeanUtils.toString(settlement)).append(',').append(' ');
+      buf.append("settlement").append('=').append(JodaBeanUtils.toString(settlement));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

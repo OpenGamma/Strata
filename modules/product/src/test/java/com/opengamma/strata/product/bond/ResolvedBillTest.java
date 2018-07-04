@@ -30,6 +30,7 @@ public class ResolvedBillTest {
   public void test_getters() {
     ResolvedBill test = sut();
     assertEquals(test.getSecurityId(), BillTest.US_BILL.getSecurityId());
+    assertEquals(test.getCurrency(), BillTest.US_BILL.getCurrency());
     assertEquals(test.getNotional(), BillTest.US_BILL.getNotional().resolve(REF_DATA));
     assertEquals(test.getDayCount(), BillTest.US_BILL.getDayCount());
     assertEquals(test.getYieldConvention(), BillTest.US_BILL.getYieldConvention());

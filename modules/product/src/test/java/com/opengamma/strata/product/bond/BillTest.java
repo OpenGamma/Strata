@@ -45,7 +45,7 @@ public class BillTest {
   private static final double NOTIONAL_AMOUNT = 1_000_000;
   private static final LocalDate MATURITY_DATE = LocalDate.of(2019, 5, 23);
   private static final AdjustableDate MATURITY_DATE_ADJ = AdjustableDate.of(MATURITY_DATE, BUSINESS_ADJUST);
-  private static final AdjustablePayment NOTIONAL = 
+  private static final AdjustablePayment NOTIONAL =
       AdjustablePayment.of(CurrencyAmount.of(CCY, NOTIONAL_AMOUNT), MATURITY_DATE_ADJ);
   private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Bill2019-05-23");
@@ -86,7 +86,7 @@ public class BillTest {
     double priceComputed = US_BILL.priceFromYield(yield, settlementDate);
     assertEquals(priceExpected, priceComputed, TOLERANCE_PRICE);
   }
-  
+
   public void yield_from_price_discount() {
     double price = 0.99;
     LocalDate settlementDate = LocalDate.of(2018, 8, 17);
@@ -105,7 +105,7 @@ public class BillTest {
     double priceComputed = bill.priceFromYield(yield, settlementDate);
     assertEquals(priceExpected, priceComputed, TOLERANCE_PRICE);
   }
-  
+
   public void yield_from_price_intatmat() {
     Bill bill = US_BILL.toBuilder().yieldConvention(BillYieldConvention.INTEREST_AT_MATURITY).build();
     double price = 0.99;
@@ -135,7 +135,7 @@ public class BillTest {
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(-11, USNY, BUSINESS_ADJUST))
         .yieldConvention(YIELD_CONVENTION).build());
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_resolve() {
     ResolvedBill resolved = US_BILL.resolve(REF_DATA);
@@ -156,5 +156,5 @@ public class BillTest {
   public void test_serialization() {
     assertSerialization(US_BILL);
   }
-  
+
 }

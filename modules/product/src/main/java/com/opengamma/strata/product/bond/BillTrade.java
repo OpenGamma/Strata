@@ -7,11 +7,21 @@ package com.opengamma.strata.product.bond;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
+import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -23,17 +33,6 @@ import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.SecuritizedProductTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.SummarizerUtils;
-
-import java.util.Map;
-import java.util.NoSuchElementException;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A trade representing a bill.
@@ -77,10 +76,11 @@ public final class BillTrade
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
-    ArgChecker.isTrue(builder.info.getSettlementDate().isPresent()
-        || builder.info.getTradeDate().isPresent(), "Bill trades need a settlement date or trade date.");
+    ArgChecker.isTrue(
+        builder.info.getSettlementDate().isPresent() || builder.info.getTradeDate().isPresent(),
+        "Bill trades need a settlement date or trade date.");
   }
-  
+
   /**
    * Generates a Bill trade instance where the price is computed from the traded yield.
    * 
@@ -102,7 +102,7 @@ public final class BillTrade
         .price(price)
         .build();
   }
-  
+
   /**
    * Generates a Bill trade instance from the price.
    * 

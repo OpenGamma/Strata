@@ -9,6 +9,7 @@ import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.product.bond.Bill;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.BondFutureOption;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
