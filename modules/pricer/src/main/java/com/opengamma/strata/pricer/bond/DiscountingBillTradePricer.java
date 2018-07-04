@@ -14,7 +14,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.CompoundedRateType;
-import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.product.bond.ResolvedBill;
@@ -75,10 +74,8 @@ public class DiscountingBillTradePricer {
     CurrencyAmount pvProduct = productPricer.presentValue(trade.getProduct(), provider)
         .multipliedBy(trade.getQuantity());
     if (trade.getSettlement().isPresent()) {
-      DiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          trade.getProduct().getSecurityId(), trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
-          .getDiscountFactors();
-      CurrencyAmount pvSettle = paymentPricer.presentValue(trade.getSettlement().get(), discountFactorsRepo);
+      RepoCurveDiscountFactors repoDf = DiscountingBillProductPricer.repoCurveDf(trade.getProduct(), provider);
+      CurrencyAmount pvSettle = paymentPricer.presentValue(trade.getSettlement().get(), repoDf.getDiscountFactors());
       return pvProduct.plus(pvSettle);
     }
     return pvProduct;
@@ -116,10 +113,8 @@ public class DiscountingBillTradePricer {
         .presentValueWithZSpread(trade.getProduct(), provider, zSpread, compoundedRateType, periodsPerYear)
         .multipliedBy(trade.getQuantity());
     if (trade.getSettlement().isPresent()) {
-      DiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-          trade.getProduct().getSecurityId(), trade.getProduct().getLegalEntityId(), trade.getProduct().getCurrency())
-          .getDiscountFactors();
-      CurrencyAmount pvSettle = paymentPricer.presentValue(trade.getSettlement().get(), discountFactorsRepo);
+      RepoCurveDiscountFactors repoDf = DiscountingBillProductPricer.repoCurveDf(trade.getProduct(), provider);
+      CurrencyAmount pvSettle = paymentPricer.presentValue(trade.getSettlement().get(), repoDf.getDiscountFactors());
       return pvProduct.plus(pvSettle);
     }
     return pvProduct;
@@ -146,11 +141,8 @@ public class DiscountingBillTradePricer {
       return sensiProduct;
     }
     Payment settlement = trade.getSettlement().get();
-    RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-        trade.getProduct().getSecurityId(),
-        trade.getProduct().getLegalEntityId(),
-        trade.getProduct().getCurrency());
-    PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
+    RepoCurveDiscountFactors repoDf = DiscountingBillProductPricer.repoCurveDf(trade.getProduct(), provider);
+    PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, repoDf);
     return sensiProduct.combinedWith(sensiSettle);
   }
 
@@ -189,11 +181,8 @@ public class DiscountingBillTradePricer {
       return sensiProduct;
     }
     Payment settlement = trade.getSettlement().get();
-    RepoCurveDiscountFactors discountFactorsRepo = provider.repoCurveDiscountFactors(
-        trade.getProduct().getSecurityId(),
-        trade.getProduct().getLegalEntityId(),
-        trade.getProduct().getCurrency());
-    PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, discountFactorsRepo);
+    RepoCurveDiscountFactors repoDf = DiscountingBillProductPricer.repoCurveDf(trade.getProduct(), provider);
+    PointSensitivities sensiSettle = presentValueSensitivitySettlement(settlement, repoDf);
     return sensiProduct.combinedWith(sensiSettle);
   }
 
@@ -249,12 +238,12 @@ public class DiscountingBillTradePricer {
   //-------------------------------------------------------------------------
   private PointSensitivities presentValueSensitivitySettlement(
       Payment settlement,
-      RepoCurveDiscountFactors discountFactorsRepo) {
+      RepoCurveDiscountFactors repoDf) {
 
     PointSensitivityBuilder pointSettle = paymentPricer.presentValueSensitivity(
-        settlement, discountFactorsRepo.getDiscountFactors());
+        settlement, repoDf.getDiscountFactors());
     if (pointSettle instanceof ZeroRateSensitivity) {
-      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pointSettle, discountFactorsRepo.getRepoGroup()).build();
+      return RepoCurveZeroRateSensitivity.of((ZeroRateSensitivity) pointSettle, repoDf.getRepoGroup()).build();
     }
     return pointSettle.build(); // NoPointSensitivity
   }

@@ -17,7 +17,6 @@ import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -153,12 +152,10 @@ public class CapitalIndexedBondCurveDataSet {
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(USD, valuationDate, ISSUER_CURVE);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(USD, valuationDate, REPO_CURVE);
     return ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, USD), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO, USD), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, USD), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, USD), dscRepo))
+        .repoCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_REPO))
         .build();
   }
 
@@ -172,12 +169,10 @@ public class CapitalIndexedBondCurveDataSet {
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(GBP, valuationDate, ISSUER_CURVE);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(GBP, valuationDate, REPO_CURVE);
     return ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, GBP), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO, GBP), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, GBP), dscRepo))
+        .repoCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_REPO))
         .build();
   }
 
@@ -191,12 +186,10 @@ public class CapitalIndexedBondCurveDataSet {
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(JPY, valuationDate, ISSUER_CURVE);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(JPY, valuationDate, REPO_CURVE);
     return ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, JPY), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO, JPY), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, JPY), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, JPY), dscRepo))
+        .repoCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_REPO))
         .build();
   }
 

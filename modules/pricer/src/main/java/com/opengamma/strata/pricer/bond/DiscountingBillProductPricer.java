@@ -44,9 +44,8 @@ public class DiscountingBillProductPricer {
     if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
       return CurrencyAmount.of(bill.getCurrency(), 0.0d);
     }
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
-    double dfMaturity = discountFactors.discountFactor(bill.getNotional().getDate());
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
+    double dfMaturity = issuerDf.discountFactor(bill.getNotional().getDate());
     return bill.getNotional().getValue().multipliedBy(dfMaturity);
   }
 
@@ -73,9 +72,8 @@ public class DiscountingBillProductPricer {
     if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
       return CurrencyAmount.of(bill.getCurrency(), 0.0d);
     }
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
-    double dfMaturity = discountFactors.getDiscountFactors()
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
+    double dfMaturity = issuerDf.getDiscountFactors()
         .discountFactorWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
     return bill.getNotional().getValue().multipliedBy(dfMaturity);
   }
@@ -95,10 +93,9 @@ public class DiscountingBillProductPricer {
     if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
       return PointSensitivities.empty();
     }
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
     double dfEndBar = bill.getNotional().getAmount();
-    PointSensitivityBuilder sensMaturity = discountFactors.zeroRatePointSensitivity(bill.getNotional().getDate())
+    PointSensitivityBuilder sensMaturity = issuerDf.zeroRatePointSensitivity(bill.getNotional().getDate())
         .multipliedBy(dfEndBar);
     return sensMaturity.build();
   }
@@ -129,13 +126,12 @@ public class DiscountingBillProductPricer {
     if (provider.getValuationDate().isAfter(bill.getNotional().getDate())) {
       return PointSensitivities.empty();
     }
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
     double dfEndBar = bill.getNotional().getAmount();
-    ZeroRateSensitivity zeroSensMaturity = discountFactors.getDiscountFactors()
+    ZeroRateSensitivity zeroSensMaturity = issuerDf.getDiscountFactors()
         .zeroRatePointSensitivityWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
     IssuerCurveZeroRateSensitivity dscSensMaturity =
-        IssuerCurveZeroRateSensitivity.of(zeroSensMaturity, discountFactors.getLegalEntityGroup())
+        IssuerCurveZeroRateSensitivity.of(zeroSensMaturity, issuerDf.getLegalEntityGroup())
         .multipliedBy(dfEndBar);
 
     return dscSensMaturity.build();
@@ -153,12 +149,10 @@ public class DiscountingBillProductPricer {
   public double priceFromCurves(ResolvedBill bill, LegalEntityDiscountingProvider provider, LocalDate settlementDate) {
     ArgChecker.inOrderNotEqual(settlementDate, bill.getNotional().getDate(), "settlementDate", "endDate");
     ArgChecker.inOrderOrEqual(provider.getValuationDate(), settlementDate, "valuationDate", "settlementDate");
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
-    double dfMaturity = discountFactors.discountFactor(bill.getNotional().getDate());
-    RepoCurveDiscountFactors discountFactorsRepo =
-        provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
-    double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
+    double dfMaturity = issuerDf.discountFactor(bill.getNotional().getDate());
+    RepoCurveDiscountFactors repoDf = repoCurveDf(bill, provider);
+    double dfRepoSettle = repoDf.discountFactor(settlementDate);
     return dfMaturity / dfRepoSettle;
   }
   
@@ -188,13 +182,11 @@ public class DiscountingBillProductPricer {
 
     ArgChecker.inOrderNotEqual(settlementDate, bill.getNotional().getDate(), "settlementDate", "endDate");
     ArgChecker.inOrderOrEqual(provider.getValuationDate(), settlementDate, "valuationDate", "settlementDate");
-    IssuerCurveDiscountFactors discountFactors = provider.issuerCurveDiscountFactors(
-        bill.getLegalEntityId(), bill.getCurrency());
-    double dfMaturity = discountFactors.getDiscountFactors()
+    IssuerCurveDiscountFactors issuerDf = issuerCurveDf(bill, provider);
+    double dfMaturity = issuerDf.getDiscountFactors()
         .discountFactorWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
-    RepoCurveDiscountFactors discountFactorsRepo =
-        provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
-    double dfRepoSettle = discountFactorsRepo.discountFactor(settlementDate);
+    RepoCurveDiscountFactors repoDf = repoCurveDf(bill, provider);
+    double dfRepoSettle = repoDf.discountFactor(settlementDate);
     return dfMaturity / dfRepoSettle;
   }
   
@@ -238,6 +230,17 @@ public class DiscountingBillProductPricer {
     double price = 
         priceFromCurvesWithZSpread(bill, provider, settlementDate, zSpread, compoundedRateType, periodsPerYear);
     return bill.yieldFromPrice(price, settlementDate);
+  }
+
+  //-------------------------------------------------------------------------
+  // extracts the repo curve discount factors for the bond
+  static RepoCurveDiscountFactors repoCurveDf(ResolvedBill bill, LegalEntityDiscountingProvider provider) {
+    return provider.repoCurveDiscountFactors(bill.getSecurityId(), bill.getLegalEntityId(), bill.getCurrency());
+  }
+
+  // extracts the issuer curve discount factors for the bond
+  static IssuerCurveDiscountFactors issuerCurveDf(ResolvedBill bill, LegalEntityDiscountingProvider provider) {
+    return provider.issuerCurveDiscountFactors(bill.getLegalEntityId(), bill.getCurrency());
   }
 
 }

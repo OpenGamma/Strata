@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -250,12 +249,10 @@ public class BondFuturesJpyEnd2EndTest {
         InterpolatedNodalCurve.of(metaRepo, DoubleArray.copyOf(timeRepo), DoubleArray.copyOf(rateRepo), INTERPOLATOR);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(JPY, VALUATION, curve);
     LED_PROVIDER = ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, JPY), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO, JPY), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, JPY), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, JPY), dscRepo))
+        .repoCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_REPO))
         .build();
   }
   // Pricers
