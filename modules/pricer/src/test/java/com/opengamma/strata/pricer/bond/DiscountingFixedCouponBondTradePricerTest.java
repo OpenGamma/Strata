@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -99,7 +98,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL = new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   // fixed coupon bond
-  private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
+  private static final SecurityId SECURITY_ID = SecurityId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final long QUANTITY = 15L;
   private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.DE_BONDS;
@@ -116,7 +115,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
       START_DATE, END_DATE, Frequency.P6M, BUSINESS_ADJUST, StubConvention.SHORT_INITIAL, false);
   private static final DaysAdjustment EX_COUPON = DaysAdjustment.ofCalendarDays(-5, BUSINESS_ADJUST);
   private static final ResolvedFixedCouponBond PRODUCT = FixedCouponBond.builder()
-      .securityId(SecurityId.of(SECURITY_ID))
+      .securityId(SECURITY_ID)
       .dayCount(DAY_COUNT)
       .fixedRate(FIXED_RATE)
       .legalEntityId(ISSUER_ID)
@@ -140,7 +139,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
       .settlement(ResolvedFixedCouponBondSettlement.of(SETTLEMENT, CLEAN_PRICE))
       .build();
   private static final ResolvedFixedCouponBond PRODUCT_NO_EXCOUPON = FixedCouponBond.builder()
-      .securityId(SecurityId.of(SECURITY_ID))
+      .securityId(SECURITY_ID)
       .dayCount(DAY_COUNT)
       .fixedRate(FIXED_RATE)
       .legalEntityId(ISSUER_ID)
@@ -1010,12 +1009,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(EUR, valuationDate, CURVE_REPO);
     DiscountFactors dscIssuer = ZeroRateDiscountFactors.of(EUR, valuationDate, CURVE_ISSUER);
     LegalEntityDiscountingProvider provider = ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, EUR), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO, EUR), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(SECURITY_ID, GROUP_REPO))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, EUR), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, EUR), dscRepo))
+        .repoCurveGroups(ImmutableMap.of(SECURITY_ID.getStandardId(), GROUP_REPO))
         .valuationDate(valuationDate)
         .build();
     return provider;

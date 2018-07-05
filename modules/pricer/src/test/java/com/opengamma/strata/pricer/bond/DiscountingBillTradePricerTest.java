@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -65,7 +64,7 @@ public class DiscountingBillTradePricerTest {
   private static final LocalDate VAL_DATE = date(2018, 6, 20);
 
   // Bill
-  private static final StandardId SECURITY_ID = StandardId.of("OG-Ticker", "GOVT1-BOND1");
+  private static final SecurityId SECURITY_ID = SecurityId.of("OG-Ticker", "GOVT1-BOND1");
   private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
   private static final BillYieldConvention YIELD_CONVENTION = BillYieldConvention.INTEREST_AT_MATURITY;
   
@@ -84,7 +83,7 @@ public class DiscountingBillTradePricerTest {
       .dayCount(DAY_COUNT)
       .legalEntityId(ISSUER_ID)
       .notional(NOTIONAL)
-      .securityId(SecurityId.of(SECURITY_ID))
+      .securityId(SECURITY_ID)
       .settlementDateOffset(DATE_OFFSET)
       .yieldConvention(YIELD_CONVENTION).build();
   private static final LocalDate TRADE_DATE_BEFORE_VAL = date(2018, 6, 13);
@@ -136,12 +135,10 @@ public class DiscountingBillTradePricerTest {
   private static final DiscountFactors DSC_FACTORS_ISSUER = ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_ISSUER);
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT1");
   private static final LegalEntityDiscountingProvider PROVIDER = ImmutableLegalEntityDiscountingProvider.builder()
-      .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-          Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, EUR), DSC_FACTORS_ISSUER))
-      .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-      .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-          Pair.<RepoGroup, Currency>of(GROUP_REPO, EUR), DSC_FACTORS_REPO))
-      .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(SECURITY_ID, GROUP_REPO))
+      .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, EUR), DSC_FACTORS_ISSUER))
+      .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+      .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, EUR), DSC_FACTORS_REPO))
+      .repoCurveGroups(ImmutableMap.of(SECURITY_ID.getStandardId(), GROUP_REPO))
       .valuationDate(VAL_DATE)
       .build();
   
