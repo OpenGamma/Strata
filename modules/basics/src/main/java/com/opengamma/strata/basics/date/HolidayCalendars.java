@@ -24,6 +24,21 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 public final class HolidayCalendars {
 
   /**
+   * Decorates a {@code ReferenceData} instance such that all requests for
+   * a {@code HolidayCalendarId} will return a value.
+   * <p>
+   * If the {@link HolidayCalendarId} is not found in the underlying reference data,
+   * an instance with Saturday/Sunday holidays will be returned.
+   * 
+   * @param underlying  the underlying instance
+   * @return the holiday safe reference data
+   */
+  public static ReferenceData defaultingReferenceData(ReferenceData underlying) {
+    return new HolidaySafeReferenceData(underlying);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * An instance declaring no holidays and no weekends.
    * <p>
    * This calendar has the effect of making every day a business day.

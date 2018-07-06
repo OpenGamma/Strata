@@ -11,7 +11,7 @@ import java.util.Objects;
 /**
  * ReferenceDataId implementation used in tests.
  */
-class TestingReferenceDataId
+public class TestingReferenceDataId
     implements ReferenceDataId<Number>, Serializable {
 
   private static final long serialVersionUID = 1L;

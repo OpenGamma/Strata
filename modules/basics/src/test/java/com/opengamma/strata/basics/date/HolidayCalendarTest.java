@@ -5,9 +5,6 @@
  */
 package com.opengamma.strata.basics.date;
 
-import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -20,7 +17,6 @@ import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
-import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -609,34 +605,6 @@ public class HolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_extendedEnum() {
     assertEquals(HolidayCalendars.extendedEnum().lookupAll().get("NoHolidays"), HolidayCalendars.NO_HOLIDAYS);
-  }
-
-  //-------------------------------------------------------------------------
-  public void coverage() {
-    coverPrivateConstructor(HolidayCalendars.class);
-  }
-
-  public void coverage_combined() {
-    HolidayCalendar test = HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN);
-    coverImmutableBean((ImmutableBean) test);
-  }
-
-  public void coverage_noHolidays() {
-    HolidayCalendar test = HolidayCalendars.NO_HOLIDAYS;
-    coverImmutableBean((ImmutableBean) test);
-  }
-
-  public void coverage_weekend() {
-    HolidayCalendar test = HolidayCalendars.FRI_SAT;
-    coverImmutableBean((ImmutableBean) test);
-  }
-
-  public void test_serialization() {
-    assertSerialization(HolidayCalendars.NO_HOLIDAYS);
-    assertSerialization(HolidayCalendars.SAT_SUN);
-    assertSerialization(HolidayCalendars.FRI_SAT);
-    assertSerialization(HolidayCalendars.THU_FRI);
-    assertSerialization(HolidayCalendars.FRI_SAT.combinedWith(HolidayCalendars.SAT_SUN));
   }
 
   //-------------------------------------------------------------------------
