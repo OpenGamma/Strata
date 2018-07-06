@@ -44,7 +44,7 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
  * This class represents the structure of a single futures contract.
  * <p>
  * For example, the widely traded "30-Day Federal Funds futures contract" has a notional
- * of 5 million USD, is based on the US Federal Funds Effective Rate 'USD-FED-FUND', 
+ * of 5 million USD, is based on the US Federal Funds Effective Rate 'USD-FED-FUND',
  * expiring the last business day of each month.
  * 
  * <h4>Price</h4>
@@ -92,7 +92,7 @@ public final class OvernightFuture
    * The last date of trading.
    * <p>
    * This must be a valid business day on the fixing calendar of {@code index}.
-   * For example, the last trade date is the last business day of the month.
+   * For example, the last trade date is often the last business day of the month.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
@@ -113,7 +113,7 @@ public final class OvernightFuture
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
   /**
-   * The underlying overnight index.
+   * The underlying Overnight index.
    * <p>
    * The future is based on this index.
    * It will be a well known market index such as 'USD-FED-FUND'.
@@ -305,7 +305,7 @@ public final class OvernightFuture
    * Gets the last date of trading.
    * <p>
    * This must be a valid business day on the fixing calendar of {@code index}.
-   * For example, the last trade date is the last business day of the month.
+   * For example, the last trade date is often the last business day of the month.
    * @return the value of the property, not null
    */
   public LocalDate getLastTradeDate() {
@@ -338,7 +338,7 @@ public final class OvernightFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying overnight index.
+   * Gets the underlying Overnight index.
    * <p>
    * The future is based on this index.
    * It will be a well known market index such as 'USD-FED-FUND'.
@@ -870,7 +870,7 @@ public final class OvernightFuture
      * Sets the last date of trading.
      * <p>
      * This must be a valid business day on the fixing calendar of {@code index}.
-     * For example, the last trade date is the last business day of the month.
+     * For example, the last trade date is often the last business day of the month.
      * @param lastTradeDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -909,7 +909,7 @@ public final class OvernightFuture
     }
 
     /**
-     * Sets the underlying overnight index.
+     * Sets the underlying Overnight index.
      * <p>
      * The future is based on this index.
      * It will be a well known market index such as 'USD-FED-FUND'.

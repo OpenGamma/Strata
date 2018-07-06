@@ -91,11 +91,7 @@ public class DiscountingOvernightFutureTradePricer {
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the reference price, in decimal form
    */
-  double referencePrice(
-      ResolvedOvernightFutureTrade trade,
-      LocalDate valuationDate,
-      double lastSettlementPrice) {
-
+  double referencePrice(ResolvedOvernightFutureTrade trade, LocalDate valuationDate, double lastSettlementPrice) {
     ArgChecker.notNull(valuationDate, "valuationDate");
     return trade.getTradedPrice()
         .filter(tp -> tp.getTradeDate().equals(valuationDate))
@@ -118,11 +114,7 @@ public class DiscountingOvernightFutureTradePricer {
    * @param referencePrice  the reference price to margin against, typically the last settlement price, in decimal form
    * @return the present value
    */
-  CurrencyAmount presentValue(
-      ResolvedOvernightFutureTrade trade,
-      double currentPrice,
-      double referencePrice) {
-
+  CurrencyAmount presentValue(ResolvedOvernightFutureTrade trade, double currentPrice, double referencePrice) {
     ResolvedOvernightFuture future = trade.getProduct();
     double priceIndex = productPricer.marginIndex(future, currentPrice);
     double referenceIndex = productPricer.marginIndex(future, referencePrice);
@@ -189,8 +181,7 @@ public class DiscountingOvernightFutureTradePricer {
    * @param lastSettlementPrice  the last settlement price used for margining, in decimal form
    * @return the par spread.
    */
-  public double parSpread(ResolvedOvernightFutureTrade trade, RatesProvider ratesProvider,
-      double lastSettlementPrice) {
+  public double parSpread(ResolvedOvernightFutureTrade trade, RatesProvider ratesProvider, double lastSettlementPrice) {
     double referencePrice = referencePrice(trade, ratesProvider.getValuationDate(), lastSettlementPrice);
     return price(trade, ratesProvider) - referencePrice;
   }

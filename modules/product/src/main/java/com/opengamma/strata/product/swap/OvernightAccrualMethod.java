@@ -25,6 +25,8 @@ public enum OvernightAccrualMethod implements NamedEnum {
    * Interest is accrued by simple compounding of each rate published during the accrual period.
    * <p>
    * Defined by the 2006 ISDA definitions article 6.2a(3C).
+   * <p>
+   * This is the most common formula for OIS swaps.
    */
   COMPOUNDED,
   /**
@@ -32,12 +34,16 @@ public enum OvernightAccrualMethod implements NamedEnum {
    * <p>
    * Interest is accrued by taking the average of all the rates published on the
    * index during the accrual period.
+   * <p>
+   * This is intended for Fed Fund OIS swaps.
    */
   AVERAGED,
   /**
    * The averaged daily method.
    * <p>
    * Interest is accrued by taking the average of all the daily rates during the observation period.
+   * <p>
+   * This is intended for Fed Fund futures, not swaps.
    */
   AVERAGED_DAILY;
 

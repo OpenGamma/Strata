@@ -50,41 +50,41 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition(constructorScope = "package")
 public final class OvernightFutureTrade
-    implements SecuritizedProductTrade<OvernightFuture>, ResolvableTrade<ResolvedOvernightFutureTrade>, ImmutableBean,
-    Serializable {
+    implements
+    SecuritizedProductTrade<OvernightFuture>, ResolvableTrade<ResolvedOvernightFutureTrade>, ImmutableBean, Serializable {
 
   /**
-  * The additional trade information, defaulted to an empty instance.
-  * <p>
-  * This allows additional information to be attached to the trade.
-  * The trade date is required when calling {@link OvernightFutureTrade#resolve(ReferenceData)}.
-  */
+   * The additional trade information, defaulted to an empty instance.
+   * <p>
+   * This allows additional information to be attached to the trade.
+   * The trade date is required when calling {@link OvernightFutureTrade#resolve(ReferenceData)}.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
-  * The future that was traded.
-  * <p>
-  * The product captures the contracted financial details of the trade.
-  */
+   * The future that was traded.
+   * <p>
+   * The product captures the contracted financial details of the trade.
+   */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightFuture product;
   /**
-  * The quantity that was traded.
-  * <p>
-  * This is the number of contracts that were traded.
-  * This will be positive if buying and negative if selling.
-  */
+   * The quantity that was traded.
+   * <p>
+   * This is the number of contracts that were traded.
+   * This will be positive if buying and negative if selling.
+   */
   @PropertyDefinition(overrideGet = true)
   private final double quantity;
   /**
-  * The price that was traded, in decimal form.
-  * <p>
-  * This is the price agreed when the trade occurred.
-  * <p>
-  * Strata uses <i>decimal prices</i> for Overnight rate futures in the trade model, pricers and market data.
-  * The decimal price is based on the decimal rate equivalent to the percentage.
-  * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
-  */
+   * The price that was traded, in decimal form.
+   * <p>
+   * This is the price agreed when the trade occurred.
+   * <p>
+   * Strata uses <i>decimal prices</i> for Overnight rate futures in the trade model, pricers and market data.
+   * The decimal price is based on the decimal rate equivalent to the percentage.
+   * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
+   */
   @PropertyDefinition(validate = "ArgChecker.notNegative", overrideGet = true)
   private final double price;
 

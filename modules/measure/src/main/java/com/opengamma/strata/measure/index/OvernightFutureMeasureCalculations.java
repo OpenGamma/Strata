@@ -28,7 +28,7 @@ import com.opengamma.strata.product.index.ResolvedOvernightFutureTrade;
  * <p>
  * Each method corresponds to a measure, typically calculated by one or more calls to the pricer.
  */
-public class OvernightFutureMeasureCalculations {
+final class OvernightFutureMeasureCalculations {
 
   /**
    * Default implementation.

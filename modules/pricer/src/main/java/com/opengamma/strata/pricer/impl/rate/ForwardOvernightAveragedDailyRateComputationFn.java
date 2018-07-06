@@ -49,19 +49,19 @@ public class ForwardOvernightAveragedDailyRateComputationFn
     OvernightIndex index = computation.getIndex();
     OvernightIndexRates rates = provider.overnightIndexRates(index);
     LocalDate lastFixingDate = computation.getEndDate();
-    double interstSum = 0d;
+    double interestSum = 0d;
     int numberOfDays = 0;
     LocalDate currentFixingDate = computation.getStartDate();
     while (!currentFixingDate.isAfter(lastFixingDate)) {
       LocalDate referenceFixingDate = computation.getFixingCalendar().previousOrSame(currentFixingDate);
       OvernightIndexObservation indexObs = computation.observeOn(referenceFixingDate);
       double forwardRate = rates.rate(indexObs);
-      interstSum += forwardRate;
-      ++numberOfDays;
+      interestSum += forwardRate;
+      numberOfDays++;
       currentFixingDate = currentFixingDate.plusDays(1);
     }
 
-    return interstSum / numberOfDays;
+    return interestSum / numberOfDays;
   }
 
   @Override
@@ -82,7 +82,7 @@ public class ForwardOvernightAveragedDailyRateComputationFn
       OvernightIndexObservation indexObs = computation.observeOn(referenceFixingDate);
       PointSensitivityBuilder forwardRateSensitivity = rates.ratePointSensitivity(indexObs);
       pointSensitivityBuilder = pointSensitivityBuilder.combinedWith(forwardRateSensitivity);
-      ++numberOfDays;
+      numberOfDays++;
       currentFixingDate = currentFixingDate.plusDays(1);
     }
 

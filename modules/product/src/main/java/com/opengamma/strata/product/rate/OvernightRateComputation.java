@@ -41,16 +41,16 @@ public interface OvernightRateComputation
       OvernightAccrualMethod accrualMethod,
       ReferenceData referenceData) {
 
-    if (accrualMethod.equals(OvernightAccrualMethod.COMPOUNDED)) {
-      return OvernightCompoundedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
+    switch (accrualMethod) {
+      case COMPOUNDED:
+        return OvernightCompoundedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
+      case AVERAGED:
+        return OvernightAveragedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
+      case AVERAGED_DAILY:
+        return OvernightAveragedDailyRateComputation.of(index, startDate, endDate, referenceData);
+      default:
+        throw new IllegalArgumentException(Messages.format("unsupported Overnight accrual method, {}", accrualMethod));
     }
-    if (accrualMethod.equals(OvernightAccrualMethod.AVERAGED)) {
-      return OvernightAveragedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
-    }
-    if (accrualMethod.equals(OvernightAccrualMethod.AVERAGED_DAILY)) {
-      return OvernightAveragedDailyRateComputation.of(index, startDate, endDate, referenceData);
-    }
-    throw new IllegalArgumentException(Messages.format("unsupported Overnight accrual method, {}", accrualMethod));
   }
 
   //-------------------------------------------------------------------------

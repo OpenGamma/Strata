@@ -63,7 +63,7 @@ public final class OvernightAveragedDailyRateComputation
    * The start date of the accrual period.
    * <p>
    * This is not necessarily a valid business day.
-   * In this case, the first fixing date is the previous business day of the start date on {@code fixingCalendar}. 
+   * In this case, the first fixing date is the previous business day of the start date on {@code fixingCalendar}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate startDate;
@@ -71,7 +71,7 @@ public final class OvernightAveragedDailyRateComputation
    * The end date of the accrual period.
    * <p>
    * This is not necessarily a valid business day.
-   * In this case, the last fixing date is the previous business day of the end date on {@code fixingCalendar}. 
+   * In this case, the last fixing date is the previous business day of the end date on {@code fixingCalendar}.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate endDate;
