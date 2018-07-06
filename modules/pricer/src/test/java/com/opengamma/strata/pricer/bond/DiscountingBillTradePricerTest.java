@@ -17,7 +17,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -47,6 +46,7 @@ import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.Bill;
@@ -65,7 +65,7 @@ public class DiscountingBillTradePricerTest {
 
   // Bill
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Ticker", "GOVT1-BOND1");
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT1");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("OG-Ticker", "GOVT1");
   private static final BillYieldConvention YIELD_CONVENTION = BillYieldConvention.INTEREST_AT_MATURITY;
   
   private static final HolidayCalendarId EUR_CALENDAR = HolidayCalendarIds.EUTA;
@@ -138,7 +138,7 @@ public class DiscountingBillTradePricerTest {
       .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, EUR), DSC_FACTORS_ISSUER))
       .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
       .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, EUR), DSC_FACTORS_REPO))
-      .repoCurveGroups(ImmutableMap.of(SECURITY_ID.getStandardId(), GROUP_REPO))
+      .repoCurveSecurityGroups(ImmutableMap.of(SECURITY_ID, GROUP_REPO))
       .valuationDate(VAL_DATE)
       .build();
   

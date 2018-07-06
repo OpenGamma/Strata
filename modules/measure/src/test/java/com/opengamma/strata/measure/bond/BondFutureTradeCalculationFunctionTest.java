@@ -17,7 +17,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -45,6 +44,7 @@ import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.bond.BondDataSets;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.BondFutureTrade;
 import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
@@ -62,7 +62,7 @@ public class BondFutureTradeCalculationFunctionTest {
   public static final ResolvedBondFutureTrade RTRADE = TRADE.resolve(REF_DATA);
   public static final double SETTLE_PRICE = BondDataSets.SETTLE_PRICE_USD;
 
-  private static final StandardId ISSUER_ID = PRODUCT.getDeliveryBasket().get(0).getLegalEntityId();
+  private static final LegalEntityId ISSUER_ID = PRODUCT.getDeliveryBasket().get(0).getLegalEntityId();
   private static final RepoGroup REPO_GROUP = RepoGroup.of("Repo");
   private static final LegalEntityGroup ISSUER_GROUP = LegalEntityGroup.of("Issuer");
   private static final Currency CURRENCY = TRADE.getProduct().getCurrency();

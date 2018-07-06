@@ -24,7 +24,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -65,6 +64,7 @@ import com.opengamma.strata.pricer.bond.BondFutureVolatilitiesId;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
 import com.opengamma.strata.pricer.datasets.LegalEntityDiscountingProviderDataSets;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.BondFutureOption;
 import com.opengamma.strata.product.bond.BondFutureOptionTrade;
@@ -120,7 +120,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
       BlackBondFutureExpiryLogMoneynessVolatilities.of(VAL_DATE_TIME, SURFACE);
   private static final double SETTLE_PRICE = 0.01;
 
-  private static final StandardId ISSUER_ID = PRODUCT.getUnderlyingFuture().getDeliveryBasket().get(0).getLegalEntityId();
+  private static final LegalEntityId ISSUER_ID = PRODUCT.getUnderlyingFuture().getDeliveryBasket().get(0).getLegalEntityId();
   private static final SecurityId FUTURE_SEC_ID = PRODUCT.getUnderlyingFuture().getSecurityId();
   private static final RepoGroup REPO_GROUP = RepoGroup.of("Repo");
   private static final LegalEntityGroup ISSUER_GROUP = LegalEntityGroup.of("Issuer");

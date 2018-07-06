@@ -25,12 +25,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
@@ -108,7 +108,7 @@ public final class FixedCouponBondSecurity
    * This identifier is used for the legal entity that issues the bond.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final StandardId legalEntityId;
+  private final LegalEntityId legalEntityId;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
@@ -226,7 +226,7 @@ public final class FixedCouponBondSecurity
       double fixedRate,
       DayCount dayCount,
       FixedCouponBondYieldConvention yieldConvention,
-      StandardId legalEntityId,
+      LegalEntityId legalEntityId,
       DaysAdjustment settlementDateOffset,
       DaysAdjustment exCouponPeriod) {
     JodaBeanUtils.notNull(info, "info");
@@ -347,7 +347,7 @@ public final class FixedCouponBondSecurity
    * @return the value of the property, not null
    */
   @Override
-  public StandardId getLegalEntityId() {
+  public LegalEntityId getLegalEntityId() {
     return legalEntityId;
   }
 
@@ -493,8 +493,8 @@ public final class FixedCouponBondSecurity
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", FixedCouponBondSecurity.class, StandardId.class);
+    private final MetaProperty<LegalEntityId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", FixedCouponBondSecurity.class, LegalEntityId.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
@@ -630,7 +630,7 @@ public final class FixedCouponBondSecurity
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> legalEntityId() {
+    public MetaProperty<LegalEntityId> legalEntityId() {
       return legalEntityId;
     }
 
@@ -702,7 +702,7 @@ public final class FixedCouponBondSecurity
     private double fixedRate;
     private DayCount dayCount;
     private FixedCouponBondYieldConvention yieldConvention;
-    private StandardId legalEntityId;
+    private LegalEntityId legalEntityId;
     private DaysAdjustment settlementDateOffset;
     private DaysAdjustment exCouponPeriod;
 
@@ -784,7 +784,7 @@ public final class FixedCouponBondSecurity
           this.yieldConvention = (FixedCouponBondYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
+          this.legalEntityId = (LegalEntityId) newValue;
           break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
@@ -921,7 +921,7 @@ public final class FixedCouponBondSecurity
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder legalEntityId(StandardId legalEntityId) {
+    public Builder legalEntityId(LegalEntityId legalEntityId) {
       JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
       this.legalEntityId = legalEntityId;
       return this;

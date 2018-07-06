@@ -24,12 +24,12 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
@@ -80,7 +80,7 @@ public final class BillSecurity
    * This identifier is used for the legal entity that issues the bill.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final StandardId legalEntityId;
+  private final LegalEntityId legalEntityId;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
@@ -169,7 +169,7 @@ public final class BillSecurity
       AdjustablePayment notional,
       DayCount dayCount,
       BillYieldConvention yieldConvention,
-      StandardId legalEntityId,
+      LegalEntityId legalEntityId,
       DaysAdjustment settlementDateOffset) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(notional, "notional");
@@ -242,7 +242,7 @@ public final class BillSecurity
    * @return the value of the property, not null
    */
   @Override
-  public StandardId getLegalEntityId() {
+  public LegalEntityId getLegalEntityId() {
     return legalEntityId;
   }
 
@@ -342,8 +342,8 @@ public final class BillSecurity
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", BillSecurity.class, StandardId.class);
+    private final MetaProperty<LegalEntityId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", BillSecurity.class, LegalEntityId.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
@@ -438,7 +438,7 @@ public final class BillSecurity
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> legalEntityId() {
+    public MetaProperty<LegalEntityId> legalEntityId() {
       return legalEntityId;
     }
 
@@ -491,7 +491,7 @@ public final class BillSecurity
     private AdjustablePayment notional;
     private DayCount dayCount;
     private BillYieldConvention yieldConvention;
-    private StandardId legalEntityId;
+    private LegalEntityId legalEntityId;
     private DaysAdjustment settlementDateOffset;
 
     /**
@@ -550,7 +550,7 @@ public final class BillSecurity
           this.yieldConvention = (BillYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
+          this.legalEntityId = (LegalEntityId) newValue;
           break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
@@ -636,7 +636,7 @@ public final class BillSecurity
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder legalEntityId(StandardId legalEntityId) {
+    public Builder legalEntityId(LegalEntityId legalEntityId) {
       JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
       this.legalEntityId = legalEntityId;
       return this;

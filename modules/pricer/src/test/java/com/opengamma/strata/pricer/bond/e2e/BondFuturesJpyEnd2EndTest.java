@@ -48,6 +48,7 @@ import com.opengamma.strata.pricer.bond.DiscountingBondFutureProductPricer;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureTradePricer;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradedPrice;
@@ -76,7 +77,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final double NOTIONAL = 100_000_000D;
   private static final long QUANTITY = 1L;
   // Fixed coupon bonds
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("OG-Ticker", "GOVT");
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
   private static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT BONDS");
   private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.JP_SIMPLE;

@@ -16,7 +16,6 @@ import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -33,13 +32,14 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
+import com.opengamma.strata.product.LegalEntityId;
 
 /**
  * The data set for testing capital indexed bonds.
  */
 public class CapitalIndexedBondCurveDataSet {
 
-  public static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
+  public static final LegalEntityId ISSUER_ID = LegalEntityId.of("OG-Ticker", "GOVT");
   public static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
   public static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT BONDS");
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -209,7 +209,7 @@ public class CapitalIndexedBondCurveDataSet {
    * 
    * @return the issuer ID
    */
-  public static StandardId getIssuerId() {
+  public static LegalEntityId getIssuerId() {
     return ISSUER_ID;
   }
 

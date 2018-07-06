@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,6 +27,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -40,7 +40,7 @@ public class BillTest {
   private static final BusinessDayAdjustment BUSINESS_ADJUST =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY);
   private static final BillYieldConvention YIELD_CONVENTION = BillYieldConvention.DISCOUNT;
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "US GOVT");
+  private static final LegalEntityId LEGAL_ENTITY = LegalEntityId.of("OG-Ticker", "US GOVT");
   private static final Currency CCY = Currency.USD;
   private static final double NOTIONAL_AMOUNT = 1_000_000;
   private static final LocalDate MATURITY_DATE = LocalDate.of(2019, 5, 23);
@@ -59,7 +59,7 @@ public class BillTest {
       .yieldConvention(YIELD_CONVENTION).build();
   public static final Bill BILL_2 = Bill.builder()
       .dayCount(DayCounts.ACT_365F)
-      .legalEntityId(StandardId.of("OG-Ticker", "LE2"))
+      .legalEntityId(LegalEntityId.of("OG-Ticker", "LE2"))
       .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, 10), MATURITY_DATE_ADJ))
       .securityId(SecurityId.of("OG-Test", "ID2"))
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA, BUSINESS_ADJUST))

@@ -22,7 +22,6 @@ import org.joda.beans.gen.ImmutableConstructor;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -44,6 +43,7 @@ import com.opengamma.strata.pricer.bond.IssuerCurveZeroRateSensitivity;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.RepoCurveDiscountFactors;
 import com.opengamma.strata.pricer.bond.RepoCurveZeroRateSensitivity;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -101,8 +101,8 @@ final class DefaultLookupLegalEntityDiscountingProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public RepoCurveDiscountFactors repoCurveDiscountFactors(SecurityId securityId, StandardId issuerId, Currency currency) {
-    RepoGroup repoGroup = lookup.getRepoCurveGroups().get(securityId.getStandardId());
+  public RepoCurveDiscountFactors repoCurveDiscountFactors(SecurityId securityId, LegalEntityId issuerId, Currency currency) {
+    RepoGroup repoGroup = lookup.getRepoCurveSecurityGroups().get(securityId);
     if (repoGroup == null) {
       repoGroup = lookup.getRepoCurveGroups().get(issuerId);
       if (repoGroup == null) {
@@ -113,7 +113,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
   }
 
   @Override
-  public RepoCurveDiscountFactors repoCurveDiscountFactors(StandardId issuerId, Currency currency) {
+  public RepoCurveDiscountFactors repoCurveDiscountFactors(LegalEntityId issuerId, Currency currency) {
     RepoGroup repoGroup = lookup.getRepoCurveGroups().get(issuerId);
     if (repoGroup == null) {
       throw new MarketDataNotFoundException("Unable to find repo curve mapping for ID: " + issuerId);
@@ -134,7 +134,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
 
   //-------------------------------------------------------------------------
   @Override
-  public IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId issuerId, Currency currency) {
+  public IssuerCurveDiscountFactors issuerCurveDiscountFactors(LegalEntityId issuerId, Currency currency) {
     LegalEntityGroup legalEntityGroup = lookup.getIssuerCurveGroups().get(issuerId);
     if (legalEntityGroup == null) {
       throw new MarketDataNotFoundException("Unable to find issuer curve mapping for ID: " + issuerId);
@@ -208,6 +208,7 @@ final class DefaultLookupLegalEntityDiscountingProvider
     // build result
     return ImmutableLegalEntityDiscountingProvider.builder()
         .valuationDate(getValuationDate())
+        .repoCurveSecurityGroups(lookup.getRepoCurveSecurityGroups())
         .repoCurveGroups(lookup.getRepoCurveGroups())
         .repoCurves(repoCurves)
         .issuerCurveGroups(lookup.getIssuerCurveGroups())
