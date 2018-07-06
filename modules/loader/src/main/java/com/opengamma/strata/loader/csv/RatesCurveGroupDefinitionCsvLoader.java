@@ -64,7 +64,7 @@ import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
  *
  * @see RatesCurveGroupDefinition
  */
-public final class CurveGroupDefinitionCsvLoader {
+public final class RatesCurveGroupDefinitionCsvLoader {
 
   // Column headers
   private static final String GROUPS_NAME = "Group Name";
@@ -293,7 +293,7 @@ public final class CurveGroupDefinitionCsvLoader {
 
   //-------------------------------------------------------------------------
   // This class only has static methods
-  private CurveGroupDefinitionCsvLoader() {
+  private RatesCurveGroupDefinitionCsvLoader() {
   }
 
   //-------------------------------------------------------------------------

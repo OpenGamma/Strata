@@ -45,20 +45,20 @@ import com.opengamma.strata.product.ResolvedTrade;
  * This curve transformation is often used to have a different risk view or to standardize
  * all risk to a common set of instruments, even if they are not the most liquid in a market.
  */
-public final class SyntheticCurveCalibrator {
+public final class SyntheticRatesCurveCalibrator {
 
   /**
    * The standard synthetic curve calibrator.
    * <p>
-   * This uses the standard {@link CurveCalibrator} and {@link CalibrationMeasures}.
+   * This uses the standard {@link RatesCurveCalibrator} and {@link CalibrationMeasures}.
    */
-  private static final SyntheticCurveCalibrator STANDARD = SyntheticCurveCalibrator.of(
-      CurveCalibrator.standard(), CalibrationMeasures.MARKET_QUOTE);
+  private static final SyntheticRatesCurveCalibrator STANDARD = SyntheticRatesCurveCalibrator.of(
+      RatesCurveCalibrator.standard(), CalibrationMeasures.MARKET_QUOTE);
 
   /**
    * The curve calibrator.
    */
-  private final CurveCalibrator calibrator;
+  private final RatesCurveCalibrator calibrator;
   /**
    * The market-quotes measures used to produce the synthetic quotes.
    */
@@ -69,11 +69,11 @@ public final class SyntheticCurveCalibrator {
    * The standard synthetic curve calibrator.
    * <p>
    * The {@link CalibrationMeasures#MARKET_QUOTE} measures are used for calibration.
-   * The underlying calibrator is {@link CurveCalibrator#standard()}.
+   * The underlying calibrator is {@link RatesCurveCalibrator#standard()}.
    *
    * @return the standard synthetic curve calibrator
    */
-  public static SyntheticCurveCalibrator standard() {
+  public static SyntheticRatesCurveCalibrator standard() {
     return STANDARD;
   }
 
@@ -84,12 +84,12 @@ public final class SyntheticCurveCalibrator {
    * @param marketQuotesMeasures  the measures used to compute the market quotes
    * @return the synthetic curve calibrator
    */
-  public static SyntheticCurveCalibrator of(CurveCalibrator calibrator, CalibrationMeasures marketQuotesMeasures) {
-    return new SyntheticCurveCalibrator(calibrator, marketQuotesMeasures);
+  public static SyntheticRatesCurveCalibrator of(RatesCurveCalibrator calibrator, CalibrationMeasures marketQuotesMeasures) {
+    return new SyntheticRatesCurveCalibrator(calibrator, marketQuotesMeasures);
   }
 
   // restricted constructor
-  private SyntheticCurveCalibrator(CurveCalibrator calibrator, CalibrationMeasures marketQuotesMeasures) {
+  private SyntheticRatesCurveCalibrator(RatesCurveCalibrator calibrator, CalibrationMeasures marketQuotesMeasures) {
     this.measures = marketQuotesMeasures;
     this.calibrator = calibrator;
   }
@@ -109,7 +109,7 @@ public final class SyntheticCurveCalibrator {
    * 
    * @return the calibrator
    */
-  public CurveCalibrator getCalibrator() {
+  public RatesCurveCalibrator getCalibrator() {
     return calibrator;
   }
 

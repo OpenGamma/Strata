@@ -43,10 +43,10 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
- * Tests {@link SyntheticCurveCalibrator}.
+ * Tests {@link SyntheticRatesCurveCalibrator}.
  */
 @Test 
-public class SyntheticCurveCalibratorTest {
+public class SyntheticRatesCurveCalibratorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 11, 20);
@@ -113,10 +113,10 @@ public class SyntheticCurveCalibratorTest {
         .addTimeSeries(IndexQuoteId.of(EUR_EURIBOR_6M), tsEur6)
         .build();
   }
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.standard();
   private static final CalibrationMeasures MQ_MEASURES = CalibrationMeasures.MARKET_QUOTE;
-  private static final SyntheticCurveCalibrator CALIBRATOR_SYNTHETIC = 
-      SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
+  private static final SyntheticRatesCurveCalibrator CALIBRATOR_SYNTHETIC = 
+      SyntheticRatesCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
   
   private static final ImmutableRatesProvider MULTICURVE_INPUT_EUR_TSEMPTY =
       CALIBRATOR.calibrate(GROUPS_IN_EUR, MARKET_QUOTES_EUR_INPUT, REF_DATA);
@@ -129,7 +129,7 @@ public class SyntheticCurveCalibratorTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SyntheticCurveCalibrator test = SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
+    SyntheticRatesCurveCalibrator test = SyntheticRatesCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
     assertEquals(test.getMeasures(), MQ_MEASURES);
     assertEquals(test.getCalibrator(), CALIBRATOR);
     assertEquals(test.toString(), "SyntheticCurveCalibrator[CurveCalibrator[ParSpread], MarketQuote]");
@@ -196,7 +196,7 @@ public class SyntheticCurveCalibratorTest {
 
   // Check synthetic calibration in the case of existing time-series with fixing on the valuation date
   public void calibrate_ts_vd() {
-    SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
+    SyntheticRatesCurveCalibrator calibratorDefault = SyntheticRatesCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     for (CurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {

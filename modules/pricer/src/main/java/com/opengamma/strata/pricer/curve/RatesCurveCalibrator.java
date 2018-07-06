@@ -37,7 +37,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.ResolvedTrade;
 
 /**
- * Curve calibrator.
+ * Curve calibrator for rates curves.
  * <p>
  * This calibrator takes an abstract curve definition and produces real curves.
  * <p>
@@ -52,13 +52,13 @@ import com.opengamma.strata.product.ResolvedTrade;
  * Once calibrated, the curves are then available for use.
  * Each node in the curve definition becomes a parameter in the matching output curve.
  */
-public final class CurveCalibrator {
+public final class RatesCurveCalibrator {
 
   /**
    * The standard curve calibrator.
    */
-  private static final CurveCalibrator STANDARD =
-      CurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
+  private static final RatesCurveCalibrator STANDARD =
+      RatesCurveCalibrator.of(1e-9, 1e-9, 1000, CalibrationMeasures.PAR_SPREAD, CalibrationMeasures.PRESENT_VALUE);
   /**
    * The matrix algebra used for matrix inversion.
    */
@@ -88,8 +88,8 @@ public final class CurveCalibrator {
    *
    * @return the standard curve calibrator
    */
-  public static CurveCalibrator standard() {
-    return CurveCalibrator.STANDARD;
+  public static RatesCurveCalibrator standard() {
+    return RatesCurveCalibrator.STANDARD;
   }
 
   /**
@@ -103,7 +103,7 @@ public final class CurveCalibrator {
    * @param stepMaximum  the maximum steps
    * @return the curve calibrator
    */
-  public static CurveCalibrator of(
+  public static RatesCurveCalibrator of(
       double toleranceAbs,
       double toleranceRel,
       int stepMaximum) {
@@ -123,7 +123,7 @@ public final class CurveCalibrator {
    * @param measures  the calibration measures, used to compute the function for which the root is found
    * @return the curve calibrator
    */
-  public static CurveCalibrator of(
+  public static RatesCurveCalibrator of(
       double toleranceAbs,
       double toleranceRel,
       int stepMaximum,
@@ -145,7 +145,7 @@ public final class CurveCalibrator {
    *   stored in the metadata
    * @return the curve calibrator
    */
-  public static CurveCalibrator of(
+  public static RatesCurveCalibrator of(
       double toleranceAbs,
       double toleranceRel,
       int stepMaximum,
@@ -153,7 +153,7 @@ public final class CurveCalibrator {
       CalibrationMeasures pvMeasures) {
 
     NewtonVectorRootFinder rootFinder = NewtonVectorRootFinder.broyden(toleranceAbs, toleranceRel, stepMaximum);
-    return new CurveCalibrator(rootFinder, measures, pvMeasures);
+    return new RatesCurveCalibrator(rootFinder, measures, pvMeasures);
   }
 
   /**
@@ -165,17 +165,17 @@ public final class CurveCalibrator {
    *   stored in the metadata
    * @return the curve calibrator
    */
-  public static CurveCalibrator of(
+  public static RatesCurveCalibrator of(
       NewtonVectorRootFinder rootFinder,
       CalibrationMeasures measures,
       CalibrationMeasures pvMeasures) {
 
-    return new CurveCalibrator(rootFinder, measures, pvMeasures);
+    return new RatesCurveCalibrator(rootFinder, measures, pvMeasures);
   }
 
   //-------------------------------------------------------------------------
   // restricted constructor
-  private CurveCalibrator(
+  private RatesCurveCalibrator(
       NewtonVectorRootFinder rootFinder,
       CalibrationMeasures measures,
       CalibrationMeasures pvMeasures) {

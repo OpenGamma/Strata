@@ -10,13 +10,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.testng.annotations.Test;
 
 /**
- * Tests {@link CurveCalibrator}.
+ * Tests {@link RatesCurveCalibrator}.
  */
 @Test
-public class CurveCalibratorTest {
+public class RatesCurveCalibratorTest {
 
   public void test_toString() {
-    assertThat(CurveCalibrator.standard().toString()).isEqualTo("CurveCalibrator[ParSpread]");
+    assertThat(RatesCurveCalibrator.standard().toString()).isEqualTo("CurveCalibrator[ParSpread]");
   }
 
 }
