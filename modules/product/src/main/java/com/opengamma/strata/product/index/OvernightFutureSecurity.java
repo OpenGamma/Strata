@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2018 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -26,35 +26,36 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 
 /**
- * A security representing a futures contract based on an Ibor index.
+ * A security representing a futures contract based on an Overnight rate index.
  * <p>
- * An Ibor future is a financial instrument that is based on the future value of
- * an Ibor index interest rate. The profit or loss of an Ibor future is settled daily.
- * An Ibor future is also known as a <i>STIR future</i> (Short Term Interest Rate).
+ * An Overnight rate future is a financial instrument that is based on the future value of
+ * an Overnight index interest rate. The profit or loss of an Overnight rate future is settled daily.
+ * This class represents the structure of a single futures contract.
  * <p>
- * For example, the widely traded "CME Eurodollar futures contract" has a notional
- * of 1 million USD, is based on the USD Libor 3 month rate 'USD-LIBOR-3M', expiring
- * two business days before an IMM date (the 3rd Wednesday of the month).
+ * For example, the widely traded "30-Day Federal Funds futures contract" has a notional
+ * of 5 million USD, is based on the US Federal Funds Effective Rate 'USD-FED-FUND',
+ * expiring the last business day of each month.
  * 
  * <h4>Price</h4>
- * The price of an Ibor future is based on the interest rate of the underlying index.
+ * The price of an Overnight rate future is based on the interest rate of the underlying index.
  * It is defined as {@code (100 - percentRate)}.
  * <p>
- * Strata uses <i>decimal prices</i> for Ibor futures in the trade model, pricers and market data.
+ * Strata uses <i>decimal prices</i> for Overnight rate futures in the trade model, pricers and market data.
  * The decimal price is based on the decimal rate equivalent to the percentage.
  * For example, a price of 99.32 implies an interest rate of 0.68% which is represented in Strata by 0.9932.
  */
 @BeanDefinition
-public final class IborFutureSecurity
+public final class OvernightFutureSecurity
     implements RateIndexSecurity, ImmutableBean, Serializable {
 
   /**
@@ -67,27 +68,60 @@ public final class IborFutureSecurity
   /**
    * The notional amount.
    * <p>
-   * This is the full notional of the deposit, such as 1 million dollars.
+   * This is the full notional of the deposit, such as 5 million dollars.
    * The notional expressed here must be positive.
    * The currency of the notional the same as the currency of the index.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final double notional;
   /**
+   * The accrual factor, defaulted from the index if not set.
+   * <p>
+   * This is the year fraction of the contract, typically 1/12 for a 30-day future.
+   * As such, it is often unrelated to the day count of the index.
+   * The year fraction must be positive.
+   */
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
+  private final double accrualFactor;
+  /**
    * The last date of trading.
-   * This date is also the fixing date for the Ibor index.
-   * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
+   * <p>
+   * This must be a valid business day on the fixing calendar of {@code index}.
+   * For example, the last trade date is often the last business day of the month.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
-   * The underlying Ibor index.
+   * The first date of the rate calculation period.
+   * <p>
+   * This is not necessarily a valid business day on the fixing calendar of {@code index}.
+   * However, it will be adjusted in {@code OvernightRateComputation} if needed.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate startDate;
+  /**
+   * The last date of the rate calculation period. 
+   * <p>
+   * This is not necessarily a valid business day on the fixing calendar of {@code index}.
+   * However, it will be adjusted in {@code OvernightRateComputation} if needed.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final LocalDate endDate;
+  /**
+   * The underlying Overnight index.
    * <p>
    * The future is based on this index.
-   * It will be a well known market index such as 'USD-LIBOR-3M'.
+   * It will be a well known market index such as 'USD-FED-FUND'.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final IborIndex index;
+  private final OvernightIndex index;
+  /**
+   * The method of accruing Overnight interest.
+   * <p>
+   * The average rate is calculated based on this method over the period between {@code startDate} and {@code endDate}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final OvernightAccrualMethod accrualMethod;
   /**
    * The definition of how to round the futures price, defaulted to no rounding.
    * <p>
@@ -113,58 +147,62 @@ public final class IborFutureSecurity
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFutureSecurity withInfo(SecurityInfo info) {
+  public OvernightFutureSecurity withInfo(SecurityInfo info) {
     return toBuilder().info(info).build();
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFuture createProduct(ReferenceData refData) {
-    return IborFuture.builder()
+  public OvernightFuture createProduct(ReferenceData refData) {
+    return OvernightFuture.builder()
         .securityId(getSecurityId())
         .notional(notional)
+        .accrualFactor(accrualFactor)
         .index(index)
+        .accrualMethod(accrualMethod)
         .lastTradeDate(lastTradeDate)
+        .startDate(startDate)
+        .endDate(endDate)
         .rounding(rounding)
         .build();
   }
 
   @Override
-  public IborFutureTrade createTrade(
+  public OvernightFutureTrade createTrade(
       TradeInfo info,
       double quantity,
       double tradePrice,
       ReferenceData refData) {
 
-    return new IborFutureTrade(info, createProduct(refData), quantity, tradePrice);
+    return new OvernightFutureTrade(info, createProduct(refData), quantity, tradePrice);
   }
 
   @Override
-  public IborFuturePosition createPosition(PositionInfo positionInfo, double quantity, ReferenceData refData) {
-    return IborFuturePosition.ofNet(positionInfo, createProduct(refData), quantity);
+  public OvernightFuturePosition createPosition(PositionInfo positionInfo, double quantity, ReferenceData refData) {
+    return OvernightFuturePosition.ofNet(positionInfo, createProduct(refData), quantity);
   }
 
   @Override
-  public IborFuturePosition createPosition(
+  public OvernightFuturePosition createPosition(
       PositionInfo positionInfo,
       double longQuantity,
       double shortQuantity,
       ReferenceData refData) {
 
-    return IborFuturePosition.ofLongShort(positionInfo, createProduct(refData), longQuantity, shortQuantity);
+    return OvernightFuturePosition.ofLongShort(positionInfo, createProduct(refData), longQuantity, shortQuantity);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   /**
-   * The meta-bean for {@code IborFutureSecurity}.
+   * The meta-bean for {@code OvernightFutureSecurity}.
    * @return the meta-bean, not null
    */
-  public static IborFutureSecurity.Meta meta() {
-    return IborFutureSecurity.Meta.INSTANCE;
+  public static OvernightFutureSecurity.Meta meta() {
+    return OvernightFutureSecurity.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(IborFutureSecurity.Meta.INSTANCE);
+    MetaBean.register(OvernightFutureSecurity.Meta.INSTANCE);
   }
 
   /**
@@ -176,31 +214,43 @@ public final class IborFutureSecurity
    * Returns a builder used to create an instance of the bean.
    * @return the builder, not null
    */
-  public static IborFutureSecurity.Builder builder() {
-    return new IborFutureSecurity.Builder();
+  public static OvernightFutureSecurity.Builder builder() {
+    return new OvernightFutureSecurity.Builder();
   }
 
-  private IborFutureSecurity(
+  private OvernightFutureSecurity(
       SecurityInfo info,
       double notional,
+      double accrualFactor,
       LocalDate lastTradeDate,
-      IborIndex index,
+      LocalDate startDate,
+      LocalDate endDate,
+      OvernightIndex index,
+      OvernightAccrualMethod accrualMethod,
       Rounding rounding) {
     JodaBeanUtils.notNull(info, "info");
     ArgChecker.notNegativeOrZero(notional, "notional");
+    ArgChecker.notNegativeOrZero(accrualFactor, "accrualFactor");
     JodaBeanUtils.notNull(lastTradeDate, "lastTradeDate");
+    JodaBeanUtils.notNull(startDate, "startDate");
+    JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(index, "index");
+    JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
     JodaBeanUtils.notNull(rounding, "rounding");
     this.info = info;
     this.notional = notional;
+    this.accrualFactor = accrualFactor;
     this.lastTradeDate = lastTradeDate;
+    this.startDate = startDate;
+    this.endDate = endDate;
     this.index = index;
+    this.accrualMethod = accrualMethod;
     this.rounding = rounding;
   }
 
   @Override
-  public IborFutureSecurity.Meta metaBean() {
-    return IborFutureSecurity.Meta.INSTANCE;
+  public OvernightFutureSecurity.Meta metaBean() {
+    return OvernightFutureSecurity.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -219,7 +269,7 @@ public final class IborFutureSecurity
   /**
    * Gets the notional amount.
    * <p>
-   * This is the full notional of the deposit, such as 1 million dollars.
+   * This is the full notional of the deposit, such as 5 million dollars.
    * The notional expressed here must be positive.
    * The currency of the notional the same as the currency of the index.
    * @return the value of the property
@@ -230,9 +280,23 @@ public final class IborFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the accrual factor, defaulted from the index if not set.
+   * <p>
+   * This is the year fraction of the contract, typically 1/12 for a 30-day future.
+   * As such, it is often unrelated to the day count of the index.
+   * The year fraction must be positive.
+   * @return the value of the property
+   */
+  public double getAccrualFactor() {
+    return accrualFactor;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the last date of trading.
-   * This date is also the fixing date for the Ibor index.
-   * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
+   * <p>
+   * This must be a valid business day on the fixing calendar of {@code index}.
+   * For example, the last trade date is often the last business day of the month.
    * @return the value of the property, not null
    */
   public LocalDate getLastTradeDate() {
@@ -241,15 +305,50 @@ public final class IborFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying Ibor index.
+   * Gets the first date of the rate calculation period.
+   * <p>
+   * This is not necessarily a valid business day on the fixing calendar of {@code index}.
+   * However, it will be adjusted in {@code OvernightRateComputation} if needed.
+   * @return the value of the property, not null
+   */
+  public LocalDate getStartDate() {
+    return startDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the last date of the rate calculation period.
+   * <p>
+   * This is not necessarily a valid business day on the fixing calendar of {@code index}.
+   * However, it will be adjusted in {@code OvernightRateComputation} if needed.
+   * @return the value of the property, not null
+   */
+  public LocalDate getEndDate() {
+    return endDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying Overnight index.
    * <p>
    * The future is based on this index.
-   * It will be a well known market index such as 'USD-LIBOR-3M'.
+   * It will be a well known market index such as 'USD-FED-FUND'.
    * @return the value of the property, not null
    */
   @Override
-  public IborIndex getIndex() {
+  public OvernightIndex getIndex() {
     return index;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the method of accruing Overnight interest.
+   * <p>
+   * The average rate is calculated based on this method over the period between {@code startDate} and {@code endDate}.
+   * @return the value of the property, not null
+   */
+  public OvernightAccrualMethod getAccrualMethod() {
+    return accrualMethod;
   }
 
   //-----------------------------------------------------------------------
@@ -281,11 +380,15 @@ public final class IborFutureSecurity
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      IborFutureSecurity other = (IborFutureSecurity) obj;
+      OvernightFutureSecurity other = (OvernightFutureSecurity) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(notional, other.notional) &&
+          JodaBeanUtils.equal(accrualFactor, other.accrualFactor) &&
           JodaBeanUtils.equal(lastTradeDate, other.lastTradeDate) &&
+          JodaBeanUtils.equal(startDate, other.startDate) &&
+          JodaBeanUtils.equal(endDate, other.endDate) &&
           JodaBeanUtils.equal(index, other.index) &&
+          JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
           JodaBeanUtils.equal(rounding, other.rounding);
     }
     return false;
@@ -296,20 +399,28 @@ public final class IborFutureSecurity
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(info);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualFactor);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(startDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(endDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(rounding);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("IborFutureSecurity{");
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("OvernightFutureSecurity{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("accrualFactor").append('=').append(accrualFactor).append(',').append(' ');
     buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
+    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
     buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("accrualMethod").append('=').append(accrualMethod).append(',').append(' ');
     buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();
@@ -317,7 +428,7 @@ public final class IborFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code IborFutureSecurity}.
+   * The meta-bean for {@code OvernightFutureSecurity}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -329,32 +440,52 @@ public final class IborFutureSecurity
      * The meta-property for the {@code info} property.
      */
     private final MetaProperty<SecurityInfo> info = DirectMetaProperty.ofImmutable(
-        this, "info", IborFutureSecurity.class, SecurityInfo.class);
+        this, "info", OvernightFutureSecurity.class, SecurityInfo.class);
     /**
      * The meta-property for the {@code notional} property.
      */
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", IborFutureSecurity.class, Double.TYPE);
+        this, "notional", OvernightFutureSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code accrualFactor} property.
+     */
+    private final MetaProperty<Double> accrualFactor = DirectMetaProperty.ofImmutable(
+        this, "accrualFactor", OvernightFutureSecurity.class, Double.TYPE);
     /**
      * The meta-property for the {@code lastTradeDate} property.
      */
     private final MetaProperty<LocalDate> lastTradeDate = DirectMetaProperty.ofImmutable(
-        this, "lastTradeDate", IborFutureSecurity.class, LocalDate.class);
+        this, "lastTradeDate", OvernightFutureSecurity.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
+        this, "startDate", OvernightFutureSecurity.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endDate} property.
+     */
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", OvernightFutureSecurity.class, LocalDate.class);
     /**
      * The meta-property for the {@code index} property.
      */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", IborFutureSecurity.class, IborIndex.class);
+    private final MetaProperty<OvernightIndex> index = DirectMetaProperty.ofImmutable(
+        this, "index", OvernightFutureSecurity.class, OvernightIndex.class);
+    /**
+     * The meta-property for the {@code accrualMethod} property.
+     */
+    private final MetaProperty<OvernightAccrualMethod> accrualMethod = DirectMetaProperty.ofImmutable(
+        this, "accrualMethod", OvernightFutureSecurity.class, OvernightAccrualMethod.class);
     /**
      * The meta-property for the {@code rounding} property.
      */
     private final MetaProperty<Rounding> rounding = DirectMetaProperty.ofImmutable(
-        this, "rounding", IborFutureSecurity.class, Rounding.class);
+        this, "rounding", OvernightFutureSecurity.class, Rounding.class);
     /**
      * The meta-property for the {@code currency} property.
      */
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofDerived(
-        this, "currency", IborFutureSecurity.class, Currency.class);
+        this, "currency", OvernightFutureSecurity.class, Currency.class);
     /**
      * The meta-properties.
      */
@@ -362,8 +493,12 @@ public final class IborFutureSecurity
         this, null,
         "info",
         "notional",
+        "accrualFactor",
         "lastTradeDate",
+        "startDate",
+        "endDate",
         "index",
+        "accrualMethod",
         "rounding",
         "currency");
 
@@ -380,10 +515,18 @@ public final class IborFutureSecurity
           return info;
         case 1585636160:  // notional
           return notional;
+        case -1540322338:  // accrualFactor
+          return accrualFactor;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
         case 100346066:  // index
           return index;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
         case -142444:  // rounding
           return rounding;
         case 575402001:  // currency
@@ -393,13 +536,13 @@ public final class IborFutureSecurity
     }
 
     @Override
-    public IborFutureSecurity.Builder builder() {
-      return new IborFutureSecurity.Builder();
+    public OvernightFutureSecurity.Builder builder() {
+      return new OvernightFutureSecurity.Builder();
     }
 
     @Override
-    public Class<? extends IborFutureSecurity> beanType() {
-      return IborFutureSecurity.class;
+    public Class<? extends OvernightFutureSecurity> beanType() {
+      return OvernightFutureSecurity.class;
     }
 
     @Override
@@ -425,6 +568,14 @@ public final class IborFutureSecurity
     }
 
     /**
+     * The meta-property for the {@code accrualFactor} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> accrualFactor() {
+      return accrualFactor;
+    }
+
+    /**
      * The meta-property for the {@code lastTradeDate} property.
      * @return the meta-property, not null
      */
@@ -433,11 +584,35 @@ public final class IborFutureSecurity
     }
 
     /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
+    }
+
+    /**
+     * The meta-property for the {@code endDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
+    }
+
+    /**
      * The meta-property for the {@code index} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborIndex> index() {
+    public MetaProperty<OvernightIndex> index() {
       return index;
+    }
+
+    /**
+     * The meta-property for the {@code accrualMethod} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<OvernightAccrualMethod> accrualMethod() {
+      return accrualMethod;
     }
 
     /**
@@ -461,17 +636,25 @@ public final class IborFutureSecurity
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3237038:  // info
-          return ((IborFutureSecurity) bean).getInfo();
+          return ((OvernightFutureSecurity) bean).getInfo();
         case 1585636160:  // notional
-          return ((IborFutureSecurity) bean).getNotional();
+          return ((OvernightFutureSecurity) bean).getNotional();
+        case -1540322338:  // accrualFactor
+          return ((OvernightFutureSecurity) bean).getAccrualFactor();
         case -1041950404:  // lastTradeDate
-          return ((IborFutureSecurity) bean).getLastTradeDate();
+          return ((OvernightFutureSecurity) bean).getLastTradeDate();
+        case -2129778896:  // startDate
+          return ((OvernightFutureSecurity) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((OvernightFutureSecurity) bean).getEndDate();
         case 100346066:  // index
-          return ((IborFutureSecurity) bean).getIndex();
+          return ((OvernightFutureSecurity) bean).getIndex();
+        case -1335729296:  // accrualMethod
+          return ((OvernightFutureSecurity) bean).getAccrualMethod();
         case -142444:  // rounding
-          return ((IborFutureSecurity) bean).getRounding();
+          return ((OvernightFutureSecurity) bean).getRounding();
         case 575402001:  // currency
-          return ((IborFutureSecurity) bean).getCurrency();
+          return ((OvernightFutureSecurity) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -489,14 +672,18 @@ public final class IborFutureSecurity
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code IborFutureSecurity}.
+   * The bean-builder for {@code OvernightFutureSecurity}.
    */
-  public static final class Builder extends DirectFieldsBeanBuilder<IborFutureSecurity> {
+  public static final class Builder extends DirectFieldsBeanBuilder<OvernightFutureSecurity> {
 
     private SecurityInfo info;
     private double notional;
+    private double accrualFactor;
     private LocalDate lastTradeDate;
-    private IborIndex index;
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private OvernightIndex index;
+    private OvernightAccrualMethod accrualMethod;
     private Rounding rounding;
 
     /**
@@ -509,11 +696,15 @@ public final class IborFutureSecurity
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    private Builder(IborFutureSecurity beanToCopy) {
+    private Builder(OvernightFutureSecurity beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.notional = beanToCopy.getNotional();
+      this.accrualFactor = beanToCopy.getAccrualFactor();
       this.lastTradeDate = beanToCopy.getLastTradeDate();
+      this.startDate = beanToCopy.getStartDate();
+      this.endDate = beanToCopy.getEndDate();
       this.index = beanToCopy.getIndex();
+      this.accrualMethod = beanToCopy.getAccrualMethod();
       this.rounding = beanToCopy.getRounding();
     }
 
@@ -525,10 +716,18 @@ public final class IborFutureSecurity
           return info;
         case 1585636160:  // notional
           return notional;
+        case -1540322338:  // accrualFactor
+          return accrualFactor;
         case -1041950404:  // lastTradeDate
           return lastTradeDate;
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
         case 100346066:  // index
           return index;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
         case -142444:  // rounding
           return rounding;
         default:
@@ -545,11 +744,23 @@ public final class IborFutureSecurity
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
+        case -1540322338:  // accrualFactor
+          this.accrualFactor = (Double) newValue;
+          break;
         case -1041950404:  // lastTradeDate
           this.lastTradeDate = (LocalDate) newValue;
           break;
+        case -2129778896:  // startDate
+          this.startDate = (LocalDate) newValue;
+          break;
+        case -1607727319:  // endDate
+          this.endDate = (LocalDate) newValue;
+          break;
         case 100346066:  // index
-          this.index = (IborIndex) newValue;
+          this.index = (OvernightIndex) newValue;
+          break;
+        case -1335729296:  // accrualMethod
+          this.accrualMethod = (OvernightAccrualMethod) newValue;
           break;
         case -142444:  // rounding
           this.rounding = (Rounding) newValue;
@@ -567,12 +778,16 @@ public final class IborFutureSecurity
     }
 
     @Override
-    public IborFutureSecurity build() {
-      return new IborFutureSecurity(
+    public OvernightFutureSecurity build() {
+      return new OvernightFutureSecurity(
           info,
           notional,
+          accrualFactor,
           lastTradeDate,
+          startDate,
+          endDate,
           index,
+          accrualMethod,
           rounding);
     }
 
@@ -593,7 +808,7 @@ public final class IborFutureSecurity
     /**
      * Sets the notional amount.
      * <p>
-     * This is the full notional of the deposit, such as 1 million dollars.
+     * This is the full notional of the deposit, such as 5 million dollars.
      * The notional expressed here must be positive.
      * The currency of the notional the same as the currency of the index.
      * @param notional  the new value
@@ -606,9 +821,25 @@ public final class IborFutureSecurity
     }
 
     /**
+     * Sets the accrual factor, defaulted from the index if not set.
+     * <p>
+     * This is the year fraction of the contract, typically 1/12 for a 30-day future.
+     * As such, it is often unrelated to the day count of the index.
+     * The year fraction must be positive.
+     * @param accrualFactor  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder accrualFactor(double accrualFactor) {
+      ArgChecker.notNegativeOrZero(accrualFactor, "accrualFactor");
+      this.accrualFactor = accrualFactor;
+      return this;
+    }
+
+    /**
      * Sets the last date of trading.
-     * This date is also the fixing date for the Ibor index.
-     * This is typically 2 business days before the IMM date (3rd Wednesday of the month).
+     * <p>
+     * This must be a valid business day on the fixing calendar of {@code index}.
+     * For example, the last trade date is often the last business day of the month.
      * @param lastTradeDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -619,16 +850,57 @@ public final class IborFutureSecurity
     }
 
     /**
-     * Sets the underlying Ibor index.
+     * Sets the first date of the rate calculation period.
+     * <p>
+     * This is not necessarily a valid business day on the fixing calendar of {@code index}.
+     * However, it will be adjusted in {@code OvernightRateComputation} if needed.
+     * @param startDate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder startDate(LocalDate startDate) {
+      JodaBeanUtils.notNull(startDate, "startDate");
+      this.startDate = startDate;
+      return this;
+    }
+
+    /**
+     * Sets the last date of the rate calculation period.
+     * <p>
+     * This is not necessarily a valid business day on the fixing calendar of {@code index}.
+     * However, it will be adjusted in {@code OvernightRateComputation} if needed.
+     * @param endDate  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder endDate(LocalDate endDate) {
+      JodaBeanUtils.notNull(endDate, "endDate");
+      this.endDate = endDate;
+      return this;
+    }
+
+    /**
+     * Sets the underlying Overnight index.
      * <p>
      * The future is based on this index.
-     * It will be a well known market index such as 'USD-LIBOR-3M'.
+     * It will be a well known market index such as 'USD-FED-FUND'.
      * @param index  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder index(IborIndex index) {
+    public Builder index(OvernightIndex index) {
       JodaBeanUtils.notNull(index, "index");
       this.index = index;
+      return this;
+    }
+
+    /**
+     * Sets the method of accruing Overnight interest.
+     * <p>
+     * The average rate is calculated based on this method over the period between {@code startDate} and {@code endDate}.
+     * @param accrualMethod  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder accrualMethod(OvernightAccrualMethod accrualMethod) {
+      JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
+      this.accrualMethod = accrualMethod;
       return this;
     }
 
@@ -651,12 +923,16 @@ public final class IborFutureSecurity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
-      buf.append("IborFutureSecurity.Builder{");
+      StringBuilder buf = new StringBuilder(320);
+      buf.append("OvernightFutureSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+      buf.append("accrualFactor").append('=').append(JodaBeanUtils.toString(accrualFactor)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+      buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+      buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
       buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
       buf.append('}');
       return buf.toString();

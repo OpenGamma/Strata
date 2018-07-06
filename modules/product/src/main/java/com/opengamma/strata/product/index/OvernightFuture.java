@@ -84,6 +84,7 @@ public final class OvernightFuture
    * The accrual factor, defaulted from the index if not set.
    * <p>
    * This is the year fraction of the contract, typically 1/12 for a 30-day future.
+   * As such, it is often unrelated to the day count of the index.
    * The year fraction must be positive.
    */
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
@@ -121,7 +122,7 @@ public final class OvernightFuture
   @PropertyDefinition(validate = "notNull")
   private final OvernightIndex index;
   /**
-   * The method of accruing overnight interest.
+   * The method of accruing Overnight interest.
    * <p>
    * The average rate is calculated based on this method over the period between {@code startDate} and {@code endDate}.
    */
@@ -293,6 +294,7 @@ public final class OvernightFuture
    * Gets the accrual factor, defaulted from the index if not set.
    * <p>
    * This is the year fraction of the contract, typically 1/12 for a 30-day future.
+   * As such, it is often unrelated to the day count of the index.
    * The year fraction must be positive.
    * @return the value of the property
    */
@@ -350,7 +352,7 @@ public final class OvernightFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method of accruing overnight interest.
+   * Gets the method of accruing Overnight interest.
    * <p>
    * The average rate is calculated based on this method over the period between {@code startDate} and {@code endDate}.
    * @return the value of the property, not null
@@ -856,6 +858,7 @@ public final class OvernightFuture
      * Sets the accrual factor, defaulted from the index if not set.
      * <p>
      * This is the year fraction of the contract, typically 1/12 for a 30-day future.
+     * As such, it is often unrelated to the day count of the index.
      * The year fraction must be positive.
      * @param accrualFactor  the new value
      * @return this, for chaining, not null
@@ -923,7 +926,7 @@ public final class OvernightFuture
     }
 
     /**
-     * Sets the method of accruing overnight interest.
+     * Sets the method of accruing Overnight interest.
      * <p>
      * The average rate is calculated based on this method over the period between {@code startDate} and {@code endDate}.
      * @param accrualMethod  the new value, not null
