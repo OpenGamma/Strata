@@ -94,7 +94,7 @@ public final class ResolvedOvernightFuture
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastTradeDate;
   /**
-   * The overnight rate observation.
+   * The Overnight rate observation.
    * <p>
    * The future is based on this index.
    * It will be a well known market index such as 'USD-FED-FUND'.
@@ -261,7 +261,7 @@ public final class ResolvedOvernightFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the overnight rate observation.
+   * Gets the Overnight rate observation.
    * <p>
    * The future is based on this index.
    * It will be a well known market index such as 'USD-FED-FUND'.
@@ -706,7 +706,7 @@ public final class ResolvedOvernightFuture
     }
 
     /**
-     * Sets the overnight rate observation.
+     * Sets the Overnight rate observation.
      * <p>
      * The future is based on this index.
      * It will be a well known market index such as 'USD-FED-FUND'.

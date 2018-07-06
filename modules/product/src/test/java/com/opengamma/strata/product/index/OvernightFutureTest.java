@@ -51,18 +51,7 @@ public class OvernightFutureTest {
 
   //-------------------------------------------------------------------------
   public void test_builder() {
-    OvernightFuture test = OvernightFuture.builder()
-        .securityId(SECURITY_ID)
-        .currency(USD)
-        .notional(NOTIONAL)
-        .accrualFactor(ACCRUAL_FACTOR)
-        .startDate(START_DATE)
-        .endDate(END_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .index(USD_FED_FUND)
-        .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
-        .rounding(ROUNDING)
-        .build();
+    OvernightFuture test = sut();
     assertEquals(test.getSecurityId(), SECURITY_ID);
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getNotional(), NOTIONAL);
@@ -131,18 +120,7 @@ public class OvernightFutureTest {
 
   //-------------------------------------------------------------------------
   public void test_resolve() {
-    OvernightFuture base = OvernightFuture.builder()
-        .securityId(SECURITY_ID)
-        .currency(USD)
-        .notional(NOTIONAL)
-        .accrualFactor(ACCRUAL_FACTOR)
-        .startDate(START_DATE)
-        .endDate(END_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .index(USD_FED_FUND)
-        .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
-        .rounding(ROUNDING)
-        .build();
+    OvernightFuture base = sut();
     ResolvedOvernightFuture expected = ResolvedOvernightFuture.builder()
         .securityId(SECURITY_ID)
         .currency(USD)
@@ -158,7 +136,20 @@ public class OvernightFutureTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    OvernightFuture test1 = OvernightFuture.builder()
+    OvernightFuture test1 = sut();
+    coverImmutableBean(test1);
+    OvernightFuture test2 = sut2();
+    coverBeanEquals(test1, test2);
+  }
+
+  public void test_serialization() {
+    OvernightFuture test = sut();
+    assertSerialization(test);
+  }
+
+  //-------------------------------------------------------------------------
+  static OvernightFuture sut() {
+    return OvernightFuture.builder()
         .securityId(SECURITY_ID)
         .currency(USD)
         .notional(NOTIONAL)
@@ -170,8 +161,10 @@ public class OvernightFutureTest {
         .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
         .rounding(ROUNDING)
         .build();
-    coverImmutableBean(test1);
-    OvernightFuture test2 = OvernightFuture.builder()
+  }
+
+  static OvernightFuture sut2() {
+    return OvernightFuture.builder()
         .securityId(SECURITY_ID2)
         .currency(GBP)
         .notional(NOTIONAL2)
@@ -183,23 +176,6 @@ public class OvernightFutureTest {
         .accrualMethod(OvernightAccrualMethod.COMPOUNDED)
         .rounding(Rounding.none())
         .build();
-    coverBeanEquals(test1, test2);
-  }
-
-  public void test_serialization() {
-    OvernightFuture test = OvernightFuture.builder()
-        .securityId(SECURITY_ID)
-        .currency(USD)
-        .notional(NOTIONAL)
-        .accrualFactor(ACCRUAL_FACTOR)
-        .startDate(START_DATE)
-        .endDate(END_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .index(USD_FED_FUND)
-        .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
-        .rounding(ROUNDING)
-        .build();
-    assertSerialization(test);
   }
 
 }
