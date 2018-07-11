@@ -26,6 +26,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.USGS;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.ZAJO;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
@@ -142,6 +143,19 @@ public class OvernightIndexTest {
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
   }
 
+  public void test_usdSofr() {
+    OvernightIndex test = OvernightIndex.of("USD-SOFR");
+    assertEquals(test.getName(), "USD-SOFR");
+    assertEquals(test.getCurrency(), USD);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), USGS);
+    assertEquals(test.getPublicationDateOffset(), 1);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "USD-SOFR");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_audAonia() {
     OvernightIndex test = OvernightIndex.of("AUD-AONIA");
     assertEquals(test.getName(), "AUD-AONIA");
