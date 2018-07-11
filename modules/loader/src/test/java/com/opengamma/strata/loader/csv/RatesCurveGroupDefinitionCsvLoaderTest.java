@@ -18,16 +18,16 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.io.ResourceLocator;
+import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
-import com.opengamma.strata.market.curve.CurveName;
 
 /**
- * Test {@link CurveGroupDefinitionCsvLoader}.
+ * Test {@link RatesCurveGroupDefinitionCsvLoader}.
  */
 @Test
-public class CurveGroupDefinitionCsvLoaderTest {
+public class RatesCurveGroupDefinitionCsvLoaderTest {
 
   private static final String GROUPS_1 = "classpath:com/opengamma/strata/loader/csv/groups.csv";
   private static final String SETTINGS_1 = "classpath:com/opengamma/strata/loader/csv/settings.csv";
@@ -37,7 +37,8 @@ public class CurveGroupDefinitionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_loadCurveGroupDefinition() {
-    List<RatesCurveGroupDefinition> defns = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
+    List<RatesCurveGroupDefinition> defns =
+        RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     assertEquals(defns.size(), 1);
     RatesCurveGroupDefinition defn = defns.get(0);
     assertEquals(defn.getEntries().get(0), RatesCurveGroupEntry.builder()
@@ -52,9 +53,10 @@ public class CurveGroupDefinitionCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void test_writeCurveGroupDefinition() {
-    RatesCurveGroupDefinition defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1)).get(0);
+    RatesCurveGroupDefinition defn =
+        RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1)).get(0);
     Appendable underlying = new StringBuilder();
-    CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(underlying, defn);
+    RatesCurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(underlying, defn);
     String created = underlying.toString();
     String expected =
         "Group Name,Curve Type,Reference,Curve Name" + System.lineSeparator() +
@@ -71,7 +73,7 @@ public class CurveGroupDefinitionCsvLoaderTest {
         ResourceLocator.of(SETTINGS_1),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
     Appendable underlying = new StringBuilder();
-    CurveGroupDefinitionCsvLoader.writeCurveGroup(underlying, curveGroups.get(0));
+    RatesCurveGroupDefinitionCsvLoader.writeCurveGroup(underlying, curveGroups.get(0));
     String created = underlying.toString();
     String expected =
         "Group Name,Curve Type,Reference,Curve Name" + System.lineSeparator() +
@@ -81,16 +83,17 @@ public class CurveGroupDefinitionCsvLoaderTest {
   }
 
   public void test_test_writeCurveGroupDefinition_roundtrip() throws Exception {
-    List<RatesCurveGroupDefinition> defn = CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
+    List<RatesCurveGroupDefinition> defn =
+        RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     File tempFile = File.createTempFile("TestCurveGroupLoading", "csv");
     tempFile.deleteOnExit();
-    CurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(tempFile, defn.get(0));
-    assertEquals(CurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.ofFile(tempFile)), defn);
+    RatesCurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(tempFile, defn.get(0));
+    assertEquals(RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.ofFile(tempFile)), defn);
   }
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(CurveGroupDefinitionCsvLoader.class);
+    coverPrivateConstructor(RatesCurveGroupDefinitionCsvLoader.class);
   }
 
 }

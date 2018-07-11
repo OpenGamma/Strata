@@ -248,7 +248,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
       DiscountingTermDepositProductPricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
 
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100);
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.of(1e-9, 1e-9, 100);
 
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;

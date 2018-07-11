@@ -209,7 +209,7 @@ public final class RatesCurvesCsvLoader {
       CharSource settingsCharSource,
       Collection<CharSource> curveValueCharSources) {
 
-    List<RatesCurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    List<RatesCurveGroupDefinition> curveGroups = RatesCurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
     Map<LocalDate, Map<CurveName, Curve>> curves =
         parseCurves(datePredicate, settingsCharSource, curveValueCharSources);
     ImmutableListMultimap.Builder<LocalDate, RatesCurveGroup> builder = ImmutableListMultimap.builder();

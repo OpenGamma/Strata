@@ -283,7 +283,7 @@ public final class RatesCalibrationCsvLoader {
       Collection<CharSource> curveNodeCharSources) {
 
     // load curve groups and settings
-    List<RatesCurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    List<RatesCurveGroupDefinition> curveGroups = RatesCurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
     Map<CurveName, LoadedCurveSettings> settingsMap = RatesCurvesCsvLoader.parseCurveSettings(settingsCharSource);
 
     // load curve definitions

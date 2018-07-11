@@ -274,7 +274,7 @@ public class CalibrationZeroRateUsd2OisFuturesHWIrsTest {
       IBOR_FUT_PAR_SPREAD_HW, TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.SWAP_PAR_SPREAD,
       TradeCalibrationMeasure.FX_SWAP_PAR_SPREAD, TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
       TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD);
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, HW_PAR_SPREAD);
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.of(1e-9, 1e-9, 100, HW_PAR_SPREAD);
 
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;

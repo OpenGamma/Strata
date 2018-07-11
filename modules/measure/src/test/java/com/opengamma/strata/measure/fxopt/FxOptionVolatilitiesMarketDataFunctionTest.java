@@ -91,7 +91,7 @@ import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.measure.StandardComponents;
 import com.opengamma.strata.measure.ValuationZoneTimeDefinition;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
-import com.opengamma.strata.pricer.curve.CurveCalibrator;
+import com.opengamma.strata.pricer.curve.RatesCurveCalibrator;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSmileVolatilities;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSurfaceVolatilities;
 import com.opengamma.strata.pricer.fxopt.BlackFxVanillaOptionTradePricer;
@@ -298,7 +298,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
   private static final MarketDataRequirements REQUIREMENTS = MarketDataRequirements.of(RULES, TARGETS, COLUMN, REF_DATA);
   private static final CalculationRunner CALC_RUNNER = CalculationRunner.ofMultiThreaded();
 
-  private static final CurveCalibrator CURVE_CALIBRATOR = CurveCalibrator.standard();
+  private static final RatesCurveCalibrator CURVE_CALIBRATOR = RatesCurveCalibrator.standard();
   private static final RatesProvider EXP_RATES = CURVE_CALIBRATOR.calibrate(CURVE_GROUP_DEFINITION, MARKET_DATA, REF_DATA);
   private static final RatesProvider EXP_RATES_1 = CURVE_CALIBRATOR.calibrate(
       CURVE_GROUP_DEFINITION, SCENARIO_MARKET_DATA.scenario(1), REF_DATA);
