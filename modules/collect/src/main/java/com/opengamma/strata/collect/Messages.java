@@ -169,7 +169,7 @@ public final class Messages {
       }
 
       String attributeName = matcher.group(1); // extract the attribute name
-      String replacement = args[argIndex].toString().replace("$", "\\$");
+      String replacement = String.valueOf(args[argIndex]).replace("$", "\\$");
       matcher.appendReplacement(outputMessageBuffer, replacement);
       if (!attributeName.isEmpty()) {
         attributes.put(attributeName, replacement);
