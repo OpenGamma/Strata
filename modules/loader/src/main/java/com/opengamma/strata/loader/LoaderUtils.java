@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.RollConvention;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
@@ -112,21 +111,7 @@ public final class LoaderUtils {
    * @return the resolved rate index
    */
   public static Index findIndex(String reference) {
-    if (IborIndex.extendedEnum().lookupAll().containsKey(reference)) {
-      return IborIndex.of(reference);
-
-    } else if (OvernightIndex.extendedEnum().lookupAll().containsKey(reference)) {
-      return OvernightIndex.of(reference);
-
-    } else if (PriceIndex.extendedEnum().lookupAll().containsKey(reference)) {
-      return PriceIndex.of(reference);
-
-    } else if (FxIndex.extendedEnum().lookupAll().containsKey(reference)) {
-      return FxIndex.of(reference);
-
-    } else {
-      throw new IllegalArgumentException(Messages.format("No index found for reference: {}", reference));
-    }
+    return Index.of(reference);
   }
 
   //-------------------------------------------------------------------------
