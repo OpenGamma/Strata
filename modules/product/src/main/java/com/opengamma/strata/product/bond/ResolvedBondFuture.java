@@ -107,17 +107,13 @@ public final class ResolvedBondFuture
    * The first delivery date.
    * <p>
    * The first date on which the underlying is delivered.
-   * If not specified, this is computed from {@code firstNoticeDate} by using
-   * {@code settlementDateOffset} in the first  element of the delivery basket.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate firstDeliveryDate;
   /**
-   * The last notice date.
+   * The last delivery date.
    * <p>
    * The last date on which the underlying is delivered.
-   * If not specified, this is computed from {@code lastNoticeDate} by using
-   * {@code settlementDateOffset} in the first element of the delivery basket.
    */
   @PropertyDefinition(validate = "notNull")
   private final LocalDate lastDeliveryDate;
@@ -332,8 +328,6 @@ public final class ResolvedBondFuture
    * Gets the first delivery date.
    * <p>
    * The first date on which the underlying is delivered.
-   * If not specified, this is computed from {@code firstNoticeDate} by using
-   * {@code settlementDateOffset} in the first  element of the delivery basket.
    * @return the value of the property, not null
    */
   public LocalDate getFirstDeliveryDate() {
@@ -342,11 +336,9 @@ public final class ResolvedBondFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the last notice date.
+   * Gets the last delivery date.
    * <p>
    * The last date on which the underlying is delivered.
-   * If not specified, this is computed from {@code lastNoticeDate} by using
-   * {@code settlementDateOffset} in the first element of the delivery basket.
    * @return the value of the property, not null
    */
   public LocalDate getLastDeliveryDate() {
@@ -888,8 +880,6 @@ public final class ResolvedBondFuture
      * Sets the first delivery date.
      * <p>
      * The first date on which the underlying is delivered.
-     * If not specified, this is computed from {@code firstNoticeDate} by using
-     * {@code settlementDateOffset} in the first  element of the delivery basket.
      * @param firstDeliveryDate  the new value, not null
      * @return this, for chaining, not null
      */
@@ -900,11 +890,9 @@ public final class ResolvedBondFuture
     }
 
     /**
-     * Sets the last notice date.
+     * Sets the last delivery date.
      * <p>
      * The last date on which the underlying is delivered.
-     * If not specified, this is computed from {@code lastNoticeDate} by using
-     * {@code settlementDateOffset} in the first element of the delivery basket.
      * @param lastDeliveryDate  the new value, not null
      * @return this, for chaining, not null
      */

@@ -109,17 +109,19 @@ public final class BondFuture
    * The first date on which the underlying is delivered.
    * <p>
    * If not specified, the date will be computed from {@code firstNoticeDate} by using
-   * {@code settlementDateOffset} in the first element of the delivery basket.
+   * {@code settlementDateOffset} in the first element of the delivery basket
+   * when the future is resolved.
    */
   @PropertyDefinition(get = "optional")
   private final LocalDate firstDeliveryDate;
   /**
-   * The last notice date.
+   * The last delivery date.
    * <p>
    * The last date on which the underlying is delivered.
    * <p>
    * If not specified, the date will be computed from {@code lastNoticeDate} by using
-   * {@code settlementDateOffset} in the first element of the delivery basket.
+   * {@code settlementDateOffset} in the first element of the delivery basket
+   * when the future is resolved.
    */
   @PropertyDefinition(get = "optional")
   private final LocalDate lastDeliveryDate;
@@ -358,7 +360,8 @@ public final class BondFuture
    * The first date on which the underlying is delivered.
    * <p>
    * If not specified, the date will be computed from {@code firstNoticeDate} by using
-   * {@code settlementDateOffset} in the first element of the delivery basket.
+   * {@code settlementDateOffset} in the first element of the delivery basket
+   * when the future is resolved.
    * @return the optional value of the property, not null
    */
   public Optional<LocalDate> getFirstDeliveryDate() {
@@ -367,12 +370,13 @@ public final class BondFuture
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the last notice date.
+   * Gets the last delivery date.
    * <p>
    * The last date on which the underlying is delivered.
    * <p>
    * If not specified, the date will be computed from {@code lastNoticeDate} by using
-   * {@code settlementDateOffset} in the first element of the delivery basket.
+   * {@code settlementDateOffset} in the first element of the delivery basket
+   * when the future is resolved.
    * @return the optional value of the property, not null
    */
   public Optional<LocalDate> getLastDeliveryDate() {
@@ -916,7 +920,8 @@ public final class BondFuture
      * The first date on which the underlying is delivered.
      * <p>
      * If not specified, the date will be computed from {@code firstNoticeDate} by using
-     * {@code settlementDateOffset} in the first element of the delivery basket.
+     * {@code settlementDateOffset} in the first element of the delivery basket
+     * when the future is resolved.
      * @param firstDeliveryDate  the new value
      * @return this, for chaining, not null
      */
@@ -926,12 +931,13 @@ public final class BondFuture
     }
 
     /**
-     * Sets the last notice date.
+     * Sets the last delivery date.
      * <p>
      * The last date on which the underlying is delivered.
      * <p>
      * If not specified, the date will be computed from {@code lastNoticeDate} by using
-     * {@code settlementDateOffset} in the first element of the delivery basket.
+     * {@code settlementDateOffset} in the first element of the delivery basket
+     * when the future is resolved.
      * @param lastDeliveryDate  the new value
      * @return this, for chaining, not null
      */
