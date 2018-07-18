@@ -36,6 +36,11 @@ public class DateSequenceTest {
     assertEquals(test, DateSequences.QUARTERLY_IMM);
   }
 
+  public void test_QUARTERLY_10TH_of() {
+    DateSequence test = DateSequence.of("Quarterly-10th");
+    assertEquals(test, DateSequences.QUARTERLY_10TH);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "quarterlyImm")
   public static Object[][] data_quarterlyImm() {
@@ -58,6 +63,7 @@ public class DateSequenceTest {
       assertEquals(DateSequences.QUARTERLY_IMM.nthOrSame(date, 3), immDate3);
       date = date.plusDays(1);
     }
+    assertEquals(DateSequences.QUARTERLY_IMM.dateMatching(YearMonth.from(date)), immDate1);
   }
 
   @Test(dataProvider = "quarterlyImm")
@@ -98,6 +104,7 @@ public class DateSequenceTest {
       assertEquals(DateSequences.MONTHLY_IMM.nthOrSame(date, 3), immDate3);
       date = date.plusDays(1);
     }
+    assertEquals(DateSequences.MONTHLY_IMM.dateMatching(YearMonth.from(date)), immDate1);
   }
 
   @Test(dataProvider = "monthlyImm")
@@ -113,6 +120,49 @@ public class DateSequenceTest {
         assertEquals(DateSequences.MONTHLY_IMM.nth(date, 1), immDate1);
         assertEquals(DateSequences.MONTHLY_IMM.nth(date, 2), immDate2);
         assertEquals(DateSequences.MONTHLY_IMM.nth(date, 3), immDate3);
+      }
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "quarterly10th")
+  public static Object[][] data_quarterly10th() {
+    return new Object[][] {
+        {date(2013, 1, 1), date(2013, 3, 10), date(2013, 6, 10), date(2013, 9, 10)},
+        {date(2013, 3, 20), date(2013, 6, 10), date(2013, 9, 10), date(2013, 12, 10)},
+        {date(2013, 6, 19), date(2013, 9, 10), date(2013, 12, 10), date(2014, 3, 10)},
+        {date(2013, 9, 18), date(2013, 12, 10), date(2014, 3, 10), date(2014, 6, 10)},
+        {date(2013, 12, 18), date(2014, 3, 10), date(2014, 6, 10), date(2014, 9, 10)},
+    };
+  }
+
+  @Test(dataProvider = "quarterly10th")
+  public void test_nextOrSameQuarterly10th(LocalDate base, LocalDate expect1, LocalDate expect2, LocalDate expect3) {
+    LocalDate date = base.plusDays(1);
+    while (!date.isAfter(expect1)) {
+      assertEquals(DateSequences.QUARTERLY_10TH.nextOrSame(date), expect1);
+      assertEquals(DateSequences.QUARTERLY_10TH.nthOrSame(date, 1), expect1);
+      assertEquals(DateSequences.QUARTERLY_10TH.nthOrSame(date, 2), expect2);
+      assertEquals(DateSequences.QUARTERLY_10TH.nthOrSame(date, 3), expect3);
+      date = date.plusDays(1);
+    }
+    assertEquals(DateSequences.QUARTERLY_10TH.dateMatching(YearMonth.from(date)), expect1);
+  }
+
+  @Test(dataProvider = "quarterly10th")
+  public void test_nextQuarterly10th(LocalDate base, LocalDate expect1, LocalDate expect2, LocalDate expect3) {
+    LocalDate date = base;
+    while (!date.isAfter(expect1)) {
+      if (date.equals(expect1)) {
+        assertEquals(DateSequences.QUARTERLY_10TH.next(date), expect2);
+        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 1), expect2);
+        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 2), expect3);
+      } else {
+        assertEquals(DateSequences.QUARTERLY_10TH.next(date), expect1);
+        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 1), expect1);
+        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 2), expect2);
+        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 3), expect3);
       }
       date = date.plusDays(1);
     }
