@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
 
 /**
- * Provide that loads common global holiday calendars from binary form on the classpath.
+ * Provider that loads common global holiday calendars from binary form on the classpath.
  */
 final class GlobalHolidayCalendarLookup implements NamedLookup<HolidayCalendar> {
 
