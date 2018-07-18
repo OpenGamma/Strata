@@ -412,5 +412,4 @@ file_export_version=3.0
 /instance/org.eclipse.wst.xml.core/lineWidth=120
 /instance/org.eclipse.wst.xml.ui/autoPropose=false
 /instance/org.eclipse.wst.xml.ui/insertSingleSuggestion=false
-/instance/org.testng.eclipse/.disabledListeners=true
 /instance/org.testng.eclipse/.outdir=/target/testng-output
