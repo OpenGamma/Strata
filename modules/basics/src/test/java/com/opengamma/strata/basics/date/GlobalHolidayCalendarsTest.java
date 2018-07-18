@@ -1146,6 +1146,17 @@ public class GlobalHolidayCalendarsTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_combinedWith() {
+    HolidayCalendar combined =
+        ImmutableHolidayCalendar.combined((ImmutableHolidayCalendar) JPTO, (ImmutableHolidayCalendar) USNY);
+    LocalDate date = LocalDate.of(1950, 1, 1);
+    while (date.getYear() < 2040) {
+      assertEquals(combined.isHoliday(date), JPTO.isHoliday(date) || USNY.isHoliday(date), "Date: " + date);
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   private static List<LocalDate> mds(int year, MonthDay... monthDays) {
     List<LocalDate> holidays = new ArrayList<>();
     for (MonthDay md : monthDays) {

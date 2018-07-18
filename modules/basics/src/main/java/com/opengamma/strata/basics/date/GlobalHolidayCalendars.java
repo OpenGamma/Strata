@@ -19,6 +19,10 @@ import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.time.temporal.TemporalAdjusters.previous;
 import static java.util.stream.Collectors.toSet;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -28,6 +32,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.io.Files;
+
 /**
  * Implementation of some common global holiday calendars.
  * <p>
@@ -36,250 +42,64 @@ import java.util.Set;
  * This data may or may not be sufficient for your production needs.
  */
 final class GlobalHolidayCalendars {
+  // WARNING!!
+  // If you change this file, you must run the main method to update the binary file
+  // which is used at runtime (for performance reasons)
 
-  /**
-   * The holiday calendar for London, United Kingdom, with code 'GBLO'.
-   * <p>
-   * This constant provides the calendar for London bank holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar GBLO = generateLondon();
-  /**
-   * The holiday calendar for Paris, France, with code 'FRPA'.
-   * <p>
-   * This constant provides the calendar for Paris public holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar FRPA = generateParis();
-  /**
-   * The holiday calendar for Frankfurt, Germany, with code 'DEFR'.
-   * <p>
-   * This constant provides the calendar for Frankfurt public holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar DEFR = generateFrankfurt();
-  /**
-   * The holiday calendar for Zurich, Switzerland, with code 'EUTA'.
-   * <p>
-   * This constant provides the calendar for Zurich public holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar CHZU = generateZurich();
-  /**
-   * The holiday calendar for the European Union TARGET system, with code 'EUTA'.
-   * <p>
-   * This constant provides the calendar for the TARGET interbank payment system holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1997 to 2099.
-   * Future dates are an extrapolations of the latest known rules.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.8.
-   */
-  public static final HolidayCalendar EUTA = generateEuropeanTarget();
-  /**
-   * The holiday calendar for United States Government Securities, with code 'USGS'.
-   * <p>
-   * This constant provides the calendar for United States Government Securities as per SIFMA.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.11.
-   */
-  public static final HolidayCalendar USGS = generateUsGovtSecurities();
-  /**
-   * The holiday calendar for New York, United States, with code 'USNY'.
-   * <p>
-   * This constant provides the calendar for New York holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar USNY = generateUsNewYork();
-  /**
-   * The holiday calendar for the Federal Reserve Bank of New York, with code 'NYFD'.
-   * <p>
-   * This constant provides the calendar for the Federal Reserve Bank of New York holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.9.
-   */
-  public static final HolidayCalendar NYFD = generateNewYorkFed();
-  /**
-   * The holiday calendar for the New York Stock Exchange, with code 'NYSE'.
-   * <p>
-   * This constant provides the calendar for the New York Stock Exchange.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * <p>
-   * Referenced by the 2006 ISDA definitions 1.10.
-   */
-  public static final HolidayCalendar NYSE = generateNewYorkStockExchange();
-  /**
-   * The holiday calendar for Tokyo, Japan, with code 'JPTO'.
-   * <p>
-   * This constant provides the calendar for Tokyo bank holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar JPTO = generateTokyo();
-
-  /**
-   * The holiday calendar for Sydney, Australia, with code 'AUSY'.
-   * <p>
-   * This constant provides the calendar for Sydney holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar AUSY = generateSydney();
-  /**
-   * The holiday calendar for Brazil with code 'BRBD'.
-   * <p>
-   * This constant references the combined calendar for Brazil bank holidays.
-   * This unites city-level calendars.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar BRBD = generateBrazil();
-  /**
-   * The holiday calendar for Montreal, Canada, with code 'CAMO'.
-   * <p>
-   * This constant provides the calendar for Montreal holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar CAMO = generateMontreal();
-  /**
-   * The holiday calendar for Toronto, Canada, with code 'CATO'.
-   * <p>
-   * This constant provides the calendar for Toronto holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar CATO = generateToronto();
-  /**
-   * The holiday calendar of Prague, Czech Republic, with code 'CZPR'.
-   * <p>
-   * This constant provides the calendar for Prague bank holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar CZPR = generatePrague();
-  /**
-   * The holiday calendar for Copenhagen, Denmark, with code 'DKCO'.
-   * <p>
-   * This constant provides the calendar for Copenhagen holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar DKCO = generateCopenhagen();
-  /**
-   * The holiday calendar for Budapest, Hungary, with code 'HUBU'.
-   * <p>
-   * This constant provides the calendar for Budapest holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar HUBU = generateBudapest();
-  /**
-   * The holiday calendar for Mexico City, Mexico, with code 'HUBU'.
-   * <p>
-   * This constant provides the calendar for Mexico City holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar MXMC = generateMexicoCity();
-  /**
-   * The holiday calendar for Oslo, Norway, with code 'NOOS'.
-   * <p>
-   * This constant provides the calendar for Oslo holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar NOOS = generateOslo();
-  /**
-   * The holiday calendar for Auckland, New Zealand, with code 'NZAU'.
-   * <p>
-   * This constant provides the calendar for Auckland holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar NZAU = generateAuckland();
-  /**
-   * The holiday calendar for Wellington, New Zealand, with code 'NZWE'.
-   * <p>
-   * This constant provides the calendar for Wellington holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar NZWE = generateWellington();
-  /**
-   * The holiday calendar for New Zealand, with code 'NZBD'.
-   * <p>
-   * This constant provides the calendar for New Zealand holidays.
-   * This code is non-standard, and is not included in the official ISDA list.
-   * The NZAU code includes Auckland anniversary day.
-   * The NZWE code includes Wellington anniversary day.
-   * NZBD includes neither, and is intended for use with the NZD-BKBM index only.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   * <p>
-   * NOTE: This code is NOT in {@link HolidayCalendarIds} as it should only be used in NZD-BKBM.
-   */
-  public static final HolidayCalendar NZBD = generateNewZealand();
-  /**
-   * The holiday calendar for Warsaw, Poland, with code 'PLWA'.
-   * <p>
-   * This constant provides the calendar for Warsaw holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar PLWA = generateWarsaw();
-  /**
-   * The holiday calendar for Stockholm, Sweden, with code 'SEST'.
-   * <p>
-   * This constant provides the calendar for Stockholm holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar SEST = generateStockholm();
-  /**
-   * The holiday calendar for Johannesburg, South Africa, with code 'ZAJO'.
-   * <p>
-   * This constant provides the calendar for Johannesburg holidays.
-   * <p>
-   * The default implementation is based on original research and covers 1950 to 2099.
-   * Future and past dates are an extrapolations of the latest known rules.
-   */
-  public static final HolidayCalendar ZAJO = generateJohannesburg();
+  /** Where to store the file. */
+  private static final File DATA_FILE =
+      new File("src/main/resources/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
 
   //-------------------------------------------------------------------------
+  /**
+   * Used to generate a binary holiday data file.
+   * 
+   * @param args ignored
+   * @throws IOException if an IO error occurs
+   */
+  public static void main(String[] args) throws IOException {
+    Files.createParentDirs(DATA_FILE);
+    ImmutableHolidayCalendar[] calendars = {
+        generateLondon(),
+        generateParis(),
+        generateFrankfurt(),
+        generateZurich(),
+        generateEuropeanTarget(),
+        generateUsGovtSecurities(),
+        generateUsNewYork(),
+        generateNewYorkFed(),
+        generateNewYorkStockExchange(),
+        generateTokyo(),
+        generateSydney(),
+        generateBrazil(),
+        generateMontreal(),
+        generateToronto(),
+        generatePrague(),
+        generateCopenhagen(),
+        generateBudapest(),
+        generateMexicoCity(),
+        generateOslo(),
+        generateAuckland(),
+        generateWellington(),
+        generateNewZealand(),
+        generateWarsaw(),
+        generateStockholm(),
+        generateJohannesburg(),
+    };
+    try (FileOutputStream fos = new FileOutputStream(DATA_FILE)) {
+      try (DataOutputStream out = new DataOutputStream(fos)) {
+        out.writeByte('H');
+        out.writeByte('C');
+        out.writeByte('a');
+        out.writeByte('l');
+        out.writeShort(calendars.length);
+        for (ImmutableHolidayCalendar cal : calendars) {
+          cal.writeExternal(out);
+        }
+      }
+    }
+  }
+
   /**
    * Restricted constructor.
    */
@@ -1259,6 +1079,7 @@ final class GlobalHolidayCalendars {
         return;
       case SATURDAY:
       case SUNDAY:
+      default:
         return;
     }
   }

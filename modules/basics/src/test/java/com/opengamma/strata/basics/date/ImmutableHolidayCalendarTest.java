@@ -17,6 +17,7 @@ import static java.time.DayOfWeek.THURSDAY;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -24,12 +25,14 @@ import java.util.Random;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
+import com.opengamma.strata.collect.io.ResourceLocator;
 
 /**
  * Test {@link ImmutableHolidayCalendar}.
@@ -40,6 +43,7 @@ public class ImmutableHolidayCalendarTest {
   private static final HolidayCalendarId TEST_ID = HolidayCalendarId.of("Test1");
   private static final HolidayCalendarId TEST_ID2 = HolidayCalendarId.of("Test2");
 
+  private static final LocalDate MON_2014_06_30 = LocalDate.of(2014, 6, 30);
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
   private static final LocalDate FRI_2014_07_11 = LocalDate.of(2014, 7, 11);
@@ -55,19 +59,33 @@ public class ImmutableHolidayCalendarTest {
   private static final LocalDate MON_2014_07_21 = LocalDate.of(2014, 7, 21);
   private static final LocalDate TUE_2014_07_22 = LocalDate.of(2014, 7, 22);
   private static final LocalDate WED_2014_07_23 = LocalDate.of(2014, 7, 23);
-
-  private static final ImmutableHolidayCalendar HOLCAL_MON_WED = ImmutableHolidayCalendar.of(
-      TEST_ID, ImmutableList.of(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
-
+  private static final LocalDate WED_2014_07_30 = LocalDate.of(2014, 7, 30);
+  private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
   private static final LocalDate MON_2014_12_29 = LocalDate.of(2014, 12, 29);
   private static final LocalDate TUE_2014_12_30 = LocalDate.of(2014, 12, 30);
   private static final LocalDate WED_2014_12_31 = LocalDate.of(2014, 12, 31);
+
   private static final LocalDate THU_2015_01_01 = LocalDate.of(2015, 1, 1);
   private static final LocalDate FRI_2015_01_02 = LocalDate.of(2015, 1, 2);
   private static final LocalDate SAT_2015_01_03 = LocalDate.of(2015, 1, 3);
   private static final LocalDate MON_2015_01_05 = LocalDate.of(2015, 1, 5);
+  private static final LocalDate FRI_2015_02_27 = LocalDate.of(2015, 2, 27);
+  private static final LocalDate SAT_2015_02_28 = LocalDate.of(2015, 2, 28);
+  private static final LocalDate SAT_2015_03_28 = LocalDate.of(2015, 3, 28);
+  private static final LocalDate SUN_2015_03_29 = LocalDate.of(2015, 3, 29);
+  private static final LocalDate MON_2015_03_30 = LocalDate.of(2015, 3, 30);
   private static final LocalDate TUE_2015_03_31 = LocalDate.of(2015, 3, 31);
   private static final LocalDate WED_2015_04_01 = LocalDate.of(2015, 4, 1);
+  private static final LocalDate THU_2015_04_02 = LocalDate.of(2015, 4, 2);
+
+  private static final LocalDate SAT_2018_07_14 = LocalDate.of(2018, 7, 14);
+  private static final LocalDate SUN_2018_07_15 = LocalDate.of(2018, 7, 15);
+  private static final LocalDate MON_2018_07_16 = LocalDate.of(2018, 7, 16);
+  private static final LocalDate TUE_2018_07_17 = LocalDate.of(2018, 7, 17);
+  private static final LocalDate WED_2018_07_18 = LocalDate.of(2018, 7, 18);
+
+  private static final ImmutableHolidayCalendar HOLCAL_MON_WED = ImmutableHolidayCalendar.of(
+      TEST_ID, ImmutableList.of(MON_2014_07_14, WED_2014_07_16), SATURDAY, SUNDAY);
 
   private static final ImmutableHolidayCalendar HOLCAL_YEAR_END = ImmutableHolidayCalendar.of(
       HolidayCalendarId.of("TestYearEnd"), ImmutableList.of(TUE_2014_12_30, THU_2015_01_01), SATURDAY, SUNDAY);
@@ -75,15 +93,8 @@ public class ImmutableHolidayCalendarTest {
   private static final ImmutableHolidayCalendar HOLCAL_SAT_SUN = ImmutableHolidayCalendar.of(
       HolidayCalendarId.of("TestSatSun"), ImmutableList.of(), SATURDAY, SUNDAY);
 
-  private static final LocalDate MON_2014_06_30 = LocalDate.of(2014, 6, 30);
-  private static final LocalDate WED_2014_07_30 = LocalDate.of(2014, 7, 30);
-  private static final LocalDate THU_2014_07_31 = LocalDate.of(2014, 7, 31);
-
   private static final ImmutableHolidayCalendar HOLCAL_END_MONTH = ImmutableHolidayCalendar.of(
       HolidayCalendarId.of("TestEndOfMonth"), ImmutableList.of(MON_2014_06_30, THU_2014_07_31), SATURDAY, SUNDAY);
-
-  private static final LocalDate FRI_2015_02_27 = LocalDate.of(2015, 2, 27);
-  private static final LocalDate SAT_2015_02_28 = LocalDate.of(2015, 2, 28);
 
   //-------------------------------------------------------------------------
   public void test_of_IterableDayOfWeekDayOfWeek_null() {
@@ -334,29 +345,71 @@ public class ImmutableHolidayCalendarTest {
     assertSame(test, base);
   }
 
-  //-------------------------------------------------------------------------
-  public void test_beanBuilder() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of(MON_2014_07_14, TUE_2014_07_15);
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.meta().builder()
-        .set(ImmutableHolidayCalendar.meta().id(), TEST_ID)
-        .set(ImmutableHolidayCalendar.meta().holidays(), holidays)
-        .set(ImmutableHolidayCalendar.meta().weekendDays(), weekendDays)
-        .build();
-    assertEquals(test.getHolidays(), holidays);
-    assertEquals(test.getWeekendDays(), weekendDays);
+  public void test_combined_differentStartYear1() {
+    Iterable<LocalDate> holidays1 = Arrays.asList(WED_2015_04_01);
+    ImmutableHolidayCalendar base1 = ImmutableHolidayCalendar.of(TEST_ID, holidays1, SATURDAY, SUNDAY);
+    Iterable<LocalDate> holidays2 = Arrays.asList(MON_2014_07_14, TUE_2015_03_31);
+    ImmutableHolidayCalendar base2 = ImmutableHolidayCalendar.of(TEST_ID2, holidays2, SATURDAY, SUNDAY);
+    HolidayCalendar test = ImmutableHolidayCalendar.combined(base1, base2);
+    assertEquals(test.getName(), "Test1+Test2");
+
+    assertEquals(test.isHoliday(THU_2014_07_10), false);
+    assertEquals(test.isHoliday(FRI_2014_07_11), false);
+    assertEquals(test.isHoliday(SAT_2014_07_12), true);
+    assertEquals(test.isHoliday(SUN_2014_07_13), true);
+    assertEquals(test.isHoliday(MON_2014_07_14), true);
+    assertEquals(test.isHoliday(TUE_2014_07_15), false);
+
+    assertEquals(test.isHoliday(MON_2015_03_30), false);
+    assertEquals(test.isHoliday(TUE_2015_03_31), true);
+    assertEquals(test.isHoliday(WED_2015_04_01), true);
+    assertEquals(test.isHoliday(THU_2015_04_02), false);
   }
 
-  public void test_beanBuilder_noHolidays() {
-    ImmutableSortedSet<LocalDate> holidays = ImmutableSortedSet.of();
-    ImmutableSortedSet<DayOfWeek> weekendDays = ImmutableSortedSet.of(SATURDAY, SUNDAY);
-    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.meta().builder()
-        .set(ImmutableHolidayCalendar.meta().id(), TEST_ID)
-        .set(ImmutableHolidayCalendar.meta().holidays(), holidays)
-        .set(ImmutableHolidayCalendar.meta().weekendDays(), weekendDays)
-        .build();
-    assertEquals(test.getHolidays(), holidays);
-    assertEquals(test.getWeekendDays(), weekendDays);
+  public void test_combined_differentStartYear2() {
+    Iterable<LocalDate> holidays1 = Arrays.asList(MON_2014_07_14, TUE_2015_03_31);
+    ImmutableHolidayCalendar base1 = ImmutableHolidayCalendar.of(TEST_ID, holidays1, SATURDAY, SUNDAY);
+    Iterable<LocalDate> holidays2 = Arrays.asList(WED_2015_04_01);
+    ImmutableHolidayCalendar base2 = ImmutableHolidayCalendar.of(TEST_ID2, holidays2, SATURDAY, SUNDAY);
+    HolidayCalendar test = ImmutableHolidayCalendar.combined(base1, base2);
+    assertEquals(test.getName(), "Test1+Test2");
+
+    assertEquals(test.isHoliday(THU_2014_07_10), false);
+    assertEquals(test.isHoliday(FRI_2014_07_11), false);
+    assertEquals(test.isHoliday(SAT_2014_07_12), true);
+    assertEquals(test.isHoliday(SUN_2014_07_13), true);
+    assertEquals(test.isHoliday(MON_2014_07_14), true);
+    assertEquals(test.isHoliday(TUE_2014_07_15), false);
+
+    assertEquals(test.isHoliday(MON_2015_03_30), false);
+    assertEquals(test.isHoliday(TUE_2015_03_31), true);
+    assertEquals(test.isHoliday(WED_2015_04_01), true);
+    assertEquals(test.isHoliday(THU_2015_04_02), false);
+  }
+
+  public void test_combined_splitYears() {
+    Iterable<LocalDate> holidays1 = Arrays.asList(TUE_2018_07_17);
+    ImmutableHolidayCalendar base1 = ImmutableHolidayCalendar.of(TEST_ID, holidays1, SATURDAY, SUNDAY);
+    Iterable<LocalDate> holidays2 = Arrays.asList(WED_2015_04_01);
+    ImmutableHolidayCalendar base2 = ImmutableHolidayCalendar.of(TEST_ID2, holidays2, SATURDAY, SUNDAY);
+    HolidayCalendar test = ImmutableHolidayCalendar.combined(base1, base2);
+    assertEquals(test.getName(), "Test1+Test2");
+
+    assertEquals(test.isHoliday(SAT_2014_07_12), true);
+    assertEquals(test.isHoliday(SUN_2014_07_13), true);
+
+    assertEquals(test.isHoliday(SAT_2015_03_28), true);
+    assertEquals(test.isHoliday(SUN_2015_03_29), true);
+    assertEquals(test.isHoliday(MON_2015_03_30), false);
+    assertEquals(test.isHoliday(TUE_2015_03_31), false);
+    assertEquals(test.isHoliday(WED_2015_04_01), true);
+    assertEquals(test.isHoliday(THU_2015_04_02), false);
+
+    assertEquals(test.isHoliday(SAT_2018_07_14), true);
+    assertEquals(test.isHoliday(SUN_2018_07_15), true);
+    assertEquals(test.isHoliday(MON_2018_07_16), false);
+    assertEquals(test.isHoliday(TUE_2018_07_17), true);
+    assertEquals(test.isHoliday(WED_2018_07_18), false);
   }
 
   //-------------------------------------------------------------------------
@@ -774,6 +827,7 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(MON_2014_07_21), false);
   }
 
+  //-------------------------------------------------------------------------
   public void test_combineWith_same() {
     Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_16);
     ImmutableHolidayCalendar base = ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, SUNDAY);
@@ -851,6 +905,14 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_serialization() {
     assertSerialization(HOLCAL_MON_WED);
+  }
+
+  public void test_readOldJodaFormat() throws IOException {
+    ResourceLocator file =
+        ResourceLocator.ofClasspath("com/opengamma/strata/basics/date/ImmutableHolidayCalendar-Old.json");
+    String str = file.getCharSource().read();
+    ImmutableHolidayCalendar cal = JodaBeanSer.PRETTY.jsonReader().read(str, ImmutableHolidayCalendar.class);
+    assertEquals(cal.getId(), HolidayCalendarId.of("NZAU"));
   }
 
 }
