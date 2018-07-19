@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.basics.date;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.NoSuchElementException;
@@ -21,6 +19,9 @@ import org.joda.beans.impl.StandaloneMetaProperty;
 import org.joda.beans.ser.DefaultDeserializer;
 import org.joda.beans.ser.SerDeserializer;
 
+import com.google.common.reflect.TypeToken;
+import com.opengamma.strata.basics.date.ImmutableHolidayCalendar.Meta;
+
 /**
  * Deserialize {@code ImmutableHolidayCalendar} handling old format.
  */
@@ -29,17 +30,20 @@ final class ImmutableHolidayCalendarDeserializer extends DefaultDeserializer {
   /** Singleton instance. */
   public static final SerDeserializer INSTANCE = new ImmutableHolidayCalendarDeserializer();
 
-  private static final MetaProperty<HolidayCalendarId> ID = ImmutableHolidayCalendar.meta().id();
-  private static final MetaProperty<Integer> WEEKENDS = ImmutableHolidayCalendar.meta().weekends();
-  private static final MetaProperty<Integer> START_YEAR = ImmutableHolidayCalendar.meta().startYear();
-  private static final MetaProperty<int[]> LOOKUP = ImmutableHolidayCalendar.meta().lookup();
+  private static final Meta META_BEAN = ImmutableHolidayCalendar.meta();
+  private static final MetaProperty<HolidayCalendarId> ID = META_BEAN.id();
+  private static final MetaProperty<Integer> WEEKENDS = META_BEAN.weekends();
+  private static final MetaProperty<Integer> START_YEAR = META_BEAN.startYear();
+  private static final MetaProperty<int[]> LOOKUP = META_BEAN.lookup();
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static final MetaProperty<Set<String>> HOLIDAYS =
-      (MetaProperty) StandaloneMetaProperty.of("holidays", ImmutableHolidayCalendar.meta(), Set.class);
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static final MetaProperty<Set<String>> WEEKEND_DAYS =
-      (MetaProperty) StandaloneMetaProperty.of("weekendDays", ImmutableHolidayCalendar.meta(), Set.class);
+  @SuppressWarnings({"rawtypes", "unchecked", "serial"})
+  private static final MetaProperty<Set<LocalDate>> HOLIDAYS =
+      (MetaProperty) StandaloneMetaProperty.of(
+          "holidays", META_BEAN, Set.class, new TypeToken<Set<LocalDate>>() {}.getType());
+  @SuppressWarnings({"rawtypes", "unchecked", "serial"})
+  private static final MetaProperty<Set<DayOfWeek>> WEEKEND_DAYS =
+      (MetaProperty) StandaloneMetaProperty.of(
+          "weekendDays", META_BEAN, Set.class, new TypeToken<Set<DayOfWeek>>() {}.getType());
 
   //-------------------------------------------------------------------------
   /**
@@ -73,12 +77,9 @@ final class ImmutableHolidayCalendarDeserializer extends DefaultDeserializer {
     ConcurrentMap<MetaProperty<?>, Object> buffer = ((BufferingBeanBuilder<?>) builder).getBuffer();
     HolidayCalendarId id = builder.get(ID);
     if (buffer.containsKey(HOLIDAYS) && buffer.containsKey(WEEKEND_DAYS)) {
-      Set<String> holidays = builder.get(HOLIDAYS);
-      Set<String> weekendDays = builder.get(WEEKEND_DAYS);
-      return ImmutableHolidayCalendar.of(
-          id,
-          holidays.stream().map(LocalDate::parse).collect(toImmutableSet()),
-          weekendDays.stream().map(DayOfWeek::valueOf).collect(toImmutableSet()));
+      Set<LocalDate> holidays = builder.get(HOLIDAYS);
+      Set<DayOfWeek> weekendDays = builder.get(WEEKEND_DAYS);
+      return ImmutableHolidayCalendar.of(id, holidays, weekendDays);
     } else {
       int weekends = builder.get(WEEKENDS);
       int startYear = builder.get(START_YEAR);
