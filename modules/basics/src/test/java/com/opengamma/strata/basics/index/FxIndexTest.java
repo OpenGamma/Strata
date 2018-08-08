@@ -126,6 +126,11 @@ public class FxIndexTest {
     assertEquals(test.getName(), "USD/CNY-SAEC-CNY01");
   }
 
+  public void test_inr() {
+    FxIndex test = FxIndex.of("USD/INR-FBIL-INR01");
+    assertEquals(test.getName(), "USD/INR-FBIL-INR01");
+  }
+
   //-------------------------------------------------------------------------
   public void test_equals() {
     ImmutableFxIndex a = ImmutableFxIndex.builder()
