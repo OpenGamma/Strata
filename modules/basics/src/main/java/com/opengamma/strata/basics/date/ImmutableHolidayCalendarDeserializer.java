@@ -17,7 +17,6 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.BufferingBeanBuilder;
 import org.joda.beans.impl.StandaloneMetaProperty;
 import org.joda.beans.ser.DefaultDeserializer;
-import org.joda.beans.ser.SerDeserializer;
 
 import com.google.common.reflect.TypeToken;
 import com.opengamma.strata.basics.date.ImmutableHolidayCalendar.Meta;
@@ -26,9 +25,6 @@ import com.opengamma.strata.basics.date.ImmutableHolidayCalendar.Meta;
  * Deserialize {@code ImmutableHolidayCalendar} handling old format.
  */
 final class ImmutableHolidayCalendarDeserializer extends DefaultDeserializer {
-
-  /** Singleton instance. */
-  public static final SerDeserializer INSTANCE = new ImmutableHolidayCalendarDeserializer();
 
   private static final Meta META_BEAN = ImmutableHolidayCalendar.meta();
   private static final MetaProperty<HolidayCalendarId> ID = META_BEAN.id();
@@ -46,10 +42,8 @@ final class ImmutableHolidayCalendarDeserializer extends DefaultDeserializer {
           "weekendDays", META_BEAN, Set.class, new TypeToken<Set<DayOfWeek>>() {}.getType());
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates an instance.
-   */
-  private ImmutableHolidayCalendarDeserializer() {
+  // restricted constructor
+  ImmutableHolidayCalendarDeserializer() {
   }
 
   @Override

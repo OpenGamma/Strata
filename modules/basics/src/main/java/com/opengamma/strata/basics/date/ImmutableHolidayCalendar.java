@@ -32,7 +32,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
-import org.joda.beans.ser.SerDeserializers;
+import org.joda.beans.ser.SerDeserializer;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
@@ -67,10 +67,10 @@ public final class ImmutableHolidayCalendar
   // benchmarking showed nextOrSame() and previousOrSame() do not need to be overridden
   // out-of-range and weekend-only (used in testing) are handled using exceptions to fast-path the common case
 
-  static {
-    SerDeserializers.INSTANCE.register(ImmutableHolidayCalendar.class, ImmutableHolidayCalendarDeserializer.INSTANCE);
-    SerDeserializers.LENIENT.register(ImmutableHolidayCalendar.class, ImmutableHolidayCalendarDeserializer.INSTANCE);
-  }
+  /**
+   * The deserializer, for compatibility.
+   */
+  public static final SerDeserializer DESERIALIZER = new ImmutableHolidayCalendarDeserializer();
 
   /**
    * The serialization version id.

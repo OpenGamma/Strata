@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
-import org.joda.beans.ser.SerDeserializers;
+import org.joda.beans.ser.SerDeserializer;
 
 import com.google.common.collect.Ordering;
 import com.opengamma.strata.basics.ReferenceData;
@@ -54,10 +54,10 @@ import com.opengamma.strata.collect.Messages;
 public final class FxSingle
     implements FxProduct, Resolvable<ResolvedFxSingle>, ImmutableBean, Serializable {
 
-  static {
-    SerDeserializers.INSTANCE.register(FxSingle.class, FxSingleDeserializer.INSTANCE);
-    SerDeserializers.LENIENT.register(FxSingle.class, FxSingleDeserializer.INSTANCE);
-  }
+  /**
+   * The deserializer, for compatibility.
+   */
+  public static final SerDeserializer DESERIALIZER = new FxSingleDeserializer();
 
   /**
    * The payment in the base currency, positive if receiving, negative if paying.
