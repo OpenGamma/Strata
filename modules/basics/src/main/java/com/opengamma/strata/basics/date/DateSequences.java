@@ -38,6 +38,13 @@ public final class DateSequences {
    * The monthly IMM dates are the third Wednesday of each month.
    */
   public static final DateSequence MONTHLY_IMM = DateSequence.of(StandardDateSequences.MONTHLY_IMM.getName());
+  /**
+   * The 'Quarterly-10th' date sequence.
+   * <p>
+   * An instance defining the sequence of quarterly dates on the 10th of each month.
+   * The quarterly months are March, June, September and December.
+   */
+  public static final DateSequence QUARTERLY_10TH = DateSequence.of(StandardDateSequences.QUARTERLY_10TH.getName());
 
   //-------------------------------------------------------------------------
   /**

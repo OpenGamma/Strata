@@ -18,7 +18,6 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
@@ -49,6 +48,7 @@ import com.opengamma.strata.pricer.bond.DiscountingBondFutureProductPricer;
 import com.opengamma.strata.pricer.bond.DiscountingBondFutureTradePricer;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradedPrice;
@@ -77,7 +77,7 @@ public class BondFuturesJpyEnd2EndTest {
   private static final double NOTIONAL = 100_000_000D;
   private static final long QUANTITY = 1L;
   // Fixed coupon bonds
-  private static final StandardId ISSUER_ID = StandardId.of("OG-Ticker", "GOVT");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("OG-Ticker", "GOVT");
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("GOVT");
   private static final RepoGroup GROUP_REPO = RepoGroup.of("GOVT BONDS");
   private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.JP_SIMPLE;
@@ -250,12 +250,10 @@ public class BondFuturesJpyEnd2EndTest {
         InterpolatedNodalCurve.of(metaRepo, DoubleArray.copyOf(timeRepo), DoubleArray.copyOf(rateRepo), INTERPOLATOR);
     DiscountFactors dscRepo = ZeroRateDiscountFactors.of(JPY, VALUATION, curve);
     LED_PROVIDER = ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, JPY), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ISSUER_ID, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO, JPY), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ISSUER_ID, GROUP_REPO))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, JPY), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, JPY), dscRepo))
+        .repoCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_REPO))
         .build();
   }
   // Pricers

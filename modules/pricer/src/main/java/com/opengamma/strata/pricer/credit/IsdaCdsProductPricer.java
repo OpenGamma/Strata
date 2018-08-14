@@ -575,7 +575,7 @@ public class IsdaCdsProductPricer {
     LocalDate start =
         coupon.getEffectiveStartDate().isBefore(effectiveStartDate) ? effectiveStartDate : coupon.getEffectiveStartDate();
     if (!start.isBefore(coupon.getEffectiveEndDate())) {
-      return 0d; // this coupon has already expired 
+      return 0d; // this coupon has already expired
     }
 
     DoubleArray knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
@@ -771,7 +771,7 @@ public class IsdaCdsProductPricer {
     LocalDate start =
         coupon.getEffectiveStartDate().isBefore(effectiveStartDate) ? effectiveStartDate : coupon.getEffectiveStartDate();
     if (!start.isBefore(coupon.getEffectiveEndDate())) {
-      return Pair.of(0d, PointSensitivityBuilder.none()); //this coupon has already expired 
+      return Pair.of(0d, PointSensitivityBuilder.none()); //this coupon has already expired
     }
     DoubleArray knots = DoublesScheduleGenerator.truncateSetInclusive(discountFactors.relativeYearFraction(start),
         discountFactors.relativeYearFraction(coupon.getEffectiveEndDate()), integrationSchedule);

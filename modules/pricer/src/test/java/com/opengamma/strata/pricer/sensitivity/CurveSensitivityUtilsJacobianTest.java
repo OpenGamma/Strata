@@ -46,7 +46,7 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.TenorParameterMetadata;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
-import com.opengamma.strata.pricer.curve.CurveCalibrator;
+import com.opengamma.strata.pricer.curve.RatesCurveCalibrator;
 import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -71,7 +71,7 @@ public class CurveSensitivityUtilsJacobianTest {
   private static final String QUOTES_PATH = "src/test/resources/quotes/";
 
   // Quotes
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();  
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.standard();  
   private static final String QUOTES_FILE = "quotes-20151120-eur.csv";
   private static final Map<QuoteId, Double> MQ_INPUT = 
       QuotesCsvLoader.load(VALUATION_DATE, ImmutableList.of(ResourceLocator.of(QUOTES_PATH + QUOTES_FILE)));

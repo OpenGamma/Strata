@@ -31,9 +31,9 @@ import com.opengamma.strata.loader.csv.FxRatesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveNode;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
@@ -43,10 +43,10 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapLegType;
 
 /**
- * Tests {@link SyntheticCurveCalibrator}.
+ * Tests {@link SyntheticRatesCurveCalibrator}.
  */
 @Test 
-public class SyntheticCurveCalibratorTest {
+public class SyntheticRatesCurveCalibratorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VALUATION_DATE = LocalDate.of(2015, 11, 20);
@@ -113,10 +113,10 @@ public class SyntheticCurveCalibratorTest {
         .addTimeSeries(IndexQuoteId.of(EUR_EURIBOR_6M), tsEur6)
         .build();
   }
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.standard();
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.standard();
   private static final CalibrationMeasures MQ_MEASURES = CalibrationMeasures.MARKET_QUOTE;
-  private static final SyntheticCurveCalibrator CALIBRATOR_SYNTHETIC = 
-      SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
+  private static final SyntheticRatesCurveCalibrator CALIBRATOR_SYNTHETIC = 
+      SyntheticRatesCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
   
   private static final ImmutableRatesProvider MULTICURVE_INPUT_EUR_TSEMPTY =
       CALIBRATOR.calibrate(GROUPS_IN_EUR, MARKET_QUOTES_EUR_INPUT, REF_DATA);
@@ -129,7 +129,7 @@ public class SyntheticCurveCalibratorTest {
 
   //-------------------------------------------------------------------------
   public void test_of() {
-    SyntheticCurveCalibrator test = SyntheticCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
+    SyntheticRatesCurveCalibrator test = SyntheticRatesCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
     assertEquals(test.getMeasures(), MQ_MEASURES);
     assertEquals(test.getCalibrator(), CALIBRATOR);
     assertEquals(test.toString(), "SyntheticCurveCalibrator[CurveCalibrator[ParSpread], MarketQuote]");
@@ -165,6 +165,19 @@ public class SyntheticCurveCalibratorTest {
         ImmutableSet.of(IndexQuoteId.of(EUR_EURIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_6M)));
   }
 
+  // Check synthetic calibration in case no definitions
+  public void calibrate_noDefinitions() {
+    RatesCurveGroupDefinition empty =
+        RatesCurveGroupDefinition.of(CurveGroupName.of("Group"), ImmutableList.of(), ImmutableList.of());
+    MarketData mad = CALIBRATOR_SYNTHETIC.marketData(empty, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
+    RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(empty, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
+    assertEquals(multicurveSyn.getDiscountCurrencies(), ImmutableSet.of());
+    assertEquals(multicurveSyn.getIborIndices(), ImmutableSet.of());
+    assertEquals(multicurveSyn.getOvernightIndices(), ImmutableSet.of());
+    assertEquals(multicurveSyn.getPriceIndices(), ImmutableSet.of());
+    assertEquals(mad.getTimeSeriesIds(), ImmutableSet.of());
+  }
+
   // Check synthetic calibration in case no time-series is present
   public void calibrate_ts_empty() {
     MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
@@ -183,7 +196,7 @@ public class SyntheticCurveCalibratorTest {
 
   // Check synthetic calibration in the case of existing time-series with fixing on the valuation date
   public void calibrate_ts_vd() {
-    SyntheticCurveCalibrator calibratorDefault = SyntheticCurveCalibrator.standard();
+    SyntheticRatesCurveCalibrator calibratorDefault = SyntheticRatesCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     for (CurveDefinition entry : GROUPS_SYN_EUR.getCurveDefinitions()) {

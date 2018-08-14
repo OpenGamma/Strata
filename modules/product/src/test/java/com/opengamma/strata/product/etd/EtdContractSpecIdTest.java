@@ -18,6 +18,8 @@ import com.opengamma.strata.basics.StandardId;
 @Test
 public class EtdContractSpecIdTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of() {
     EtdContractSpecId test = EtdContractSpecId.of(StandardId.of("A", "B"));
     assertEquals(test.getStandardId(), StandardId.of("A", "B"));
@@ -41,7 +43,7 @@ public class EtdContractSpecIdTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals("Rubbish"), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
   //-------------------------------------------------------------------------

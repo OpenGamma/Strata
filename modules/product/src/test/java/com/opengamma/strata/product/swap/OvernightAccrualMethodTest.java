@@ -26,6 +26,7 @@ public class OvernightAccrualMethodTest {
     return new Object[][] {
         {OvernightAccrualMethod.AVERAGED, "Averaged"},
         {OvernightAccrualMethod.COMPOUNDED, "Compounded"},
+        {OvernightAccrualMethod.AVERAGED_DAILY, "AveragedDaily"},
     };
   }
 

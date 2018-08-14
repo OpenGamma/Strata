@@ -335,7 +335,9 @@ public class LegalEntityRatesCurvesCsvLoader {
       String currencyStr = row.getField(GROUPS_CURRENCY);
       String curveNameStr = row.getField(GROUPS_CURVE_NAME);
       CurveName curveName = CurveName.of(curveNameStr);
-      createKey(curveName, CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr, currencyStr, repoGroups, legalEntityGroups);
+      createKey(
+          curveName,
+          CurveGroupName.of(curveGroupStr), curveTypeStr, referenceStr, currencyStr, repoGroups, legalEntityGroups);
     }
   }
 
@@ -354,7 +356,8 @@ public class LegalEntityRatesCurvesCsvLoader {
       repoGroups.computeIfAbsent(curveGroup, k -> new LinkedHashMap<>()).put(Pair.of(repoGroup, currency), curveName);
     } else if (ISSUER.equalsIgnoreCase(curveTypeStr.toLowerCase(Locale.ENGLISH))) {
       LegalEntityGroup legalEntiryGroup = LegalEntityGroup.of(referenceStr);
-      legalEntityGroups.computeIfAbsent(curveGroup, k -> new LinkedHashMap<>()).put(Pair.of(legalEntiryGroup, currency), curveName);
+      legalEntityGroups.computeIfAbsent(
+          curveGroup, k -> new LinkedHashMap<>()).put(Pair.of(legalEntiryGroup, currency), curveName);
     } else {
       throw new IllegalArgumentException(Messages.format("Unsupported curve type: {}", curveTypeStr));
     }

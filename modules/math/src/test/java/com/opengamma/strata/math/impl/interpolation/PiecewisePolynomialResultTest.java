@@ -17,9 +17,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  */
 public class PiecewisePolynomialResultTest {
 
-  /**
-   * 
-   */
+  private static final Object ANOTHER_TYPE = "";
+
   @Test
   public void hashCodeEqualsTest() {
     final double[] knots1 = new double[] {1., 2., 3., 4. };
@@ -66,7 +65,7 @@ public class PiecewisePolynomialResultTest {
     assertTrue(!(res6.equals(res1)));
 
     assertTrue(!(res1.equals(null)));
-    assertTrue(!(res1.equals(DoubleArray.copyOf(knots1))));
+    assertTrue(!(res1.equals(ANOTHER_TYPE)));
 
     final DoubleMatrix[] sense1 = new DoubleMatrix[] {DoubleMatrix.copyOf(matrix1), DoubleMatrix.copyOf(matrix1)};
     final DoubleMatrix[] sense2 =
@@ -83,7 +82,7 @@ public class PiecewisePolynomialResultTest {
             DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 1, sense2);
     assertTrue(resSen1.equals(resSen1));
 
-    assertTrue(!(resSen1.equals(DoubleArray.copyOf(knots1))));
+    assertTrue(!(resSen1.equals(ANOTHER_TYPE)));
 
     assertTrue(!(resSen1.equals(res5)));
 

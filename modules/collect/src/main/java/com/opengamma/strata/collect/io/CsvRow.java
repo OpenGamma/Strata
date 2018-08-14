@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap;
  * If the CSV file has headers, the headers can also be used to lookup the fields.
  */
 public final class CsvRow {
+  // some methods have been inlined/simplified for startup/performance reasons
 
   /**
    * The header row, ordered as the headers appear in the file.
@@ -138,6 +139,7 @@ public final class CsvRow {
     return fields.get(index);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets a single field value from the row by header.
    * <p>
@@ -149,8 +151,11 @@ public final class CsvRow {
    * @throws IllegalArgumentException if the header is not found
    */
   public String getField(String header) {
-    return findField(header)
-        .orElseThrow(() -> new IllegalArgumentException("Header not found: '" + header + "'"));
+    Integer index = findIndex(header);
+    if (index == null) {
+      throw new IllegalArgumentException("Header not found: '" + header + "'");
+    }
+    return field(index);
   }
 
   /**
@@ -163,10 +168,16 @@ public final class CsvRow {
    * @return the trimmed field value, empty if not found
    */
   public Optional<String> findField(String header) {
-    return Optional.ofNullable(searchHeaders.get(header.toLowerCase(Locale.ENGLISH)))
-        .map(idx -> field(idx));
+    Integer index = findIndex(header);
+    return index == null ? Optional.empty() : Optional.of(field(index));
   }
 
+  // finds the index of the specified header
+  private Integer findIndex(String header) {
+    return searchHeaders.get(header.toLowerCase(Locale.ENGLISH));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets a single field value from the row by header pattern.
    * <p>
@@ -177,8 +188,12 @@ public final class CsvRow {
    * @throws IllegalArgumentException if the header is not found
    */
   public String getField(Pattern headerPattern) {
-    return findField(headerPattern)
-        .orElseThrow(() -> new IllegalArgumentException("Header pattern not found: '" + headerPattern + "'"));
+    for (int i = 0; i < headers.size(); i++) {
+      if (headerPattern.matcher(headers.get(i)).matches()) {
+        return field(i);
+      }
+    }
+    throw new IllegalArgumentException("Header pattern not found: '" + headerPattern + "'");
   }
 
   /**
@@ -198,25 +213,7 @@ public final class CsvRow {
     return Optional.empty();
   }
 
-  /**
-   * Gets a single field value from the row by header pattern
-   * <p>
-   * This returns the value of the first column where the header matches the specified header pattern.
-   * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
-   *
-   * @param headerPattern the header pattern to match
-   * @return the trimmed field value
-   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
-   */
-  public String getValue(Pattern headerPattern) {
-    String value = getField(headerPattern);
-    if (value.isEmpty()) {
-      throw new IllegalArgumentException("No value was found for header pattern: '" + headerPattern + "'");
-    } else {
-      return value;
-    }
-  }
-
+  //-------------------------------------------------------------------------
   /**
    * Gets a single field value from the row by header
    * <p>
@@ -231,27 +228,8 @@ public final class CsvRow {
     String value = getField(header);
     if (value.isEmpty()) {
       throw new IllegalArgumentException("No value was found for field: '" + header + "'");
-    } else {
-      return value;
     }
-  }
-
-  /**
-   * Gets a single value from the row by header pattern.
-   * <p>
-   * This returns the value of the first column where the header matches the specified header pattern.
-   * If the value is an empty string, then an empty optional is returned.
-   *
-   * @param headerPattern the header pattern to match
-   * @return the trimmed field value, empty
-   */
-  public Optional<String> findValue(Pattern headerPattern) {
-    Optional<String> value = findField(headerPattern);
-    if (value.isPresent() && !value.get().isEmpty()) {
-      return value;
-    } else {
-      return Optional.empty();
-    }
+    return value;
   }
 
   /**
@@ -264,12 +242,39 @@ public final class CsvRow {
    * @return the trimmed field value, empty
    */
   public Optional<String> findValue(String header) {
-    Optional<String> value = findField(header);
-    if (value.isPresent() && !value.get().isEmpty()) {
-      return value;
-    } else {
-      return Optional.empty();
+    return findField(header).filter(str -> !str.isEmpty());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a single field value from the row by header pattern
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
+   *
+   * @param headerPattern the header pattern to match
+   * @return the trimmed field value
+   * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
+   */
+  public String getValue(Pattern headerPattern) {
+    String value = getField(headerPattern);
+    if (value.isEmpty()) {
+      throw new IllegalArgumentException("No value was found for header pattern: '" + headerPattern + "'");
     }
+    return value;
+  }
+
+  /**
+   * Gets a single value from the row by header pattern.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the value is an empty string, then an empty optional is returned.
+   *
+   * @param headerPattern the header pattern to match
+   * @return the trimmed field value, empty
+   */
+  public Optional<String> findValue(Pattern headerPattern) {
+    return findField(headerPattern).filter(str -> !str.isEmpty());
   }
 
   //-------------------------------------------------------------------------

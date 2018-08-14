@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -49,6 +48,7 @@ import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.bond.DiscountingFixedCouponBondTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.bond.FixedCouponBond;
@@ -64,7 +64,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
-  private static final StandardId ISSUER_ID = StandardId.of("A", "B");
+  private static final LegalEntityId ISSUER_ID = LegalEntityId.of("A", "B");
   public static final FixedCouponBondTrade TRADE = FixedCouponBondTrade.builder()
       .product(FixedCouponBond.builder()
           .accrualSchedule(

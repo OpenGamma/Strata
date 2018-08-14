@@ -20,8 +20,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -37,10 +35,10 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
-import com.opengamma.strata.pricer.DiscountFactors;
 import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 import com.opengamma.strata.pricer.bond.ImmutableLegalEntityDiscountingProvider;
 import com.opengamma.strata.pricer.curve.CalibrationDiscountingSimpleEur3Test;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -56,7 +54,7 @@ public class MarketQuoteSensitivityCalculatorTest {
   private static final SecurityId ID_SECURITY = SecurityId.of("OG-Ticker", "Bond-5Y");
   private static final RepoGroup GROUP_REPO_SECURITY = RepoGroup.of("ISSUER1 BND 5Y");
   private static final LegalEntityGroup GROUP_ISSUER = LegalEntityGroup.of("ISSUER1");
-  private static final StandardId ID_ISSUER = StandardId.of("OG-Ticker", "Issuer-1");
+  private static final LegalEntityId ID_ISSUER = LegalEntityId.of("OG-Ticker", "Issuer-1");
   private static final MarketQuoteSensitivityCalculator CALC = MarketQuoteSensitivityCalculator.DEFAULT;
   private static final MatrixAlgebra MATRIX_ALGEBRA = new OGMatrixAlgebra();
   // curve data
@@ -104,12 +102,10 @@ public class MarketQuoteSensitivityCalculatorTest {
     ZeroRateDiscountFactors dscRepo = ZeroRateDiscountFactors.of(GBP, DATE, CURVE_2);
     PARAMETER_SENSITIVITIES = CurrencyParameterSensitivities.of(sensi1, sensi2);
     PROVIDER = ImmutableLegalEntityDiscountingProvider.builder()
-        .issuerCurves(ImmutableMap.<Pair<LegalEntityGroup, Currency>, DiscountFactors>of(
-            Pair.<LegalEntityGroup, Currency>of(GROUP_ISSUER, USD), dscIssuer))
-        .issuerCurveGroups(ImmutableMap.<StandardId, LegalEntityGroup>of(ID_ISSUER, GROUP_ISSUER))
-        .repoCurves(ImmutableMap.<Pair<RepoGroup, Currency>, DiscountFactors>of(
-            Pair.<RepoGroup, Currency>of(GROUP_REPO_SECURITY, GBP), dscRepo))
-        .repoCurveGroups(ImmutableMap.<StandardId, RepoGroup>of(ID_SECURITY.getStandardId(), GROUP_REPO_SECURITY))
+        .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, USD), dscIssuer))
+        .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
+        .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_SECURITY, GBP), dscRepo))
+        .repoCurveSecurityGroups(ImmutableMap.of(ID_SECURITY, GROUP_REPO_SECURITY))
         .build();
   }
 

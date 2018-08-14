@@ -82,7 +82,7 @@ public class ScalarSecondOrderDifferentiator
           if (!domain.apply(x - eps)) {
             return (-function.apply(x + threeEps) + 4d * function.apply(x + twoEps)
                 - 5d * function.apply(x + eps) + 2d * function.apply(x)) / epsSqr;
-          } 
+          }
           return (function.apply(x + eps) + function.apply(x - eps) - 2d * function.apply(x)) / epsSqr;
         }
       }

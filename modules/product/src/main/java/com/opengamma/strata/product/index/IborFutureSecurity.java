@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.PositionInfo;
-import com.opengamma.strata.product.Security;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.TradeInfo;
@@ -56,7 +55,7 @@ import com.opengamma.strata.product.TradeInfo;
  */
 @BeanDefinition
 public final class IborFutureSecurity
-    implements Security, ImmutableBean, Serializable {
+    implements RateIndexSecurity, ImmutableBean, Serializable {
 
   /**
    * The standard security information.
@@ -87,7 +86,7 @@ public final class IborFutureSecurity
    * The future is based on this index.
    * It will be a well known market index such as 'USD-LIBOR-3M'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
   /**
    * The definition of how to round the futures price, defaulted to no rounding.
@@ -248,6 +247,7 @@ public final class IborFutureSecurity
    * It will be a well known market index such as 'USD-LIBOR-3M'.
    * @return the value of the property, not null
    */
+  @Override
   public IborIndex getIndex() {
     return index;
   }

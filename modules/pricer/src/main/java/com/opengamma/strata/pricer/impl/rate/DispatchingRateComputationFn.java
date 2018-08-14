@@ -21,6 +21,7 @@ import com.opengamma.strata.product.rate.InflationEndInterpolatedRateComputation
 import com.opengamma.strata.product.rate.InflationEndMonthRateComputation;
 import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
+import com.opengamma.strata.product.rate.OvernightAveragedDailyRateComputation;
 import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
@@ -42,6 +43,7 @@ public class DispatchingRateComputationFn
       ForwardIborAveragedRateComputationFn.DEFAULT,
       ForwardOvernightCompoundedRateComputationFn.DEFAULT,
       ApproxForwardOvernightAveragedRateComputationFn.DEFAULT,
+      ForwardOvernightAveragedDailyRateComputationFn.DEFAULT,
       ForwardInflationMonthlyRateComputationFn.DEFAULT,
       ForwardInflationInterpolatedRateComputationFn.DEFAULT,
       ForwardInflationEndMonthRateComputationFn.DEFAULT,
@@ -68,6 +70,10 @@ public class DispatchingRateComputationFn
    */
   private final RateComputationFn<OvernightAveragedRateComputation> overnightAveragedRateComputationFn;
   /**
+   * Rate provider for {@link OvernightAveragedDailyRateComputation}.
+   */
+  private final RateComputationFn<OvernightAveragedDailyRateComputation> overnightAveragedDailyRateComputationFn;
+  /**
    * Rate provider for {@link InflationMonthlyRateComputation}.
    */
   private final RateComputationFn<InflationMonthlyRateComputation> inflationMonthlyRateComputationFn;
@@ -92,6 +98,7 @@ public class DispatchingRateComputationFn
    * @param iborAveragedRateComputationFn  the rate computation for {@link IborAveragedRateComputation}
    * @param overnightCompoundedRateComputationFn  the rate computation for {@link OvernightCompoundedRateComputation}
    * @param overnightAveragedRateComputationFn  the rate computation for {@link OvernightAveragedRateComputation}
+   * @param overnightAveragedDailyRateComputationFn  the rate computation for {@link OvernightAveragedDailyRateComputation}
    * @param inflationMonthlyRateComputationFn  the rate computation for {@link InflationMonthlyRateComputation}
    * @param inflationInterpolatedRateComputationFn  the rate computation for {@link InflationInterpolatedRateComputation}
    * @param inflationEndMonthRateComputationFn  the rate computation for {@link InflationEndMonthRateComputation}
@@ -103,6 +110,7 @@ public class DispatchingRateComputationFn
       RateComputationFn<IborAveragedRateComputation> iborAveragedRateComputationFn,
       RateComputationFn<OvernightCompoundedRateComputation> overnightCompoundedRateComputationFn,
       RateComputationFn<OvernightAveragedRateComputation> overnightAveragedRateComputationFn,
+      RateComputationFn<OvernightAveragedDailyRateComputation> overnightAveragedDailyRateComputationFn,
       RateComputationFn<InflationMonthlyRateComputation> inflationMonthlyRateComputationFn,
       RateComputationFn<InflationInterpolatedRateComputation> inflationInterpolatedRateComputationFn,
       RateComputationFn<InflationEndMonthRateComputation> inflationEndMonthRateComputationFn,
@@ -118,6 +126,8 @@ public class DispatchingRateComputationFn
         ArgChecker.notNull(overnightCompoundedRateComputationFn, "overnightCompoundedRateComputationFn");
     this.overnightAveragedRateComputationFn =
         ArgChecker.notNull(overnightAveragedRateComputationFn, "overnightAveragedRateComputationFn");
+    this.overnightAveragedDailyRateComputationFn =
+        ArgChecker.notNull(overnightAveragedDailyRateComputationFn, "overnightAveragedDailyRateComputationFn");
     this.inflationMonthlyRateComputationFn =
         ArgChecker.notNull(inflationMonthlyRateComputationFn, "inflationMonthlyRateComputationFn");
     this.inflationInterpolatedRateComputationFn =
@@ -155,6 +165,9 @@ public class DispatchingRateComputationFn
     } else if (computation instanceof OvernightCompoundedRateComputation) {
       return overnightCompoundedRateComputationFn.rate(
           (OvernightCompoundedRateComputation) computation, startDate, endDate, provider);
+    } else if (computation instanceof OvernightAveragedDailyRateComputation) {
+      return overnightAveragedDailyRateComputationFn.rate(
+          (OvernightAveragedDailyRateComputation) computation, startDate, endDate, provider);
     } else if (computation instanceof InflationMonthlyRateComputation) {
       return inflationMonthlyRateComputationFn.rate(
           (InflationMonthlyRateComputation) computation, startDate, endDate, provider);
@@ -198,6 +211,9 @@ public class DispatchingRateComputationFn
     } else if (computation instanceof OvernightCompoundedRateComputation) {
       return overnightCompoundedRateComputationFn.rateSensitivity(
           (OvernightCompoundedRateComputation) computation, startDate, endDate, provider);
+    } else if (computation instanceof OvernightAveragedDailyRateComputation) {
+      return overnightAveragedDailyRateComputationFn.rateSensitivity(
+          (OvernightAveragedDailyRateComputation) computation, startDate, endDate, provider);
     } else if (computation instanceof InflationMonthlyRateComputation) {
       return inflationMonthlyRateComputationFn.rateSensitivity(
           (InflationMonthlyRateComputation) computation, startDate, endDate, provider);
@@ -245,6 +261,9 @@ public class DispatchingRateComputationFn
     } else if (computation instanceof OvernightCompoundedRateComputation) {
       return overnightCompoundedRateComputationFn.explainRate(
           (OvernightCompoundedRateComputation) computation, startDate, endDate, provider, builder);
+    } else if (computation instanceof OvernightAveragedDailyRateComputation) {
+      return overnightAveragedDailyRateComputationFn.explainRate(
+          (OvernightAveragedDailyRateComputation) computation, startDate, endDate, provider, builder);
     } else if (computation instanceof InflationMonthlyRateComputation) {
       return inflationMonthlyRateComputationFn.explainRate(
           (InflationMonthlyRateComputation) computation, startDate, endDate, provider, builder);

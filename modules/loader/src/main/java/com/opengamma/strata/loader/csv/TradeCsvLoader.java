@@ -67,14 +67,13 @@ import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
  *   identifier is unique within, such as 'OG-Counterparty'
  * <li>The 'Counterparty' column is optional, and is the identifier of the trade's counterparty,
  *   such as 'Bank-A'
- * <li>The 'Trade Date' column is optional, and is the date that the trade occurred,
- *   such as '2017-08-01'
+ * <li>The 'Trade Date' column is optional, and is the date that the trade occurred, such as '2017-08-01'
  * <li>The 'Trade Time' column is optional, and is the time of day that the trade occurred,
  *   such as '11:30'
  * <li>The 'Trade Zone' column is optional, and is the time-zone that the trade occurred,
  *   such as 'Europe/London'
- * </ul>
  * <li>The 'Settlement Date' column is optional, and is the date that the trade settles, such as '2017-08-01'
+ * </ul>
  * 
  * <h4>Fra</h4>
  * <p>

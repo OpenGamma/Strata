@@ -38,7 +38,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
 
 /**
- * Loads holiday calendar implementations from CSV.
+ * Loads holiday calendar implementations from INI files.
  * <p>
  * These will form the standard holiday calendars available in {@link ReferenceData#standard()}.
  */

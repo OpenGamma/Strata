@@ -145,7 +145,7 @@ class DiscountFactorLinearRightZeroRateCurveExtrapolator
       result[minusOne] = (1d + result[minusOne]) * factor / eps;
       result[minusOne] +=
           (1d / lastXValue - lastYValue - lastXValue * rightYGradient) * xValue +
-          lastXValue * lastYValue + lastXValue * lastXValue * rightYGradient;
+              lastXValue * lastYValue + lastXValue * lastXValue * rightYGradient;
       return DoubleArray.ofUnsafe(result).multipliedBy(lastXValue * lastDf / (xValue * df));
     }
   }

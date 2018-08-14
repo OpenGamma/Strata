@@ -213,7 +213,7 @@ public class ApproxForwardOvernightAveragedRateComputationFn
     // The list below are created in the constructor and never modified after.
     private final OvernightIndexRates rates;
     private final List<OvernightIndexObservation> observations;  // one observation per fixing date
-    private int fixedPeriod; // Note this is mutable 
+    private int fixedPeriod; // Note this is mutable
     private final double accrualFactorTotal;
     private final int nbPeriods;
     private final OvernightIndex index;

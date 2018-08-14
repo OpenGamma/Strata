@@ -91,7 +91,7 @@ public final class CharSources {
   public static CharSource ofPath(Path path, Charset charset) {
     return MoreFiles.asCharSource(path, charset);
   }
-  
+
   //---------------------------------------------------------------------------------------------
   /**
    * Obtains an instance of {@link CharSource} from a URL, specified as a {@link URL} object.

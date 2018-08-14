@@ -22,7 +22,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -34,6 +33,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -44,7 +44,7 @@ public class FixedCouponBondTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final FixedCouponBondYieldConvention YIELD_CONVENTION = FixedCouponBondYieldConvention.DE_BONDS;
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "BUN EUR");
+  private static final LegalEntityId LEGAL_ENTITY = LegalEntityId.of("OG-Ticker", "BUN EUR");
   private static final double NOTIONAL = 1.0e7;
   private static final double FIXED_RATE = 0.015;
   private static final DaysAdjustment DATE_OFFSET = DaysAdjustment.ofBusinessDays(3, EUTA);
@@ -166,7 +166,7 @@ public class FixedCouponBondTest {
         .securityId(SECURITY_ID2)
         .dayCount(DayCounts.ACT_360)
         .fixedRate(0.005)
-        .legalEntityId(StandardId.of("OG-Ticker", "BUN EUR 2"))
+        .legalEntityId(LegalEntityId.of("OG-Ticker", "BUN EUR 2"))
         .currency(GBP)
         .notional(1.0e6)
         .accrualSchedule(sche)

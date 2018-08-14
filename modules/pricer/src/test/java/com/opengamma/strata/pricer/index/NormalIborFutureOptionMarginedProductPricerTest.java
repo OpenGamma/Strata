@@ -47,7 +47,7 @@ public class NormalIborFutureOptionMarginedProductPricerTest {
       DoubleArray.of(0.25, 0.25, 0.25, 0.25, 0.50, 0.50, 0.50, 0.50, 1.00, 1.00, 1.00, 1.00);
   private static final DoubleArray MONEYNESS_PRICES =
       DoubleArray.of(-0.02, -0.01, 0.00, 0.01, -0.02, -0.01, 0.00, 0.01, -0.02, -0.01, 0.00, 0.01);
-  private static final DoubleArray NORMAL_VOL =      DoubleArray.of(
+  private static final DoubleArray NORMAL_VOL = DoubleArray.of(
       0.01, 0.011, 0.012, 0.010,
       0.011, 0.012, 0.013, 0.012,
       0.012, 0.013, 0.014, 0.014);

@@ -26,7 +26,7 @@ public abstract class PenaltyMatrixGenerator {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
   //*******************************************************************************************
-  // Difference methods 
+  // Difference methods
   //*******************************************************************************************
 
   /**
@@ -124,7 +124,7 @@ public abstract class PenaltyMatrixGenerator {
   }
 
   //*******************************************************************************************
-  // Finite difference methods for non-uniform grids 
+  // Finite difference methods for non-uniform grids
   //*******************************************************************************************
 
   /**
@@ -170,7 +170,7 @@ public abstract class PenaltyMatrixGenerator {
         data[i][i] = w[i - 1] * (dx2[i] - dx2[i - 1]);
         data[i][i + 1] = w[i - 1] * dx2[i - 1];
       }
-      //ends 
+      //ends
       if (includeEnds) {
         data[0][0] = -w[0] * dx[1] * (2 * dx[0] + dx[1]);
         data[0][1] = w[0] * (dx2[0] + dx2[1] + 2 * dx[0] * dx[1]);
@@ -186,7 +186,7 @@ public abstract class PenaltyMatrixGenerator {
         data[i][i] = -tmp * (dx[i] + dx[i - 1]);
         data[i][i + 1] = tmp * dx[i - 1];
       }
-      //ends 
+      //ends
       if (includeEnds) {
         data[0] = data[1];
         data[size - 1] = data[size - 2];

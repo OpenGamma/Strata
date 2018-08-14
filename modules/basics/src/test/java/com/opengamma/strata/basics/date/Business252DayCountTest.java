@@ -28,6 +28,7 @@ import com.opengamma.strata.basics.ReferenceData;
 public class Business252DayCountTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_factory_name() {
@@ -91,7 +92,7 @@ public class Business252DayCountTest {
     DayCount b = DayCount.of("Bus/252 GBLO");
     assertEquals(a.equals(a), true);
     assertEquals(a.equals(b), false);
-    assertEquals(a.equals("Rubbish"), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
     assertEquals(a.equals(null), false);
     assertEquals(a.hashCode(), a.hashCode());
   }

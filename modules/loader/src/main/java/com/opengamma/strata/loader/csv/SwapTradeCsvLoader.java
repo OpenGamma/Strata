@@ -223,7 +223,7 @@ final class SwapTradeCsvLoader {
         return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
       }
     }
-    
+
     // no match
     throw new IllegalArgumentException(
         "Swap trade had invalid combination of fields. These fields are mandatory:" +

@@ -7,32 +7,32 @@ package com.opengamma.strata.product.bond;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
+import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A bill.
@@ -44,7 +44,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * For example, a price of 99.32% is represented in Strata by 0.9932 and a yield of 1.32% is represented by 0.0132.
  */
 @BeanDefinition(constructorScope = "package")
-public class Bill
+public final class Bill
     implements SecuritizedProduct, Resolvable<ResolvedBill>, ImmutableBean, Serializable {
 
   /**
@@ -79,7 +79,7 @@ public class Bill
    * This identifier is used for the legal entity that issues the bill.
    */
   @PropertyDefinition(validate = "notNull")
-  private final StandardId legalEntityId;
+  private final LegalEntityId legalEntityId;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
@@ -162,22 +162,33 @@ public class Bill
   }
 
   /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param notional  the value of the property, not null
+   * @param dayCount  the value of the property, not null
+   * @param yieldConvention  the value of the property, not null
+   * @param legalEntityId  the value of the property, not null
+   * @param settlementDateOffset  the value of the property, not null
    */
-  protected Bill(Bill.Builder builder) {
-    JodaBeanUtils.notNull(builder.securityId, "securityId");
-    JodaBeanUtils.notNull(builder.notional, "notional");
-    JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    JodaBeanUtils.notNull(builder.yieldConvention, "yieldConvention");
-    JodaBeanUtils.notNull(builder.legalEntityId, "legalEntityId");
-    JodaBeanUtils.notNull(builder.settlementDateOffset, "settlementDateOffset");
-    this.securityId = builder.securityId;
-    this.notional = builder.notional;
-    this.dayCount = builder.dayCount;
-    this.yieldConvention = builder.yieldConvention;
-    this.legalEntityId = builder.legalEntityId;
-    this.settlementDateOffset = builder.settlementDateOffset;
+  Bill(
+      SecurityId securityId,
+      AdjustablePayment notional,
+      DayCount dayCount,
+      BillYieldConvention yieldConvention,
+      LegalEntityId legalEntityId,
+      DaysAdjustment settlementDateOffset) {
+    JodaBeanUtils.notNull(securityId, "securityId");
+    JodaBeanUtils.notNull(notional, "notional");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
+    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+    JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
+    this.securityId = securityId;
+    this.notional = notional;
+    this.dayCount = dayCount;
+    this.yieldConvention = yieldConvention;
+    this.legalEntityId = legalEntityId;
+    this.settlementDateOffset = settlementDateOffset;
     validate();
   }
 
@@ -236,7 +247,7 @@ public class Bill
    * This identifier is used for the legal entity that issues the bill.
    * @return the value of the property, not null
    */
-  public StandardId getLegalEntityId() {
+  public LegalEntityId getLegalEntityId() {
     return legalEntityId;
   }
 
@@ -293,29 +304,21 @@ public class Bill
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("Bill{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
-    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-    buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Bill}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -344,8 +347,8 @@ public class Bill
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", Bill.class, StandardId.class);
+    private final MetaProperty<LegalEntityId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", Bill.class, LegalEntityId.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
@@ -366,7 +369,7 @@ public class Bill
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -408,7 +411,7 @@ public class Bill
      * The meta-property for the {@code securityId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SecurityId> securityId() {
+    public MetaProperty<SecurityId> securityId() {
       return securityId;
     }
 
@@ -416,7 +419,7 @@ public class Bill
      * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<AdjustablePayment> notional() {
+    public MetaProperty<AdjustablePayment> notional() {
       return notional;
     }
 
@@ -424,7 +427,7 @@ public class Bill
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCount() {
+    public MetaProperty<DayCount> dayCount() {
       return dayCount;
     }
 
@@ -432,7 +435,7 @@ public class Bill
      * The meta-property for the {@code yieldConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BillYieldConvention> yieldConvention() {
+    public MetaProperty<BillYieldConvention> yieldConvention() {
       return yieldConvention;
     }
 
@@ -440,7 +443,7 @@ public class Bill
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<StandardId> legalEntityId() {
+    public MetaProperty<LegalEntityId> legalEntityId() {
       return legalEntityId;
     }
 
@@ -448,7 +451,7 @@ public class Bill
      * The meta-property for the {@code settlementDateOffset} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DaysAdjustment> settlementDateOffset() {
+    public MetaProperty<DaysAdjustment> settlementDateOffset() {
       return settlementDateOffset;
     }
 
@@ -487,26 +490,26 @@ public class Bill
   /**
    * The bean-builder for {@code Bill}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<Bill> {
+  public static final class Builder extends DirectFieldsBeanBuilder<Bill> {
 
     private SecurityId securityId;
     private AdjustablePayment notional;
     private DayCount dayCount;
     private BillYieldConvention yieldConvention;
-    private StandardId legalEntityId;
+    private LegalEntityId legalEntityId;
     private DaysAdjustment settlementDateOffset;
 
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(Bill beanToCopy) {
+    private Builder(Bill beanToCopy) {
       this.securityId = beanToCopy.getSecurityId();
       this.notional = beanToCopy.getNotional();
       this.dayCount = beanToCopy.getDayCount();
@@ -552,7 +555,7 @@ public class Bill
           this.yieldConvention = (BillYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
+          this.legalEntityId = (LegalEntityId) newValue;
           break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
@@ -571,7 +574,13 @@ public class Bill
 
     @Override
     public Bill build() {
-      return new Bill(this);
+      return new Bill(
+          securityId,
+          notional,
+          dayCount,
+          yieldConvention,
+          legalEntityId,
+          settlementDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -632,7 +641,7 @@ public class Bill
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder legalEntityId(StandardId legalEntityId) {
+    public Builder legalEntityId(LegalEntityId legalEntityId) {
       JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
       this.legalEntityId = legalEntityId;
       return this;
@@ -656,22 +665,14 @@ public class Bill
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("Bill.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
+      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

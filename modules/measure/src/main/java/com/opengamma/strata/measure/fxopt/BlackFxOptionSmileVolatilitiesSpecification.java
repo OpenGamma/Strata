@@ -117,7 +117,7 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
    */
   @PropertyDefinition(validate = "notNull")
   private final CurveExtrapolator strikeExtrapolatorRight;
-  
+
   /**
    * Entries for the volatilities, keyed by tenor.
    */

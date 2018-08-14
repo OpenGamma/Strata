@@ -18,6 +18,7 @@ import com.opengamma.strata.basics.StandardId;
 public class SecurityIdTest {
 
   private static final StandardId STANDARD_ID = StandardId.of("A", "1");
+  private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
   public void test_of_strings() {
@@ -50,7 +51,7 @@ public class SecurityIdTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
 }

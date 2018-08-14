@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,6 +27,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -40,12 +40,12 @@ public class BillTest {
   private static final BusinessDayAdjustment BUSINESS_ADJUST =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY);
   private static final BillYieldConvention YIELD_CONVENTION = BillYieldConvention.DISCOUNT;
-  private static final StandardId LEGAL_ENTITY = StandardId.of("OG-Ticker", "US GOVT");
+  private static final LegalEntityId LEGAL_ENTITY = LegalEntityId.of("OG-Ticker", "US GOVT");
   private static final Currency CCY = Currency.USD;
   private static final double NOTIONAL_AMOUNT = 1_000_000;
   private static final LocalDate MATURITY_DATE = LocalDate.of(2019, 5, 23);
   private static final AdjustableDate MATURITY_DATE_ADJ = AdjustableDate.of(MATURITY_DATE, BUSINESS_ADJUST);
-  private static final AdjustablePayment NOTIONAL = 
+  private static final AdjustablePayment NOTIONAL =
       AdjustablePayment.of(CurrencyAmount.of(CCY, NOTIONAL_AMOUNT), MATURITY_DATE_ADJ);
   private static final DayCount DAY_COUNT = DayCounts.ACT_360;
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "Bill2019-05-23");
@@ -59,7 +59,7 @@ public class BillTest {
       .yieldConvention(YIELD_CONVENTION).build();
   public static final Bill BILL_2 = Bill.builder()
       .dayCount(DayCounts.ACT_365F)
-      .legalEntityId(StandardId.of("OG-Ticker", "LE2"))
+      .legalEntityId(LegalEntityId.of("OG-Ticker", "LE2"))
       .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, 10), MATURITY_DATE_ADJ))
       .securityId(SecurityId.of("OG-Test", "ID2"))
       .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA, BUSINESS_ADJUST))
@@ -86,7 +86,7 @@ public class BillTest {
     double priceComputed = US_BILL.priceFromYield(yield, settlementDate);
     assertEquals(priceExpected, priceComputed, TOLERANCE_PRICE);
   }
-  
+
   public void yield_from_price_discount() {
     double price = 0.99;
     LocalDate settlementDate = LocalDate.of(2018, 8, 17);
@@ -105,7 +105,7 @@ public class BillTest {
     double priceComputed = bill.priceFromYield(yield, settlementDate);
     assertEquals(priceExpected, priceComputed, TOLERANCE_PRICE);
   }
-  
+
   public void yield_from_price_intatmat() {
     Bill bill = US_BILL.toBuilder().yieldConvention(BillYieldConvention.INTEREST_AT_MATURITY).build();
     double price = 0.99;
@@ -135,7 +135,7 @@ public class BillTest {
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(-11, USNY, BUSINESS_ADJUST))
         .yieldConvention(YIELD_CONVENTION).build());
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_resolve() {
     ResolvedBill resolved = US_BILL.resolve(REF_DATA);
@@ -156,5 +156,5 @@ public class BillTest {
   public void test_serialization() {
     assertSerialization(US_BILL);
   }
-  
+
 }

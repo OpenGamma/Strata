@@ -8,7 +8,6 @@ package com.opengamma.strata.pricer.bond;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.MarketDataName;
@@ -17,6 +16,7 @@ import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -58,7 +58,7 @@ public interface LegalEntityDiscountingProvider {
    */
   public abstract RepoCurveDiscountFactors repoCurveDiscountFactors(
       SecurityId securityId,
-      StandardId issuerId,
+      LegalEntityId issuerId,
       Currency currency);
 
   /**
@@ -74,7 +74,7 @@ public interface LegalEntityDiscountingProvider {
    * @throws IllegalArgumentException if the discount factors are not available
    */
   public abstract RepoCurveDiscountFactors repoCurveDiscountFactors(
-      StandardId issuerId,
+      LegalEntityId issuerId,
       Currency currency);
 
   /**
@@ -89,7 +89,7 @@ public interface LegalEntityDiscountingProvider {
    * @return the discount factors
    * @throws IllegalArgumentException if the discount factors are not available
    */
-  public abstract IssuerCurveDiscountFactors issuerCurveDiscountFactors(StandardId issuerId, Currency currency);
+  public abstract IssuerCurveDiscountFactors issuerCurveDiscountFactors(LegalEntityId issuerId, Currency currency);
 
   //-------------------------------------------------------------------------
   /**

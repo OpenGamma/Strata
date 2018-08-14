@@ -115,13 +115,15 @@ public final class SimpleCreditCurveCalibrator extends IsdaCompliantCreditCurveC
         .curveName(name)
         .dayCount(discountFactors.getDayCount())
         .build();
-    NodalCurve creditCurve = n == 1 ? ConstantNodalCurve.of(baseMetadata, t[0], guess[0]) : InterpolatedNodalCurve.of(
-        baseMetadata,
-        times,
-        DoubleArray.ofUnsafe(guess),
-        CurveInterpolators.PRODUCT_LINEAR,
-        CurveExtrapolators.FLAT,
-        CurveExtrapolators.PRODUCT_LINEAR);
+    NodalCurve creditCurve = n == 1 ?
+        ConstantNodalCurve.of(baseMetadata, t[0], guess[0]) :
+        InterpolatedNodalCurve.of(
+            baseMetadata,
+            times,
+            DoubleArray.ofUnsafe(guess),
+            CurveInterpolators.PRODUCT_LINEAR,
+            CurveExtrapolators.FLAT,
+            CurveExtrapolators.PRODUCT_LINEAR);
 
     for (int i = 0; i < n; i++) {
       Function<Double, Double> func = getPriceFunction(

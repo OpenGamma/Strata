@@ -129,12 +129,9 @@ enum StandardRollConventions implements RollConvention {
   }
 
   // safely find a holiday calendar
+  // this exists because using a RollConvention should not result in a reference data exception
   private static HolidayCalendar holidayCalendar(HolidayCalendarId id) {
-    try {
-      return id.resolve(ReferenceData.standard());
-    } catch (RuntimeException ex) {
-      return HolidayCalendars.SAT_SUN;
-    }
+    return ReferenceData.standard().findValue(id).orElse(HolidayCalendars.SAT_SUN);
   }
 
 }

@@ -386,8 +386,9 @@ public final class SabrHaganVolatilityFunctionProvider
       f2x = 1.0 - 0.5 * f2 * rho; //small f2 expansion to f2^2 terms
     } else {
       if (DoubleMath.fuzzyEquals(rho, 1.0, RHO_EPS)) {
-        x = f2 < 1.0 ? -Math.log(1.0 - f2) - 0.5 * Math.pow(f2 / (f2 - 1.0), 2) * (1.0 - rho) : Math
-            .log(2.0 * f2 - 2.0) - Math.log(1.0 - rho);
+        x = f2 < 1.0 ?
+            -Math.log(1.0 - f2) - 0.5 * Math.pow(f2 / (f2 - 1.0), 2) * (1.0 - rho) :
+            Math.log(2.0 * f2 - 2.0) - Math.log(1.0 - rho);
       } else {
         x = Math.log((sqrtf2 + f2 - rho) / (1 - rho));
       }
@@ -507,9 +508,12 @@ public final class SabrHaganVolatilityFunctionProvider
     } else {
       double xDr;
       if (DoubleMath.fuzzyEquals(rho, 1.0, RHO_EPS)) {
-        xDr = f2 > 1.0 ? 1.0 / (1.0 - rho) + (0.5 - f2) / (f2 - 1.0) / (f2 - 1.0) : 0.5 *
-            Math.pow(f2 / (1.0 - f2), 2.0) + 0.25 * (f2 - 4.0) * Math.pow(f2 / (f2 - 1.0), 3) / (f2 - 1.0) *
-                (1.0 - rho);
+        xDr = f2 > 1.0 ?
+            1.0 / (1.0 - rho) + (0.5 - f2) / (f2 - 1.0) / (f2 - 1.0) :
+            0.5 *
+                Math.pow(f2 / (1.0 - f2), 2.0) +
+                0.25 * (f2 - 4.0) * Math.pow(f2 / (f2 - 1.0), 3) / (f2 - 1.0) *
+                    (1.0 - rho);
         if (Doubles.isFinite(xDr)) {
           volatilityD[4] = sigmaDf1 * f1Dp[2] + sigmaDx * xDr + sigmaDf3 * f3Dp[2] + sigmaDf4 * f4Dp[2];
         } else {

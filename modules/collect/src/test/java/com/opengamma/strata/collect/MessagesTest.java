@@ -146,6 +146,7 @@ public class MessagesTest {
         {null, new Object[] {}, Pair.of("", ImmutableMap.of())},
         {"", new Object[] {"testValueMissingKey"}, Pair.of("", ImmutableMap.of())},
         {"{}", new Object[] {"testValue"}, Pair.of("testValue", ImmutableMap.of())},
+        {"{}", new Object[] {null}, Pair.of("null", ImmutableMap.of())},
         {"{a}", new Object[] {"testValue"}, Pair.of("testValue", ImmutableMap.of("a", "testValue"))},
         {"{a} bcd", new Object[] {"testValue"}, Pair.of("testValue bcd", ImmutableMap.of("a", "testValue"))},
         {"Test {abc} test2 {def} test3", new Object[] {"abcValue", 123456}, Pair.of("Test abcValue test2 123456 test3", ImmutableMap.of("abc", "abcValue", "def", "123456"))},

@@ -39,7 +39,6 @@ public class BillTradeTest {
       .build();
   private static final TradeInfo TRADE_INFO2 = TradeInfo.builder()
       .tradeDate(TRADE_DATE)
-      .settlementDate(SETTLEMENT_DATE.plusDays(1))
       .build();
   private static final double QUANTITY = 123;
   private static final double YIELD = 0.0123;
@@ -50,19 +49,30 @@ public class BillTradeTest {
   private static final double TOLERANCE_PRICE = 1.0E-8;
 
   //-------------------------------------------------------------------------
-  public void test_of_yield() {
+  public void test_ofYield() {
     BillTrade test = sut_yield();
     assertEquals(test.getProduct(), PRODUCT);
     assertEquals(test.getInfo(), TRADE_INFO);
     assertEquals(test.getQuantity(), QUANTITY);
-    double price = 1.0d - YIELD 
-        * PRODUCT.getDayCount().relativeYearFraction(SETTLEMENT_DATE, PRODUCT.getNotional().getDate().getUnadjusted());
+    double price = 1.0d -
+        YIELD * PRODUCT.getDayCount().relativeYearFraction(SETTLEMENT_DATE, PRODUCT.getNotional().getDate().getUnadjusted());
     assertEquals(test.getPrice(), price, TOLERANCE_PRICE);
     assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
     assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
     assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
   }
-  
+
+  public void test_ofPrice() {
+    BillTrade test = sut_price();
+    assertEquals(test.getProduct(), PRODUCT);
+    assertEquals(test.getInfo(), TRADE_INFO);
+    assertEquals(test.getQuantity(), QUANTITY);
+    assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+  }
+
   public void test_builder_price() {
     BillTrade test = sut_price();
     assertEquals(test.getProduct(), PRODUCT);
@@ -90,9 +100,9 @@ public class BillTradeTest {
         .price(PRICE)
         .build(), IllegalArgumentException.class);
   }
-  
+
   public void test_of_yield_settledate() {
-    assertThrows(() -> BillTrade.ofYield(TradeInfo.builder().tradeDate(TRADE_DATE).build(), PRODUCT, QUANTITY, YIELD), 
+    assertThrows(() -> BillTrade.ofYield(TradeInfo.builder().tradeDate(TRADE_DATE).build(), PRODUCT, QUANTITY, YIELD),
         IllegalArgumentException.class);
   }
 
@@ -163,14 +173,9 @@ public class BillTradeTest {
   static BillTrade sut_yield() {
     return BillTrade.ofYield(TRADE_INFO, PRODUCT, QUANTITY, YIELD);
   }
-  
+
   static BillTrade sut_price() {
-    return BillTrade.builder()
-        .info(TRADE_INFO)
-        .product(PRODUCT)
-        .quantity(QUANTITY)
-        .price(PRICE)
-        .build();
+    return BillTrade.ofPrice(TRADE_INFO, PRODUCT, QUANTITY, PRICE);
   }
 
   static BillTrade sut2() {

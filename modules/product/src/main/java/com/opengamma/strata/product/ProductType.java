@@ -9,6 +9,7 @@ import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.product.bond.Bill;
 import com.opengamma.strata.product.bond.BondFuture;
 import com.opengamma.strata.product.bond.BondFutureOption;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
@@ -29,6 +30,7 @@ import com.opengamma.strata.product.fxopt.FxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.index.IborFuture;
 import com.opengamma.strata.product.index.IborFutureOption;
+import com.opengamma.strata.product.index.OvernightFuture;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swaption.Swaption;
@@ -113,6 +115,10 @@ public final class ProductType
    * A {@link IborFutureOption}.
    */
   public static final ProductType IBOR_FUTURE_OPTION = ProductType.of("IborFutureOption", "STIR Future Option");
+  /**
+   * A {@link OvernightFuture}.
+   */
+  public static final ProductType OVERNIGHT_FUTURE = ProductType.of("OvernightFuture", "Overnight Future");
   /**
    * A representation based on sensitivities.
    */

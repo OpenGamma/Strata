@@ -51,11 +51,11 @@ import com.opengamma.strata.collect.io.UnicodeBom;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.RatesCurveGroup;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
@@ -209,7 +209,7 @@ public final class RatesCurvesCsvLoader {
       CharSource settingsCharSource,
       Collection<CharSource> curveValueCharSources) {
 
-    List<RatesCurveGroupDefinition> curveGroups = CurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
+    List<RatesCurveGroupDefinition> curveGroups = RatesCurveGroupDefinitionCsvLoader.parseCurveGroupDefinitions(groupsCharSource);
     Map<LocalDate, Map<CurveName, Curve>> curves =
         parseCurves(datePredicate, settingsCharSource, curveValueCharSources);
     ImmutableListMultimap.Builder<LocalDate, RatesCurveGroup> builder = ImmutableListMultimap.builder();

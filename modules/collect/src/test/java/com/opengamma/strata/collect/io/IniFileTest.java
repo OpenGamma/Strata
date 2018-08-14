@@ -51,6 +51,7 @@ public class IniFileTest {
   private final String INI4 = "" +
       "[section]\n" +
       "a=d= = x\n";
+  private static final Object ANOTHER_TYPE = "";
 
   public void test_of_noLists() {
     IniFile test = IniFile.of(CharSource.wrap(INI1));
@@ -179,7 +180,7 @@ public class IniFileTest {
     assertEquals(a1.equals(a2), true);
     assertEquals(a1.equals(b), false);
     assertEquals(a1.equals(null), false);
-    assertEquals(a1.equals(""), false);
+    assertEquals(a1.equals(ANOTHER_TYPE), false);
     assertEquals(a1.hashCode(), a2.hashCode());
   }
 
@@ -192,7 +193,7 @@ public class IniFileTest {
     assertEquals(a1.section("name").equals(a2.section("name")), true);
     assertEquals(a1.section("name").equals(b.section("section")), false);
     assertEquals(a1.section("name").equals(null), false);
-    assertEquals(a1.section("name").equals(""), false);
+    assertEquals(a1.section("name").equals(ANOTHER_TYPE), false);
     assertEquals(a1.section("name").hashCode(), a2.section("name").hashCode());
   }
 

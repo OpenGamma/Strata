@@ -28,16 +28,16 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.RatesCurveGroupId;
-import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.RatesCurveInputs;
 import com.opengamma.strata.market.curve.RatesCurveInputsId;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.measure.curve.RootFinderConfig;
 import com.opengamma.strata.pricer.curve.CalibrationMeasures;
-import com.opengamma.strata.pricer.curve.CurveCalibrator;
+import com.opengamma.strata.pricer.curve.RatesCurveCalibrator;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 
 /**
@@ -108,7 +108,7 @@ public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<Rat
 
     // create the calibrator, using the configured RootFinderConfig if found
     RootFinderConfig rfc = marketDataConfig.find(RootFinderConfig.class).orElse(RootFinderConfig.standard());
-    CurveCalibrator calibrator = CurveCalibrator.of(
+    RatesCurveCalibrator calibrator = RatesCurveCalibrator.of(
         rfc.getAbsoluteTolerance(), rfc.getRelativeTolerance(), rfc.getMaximumSteps(), calibrationMeasures);
 
     // calibrate
@@ -135,7 +135,7 @@ public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<Rat
    */
   MarketDataBox<RatesCurveGroup> buildCurveGroup(
       RatesCurveGroupDefinition configuredGroup,
-      CurveCalibrator calibrator,
+      RatesCurveCalibrator calibrator,
       ScenarioMarketData marketData,
       ReferenceData refData,
       ObservableSource obsSource) {
@@ -170,7 +170,7 @@ public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<Rat
   // calibrates when there are multiple groups
   private MarketDataBox<RatesCurveGroup> buildMultipleCurveGroups(
       RatesCurveGroupDefinition configuredGroup,
-      CurveCalibrator calibrator,
+      RatesCurveCalibrator calibrator,
       MarketDataBox<LocalDate> valuationDateBox,
       List<MarketDataBox<RatesCurveInputs>> inputBoxes,
       Map<ObservableId, LocalDateDoubleTimeSeries> fixings,
@@ -199,7 +199,7 @@ public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<Rat
   // calibrates when there is a single group
   private MarketDataBox<RatesCurveGroup> buildSingleCurveGroup(
       RatesCurveGroupDefinition configuredGroup,
-      CurveCalibrator calibrator,
+      RatesCurveCalibrator calibrator,
       LocalDate valuationDate,
       List<MarketDataBox<RatesCurveInputs>> inputBoxes,
       Map<ObservableId, LocalDateDoubleTimeSeries> fixings,
@@ -251,7 +251,7 @@ public class RatesCurveGroupMarketDataFunction implements MarketDataFunction<Rat
 
   private RatesCurveGroup buildGroup(
       RatesCurveGroupDefinition groupDefn,
-      CurveCalibrator calibrator,
+      RatesCurveCalibrator calibrator,
       MarketData marketData,
       ReferenceData refData) {
 

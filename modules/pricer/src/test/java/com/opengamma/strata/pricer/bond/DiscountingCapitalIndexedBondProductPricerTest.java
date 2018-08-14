@@ -35,7 +35,6 @@ import java.time.Period;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -54,6 +53,7 @@ import com.opengamma.strata.pricer.CompoundedRateType;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.bond.CapitalIndexedBond;
 import com.opengamma.strata.product.bond.CapitalIndexedBondPaymentPeriod;
@@ -82,7 +82,7 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
   private static final BusinessDayAdjustment EX_COUPON_ADJ =
       BusinessDayAdjustment.of(BusinessDayConventions.PRECEDING, USNY);
   private static final DaysAdjustment SETTLE_OFFSET = DaysAdjustment.ofBusinessDays(2, USNY);
-  private static final StandardId LEGAL_ENTITY = CapitalIndexedBondCurveDataSet.getIssuerId();
+  private static final LegalEntityId LEGAL_ENTITY = CapitalIndexedBondCurveDataSet.getIssuerId();
   private static final LocalDate START = LocalDate.of(2006, 1, 15);
   private static final LocalDate END = LocalDate.of(2016, 1, 15);
   private static final Frequency FREQUENCY = Frequency.P6M;

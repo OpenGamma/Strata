@@ -130,7 +130,7 @@ public class CalibrationDiscountingSmithWilsonTest {
     CURVES_METADATA.add(groupMetadata);
   }
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100);
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.of(1e-9, 1e-9, 100);
 
   /** Test with CurveGroupDefinition */
   private static final String CURVE_GROUP_NAME_STR = "GBP-SINGLE-CURVE";

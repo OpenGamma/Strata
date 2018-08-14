@@ -102,6 +102,10 @@ public final class FloatingRateNames {
    */
   public static final FloatingRateName USD_FED_FUND = FloatingRateName.of("USD-FED-FUND");
   /**
+   * Constant for USD-SOFR Overnight index.
+   */
+  public static final FloatingRateName USD_SOFR = FloatingRateName.of("USD-SOFR");
+  /**
    * Constant for CHF-SARON Overnight index.
    */
   public static final FloatingRateName CHF_SARON = FloatingRateName.of("CHF-SARON");

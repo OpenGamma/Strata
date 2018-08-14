@@ -54,7 +54,7 @@ import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 
 /**
  * Test the notional equivalent computation based on present value sensitivity to quote in 
- * the calibrated curves by {@link CurveCalibrator}.
+ * the calibrated curves by {@link RatesCurveCalibrator}.
  */  
 @Test
 public class CalibrationNotionalEquivalentTest {
@@ -70,7 +70,7 @@ public class CalibrationNotionalEquivalentTest {
   private static final String QUOTES_FILE = "quotes/quotes-20160229-eur.csv";
 
   private static final CalibrationMeasures CALIBRATION_MEASURES = CalibrationMeasures.PAR_SPREAD;
-  private static final CurveCalibrator CALIBRATOR = CurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
+  private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.of(1e-9, 1e-9, 100, CALIBRATION_MEASURES);
   private static final CalibrationMeasures PV_MEASURES = CalibrationMeasures.of(
       "PresentValue",
       PresentValueCalibrationMeasure.FRA_PV,

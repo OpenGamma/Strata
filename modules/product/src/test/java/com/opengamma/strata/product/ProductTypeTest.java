@@ -15,6 +15,8 @@ import org.testng.annotations.Test;
 @Test
 public class ProductTypeTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-------------------------------------------------------------------------
   public void test_constants() {
     assertEquals(ProductType.SECURITY.toString(), "Security");
@@ -40,7 +42,7 @@ public class ProductTypeTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
 }

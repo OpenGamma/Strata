@@ -20,6 +20,8 @@ import com.opengamma.strata.collect.TestHelper;
 @Test
 public class TripleTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
   public static Object[][] data_factory() {
@@ -142,7 +144,7 @@ public class TripleTest {
   public void test_equals_bad() {
     Triple<Integer, String, String> a = Triple.of(1, "Hello", "Triple");
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals(""), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
   public void test_hashCode() {

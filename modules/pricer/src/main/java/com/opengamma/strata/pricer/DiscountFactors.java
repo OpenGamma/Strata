@@ -120,7 +120,7 @@ public interface DiscountFactors
    * @throws RuntimeException if the value cannot be obtained
    */
   public abstract double discountFactor(double yearFraction);
-  
+
   /**
    * Returns the discount factor derivative with respect to the year fraction or time.
    * <p>

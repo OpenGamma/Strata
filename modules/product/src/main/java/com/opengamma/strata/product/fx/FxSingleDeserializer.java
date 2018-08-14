@@ -15,7 +15,6 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.BufferingBeanBuilder;
 import org.joda.beans.impl.StandaloneMetaProperty;
 import org.joda.beans.ser.DefaultDeserializer;
-import org.joda.beans.ser.SerDeserializer;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -25,9 +24,6 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
  * Deserialize {@code FxSingle} handling old format.
  */
 final class FxSingleDeserializer extends DefaultDeserializer {
-
-  /** Singleton instance. */
-  public static final SerDeserializer INSTANCE = new FxSingleDeserializer();
 
   private static final MetaProperty<Payment> BASE_CURRENCY_PAYMENT = FxSingle.meta().baseCurrencyPayment();
   private static final MetaProperty<Payment> COUNTER_CURRENCY_PAYMENT = FxSingle.meta().counterCurrencyPayment();
@@ -40,10 +36,8 @@ final class FxSingleDeserializer extends DefaultDeserializer {
       StandaloneMetaProperty.of("paymentDate", FxSingle.meta(), LocalDate.class);
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates an instance.
-   */
-  private FxSingleDeserializer() {
+  // restricted constructor
+  FxSingleDeserializer() {
   }
 
   @Override

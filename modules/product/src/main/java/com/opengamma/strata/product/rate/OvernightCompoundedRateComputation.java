@@ -23,12 +23,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -39,7 +36,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition
 public final class OvernightCompoundedRateComputation
-    implements RateComputation, ImmutableBean, Serializable {
+    implements OvernightRateComputation, ImmutableBean, Serializable {
 
   /**
    * The Overnight index.
@@ -47,12 +44,12 @@ public final class OvernightCompoundedRateComputation
    * The rate to be paid is based on this index.
    * It will be a well known market index such as 'GBP-SONIA'.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightIndex index;
   /**
    * The resolved calendar that the index uses.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final HolidayCalendar fixingCalendar;
   /**
    * The fixing date associated with the start date of the accrual period.
@@ -64,7 +61,7 @@ public final class OvernightCompoundedRateComputation
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
    * before the accrual period.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate startDate;
   /**
    * The fixing date associated with the end date of the accrual period.
@@ -75,7 +72,7 @@ public final class OvernightCompoundedRateComputation
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
    * before the accrual period.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate endDate;
   /**
    * The number of business days before the end of the period that the rate is cut off.
@@ -153,113 +150,6 @@ public final class OvernightCompoundedRateComputation
     ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
   }
 
-  //-------------------------------------------------------------------------
-  /**
-   * Calculates the publication date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The publication date is the date on which the fixed rate is actually published.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the publication date
-   */
-  public LocalDate calculatePublicationFromFixing(LocalDate fixingDate) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), index.getPublicationDateOffset());
-  }
-
-  /**
-   * Calculates the effective date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the effective date
-   */
-  public LocalDate calculateEffectiveFromFixing(LocalDate fixingDate) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), index.getEffectiveDateOffset());
-  }
-
-  /**
-   * Calculates the maturity date from the fixing date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The maturity date is the date on which the implied deposit ends.
-   * <p>
-   * No error is thrown if the input date is not a valid fixing date.
-   * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the maturity date
-   */
-  public LocalDate calculateMaturityFromFixing(LocalDate fixingDate) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(fixingDate), index.getEffectiveDateOffset() + 1);
-  }
-
-  /**
-   * Calculates the fixing date from the effective date.
-   * <p>
-   * The fixing date is the date on which the index is to be observed.
-   * The effective date is the date on which the implied deposit starts.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the fixing date
-   */
-  public LocalDate calculateFixingFromEffective(LocalDate effectiveDate) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), -index.getEffectiveDateOffset());
-  }
-
-  /**
-   * Calculates the maturity date from the effective date.
-   * <p>
-   * The effective date is the date on which the implied deposit starts.
-   * The maturity date is the date on which the implied deposit ends.
-   * <p>
-   * No error is thrown if the input date is not a valid effective date.
-   * Instead, the effective date is moved to the next valid effective date and then processed.
-   * 
-   * @param effectiveDate  the effective date
-   * @return the maturity date
-   */
-  public LocalDate calculateMaturityFromEffective(LocalDate effectiveDate) {
-    return fixingCalendar.shift(fixingCalendar.nextOrSame(effectiveDate), 1);
-  }
-
-  /**
-   * Creates an observation object for the specified fixing date.
-   * 
-   * @param fixingDate  the fixing date
-   * @return the index observation
-   */
-  public OvernightIndexObservation observeOn(LocalDate fixingDate) {
-    LocalDate publicationDate = calculatePublicationFromFixing(fixingDate);
-    LocalDate effectiveDate = calculateEffectiveFromFixing(fixingDate);
-    LocalDate maturityDate = calculateMaturityFromEffective(effectiveDate);
-    return OvernightIndexObservation.builder()
-        .index(getIndex())
-        .fixingDate(fixingDate)
-        .publicationDate(publicationDate)
-        .effectiveDate(effectiveDate)
-        .maturityDate(maturityDate)
-        .yearFraction(getIndex().getDayCount().yearFraction(effectiveDate, maturityDate))
-        .build();
-  }
-
-  //-------------------------------------------------------------------------
-  @Override
-  public void collectIndices(ImmutableSet.Builder<Index> builder) {
-    builder.add(getIndex());
-  }
-
   //------------------------- AUTOGENERATED START -------------------------
   /**
    * The meta-bean for {@code OvernightCompoundedRateComputation}.
@@ -318,6 +208,7 @@ public final class OvernightCompoundedRateComputation
    * It will be a well known market index such as 'GBP-SONIA'.
    * @return the value of the property, not null
    */
+  @Override
   public OvernightIndex getIndex() {
     return index;
   }
@@ -327,6 +218,7 @@ public final class OvernightCompoundedRateComputation
    * Gets the resolved calendar that the index uses.
    * @return the value of the property, not null
    */
+  @Override
   public HolidayCalendar getFixingCalendar() {
     return fixingCalendar;
   }
@@ -343,6 +235,7 @@ public final class OvernightCompoundedRateComputation
    * before the accrual period.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getStartDate() {
     return startDate;
   }
@@ -358,6 +251,7 @@ public final class OvernightCompoundedRateComputation
    * before the accrual period.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getEndDate() {
     return endDate;
   }

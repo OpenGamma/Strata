@@ -28,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
-import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount;
@@ -38,6 +37,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.product.LegalEntityId;
 import com.opengamma.strata.product.SecuritizedProduct;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.rate.RateComputation;
@@ -127,7 +127,7 @@ public final class CapitalIndexedBond
    * This identifier is used for the legal entity that issues the bond.
    */
   @PropertyDefinition(validate = "notNull")
-  private final StandardId legalEntityId;
+  private final LegalEntityId legalEntityId;
   /**
    * The number of days between valuation date and settlement date.
    * <p>
@@ -263,7 +263,7 @@ public final class CapitalIndexedBond
       InflationRateCalculation rateCalculation,
       DayCount dayCount,
       CapitalIndexedBondYieldConvention yieldConvention,
-      StandardId legalEntityId,
+      LegalEntityId legalEntityId,
       DaysAdjustment settlementDateOffset,
       DaysAdjustment exCouponPeriod) {
     JodaBeanUtils.notNull(securityId, "securityId");
@@ -386,7 +386,7 @@ public final class CapitalIndexedBond
    * This identifier is used for the legal entity that issues the bond.
    * @return the value of the property, not null
    */
-  public StandardId getLegalEntityId() {
+  public LegalEntityId getLegalEntityId() {
     return legalEntityId;
   }
 
@@ -530,8 +530,8 @@ public final class CapitalIndexedBond
     /**
      * The meta-property for the {@code legalEntityId} property.
      */
-    private final MetaProperty<StandardId> legalEntityId = DirectMetaProperty.ofImmutable(
-        this, "legalEntityId", CapitalIndexedBond.class, StandardId.class);
+    private final MetaProperty<LegalEntityId> legalEntityId = DirectMetaProperty.ofImmutable(
+        this, "legalEntityId", CapitalIndexedBond.class, LegalEntityId.class);
     /**
      * The meta-property for the {@code settlementDateOffset} property.
      */
@@ -667,7 +667,7 @@ public final class CapitalIndexedBond
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<StandardId> legalEntityId() {
+    public MetaProperty<LegalEntityId> legalEntityId() {
       return legalEntityId;
     }
 
@@ -739,7 +739,7 @@ public final class CapitalIndexedBond
     private InflationRateCalculation rateCalculation;
     private DayCount dayCount;
     private CapitalIndexedBondYieldConvention yieldConvention;
-    private StandardId legalEntityId;
+    private LegalEntityId legalEntityId;
     private DaysAdjustment settlementDateOffset;
     private DaysAdjustment exCouponPeriod;
 
@@ -821,7 +821,7 @@ public final class CapitalIndexedBond
           this.yieldConvention = (CapitalIndexedBondYieldConvention) newValue;
           break;
         case 866287159:  // legalEntityId
-          this.legalEntityId = (StandardId) newValue;
+          this.legalEntityId = (LegalEntityId) newValue;
           break;
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
@@ -961,7 +961,7 @@ public final class CapitalIndexedBond
      * @param legalEntityId  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder legalEntityId(StandardId legalEntityId) {
+    public Builder legalEntityId(LegalEntityId legalEntityId) {
       JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
       this.legalEntityId = legalEntityId;
       return this;

@@ -29,7 +29,7 @@ public interface ParameterLimitsTransform {
 
   //  /**
   //   * A function to transform a set of constrained model parameters to a set of unconstrained fitting parameters
-  //   * @param x Model parameter 
+  //   * @param x Model parameter
   //   * @return Fitting parameter
   //   */
   //  double[] transform(double[] x);

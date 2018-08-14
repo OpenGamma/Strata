@@ -29,6 +29,8 @@ import com.opengamma.strata.basics.currency.Currency;
 @Test
 public class HolidayCalendarIdTest {
 
+  private static final Object ANOTHER_TYPE = "";
+
   public void test_of_single() {
     HolidayCalendarId test = HolidayCalendarId.of("GB");
     assertEquals(test.getName(), "GB");
@@ -136,7 +138,7 @@ public class HolidayCalendarIdTest {
     assertEquals(a.equals(a2), true);
     assertEquals(a.equals(b), false);
     assertEquals(a.equals(null), false);
-    assertEquals(a.equals("Rubbish"), false);
+    assertEquals(a.equals(ANOTHER_TYPE), false);
   }
 
   //-------------------------------------------------------------------------
