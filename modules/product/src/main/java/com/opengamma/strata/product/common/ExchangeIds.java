@@ -93,15 +93,17 @@ public final class ExchangeIds {
   /** The Montreal Exchange. */
   public static final ExchangeId XMOD = ExchangeId.of("XMOD");
 
-  /**  Tokyo Financial Exchange. */
+  /** Tokyo Financial Exchange. */
   public static final ExchangeId XTFF = ExchangeId.of("XTFF");
 
-  /**  Tokyo Commodity Exchange. */
+  /** Tokyo Commodity Exchange. */
   public static final ExchangeId XTKT = ExchangeId.of("XTKT");
 
-  /**  Tokyo Stock Exchange. */
+  /** Tokyo Stock Exchange. */
   public static final ExchangeId XTKS = ExchangeId.of("XTKS");
 
+  /** Borsa Istanbul Exchange */
+  public static final ExchangeId XFNO = ExchangeId.of("XFNO");
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
