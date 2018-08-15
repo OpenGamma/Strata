@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,6 +30,17 @@ public class MapStreamTest {
 
   private final Map<String, Integer> map = ImmutableMap.of("one", 1, "two", 2, "three", 3, "four", 4);
 
+  public void keys() {
+    List<String> result = MapStream.of(map).keys().collect(toImmutableList());
+    assertThat(result).isEqualTo(ImmutableList.of("one", "two", "three", "four"));
+  }
+
+  public void values() {
+    List<Integer> result = MapStream.of(map).values().collect(toImmutableList());
+    assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
+  }
+
+  //-------------------------------------------------------------------------
   public void filter() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
     Map<String, Integer> result = MapStream.of(map).filter((k, v) -> k.equals("one") || v == 2).toMap();
@@ -41,10 +53,22 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void filterKeys_byClass() {
+    Map<Number, Number> map = ImmutableMap.of(1, 11, 2d, 22d, 3, 33d);
+    Map<Integer, Number> result = MapStream.of(map).filterKeys(Integer.class).toMap();
+    assertThat(result).isEqualTo(ImmutableMap.of(1, 11, 3, 33d));
+  }
+
   public void filterValues() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
     Map<String, Integer> result = MapStream.of(map).filterValues(v -> v < 3).toMap();
     assertThat(result).isEqualTo(expected);
+  }
+
+  public void filterValues_byClass() {
+    Map<Number, Number> map = ImmutableMap.of(1, 11, 2d, 22, 3, 33d);
+    Map<Number, Integer> result = MapStream.of(map).filterValues(Integer.class).toMap();
+    assertThat(result).isEqualTo(ImmutableMap.of(1, 11, 2d, 22));
   }
 
   public void mapKeysToKeys() {

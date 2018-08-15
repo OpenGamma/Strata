@@ -134,6 +134,25 @@ public final class MapStream<K, V>
 
   //-------------------------------------------------------------------------
   /**
+   * Returns the keys as a stream, dropping the values.
+   *
+   * @return a stream of the keys
+   */
+  public Stream<K> keys() {
+    return underlying.map(e -> e.getKey());
+  }
+
+  /**
+   * Returns the values as a stream, dropping the keys.
+   *
+   * @return a stream of the values
+   */
+  public Stream<V> values() {
+    return underlying.map(e -> e.getValue());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Filters the stream by applying the predicate function to each key and value.
    * <p>
    * Entries are included in the returned stream if the predicate function returns true.
@@ -158,6 +177,21 @@ public final class MapStream<K, V>
   }
 
   /**
+   * Filters the stream checking the type of each key.
+   * <p>
+   * Entries are included in the returned stream if the key is an instance of the specified type.
+   *
+   * @param <R>  the type to filter to
+   * @param castToClass  the class to filter the keys to
+   * @return a stream including only those entries where the key is an instance of the specified type
+   */
+  public <R> MapStream<R, V> filterKeys(Class<R> castToClass) {
+    return wrap(underlying
+        .filter(e -> castToClass.isInstance(e.getKey()))
+        .map(e -> entry(castToClass.cast(e.getKey()), e.getValue())));
+  }
+
+  /**
    * Filters the stream by applying the predicate function to each value.
    * <p>
    * Entries are included in the returned stream if the predicate function returns true.
@@ -169,6 +203,22 @@ public final class MapStream<K, V>
     return wrap(underlying.filter(e -> predicate.test(e.getValue())));
   }
 
+  /**
+   * Filters the stream checking the type of each value.
+   * <p>
+   * Entries are included in the returned stream if the value is an instance of the specified type.
+   *
+   * @param <R>  the type to filter to
+   * @param castToClass  the class to filter the values to
+   * @return a stream including only those entries where the value is an instance of the specified type
+   */
+  public <R> MapStream<K, R> filterValues(Class<R> castToClass) {
+    return wrap(underlying
+        .filter(e -> castToClass.isInstance(e.getValue()))
+        .map(e -> entry(e.getKey(), castToClass.cast(e.getValue()))));
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Transforms the keys in the stream by applying a mapper function to each key.
    * <p>
@@ -232,6 +282,7 @@ public final class MapStream<K, V>
     return underlying.map(e -> mapper.apply(e.getKey(), e.getValue()));
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Returns an immutable map built from the entries in the stream.
    * <p>
