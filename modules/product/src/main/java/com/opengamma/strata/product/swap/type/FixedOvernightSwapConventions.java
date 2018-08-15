@@ -42,6 +42,17 @@ public final class FixedOvernightSwapConventions {
 
   //-------------------------------------------------------------------------
   /**
+   * The 'USD-FIXED-1Y-SOFR-OIS' swap convention.
+   * <p>
+   * USD fixed vs SOFR OIS swap for terms greater than one year.
+   * Both legs pay annually and use day count 'Act/360'.
+   * The spot date offset is 2 days and the payment date offset is 2 days.
+   */
+  public static final FixedOvernightSwapConvention USD_FIXED_1Y_SOFR_OIS =
+      FixedOvernightSwapConvention.of(StandardFixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS.getName());
+
+  //-------------------------------------------------------------------------
+  /**
    * The 'EUR-FIXED-TERM-EONIA-OIS' swap convention.
    * <p>
    * EUR fixed vs EONIA OIS swap for terms less than or equal to one year.
