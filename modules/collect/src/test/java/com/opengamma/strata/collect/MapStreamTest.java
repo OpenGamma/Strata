@@ -101,6 +101,19 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void flatMapKeys() {
+    List<Character> expected =
+        ImmutableList.of('o', 'n', 'e', 't', 'w', 'o', 't', 'h', 'r', 'e', 'e', 'f', 'o', 'u', 'r');
+    List<Character> result = MapStream.of(map).flatMapKeys(k -> k.chars().mapToObj(i -> (char) i)).collect(toList());
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapValues() {
+    List<Integer> expected = ImmutableList.of(1, 2, 2, 3, 3, 3, 4, 4, 4, 4);
+    List<Integer> result = MapStream.of(map).flatMapValues(v -> Stream.generate(() -> v).limit(v)).collect(toList());
+    assertThat(result).isEqualTo(expected);
+  }
+
   public void forEach() {
     HashMap<Object, Object> mutableMap = new HashMap<>();
     MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
@@ -148,6 +161,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  //-----------------------------------------------------------------------
   public void coverage() {
     MapStream.empty()
         .filter(e -> false)
