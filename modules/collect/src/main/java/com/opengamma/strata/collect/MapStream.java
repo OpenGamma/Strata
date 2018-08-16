@@ -284,29 +284,6 @@ public final class MapStream<K, V>
 
   //-------------------------------------------------------------------------
   /**
-   * Transforms the entries in the stream by applying a mapper function to each key.
-   *
-   * @param mapper  a mapper function whose return values are included in the new stream
-   * @param <R>  the type of elements in the new stream
-   * @return a stream containing the values returned from the mapper function
-   */
-  public <R> Stream<R> flatMapKeys(Function<? super K, Stream<? extends R>> mapper) {
-    return underlying.flatMap(e -> mapper.apply(e.getKey()));
-  }
-
-  /**
-   * Transforms the entries in the stream by applying a mapper function to each value.
-   *
-   * @param mapper  a mapper function whose return values are included in the new stream
-   * @param <R>  the type of elements in the new stream
-   * @return a stream containing the values returned from the mapper function
-   */
-  public <R> Stream<R> flatMapValues(Function<? super V, Stream<? extends R>> mapper) {
-    return underlying.flatMap(e -> mapper.apply(e.getValue()));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Returns an immutable map built from the entries in the stream.
    * <p>
    * The keys must be unique or an exception will be thrown. Duplicate keys can be handled by using
