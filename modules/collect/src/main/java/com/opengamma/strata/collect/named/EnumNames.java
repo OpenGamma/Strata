@@ -37,6 +37,10 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
    * Format map (mutable, but treated as immutable).
    */
   private final EnumMap<T, String> formatMap;
+  /**
+   * Class of the enum.
+   */
+  private final Class<T> enumType;
 
   /**
    * Creates an instance deriving the formatted string from the enum constant name.
@@ -64,7 +68,7 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
 
   // restricted constructor
   private EnumNames(Class<T> enumType, boolean manualToString) {
-    ArgChecker.notNull(enumType, "enumType");
+    this.enumType = ArgChecker.notNull(enumType, "enumType");
     SortedMap<String, T> map = new TreeMap<>();
     SortedSet<String> formattedSet = new TreeSet<>();
     EnumMap<T, String> formatMap = new EnumMap<>(enumType);
@@ -107,7 +111,7 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
     T value = parseMap.get(name);
     if (value == null) {
       throw new IllegalArgumentException(
-          Messages.format("Unknown enum name '{}', valid values are {}", name, formattedSet));
+          Messages.format("Unknown enum name '{}' for type {}, valid values are {}", name, enumType.getName(), formattedSet));
     }
     return value;
   }
