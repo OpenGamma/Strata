@@ -284,25 +284,44 @@ public final class MapStream<K, V>
 
   //-------------------------------------------------------------------------
   /**
-   * Transforms the entries in the stream by applying a mapper function to each key.
+   * Transforms the entries in the stream by applying a mapper function to each key and value to produce a stream of
+   * entries, and then flattening the resulting stream of streams.
    *
    * @param mapper  a mapper function whose return values are included in the new stream
-   * @param <R>  the type of elements in the new stream
+   * @param <nK>  the type of the new keys
+   * @param <nV>  the type of the new values
    * @return a stream containing the values returned from the mapper function
    */
-  public <R> Stream<R> flatMapKeys(Function<? super K, Stream<? extends R>> mapper) {
-    return underlying.flatMap(e -> mapper.apply(e.getKey()));
+  public <nK, nV> MapStream<nK, nV> flatMap(BiFunction<? super K, ? super V, Stream<Map.Entry<nK, nV>>> mapper) {
+    return wrap(underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue())));
   }
 
   /**
-   * Transforms the entries in the stream by applying a mapper function to each value.
+   * Transforms the keys in the stream by applying a mapper function to each key.
+   * <p>
+   * The new keys produced will be associated with the original value.
    *
-   * @param mapper  a mapper function whose return values are included in the new stream
-   * @param <R>  the type of elements in the new stream
+   * @param mapper  a mapper function whose return values are the keys in the new stream
+   * @param <R>  the type of the new keys
    * @return a stream containing the values returned from the mapper function
    */
-  public <R> Stream<R> flatMapValues(Function<? super V, Stream<? extends R>> mapper) {
-    return underlying.flatMap(e -> mapper.apply(e.getValue()));
+  public <R> MapStream<R, V> flatMapKeys(Function<? super K, Stream<R>> mapper) {
+    return wrap(underlying.flatMap(e -> mapper.apply(e.getKey()).map(newKey -> entry(newKey, e.getValue()))));
+  }
+
+  /**
+   * Transforms the keys in the stream by applying a mapper function to each key.
+   * <p>
+   * The new keys produced will be associated with the original value.
+   *
+   * @param mapper  a mapper function whose return values are the keys in the new stream
+   * @param <R>  the type of the new keys
+   * @return a stream containing the values returned from the mapper function
+   */
+  public <R> MapStream<R, V> flatMapKeys(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+    return wrap(underlying
+        .flatMap(e -> mapper.apply(e.getKey(), e.getValue())
+        .map(newKey -> entry(newKey, e.getValue()))));
   }
 
   //-------------------------------------------------------------------------

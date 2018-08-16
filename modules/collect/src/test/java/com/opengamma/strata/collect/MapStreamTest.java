@@ -101,16 +101,60 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
-  public void flatMapKeys() {
-    List<Character> expected =
-        ImmutableList.of('o', 'n', 'e', 't', 'w', 'o', 't', 'h', 'r', 'e', 'e', 'f', 'o', 'u', 'r');
-    List<Character> result = MapStream.of(map).flatMapKeys(k -> k.chars().mapToObj(i -> (char) i)).collect(toList());
+  public void flatMap() {
+    ImmutableMap<String, String> expected = ImmutableMap.<String, String>builder()
+        .put("one", "1")
+        .put("1", "one")
+        .put("two", "2")
+        .put("2", "two")
+        .put("three", "3")
+        .put("3", "three")
+        .put("four", "4")
+        .put("4", "four")
+        .build();
+
+    ImmutableMap<String, String> result = MapStream.of(map)
+        .flatMap((k, v) -> MapStream.of(ImmutableMap.of(k, Integer.toString(v), Integer.toString(v), k)))
+        .toMap();
+
     assertThat(result).isEqualTo(expected);
   }
 
-  public void flatMapValues() {
-    List<Integer> expected = ImmutableList.of(1, 2, 2, 3, 3, 3, 4, 4, 4, 4);
-    List<Integer> result = MapStream.of(map).flatMapValues(v -> Stream.generate(() -> v).limit(v)).collect(toList());
+  public void flatMapKeysToKeys() {
+    Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
+        .put("one", 1)
+        .put("ONE", 1)
+        .put("two", 2)
+        .put("TWO", 2)
+        .put("three", 3)
+        .put("THREE", 3)
+        .put("four", 4)
+        .put("FOUR", 4)
+        .build();
+
+    ImmutableMap<String, Integer> result = MapStream.of(map)
+        .flatMapKeys(key -> Stream.of(key.toLowerCase(Locale.ENGLISH), key.toUpperCase(Locale.ENGLISH)))
+        .toMap();
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapKeysAndValuesToKeys() {
+    Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
+        .put("one", 1)
+        .put("1", 1)
+        .put("two", 2)
+        .put("2", 2)
+        .put("three", 3)
+        .put("3", 3)
+        .put("four", 4)
+        .put("4", 4)
+        .build();
+
+    ImmutableMap<String, Integer> result = MapStream.of(map)
+        .flatMapKeys((key, value) -> Stream.of(key, Integer.toString(value)))
+        .toMap();
+
     assertThat(result).isEqualTo(expected);
   }
 
