@@ -320,8 +320,7 @@ public final class MapStream<K, V>
    */
   public <R> MapStream<R, V> flatMapKeys(BiFunction<? super K, ? super V, Stream<R>> mapper) {
     return wrap(underlying
-        .flatMap(e -> mapper.apply(e.getKey(), e.getValue())
-        .map(newKey -> entry(newKey, e.getValue()))));
+        .flatMap(e -> mapper.apply(e.getKey(), e.getValue()).map(newKey -> entry(newKey, e.getValue()))));
   }
 
   //-------------------------------------------------------------------------
