@@ -25,7 +25,6 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -205,7 +204,7 @@ public class MultiCurrencyScenarioArrayTest {
   }
 
   public void getCurrencies() {
-    assertThat(VALUES_ARRAY.getCurrencies()).isEqualTo(ImmutableSet.of(Currency.GBP, Currency.USD, Currency.EUR));
+    assertThat(VALUES_ARRAY.getCurrencies()).containsExactlyInAnyOrder(Currency.GBP, Currency.USD, Currency.EUR);
   }
 
   public void collector() {
