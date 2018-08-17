@@ -20,7 +20,7 @@ public interface QRDecompositionResult extends DecompositionResult {
    * $\mathbf{R}$ is an upper-triangular matrix.
    * @return the $\mathbf{R}$ matrix
    */
-  DoubleMatrix getR();
+  public abstract DoubleMatrix getR();
 
   /**
    * Returns the matrix $\mathbf{Q}$ of the decomposition.
@@ -28,7 +28,7 @@ public interface QRDecompositionResult extends DecompositionResult {
    * $\mathbf{Q}$ is an orthogonal matrix.
    * @return the $\mathbf{Q}$ matrix
    */
-  DoubleMatrix getQ();
+  public abstract DoubleMatrix getQ();
 
   /**
    * Returns the transpose of the matrix $\mathbf{Q}$ of the decomposition.
@@ -36,6 +36,6 @@ public interface QRDecompositionResult extends DecompositionResult {
    * $\mathbf{Q}$ is an orthogonal matrix.
    * @return the $\mathbf{Q}$ matrix
    */
-  DoubleMatrix getQT();
+  public abstract DoubleMatrix getQT();
 
 }

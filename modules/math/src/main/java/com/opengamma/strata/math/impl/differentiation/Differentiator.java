@@ -22,7 +22,7 @@ public interface Differentiator<S, T, U> {
    * @param function  a function for which to get the differential function
    * @return a function that calculates the differential
    */
-  Function<S, U> differentiate(Function<S, T> function);
+  public abstract Function<S, U> differentiate(Function<S, T> function);
 
   /**
    * Provides a function that performs the differentiation.
@@ -31,6 +31,6 @@ public interface Differentiator<S, T, U> {
    * @param domain  a function that returns false if the requested value is not in  the domain, true otherwise
    * @return a function that calculates the differential
    */
-  Function<S, U> differentiate(Function<S, T> function, Function<S, Boolean> domain);
+  public abstract Function<S, U> differentiate(Function<S, T> function, Function<S, Boolean> domain);
 
 }
