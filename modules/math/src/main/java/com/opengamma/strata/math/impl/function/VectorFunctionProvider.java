@@ -21,7 +21,7 @@ public interface VectorFunctionProvider<T> {
    * @param samplePoints  the list of sample points 
    * @return a {@link VectorFunction}
    */
-  VectorFunction from(List<T> samplePoints);
+  public abstract VectorFunction from(List<T> samplePoints);
 
   /**
    * Produces a vector function that maps from some 'model' parameters to values at the sample points.
@@ -29,6 +29,6 @@ public interface VectorFunctionProvider<T> {
    * @param samplePoints the array of sample points
    * @return a {@link VectorFunction}
    */
-  VectorFunction from(T[] samplePoints);
+  public abstract VectorFunction from(T[] samplePoints);
 
 }

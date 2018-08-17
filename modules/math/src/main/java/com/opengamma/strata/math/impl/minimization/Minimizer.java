@@ -19,6 +19,6 @@ public interface Minimizer<F extends Function<S, ?>, S> {
    * @param startPosition The start position
    * @return The minimum
    */
-  S minimize(F function, S startPosition);
+  public abstract S minimize(F function, S startPosition);
 
 }
