@@ -197,7 +197,7 @@ public class DiscountingBillTradePricer {
   public MultiCurrencyAmount currencyExposure(ResolvedBillTrade trade, LegalEntityDiscountingProvider provider) {
     return MultiCurrencyAmount.of(presentValue(trade, provider));
   }
-  
+
   /**
    * Calculates the currency exposure of a bill trade with z-spread.
    * 
@@ -215,7 +215,8 @@ public class DiscountingBillTradePricer {
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
 
-    return MultiCurrencyAmount.of(presentValueWithZSpread(trade, provider, zSpread, compoundedRateType, periodsPerYear));
+    return MultiCurrencyAmount.of(
+        presentValueWithZSpread(trade, provider, zSpread, compoundedRateType, periodsPerYear));
   }
 
   /**

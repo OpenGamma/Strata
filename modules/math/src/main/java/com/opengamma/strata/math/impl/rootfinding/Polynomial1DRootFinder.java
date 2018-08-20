@@ -18,6 +18,6 @@ public interface Polynomial1DRootFinder<T> {
    * @param function The function, not null
    * @return The roots of the function
    */
-  T[] getRoots(RealPolynomialFunction1D function);
+  public abstract T[] getRoots(RealPolynomialFunction1D function);
 
 }

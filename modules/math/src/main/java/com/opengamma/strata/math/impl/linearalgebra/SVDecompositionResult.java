@@ -20,7 +20,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{U}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the $\mathbf{U}$ matrix
    */
-  DoubleMatrix getU();
+  public abstract DoubleMatrix getU();
 
   /**
    * Returns the transpose of the matrix $\mathbf{U}$ of the decomposition.
@@ -28,7 +28,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{U}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the U matrix (or null if decomposed matrix is singular)
    */
-  DoubleMatrix getUT();
+  public abstract DoubleMatrix getUT();
 
   /**
    * Returns the diagonal matrix $\mathbf{\Sigma}$ of the decomposition.
@@ -37,7 +37,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * non-increasing order.
    * @return the $\mathbf{\Sigma}$ matrix
    */
-  DoubleMatrix getS();
+  public abstract DoubleMatrix getS();
 
   /**
    * Returns the diagonal elements of the matrix $\mathbf{\Sigma}$ of the decomposition.
@@ -45,7 +45,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * The singular values are provided in non-increasing order.
    * @return the diagonal elements of the $\mathbf{\Sigma}$ matrix
    */
-  double[] getSingularValues();
+  public abstract double[] getSingularValues();
 
   /**
    * Returns the matrix $\mathbf{V}$ of the decomposition.
@@ -53,7 +53,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{V}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the $\mathbf{V}$ matrix
    */
-  DoubleMatrix getV();
+  public abstract DoubleMatrix getV();
 
   /**
    * Returns the transpose of the matrix $\mathbf{V}$ of the decomposition.
@@ -61,7 +61,7 @@ public interface SVDecompositionResult extends DecompositionResult {
    * $\mathbf{V}$ is an orthogonal matrix, i.e. its transpose is also its inverse.
    * @return the $\mathbf{V}$ matrix
    */
-  DoubleMatrix getVT();
+  public abstract DoubleMatrix getVT();
 
   /**
    * Returns the $L_2$ norm of the matrix.
@@ -70,13 +70,13 @@ public interface SVDecompositionResult extends DecompositionResult {
    * (i.e. the traditional Euclidian norm).
    * @return norm
    */
-  double getNorm();
+  public abstract double getNorm();
 
   /**
    * Returns the condition number of the matrix.
    * @return condition number of the matrix
    */
-  double getConditionNumber();
+  public abstract double getConditionNumber();
 
   /**
    * Returns the effective numerical matrix rank.
@@ -86,6 +86,6 @@ public interface SVDecompositionResult extends DecompositionResult {
    * is the least significant bit of the largest singular value.
    * @return effective numerical matrix rank
    */
-  int getRank();
+  public abstract int getRank();
 
 }

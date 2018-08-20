@@ -20,6 +20,10 @@ public interface ScalarMinimizer extends Minimizer<Function<Double, Double>, Dou
    * @param upperBound The upper bound, must be greater than the upper bound
    * @return The minimum
    */
-  double minimize(Function<Double, Double> function, double startPosition, double lowerBound, double upperBound);
+  public abstract double minimize(
+      Function<Double, Double> function,
+      double startPosition,
+      double lowerBound,
+      double upperBound);
 
 }
