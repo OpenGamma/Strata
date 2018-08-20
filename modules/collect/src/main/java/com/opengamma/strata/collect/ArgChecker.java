@@ -849,6 +849,28 @@ public final class ArgChecker {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks that the argument is not equal to zero.
+   * <p>
+   * Given the input argument, this returns only if it is not zero.
+   * Both positive and negative zero are checked.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notZero(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the value to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the argument is zero
+   */
+  public static double notZero(double argument, String name) {
+    if (argument == 0d || argument == -0d) {
+      throw new IllegalArgumentException("Argument '" + name + "' must not be zero");
+    }
+    return argument;
+  }
+
+  /**
    * Checks that the argument is not equal to zero to within a given accuracy.
    * <p>
    * Given the input argument, this returns only if it is not zero comparing

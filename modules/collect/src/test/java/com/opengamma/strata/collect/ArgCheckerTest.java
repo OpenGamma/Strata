@@ -531,16 +531,31 @@ public class ArgCheckerTest {
 
   //-------------------------------------------------------------------------
   public void test_notZero_double_ok() {
-    assertEquals(ArgChecker.notZero(1d, 0.1d, "name"), 1d, 0.0001d);
+    assertEquals(ArgChecker.notZero(1d, "name"), 1d, 0.0001d);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,
       expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
   public void test_notZero_double_zero() {
-    ArgChecker.notZero(0d, 0.1d, "name");
+    ArgChecker.notZero(0d, "name");
   }
 
   public void test_notZero_double_negative() {
+    ArgChecker.notZero(-1d, "name");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_notZero_double_tolerance_ok() {
+    assertEquals(ArgChecker.notZero(1d, 0.1d, "name"), 1d, 0.0001d);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class,
+      expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
+  public void test_notZero_double_tolerance_zero() {
+    ArgChecker.notZero(0d, 0.1d, "name");
+  }
+
+  public void test_notZero_double_tolerance_negative() {
     ArgChecker.notZero(-1d, 0.1d, "name");
   }
 
