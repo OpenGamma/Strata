@@ -14,7 +14,7 @@ Installation into Eclipse is therefore based on the m2e Maven-Eclipse plugin.
 
 1. Download Eclipse
  - We have tested using Eclipse Neon, and have previously used Luna and Mars
- - See the [main download page](http://www.eclipse.org/downloads/), selecting a package that includes Maven integration (m2e)
+ - See the [main download page](https://www.eclipse.org/downloads/), selecting a package that includes Maven integration (m2e)
  - *Internally, we prefer the [basic SDK download](http://download.eclipse.org/eclipse/downloads/) as it has less bloat,
  but it does require a little more setup, notably the Maven integration (m2e) plugin*
   
@@ -90,5 +90,5 @@ If you are actively devloping Strata, then it is recommended to take some additi
 Please contact us publicly via the [forums](http://forums.opengamma.com/) or
 privately as per your support contract.
 
-[![OpenGamma](http://developers.opengamma.com/res/display/default/chrome/masthead_logo.png "OpenGamma")](http://www.opengamma.com)
+[![OpenGamma](https://s3-eu-west-1.amazonaws.com/og-public-downloads/og-logo-alpha.png "OpenGamma")](https://opengamma.com/)
 

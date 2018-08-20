@@ -31,7 +31,7 @@ import com.opengamma.strata.collect.named.NamedLookup;
 final class FxIndexCsvLookup
     implements NamedLookup<FxIndex> {
 
-  // http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
+  // https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
 
   /**
    * The logger.

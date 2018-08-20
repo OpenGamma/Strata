@@ -52,7 +52,7 @@ public class XmlFileTest {
       " </foo>";
   private static final String SAMPLE_NAMESPACE = "" +
       "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-      "<base xmlns=\"http://www.opengamma.com/test\" xmlns:h=\"http://www.w3.org/TR/html4/\">" +
+      "<base xmlns=\"https://opengamma.com/test\" xmlns:h=\"http://www.w3.org/TR/html4/\">" +
       " <h:p>Some text</h:p>" +
       " <leaf1 h:foo='bla' og='strata'>leaf</leaf1>" +
       "</base>";

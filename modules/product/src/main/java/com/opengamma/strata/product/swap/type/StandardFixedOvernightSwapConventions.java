@@ -28,7 +28,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 /**
  * Market standard Fixed-Overnight swap conventions.
  * <p>
- * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
+ * https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
  */
 final class StandardFixedOvernightSwapConventions {
 

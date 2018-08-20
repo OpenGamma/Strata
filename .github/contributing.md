@@ -1,1 +1,1 @@
-Please read our [contributing guidelines](http://opengamma.github.io/StrataDocs/contributions/).
+Please read our [contributing guidelines](https://strata.opengamma.io/contributions/).

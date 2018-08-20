@@ -22,7 +22,7 @@
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -129,7 +129,7 @@
                   <links>
                     <link>http://www.joda.org/joda-beans/apidocs</link>
                     <link>http://www.joda.org/joda-collect/apidocs</link>
-                    <link>http://google.github.io/guava/releases/19.0/api/docs/</link>
+                    <link>https://google.github.io/guava/releases/26.0-jre/api/docs/</link>
                   </links>
                   <validateLinks>true</validateLinks>
                 </configuration>

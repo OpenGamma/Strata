@@ -80,8 +80,8 @@ public class StandardIdTest {
 
   //-------------------------------------------------------------------------
   public void test_encodeScheme() {
-    String test = StandardId.encodeScheme("http://www.opengamma.com/foo/../~bar#test");
-    assertEquals(test, "http://www.opengamma.com/foo/../%7Ebar%23test");
+    String test = StandardId.encodeScheme("https://opengamma.com/foo/../~bar#test");
+    assertEquals(test, "https://opengamma.com/foo/../%7Ebar%23test");
   }
 
   //-------------------------------------------------------------------------

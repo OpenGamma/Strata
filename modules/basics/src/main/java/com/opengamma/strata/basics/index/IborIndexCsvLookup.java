@@ -44,7 +44,7 @@ import com.opengamma.strata.collect.named.NamedLookup;
 final class IborIndexCsvLookup
     implements NamedLookup<IborIndex> {
 
-  // http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
+  // https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
   // LIBOR - http://www.bbalibor.com/technical-aspects/fixing-value-and-maturity
   // different rules for overnight
   // EURIBOR - http://www.bbalibor.com/technical-aspects/fixing-value-and-maturity

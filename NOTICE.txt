@@ -1,7 +1,7 @@
 Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
 
 Strata is licensed under The Apache Software License, Version 2.0
-http://strata.opengamma.io/
+https://strata.opengamma.io/
 
 
 Strata includes code originally developed at CERN, which is licensed as follows:

@@ -36,7 +36,7 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
  * Calibrates one set of curve, computes sensitivity (Bucketed PV01) and exports results in Excel for visualization.
  * <p>
  * Code used for the blog "Strata and multi-curve - Blog 1: Curve calibration and bucketed PV01" available at
- * http://www.opengamma.com/blog/strata-and-multi-curve-curve-calibration-and-bucketed-pv01
+ * https://opengamma.com/blog/strata-and-multi-curve-curve-calibration-and-bucketed-pv01
  */
 public class CalibrationPV01Example {
 

@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
  * FRA conventions are based on the details held within the {@link IborIndex}.
  * As such, there is a factory method rather than constants for the conventions.
  * <p>
- * http://www.opengamma.com/sites/default/files/interest-rate-instruments-and-market-conventions.pdf
+ * https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
  */
 public final class FraConventions {
 
