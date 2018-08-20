@@ -342,6 +342,13 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_entry() {
+    Map.Entry<String, Integer> test = Guavate.entry("A", 1);
+    assertEquals(test.getKey(), "A");
+    assertEquals(test.getValue(), (Integer) 1);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_combineFuturesAsList() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");

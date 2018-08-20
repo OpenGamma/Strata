@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.collect;
 
-import java.util.AbstractMap;
+import static com.opengamma.strata.collect.Guavate.entry;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,7 +30,9 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 
 /**
  * A stream implementation based on {@code Map.Entry}.
@@ -126,6 +129,19 @@ public final class MapStream<K, V>
       Function<T, V> valueFunction) {
 
     return new MapStream<>(stream.map(item -> entry(keyFunction.apply(item), valueFunction.apply(item))));
+  }
+
+  /**
+   * Returns a stream of map entries where each key is the index of the value in the original stream.
+   *
+   * @param <V>  the value type
+   * @param stream  the stream of values
+   * @return a stream of map entries derived from the stream
+   */
+  public static <V> MapStream<Integer, V> zipWithIndex(Stream<V> stream) {
+    Stream<Map.Entry<Integer, V>> zipped =
+        Streams.mapWithIndex(stream, (value, index) -> entry(Math.toIntExact(index), value));
+    return new MapStream<Integer, V>(zipped);
   }
 
   /**
@@ -362,6 +378,15 @@ public final class MapStream<K, V>
   }
 
   /**
+   * Returns an immutable list multimap built from the entries in the stream.
+   *
+   * @return an immutable list multimap built from the entries in the stream
+   */
+  public ImmutableListMultimap<K, V> toListMultimap() {
+    return underlying.collect(Guavate.toImmutableListMultimap(e -> e.getKey(), e -> e.getValue()));
+  }
+
+  /**
    * Performs an action for each entry in the stream, passing the key and value to the action.
    *
    * @param action  an action performed for each entry in the stream
@@ -576,10 +601,6 @@ public final class MapStream<K, V>
   }
 
   //-------------------------------------------------------------------------
-  private static <K, V> Map.Entry<K, V> entry(K k, V v) {
-    return new AbstractMap.SimpleImmutableEntry<>(k, v);
-  }
-
   private static <K, V> MapStream<K, V> wrap(Stream<Map.Entry<K, V>> underlying) {
     return new MapStream<>(underlying);
   }
