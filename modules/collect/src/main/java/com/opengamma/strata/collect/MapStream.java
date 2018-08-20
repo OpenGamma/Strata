@@ -30,6 +30,7 @@ import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Streams;
 
 /**
  * A stream implementation based on {@code Map.Entry}.
@@ -126,6 +127,19 @@ public final class MapStream<K, V>
       Function<T, V> valueFunction) {
 
     return new MapStream<>(stream.map(item -> entry(keyFunction.apply(item), valueFunction.apply(item))));
+  }
+
+  /**
+   * Returns a stream of map entries where each key is the index of the value in the original stream.
+   *
+   * @param <V>  the value type
+   * @param stream  the stream of values
+   * @return a stream of map entries derived from the stream
+   */
+  public static <V> MapStream<Integer, V> zipWithIndex(Stream<V> stream) {
+    Stream<Map.Entry<Integer, V>> zipped =
+        Streams.mapWithIndex(stream, (value, index) -> entry(Math.toIntExact(index), value));
+    return new MapStream<Integer, V>(zipped);
   }
 
   /**

@@ -137,6 +137,14 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void zipWithIndex() {
+    Stream<String> letters = Stream.of("a", "b", "c");
+    Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");
+    Map<Integer, String> result = MapStream.zipWithIndex(letters).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void toMapDuplicateKeys() {
     assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
   }
