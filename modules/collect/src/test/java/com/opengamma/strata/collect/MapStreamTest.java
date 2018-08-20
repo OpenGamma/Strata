@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect;
 
+import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.util.stream.Collectors.toList;
@@ -26,6 +27,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ListMultimap;
+import com.opengamma.strata.collect.tuple.Pair;
 
 @Test
 public class MapStreamTest {
@@ -100,6 +102,101 @@ public class MapStreamTest {
   public void map() {
     List<String> expected = ImmutableList.of("one1", "two2", "three3", "four4");
     List<String> result = MapStream.of(map).map((k, v) -> k + v).collect(toList());
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapKeysToKeys() {
+    Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
+        .put("one", 1)
+        .put("ONE", 1)
+        .put("two", 2)
+        .put("TWO", 2)
+        .put("three", 3)
+        .put("THREE", 3)
+        .put("four", 4)
+        .put("FOUR", 4)
+        .build();
+
+    ImmutableMap<String, Integer> result = MapStream.of(map)
+        .flatMapKeys(key -> Stream.of(key.toLowerCase(Locale.ENGLISH), key.toUpperCase(Locale.ENGLISH)))
+        .toMap();
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapKeysAndValuesToKeys() {
+    Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
+        .put("one", 1)
+        .put("1", 1)
+        .put("two", 2)
+        .put("2", 2)
+        .put("three", 3)
+        .put("3", 3)
+        .put("four", 4)
+        .put("4", 4)
+        .build();
+
+    ImmutableMap<String, Integer> result = MapStream.of(map)
+        .flatMapKeys((key, value) -> Stream.of(key, Integer.toString(value)))
+        .toMap();
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapValuesToValues() {
+    List<Pair<String, Integer>> expected = ImmutableList.of(
+        Pair.of("one", 1),
+        Pair.of("one", 1),
+        Pair.of("two", 2),
+        Pair.of("two", 4),
+        Pair.of("three", 3),
+        Pair.of("three", 9),
+        Pair.of("four", 4),
+        Pair.of("four", 16));
+
+    List<Pair<String, Integer>> result = MapStream.of(map)
+        .flatMapValues(value -> Stream.of(value, value * value))
+        .map((k, v) -> Pair.of(k, v))
+        .collect(toList());
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapKeysAndValuesToValues() {
+    List<Pair<String, String>> expected = ImmutableList.of(
+        Pair.of("one", "one"),
+        Pair.of("one", "1"),
+        Pair.of("two", "two"),
+        Pair.of("two", "2"),
+        Pair.of("three", "three"),
+        Pair.of("three", "3"),
+        Pair.of("four", "four"),
+        Pair.of("four", "4"));
+
+    List<Pair<String, String>> result = MapStream.of(map)
+        .flatMapValues((key, value) -> Stream.of(key, Integer.toString(value)))
+        .map((k, v) -> Pair.of(k, v))
+        .collect(toList());
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMap() {
+    Map<String, String> expected = ImmutableMap.<String, String>builder()
+        .put("one", "1")
+        .put("1", "one")
+        .put("two", "2")
+        .put("2", "two")
+        .put("three", "3")
+        .put("3", "three")
+        .put("four", "4")
+        .put("4", "four")
+        .build();
+
+    Map<String, String> result = MapStream.of(map)
+        .flatMap((k, v) -> Stream.of(Pair.of(k, Integer.toString(v)), Pair.of(Integer.toString(v), k)))
+        .collect(pairsToImmutableMap());
+
     assertThat(result).isEqualTo(expected);
   }
 

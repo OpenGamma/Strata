@@ -312,6 +312,82 @@ public final class MapStream<K, V>
 
   //-------------------------------------------------------------------------
   /**
+   * Transforms the keys in the stream by applying a mapper function to each key.
+   * <p>
+   * The new keys produced will be associated with the original value.
+   *
+   * @param mapper  a mapper function whose return values are the keys in the new stream
+   * @param <R>  the type of the new keys
+   * @return a stream of entries with new keys from the mapper function assigned to the values
+   */
+  public <R> MapStream<R, V> flatMapKeys(Function<? super K, Stream<R>> mapper) {
+    return wrap(underlying.flatMap(e -> mapper.apply(e.getKey()).map(newKey -> entry(newKey, e.getValue()))));
+  }
+
+  /**
+   * Transforms the keys in the stream by applying a mapper function to each key and value.
+   * <p>
+   * The new keys produced will be associated with the original value.
+   * <p>
+   * For example this could turn a {@code MapStream<List<String>, LocalDate>} into a
+   * {@code MapStream<String, LocalDate>}
+   *
+   * @param mapper  a mapper function whose return values are the keys in the new stream
+   * @param <R>  the type of the new keys
+   * @return a stream of entries with new keys from the mapper function assigned to the values
+   */
+  public <R> MapStream<R, V> flatMapKeys(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+    return wrap(underlying
+        .flatMap(e -> mapper.apply(e.getKey(), e.getValue()).map(newKey -> entry(newKey, e.getValue()))));
+  }
+
+  /**
+   * Transforms the values in the stream by applying a mapper function to each value.
+   * <p>
+   * The new values produced will be associated with the original key.
+   * <p>
+   * For example this could turn a {@code MapStream<LocalDate, List<String>>} into a
+   * {@code MapStream<LocalDate, String>}
+   *
+   * @param mapper  a mapper function whose return values are the values in the new stream
+   * @param <R>  the type of the new values
+   * @return a stream of entries with new values from the mapper function assigned to the keys
+   */
+  public <R> MapStream<K, R> flatMapValues(Function<? super V, Stream<R>> mapper) {
+    return wrap(underlying.flatMap(e -> mapper.apply(e.getValue()).map(newValue -> entry(e.getKey(), newValue))));
+  }
+
+  /**
+   * Transforms the values in the stream by applying a mapper function to each key and value.
+   * <p>
+   * The new values produced will be associated with the original key.
+   * <p>
+   * For example this could turn a {@code MapStream<LocalDate, List<String>>} into a
+   * {@code MapStream<LocalDate, String>}
+   *
+   * @param mapper  a mapper function whose return values are the values in the new stream
+   * @param <R>  the type of the new values
+   * @return a stream of entries with new values from the mapper function assigned to the keys
+   */
+  public <R> MapStream<K, R> flatMapValues(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+    return wrap(underlying
+        .flatMap(e -> mapper.apply(e.getKey(), e.getValue()).map(newValue -> entry(e.getKey(), newValue))));
+  }
+
+  /**
+   * Transforms the entries in the stream by applying a mapper function to each key and value to produce a stream of
+   * elements, and then flattening the resulting stream of streams.
+   *
+   * @param mapper  a mapper function whose return values are included in the new stream
+   * @param <R>  the type of the elements in the new stream
+   * @return a stream containing the values returned from the mapper function
+   */
+  public <R> Stream<R> flatMap(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+    return underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue()));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns an immutable map built from the entries in the stream.
    * <p>
    * The keys must be unique or an exception will be thrown.
