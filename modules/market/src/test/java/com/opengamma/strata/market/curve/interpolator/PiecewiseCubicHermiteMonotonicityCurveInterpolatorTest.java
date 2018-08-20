@@ -8,7 +8,7 @@ package com.opengamma.strata.market.curve.interpolator;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
 import static org.testng.Assert.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 

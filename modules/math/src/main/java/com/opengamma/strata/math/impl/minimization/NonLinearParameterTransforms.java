@@ -21,36 +21,36 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 //CSOFF: JavadocMethod
 public interface NonLinearParameterTransforms {
 
-  int getNumberOfModelParameters();
+  public abstract int getNumberOfModelParameters();
 
-  int getNumberOfFittingParameters();
+  public abstract int getNumberOfFittingParameters();
 
   /**
    * Transforms from a set of model parameters to a (possibly smaller) set of unconstrained fitting parameters.
    * @param modelParameters   the model parameters
    * @return The fitting parameters
    */
-  DoubleArray transform(DoubleArray modelParameters);
+  public abstract DoubleArray transform(DoubleArray modelParameters);
 
   /**
    * Transforms from a set of unconstrained fitting parameters to a (possibly larger) set of function parameters.
    * @param fittingParameters The fitting parameters
    * @return The model parameters
    */
-  DoubleArray inverseTransform(DoubleArray fittingParameters);
+  public abstract DoubleArray inverseTransform(DoubleArray fittingParameters);
 
   /**
    * Calculates the Jacobian - the rate of change of the fitting parameters WRT the model parameters.
    * @param modelParameters The model parameters 
    * @return The Jacobian 
    */
-  DoubleMatrix jacobian(DoubleArray modelParameters);
+  public abstract DoubleMatrix jacobian(DoubleArray modelParameters);
 
   /**
    * Calculates the inverse Jacobian  - the rate of change of the model parameters WRT the fitting parameters.
    * @param fittingParameters The fitting parameters
    * @return the inverse Jacobian 
    */
-  DoubleMatrix inverseJacobian(DoubleArray fittingParameters);
+  public abstract DoubleMatrix inverseJacobian(DoubleArray fittingParameters);
 
 }

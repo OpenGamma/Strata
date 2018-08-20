@@ -262,7 +262,6 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
-  //-----------------------------------------------------------------------
   public void coverage() {
     MapStream.empty()
         .filter(e -> false)
