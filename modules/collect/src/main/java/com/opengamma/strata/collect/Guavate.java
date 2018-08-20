@@ -180,7 +180,8 @@ public final class Guavate {
         return ObjIntPair.of(it1.next(), index++);
       }
     };
-    Spliterator<ObjIntPair<T>> split = Spliterators.spliterator(it, split1.getExactSizeIfKnown(), split1.characteristics());
+    Spliterator<ObjIntPair<T>> split =
+        Spliterators.spliterator(it, split1.getExactSizeIfKnown(), split1.characteristics());
     return StreamSupport.stream(split, false);
   }
 
@@ -697,8 +698,7 @@ public final class Guavate {
     return toImmutableMap(Pair::getFirst, Pair::getSecond);
   }
 
-  //--------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   /**
    * Helper method to merge two mutable maps by inserting all values from {@code map2} into {@code map1}.
    * <p>
@@ -744,7 +744,9 @@ public final class Guavate {
    * @param futures the futures to convert, may be empty
    * @return a future that combines the input futures as a list
    */
-  public static <T> CompletableFuture<List<T>> combineFuturesAsList(List<? extends CompletableFuture<? extends T>> futures) {
+  public static <T> CompletableFuture<List<T>> combineFuturesAsList(
+      List<? extends CompletableFuture<? extends T>> futures) {
+
     int size = futures.size();
     CompletableFuture<? extends T>[] futuresArray = futures.toArray(new CompletableFuture[size]);
     return CompletableFuture.allOf(futuresArray)
@@ -769,7 +771,9 @@ public final class Guavate {
    * @param <T> the type of the values
    * @return a collector that combines the input futures as a list
    */
-  public static <T, S extends CompletableFuture<? extends T>> Collector<S, ?, CompletableFuture<List<T>>> toCombinedFuture() {
+  public static <T, S extends CompletableFuture<? extends T>>
+      Collector<S, ?, CompletableFuture<List<T>>> toCombinedFuture() {
+
     return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsList);
   }
 
@@ -824,8 +828,8 @@ public final class Guavate {
    * @param <F> the type of the input futures
    * @return a collector that combines the input futures as a map
    */
-  public static <K, V, F extends CompletableFuture<? extends V>> Collector<Map.Entry<K, F>, ?, CompletableFuture<Map<K, V>>>
-      toCombinedFutureMap() {
+  public static <K, V, F extends CompletableFuture<? extends V>>
+      Collector<Map.Entry<K, F>, ?, CompletableFuture<Map<K, V>>> toCombinedFutureMap() {
 
     return collectingAndThen(entriesToImmutableMap(), Guavate::combineFuturesAsMap);
   }
