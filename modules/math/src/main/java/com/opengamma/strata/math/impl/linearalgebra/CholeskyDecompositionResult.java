@@ -20,7 +20,7 @@ public interface CholeskyDecompositionResult extends DecompositionResult {
    * $\mathbf{L}$ is a lower-triangular matrix.
    * @return the $\mathbf{L}$ matrix
    */
-  public abstract DoubleMatrix getL();
+  DoubleMatrix getL();
 
   /**
    * Returns the transpose of the matrix $\mathbf{L}$ of the decomposition.
@@ -28,12 +28,12 @@ public interface CholeskyDecompositionResult extends DecompositionResult {
    * $\mathbf{L}^T$ is a upper-triangular matrix.
    * @return the $\mathbf{L}^T$ matrix
    */
-  public abstract DoubleMatrix getLT();
+  DoubleMatrix getLT();
 
   /**
    * Return the determinant of the matrix.
    * @return determinant of the matrix
    */
-  public abstract double getDeterminant();
+  double getDeterminant();
 
 }

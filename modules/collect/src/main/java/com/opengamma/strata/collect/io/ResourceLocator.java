@@ -139,22 +139,15 @@ public final class ResourceLocator {
 
   /**
    * Creates a resource from a fully qualified resource name.
-   * <p>
-   * If the resource name does not start with a slash '/', one will be prepended.
-   * Use {@link #ofClasspath(Class, String)} to get a relative resource.
-   * <p>
-   * This method uses {@code ResourceLocator.class.getResource(String)} to find the resource.
-   * It avoids using {@link ClassLoader#getResource(String)} which works poorly with modules.
    * 
-   * @param resourceName  the resource name, which will have a slash '/' prepended if missing
+   * @param resourceName  the classpath resource name
    * @return the resource locator
    */
   public static ResourceLocator ofClasspath(String resourceName) {
     ArgChecker.notNull(resourceName, "classpathLocator");
-    String searchName = resourceName.startsWith("/") ? resourceName : "/" + resourceName;
-    URL url = ResourceLocator.class.getResource(searchName);
+    URL url = classLoader().getResource(resourceName);
     if (url == null) {
-      throw new IllegalArgumentException("Resource not found: " + searchName);
+      throw new IllegalArgumentException("Resource not found: " + resourceName);
     }
     return ofClasspathUrl(url);
   }
@@ -168,7 +161,7 @@ public final class ResourceLocator {
    *   <li>Otherwise the resource name is treated as a path relative to the package containing the class</li>
    * </ul>
    *
-   * @param cls  the class used to find the resource
+   * @param cls  the class
    * @param resourceName  the resource name
    * @return the resource locator
    */

@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.collect.named;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -55,13 +54,6 @@ public class EnumNamesTest {
     assertEquals(test.parse("woobarwaa"), MockEnum.WOO_BAR_WAA);
     assertEquals(test.parse("WOO_BAR_WAA"), MockEnum.WOO_BAR_WAA);
     assertEquals(test.parse("woo_bar_waa"), MockEnum.WOO_BAR_WAA);
-  }
-
-  public void test_parse_invalid() {
-    EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
-    assertThatThrownBy(() -> test.parse("unknown"))
-        .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Unknown enum name 'unknown' for type " + MockEnum.class.getName());
   }
 
   static enum MockEnum implements NamedEnum {

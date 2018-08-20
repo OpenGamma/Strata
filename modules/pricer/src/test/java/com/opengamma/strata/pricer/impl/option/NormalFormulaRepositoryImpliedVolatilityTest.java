@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.impl.option;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
@@ -53,7 +53,7 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
     double[] impliedVolatility = new double[N];
     for (int i = 0; i < N; i++) {
       impliedVolatility[i] = impliedVolatility(DATA[i], OPTIONS[i], PRICES[i]);
-      assertEquals(impliedVolatility[i], SIGMA[i], 1e-6);
+      assertEquals(SIGMA[i], impliedVolatility[i], 1e-6);
     }
   }
 
@@ -102,7 +102,7 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
       double priceNormalComputed = 
           NormalFormulaRepository.price(FORWARD, strikes[i], T, ivNormalComputed, PutCall.CALL) * DF;
       double priceBlack = BlackFormulaRepository.price(FORWARD, strikes[i], T, SIGMA_BLACK[i], true) * DF;
-      assertEquals(priceNormalComputed, priceBlack, TOLERANCE_PRICE);
+      assertEquals(priceBlack, priceNormalComputed, TOLERANCE_PRICE);
     }
   }
 
@@ -113,14 +113,14 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
           NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, STRIKES[i], T, SIGMA_BLACK[i]);
       ValueDerivatives impliedVolAdj =
           NormalFormulaRepository.impliedVolatilityFromBlackApproximatedAdjoint(FORWARD, STRIKES[i], T, SIGMA_BLACK[i]);
-      assertEquals(impliedVolAdj.getValue(), impliedVol, TOLERANCE_VOL);
+      assertEquals(impliedVol, impliedVolAdj.getValue(), TOLERANCE_VOL);
       double impliedVolP =
           NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, STRIKES[i], T, SIGMA_BLACK[i] + shiftFd);
       double impliedVolM =
           NormalFormulaRepository.impliedVolatilityFromBlackApproximated(FORWARD, STRIKES[i], T, SIGMA_BLACK[i] - shiftFd);
       double derivativeApproximated = (impliedVolP - impliedVolM) / (2 * shiftFd);
-      assertEquals(impliedVolAdj.getDerivatives().size(), 1);
-      assertEquals(impliedVolAdj.getDerivative(0), derivativeApproximated, TOLERANCE_VOL);
+      assertEquals(1, impliedVolAdj.getDerivatives().size());
+      assertEquals(derivativeApproximated, impliedVolAdj.getDerivative(0), TOLERANCE_VOL);
     }
   }
 

@@ -14,6 +14,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 //CSOFF: JavadocMethod
 public interface NewtonRootFinderDirectionFunction {
 
-  public abstract DoubleArray getDirection(DoubleMatrix estimate, DoubleArray y);
+  DoubleArray getDirection(DoubleMatrix estimate, DoubleArray y);
 
 }

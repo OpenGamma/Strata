@@ -17,6 +17,6 @@ public interface QuadratureWeightAndAbscissaFunction {
    * @param n The number of weights and abscissas to generate, not negative or zero
    * @return An object containing the weights and abscissas
    */
-  public abstract GaussianQuadratureData generate(int n);
+  GaussianQuadratureData generate(int n);
 
 }

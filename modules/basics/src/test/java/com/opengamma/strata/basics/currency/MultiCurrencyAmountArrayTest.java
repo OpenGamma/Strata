@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -71,7 +72,7 @@ public class MultiCurrencyAmountArrayTest {
                 CurrencyAmount.of(Currency.EUR, 44))));
 
     assertThat(raggedArray.size()).isEqualTo(3);
-    assertThat(VALUES_ARRAY.getCurrencies()).containsExactlyInAnyOrder(Currency.GBP, Currency.USD, Currency.EUR);
+    assertThat(VALUES_ARRAY.getCurrencies()).isEqualTo(ImmutableSet.of(Currency.GBP, Currency.USD, Currency.EUR));
     assertThat(raggedArray.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(0, 21, 0));
     assertThat(raggedArray.getValues(Currency.USD)).isEqualTo(DoubleArray.of(0, 32, 0));
     assertThat(raggedArray.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(4, 43, 44));

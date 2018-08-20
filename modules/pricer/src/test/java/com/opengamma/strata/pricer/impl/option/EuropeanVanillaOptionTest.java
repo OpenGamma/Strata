@@ -11,8 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
@@ -31,10 +30,10 @@ public class EuropeanVanillaOptionTest {
 
   public void test_of() {
     EuropeanVanillaOption test = EuropeanVanillaOption.of(STRIKE, TIME, CALL);
-    assertEquals(test.getStrike(), STRIKE, 0d);
-    assertEquals(test.getTimeToExpiry(), TIME, 0d);
+    assertEquals(test.getStrike(), STRIKE, 0);
+    assertEquals(test.getTimeToExpiry(), TIME, 0);
     assertEquals(test.getPutCall(), CALL);
-    assertTrue(test.isCall());
+    assertEquals(test.isCall(), true);
   }
 
   //-------------------------------------------------------------------------

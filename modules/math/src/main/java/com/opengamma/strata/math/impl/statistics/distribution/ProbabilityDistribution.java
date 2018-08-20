@@ -15,27 +15,27 @@ public interface ProbabilityDistribution<T> {
   /**
    * @return The next random number from this distribution
    */
-  public abstract double nextRandom();
+  double nextRandom();
 
   /**
    * Return the probability density function for a value 
    * @param x The value, not null 
    * @return The pdf
    */
-  public abstract double getPDF(T x);
+  double getPDF(T x);
 
   /**
    * Returns the cumulative distribution function for a value
    * @param x The value, not null
    * @return The cdf
    */
-  public abstract double getCDF(T x);
+  double getCDF(T x);
 
   /**
    * Given a probability, return the value that returns this cdf
    * @param p The probability, not null. $0 \geq p \geq 1$
    * @return The inverse cdf
    */
-  public abstract double getInverseCDF(T p);
+  double getInverseCDF(T p);
 
 }

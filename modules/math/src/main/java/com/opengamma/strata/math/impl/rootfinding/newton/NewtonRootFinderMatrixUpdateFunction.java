@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 public interface NewtonRootFinderMatrixUpdateFunction {
 
   // TODO might be better to pass in NewtonVectorRootFinder.DataBundle as many of these arguments are not used.
-  public abstract DoubleMatrix getUpdatedMatrix(
+  DoubleMatrix getUpdatedMatrix(
       Function<DoubleArray, DoubleMatrix> jacobianFunction,
       DoubleArray x,
       DoubleArray deltaX,

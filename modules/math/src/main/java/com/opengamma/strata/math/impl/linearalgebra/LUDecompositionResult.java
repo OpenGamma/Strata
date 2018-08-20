@@ -20,7 +20,7 @@ public interface LUDecompositionResult extends DecompositionResult {
    * $\mathbf{L}$ is a lower-triangular matrix.
    * @return the $\mathbf{L}$ matrix
    */
-  public abstract DoubleMatrix getL();
+  DoubleMatrix getL();
 
   /**
    * Returns the $\mathbf{U}$ matrix of the decomposition.
@@ -28,7 +28,7 @@ public interface LUDecompositionResult extends DecompositionResult {
    * $\mathbf{U}$ is an upper-triangular matrix.
    * @return the U matrix
    */
-  public abstract DoubleMatrix getU();
+  DoubleMatrix getU();
 
   /**
    * Returns the rows permutation matrix, $\mathbf{P}$.
@@ -41,18 +41,18 @@ public interface LUDecompositionResult extends DecompositionResult {
    * @return the $\mathbf{P}$ rows permutation matrix
    * @see #getPivot()
    */
-  public abstract DoubleMatrix getP();
+  DoubleMatrix getP();
 
   /**
    * Returns the pivot permutation vector.
    * @return the pivot permutation vector
    */
-  public abstract int[] getPivot();
+  int[] getPivot();
 
   /**
    * Return the determinant of the matrix.
    * @return determinant of the matrix
    */
-  public abstract double getDeterminant();
+  double getDeterminant();
 
 }

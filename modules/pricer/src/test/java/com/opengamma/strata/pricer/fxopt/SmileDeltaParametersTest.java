@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
-import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
@@ -59,19 +59,18 @@ public class SmileDeltaParametersTest {
    */
   public void constructorVolatility() {
     DoubleArray volatility = SMILE.getVolatility();
-    SmileDeltaParameters smileFromVolatility =
-        SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, volatility, PARAMETER_METADATA);
-    assertEquals(smileFromVolatility, SMILE, "Smile by delta: constructor");
+    SmileDeltaParameters smileFromVolatility = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, volatility, PARAMETER_METADATA);
+    assertEquals("Smile by delta: constructor", SMILE, smileFromVolatility);
   }
 
   /**
    * Tests the getters.
    */
   public void getter() {
-    assertEquals(SMILE.getExpiry(), TIME_TO_EXPIRY, "Smile by delta: time to expiry");
-    assertEquals(SMILE.getDelta(), DELTA, "Smile by delta: delta");
+    assertEquals("Smile by delta: time to expiry", TIME_TO_EXPIRY, SMILE.getExpiry());
+    assertEquals("Smile by delta: delta", DELTA, SMILE.getDelta());
     SmileDeltaParameters smile2 = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
-    assertEquals(smile2.getVolatility(), SMILE.getVolatility(), "Smile by delta: volatility");
+    assertEquals("Smile by delta: volatility", SMILE.getVolatility(), smile2.getVolatility());
   }
 
   /**
@@ -80,18 +79,16 @@ public class SmileDeltaParametersTest {
   public void volatility() {
     DoubleArray volatility = SMILE.getVolatility();
     int nbDelta = DELTA.size();
-    assertEquals(volatility.get(nbDelta), ATM, "Volatility: ATM");
+    assertEquals("Volatility: ATM", ATM, volatility.get(nbDelta));
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       assertEquals(
-          volatility.get(2 * nbDelta - loopdelta) - volatility.get(loopdelta),
+          "Volatility: Risk Reversal " + loopdelta,
           RISK_REVERSAL.get(loopdelta),
-          1e-8,
-          "Volatility: Risk Reversal " + loopdelta);
+          volatility.get(2 * nbDelta - loopdelta) - volatility.get(loopdelta), 1e-8);
       assertEquals(
-          (volatility.get(2 * nbDelta - loopdelta) + volatility.get(loopdelta)) / 2 - volatility.get(nbDelta),
+          "Volatility: Strangle " + loopdelta,
           STRANGLE.get(loopdelta),
-          1e-8,
-          "Volatility: Strangle " + loopdelta);
+          (volatility.get(2 * nbDelta - loopdelta) + volatility.get(loopdelta)) / 2 - volatility.get(nbDelta), 1e-8);
     }
   }
 
@@ -105,16 +102,16 @@ public class SmileDeltaParametersTest {
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
           FORWARD, strike[loopdelta], TIME_TO_EXPIRY, volatility.get(loopdelta), false);
-      assertEquals(-DELTA.get(loopdelta), dPut.getDerivative(0), 1e-8, "Strike: Put " + loopdelta);
+      assertEquals("Strike: Put " + loopdelta, dPut.getDerivative(0), -DELTA.get(loopdelta), 1e-8);
       ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
           FORWARD, strike[2 * nbDelta - loopdelta], TIME_TO_EXPIRY, volatility.get(2 * nbDelta - loopdelta), true);
-      assertEquals(DELTA.get(loopdelta), dCall.getDerivative(0), 1e-8, "Strike: Call " + loopdelta);
+      assertEquals("Strike: Call " + loopdelta, dCall.getDerivative(0), DELTA.get(loopdelta), 1e-8);
     }
     ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
         FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), false);
     ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
         FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), true);
-    assertEquals(0.0, dCall.getDerivative(0) + dPut.getDerivative(0), 1e-8, "Strike: ATM");
+    assertEquals("Strike: ATM", dCall.getDerivative(0) + dPut.getDerivative(0), 0.0, 1e-8);
   }
 
 }

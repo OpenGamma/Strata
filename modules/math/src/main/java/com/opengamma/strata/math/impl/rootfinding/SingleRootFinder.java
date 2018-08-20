@@ -25,6 +25,6 @@ public interface SingleRootFinder<S, T> {
    * @return a root lying between x1 and x2
    */
   @SuppressWarnings("unchecked")
-  public abstract S getRoot(Function<S, T> function, S... roots);
+  S getRoot(Function<S, T> function, S... roots);
 
 }

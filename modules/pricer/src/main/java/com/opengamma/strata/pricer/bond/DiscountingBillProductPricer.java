@@ -63,7 +63,7 @@ public class DiscountingBillProductPricer {
    * @return the present value of the bill product
    */
   public CurrencyAmount presentValueWithZSpread(
-      ResolvedBill bill,
+      ResolvedBill bill, 
       LegalEntityDiscountingProvider provider,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -77,7 +77,7 @@ public class DiscountingBillProductPricer {
         .discountFactorWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
     return bill.getNotional().getValue().multipliedBy(dfMaturity);
   }
-
+  
   //-------------------------------------------------------------------------
   /**
    * Calculates the present value sensitivity of the bill product.
@@ -132,11 +132,11 @@ public class DiscountingBillProductPricer {
         .zeroRatePointSensitivityWithSpread(bill.getNotional().getDate(), zSpread, compoundedRateType, periodsPerYear);
     IssuerCurveZeroRateSensitivity dscSensMaturity =
         IssuerCurveZeroRateSensitivity.of(zeroSensMaturity, issuerDf.getLegalEntityGroup())
-            .multipliedBy(dfEndBar);
+        .multipliedBy(dfEndBar);
 
     return dscSensMaturity.build();
   }
-
+  
   //-------------------------------------------------------------------------
   /**
    * Calculates the price for settlement at a given settlement date using curves.
@@ -155,7 +155,7 @@ public class DiscountingBillProductPricer {
     double dfRepoSettle = repoDf.discountFactor(settlementDate);
     return dfMaturity / dfRepoSettle;
   }
-
+  
   /**
    * Calculates the price for settlement at a given settlement date using curves with z-spread.
    * <p>
@@ -173,8 +173,8 @@ public class DiscountingBillProductPricer {
    * @return the price
    */
   public double priceFromCurvesWithZSpread(
-      ResolvedBill bill,
-      LegalEntityDiscountingProvider provider,
+      ResolvedBill bill, 
+      LegalEntityDiscountingProvider provider, 
       LocalDate settlementDate,
       double zSpread,
       CompoundedRateType compoundedRateType,
@@ -189,7 +189,7 @@ public class DiscountingBillProductPricer {
     double dfRepoSettle = repoDf.discountFactor(settlementDate);
     return dfMaturity / dfRepoSettle;
   }
-
+  
   /**
    * Calculates the yield for settlement at a given settlement date using curves.
    * 
@@ -202,7 +202,7 @@ public class DiscountingBillProductPricer {
     double price = priceFromCurves(bill, provider, settlementDate);
     return bill.yieldFromPrice(price, settlementDate);
   }
-
+  
   /**
    * Calculates the yield for settlement at a given settlement date using curves with z-spread.
    * <p>
@@ -220,14 +220,14 @@ public class DiscountingBillProductPricer {
    * @return the yield
    */
   public double yieldFromCurvesWithZSpread(
-      ResolvedBill bill,
-      LegalEntityDiscountingProvider provider,
+      ResolvedBill bill, 
+      LegalEntityDiscountingProvider provider, 
       LocalDate settlementDate,
       double zSpread,
       CompoundedRateType compoundedRateType,
       int periodsPerYear) {
-
-    double price =
+    
+    double price = 
         priceFromCurvesWithZSpread(bill, provider, settlementDate, zSpread, compoundedRateType, periodsPerYear);
     return bill.yieldFromPrice(price, settlementDate);
   }

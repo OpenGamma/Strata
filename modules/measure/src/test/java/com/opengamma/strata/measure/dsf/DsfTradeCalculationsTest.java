@@ -5,8 +5,7 @@
  */
 package com.opengamma.strata.measure.dsf;
 
-import static org.testng.Assert.assertEquals;
-
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -42,10 +41,10 @@ public class DsfTradeCalculationsTest {
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, REF_PRICE);
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, REF_PRICE);
 
-    assertEquals(
+    AssertJUnit.assertEquals(
         DsfTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
         CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
+    AssertJUnit.assertEquals(
         DsfTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
         MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
   }
@@ -60,10 +59,10 @@ public class DsfTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
+    AssertJUnit.assertEquals(
         DsfTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
         MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
+    AssertJUnit.assertEquals(
         DsfTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }

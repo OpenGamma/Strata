@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.named.NamedEnum;
  * A convention defining how yield is computed for a bill.
  */
 public enum BillYieldConvention implements NamedEnum {
-
+  
   /**
    * Discount.
    */
@@ -24,13 +24,12 @@ public enum BillYieldConvention implements NamedEnum {
     public double priceFromYield(double yield, double accrualFactor) {
       return 1.0d - accrualFactor * yield;
     }
-
     @Override
     public double yieldFromPrice(double price, double accrualFactor) {
       return (1.0d - price) / accrualFactor;
     }
   },
-
+  
   /**
    * France CD: interest at maturity.
    */
@@ -39,13 +38,12 @@ public enum BillYieldConvention implements NamedEnum {
     public double priceFromYield(double yield, double accrualFactor) {
       return 1.0d / (1.0d + accrualFactor * yield);
     }
-
     @Override
     public double yieldFromPrice(double price, double accrualFactor) {
       return (1.0d / price - 1) / accrualFactor;
     }
   },
-
+  
   /**
    * Interest at maturity.
    */
@@ -54,13 +52,12 @@ public enum BillYieldConvention implements NamedEnum {
     public double priceFromYield(double yield, double accrualFactor) {
       return 1.0d / (1.0d + accrualFactor * yield);
     }
-
     @Override
     public double yieldFromPrice(double price, double accrualFactor) {
       return (1.0d / price - 1) / accrualFactor;
     }
   },
-
+  
   /**
    * Japanese T-Bills.
    */
@@ -69,7 +66,6 @@ public enum BillYieldConvention implements NamedEnum {
     public double priceFromYield(double yield, double accrualFactor) {
       return 1.0d / (1.0d + accrualFactor * yield);
     }
-
     @Override
     public double yieldFromPrice(double price, double accrualFactor) {
       return (1.0d / price - 1) / accrualFactor;

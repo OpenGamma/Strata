@@ -11,9 +11,17 @@ import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 
 import org.testng.annotations.Test;
 
@@ -85,6 +93,33 @@ public class ExampleMarketDataBuilderTest {
     assertBuilder(builder);
   }
 
+  public void test_classpath_jar() throws Exception {
+
+    // Create a JAR file containing the example market data
+    File tempFile = File.createTempFile(ExampleMarketDataBuilderTest.class.getSimpleName(), ".jar");
+    try (FileOutputStream tempFileOut = new FileOutputStream(tempFile)) {
+      try (JarOutputStream zipFileOut = new JarOutputStream(tempFileOut)) {
+        File diskRoot = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT);
+        appendToJar(diskRoot, "zip-data", diskRoot, zipFileOut);
+      }
+    }
+
+    // Obtain a classloader which can see this JAR
+    ClassLoader originalContextClassLoader = Thread.currentThread().getContextClassLoader();
+    try (URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] {tempFile.toURI().toURL()})) {
+      // Test automatically finding the resource inside the JAR
+      Thread.currentThread().setContextClassLoader(classLoader);
+      assertBuilder(ExampleMarketDataBuilder.ofResource("zip-data", classLoader));
+    } finally {
+      Thread.currentThread().setContextClassLoader(originalContextClassLoader);
+      try {
+        Files.deleteIfExists(tempFile.toPath());
+      } catch (IOException ex) {
+        // ignore
+      }
+    }
+  }
+
   public void test_ofPath() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
@@ -140,6 +175,39 @@ public class ExampleMarketDataBuilderTest {
     assertEquals(snapshot.getValues().size(), VALUES.size(),
         Messages.format("Snapshot contained unexpected market data: {}",
             Sets.difference(snapshot.getValues().keySet(), VALUES)));
+  }
+
+  //-------------------------------------------------------------------------
+  // build jar file
+  // jar files use forward-slash on all operating systems
+  // directories always have a trailing forward-slash
+  // there must be no slash at the root
+  private void appendToJar(File sourceRootDir, String destRootPath, File currentFile, JarOutputStream jarOutput)
+      throws IOException {
+    if (currentFile.isDirectory()) {
+      String entryName = getEntryName(sourceRootDir, destRootPath, currentFile) + '/';
+      jarOutput.putNextEntry(new JarEntry(entryName));
+      jarOutput.closeEntry();
+      for (File content : currentFile.listFiles()) {
+        appendToJar(sourceRootDir, destRootPath, content, jarOutput);
+      }
+    } else {
+      String entryName = getEntryName(sourceRootDir, destRootPath, currentFile);
+      jarOutput.putNextEntry(new JarEntry(entryName));
+      try (FileInputStream fileIn = new FileInputStream(currentFile)) {
+        byte[] b = new byte[1024];
+        int len;
+        while ((len = fileIn.read(b)) != -1) {
+          jarOutput.write(b, 0, len);
+        }
+      }
+      jarOutput.closeEntry();
+    }
+  }
+
+  private String getEntryName(File sourceRootDir, String destRootPath, File currentFile) {
+    String relativePath = currentFile.getAbsolutePath().substring(sourceRootDir.getAbsolutePath().length());
+    return destRootPath + relativePath.replace('\\', '/');
   }
 
 }

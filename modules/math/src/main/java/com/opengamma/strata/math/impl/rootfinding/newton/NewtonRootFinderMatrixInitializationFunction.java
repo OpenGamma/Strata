@@ -16,8 +16,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 //CSOFF: JavadocMethod
 public interface NewtonRootFinderMatrixInitializationFunction {
 
-  public abstract DoubleMatrix getInitializedMatrix(
-      Function<DoubleArray, DoubleMatrix> jacobianFunction,
-      DoubleArray x);
+  DoubleMatrix getInitializedMatrix(Function<DoubleArray, DoubleMatrix> jacobianFunction, DoubleArray x);
 
 }

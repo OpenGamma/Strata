@@ -21,6 +21,6 @@ public interface MinimizerWithGradient<F extends Function<S, ?>, G extends Funct
    * @param startPosition The start position, not null
    * @return The minimum
    */
-  public abstract S minimize(F function, G gradient, S startPosition);
+  S minimize(F function, G gradient, S startPosition);
 
 }
