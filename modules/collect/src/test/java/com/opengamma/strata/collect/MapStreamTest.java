@@ -23,7 +23,9 @@ import java.util.stream.Stream;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ListMultimap;
 
 @Test
 public class MapStreamTest {
@@ -153,6 +155,13 @@ public class MapStreamTest {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     Map<String, Integer> expected = ImmutableMap.of("a", 3, "b", 30, "c", 1);
     Map<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toMap((v1, v2) -> v1 + v2);
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void toListMultimap() {
+    Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
+    ListMultimap<String, Integer> expected = ImmutableListMultimap.of("a", 1, "a", 2, "b", 10, "b", 20, "c", 1);
+    ListMultimap<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toListMultimap();
     assertThat(result).isEqualTo(expected);
   }
 

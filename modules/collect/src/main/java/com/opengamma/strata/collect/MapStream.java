@@ -29,6 +29,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Streams;
 
@@ -332,6 +333,15 @@ public final class MapStream<K, V>
    */
   public ImmutableMap<K, V> toMap(BiFunction<? super V, ? super V, ? extends V> mergeFn) {
     return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue(), mergeFn));
+  }
+
+  /**
+   * Returns an immutable list multimap built from the entries in the stream.
+   *
+   * @return an immutable list multimap built from the entries in the stream
+   */
+  public ImmutableListMultimap<K, V> toListMultimap() {
+    return underlying.collect(Guavate.toImmutableListMultimap(e -> e.getKey(), e -> e.getValue()));
   }
 
   /**
