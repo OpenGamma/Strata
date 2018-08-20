@@ -8,6 +8,7 @@ package com.opengamma.strata.collect;
 import static java.util.stream.Collectors.collectingAndThen;
 
 import java.time.Duration;
+import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -123,6 +124,18 @@ public final class Guavate {
       }
     }
     return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a single {@code Map.Entry}.
+   * 
+   * @param key  the key
+   * @param value  the value
+   * @return the map entry
+   */
+  public static <K, V> Map.Entry<K, V> entry(K key, V value) {
+    return new AbstractMap.SimpleImmutableEntry<>(key, value);
   }
 
   //-------------------------------------------------------------------------
