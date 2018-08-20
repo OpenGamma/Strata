@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.collect;
 
-import java.util.AbstractMap;
+import static com.opengamma.strata.collect.Guavate.entry;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -559,10 +560,6 @@ public final class MapStream<K, V>
   }
 
   //-------------------------------------------------------------------------
-  private static <K, V> Map.Entry<K, V> entry(K k, V v) {
-    return new AbstractMap.SimpleImmutableEntry<>(k, v);
-  }
-
   private static <K, V> MapStream<K, V> wrap(Stream<Map.Entry<K, V>> underlying) {
     return new MapStream<>(underlying);
   }
