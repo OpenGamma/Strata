@@ -32,7 +32,11 @@ import java.util.stream.Stream;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * A stream implementation which adds methods for manipulating keys and values when streaming over map entries.
+ * A stream implementation based on {@code Map.Entry}.
+ * <p>
+ * This stream wraps a {@code Stream&lt;Map.Entry&gt;}, providing convenient methods for
+ * manipulating the keys and values. Unlike a {@code Map}, the keys in a {@code MapStream}
+ * do not have to be unique, although certain methods will fail if they are not unique.
  * 
  * @param <K>  the key type
  * @param <V>  the value type
@@ -82,7 +86,11 @@ public final class MapStream<K, V>
    * @param valueFunction  a function which returns the value
    * @return a stream of map entries derived from the collection
    */
-  public static <T, K, V> MapStream<K, V> of(Collection<T> collection, Function<T, K> keyFunction, Function<T, V> valueFunction) {
+  public static <T, K, V> MapStream<K, V> of(
+      Collection<T> collection,
+      Function<T, K> keyFunction,
+      Function<T, V> valueFunction) {
+
     return of(collection.stream(), keyFunction, valueFunction);
   }
 
@@ -112,7 +120,11 @@ public final class MapStream<K, V>
    * @param valueFunction  a function which returns the value
    * @return a stream of map entries derived from the stream
    */
-  public static <T, K, V> MapStream<K, V> of(Stream<T> stream, Function<T, K> keyFunction, Function<T, V> valueFunction) {
+  public static <T, K, V> MapStream<K, V> of(
+      Stream<T> stream,
+      Function<T, K> keyFunction,
+      Function<T, V> valueFunction) {
+
     return new MapStream<>(stream.map(item -> entry(keyFunction.apply(item), valueFunction.apply(item))));
   }
 
@@ -263,7 +275,7 @@ public final class MapStream<K, V>
    * <p>
    * The keys are unchanged.
    *
-   * @param mapper  a mapper function whose return value is used as the new value.
+   * @param mapper  a mapper function whose return value is used as the new value
    * @param <R>  the type of the new values
    * @return a stream of entries with the values transformed and the keys unchanged
    */
@@ -327,8 +339,8 @@ public final class MapStream<K, V>
   /**
    * Returns an immutable map built from the entries in the stream.
    * <p>
-   * The keys must be unique or an exception will be thrown. Duplicate keys can be handled by using
-   * {@link #collect(Collector)} and {@code Collectors.toMap}.
+   * The keys must be unique or an exception will be thrown.
+   * Duplicate keys can be handled using {@link #toMap(BiFunction)}.
    *
    * @return an immutable map built from the entries in the stream
    */
@@ -470,7 +482,11 @@ public final class MapStream<K, V>
   }
 
   @Override
-  public <R> R collect(Supplier<R> supplier, BiConsumer<R, ? super Map.Entry<K, V>> accumulator, BiConsumer<R, R> combiner) {
+  public <R> R collect(
+      Supplier<R> supplier,
+      BiConsumer<R, ? super Map.Entry<K, V>> accumulator,
+      BiConsumer<R, R> combiner) {
+
     return underlying.collect(supplier, accumulator, combiner);
   }
 
