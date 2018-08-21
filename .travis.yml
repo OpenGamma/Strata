@@ -34,6 +34,7 @@ deploy:
     - "${DIST_FILE}"
   on:
     tags: true
+    jdk: "oraclejdk8"
     condition: "$TRAVIS_TAG =~ ^v.*$"
 # Secure variables DEPLOY_USER, DEPLOY_PASSWORD, MILESTONE_USER, MILESTONE_PASSWORD
 env:
