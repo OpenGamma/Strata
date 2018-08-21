@@ -130,6 +130,8 @@ public final class Guavate {
   /**
    * Creates a single {@code Map.Entry}.
    * 
+   * @param <K>  the type of the key
+   * @param <V>  the type of the value
    * @param key  the key
    * @param value  the value
    * @return the map entry
