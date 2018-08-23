@@ -110,7 +110,7 @@ public final class Currency
    */
   public static final Currency BHD = of("BHD");
   /**
-   * The currency 'BRL' - Brazil Dollar.
+   * The currency 'BRL' - Brazilian Real.
    */
   public static final Currency BRL = of("BRL");
   /**
