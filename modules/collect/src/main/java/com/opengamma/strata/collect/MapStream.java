@@ -40,7 +40,7 @@ import com.google.common.collect.Streams;
  * This stream wraps a {@code Stream&lt;Map.Entry&gt;}, providing convenient methods for
  * manipulating the keys and values. Unlike a {@code Map}, the keys in a {@code MapStream}
  * do not have to be unique, although certain methods will fail if they are not unique.
- * 
+ *
  * @param <K>  the key type
  * @param <V>  the value type
  */
@@ -384,6 +384,96 @@ public final class MapStream<K, V>
    */
   public <R> Stream<R> flatMap(BiFunction<? super K, ? super V, Stream<R>> mapper) {
     return underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue()));
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Sorts the entries in the stream by comparing the keys using their natural ordering.
+   * <p>
+   * If the keys in this map stream are not {@code Comparable} a {@code java.lang.ClassCastException} may be thrown.
+   * In this case use {@link #sortedKeys(Comparator)} instead.
+   *
+   * @return the sorted stream
+   */
+  @SuppressWarnings("unchecked")
+  public MapStream<K, V> sortedKeys() {
+    Comparator<K> comparator = (Comparator<K>) Comparator.naturalOrder();
+    return wrap(underlying.sorted((e1, e2) -> comparator.compare(e1.getKey(), e2.getKey())));
+  }
+
+  /**
+   * Sorts the entries in the stream by comparing the keys using the supplied comparator.
+   *
+   * @param comparator  a comparator of keys
+   * @return the sorted stream
+   */
+  public MapStream<K, V> sortedKeys(Comparator<? super K> comparator) {
+    return wrap(underlying.sorted((e1, e2) -> comparator.compare(e1.getKey(), e2.getKey())));
+  }
+
+  /**
+   * Sorts the entries in the stream by comparing the values using their natural ordering.
+   * <p>
+   * If the values in this map stream are not {@code Comparable} a {@code java.lang.ClassCastException} may be thrown.
+   * In this case use {@link #sortedValues(Comparator)} instead.
+   *
+   * @return the sorted stream
+   */
+  @SuppressWarnings("unchecked")
+  public MapStream<K, V> sortedValues() {
+    Comparator<V> comparator = (Comparator<V>) Comparator.naturalOrder();
+    return wrap(underlying.sorted((e1, e2) -> comparator.compare(e1.getValue(), e2.getValue())));
+  }
+
+  /**
+   * Sorts the entries in the stream by comparing the values using the supplied comparator.
+   *
+   * @param comparator  a comparator of values
+   * @return the sorted stream
+   */
+  public MapStream<K, V> sortedValues(Comparator<? super V> comparator) {
+    return wrap(underlying.sorted((e1, e2) -> comparator.compare(e1.getValue(), e2.getValue())));
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Finds the minimum entry in the stream by comparing the keys using the supplied comparator.
+   *
+   * @param comparator  a comparator of keys
+   * @return the minimum entry
+   */
+  public Optional<Map.Entry<K, V>> minKeys(Comparator<? super K> comparator) {
+    return underlying.min((e1, e2) -> comparator.compare(e1.getKey(), e2.getKey()));
+  }
+
+  /**
+   * Finds the minimum entry in the stream by comparing the values using the supplied comparator.
+   *
+   * @param comparator  a comparator of values
+   * @return the minimum entry
+   */
+  public Optional<Map.Entry<K, V>> minValues(Comparator<? super V> comparator) {
+    return underlying.min((e1, e2) -> comparator.compare(e1.getValue(), e2.getValue()));
+  }
+
+  /**
+   * Finds the maximum entry in the stream by comparing the keys using the supplied comparator.
+   *
+   * @param comparator  a comparator of keys
+   * @return the maximum entry
+   */
+  public Optional<Map.Entry<K, V>> maxKeys(Comparator<? super K> comparator) {
+    return underlying.max((e1, e2) -> comparator.compare(e1.getKey(), e2.getKey()));
+  }
+
+  /**
+   * Finds the maximum entry in the stream by comparing the values using the supplied comparator.
+   *
+   * @param comparator  a comparator of values
+   * @return the maximum entry
+   */
+  public Optional<Map.Entry<K, V>> maxValues(Comparator<? super V> comparator) {
+    return underlying.max((e1, e2) -> comparator.compare(e1.getValue(), e2.getValue()));
   }
 
   //-------------------------------------------------------------------------
