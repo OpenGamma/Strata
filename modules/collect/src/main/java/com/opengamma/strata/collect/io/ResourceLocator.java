@@ -8,6 +8,10 @@ package com.opengamma.strata.collect.io;
 import static com.google.common.base.MoreObjects.firstNonNull;
 
 import java.io.File;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -42,6 +46,41 @@ public final class ResourceLocator {
    * The prefix for URL resource locators.
    */
   public static final String URL_PREFIX = "url:";
+
+  /**
+   * Method to obtain the caller class.
+   */
+  private static final MethodHandle STACK_WALKER_METHOD;
+  static {
+    MethodHandle handle = null;
+    try {
+      try {
+        Class<?> stackWalkerCls = Class.forName("java.lang.StackWalker");
+        Class<?> stackWalkerOptionCls = Class.forName("java.lang.StackWalker$Option");
+        try {
+          @SuppressWarnings({"rawtypes", "unchecked"})
+          Object option = Enum.valueOf((Class<? extends Enum>) stackWalkerOptionCls, "RETAIN_CLASS_REFERENCE");
+          Lookup lookup = MethodHandles.lookup();
+          MethodHandle creator = lookup.findStatic(
+              stackWalkerCls, "getInstance", MethodType.methodType(stackWalkerCls, stackWalkerOptionCls));
+          MethodHandle queryMethod = lookup.findVirtual(
+              stackWalkerCls, "getCallerClass", MethodType.methodType(Class.class));
+          // create a bound method handle ready for invokeExact()
+          // invokeExact() is faster than invoke() at runtime
+          handle = queryMethod.bindTo(creator.invoke(option));
+
+        } catch (Throwable ex) {
+          System.err.println("ERROR: Unexpected error when initializing: " + ex.getMessage());
+          ex.printStackTrace();
+        }
+
+      } catch (ReflectiveOperationException ex) {
+        // ignore, code reaches here only on Java 8
+      }
+    } finally {
+      STACK_WALKER_METHOD = handle;
+    }
+  }
 
   /**
    * The resource locator.
@@ -143,8 +182,10 @@ public final class ResourceLocator {
    * If the resource name does not start with a slash '/', one will be prepended.
    * Use {@link #ofClasspath(Class, String)} to get a relative resource.
    * <p>
-   * This method uses {@code ResourceLocator.class.getResource(String)} to find the resource.
-   * It avoids using {@link ClassLoader#getResource(String)} which works poorly with modules.
+   * In Java 9 and later, resources can be encapsulated due to the module system.
+   * As such, this method is caller sensitive in Java 9 and later.
+   * It finds the class of the method that called this one, and uses that to search for
+   * resources using {@link Class#getResource(String)}.
    * 
    * @param resourceName  the resource name, which will have a slash '/' prepended if missing
    * @return the resource locator
@@ -152,11 +193,14 @@ public final class ResourceLocator {
   public static ResourceLocator ofClasspath(String resourceName) {
     ArgChecker.notNull(resourceName, "classpathLocator");
     String searchName = resourceName.startsWith("/") ? resourceName : "/" + resourceName;
-    URL url = ResourceLocator.class.getResource(searchName);
-    if (url == null) {
-      throw new IllegalArgumentException("Resource not found: " + searchName);
+    if (STACK_WALKER_METHOD != null) {
+      try {
+        return ofClasspath((Class<?>) STACK_WALKER_METHOD.invokeExact(), searchName);
+      } catch (Throwable ex) {
+        throw new RuntimeException(ex);
+      }
     }
-    return ofClasspathUrl(url);
+    return ofClasspath(ResourceLocator.class, searchName);
   }
 
   /**
