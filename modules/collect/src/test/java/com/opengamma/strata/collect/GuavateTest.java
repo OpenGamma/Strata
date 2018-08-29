@@ -58,6 +58,13 @@ public class GuavateTest {
     assertEquals(test, ImmutableList.of("a", "b", "c", "d", "e", "f"));
   }
 
+  public void test_concatToList_differentTypes() {
+    Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3);
+    Iterable<Double> iterable2 = Arrays.asList(10d, 20d, 30d);
+    ImmutableList<Number> test = Guavate.concatToList(iterable1, iterable2);
+    assertEquals(test, ImmutableList.of(1, 2, 3, 10d, 20d, 30d));
+  }
+
   //-------------------------------------------------------------------------
   public void test_firstNonEmpty_supplierMatch1() {
     Optional<Number> test = Guavate.firstNonEmpty(

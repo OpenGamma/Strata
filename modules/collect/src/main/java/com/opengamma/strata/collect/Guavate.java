@@ -73,7 +73,7 @@ public final class Guavate {
    * @return the list that combines the inputs
    */
   @SafeVarargs
-  public static <T> ImmutableList<T> concatToList(Iterable<T>... iterables) {
+  public static <T> ImmutableList<T> concatToList(Iterable<? extends T>... iterables) {
     return ImmutableList.copyOf(Iterables.concat(iterables));
   }
 
