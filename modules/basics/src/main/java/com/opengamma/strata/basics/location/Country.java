@@ -47,6 +47,10 @@ public final class Country
    */
   public static final Country EU = of("EU");
   /**
+   * The country 'AT' - Austria.
+   */
+  public static final Country AT = of("AT");
+  /**
    * The country 'BE' - Belgium.
    */
   public static final Country BE = of("BE");
@@ -90,6 +94,10 @@ public final class Country
    * The currency 'HU' = Hungary.
    */
   public static final Country HU = of("HU");
+  /**
+   * The currency 'IE' - Ireland.
+   */
+  public static final Country IE = of("IE");
   /**
    * The currency 'IS' - Iceland.
    */
