@@ -27,6 +27,7 @@ public class CountryTest {
   //-----------------------------------------------------------------------
   public void test_constants() {
     assertEquals(Country.of("EU"), Country.EU);
+    assertEquals(Country.of("AT"), Country.AT);
     assertEquals(Country.of("BE"), Country.BE);
     assertEquals(Country.of("CH"), Country.CH);
     assertEquals(Country.of("CZ"), Country.CZ);
@@ -38,6 +39,7 @@ public class CountryTest {
     assertEquals(Country.of("GB"), Country.GB);
     assertEquals(Country.of("GR"), Country.GR);
     assertEquals(Country.of("HU"), Country.HU);
+    assertEquals(Country.of("IE"), Country.IE);
     assertEquals(Country.of("IS"), Country.IS);
     assertEquals(Country.of("IT"), Country.IT);
     assertEquals(Country.of("LU"), Country.LU);
