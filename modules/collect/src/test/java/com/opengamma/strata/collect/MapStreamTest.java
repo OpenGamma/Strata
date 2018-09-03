@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect;
 
+import static com.opengamma.strata.collect.Guavate.entry;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -12,6 +13,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.AbstractMap;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -200,6 +202,77 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  //-----------------------------------------------------------------------
+  public void sortedKeys() {
+    List<Map.Entry<String, Integer>> expected =
+        ImmutableList.of(entry("four", 4), entry("one", 1), entry("three", 3), entry("two", 2));
+
+    List<Map.Entry<String, Integer>> result = MapStream.of(map)
+        .sortedKeys()
+        .collect(toList());
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void sortedKeys_comparator() {
+    List<Map.Entry<String, Integer>> expected =
+        ImmutableList.of(entry("two", 2), entry("three", 3), entry("one", 1), entry("four", 4));
+
+    List<Map.Entry<String, Integer>> result = MapStream.of(map)
+        .sortedKeys(Comparator.reverseOrder())
+        .collect(toList());
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void sortedValues() {
+    ImmutableMap<String, Integer> invertedValuesMap = ImmutableMap.of(
+        "one", 4,
+        "two", 3,
+        "three", 2,
+        "four", 1);
+
+    List<Map.Entry<String, Integer>> expected =
+        ImmutableList.of(entry("four", 1), entry("three", 2), entry("two", 3), entry("one", 4));
+
+    List<Map.Entry<String, Integer>> result = MapStream.of(invertedValuesMap).sortedValues().collect(toList());
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void sortedValues_comparator() {
+    List<Map.Entry<String, Integer>> expected =
+        ImmutableList.of(entry("four", 4), entry("three", 3), entry("two", 2), entry("one", 1));
+
+    List<Map.Entry<String, Integer>> result = MapStream.of(map)
+        .sortedValues(Comparator.reverseOrder())
+        .collect(toList());
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  //-----------------------------------------------------------------------
+  public void minKeys() {
+    Map.Entry<String, Integer> result = MapStream.of(map).minKeys(Comparator.naturalOrder()).get();
+    assertThat(result).isEqualTo(entry("four", 4));
+  }
+
+  public void minValues() {
+    Map.Entry<String, Integer> result = MapStream.of(map).minValues(Comparator.naturalOrder()).get();
+    assertThat(result).isEqualTo(entry("one", 1));
+  }
+
+  public void maxKeys() {
+    Map.Entry<String, Integer> result = MapStream.of(map).maxKeys(Comparator.naturalOrder()).get();
+    assertThat(result).isEqualTo(entry("two", 2));
+  }
+
+  public void maxValues() {
+    Map.Entry<String, Integer> result = MapStream.of(map).maxValues(Comparator.naturalOrder()).get();
+    assertThat(result).isEqualTo(entry("four", 4));
+  }
+
+  //-----------------------------------------------------------------------
   public void forEach() {
     HashMap<Object, Object> mutableMap = new HashMap<>();
     MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
