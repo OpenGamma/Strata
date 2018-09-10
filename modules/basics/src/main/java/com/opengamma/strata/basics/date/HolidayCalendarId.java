@@ -125,7 +125,7 @@ public final class HolidayCalendarId
    * @throws IllegalArgumentException if there is no default for the currency
    */
   public static HolidayCalendarId defaultByCurrency(Currency currency) {
-    return HolidayCalendarIniLookup.INSTANCE.defaltByCurrency(currency);
+    return HolidayCalendarIniLookup.INSTANCE.defaultByCurrency(currency);
   }
 
   //-------------------------------------------------------------------------
