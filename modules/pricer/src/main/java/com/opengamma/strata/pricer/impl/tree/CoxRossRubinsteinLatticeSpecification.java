@@ -25,5 +25,14 @@ public final class CoxRossRubinsteinLatticeSpecification implements LatticeSpeci
     double middleProbability = 1d - upProbability - downProbability;
     return DoubleArray.of(upFactor, 1d, downFactor, upProbability, middleProbability, downProbability);
   }
-
+  
+  public DoubleArray getParametersBinomial(double volatility, double interestRate, double dt) {
+    double dx = volatility * Math.sqrt(dt);
+    double upFactor = Math.exp(dx);
+    double downFactor = Math.exp(-dx);
+    double a = Math.exp(interestRate * dt);
+    double upProbability = (a - downFactor) / (upFactor - downFactor);
+    double downProbability = 1 - upProbability;
+    return DoubleArray.of(upFactor, downFactor, upProbability, downProbability);
+  }
 }

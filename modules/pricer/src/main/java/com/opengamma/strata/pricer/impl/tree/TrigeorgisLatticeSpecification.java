@@ -27,4 +27,8 @@ public final class TrigeorgisLatticeSpecification implements LatticeSpecificatio
     double downProbability = 0.5 * (part - mudt / dx);
     return DoubleArray.of(upFactor, 1d, downFactor, upProbability, middleProbability, downProbability);
   }
+  
+  public DoubleArray getParametersBinomial(double volatility, double interestRate, double dt){
+    return DoubleArray.EMPTY;
+  }
 }

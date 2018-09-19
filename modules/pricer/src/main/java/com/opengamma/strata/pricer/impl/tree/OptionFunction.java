@@ -52,6 +52,19 @@ public interface OptionFunction {
     }
     return getPayoffAtExpiryTrinomial(DoubleArray.ofUnsafe(values));
   }
+  
+  public default DoubleArray getPayoffAtExpiryBinomial(
+      double spot,
+      double upFactor,
+      double downFactor) {
+    
+    int nNodes = getNumberOfSteps() + 1;
+    double[] values = new double[nNodes];
+    for (int i = 0; i < nNodes; ++i) {
+      values[i] = spot * Math.pow(upFactor, getNumberOfSteps() - i) * Math.pow(downFactor, i);
+    }
+    return getPayoffAtExpiryTrinomial(DoubleArray.ofUnsafe(values));
+  }
 
   /**
    * Computes payoff at expiry for trinomial tree.
@@ -63,7 +76,6 @@ public interface OptionFunction {
    * @return the payoff at expiry
    */
   public abstract DoubleArray getPayoffAtExpiryTrinomial(DoubleArray stateValue);
-
   /**
    * Computes the option values in the intermediate nodes.
    * <p>
@@ -102,6 +114,43 @@ public interface OptionFunction {
     DoubleArray stateValue = DoubleArray.of(nNodes, k -> spot * Math.pow(downFactor, i - k) * Math.pow(middleFactor, k));
     return getNextOptionValues(discountFactor, DoubleMatrix.ofUnsafe(probs), stateValue, value, i);
   }
+  
+  public default DoubleArray getNextOptionValuesBinomial(
+      double discountFactor,
+      double upProbability,
+      double downProbability,
+      DoubleArray value,
+      double spot,
+      double upFactor,
+      double downFactor,
+      int i) {
+    
+    int nNodes = i + 1;
+    double[] probsAtNode = new double[] {upProbability, downProbability};
+    double[][] probs = new double[nNodes][];
+    Arrays.fill(probs, probsAtNode);
+    DoubleArray stateValue = DoubleArray.of(nNodes, k -> spot * Math.pow(upFactor, i-k) * Math.pow(downFactor, k));
+    return getNextOptionValuesBinomial(discountFactor, DoubleMatrix.ofUnsafe(probs), stateValue, value, i);
+  }
+  
+  public default DoubleArray getNextOptionValuesBinomial(
+      double discountFactor,
+      double upProbability,
+      double downProbability,
+      DoubleArray value,
+      double spot,
+      double upFactor,
+      double downFactor,
+      int i,
+      double dividend) {
+    
+    int nNodes = i + 1;
+    double[] probsAtNode = new double[] {upProbability, downProbability};
+    double[][] probs = new double[nNodes][];
+    Arrays.fill(probs, probsAtNode);
+    DoubleArray stateValue = DoubleArray.of(nNodes, k -> spot * Math.pow(upFactor, i-k) * Math.pow(downFactor, k) + dividend);
+    return getNextOptionValuesBinomial(discountFactor, DoubleMatrix.ofUnsafe(probs), stateValue, value, i);
+  }
 
   /**
    * Computes the option values in the intermediate nodes.
@@ -129,6 +178,17 @@ public interface OptionFunction {
     int nNodes = 2 * i + 1;
     return DoubleArray.of(nNodes, j -> discountFactor * (transitionProbability.get(j, 2) * value.get(j + 2) +
         transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
+  }
+  
+  public default DoubleArray getNextOptionValuesBinomial(
+      double discountFactor,
+      DoubleMatrix transitionProbability,
+      DoubleArray stateValue,
+      DoubleArray value,
+      int i) {
+    
+    int nNodes = i + 1;
+    return DoubleArray.of(nNodes, j -> discountFactor * (transitionProbability.get(j, 1) * value.get(j + 1) + transitionProbability.get(j, 0) * value.get(j)));
   }
 
 }

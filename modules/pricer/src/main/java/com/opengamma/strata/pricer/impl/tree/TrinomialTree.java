@@ -19,7 +19,8 @@ import com.opengamma.strata.pricer.fxopt.RecombiningTrinomialTreeData;
  * Option pricing with non-uniform tree is realised by specifying {@code RecombiningTrinomialTreeData}.
  */
 public class TrinomialTree {
-
+  
+  private static final double BUMP = 1.0e-6;
   /**
    * Price an option under the specified trinomial lattice.
    * <p>
@@ -63,6 +64,56 @@ public class TrinomialTree {
           downFactor, middleFactor, i);
     }
     return values.get(0);
+  }
+  
+  public ValueDerivatives optionPriceAdjoint(
+      OptionFunction function,
+      LatticeSpecification lattice,
+      double spot,
+      double volatility,
+      double interestRate,
+      double dividendRate) {
+    
+    int nSteps = function.getNumberOfSteps();
+    double timeToExpiry = function.getTimeToExpiry();
+    double dt = timeToExpiry / (double) nSteps;
+    double discount = Math.exp(-interestRate * dt);
+    DoubleArray params = lattice.getParametersTrinomial(volatility, interestRate - dividendRate, dt);
+    double upFactor = params.get(0);
+    double middleFactor = params.get(1);
+    double downFactor = params.get(2);
+    double upProbability = params.get(3);
+    double midProbability = params.get(4);
+    double downProbability = params.get(5);
+    ArgChecker.isTrue(upProbability > 0d, "upProbability should be greater than 0");
+    ArgChecker.isTrue(upProbability < 1d, "upProbability should be smaller than 1");
+    ArgChecker.isTrue(midProbability > 0d, "midProbability should be greater than 0");
+    ArgChecker.isTrue(midProbability < 1d, "midProbability should be smaller than 1");
+    ArgChecker.isTrue(downProbability > 0d, "downProbability should be greater than 0");
+    DoubleArray values = function.getPayoffAtExpiryTrinomial(spot, downFactor, middleFactor);
+    double delta = 0d;
+    double gamma = 0d;
+    double theta = 0d;
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, upProbability, midProbability, downProbability, values, spot,
+          downFactor, middleFactor, i);
+      if (i == 1) {
+        double d1 = (values.get(2) - values.get(1)) / (spot * upFactor - spot);
+        double d2 = (values.get(1) - values.get(0)) / (spot - spot * downFactor);
+        delta = 0.5 * (d1 + d2);  
+        //Get theta and gamma
+        gamma = (d1 - d2)/(0.5 * spot * (upFactor - downFactor));
+        theta = values.get(1);
+      }
+    }
+    theta = (theta - values.get(0)) / dt / 365;
+    
+    //Perform bump analysis for 
+    double bumpVol = optionPrice(function, lattice, spot, volatility + BUMP, interestRate, dividendRate);
+    double bumpRate = optionPrice(function, lattice, spot, volatility, interestRate + BUMP, dividendRate);
+    double vega = (bumpVol - values.get(0)) / BUMP;
+    double rho = (bumpRate - values.get(0)) / BUMP;
+    return ValueDerivatives.of(values.get(0), DoubleArray.of(delta, vega, rho, theta, gamma));
   }
 
   /**
@@ -116,5 +167,4 @@ public class TrinomialTree {
     }
     return ValueDerivatives.of(values.get(0), DoubleArray.of(delta));
   }
-
 }

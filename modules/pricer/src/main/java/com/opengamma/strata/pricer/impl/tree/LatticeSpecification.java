@@ -31,5 +31,5 @@ public interface LatticeSpecification {
    * @return the trinomial tree parameters
    */
   public abstract DoubleArray getParametersTrinomial(double volatility, double interestRate, double dt);
-
+  public abstract DoubleArray getParametersBinomial(double volatility, double interestRate, double dt);
 }
