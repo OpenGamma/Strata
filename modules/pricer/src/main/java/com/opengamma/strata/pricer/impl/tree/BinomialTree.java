@@ -13,7 +13,7 @@ public class BinomialTree {
     
   private static final double BUMP = 1.0e-6;
 
-  public double optionPrice(
+  public static double optionPrice(
       OptionFunction function,
       LatticeSpecification lattice,
       double spot,
@@ -40,8 +40,8 @@ public class BinomialTree {
     ArgChecker.isTrue(downProbability > 0d, "downProbability should be greater than 0");
     //Assume dividends before expiry
     DoubleArray values = function.getPayoffAtExpiryBinomial(modifiedSpot, upFactor, downFactor);
-    double divs = 0.;
     for (int i = nSteps - 1; i > -1; --i) {
+      double divs = 0.;
       for(int j = 0; j < cashDividends.length; ++j ){
         if(i * dt < dividendTimes[j]){
           divs += cashDividends[j] * Math.exp(-interestRate * (dividendTimes[j] - i * dt));
@@ -53,7 +53,7 @@ public class BinomialTree {
     return values.get(0);
   }
     
-  public ValueDerivatives optionPriceAdjoint(
+  public static ValueDerivatives optionPriceAdjoint(
       OptionFunction function,
       LatticeSpecification lattice,
       double spot,
@@ -109,6 +109,6 @@ public class BinomialTree {
     double vega = (bumpVol - values.get(0)) / BUMP;
     double rho = (bumpRate - values.get(0)) / BUMP;
     return ValueDerivatives.of(values.get(0), DoubleArray.of(delta, vega, rho, theta, gamma)); 
-  }   
+  }
 }
 

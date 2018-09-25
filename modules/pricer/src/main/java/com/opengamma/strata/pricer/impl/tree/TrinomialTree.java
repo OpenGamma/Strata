@@ -151,7 +151,7 @@ public class TrinomialTree {
       }
       values = function.getNextOptionValues(discount, upProbability, midProbability, downProbability, values, spot * dividendMultiplier,
           downFactor, middleFactor, i);
-      //We're assuming here that no dividend drop happens at first step. Crude but fine for now.
+      //We're assuming here that no dividend drop happens at first step
       if (i == 1) {
         double d1 = (values.get(2) - values.get(1)) / (spot * upFactor - spot);
         double d2 = (values.get(1) - values.get(0)) / (spot - spot * downFactor);
