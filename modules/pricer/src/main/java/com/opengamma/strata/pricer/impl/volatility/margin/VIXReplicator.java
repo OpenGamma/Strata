@@ -3,16 +3,14 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.pricer.impl.volatility;
+package com.opengamma.strata.pricer.impl.volatility.margin;
 
 import java.time.LocalTime;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-import com.google.common.primitives.Doubles;
+import com.opengamma.strata.collect.array.DoubleArray;
 
 public class VIXReplicator {
   public static final double[] STRIKES = {775, 800, 825, 850, 875, 900, 925, 950, 975, 1000, 1025};
@@ -39,19 +37,17 @@ public class VIXReplicator {
   }
   
   private static double determineF(double[] strikes, double[][] callsAndPuts, double rate, double expiry){
-    List<Double> priceDifferences = Doubles.asList(computePriceDifference(callsAndPuts));    
-    int location = priceDifferences.indexOf(Collections.min(priceDifferences));
+    DoubleArray priceDifferences = DoubleArray.ofUnsafe(computePriceDifference(callsAndPuts));    
+    int location = priceDifferences.indexOf(priceDifferences.min());
     return strikes[location] + priceDifferences.get(location) * Math.exp(rate * expiry);
     
   }
   
   private static double determineKZero(double[] strikes, double forwardIndex){
-    double[] differences = IntStream.range(0, strikes.length)
-                                    .mapToDouble(i -> forwardIndex - strikes[i])
-                                    .filter( i-> i > 0)
-                                    .toArray();
-    List<Double> differencesAsList = Doubles.asList(differences);
-    int location = differencesAsList.indexOf(Collections.min(differencesAsList));
+    DoubleArray differences = DoubleArray.of(IntStream.range(0, strikes.length)
+                                          .mapToDouble(i -> forwardIndex - strikes[i])
+                                          .filter( i-> i > 0));
+    int location = differences.indexOf(differences.min());
     return strikes[location];
   }
   
@@ -68,8 +64,7 @@ public class VIXReplicator {
                                         .filter(i -> i < filteredPuts.length - 1)
                                         .mapToDouble(i ->filteredPuts[i])                                        
                                         .toArray();
-    filteredCalls[0] = 0.5 * (filteredCalls[0] + filteredPuts[filteredPuts.length - 1]);
-  
+    filteredCalls[0] = 0.5 * (filteredCalls[0] + filteredPuts[filteredPuts.length - 1]);  
   
     return DoubleStream.concat(Arrays.stream(concatenatedPut), Arrays.stream(filteredCalls))
                        .toArray();
