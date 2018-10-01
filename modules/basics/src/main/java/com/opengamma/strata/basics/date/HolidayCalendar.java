@@ -13,6 +13,7 @@ import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -231,6 +232,7 @@ public interface HolidayCalendar
    * @throws IllegalArgumentException if the calculation is outside the supported range
    */
   public default int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
+    ArgChecker.inOrderOrEqual(startInclusive, endExclusive, "startInclusive", "endExclusive");
     return Math.toIntExact(LocalDateUtils.stream(startInclusive, endExclusive)
         .filter(this::isBusinessDay)
         .count());
