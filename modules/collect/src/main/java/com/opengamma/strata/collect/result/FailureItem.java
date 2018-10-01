@@ -236,6 +236,20 @@ public final class FailureItem
   }
 
   /**
+   * Returns an instance with the specified attributes added.
+   * <p>
+   * If the attribute map of this instance has any of the new attribute keys, the values are replaced.
+   *
+   * @param attributes  the new attributes to add
+   * @return the new failure item
+   */
+  public FailureItem withAttributes(Map<String, String> attributes) {
+    Map<String, String> newAttributes = new HashMap<>(this.attributes);
+    newAttributes.putAll(attributes);
+    return new FailureItem(reason, message, newAttributes, stackTrace, causeType);
+  }
+
+  /**
    * Returns a string summary of the failure, as a single line excluding the stack trace.
    * 
    * @return the summary string
