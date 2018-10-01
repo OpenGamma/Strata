@@ -14,6 +14,7 @@ import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
+import static org.testng.Assert.assertThrows;
 
 import java.time.LocalDate;
 
@@ -562,6 +563,11 @@ public class HolidayCalendarTest {
   public void test_daysBetween_LocalDateLocalDate(LocalDate start, LocalDate end, int expected) {
     HolidayCalendar test = new MockHolCal();
     assertEquals(test.daysBetween(start, end), expected);
+  }
+
+  public void test_daysBetween_LocalDateLocalDate_endBeforeStart() {
+    HolidayCalendar test = new MockHolCal();
+    assertThrows(IllegalArgumentException.class, () -> test.daysBetween(TUE_2014_07_15, MON_2014_07_14));
   }
 
   //-------------------------------------------------------------------------
