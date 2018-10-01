@@ -37,6 +37,8 @@ import org.joda.beans.test.BeanAssert;
 import org.joda.beans.test.JodaBeanTests;
 import org.joda.convert.StringConvert;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Test helper.
  * <p>
@@ -48,6 +50,87 @@ public class TestHelper {
    * UTF-8 encoding name.
    */
   private static final String UTF_8 = "UTF-8";
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an empty {@code ImmutableList}, intended for static import.
+   * 
+   * @return the list
+   */
+  public static <T> ImmutableList<T> list() {
+    return ImmutableList.of();
+  }
+
+  /**
+   * Creates an {@code ImmutableList}, intended for static import.
+   * 
+   * @param item0  the item
+   * @return the list
+   */
+  public static <T> ImmutableList<T> list(T item0) {
+    return ImmutableList.of(item0);
+  }
+
+  /**
+   * Creates an {@code ImmutableList}, intended for static import.
+   * 
+   * @param item0  the item
+   * @param item1  the item
+   * @return the list
+   */
+  public static <T> ImmutableList<T> list(T item0, T item1) {
+    return ImmutableList.of(item0, item1);
+  }
+
+  /**
+   * Creates an {@code ImmutableList}, intended for static import.
+   * 
+   * @param item0  the item
+   * @param item1  the item
+   * @param item2  the item
+   * @return the list
+   */
+  public static <T> ImmutableList<T> list(T item0, T item1, T item2) {
+    return ImmutableList.of(item0, item1, item2);
+  }
+
+  /**
+   * Creates an {@code ImmutableList}, intended for static import.
+   * 
+   * @param item0  the item
+   * @param item1  the item
+   * @param item2  the item
+   * @param item3  the item
+   * @return the list
+   */
+  public static <T> ImmutableList<T> list(T item0, T item1, T item2, T item3) {
+    return ImmutableList.of(item0, item1, item2, item3);
+  }
+
+  /**
+   * Creates an {@code ImmutableList}, intended for static import.
+   * 
+   * @param item0  the item
+   * @param item1  the item
+   * @param item2  the item
+   * @param item3  the item
+   * @param item4  the item
+   * @return the list
+   */
+  public static <T> ImmutableList<T> list(T item0, T item1, T item2, T item3, T item4) {
+    return ImmutableList.of(item0, item1, item2, item3, item4);
+  }
+
+  /**
+   * Creates an {@code ImmutableList}, intended for static import.
+   * 
+   * @param list  the list
+   * @return the list
+   */
+  @SafeVarargs
+  public static <T> ImmutableList<T> list(T... list) {
+    return ImmutableList.copyOf(list);
+  }
 
   //-------------------------------------------------------------------------
   /**
