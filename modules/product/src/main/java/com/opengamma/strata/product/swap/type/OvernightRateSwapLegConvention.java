@@ -172,7 +172,7 @@ public final class OvernightRateSwapLegConvention
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
    * <p>
-   * This will default to 'ShortInitial' if not specified.
+   * This will default to 'SmartInitial' if not specified.
    */
   @PropertyDefinition(get = "field")
   private final StubConvention stubConvention;
@@ -226,7 +226,7 @@ public final class OvernightRateSwapLegConvention
    * <p>
    * The standard market convention for an Overnight rate leg is based on the index,
    * frequency and payment offset, with the accrual method set to 'Compounded' and the
-   * stub convention set to 'ShortInitial'.
+   * stub convention set to 'SmartInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param index  the index, the market convention values are extracted from the index
@@ -246,7 +246,7 @@ public final class OvernightRateSwapLegConvention
    * Creates a convention based on the specified index, specifying the accrual method.
    * <p>
    * The standard market convention for an Overnight rate leg is based on the index,
-   * frequency, payment offset and accrual type, with the stub convention set to 'ShortInitial'.
+   * frequency, payment offset and accrual type, with the stub convention set to 'SmartInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * <p>
    * The accrual method is usually 'Compounded'.
@@ -270,7 +270,7 @@ public final class OvernightRateSwapLegConvention
         .accrualFrequency(frequency)
         .paymentFrequency(frequency)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(paymentOffsetDays, index.getFixingCalendar()))
-        .stubConvention(StubConvention.SHORT_INITIAL)
+        .stubConvention(StubConvention.SMART_INITIAL)
         .build();
   }
 
@@ -412,12 +412,12 @@ public final class OvernightRateSwapLegConvention
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
    * <p>
-   * This will default to 'ShortInitial' if not specified.
+   * This will default to 'SmartInitial' if not specified.
    * 
    * @return the stub convention, not null
    */
   public StubConvention getStubConvention() {
-    return stubConvention != null ? stubConvention : StubConvention.SHORT_INITIAL;
+    return stubConvention != null ? stubConvention : StubConvention.SMART_INITIAL;
   }
 
   /**
@@ -428,12 +428,12 @@ public final class OvernightRateSwapLegConvention
    * the frequency to the start date, or subtracting it from the end date.
    * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
    * <p>
-   * This will default to 'None' if not specified.
+   * This will default to 'EOM' if not specified.
    * 
    * @return the roll convention, not null
    */
   public RollConvention getRollConvention() {
-    return rollConvention != null ? rollConvention : RollConventions.NONE;
+    return rollConvention != null ? rollConvention : RollConventions.EOM;
   }
 
   /**
@@ -1352,7 +1352,7 @@ public final class OvernightRateSwapLegConvention
      * remaining period occurs at the start or end of the schedule.
      * It also determines whether the irregular period is shorter or longer than the regular period.
      * <p>
-     * This will default to 'ShortInitial' if not specified.
+     * This will default to 'SmartInitial' if not specified.
      * @param stubConvention  the new value
      * @return this, for chaining, not null
      */

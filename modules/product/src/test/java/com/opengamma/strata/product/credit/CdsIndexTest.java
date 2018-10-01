@@ -15,6 +15,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -108,7 +109,7 @@ public class CdsIndexTest {
         .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
         .frequency(P3M)
         .rollConvention(RollConventions.NONE)
-        .stubConvention(SHORT_INITIAL)
+        .stubConvention(SMART_INITIAL)
         .build();
     assertEquals(PRODUCT.getPaymentSchedule(), expected);
     assertEquals(PRODUCT.getBuySell(), BUY);

@@ -83,9 +83,9 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * If explicit stub dates are specified then they are used to lock the initial or final stub.
  * If the stub convention is present, it is matched and validated against the locked stub.
- * For example, if an initial stub is specified by dates and the stub convention is 'ShortInitial'
- * or 'LongInitial' then the convention is considered to be matched, thus the periodic frequency is
- * applied using the implicit stub convention 'None'.
+ * For example, if an initial stub is specified by dates and the stub convention is 'ShortInitial',
+ * 'LongInitial' or 'SmartInitial' then the convention is considered to be matched, thus the periodic
+ * frequency is applied using the implicit stub convention 'None'.
  * If the stub convention does not match the dates, then an exception will be thrown during schedule creation.
  * If the stub convention is not present, then the periodic frequency is applied
  * using the implicit stub convention 'None'.
@@ -194,14 +194,14 @@ public final class PeriodicSchedule
    * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
    * <p>
-   * The conventions 'ShortInitial', 'LongInitial', 'ShortFinal' and 'LongFinal' are used to
-   * indicate the type of stub to be generated. The exact behavior varies depending on whether
-   * there are explicit dates or not:
+   * The conventions 'ShortInitial', 'LongInitial', 'SmartInitial', 'ShortFinal', 'LongFinal'
+   * and 'SmartFinal' are used to indicate the type of stub to be generated.
+   * The exact behavior varies depending on whether there are explicit dates or not:
    * <p>
    * If explicit dates are specified, then the combination of stub convention an explicit date
    * will be validated during schedule construction. For example, the combination of an explicit dated
-   * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
-   * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
+   * initial stub and a stub convention of 'ShortInitial', 'LongInitial' or 'SmartInitial' is valid,
+   * but other stub conventions, such as 'ShortFinal' or 'None' would be invalid.
    * <p>
    * If explicit dates are not specified, then it is not required that a stub is generated.
    * The convention determines whether to generate dates from the start date forward, or the
@@ -391,6 +391,7 @@ public final class PeriodicSchedule
    * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
+   *   or the roll convention is 'EOM'
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the specified start date
@@ -490,6 +491,7 @@ public final class PeriodicSchedule
    * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
+   *   or the roll convention is 'EOM'
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the specified start date
@@ -576,19 +578,21 @@ public final class PeriodicSchedule
   private List<LocalDate> generateUnadjustedDates(
       LocalDate regStart,
       LocalDate regEnd,
-      RollConvention rollConv,
-      StubConvention stubConv,
+      RollConvention rollCnv,
+      StubConvention stubCnv,
       boolean explicitInitStub,
       LocalDate overrideStart,
       boolean explicitFinalStub,
       LocalDate end) {
 
-    if (stubConv.isCalculateBackwards()) {
+    if (stubCnv.isCalculateBackwards()) {
+      ArgChecker.isFalse(explicitInitStub, "Value explicitInitStub must be false");
+      ArgChecker.isFalse(explicitFinalStub, "Value explicitFinalStub must be false");
       return generateBackwards(
-          this, regStart, regEnd, frequency, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end);
+          this, regStart, regEnd, frequency, rollCnv, stubCnv, overrideStart, end);
     } else {
       return generateForwards(
-          this, regStart, regEnd, frequency, rollConv, stubConv, explicitInitStub, overrideStart, explicitFinalStub, end);
+          this, regStart, regEnd, frequency, rollCnv, stubCnv, explicitInitStub, overrideStart, explicitFinalStub, end);
     }
   }
 
@@ -600,9 +604,7 @@ public final class PeriodicSchedule
       Frequency frequency,
       RollConvention rollConv,
       StubConvention stubConv,
-      boolean explicitInitialStub,
       LocalDate explicitStartDate,
-      boolean explicitFinalStub,
       LocalDate explicitEndDate) {
 
     // validate
@@ -612,26 +614,18 @@ public final class PeriodicSchedule
     }
     // generate
     BackwardsList dates = new BackwardsList(estimateNumberPeriods(start, end, frequency));
-    if (explicitFinalStub) {
-      dates.addFirst(explicitEndDate);
-    }
     dates.addFirst(end);
     LocalDate temp = rollConv.previous(end, frequency);
     while (temp.isAfter(start)) {
       dates.addFirst(temp);
       temp = rollConv.previous(temp, frequency);
     }
-    // convert short stub to long stub, but only if we actually have a stub
+    // convert to long stub, but only if we actually have a stub
     boolean stub = temp.equals(start) == false;
-    if (stub && stubConv.isLong() && dates.size() > 1) {
+    if (stub && dates.size() > 1 && stubConv.isStubLong(start, dates.get(0))) {
       dates.removeFirst();
     }
-    if (explicitInitialStub) {
-      dates.addFirst(start);
-      dates.addFirst(explicitStartDate);
-    } else {
-      dates.addFirst(explicitStartDate);
-    }
+    dates.addFirst(explicitStartDate);
     return dates;
   }
 
@@ -703,7 +697,7 @@ public final class PeriodicSchedule
         throw new ScheduleException(
             schedule, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end, frequency);
       }
-      if (stubConv.isLong()) {
+      if (stubConv.isStubLong(dates.get(dates.size() - 1), end)) {
         dates.remove(dates.size() - 1);
       }
     }
@@ -739,6 +733,7 @@ public final class PeriodicSchedule
    * as being the day-of-month implied by the roll convention (the adjusted date is unaffected).
    * <ul>
    * <li>the {@code startDateBusinessDayAdjustment} property equals {@link BusinessDayAdjustment#NONE}
+   *   or the roll convention is 'EOM'
    * <li>the roll convention is numeric or 'EOM'
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the specified start date
@@ -809,12 +804,16 @@ public final class PeriodicSchedule
 
   // calculates the applicable roll convention
   // the calculated start date parameter allows for influence by calculatedUnadjustedStartDate()
-  private RollConvention calculatedRollConvention(LocalDate calculatedFirstRegStartDate, LocalDate calculatedLastRegEndDate) {
+  private RollConvention calculatedRollConvention(
+      LocalDate calculatedFirstRegStartDate,
+      LocalDate calculatedLastRegEndDate) {
+
     // determine roll convention from stub convention
     StubConvention stubConv = MoreObjects.firstNonNull(stubConvention, StubConvention.NONE);
     // special handling for EOM as it is advisory rather than mandatory
     if (rollConvention == RollConventions.EOM) {
-      RollConvention derived = stubConv.toRollConvention(calculatedFirstRegStartDate, calculatedLastRegEndDate, frequency, true);
+      RollConvention derived =
+          stubConv.toRollConvention(calculatedFirstRegStartDate, calculatedLastRegEndDate, frequency, true);
       return (derived == RollConventions.NONE ? RollConventions.EOM : derived);
     }
     // avoid RollConventions.NONE if possible
@@ -835,7 +834,7 @@ public final class PeriodicSchedule
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
     // change date if
     // reference data is available
-    // and explicit start adjustment must be NONE (not ideal, but meets backwards compatibility)
+    // and explicit start adjustment must be NONE or roll convention is EOM
     // and either
     // numeric roll convention and day-of-month actually differs
     // or
@@ -843,7 +842,7 @@ public final class PeriodicSchedule
 
     if (refData != null &&
         rollConvention != null &&
-        BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment)) {
+        (BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment) || rollConvention == RollConventions.EOM)) {
       return calculatedUnadjustedDateFromAdjusted(startDate, rollConvention, businessDayAdjustment, refData);
     }
     return startDate;
@@ -852,7 +851,8 @@ public final class PeriodicSchedule
   // calculates the applicable end date
   private LocalDate calculatedUnadjustedEndDate(ReferenceData refData) {
     if (refData != null && rollConvention != null) {
-      return calculatedUnadjustedDateFromAdjusted(endDate, rollConvention, calculatedEndDateBusinessDayAdjustment(), refData);
+      return calculatedUnadjustedDateFromAdjusted(
+          endDate, rollConvention, calculatedEndDateBusinessDayAdjustment(), refData);
     }
     return endDate;
   }
@@ -928,7 +928,8 @@ public final class PeriodicSchedule
       return unadjStart;
     }
     if (refData != null && rollConvention != null) {
-      return calculatedUnadjustedDateFromAdjusted(firstRegularStartDate, rollConvention, businessDayAdjustment, refData);
+      return calculatedUnadjustedDateFromAdjusted(
+          firstRegularStartDate, rollConvention, businessDayAdjustment, refData);
     }
     return firstRegularStartDate;
   }
@@ -1172,14 +1173,14 @@ public final class PeriodicSchedule
    * The stubs themselves must be specified using explicit dates.
    * This will be validated during schedule construction.
    * <p>
-   * The conventions 'ShortInitial', 'LongInitial', 'ShortFinal' and 'LongFinal' are used to
-   * indicate the type of stub to be generated. The exact behavior varies depending on whether
-   * there are explicit dates or not:
+   * The conventions 'ShortInitial', 'LongInitial', 'SmartInitial', 'ShortFinal', 'LongFinal'
+   * and 'SmartFinal' are used to indicate the type of stub to be generated.
+   * The exact behavior varies depending on whether there are explicit dates or not:
    * <p>
    * If explicit dates are specified, then the combination of stub convention an explicit date
    * will be validated during schedule construction. For example, the combination of an explicit dated
-   * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
-   * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
+   * initial stub and a stub convention of 'ShortInitial', 'LongInitial' or 'SmartInitial' is valid,
+   * but other stub conventions, such as 'ShortFinal' or 'None' would be invalid.
    * <p>
    * If explicit dates are not specified, then it is not required that a stub is generated.
    * The convention determines whether to generate dates from the start date forward, or the
@@ -1851,14 +1852,14 @@ public final class PeriodicSchedule
      * The stubs themselves must be specified using explicit dates.
      * This will be validated during schedule construction.
      * <p>
-     * The conventions 'ShortInitial', 'LongInitial', 'ShortFinal' and 'LongFinal' are used to
-     * indicate the type of stub to be generated. The exact behavior varies depending on whether
-     * there are explicit dates or not:
+     * The conventions 'ShortInitial', 'LongInitial', 'SmartInitial', 'ShortFinal', 'LongFinal'
+     * and 'SmartFinal' are used to indicate the type of stub to be generated.
+     * The exact behavior varies depending on whether there are explicit dates or not:
      * <p>
      * If explicit dates are specified, then the combination of stub convention an explicit date
      * will be validated during schedule construction. For example, the combination of an explicit dated
-     * initial stub and a stub convention of 'ShortInitial' or 'LongInitial' is valid, but other
-     * stub conventions, such as 'ShortFinal' or 'None' would be invalid.
+     * initial stub and a stub convention of 'ShortInitial', 'LongInitial' or 'SmartInitial' is valid,
+     * but other stub conventions, such as 'ShortFinal' or 'None' would be invalid.
      * <p>
      * If explicit dates are not specified, then it is not required that a stub is generated.
      * The convention determines whether to generate dates from the start date forward, or the

@@ -283,7 +283,7 @@ final class FullSwapTradeCsvLoader {
     // optionals
     builder.stubConvention(findValueWithFallback(row, leg, STUB_CONVENTION_FIELD)
         .map(s -> StubConvention.of(s))
-        .orElse(StubConvention.SHORT_INITIAL));
+        .orElse(StubConvention.SMART_INITIAL));
     findValue(row, leg, ROLL_CONVENTION_FIELD)
         .map(s -> LoaderUtils.parseRollConvention(s))
         .ifPresent(v -> builder.rollConvention(v));

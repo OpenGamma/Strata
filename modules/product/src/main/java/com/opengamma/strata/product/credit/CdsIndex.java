@@ -194,7 +194,7 @@ public final class CdsIndex
         .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
         .frequency(paymentFrequency)
         .rollConvention(RollConventions.NONE)
-        .stubConvention(StubConvention.SHORT_INITIAL)
+        .stubConvention(StubConvention.SMART_INITIAL)
         .build();
     return new CdsIndex(
         buySell,

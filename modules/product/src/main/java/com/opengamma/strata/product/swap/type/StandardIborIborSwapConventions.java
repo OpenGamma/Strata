@@ -28,7 +28,7 @@ final class StandardIborIborSwapConventions {
               .index(IborIndices.USD_LIBOR_3M)
               .paymentFrequency(Frequency.P6M)
               .compoundingMethod(CompoundingMethod.FLAT)
-              .stubConvention(StubConvention.SHORT_INITIAL)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .build(),
           IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_6M));
 
@@ -43,7 +43,7 @@ final class StandardIborIborSwapConventions {
               .index(IborIndices.USD_LIBOR_1M)
               .paymentFrequency(Frequency.P3M)
               .compoundingMethod(CompoundingMethod.FLAT)
-              .stubConvention(StubConvention.SHORT_INITIAL)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .build(),
           IborRateSwapLegConvention.of(IborIndices.USD_LIBOR_3M));
 
