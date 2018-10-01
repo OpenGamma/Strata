@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.date;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
@@ -568,6 +569,75 @@ public class HolidayCalendarTest {
   public void test_daysBetween_LocalDateLocalDate_endBeforeStart() {
     HolidayCalendar test = new MockHolCal();
     assertThrows(IllegalArgumentException.class, () -> test.daysBetween(TUE_2014_07_15, MON_2014_07_14));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "businessDays")
+  public static Object[][] data_businessDays() {
+    return new Object[][] {
+        {FRI_2014_07_11, FRI_2014_07_11, ImmutableList.of()},
+        {FRI_2014_07_11, SAT_2014_07_12, ImmutableList.of(FRI_2014_07_11)},
+        {FRI_2014_07_11, SUN_2014_07_13, ImmutableList.of(FRI_2014_07_11)},
+        {FRI_2014_07_11, MON_2014_07_14, ImmutableList.of(FRI_2014_07_11)},
+        {FRI_2014_07_11, TUE_2014_07_15, ImmutableList.of(FRI_2014_07_11, MON_2014_07_14)},
+        {FRI_2014_07_11, WED_2014_07_16, ImmutableList.of(FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15)},
+        {FRI_2014_07_11, THU_2014_07_17, ImmutableList.of(FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15)},
+        {FRI_2014_07_11, FRI_2014_07_18, ImmutableList.of(
+            FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15, THU_2014_07_17)},
+        {FRI_2014_07_11, SAT_2014_07_19, ImmutableList.of(
+            FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15, THU_2014_07_17)},
+        {FRI_2014_07_11, SUN_2014_07_20, ImmutableList.of(
+            FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15, THU_2014_07_17)},
+        {FRI_2014_07_11, MON_2014_07_21, ImmutableList.of(
+            FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15, THU_2014_07_17)},
+        {FRI_2014_07_11, TUE_2014_07_22, ImmutableList.of(
+            FRI_2014_07_11, MON_2014_07_14, TUE_2014_07_15, THU_2014_07_17, MON_2014_07_21)},
+    };
+  }
+
+  @Test(dataProvider = "businessDays")
+  public void test_businessDays_LocalDateLocalDate(LocalDate start, LocalDate end, ImmutableList<LocalDate> expected) {
+    HolidayCalendar test = new MockHolCal();
+    assertEquals(test.businessDays(start, end).collect(toImmutableList()), expected);
+  }
+
+  public void test_businessDays_LocalDateLocalDate_endBeforeStart() {
+    HolidayCalendar test = new MockHolCal();
+    assertThrows(IllegalArgumentException.class, () -> test.businessDays(TUE_2014_07_15, MON_2014_07_14));
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "holidays")
+  public static Object[][] data_holidays() {
+    return new Object[][] {
+        {FRI_2014_07_11, FRI_2014_07_11, ImmutableList.of()},
+        {FRI_2014_07_11, SAT_2014_07_12, ImmutableList.of()},
+        {FRI_2014_07_11, SUN_2014_07_13, ImmutableList.of(SAT_2014_07_12)},
+        {FRI_2014_07_11, MON_2014_07_14, ImmutableList.of(SAT_2014_07_12, SUN_2014_07_13)},
+        {FRI_2014_07_11, TUE_2014_07_15, ImmutableList.of(SAT_2014_07_12, SUN_2014_07_13)},
+        {FRI_2014_07_11, WED_2014_07_16, ImmutableList.of(SAT_2014_07_12, SUN_2014_07_13)},
+        {FRI_2014_07_11, THU_2014_07_17, ImmutableList.of(SAT_2014_07_12, SUN_2014_07_13, WED_2014_07_16)},
+        {FRI_2014_07_11, FRI_2014_07_18, ImmutableList.of(SAT_2014_07_12, SUN_2014_07_13, WED_2014_07_16)},
+        {FRI_2014_07_11, SAT_2014_07_19, ImmutableList.of(
+            SAT_2014_07_12, SUN_2014_07_13, WED_2014_07_16, FRI_2014_07_18)},
+        {FRI_2014_07_11, SUN_2014_07_20, ImmutableList.of(
+            SAT_2014_07_12, SUN_2014_07_13, WED_2014_07_16, FRI_2014_07_18, SAT_2014_07_19)},
+        {FRI_2014_07_11, MON_2014_07_21, ImmutableList.of(
+            SAT_2014_07_12, SUN_2014_07_13, WED_2014_07_16, FRI_2014_07_18, SAT_2014_07_19, SUN_2014_07_20)},
+        {FRI_2014_07_11, TUE_2014_07_22, ImmutableList.of(
+            SAT_2014_07_12, SUN_2014_07_13, WED_2014_07_16, FRI_2014_07_18, SAT_2014_07_19, SUN_2014_07_20)},
+    };
+  }
+
+  @Test(dataProvider = "holidays")
+  public void test_holidays_LocalDateLocalDate(LocalDate start, LocalDate end, ImmutableList<LocalDate> expected) {
+    HolidayCalendar test = new MockHolCal();
+    assertEquals(test.holidays(start, end).collect(toImmutableList()), expected);
+  }
+
+  public void test_holidays_LocalDateLocalDate_endBeforeStart() {
+    HolidayCalendar test = new MockHolCal();
+    assertThrows(IllegalArgumentException.class, () -> test.holidays(TUE_2014_07_15, MON_2014_07_14));
   }
 
   //-------------------------------------------------------------------------
