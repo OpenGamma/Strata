@@ -97,7 +97,7 @@ public final class FailureItem
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link Messages#format(String, Object...)} for more details.
+   * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
    * <p>
    * An exception will be created internally to obtain a stack trace.
    * The cause type will not be present in the resulting failure.
@@ -181,7 +181,7 @@ public final class FailureItem
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link Messages#format(String, Object...)} for more details.
+   * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
    * 
    * @param reason  the reason
    * @param cause  the cause
