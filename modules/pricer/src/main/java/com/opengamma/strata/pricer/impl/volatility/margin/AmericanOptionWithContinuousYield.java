@@ -32,6 +32,6 @@ public class AmericanOptionWithContinuousYield extends AmericanOption implements
   }
   
   public double calculate(double spot, double rate, double vol){
-    return notional() * quantity() *TRINOMIAL_TREE.optionPrice(americanVanillaOptionFunction, LATTICE, spot, vol, rate, continuousYield);
+    return TRINOMIAL_TREE.optionPrice(americanVanillaOptionFunction, LATTICE, spot, vol, rate, continuousYield);
   }
 }

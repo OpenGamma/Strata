@@ -57,7 +57,7 @@ public class VolatilityArbitrage {
     DoubleArray newVols = DoubleArray.of(volFactors.stream().map(i -> vol*(1. + i)));
     DoubleArray newPrices = DoubleArray.of(IntStream.range(0, bumps.size())
                                        .mapToDouble( i -> option.calculate( newSpots.get(i), newVols.get(i), rate)));
-    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> i - originalPrice));
+    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - originalPrice)));
     
     int worstIndex = profitAndLoss.indexOf(profitAndLoss.min());
     WorseCaseScenario wcs = new WorseCaseScenario(newSpots.get(worstIndex), moneyNess.get(worstIndex), volFactors.get(worstIndex), originalPrice);    
@@ -104,6 +104,6 @@ public class VolatilityArbitrage {
     double ss = determineSystematicStress(wmls, singleOption, vol, rate);
     System.out.println("Systematic Stress: " + ss);
     double cr = determineConcentrationRequirement(singleOption, wmls.originalPrice, spot, vol, rate);
-    System.out.println("Concentration Requirement: " + ss);
+    System.out.println("Concentration Requirement: " + cr);
   }
 }
