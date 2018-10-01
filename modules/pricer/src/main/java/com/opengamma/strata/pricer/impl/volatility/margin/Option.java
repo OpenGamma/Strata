@@ -5,5 +5,9 @@ package com.opengamma.strata.pricer.impl.volatility.margin;/*
  */
 
 public interface Option {
+  double strike();  
+  double expiry();
+  public double notional();
+  public double quantity();
   public double calculate(double spot, double rate, double vol);  
 }

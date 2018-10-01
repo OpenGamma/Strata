@@ -45,7 +45,8 @@ public class VolatilityArbitrage {
   }
   
   
-   public static WorseCaseScenario determineWorseMarketLevelScenario(AmericanOption option, double spot, double vol, double rate){
+   //This will become a portfolio of options 
+   public static WorseCaseScenario determineWorseMarketLevelScenario(Option option, double spot, double vol, double rate){
     //Bump and grind
     double originalPrice = option.calculate(spot, rate, vol);
     DoubleArray bumps = DoubleArray.of(-0.15, -0.1, -0.05, 0.05, 0.1);
@@ -56,22 +57,38 @@ public class VolatilityArbitrage {
     DoubleArray newVols = DoubleArray.of(volFactors.stream().map(i -> vol*(1. + i)));
     DoubleArray newPrices = DoubleArray.of(IntStream.range(0, bumps.size())
                                        .mapToDouble( i -> option.calculate( newSpots.get(i), newVols.get(i), rate)));
-    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - originalPrice)));
+    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> i - originalPrice));
     
     int worstIndex = profitAndLoss.indexOf(profitAndLoss.min());
     WorseCaseScenario wcs = new WorseCaseScenario(newSpots.get(worstIndex), moneyNess.get(worstIndex), volFactors.get(worstIndex), originalPrice);    
     return wcs;
   }
-  
-  public static double determineSystematicStress(WorseCaseScenario worstScenario, AmericanOption option, double vol, double rate){
+  //This will become a portfolio of options, etc.
+  public static double determineSystematicStress(WorseCaseScenario worstScenario, Option option, double vol, double rate){
     double cOneVolFactor = BOUND_2D_INTERPOLATOR_TWO.interpolate(option.expiry(), worstScenario.worstMoneyNess);
     DoubleArray alphaOne = DoubleArray.of(IntStream.range(-10, 11).mapToDouble(x -> x/10.));
-    DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> worstScenario.worstVolFactor + cOneVolFactor * x));    
+    //Need a floor and a max here but more information required.
+    DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> worstScenario.worstVolFactor + cOneVolFactor * x));
     DoubleArray newVols = DoubleArray.of( volFactors.stream().map( x -> vol * (1 + x)));
     DoubleArray newPrices = DoubleArray.of(newVols.stream().map(x -> option.calculate( worstScenario.worstSpot, x, rate)));
-    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - worstScenario.originalPrice)));
-    return Math.abs(profitAndLoss.min());
-    
+    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() *(i - worstScenario.originalPrice)));
+    return option.notional() * Math.abs(profitAndLoss.min());    
+  }
+  
+  public static double determineConcentrationRequirement(Option option, double originalPrice, double spot, double vol, double rate){
+    final double[] stockStresses = {0.50, 0., -0.50};
+    final double[][] volStresses = {{-0.50, -0.40, 0.}, {-0.50, 0.40, 0.}, {0., 0.50}};
+    double worsePNL = 0.;
+    for(int i = 0; i < stockStresses.length; ++i){
+      double stockStress = stockStresses[i];
+      double[] volStressForCurrentStockStress = volStresses[i];
+      for(int j = 0; j < volStressForCurrentStockStress.length; ++j){
+        double newPNL = option.quantity() * (option.calculate( spot * (1 + stockStress), rate, vol*(1 + volStressForCurrentStockStress[j])) - originalPrice);
+        if(newPNL < worsePNL)
+          worsePNL = newPNL;
+      }
+    }
+    return option.notional() * Math.abs(worsePNL);
   }
   
   public static void main(String[] args){
@@ -82,8 +99,11 @@ public class VolatilityArbitrage {
     double rate = 0.03;
     double vol = 0.0967;
     
-    AmericanOption singleOption = new AmericanOptionWithContinuousYield(-96, strike, expiry, PutCall.CALL, dividend);
+    Option singleOption = new AmericanOptionWithContinuousYield(-96, 100, strike, expiry, PutCall.CALL, dividend);
     WorseCaseScenario wmls = determineWorseMarketLevelScenario(singleOption, spot, vol, rate);
     double ss = determineSystematicStress(wmls, singleOption, vol, rate);
+    System.out.println("Systematic Stress: " + ss);
+    double cr = determineConcentrationRequirement(singleOption, wmls.originalPrice, spot, vol, rate);
+    System.out.println("Concentration Requirement: " + ss);
   }
 }

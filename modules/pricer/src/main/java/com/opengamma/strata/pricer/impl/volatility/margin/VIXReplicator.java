@@ -112,5 +112,7 @@ public class VIXReplicator {
     double varTwo = subVariance(STRIKES, testPricesTwo, forwardTwo, kZeroTwo, RISK_FREE_RATE, expiryTimeTwo);
    
     double vixCalc = vix(varOne, varTwo, LocalTime.of(8, 30), 14, 42);
+    //Replication of VIX index Calculation from CBOE (2003)
+    System.out.println("VIX Replication:" + vixCalc);
   }
 }

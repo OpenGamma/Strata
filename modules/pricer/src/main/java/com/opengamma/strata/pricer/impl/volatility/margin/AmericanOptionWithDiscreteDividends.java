@@ -9,29 +9,31 @@ import com.opengamma.strata.pricer.impl.tree.AmericanVanillaOptionFunction;
 import com.opengamma.strata.pricer.impl.tree.OptionFunction;
 import com.opengamma.strata.product.common.PutCall;
 
-public class AmericanOptionWithContinuousYield extends AmericanOption implements Option{
-  
-  private double continuousYield;
+public class AmericanOptionWithDiscreteDividends extends AmericanOption implements Option {
+  private double[] dividendTimes;
+  private double[] dividendAmounts;
   private OptionFunction americanVanillaOptionFunction;
   
-  AmericanOptionWithContinuousYield(
+  AmericanOptionWithDiscreteDividends(
       double quantity,
       double notional,
       double strike,
       double expiry,
       PutCall putCall,
-      double continuousYield){    
+      double[] dividendTimes,
+      double[] dividendAmounts){
     super(
         quantity,
         notional,
         strike,
         expiry,
         putCall );
-    this.continuousYield = continuousYield;
+    this.dividendTimes = dividendTimes;
+    this.dividendAmounts = dividendAmounts;
     this.americanVanillaOptionFunction = AmericanVanillaOptionFunction.of(strike, expiry, putCall, STEPS);
   }
   
   public double calculate(double spot, double rate, double vol){
-    return notional() * quantity() *TRINOMIAL_TREE.optionPrice(americanVanillaOptionFunction, LATTICE, spot, vol, rate, continuousYield);
+    return notional() * quantity() * BINOMIAL_TREE.optionPrice(americanVanillaOptionFunction, LATTICE, spot, vol, rate, dividendAmounts, dividendTimes);
   }
 }
