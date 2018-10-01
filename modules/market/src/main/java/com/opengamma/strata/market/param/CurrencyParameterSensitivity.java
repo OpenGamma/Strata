@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.function.DoubleUnaryOperator;
@@ -31,11 +32,13 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketDataName;
@@ -167,6 +170,34 @@ public final class CurrencyParameterSensitivity
       List<ParameterSize> parameterSplit) {
 
     return new CurrencyParameterSensitivity(marketDataName, parameterMetadata, currency, sensitivity, parameterSplit);
+  }
+
+  /**
+   * Obtains an instance from the market data name, currency and a map of metadata to sensitivity.
+   * <p>
+   * The market data name identifies the {@link ParameterizedData} instance that was queried.
+   * The parameter metadata provides information on each parameter.
+   * One use of this method is to provide tenor-based sensitivity via {@link TenorParameterMetadata}.
+   * 
+   * @param marketDataName  the name of the market data that the sensitivity refers to
+   * @param currency  the currency of the sensitivity
+   * @param sensitivityMetadataMap  the map of parameter metadata to sensitivity
+   * @return the sensitivity object
+   */
+  public static CurrencyParameterSensitivity of(
+      MarketDataName<?> marketDataName,
+      Currency currency,
+      Map<? extends ParameterMetadata, Double> sensitivityMetadataMap) {
+
+    // only loop input map once and don't use size() to ensure no concurrency issues
+    ImmutableList.Builder<ParameterMetadata> metadataList = ImmutableList.builder();
+    ImmutableList.Builder<Double> sensList = ImmutableList.builder();
+    for (Entry<? extends ParameterMetadata, Double> entry : sensitivityMetadataMap.entrySet()) {
+      metadataList.add(entry.getKey());
+      sensList.add(entry.getValue());
+    }
+    DoubleArray sensArray = DoubleArray.copyOf(sensList.build());
+    return new CurrencyParameterSensitivity(marketDataName, metadataList.build(), currency, sensArray, null);
   }
 
   //-------------------------------------------------------------------------
@@ -396,6 +427,37 @@ public final class CurrencyParameterSensitivity
    */
   public CurrencyAmount total() {
     return CurrencyAmount.of(currency, sensitivity.sum());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this instance to a stream of sensitivity, keyed by the identifier type.
+   * <p>
+   * This returns a {@link MapStream} keyed by the parameter metadata.
+   * 
+   * @return a map stream containing the parameter metadata and the sensitivity value
+   */
+  public MapStream<ParameterMetadata, Double> sensivities() {
+    return MapStream.zip(parameterMetadata.stream(), sensitivity.stream().boxed());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this instance to a stream of sensitivity, keyed by the identifier type.
+   * <p>
+   * This returns a {@link MapStream} keyed by the parameter metadata.
+   * The identifier of the metadata is extracted and used as the key.
+   * <p>
+   * For example, this could be used to extract a {@code Map<Tenor, Double>}.
+   * 
+   * @param identifierType  the type of the parameter metadata identifier
+   * @return a map containing the parameter metadata identifier and the sensitivity value
+   * @throws ClassCastException if the identifier of the parameter metadata does not match the specified type
+   */
+  public <T> ImmutableMap<T, Double> toSensivityMap(Class<T> identifierType) {
+    return sensivities()
+        .mapKeys(k -> identifierType.cast(k.getIdentifier()))
+        .toMap();
   }
 
   //-------------------------------------------------------------------------
