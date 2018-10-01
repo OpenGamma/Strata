@@ -32,7 +32,7 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class TenorDateParameterMetadata
-    implements DatedParameterMetadata, ImmutableBean, Serializable {
+    implements DatedParameterMetadata, TenoredParameterMetadata, ImmutableBean, Serializable {
 
   /**
    * The date associated with the parameter.
@@ -45,7 +45,7 @@ public final class TenorDateParameterMetadata
   /**
    * The tenor associated with the parameter.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Tenor tenor;
   /**
    * The label that describes the parameter, defaulted to the tenor.
@@ -150,6 +150,7 @@ public final class TenorDateParameterMetadata
    * Gets the tenor associated with the parameter.
    * @return the value of the property, not null
    */
+  @Override
   public Tenor getTenor() {
     return tenor;
   }
