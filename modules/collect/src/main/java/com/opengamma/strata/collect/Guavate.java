@@ -228,7 +228,7 @@ public final class Guavate {
    * @param zipper  the function used to combine the pair of objects
    * @return a stream of pairs, one from each stream
    */
-  private static <A, B, R> Stream<R> zip(Stream<A> stream1, Stream<B> stream2, BiFunction<A, B, R> zipper) {
+  static <A, B, R> Stream<R> zip(Stream<A> stream1, Stream<B> stream2, BiFunction<A, B, R> zipper) {
     // this is private for now, to see if it is really needed on the API
     // it suffers from generics problems at the call site with common zipper functions
     // as such, it is less useful than it might seem

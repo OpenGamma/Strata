@@ -131,6 +131,22 @@ public final class MapStream<K, V>
     return new MapStream<>(stream.map(item -> entry(keyFunction.apply(item), valueFunction.apply(item))));
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a map stream that combines two other streams, continuing until either stream ends.
+   * <p>
+   * Note that this can produce a stream with non-unique keys.
+   *
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @param keyStream  the stream of keys
+   * @param valueStream  the stream of values
+   * @return a stream of map entries derived from the stream
+   */
+  public static <K, V> MapStream<K, V> zip(Stream<K> keyStream, Stream<V> valueStream) {
+    return new MapStream<K, V>(Guavate.zip(keyStream, valueStream, Guavate::entry));
+  }
+
   /**
    * Returns a stream of map entries where each key is the index of the value in the original stream.
    *
