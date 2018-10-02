@@ -431,7 +431,7 @@ public final class CurrencyParameterSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Converts this instance to a stream of sensitivity, keyed by the identifier type.
+   * Converts this instance to a stream of sensitivity, keyed by the parameter metadata.
    * <p>
    * This returns a {@link MapStream} keyed by the parameter metadata.
    * 
@@ -443,7 +443,7 @@ public final class CurrencyParameterSensitivity
 
   //-------------------------------------------------------------------------
   /**
-   * Converts this instance to a map of sensitivities, keyed by the identifier type.
+   * Converts this instance to a map of sensitivities, keyed by the identifier.
    * <p>
    * This returns a {@code Map} keyed by the identifier of the metadata.
    * For example, this could be used to extract a {@code Map<Tenor, Double>}.
