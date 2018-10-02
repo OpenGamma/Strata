@@ -47,7 +47,7 @@ public class VolatilityArbitrage {
     }
   }  
   
-   //This will become a portfolio of options 
+   //This will become a portfolio of options, etc.
    public static WorseCaseScenario determineWorseMarketLevelScenario(Option option, double spot, double vol, double rate){
     //Bump and grind
     double originalPrice = option.calculate(spot, rate, vol);
