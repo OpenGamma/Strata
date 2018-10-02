@@ -27,7 +27,7 @@ public class AmericanOptionWithDiscreteDividends extends AmericanOption implemen
         notional,
         strike,
         expiry,
-        putCall );
+        putCall);
     this.dividendTimes = dividendTimes;
     this.dividendAmounts = dividendAmounts;
     this.americanVanillaOptionFunction = AmericanVanillaOptionFunction.of(strike, expiry, putCall, STEPS);

@@ -40,13 +40,12 @@ public class VIXReplicator {
     DoubleArray priceDifferences = DoubleArray.ofUnsafe(computePriceDifference(callsAndPuts));    
     int location = priceDifferences.indexOf(priceDifferences.min());
     return strikes[location] + priceDifferences.get(location) * Math.exp(rate * expiry);
-    
   }
   
   private static double determineKZero(double[] strikes, double forwardIndex){
     DoubleArray differences = DoubleArray.of(IntStream.range(0, strikes.length)
                                           .mapToDouble(i -> forwardIndex - strikes[i])
-                                          .filter( i-> i > 0));
+                                          .filter( i -> i > 0));
     int location = differences.indexOf(differences.min());
     return strikes[location];
   }
@@ -82,7 +81,7 @@ public class VIXReplicator {
     double vixContributionsSummed = IntStream.range(0, strikes.length)
                                              .mapToDouble(i -> (2 * Math.exp(riskFreeRate * expiry) * filteredPrices[i] * strikeDifferences[i]) / Math.pow(strikes[i], 2) / expiry)
                                              .sum();
-    return vixContributionsSummed - Math.pow( forward / kZero - 1, 2) / expiry;
+    return vixContributionsSummed - Math.pow(forward / kZero - 1, 2) / expiry;
   }
   
   private static  double vix(double varOne, double varTwo, LocalTime calcTime, double nDaysOne, double nDaysTwo){
@@ -112,8 +111,8 @@ public class VIXReplicator {
     double varTwo = subVariance(STRIKES, testPricesTwo, forwardTwo, kZeroTwo, RISK_FREE_RATE, expiryTimeTwo);
    
     double vixCalc = vix(varOne, varTwo, LocalTime.of(8, 30), 14, 42);
+   
     //Replication of VIX index Calculation from CBOE (2003)
-    
     System.out.println("VIX Replication Against CBOE (2003 Paper). Expected: 25.361" + ", Actual: " + vixCalc);
   }
 }

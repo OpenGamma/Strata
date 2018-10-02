@@ -52,11 +52,11 @@ public class VolatilityArbitrage {
     //Bump and grind
     double originalPrice = option.calculate(spot, rate, vol);
     final DoubleArray bumps = DoubleArray.of(-0.15, -0.1, -0.05, 0.05, 0.1);
-    DoubleArray newSpots = DoubleArray.of(bumps.stream().map(i -> spot*(1. + i)));
+    DoubleArray newSpots = DoubleArray.of(bumps.stream().map(i -> spot * (1. + i)));
     DoubleArray moneyNess = DoubleArray.of(newSpots.stream().map(i -> i / option.strike()));
     DoubleArray volFactors = DoubleArray.of(IntStream.range(0, bumps.size())
                                         .mapToDouble( i -> ALPHA * BOUND_2D_INTERPOLATOR_ONE.interpolate(option.expiry(), moneyNess.get(i))));
-    DoubleArray newVols = DoubleArray.of(volFactors.stream().map(i -> vol*(1. + i)));
+    DoubleArray newVols = DoubleArray.of(volFactors.stream().map(i -> vol * (1. + i)));
     DoubleArray newPrices = DoubleArray.of(IntStream.range(0, bumps.size())
                                        .mapToDouble( i -> option.calculate( newSpots.get(i), newVols.get(i), rate)));
     DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - originalPrice)));
@@ -69,15 +69,15 @@ public class VolatilityArbitrage {
   public static double determineSystematicStress(WorseCaseScenario worstScenario, Option option, double vol, double rate){
     double cOneVolFactor = BOUND_2D_INTERPOLATOR_TWO.interpolate(option.expiry(), worstScenario.worstMoneyNess);
     DoubleArray alphaOne = DoubleArray.of(IntStream.range(-10, 11).mapToDouble(x -> x/10.));
-    DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> { double factor = worstScenario.worstVolFactor + cOneVolFactor * x;
-                                                                         if(factor > 1.) 
-                                                                           return 1.;
-                                                                         if(factor < -0.7) 
-                                                                           return -0.7;
-                                                                         return factor; }));
-    DoubleArray newVols = DoubleArray.of( volFactors.stream().map( x -> vol * (1 + x)));
+    DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> {double factor = worstScenario.worstVolFactor + cOneVolFactor * x;
+                                                                          if(factor > 1.) 
+                                                                            return 1.;
+                                                                          if(factor < -0.7) 
+                                                                            return -0.7;
+                                                                          return factor;}));
+    DoubleArray newVols = DoubleArray.of(volFactors.stream().map(x -> vol * (1 + x)));
     DoubleArray newPrices = DoubleArray.of(newVols.stream().map(x -> option.calculate( worstScenario.worstSpot, x, rate)));
-    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() *(i - worstScenario.originalPrice)));
+    DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - worstScenario.originalPrice)));
     return option.notional() * Math.abs(profitAndLoss.min());    
   }
   
@@ -89,7 +89,7 @@ public class VolatilityArbitrage {
       double stockStress = stockStresses[i];
       double[] volStressForCurrentStockStress = volStresses[i];
       for(int j = 0; j < volStressForCurrentStockStress.length; ++j){
-        double newPNL = option.quantity() * (option.calculate( spot * (1 + stockStress), rate, vol*(1 + volStressForCurrentStockStress[j])) - originalPrice);
+        double newPNL = option.quantity() * (option.calculate( spot * (1 + stockStress), rate, vol * (1 + volStressForCurrentStockStress[j])) - originalPrice);
         if(newPNL < worsePNL)
           worsePNL = newPNL;
       }
