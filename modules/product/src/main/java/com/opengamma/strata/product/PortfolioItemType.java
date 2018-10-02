@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.named.NamedEnum;
 /**
  * The type of a portfolio item.
  * <p>
- * This allows trades and positions to be separated.
+ * This allows trades, positions and sensitivities to be separated.
  */
 public enum PortfolioItemType implements NamedEnum {
 
@@ -33,7 +33,13 @@ public enum PortfolioItemType implements NamedEnum {
    */
   POSITION,
   /**
-   * Neither a trade nor a position.
+   * Risk expressed as sensitivities.
+   * <p>
+   * This allows risk to be expressed as sensitivities.
+   */
+  SENSITIVITIES,
+  /**
+   * Any other kind of portfolio item.
    */
   OTHER;
 
