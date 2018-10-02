@@ -34,6 +34,7 @@ public class GenericSecurityTradeTest {
     assertEquals(test.getSecurity(), SECURITY);
     assertEquals(test.getQuantity(), QUANTITY);
     assertEquals(test.getPrice(), PRICE);
+    assertEquals(test.getProduct(), SECURITY);
     assertEquals(test.getCurrency(), SECURITY.getCurrency());
     assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
     assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
