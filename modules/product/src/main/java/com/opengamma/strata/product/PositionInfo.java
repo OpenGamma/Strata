@@ -95,6 +95,12 @@ public final class PositionInfo
 
   //-------------------------------------------------------------------------
   @Override
+  public PositionInfo withId(StandardId identifier) {
+    return new PositionInfo(identifier, attributes);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public ImmutableSet<AttributeType<?>> getAttributeTypes() {
     return attributes.keySet();
   }

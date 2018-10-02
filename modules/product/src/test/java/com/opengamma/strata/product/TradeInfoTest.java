@@ -48,12 +48,13 @@ public class TradeInfoTest {
     assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
   }
 
-  public void test_builder_withAttribute() {
+  public void test_builder_withers() {
     TradeInfo test = TradeInfo.builder()
         .counterparty(COUNTERPARTY)
         .build()
+        .withId(ID)
         .withAttribute(AttributeType.DESCRIPTION, "A");
-    assertEquals(test.getId(), Optional.empty());
+    assertEquals(test.getId(), Optional.of(ID));
     assertEquals(test.getCounterparty(), Optional.of(COUNTERPARTY));
     assertEquals(test.getTradeDate(), Optional.empty());
     assertEquals(test.getTradeTime(), Optional.empty());
