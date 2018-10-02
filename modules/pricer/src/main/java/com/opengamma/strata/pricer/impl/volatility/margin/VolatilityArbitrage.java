@@ -69,8 +69,12 @@ public class VolatilityArbitrage {
   public static double determineSystematicStress(WorseCaseScenario worstScenario, Option option, double vol, double rate){
     double cOneVolFactor = BOUND_2D_INTERPOLATOR_TWO.interpolate(option.expiry(), worstScenario.worstMoneyNess);
     DoubleArray alphaOne = DoubleArray.of(IntStream.range(-10, 11).mapToDouble(x -> x/10.));
-    //Need a floor and a max here but more information required.
-    DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> worstScenario.worstVolFactor + cOneVolFactor * x));
+    DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> { double factor = worstScenario.worstVolFactor + cOneVolFactor * x;
+                                                                         if(factor > 1.) 
+                                                                           return 1.;
+                                                                         if(factor < -0.7) 
+                                                                           return -0.7;
+                                                                         return factor; }));
     DoubleArray newVols = DoubleArray.of( volFactors.stream().map( x -> vol * (1 + x)));
     DoubleArray newPrices = DoubleArray.of(newVols.stream().map(x -> option.calculate( worstScenario.worstSpot, x, rate)));
     DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() *(i - worstScenario.originalPrice)));
