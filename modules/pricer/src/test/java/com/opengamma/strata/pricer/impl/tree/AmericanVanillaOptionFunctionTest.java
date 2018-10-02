@@ -23,7 +23,7 @@ public class AmericanVanillaOptionFunctionTest {
   
   public void test_trinomialAndBinomialTree() throws ExecutionException, InterruptedException {   
     
-    // Dealing with discrete dividends and european options
+    // Dealing with discrete dividends and european options. Note in the case of Rho we would have an extra terms to differentiate, i.e. D_i e^-rt_D_i if we do not convert to continuous yield.
     double spot = 40.;
     double strike = 40.;
     double vol = 0.3;
@@ -39,6 +39,7 @@ public class AmericanVanillaOptionFunctionTest {
     //Test BS price for discrete dividends versus Hull. Expected 3.67
     double bsPrice = BlackScholesFormulaRepository.price(spot - pvOfDivs, strike, expiry, vol, rate, rate, true);
     System.out.println();
+    System.out.println("********-Benchmark Prices Against Literature-********");
     System.out.println("European Call with Discrete Dividends Benchmarked Versus Hull: " + bsPrice);
     
     //American options using trees.
