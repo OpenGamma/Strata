@@ -29,27 +29,29 @@ public class VolatilityArbitrage {
   public static class WorseCaseScenario{
     private double worstSpot;
     private double worstMoneyNess;
+    private double worstSpotBump;
     private double worstVolFactor;
     private double originalPrice;
     
     WorseCaseScenario( 
         double worstSpot,
         double worstMoneyNess,
+        double worstSpotBump,
         double worstVolFactor,
-        double originalPrice ){
+        double originalPrice){
       this.worstSpot = worstSpot;
       this.worstMoneyNess = worstMoneyNess;
+      this.worstSpotBump = worstSpotBump;
       this.worstVolFactor = worstVolFactor;
       this.originalPrice = originalPrice;
     }
-  }
-  
+  }  
   
    //This will become a portfolio of options 
    public static WorseCaseScenario determineWorseMarketLevelScenario(Option option, double spot, double vol, double rate){
     //Bump and grind
     double originalPrice = option.calculate(spot, rate, vol);
-    DoubleArray bumps = DoubleArray.of(-0.15, -0.1, -0.05, 0.05, 0.1);
+    final DoubleArray bumps = DoubleArray.of(-0.15, -0.1, -0.05, 0.05, 0.1);
     DoubleArray newSpots = DoubleArray.of(bumps.stream().map(i -> spot*(1. + i)));
     DoubleArray moneyNess = DoubleArray.of(newSpots.stream().map(i -> i / option.strike()));
     DoubleArray volFactors = DoubleArray.of(IntStream.range(0, bumps.size())
@@ -60,7 +62,7 @@ public class VolatilityArbitrage {
     DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - originalPrice)));
     
     int worstIndex = profitAndLoss.indexOf(profitAndLoss.min());
-    WorseCaseScenario wcs = new WorseCaseScenario(newSpots.get(worstIndex), moneyNess.get(worstIndex), volFactors.get(worstIndex), originalPrice);    
+    WorseCaseScenario wcs = new WorseCaseScenario(newSpots.get(worstIndex), moneyNess.get(worstIndex), bumps.get(worstIndex), volFactors.get(worstIndex), originalPrice);    
     return wcs;
   }
   //This will become a portfolio of options, etc.
@@ -79,7 +81,7 @@ public class VolatilityArbitrage {
     final double[] stockStresses = {0.50, 0., -0.50};
     final double[][] volStresses = {{-0.50, -0.40, 0.}, {-0.50, 0.40, 0.}, {0., 0.50}};
     double worsePNL = 0.;
-    for(int i = 0; i < stockStresses.length; ++i){
+      for(int i = 0; i < stockStresses.length; ++i){
       double stockStress = stockStresses[i];
       double[] volStressForCurrentStockStress = volStresses[i];
       for(int j = 0; j < volStressForCurrentStockStress.length; ++j){
@@ -92,15 +94,17 @@ public class VolatilityArbitrage {
   }
   
   public static void main(String[] args){
-    double strike = 290;
+    double strike = 290.;
     double expiry =  87./360.;
     double dividend = 0.0175;
     double spot = 284.64;
     double rate = 0.03;
     double vol = 0.0967;
     
-    Option singleOption = new AmericanOptionWithContinuousYield(-96, 100, strike, expiry, PutCall.CALL, dividend);
+    Option singleOption = new AmericanOptionWithContinuousYield(-96., 100., strike, expiry, PutCall.CALL, dividend);
+    System.out.println();
     WorseCaseScenario wmls = determineWorseMarketLevelScenario(singleOption, spot, vol, rate);
+    System.out.println("Worst Market Level Scenario has Alpha: " + ALPHA + ", Delta Spot: " + wmls.worstSpotBump + " and Delta Vol: " + wmls.worstVolFactor);
     double ss = determineSystematicStress(wmls, singleOption, vol, rate);
     System.out.println("Systematic Stress: " + ss);
     double cr = determineConcentrationRequirement(singleOption, wmls.originalPrice, spot, vol, rate);

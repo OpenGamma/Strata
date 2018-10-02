@@ -34,6 +34,6 @@ public class AmericanOptionWithDiscreteDividends extends AmericanOption implemen
   }
   
   public double calculate(double spot, double rate, double vol){
-    return notional() * quantity() * BINOMIAL_TREE.optionPrice(americanVanillaOptionFunction, LATTICE, spot, vol, rate, dividendAmounts, dividendTimes);
+    return BINOMIAL_TREE.optionPrice(americanVanillaOptionFunction, LATTICE, spot, vol, rate, dividendAmounts, dividendTimes);
   }
 }
