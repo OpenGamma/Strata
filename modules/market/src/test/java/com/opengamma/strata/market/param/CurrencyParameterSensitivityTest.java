@@ -99,8 +99,8 @@ public class CurrencyParameterSensitivityTest {
     assertEquals(test.getParameterMetadata(), map.keySet().asList());
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getSensitivity(), DoubleArray.copyOf(map.values()));
-    assertEquals(test.sensivities().toMap(), map);
-    assertEquals(test.toSensivityMap(Tenor.class), MapStream.of(map).mapKeys(ParameterMetadata::getIdentifier).toMap());
+    assertEquals(test.sensitivities().toMap(), map);
+    assertEquals(test.toSensitivityMap(Tenor.class), MapStream.of(map).mapKeys(pm -> pm.getIdentifier()).toMap());
   }
 
   //-------------------------------------------------------------------------
@@ -212,9 +212,9 @@ public class CurrencyParameterSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_toSensivityMap_badType() {
+  public void test_toSensitivityMap_badType() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
-    assertThrows(ClassCastException.class, () -> base.toSensivityMap(Tenor.class));
+    assertThrows(ClassCastException.class, () -> base.toSensitivityMap(Tenor.class));
   }
 
   //-------------------------------------------------------------------------

@@ -437,25 +437,23 @@ public final class CurrencyParameterSensitivity
    * 
    * @return a map stream containing the parameter metadata and the sensitivity value
    */
-  public MapStream<ParameterMetadata, Double> sensivities() {
+  public MapStream<ParameterMetadata, Double> sensitivities() {
     return MapStream.zip(parameterMetadata.stream(), sensitivity.stream().boxed());
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Converts this instance to a stream of sensitivity, keyed by the identifier type.
+   * Converts this instance to a map of sensitivities, keyed by the identifier type.
    * <p>
-   * This returns a {@link MapStream} keyed by the parameter metadata.
-   * The identifier of the metadata is extracted and used as the key.
-   * <p>
+   * This returns a {@code Map} keyed by the identifier of the metadata.
    * For example, this could be used to extract a {@code Map<Tenor, Double>}.
    * 
    * @param identifierType  the type of the parameter metadata identifier
    * @return a map containing the parameter metadata identifier and the sensitivity value
    * @throws ClassCastException if the identifier of the parameter metadata does not match the specified type
    */
-  public <T> ImmutableMap<T, Double> toSensivityMap(Class<T> identifierType) {
-    return sensivities()
+  public <T> ImmutableMap<T, Double> toSensitivityMap(Class<T> identifierType) {
+    return sensitivities()
         .mapKeys(k -> identifierType.cast(k.getIdentifier()))
         .toMap();
   }
