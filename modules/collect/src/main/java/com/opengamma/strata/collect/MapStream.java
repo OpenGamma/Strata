@@ -78,6 +78,20 @@ public final class MapStream<K, V>
   }
 
   /**
+   * Returns a stream of map entries where the values from the second map are concatenated with the values from the
+   * first.
+   *
+   * @param <K> the key type
+   * @param <V> the value type
+   * @param firstMap one of the maps
+   * @param secondMap the other map
+   * @return a stream of map entries derived from the values in the maps
+   */
+  public static <K, V> MapStream<K, V> of(Map<K, V> firstMap, Map<K, V> secondMap) {
+    return new MapStream<>(Stream.concat(firstMap.entrySet().stream(), secondMap.entrySet().stream()));
+  }
+
+  /**
    * Returns a stream of map entries where the keys and values are extracted from a
    * collection by applying a function to each item in the collection.
    *
@@ -490,10 +504,39 @@ public final class MapStream<K, V>
   }
 
   /**
+   * Concatenates the other map's entries to the underlying stream.
+   *
+   * @param otherMap the other map from which to get the entries to append
+   * @return the stream of entries including those newly concatenated
+   */
+  public MapStream<K, V> concat(Map<K, V> otherMap) {
+    return concat(of(otherMap));
+  }
+
+  /**
+   * Concatenates the other mapstream's entries to the stream.
+   *
+   * @param other the other mapstream from which to get the entries to append
+   * @return the stream of entries including those newly concatenated
+   */
+  public MapStream<K, V> concat(MapStream<K, V> other) {
+    return wrap(Streams.concat(underlying, other));
+  }
+
+  /**
    * Returns an immutable map built from the entries in the stream.
    * <p>
    * If the same key maps to multiple values the merge function is invoked with both values and the return
    * value is used in the map.
+   * <p>
+   * Can be used with {@link #concat(MapStream)}, {@link #concat(Map)} or {@link #of(Map, Map)} to merge immutable
+   * maps with duplicate keys.
+   * <p>
+   * For example, to merge immutable maps with duplicate keys preferring values in the first map:
+   * <pre>
+   *   MapStream.of(mapA, mapB).toMap((a,b) -> a);
+   * </pre>
+   * </p>
    *
    * @param mergeFn  function used to merge values when the same key appears multiple times in the stream
    * @return an immutable map built from the entries in the stream

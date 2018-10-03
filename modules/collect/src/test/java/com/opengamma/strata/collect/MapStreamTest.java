@@ -46,6 +46,11 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
   }
 
+  public void mergeValues() {
+    List<Integer> result = MapStream.of(map).values().collect(toImmutableList());
+    assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
+  }
+
   //-------------------------------------------------------------------------
   public void filter() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
@@ -307,6 +312,27 @@ public class MapStreamTest {
     Map<String, String> result =
         MapStream.of(letters, letter -> letter.toUpperCase(Locale.ENGLISH), letter -> letter + letter).toMap();
     assertThat(result).isEqualTo(expected);
+  }
+
+  public void of2maps() {
+    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
+    ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
+    ImmutableMap<String, Integer> result = MapStream.of(map, map2).toMap((a,b) -> a);
+    assertThat(result).isEqualTo(map);
+  }
+
+  public void concatMap() {
+    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
+    ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
+    ImmutableMap<String, Integer> result = MapStream.of(map1).concat(map2).toMap((a,b) -> a);
+    assertThat(result).isEqualTo(map);
+  }
+
+  public void concatMapStream() {
+    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
+    MapStream<String, Integer> mapStream = MapStream.of(ImmutableMap.of("three", 7, "four", 4));
+    ImmutableMap<String, Integer> result = MapStream.of(map1).concat(mapStream).toMap((a,b) -> a);
+    assertThat(result).isEqualTo(map);
   }
 
   public void zipWithIndex() {
