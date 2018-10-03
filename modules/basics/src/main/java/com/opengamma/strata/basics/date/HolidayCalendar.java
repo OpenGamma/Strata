@@ -11,8 +11,10 @@ import java.time.LocalDate;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
+import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
 
 /**
@@ -228,12 +230,49 @@ public interface HolidayCalendar
    * @param startInclusive  the start date
    * @param endExclusive  the end date
    * @return the total number of business days between the start and end date
-   * @throws IllegalArgumentException if the calculation is outside the supported range
+   * @throws IllegalArgumentException if either date is outside the supported range
    */
   public default int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
+    ArgChecker.inOrderOrEqual(startInclusive, endExclusive, "startInclusive", "endExclusive");
     return Math.toIntExact(LocalDateUtils.stream(startInclusive, endExclusive)
         .filter(this::isBusinessDay)
         .count());
+  }
+
+  /**
+   * Gets the stream of business days between the two dates.
+   * <p>
+   * This method will treat weekends as holidays.
+   * If the dates are equal, an empty stream is returned.
+   * If the end is before the start, an exception is thrown.
+   * 
+   * @param startInclusive  the start date
+   * @param endExclusive  the end date
+   * @return the stream of business days
+   * @throws IllegalArgumentException if either date is outside the supported range
+   */
+  public default Stream<LocalDate> businessDays(LocalDate startInclusive, LocalDate endExclusive) {
+    ArgChecker.inOrderOrEqual(startInclusive, endExclusive, "startInclusive", "endExclusive");
+    return LocalDateUtils.stream(startInclusive, endExclusive)
+        .filter(this::isBusinessDay);
+  }
+
+  /**
+   * Gets the stream of holidays between the two dates.
+   * <p>
+   * This method will treat weekends as holidays.
+   * If the dates are equal, an empty stream is returned.
+   * If the end is before the start, an exception is thrown.
+   * 
+   * @param startInclusive  the start date
+   * @param endExclusive  the end date
+   * @return the stream of holidays
+   * @throws IllegalArgumentException if either date is outside the supported range
+   */
+  public default Stream<LocalDate> holidays(LocalDate startInclusive, LocalDate endExclusive) {
+    ArgChecker.inOrderOrEqual(startInclusive, endExclusive, "startInclusive", "endExclusive");
+    return LocalDateUtils.stream(startInclusive, endExclusive)
+        .filter(this::isHoliday);
   }
 
   //-------------------------------------------------------------------------

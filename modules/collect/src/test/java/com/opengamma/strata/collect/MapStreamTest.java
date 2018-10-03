@@ -335,6 +335,31 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(map);
   }
 
+  //-------------------------------------------------------------------------
+  public void zip() {
+    Stream<Integer> numbers = Stream.of(0, 1, 2);
+    Stream<String> letters = Stream.of("a", "b", "c");
+    Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");
+    Map<Integer, String> result = MapStream.zip(numbers, letters).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void zip_longerFirst() {
+    Stream<Integer> numbers = Stream.of(0, 1, 2, 3);
+    Stream<String> letters = Stream.of("a", "b", "c");
+    Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");
+    Map<Integer, String> result = MapStream.zip(numbers, letters).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void zip_longerSecond() {
+    Stream<Integer> numbers = Stream.of(0, 1, 2);
+    Stream<String> letters = Stream.of("a", "b", "c", "d");
+    Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");
+    Map<Integer, String> result = MapStream.zip(numbers, letters).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
   public void zipWithIndex() {
     Stream<String> letters = Stream.of("a", "b", "c");
     Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");

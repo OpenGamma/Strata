@@ -37,6 +37,7 @@ public class GenericSecurityPositionTest {
     assertEquals(test.getLongQuantity(), QUANTITY);
     assertEquals(test.getShortQuantity(), 0d);
     assertEquals(test.getQuantity(), QUANTITY);
+    assertEquals(test.getProduct(), SECURITY);
     assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
     assertEquals(test.getCurrency(), SECURITY.getCurrency());
     assertEquals(test.withInfo(POSITION_INFO).getInfo(), POSITION_INFO);

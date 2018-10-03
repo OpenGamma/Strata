@@ -31,12 +31,12 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 @BeanDefinition(builderScope = "private")
 public final class TenorParameterMetadata
-    implements ParameterMetadata, ImmutableBean, Serializable {
+    implements TenoredParameterMetadata, ImmutableBean, Serializable {
 
   /**
    * The tenor associated with the parameter.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final Tenor tenor;
   /**
    * The label that describes the parameter, defaulted to the tenor.
@@ -122,6 +122,7 @@ public final class TenorParameterMetadata
    * Gets the tenor associated with the parameter.
    * @return the value of the property, not null
    */
+  @Override
   public Tenor getTenor() {
     return tenor;
   }

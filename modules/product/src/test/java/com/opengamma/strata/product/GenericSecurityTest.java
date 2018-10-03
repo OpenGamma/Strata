@@ -47,6 +47,13 @@ public class GenericSecurityTest {
         GenericSecurityPosition.ofLongShort(PositionInfo.empty(), GenericSecurity.of(INFO), 1, 2));
   }
 
+  public void test_withInfo() {
+    GenericSecurity base = sut();
+    assertEquals(base.getInfo(), INFO);
+    GenericSecurity test = base.withInfo(INFO2);
+    assertEquals(test.getInfo(), INFO2);
+  }
+
   //-------------------------------------------------------------------------
   public void coverage() {
     coverImmutableBean(sut());

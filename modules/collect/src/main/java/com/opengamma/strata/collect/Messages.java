@@ -138,7 +138,7 @@ public final class Messages {
    * The message template contains zero to many "{name}" placeholders.
    * Each placeholder is replaced by the next available argument.
    * If there are too few arguments, then the message will be left with placeholders.
-   * If there are too many arguments, then the excess arguments are ignored.
+   * If there are too many arguments, then the excess arguments are appended to the message.
    * No attempt is made to format the arguments.
    * <p>
    * This method is null tolerant to ensure that use in exception construction will
@@ -177,6 +177,18 @@ public final class Messages {
       argIndex++;
     }
     matcher.appendTail(outputMessageBuffer);
+
+    // append remaining args
+    if (argIndex < args.length) {
+      outputMessageBuffer.append(" - [");
+      for (int i = argIndex; i < args.length; i++) {
+        if (i > argIndex) {
+          outputMessageBuffer.append(", ");
+        }
+        outputMessageBuffer.append(args[i]);
+      }
+      outputMessageBuffer.append(']');
+    }
 
     return Pair.of(outputMessageBuffer.toString(), ImmutableMap.copyOf(attributes));
   }

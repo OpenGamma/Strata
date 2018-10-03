@@ -97,7 +97,7 @@ public final class FailureItem
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link Messages#format(String, Object...)} for more details.
+   * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
    * <p>
    * An exception will be created internally to obtain a stack trace.
    * The cause type will not be present in the resulting failure.
@@ -181,7 +181,7 @@ public final class FailureItem
    * If there are too few arguments, then the message will be left with placeholders.
    * If there are too many arguments, then the excess arguments are appended to the
    * end of the message. No attempt is made to format the arguments.
-   * See {@link Messages#format(String, Object...)} for more details.
+   * See {@link Messages#formatWithAttributes(String, Object...)} for more details.
    * 
    * @param reason  the reason
    * @param cause  the cause
@@ -233,6 +233,20 @@ public final class FailureItem
     Map<String, String> attributes = new HashMap<>(this.attributes);
     attributes.put(key, value);
     return new FailureItem(reason, message, attributes, stackTrace, causeType);
+  }
+
+  /**
+   * Returns an instance with the specified attributes added.
+   * <p>
+   * If the attribute map of this instance has any of the new attribute keys, the values are replaced.
+   *
+   * @param attributes  the new attributes to add
+   * @return the new failure item
+   */
+  public FailureItem withAttributes(Map<String, String> attributes) {
+    Map<String, String> newAttributes = new HashMap<>(this.attributes);
+    newAttributes.putAll(attributes);
+    return new FailureItem(reason, message, newAttributes, stackTrace, causeType);
   }
 
   /**

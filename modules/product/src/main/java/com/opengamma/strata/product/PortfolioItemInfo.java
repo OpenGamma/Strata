@@ -21,6 +21,20 @@ import com.opengamma.strata.basics.StandardId;
 public interface PortfolioItemInfo extends Attributes {
 
   /**
+   * Obtains an empty info instance.
+   * <p>
+   * The resulting instance implements this interface and is useful for classes that
+   * extend {@link PortfolioItem} but are not trades or positions.
+   * The returned instance can be customized using {@code with} methods.
+   * 
+   * @return the empty info instance
+   */
+  public static PortfolioItemInfo empty() {
+    return ItemInfo.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the primary identifier for the portfolio item, optional.
    * <p>
    * The identifier is used to identify the portfolio item.
@@ -33,6 +47,18 @@ public interface PortfolioItemInfo extends Attributes {
    * @return the identifier, optional
    */
   public abstract Optional<StandardId> getId();
+
+  /**
+   * Returns a copy of this instance with the identifier changed.
+   * <p>
+   * This returns a new instance with the identifier changed.
+   * If the specified identifier is null, the existing identifier will be removed.
+   * If the specified identifier is non-null, it will become the identifier of the resulting info.
+   * 
+   * @param identifier  the identifier to set
+   * @return a new instance based on this one with the identifier set
+   */
+  public abstract PortfolioItemInfo withId(StandardId identifier);
 
   /**
    * Gets the attribute types that the info contains.
