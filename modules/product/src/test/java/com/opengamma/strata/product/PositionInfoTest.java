@@ -39,10 +39,10 @@ public class PositionInfoTest {
     assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
   }
 
-  public void test_builder_withAttribute() {
+  public void test_builder_withers() {
     PositionInfo test = PositionInfo.builder()
-        .id(ID)
         .build()
+        .withId(ID)
         .withAttribute(AttributeType.DESCRIPTION, "A");
     assertEquals(test.getId(), Optional.of(ID));
     assertEquals(test.getAttributeTypes(), ImmutableSet.of(AttributeType.DESCRIPTION));

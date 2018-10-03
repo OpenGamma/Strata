@@ -125,6 +125,12 @@ public final class TradeInfo
 
   //-------------------------------------------------------------------------
   @Override
+  public TradeInfo withId(StandardId identifier) {
+    return new TradeInfo(identifier, counterparty, tradeDate, tradeTime, zone, settlementDate, attributes);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
   public ImmutableSet<AttributeType<?>> getAttributeTypes() {
     return attributes.keySet();
   }
