@@ -360,7 +360,7 @@ public class MapStreamTest {
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
     ImmutableMap<Object, ? extends Number> result =
         MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
-    assertThat(result).isEqualTo(map);
+    assertThat(result).isEqualTo(ImmutableMap.of("one", 1D, "two", 2D, "three", 3D, "four", 4));
   }
 
   //-------------------------------------------------------------------------
