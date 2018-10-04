@@ -172,7 +172,8 @@ public final class MapStream<K, V>
   }
 
   /**
-   * Creates a stream of map entries whose elements are those of the first map stream followed by those of the second.
+   * Creates a stream of map entries whose elements are those of the first stream followed by those of the second
+   * stream.
    *
    * @param a  the first stream of entries
    * @param b  the second stream of entries
@@ -537,7 +538,7 @@ public final class MapStream<K, V>
    * <p>
    * For example, to merge immutable maps with duplicate keys preferring values in the first map:
    * <pre>
-   *   MapStream.of(mapA, mapB).toMap((a,b) -> a);
+   *   MapStream.concat(mapStreamA, mapStreamB).toMap((a,b) -> a);
    * </pre>
    * </p>
    *
