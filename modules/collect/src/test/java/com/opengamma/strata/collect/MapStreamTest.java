@@ -46,11 +46,6 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
   }
 
-  public void mergeValues() {
-    List<Integer> result = MapStream.of(map).values().collect(toImmutableList());
-    assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
-  }
-
   //-------------------------------------------------------------------------
   public void filter() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
