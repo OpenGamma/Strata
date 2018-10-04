@@ -54,7 +54,7 @@ final class AbsoluteIborFutureTemplate
    * <p>
    * This specifies the market convention of the future to be created.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborFutureConvention convention;
 
   //-------------------------------------------------------------------------
@@ -153,6 +153,7 @@ final class AbsoluteIborFutureTemplate
    * This specifies the market convention of the future to be created.
    * @return the value of the property, not null
    */
+  @Override
   public IborFutureConvention getConvention() {
     return convention;
   }
