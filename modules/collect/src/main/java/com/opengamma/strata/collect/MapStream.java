@@ -171,6 +171,28 @@ public final class MapStream<K, V>
     return new MapStream<>(Stream.empty());
   }
 
+  /**
+   * Creates a stream of map entries whose elements are those of the first stream followed by those of the second
+   * stream.
+   *
+   * @param a  the first stream of entries
+   * @param b  the second stream of entries
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @return the concatenation of the two input streams
+   */
+  public static <K, V> MapStream<K, V> concat(
+      MapStream<? extends K, ? extends V> a,
+      MapStream<? extends K, ? extends V> b) {
+
+    @SuppressWarnings("unchecked")
+    MapStream<K, V> kvMapStream = new MapStream<>(Streams.concat(
+        (Stream<? extends Map.Entry<K, V>>) a,
+        (Stream<? extends Map.Entry<K, V>>) b));
+    return kvMapStream;
+  }
+
+  //-------------------------------------------------------------------------
   // creates an instance
   private MapStream(Stream<Map.Entry<K, V>> underlying) {
     this.underlying = underlying;
@@ -510,6 +532,15 @@ public final class MapStream<K, V>
    * <p>
    * If the same key maps to multiple values the merge function is invoked with both values and the return
    * value is used in the map.
+   * <p>
+   * Can be used with {@link #concat(MapStream, MapStream)} to merge immutable
+   * maps with duplicate keys.
+   * <p>
+   * For example, to merge immutable maps with duplicate keys preferring values in the first map:
+   * <pre>
+   *   MapStream.concat(mapStreamA, mapStreamB).toMap((a,b) -> a);
+   * </pre>
+   * </p>
    *
    * @param mergeFn  function used to merge values when the same key appears multiple times in the stream
    * @return an immutable map built from the entries in the stream
