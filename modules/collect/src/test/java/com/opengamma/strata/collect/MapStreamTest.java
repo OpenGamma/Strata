@@ -355,6 +355,14 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(map);
   }
 
+  public void concatNumberValues() {
+    ImmutableMap<String, Double> map1 = ImmutableMap.of("one", 1D, "two", 2D, "three", 3D);
+    ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
+    ImmutableMap<Object, ? extends Number> result =
+        MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    assertThat(result).isEqualTo(map);
+  }
+
   //-------------------------------------------------------------------------
   public void toMapDuplicateKeys() {
     assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
