@@ -314,27 +314,6 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
-  public void of2maps() {
-    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
-    ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
-    ImmutableMap<String, Integer> result = MapStream.of(map, map2).toMap((a,b) -> a);
-    assertThat(result).isEqualTo(map);
-  }
-
-  public void concatMap() {
-    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
-    ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
-    ImmutableMap<String, Integer> result = MapStream.of(map1).concat(map2).toMap((a,b) -> a);
-    assertThat(result).isEqualTo(map);
-  }
-
-  public void concatMapStream() {
-    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
-    MapStream<String, Integer> mapStream = MapStream.of(ImmutableMap.of("three", 7, "four", 4));
-    ImmutableMap<String, Integer> result = MapStream.of(map1).concat(mapStream).toMap((a,b) -> a);
-    assertThat(result).isEqualTo(map);
-  }
-
   //-------------------------------------------------------------------------
   public void zip() {
     Stream<Integer> numbers = Stream.of(0, 1, 2);
@@ -365,6 +344,20 @@ public class MapStreamTest {
     Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");
     Map<Integer, String> result = MapStream.zipWithIndex(letters).toMap();
     assertThat(result).isEqualTo(expected);
+  }
+
+  public void concat() {
+    ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
+    ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
+    ImmutableMap<String, Integer> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    assertThat(result).isEqualTo(map);
+  }
+
+  public void concatGeneric() {
+    ImmutableMap<String, Object> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
+    ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
+    ImmutableMap<Object, Object> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    assertThat(result).isEqualTo(map);
   }
 
   //-------------------------------------------------------------------------
