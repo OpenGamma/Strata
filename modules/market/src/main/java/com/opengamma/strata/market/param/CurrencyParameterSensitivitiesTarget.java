@@ -52,7 +52,7 @@ public final class CurrencyParameterSensitivitiesTarget
   /**
    * The additional information.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * This allows additional information to be attached to the target.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PortfolioItemInfo info;
@@ -60,7 +60,7 @@ public final class CurrencyParameterSensitivitiesTarget
    * The sensitivities, keyed by type.
    * <p>
    * The map allows sensitivity to different types to be expressed.
-   * For example, the target might have sensitivity have both delta and gamma sensitivity.
+   * For example, the target might have both delta and gamma sensitivity.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> typedSensitivities;
@@ -169,7 +169,7 @@ public final class CurrencyParameterSensitivitiesTarget
   /**
    * Gets the additional information.
    * <p>
-   * This allows additional information to be attached to the trade.
+   * This allows additional information to be attached to the target.
    * @return the value of the property, not null
    */
   @Override
@@ -182,7 +182,7 @@ public final class CurrencyParameterSensitivitiesTarget
    * Gets the sensitivities, keyed by type.
    * <p>
    * The map allows sensitivity to different types to be expressed.
-   * For example, the target might have sensitivity have both delta and gamma sensitivity.
+   * For example, the target might have both delta and gamma sensitivity.
    * @return the value of the property, not null
    */
   public ImmutableMap<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> getTypedSensitivities() {

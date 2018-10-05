@@ -34,8 +34,6 @@ public enum PortfolioItemType implements NamedEnum {
   POSITION,
   /**
    * Risk expressed as sensitivities.
-   * <p>
-   * This allows risk to be expressed as sensitivities.
    */
   SENSITIVITIES,
   /**
