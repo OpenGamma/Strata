@@ -53,7 +53,7 @@ public final class CurveSensitivities
   /**
    * The additional information.
    * <p>
-   * This allows additional information to be attached to the target.
+   * This allows additional information to be attached to the sensitivities.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PortfolioItemInfo info;
@@ -61,7 +61,7 @@ public final class CurveSensitivities
    * The sensitivities, keyed by type.
    * <p>
    * The map allows sensitivity to different types to be expressed.
-   * For example, the target might have both delta and gamma sensitivity.
+   * For example, there might be both delta and gamma sensitivity.
    */
   @PropertyDefinition(validate = "notNull")
   private final ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities> typedSensitivities;
@@ -99,9 +99,9 @@ public final class CurveSensitivities
 
   //-----------------------------------------------------------------------
   /**
-   * Combines this sensitivities target with another map of typed sensitivities.
+   * Combines this set of sensitivities with another set.
    * <p>
-   * This returns a new sensitivity target with a combined map of parameter sensitivities.
+   * This returns a new curve sensitivities with a combined map of typed sensitivities.
    * Any sensitivities of the same type will be combined using
    * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}
    * 
@@ -187,7 +187,7 @@ public final class CurveSensitivities
   /**
    * Gets the additional information.
    * <p>
-   * This allows additional information to be attached to the target.
+   * This allows additional information to be attached to the sensitivities.
    * @return the value of the property, not null
    */
   @Override
@@ -200,7 +200,7 @@ public final class CurveSensitivities
    * Gets the sensitivities, keyed by type.
    * <p>
    * The map allows sensitivity to different types to be expressed.
-   * For example, the target might have both delta and gamma sensitivity.
+   * For example, there might be both delta and gamma sensitivity.
    * @return the value of the property, not null
    */
   public ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities> getTypedSensitivities() {
