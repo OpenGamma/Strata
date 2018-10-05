@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.param;
+package com.opengamma.strata.market.sensitivity;
 
 import org.joda.convert.FromString;
 
@@ -12,12 +12,12 @@ import com.opengamma.strata.collect.TypedString;
 import com.opengamma.strata.market.ValueType;
 
 /**
- * The type of a sensitivity.
+ * The type of curve sensitivities.
  * <p>
- * There are many possible types of sensitivity, and this type can be used to identify them.
+ * There are many possible types of curve sensitivity, and this type can be used to identify them.
  */
-public final class CurrencyParameterSensitivityType
-    extends TypedString<CurrencyParameterSensitivityType> {
+public final class CurveSensitivitiesType
+    extends TypedString<CurveSensitivitiesType> {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -37,12 +37,12 @@ public final class CurrencyParameterSensitivityType
    * Type used when each sensitivity is a zero rate delta - 'ZeroRateDelta'.
    * This is the first order derivative of {@link ValueType#ZERO_RATE}.
    */
-  public static final CurrencyParameterSensitivityType ZERO_RATE_DELTA = of("ZeroRateDelta");
+  public static final CurveSensitivitiesType ZERO_RATE_DELTA = of("ZeroRateDelta");
   /**
    * Type used when each sensitivity is a zero rate gamma - 'ZeroRateGamma'.
    * This is the second order derivative of {@link ValueType#ZERO_RATE}.
    */
-  public static final CurrencyParameterSensitivityType ZERO_RATE_GAMMA = of("ZeroRateGamma");
+  public static final CurveSensitivitiesType ZERO_RATE_GAMMA = of("ZeroRateGamma");
 
   //-------------------------------------------------------------------------
   /**
@@ -54,8 +54,8 @@ public final class CurrencyParameterSensitivityType
    * @return a field with the specified name
    */
   @FromString
-  public static CurrencyParameterSensitivityType of(String name) {
-    return new CurrencyParameterSensitivityType(name);
+  public static CurveSensitivitiesType of(String name) {
+    return new CurveSensitivitiesType(name);
   }
 
   /**
@@ -63,7 +63,7 @@ public final class CurrencyParameterSensitivityType
    * 
    * @param name  the name of the field
    */
-  private CurrencyParameterSensitivityType(String name) {
+  private CurveSensitivitiesType(String name) {
     super(name, NAME_MATCHER, "Sensitivity type must only contain the characters A-Z, a-z, 0-9 and -");
   }
 

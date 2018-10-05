@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.market.param;
+package com.opengamma.strata.market.sensitivity;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.util.stream.Collectors.joining;
@@ -30,6 +30,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.MapStream;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.product.PortfolioItem;
 import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
@@ -37,7 +38,7 @@ import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductType;
 
 /**
- * Calculation target for currency-based parameter sensitivity.
+ * Sensitivity to a set of curves, used to pass risk into calculations.
  * <p>
  * Sometimes it is useful to pass in a representation of risk rather than explicitly
  * listing the current portfolio of trades and/or positions.
@@ -46,8 +47,8 @@ import com.opengamma.strata.product.ProductType;
  * A map of sensitivities is provided, allowing both delta and gamma to be included if desired.
  */
 @BeanDefinition(builderScope = "private")
-public final class CurrencyParameterSensitivitiesTarget
-    implements PortfolioItem, FxConvertible<CurrencyParameterSensitivitiesTarget>, ImmutableBean, Serializable {
+public final class CurveSensitivities
+    implements PortfolioItem, FxConvertible<CurveSensitivities>, ImmutableBean, Serializable {
 
   /**
    * The additional information.
@@ -63,7 +64,7 @@ public final class CurrencyParameterSensitivitiesTarget
    * For example, the target might have both delta and gamma sensitivity.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> typedSensitivities;
+  private final ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities> typedSensitivities;
 
   //-------------------------------------------------------------------------
   /**
@@ -74,12 +75,12 @@ public final class CurrencyParameterSensitivitiesTarget
    * @param sensitivities  the sensitivities
    * @return the sensitivities instance
    */
-  public static CurrencyParameterSensitivitiesTarget of(
+  public static CurveSensitivities of(
       PortfolioItemInfo info,
-      CurrencyParameterSensitivityType type,
+      CurveSensitivitiesType type,
       CurrencyParameterSensitivities sensitivities) {
 
-    return new CurrencyParameterSensitivitiesTarget(info, ImmutableMap.of(type, sensitivities));
+    return new CurveSensitivities(info, ImmutableMap.of(type, sensitivities));
   }
 
   /**
@@ -89,14 +90,31 @@ public final class CurrencyParameterSensitivitiesTarget
    * @param typedSensitivities  the map of sensitivities by type
    * @return the sensitivities instance
    */
-  public static CurrencyParameterSensitivitiesTarget of(
+  public static CurveSensitivities of(
       PortfolioItemInfo info,
-      Map<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> typedSensitivities) {
+      Map<CurveSensitivitiesType, CurrencyParameterSensitivities> typedSensitivities) {
 
-    return new CurrencyParameterSensitivitiesTarget(info, ImmutableMap.copyOf(typedSensitivities));
+    return new CurveSensitivities(info, ImmutableMap.copyOf(typedSensitivities));
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Combines this sensitivities target with another map of typed sensitivities.
+   * <p>
+   * This returns a new sensitivity target with a combined map of parameter sensitivities.
+   * Any sensitivities of the same type will be combined using
+   * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}
+   * 
+   * @param other  the other parameter sensitivities
+   * @return an instance based on this one, with the other instance added
+   */
+  public CurveSensitivities combinedWith(Map<CurveSensitivitiesType, CurrencyParameterSensitivities> other) {
+    ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities> combinedSens =
+        MapStream.concat(MapStream.of(typedSensitivities), MapStream.of(other))
+            .toMap(CurrencyParameterSensitivities::combinedWith);
+    return new CurveSensitivities(info, combinedSens);
+  }
+
   /**
    * Converts the sensitivities in this instance to an equivalent in the specified currency.
    * <p>
@@ -108,8 +126,8 @@ public final class CurrencyParameterSensitivitiesTarget
    * @throws RuntimeException if no FX rate could be found
    */
   @Override
-  public CurrencyParameterSensitivitiesTarget convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
-    return new CurrencyParameterSensitivitiesTarget(
+  public CurveSensitivities convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    return new CurveSensitivities(
         info,
         MapStream.of(typedSensitivities)
             .mapValues(v -> v.convertedTo(resultCurrency, rateProvider))
@@ -119,9 +137,9 @@ public final class CurrencyParameterSensitivitiesTarget
   @Override
   public PortfolioItemSummary summarize() {
     String typesStr = typedSensitivities.keySet().stream()
-        .map(CurrencyParameterSensitivityType::toString)
+        .map(CurveSensitivitiesType::toString)
         .sorted()
-        .collect(joining(", ", "CurrencyParameterSensitivities[", "]"));
+        .collect(joining(", ", "CurveSensitivities[", "]"));
     return PortfolioItemSummary.of(
         getId().orElse(null),
         PortfolioItemType.SENSITIVITIES,
@@ -135,15 +153,15 @@ public final class CurrencyParameterSensitivitiesTarget
 
   //------------------------- AUTOGENERATED START -------------------------
   /**
-   * The meta-bean for {@code CurrencyParameterSensitivitiesTarget}.
+   * The meta-bean for {@code CurveSensitivities}.
    * @return the meta-bean, not null
    */
-  public static CurrencyParameterSensitivitiesTarget.Meta meta() {
-    return CurrencyParameterSensitivitiesTarget.Meta.INSTANCE;
+  public static CurveSensitivities.Meta meta() {
+    return CurveSensitivities.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(CurrencyParameterSensitivitiesTarget.Meta.INSTANCE);
+    MetaBean.register(CurveSensitivities.Meta.INSTANCE);
   }
 
   /**
@@ -151,9 +169,9 @@ public final class CurrencyParameterSensitivitiesTarget
    */
   private static final long serialVersionUID = 1L;
 
-  private CurrencyParameterSensitivitiesTarget(
+  private CurveSensitivities(
       PortfolioItemInfo info,
-      Map<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> typedSensitivities) {
+      Map<CurveSensitivitiesType, CurrencyParameterSensitivities> typedSensitivities) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(typedSensitivities, "typedSensitivities");
     this.info = info;
@@ -161,8 +179,8 @@ public final class CurrencyParameterSensitivitiesTarget
   }
 
   @Override
-  public CurrencyParameterSensitivitiesTarget.Meta metaBean() {
-    return CurrencyParameterSensitivitiesTarget.Meta.INSTANCE;
+  public CurveSensitivities.Meta metaBean() {
+    return CurveSensitivities.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -185,7 +203,7 @@ public final class CurrencyParameterSensitivitiesTarget
    * For example, the target might have both delta and gamma sensitivity.
    * @return the value of the property, not null
    */
-  public ImmutableMap<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> getTypedSensitivities() {
+  public ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities> getTypedSensitivities() {
     return typedSensitivities;
   }
 
@@ -196,7 +214,7 @@ public final class CurrencyParameterSensitivitiesTarget
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      CurrencyParameterSensitivitiesTarget other = (CurrencyParameterSensitivitiesTarget) obj;
+      CurveSensitivities other = (CurveSensitivities) obj;
       return JodaBeanUtils.equal(info, other.info) &&
           JodaBeanUtils.equal(typedSensitivities, other.typedSensitivities);
     }
@@ -214,7 +232,7 @@ public final class CurrencyParameterSensitivitiesTarget
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
-    buf.append("CurrencyParameterSensitivitiesTarget{");
+    buf.append("CurveSensitivities{");
     buf.append("info").append('=').append(info).append(',').append(' ');
     buf.append("typedSensitivities").append('=').append(JodaBeanUtils.toString(typedSensitivities));
     buf.append('}');
@@ -223,7 +241,7 @@ public final class CurrencyParameterSensitivitiesTarget
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code CurrencyParameterSensitivitiesTarget}.
+   * The meta-bean for {@code CurveSensitivities}.
    */
   public static final class Meta extends DirectMetaBean {
     /**
@@ -235,13 +253,13 @@ public final class CurrencyParameterSensitivitiesTarget
      * The meta-property for the {@code info} property.
      */
     private final MetaProperty<PortfolioItemInfo> info = DirectMetaProperty.ofImmutable(
-        this, "info", CurrencyParameterSensitivitiesTarget.class, PortfolioItemInfo.class);
+        this, "info", CurveSensitivities.class, PortfolioItemInfo.class);
     /**
      * The meta-property for the {@code typedSensitivities} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableMap<CurrencyParameterSensitivityType, CurrencyParameterSensitivities>> typedSensitivities = DirectMetaProperty.ofImmutable(
-        this, "typedSensitivities", CurrencyParameterSensitivitiesTarget.class, (Class) ImmutableMap.class);
+    private final MetaProperty<ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities>> typedSensitivities = DirectMetaProperty.ofImmutable(
+        this, "typedSensitivities", CurveSensitivities.class, (Class) ImmutableMap.class);
     /**
      * The meta-properties.
      */
@@ -268,13 +286,13 @@ public final class CurrencyParameterSensitivitiesTarget
     }
 
     @Override
-    public BeanBuilder<? extends CurrencyParameterSensitivitiesTarget> builder() {
-      return new CurrencyParameterSensitivitiesTarget.Builder();
+    public BeanBuilder<? extends CurveSensitivities> builder() {
+      return new CurveSensitivities.Builder();
     }
 
     @Override
-    public Class<? extends CurrencyParameterSensitivitiesTarget> beanType() {
-      return CurrencyParameterSensitivitiesTarget.class;
+    public Class<? extends CurveSensitivities> beanType() {
+      return CurveSensitivities.class;
     }
 
     @Override
@@ -295,7 +313,7 @@ public final class CurrencyParameterSensitivitiesTarget
      * The meta-property for the {@code typedSensitivities} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableMap<CurrencyParameterSensitivityType, CurrencyParameterSensitivities>> typedSensitivities() {
+    public MetaProperty<ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities>> typedSensitivities() {
       return typedSensitivities;
     }
 
@@ -304,9 +322,9 @@ public final class CurrencyParameterSensitivitiesTarget
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3237038:  // info
-          return ((CurrencyParameterSensitivitiesTarget) bean).getInfo();
+          return ((CurveSensitivities) bean).getInfo();
         case 153032499:  // typedSensitivities
-          return ((CurrencyParameterSensitivitiesTarget) bean).getTypedSensitivities();
+          return ((CurveSensitivities) bean).getTypedSensitivities();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -324,12 +342,12 @@ public final class CurrencyParameterSensitivitiesTarget
 
   //-----------------------------------------------------------------------
   /**
-   * The bean-builder for {@code CurrencyParameterSensitivitiesTarget}.
+   * The bean-builder for {@code CurveSensitivities}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<CurrencyParameterSensitivitiesTarget> {
+  private static final class Builder extends DirectPrivateBeanBuilder<CurveSensitivities> {
 
     private PortfolioItemInfo info;
-    private Map<CurrencyParameterSensitivityType, CurrencyParameterSensitivities> typedSensitivities = ImmutableMap.of();
+    private Map<CurveSensitivitiesType, CurrencyParameterSensitivities> typedSensitivities = ImmutableMap.of();
 
     /**
      * Restricted constructor.
@@ -358,7 +376,7 @@ public final class CurrencyParameterSensitivitiesTarget
           this.info = (PortfolioItemInfo) newValue;
           break;
         case 153032499:  // typedSensitivities
-          this.typedSensitivities = (Map<CurrencyParameterSensitivityType, CurrencyParameterSensitivities>) newValue;
+          this.typedSensitivities = (Map<CurveSensitivitiesType, CurrencyParameterSensitivities>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -367,8 +385,8 @@ public final class CurrencyParameterSensitivitiesTarget
     }
 
     @Override
-    public CurrencyParameterSensitivitiesTarget build() {
-      return new CurrencyParameterSensitivitiesTarget(
+    public CurveSensitivities build() {
+      return new CurveSensitivities(
           info,
           typedSensitivities);
     }
@@ -377,7 +395,7 @@ public final class CurrencyParameterSensitivitiesTarget
     @Override
     public String toString() {
       StringBuilder buf = new StringBuilder(96);
-      buf.append("CurrencyParameterSensitivitiesTarget.Builder{");
+      buf.append("CurveSensitivities.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("typedSensitivities").append('=').append(JodaBeanUtils.toString(typedSensitivities));
       buf.append('}');
