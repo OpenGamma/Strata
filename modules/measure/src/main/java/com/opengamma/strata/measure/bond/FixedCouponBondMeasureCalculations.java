@@ -15,6 +15,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.bond.DiscountingFixedCouponBondTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
 
 /**
@@ -29,6 +30,10 @@ final class FixedCouponBondMeasureCalculations {
    */
   public static final FixedCouponBondMeasureCalculations DEFAULT = new FixedCouponBondMeasureCalculations(
       DiscountingFixedCouponBondTradePricer.DEFAULT);
+  /**
+   * The market quote sensitivity calculator.
+   */
+  private static final MarketQuoteSensitivityCalculator MARKET_QUOTE_SENS = MarketQuoteSensitivityCalculator.DEFAULT;
   /**
    * One basis point, expressed as a {@code double}.
    */
@@ -106,6 +111,48 @@ final class FixedCouponBondMeasureCalculations {
 
     PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, discountingProvider);
     return discountingProvider.parameterSensitivity(pointSensitivity).multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote sum PV01 for all scenarios
+  MultiCurrencyScenarioArray pv01MarketQuoteSum(
+      ResolvedFixedCouponBondTrade trade,
+      LegalEntityDiscountingScenarioMarketData marketData) {
+
+    return MultiCurrencyScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteSum(trade, marketData.scenario(i).discountingProvider()));
+  }
+
+  // market quote sum PV01 for one scenario
+  MultiCurrencyAmount pv01MarketQuoteSum(
+      ResolvedFixedCouponBondTrade trade,
+      LegalEntityDiscountingProvider ratesProvider) {
+
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).total().multipliedBy(ONE_BASIS_POINT);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates market quote bucketed PV01 for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+      ResolvedFixedCouponBondTrade trade,
+      LegalEntityDiscountingScenarioMarketData marketData) {
+
+    return ScenarioArray.of(
+        marketData.getScenarioCount(),
+        i -> pv01MarketQuoteBucketed(trade, marketData.scenario(i).discountingProvider()));
+  }
+
+  // market quote bucketed PV01 for one scenario
+  CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+      ResolvedFixedCouponBondTrade trade,
+      LegalEntityDiscountingProvider ratesProvider) {
+
+    PointSensitivities pointSensitivity = tradePricer.presentValueSensitivity(trade, ratesProvider);
+    CurrencyParameterSensitivities parameterSensitivity = ratesProvider.parameterSensitivity(pointSensitivity);
+    return MARKET_QUOTE_SENS.sensitivity(parameterSensitivity, ratesProvider).multipliedBy(ONE_BASIS_POINT);
   }
 
   //-------------------------------------------------------------------------

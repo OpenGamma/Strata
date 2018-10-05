@@ -20,6 +20,7 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.bond.DiscountingBillTradePricer;
 import com.opengamma.strata.pricer.bond.LegalEntityDiscountingProvider;
+import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.product.bond.ResolvedBillTrade;
 
 /**
@@ -32,6 +33,7 @@ public class BillTradeCalculationsTest {
   private static final LegalEntityDiscountingMarketDataLookup LOOKUP = BillTradeCalculationFunctionTest.LOOKUP;
   private static final BillTradeCalculations CALC = BillTradeCalculations.DEFAULT;
   private static final DiscountingBillTradePricer PRICER = DiscountingBillTradePricer.DEFAULT;
+  private static final MarketQuoteSensitivityCalculator MQ_CALC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   //-------------------------------------------------------------------------
   public void test_presentValue() {
@@ -55,7 +57,7 @@ public class BillTradeCalculationsTest {
     assertEquals(CALC.currentCash(RTRADE, provider), expectedCurrentCash);
   }
 
-  public void test_pv01() {
+  public void test_pv01_calibrated() {
     ScenarioMarketData md = BillTradeCalculationFunctionTest.marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
     PointSensitivities pvPointSens = PRICER.presentValueSensitivity(RTRADE, provider);
@@ -71,6 +73,24 @@ public class BillTradeCalculationsTest {
         ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
     assertEquals(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, provider), expectedPv01Cal);
     assertEquals(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, provider), expectedPv01CalBucketed);
+  }
+
+  public void test_pv01_quote() {
+    ScenarioMarketData md = BillTradeCalculationFunctionTest.marketData();
+    LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
+    PointSensitivities pvPointSens = PRICER.presentValueSensitivity(RTRADE, provider);
+    CurrencyParameterSensitivities pvParamSens = provider.parameterSensitivity(pvPointSens);
+    CurrencyParameterSensitivities expectedPv01CalBucketed = MQ_CALC.sensitivity(pvParamSens, provider).multipliedBy(1e-4);
+    MultiCurrencyAmount expectedPv01Cal = expectedPv01CalBucketed.total();
+
+    assertEquals(
+        BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, LOOKUP, md),
+        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertEquals(
+        BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, LOOKUP, md),
+        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertEquals(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, provider), expectedPv01Cal);
+    assertEquals(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, provider), expectedPv01CalBucketed);
   }
 
 }

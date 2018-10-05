@@ -45,6 +45,8 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
  *   <li>{@linkplain Measures#PRESENT_VALUE Present value}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_SUM PV01 calibrated sum}
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum}
+ *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed}
  *   <li>{@linkplain Measures#UNIT_PRICE Unit price}
  *   <li>{@linkplain Measures#PAR_SPREAD Par spread}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
@@ -80,6 +82,8 @@ public class BondFutureTradeCalculationFunction<T extends SecuritizedProductPort
           .put(Measures.PRESENT_VALUE, BondFutureMeasureCalculations.DEFAULT::presentValue)
           .put(Measures.PV01_CALIBRATED_SUM, BondFutureMeasureCalculations.DEFAULT::pv01CalibratedSum)
           .put(Measures.PV01_CALIBRATED_BUCKETED, BondFutureMeasureCalculations.DEFAULT::pv01CalibratedBucketed)
+          .put(Measures.PV01_MARKET_QUOTE_SUM, BondFutureMeasureCalculations.DEFAULT::pv01MarketQuoteSum)
+          .put(Measures.PV01_MARKET_QUOTE_BUCKETED, BondFutureMeasureCalculations.DEFAULT::pv01MarketQuoteBucketed)
           .put(Measures.UNIT_PRICE, BondFutureMeasureCalculations.DEFAULT::unitPrice)
           .put(Measures.PAR_SPREAD, BondFutureMeasureCalculations.DEFAULT::parSpread)
           .put(Measures.CURRENCY_EXPOSURE, BondFutureMeasureCalculations.DEFAULT::currencyExposure)
