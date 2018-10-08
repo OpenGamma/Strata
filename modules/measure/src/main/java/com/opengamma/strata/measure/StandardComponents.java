@@ -14,6 +14,7 @@ import com.opengamma.strata.calc.marketdata.MarketDataFunction;
 import com.opengamma.strata.calc.marketdata.ObservableDataProvider;
 import com.opengamma.strata.calc.marketdata.TimeSeriesProvider;
 import com.opengamma.strata.calc.runner.CalculationFunctions;
+import com.opengamma.strata.measure.bond.BillTradeCalculationFunction;
 import com.opengamma.strata.measure.bond.BondFutureOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.bond.BondFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.bond.CapitalIndexedBondTradeCalculationFunction;
@@ -120,6 +121,8 @@ public final class StandardComponents {
       DsfTradeCalculationFunction.POSITION,
       FixedCouponBondTradeCalculationFunction.TRADE,
       FixedCouponBondTradeCalculationFunction.POSITION,
+      BillTradeCalculationFunction.TRADE,
+      BillTradeCalculationFunction.POSITION,
       IborFutureTradeCalculationFunction.TRADE,
       IborFutureTradeCalculationFunction.POSITION,
       IborFutureOptionTradeCalculationFunction.TRADE,

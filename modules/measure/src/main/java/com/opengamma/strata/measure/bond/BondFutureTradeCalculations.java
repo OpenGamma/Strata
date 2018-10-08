@@ -174,6 +174,88 @@ public class BondFutureTradeCalculations {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates present value sensitivity across one or more scenarios.
+   * <p>
+   * This is the sensitivity of
+   * {@linkplain #presentValue(ResolvedBondFutureTrade, LegalEntityDiscountingMarketDataLookup, ScenarioMarketData) present value}
+   * to a one basis point shift in the market quotes used to calibrate the curves.
+   * The result is the sum of the sensitivities of all affected curves.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the present value sensitivity, one entry per scenario
+   */
+  public MultiCurrencyScenarioArray pv01MarketQuoteSum(
+      ResolvedBondFutureTrade trade,
+      LegalEntityDiscountingMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.pv01MarketQuoteSum(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates present value sensitivity for a single set of market data.
+   * <p>
+   * This is the sensitivity of
+   * {@linkplain #presentValue(ResolvedBondFutureTrade, LegalEntityDiscountingMarketDataLookup, ScenarioMarketData) present value}
+   * to a one basis point shift in the market quotes used to calibrate the curves.
+   * The result is the sum of the sensitivities of all affected curves.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the present value sensitivity
+   */
+  public MultiCurrencyAmount pv01MarketQuoteSum(
+      ResolvedBondFutureTrade trade,
+      LegalEntityDiscountingProvider ratesProvider) {
+
+    return calc.pv01MarketQuoteSum(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates present value sensitivity across one or more scenarios.
+   * <p>
+   * This is the sensitivity of
+   * {@linkplain #presentValue(ResolvedBondFutureTrade, LegalEntityDiscountingMarketDataLookup, ScenarioMarketData) present value}
+   * to a one basis point shift in the market quotes used to calibrate the curves.
+   * The result is provided for each affected curve and currency, bucketed by curve node.
+   * 
+   * @param trade  the trade
+   * @param lookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @return the present value sensitivity, one entry per scenario
+   */
+  public ScenarioArray<CurrencyParameterSensitivities> pv01MarketQuoteBucketed(
+      ResolvedBondFutureTrade trade,
+      LegalEntityDiscountingMarketDataLookup lookup,
+      ScenarioMarketData marketData) {
+
+    return calc.pv01MarketQuoteBucketed(trade, lookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates present value sensitivity for a single set of market data.
+   * <p>
+   * This is the sensitivity of
+   * {@linkplain #presentValue(ResolvedBondFutureTrade, LegalEntityDiscountingMarketDataLookup, ScenarioMarketData) present value}
+   * to a one basis point shift in the market quotes used to calibrate the curves.
+   * The result is provided for each affected curve and currency, bucketed by curve node.
+   * 
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @return the present value sensitivity
+   */
+  public CurrencyParameterSensitivities pv01MarketQuoteBucketed(
+      ResolvedBondFutureTrade trade,
+      LegalEntityDiscountingProvider ratesProvider) {
+
+    return calc.pv01MarketQuoteBucketed(trade, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates par spread across one or more scenarios.
    * 
    * @param trade  the trade
