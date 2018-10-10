@@ -68,6 +68,15 @@ public final class CurveSensitivities
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains an empty instance.
+   * 
+   * @return the empty sensitivities instance
+   */
+  public static CurveSensitivities empty() {
+    return new CurveSensitivities(PortfolioItemInfo.empty(), ImmutableMap.of());
+  }
+
+  /**
    * Obtains an instance from a single set of sensitivities.
    * 
    * @param info  the additional information
