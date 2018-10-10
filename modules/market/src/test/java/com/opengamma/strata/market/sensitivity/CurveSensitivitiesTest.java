@@ -72,6 +72,12 @@ public class CurveSensitivitiesTest {
   private static final PortfolioItemInfo INFO2 = PortfolioItemInfo.empty().withId(ID).withAttribute(NAME, "2");
 
   //-------------------------------------------------------------------------
+  public void test_empty() {
+    CurveSensitivities test = CurveSensitivities.empty();
+    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
+    assertEquals(test.getTypedSensitivities(), ImmutableMap.of());
+  }
+
   public void test_of_single() {
     CurveSensitivities test = sut();
     assertEquals(test.getId(), Optional.empty());
