@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -36,6 +37,7 @@ public class MapStreamTest {
 
   private final Map<String, Integer> map = ImmutableMap.of("one", 1, "two", 2, "three", 3, "four", 4);
 
+  //-------------------------------------------------------------------------
   public void keys() {
     List<String> result = MapStream.of(map).keys().collect(toImmutableList());
     assertThat(result).isEqualTo(ImmutableList.of("one", "two", "three", "four"));
@@ -277,6 +279,13 @@ public class MapStreamTest {
     HashMap<Object, Object> mutableMap = new HashMap<>();
     MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
     assertThat(mutableMap).isEqualTo(map);
+  }
+
+  //-------------------------------------------------------------------------
+  public void ofMultimap() {
+    ImmutableMultimap<String, Integer> input = ImmutableMultimap.of("one", 1, "two", 2, "one", 3);
+    assertThat(MapStream.of(input)).containsExactlyInAnyOrder(entry("one", 1), entry("two", 2), entry("one", 3));
+    assertThat(MapStream.of(input).toMap(Integer::sum)).containsOnly(entry("one", 4), entry("two", 2));
   }
 
   public void ofCollection() {
