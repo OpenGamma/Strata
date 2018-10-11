@@ -31,6 +31,7 @@ import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.PortfolioItem;
 import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
@@ -77,6 +78,16 @@ public final class CurveSensitivities
   }
 
   /**
+   * Returns a builder that can be used to create an instance of {@code CurveSensitivities}.
+   * 
+   * @param info  the additional information
+   * @return the builder
+   */
+  public static CurveSensitivitiesBuilder builder(PortfolioItemInfo info) {
+    return new CurveSensitivitiesBuilder(info);
+  }
+
+  /**
    * Obtains an instance from a single set of sensitivities.
    * 
    * @param info  the additional information
@@ -108,11 +119,26 @@ public final class CurveSensitivities
 
   //-----------------------------------------------------------------------
   /**
+   * Gets a sensitivity instance by type, throwing an exception if not found.
+   * 
+   * @param type  the type to get
+   * @return the sensitivity
+   * @throws IllegalArgumentException if the type is not found
+   */
+  public CurrencyParameterSensitivities getTypedSensitivity(CurveSensitivitiesType type) {
+    CurrencyParameterSensitivities sens = typedSensitivities.get(type);
+    if (sens == null) {
+      throw new IllegalArgumentException("Unable to find sensitivities: " + type);
+    }
+    return sens;
+  }
+
+  /**
    * Combines this set of sensitivities with another set.
    * <p>
    * This returns a new curve sensitivities with a combined map of typed sensitivities.
    * Any sensitivities of the same type will be combined using
-   * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}
+   * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}.
    * 
    * @param other  the other parameter sensitivities
    * @return an instance based on this one, with the other instance added
@@ -122,6 +148,31 @@ public final class CurveSensitivities
         MapStream.concat(MapStream.of(typedSensitivities), MapStream.of(other))
             .toMap(CurrencyParameterSensitivities::combinedWith);
     return new CurveSensitivities(info, combinedSens);
+  }
+
+  /**
+   * Combines this set of sensitivities with another set.
+   * <p>
+   * This returns a new curve sensitivities with a combined map of typed sensitivities.
+   * Any sensitivities of the same type will be combined using
+   * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}.
+   * The identifier and attributes of this instance will take precedence.
+   * 
+   * @param other  the other parameter sensitivities
+   * @return an instance based on this one, with the other instance added
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public CurveSensitivities combinedWith(CurveSensitivities other) {
+    PortfolioItemInfo combinedInfo = info;
+    if (!info.getId().isPresent() && other.info.getId().isPresent()) {
+      combinedInfo = combinedInfo.withId(other.info.getId().get());
+    }
+    for (AttributeType attrType : other.info.getAttributeTypes()) {
+      if (!combinedInfo.getAttributeTypes().contains(attrType)) {
+        combinedInfo = combinedInfo.withAttribute(attrType, other.info.getAttribute(attrType));
+      }
+    }
+    return new CurveSensitivities(combinedInfo, combinedWith(other.typedSensitivities).getTypedSensitivities());
   }
 
   /**
