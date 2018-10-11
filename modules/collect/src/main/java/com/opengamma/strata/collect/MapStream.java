@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Streams;
 
 /**
@@ -61,6 +62,20 @@ public final class MapStream<K, V>
    */
   public static <K, V> MapStream<K, V> of(Map<K, V> map) {
     return new MapStream<>(map.entrySet().stream());
+  }
+
+  /**
+   * Returns a stream over all the entries in the multimap.
+   * <p>
+   * This will typically create a stream with duplicate keys.
+   *
+   * @param <K>  the key type
+   * @param <V>  the value type
+   * @param multimap  the multimap to wrap
+   * @return a stream over the entries in the multimap
+   */
+  public static <K, V> MapStream<K, V> of(Multimap<K, V> multimap) {
+    return new MapStream<>(multimap.entries().stream());
   }
 
   /**
