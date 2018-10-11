@@ -23,6 +23,7 @@ import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -154,7 +155,13 @@ public final class LoaderUtils {
    * @throws NumberFormatException if the string cannot be parsed
    */
   public static int parseInteger(String str) {
-    return Integer.parseInt(str);
+    try {
+      return Integer.parseInt(str);
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse integer from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
   }
 
   /**
@@ -165,7 +172,13 @@ public final class LoaderUtils {
    * @throws NumberFormatException if the string cannot be parsed
    */
   public static double parseDouble(String str) {
-    return new BigDecimal(str).doubleValue();
+    try {
+      return new BigDecimal(str).doubleValue();
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
   }
 
   /**
@@ -176,7 +189,13 @@ public final class LoaderUtils {
    * @throws NumberFormatException if the string cannot be parsed
    */
   public static double parseDoublePercent(String str) {
-    return new BigDecimal(str).movePointLeft(2).doubleValue();
+    try {
+      return new BigDecimal(str).movePointLeft(2).doubleValue();
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse percentage from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
   }
 
   /**
@@ -325,6 +344,24 @@ public final class LoaderUtils {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Parses currency from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static Currency parseCurrency(String str) {
+    try {
+      return Currency.of(str.toUpperCase(Locale.ENGLISH));
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException(
+          "Unknown Currency, must be 3 letter ISO-4217 format but was '" + str + "'");
+    }
+  }
+
   /**
    * Parses day count from the input string.
    * <p>
