@@ -60,6 +60,11 @@ public class CurveSensitivitiesTest {
   private static final MarketDataName<?> NAME2 = CurveName.of("NAME-2");
   private static final List<ParameterMetadata> METADATA1 = ParameterMetadata.listOfEmpty(4);
   private static final List<ParameterMetadata> METADATA2 = ParameterMetadata.listOfEmpty(5);
+  private static final List<ParameterMetadata> METADATA1B = ImmutableList.of(
+      TenorParameterMetadata.of(Tenor.TENOR_1Y),
+      TenorParameterMetadata.of(Tenor.TENOR_2Y),
+      TenorParameterMetadata.of(Tenor.TENOR_3Y),
+      TenorParameterMetadata.of(Tenor.TENOR_4Y));
 
   private static final CurrencyParameterSensitivity ENTRY_USD =
       CurrencyParameterSensitivity.of(NAME1, METADATA1, USD, VECTOR_USD1);
@@ -175,6 +180,30 @@ public class CurveSensitivitiesTest {
     assertEquals(test.getTypedSensitivities().keySet(), ImmutableSet.of(ZERO_RATE_DELTA, ZERO_RATE_GAMMA));
     assertEquals(test.getTypedSensitivities().get(ZERO_RATE_DELTA), SENSI1.multipliedBy(2));
     assertEquals(test.getTypedSensitivities().get(ZERO_RATE_GAMMA), SENSI2);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withMarketDataNames() {
+    CurveSensitivities base = sut();
+    CurveSensitivities test = base.withMarketDataNames(name -> NAME2);
+    assertEquals(
+        base.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getMarketDataName(),
+        NAME1);
+    assertEquals(
+        test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getMarketDataName(),
+        NAME2);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withParameterMetadatas() {
+    CurveSensitivities base = sut();
+    CurveSensitivities test = base.withParameterMetadatas(md -> METADATA1B);
+    assertEquals(
+        base.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getParameterMetadata(),
+        METADATA1);
+    assertEquals(
+        test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getParameterMetadata(),
+        METADATA1B);
   }
 
   //-------------------------------------------------------------------------

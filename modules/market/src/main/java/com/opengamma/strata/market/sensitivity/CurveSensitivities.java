@@ -5,12 +5,15 @@
  */
 package com.opengamma.strata.market.sensitivity;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.util.stream.Collectors.joining;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -30,7 +33,9 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxConvertible;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.MapStream;
+import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.PortfolioItem;
 import com.opengamma.strata.product.PortfolioItemInfo;
@@ -133,6 +138,7 @@ public final class CurveSensitivities
     return sens;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Combines this set of sensitivities with another set.
    * <p>
@@ -175,6 +181,54 @@ public final class CurveSensitivities
     return new CurveSensitivities(combinedInfo, combinedWith(other.typedSensitivities).getTypedSensitivities());
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks and adjusts the market data names.
+   * <p>
+   * The supplied function is invoked for each market data name in this sensitivities.
+   * A typical use case would be to convert index names to curve names valid for an underlying system.
+   * 
+   * @param nameFn  the function for checking and adjusting the name
+   * @return the adjusted sensitivity
+   * @throws RuntimeException if the function throws an exception
+   */
+  public CurveSensitivities withMarketDataNames(Function<MarketDataName<?>, MarketDataName<?>> nameFn) {
+    return new CurveSensitivities(
+        info,
+        MapStream.of(typedSensitivities)
+            .mapValues(sens -> CurrencyParameterSensitivities.of(
+                sens.getSensitivities().stream()
+                    .map(single -> single.toBuilder()
+                        .marketDataName(nameFn.apply(single.getMarketDataName()))
+                        .build())
+                    .collect(toImmutableList())))
+            .toMap());
+  }
+
+  /**
+   * Checks and adjusts the market data names.
+   * <p>
+   * The supplied function is invoked for each market data name in this sensitivities.
+   * A typical use case would be to convert index names to curve names valid for an underlying system.
+   * 
+   * @param nameFn  the function for checking and adjusting the name
+   * @return the adjusted sensitivity
+   * @throws RuntimeException if the function throws an exception
+   */
+  public CurveSensitivities withParameterMetadatas(Function<List<ParameterMetadata>, List<ParameterMetadata>> nameFn) {
+    return new CurveSensitivities(
+        info,
+        MapStream.of(typedSensitivities)
+            .mapValues(sens -> CurrencyParameterSensitivities.of(
+                sens.getSensitivities().stream()
+                    .map(single -> single.toBuilder()
+                        .parameterMetadata(nameFn.apply(single.getParameterMetadata()))
+                        .build())
+                    .collect(toImmutableList())))
+            .toMap());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Converts the sensitivities in this instance to an equivalent in the specified currency.
    * <p>
