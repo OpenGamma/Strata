@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.YearMonth;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
@@ -136,9 +137,26 @@ public class LoaderUtilsTest {
     assertThrowsIllegalArg(() -> LoaderUtils.parseTenor("2"));
   }
 
+  public void test_tryParseTenor() {
+    assertEquals(LoaderUtils.tryParseTenor("P2D"), Optional.of(Tenor.ofDays(2)));
+    assertEquals(LoaderUtils.tryParseTenor("2D"), Optional.of(Tenor.ofDays(2)));
+    assertEquals(LoaderUtils.tryParseTenor("2X"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseTenor("2"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseTenor(""), Optional.empty());
+    assertEquals(LoaderUtils.tryParseTenor(null), Optional.empty());
+  }
+
   public void test_parseCurrency() {
     assertEquals(LoaderUtils.parseCurrency("GBP"), Currency.GBP);
     assertThrowsIllegalArg(() -> LoaderUtils.parseCurrency("A"));
+  }
+
+  public void test_tryParseCurrency() {
+    assertEquals(LoaderUtils.tryParseCurrency("GBP"), Optional.of(Currency.GBP));
+    assertEquals(LoaderUtils.tryParseCurrency("123"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseCurrency("G"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseCurrency(""), Optional.empty());
+    assertEquals(LoaderUtils.tryParseCurrency(null), Optional.empty());
   }
 
   public void test_parseBuySell() {
