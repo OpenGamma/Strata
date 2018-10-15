@@ -82,10 +82,10 @@ public final class FailureItem
   @PropertyDefinition(validate = "notNull")
   private final String stackTrace;
   /**
-   * The type of the exception that caused the failure, not present if it wasn't caused by an exception.
+   * The type of the throwable that caused the failure, not present if it wasn't caused by a throwable.
    */
   @PropertyDefinition(get = "optional")
-  private final Class<? extends Exception> causeType;
+  private final Class<? extends Throwable> causeType;
 
   //-------------------------------------------------------------------------
   /**
@@ -165,7 +165,7 @@ public final class FailureItem
    * @param cause  the cause
    * @return the failure
    */
-  public static FailureItem of(FailureReason reason, Exception cause) {
+  public static FailureItem of(FailureReason reason, Throwable cause) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notNull(cause, "cause");
     String causeMessage = cause.getMessage();
@@ -174,7 +174,7 @@ public final class FailureItem
   }
 
   /**
-   * Obtains a failure from a reason, exception and message.
+   * Obtains a failure from a reason, throwable and message.
    * <p>
    * The message is produced using a template that contains zero to many "{}" placeholders.
    * Each placeholder is replaced by the next available argument.
@@ -189,7 +189,7 @@ public final class FailureItem
    * @param messageArgs  the arguments for the message
    * @return the failure
    */
-  public static FailureItem of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
+  public static FailureItem of(FailureReason reason, Throwable cause, String message, Object... messageArgs) {
     ArgChecker.notNull(reason, "reason");
     ArgChecker.notNull(cause, "cause");
     Pair<String, Map<String, String>> msg = Messages.formatWithAttributes(message, messageArgs);
@@ -209,7 +209,7 @@ public final class FailureItem
       String message,
       Map<String, String> attributes,
       String stackTrace,
-      Class<? extends Exception> causeType) {
+      Class<? extends Throwable> causeType) {
     this.attributes = ImmutableMap.copyOf(attributes);
     JodaBeanUtils.notNull(reason, "reason");
     JodaBeanUtils.notEmpty(message, "message");
@@ -331,10 +331,10 @@ public final class FailureItem
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the type of the exception that caused the failure, not present if it wasn't caused by an exception.
+   * Gets the type of the throwable that caused the failure, not present if it wasn't caused by a throwable.
    * @return the optional value of the property, not null
    */
-  public Optional<Class<? extends Exception>> getCauseType() {
+  public Optional<Class<? extends Throwable>> getCauseType() {
     return Optional.ofNullable(causeType);
   }
 
@@ -401,7 +401,7 @@ public final class FailureItem
      * The meta-property for the {@code causeType} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Class<? extends Exception>> causeType = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Class<? extends Throwable>> causeType = DirectMetaProperty.ofImmutable(
         this, "causeType", FailureItem.class, (Class) Class.class);
     /**
      * The meta-properties.
@@ -489,7 +489,7 @@ public final class FailureItem
      * The meta-property for the {@code causeType} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Class<? extends Exception>> causeType() {
+    public MetaProperty<Class<? extends Throwable>> causeType() {
       return causeType;
     }
 
@@ -532,7 +532,7 @@ public final class FailureItem
     private String message;
     private Map<String, String> attributes = ImmutableMap.of();
     private String stackTrace;
-    private Class<? extends Exception> causeType;
+    private Class<? extends Throwable> causeType;
 
     /**
      * Restricted constructor.
@@ -576,7 +576,7 @@ public final class FailureItem
           this.stackTrace = (String) newValue;
           break;
         case -1443456189:  // causeType
-          this.causeType = (Class<? extends Exception>) newValue;
+          this.causeType = (Class<? extends Throwable>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
