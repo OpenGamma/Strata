@@ -17,7 +17,6 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
 import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
@@ -25,10 +24,10 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -60,7 +59,7 @@ import com.opengamma.strata.market.surface.Surface;
  * For example, a curve formed from two underlying curves.
  * Information about the split between these underlying instances can optionally be stored.
  */
-@BeanDefinition(builderScope = "private")
+@BeanDefinition
 public final class CurrencyParameterSensitivity
     implements FxConvertible<CurrencyParameterSensitivity>, ImmutableBean, Serializable {
 
@@ -488,6 +487,14 @@ public final class CurrencyParameterSensitivity
    */
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * @return the builder, not null
+   */
+  public static CurrencyParameterSensitivity.Builder builder() {
+    return new CurrencyParameterSensitivity.Builder();
+  }
+
   private CurrencyParameterSensitivity(
       MarketDataName<?> marketDataName,
       List<? extends ParameterMetadata> parameterMetadata,
@@ -568,6 +575,14 @@ public final class CurrencyParameterSensitivity
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Returns a builder that allows this bean to be mutated.
+   * @return the mutable builder, not null
+   */
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
   @Override
   public boolean equals(Object obj) {
     if (obj == this) {
@@ -681,7 +696,7 @@ public final class CurrencyParameterSensitivity
     }
 
     @Override
-    public BeanBuilder<? extends CurrencyParameterSensitivity> builder() {
+    public CurrencyParameterSensitivity.Builder builder() {
       return new CurrencyParameterSensitivity.Builder();
     }
 
@@ -769,7 +784,7 @@ public final class CurrencyParameterSensitivity
   /**
    * The bean-builder for {@code CurrencyParameterSensitivity}.
    */
-  private static final class Builder extends DirectPrivateBeanBuilder<CurrencyParameterSensitivity> {
+  public static final class Builder extends DirectFieldsBeanBuilder<CurrencyParameterSensitivity> {
 
     private MarketDataName<?> marketDataName;
     private List<? extends ParameterMetadata> parameterMetadata = ImmutableList.of();
@@ -781,6 +796,18 @@ public final class CurrencyParameterSensitivity
      * Restricted constructor.
      */
     private Builder() {
+    }
+
+    /**
+     * Restricted copy constructor.
+     * @param beanToCopy  the bean to copy from, not null
+     */
+    private Builder(CurrencyParameterSensitivity beanToCopy) {
+      this.marketDataName = beanToCopy.getMarketDataName();
+      this.parameterMetadata = beanToCopy.getParameterMetadata();
+      this.currency = beanToCopy.getCurrency();
+      this.sensitivity = beanToCopy.getSensitivity();
+      this.parameterSplit = beanToCopy.parameterSplit;
     }
 
     //-----------------------------------------------------------------------
@@ -828,6 +855,12 @@ public final class CurrencyParameterSensitivity
     }
 
     @Override
+    public Builder set(MetaProperty<?> property, Object value) {
+      super.set(property, value);
+      return this;
+    }
+
+    @Override
     public CurrencyParameterSensitivity build() {
       return new CurrencyParameterSensitivity(
           marketDataName,
@@ -835,6 +868,92 @@ public final class CurrencyParameterSensitivity
           currency,
           sensitivity,
           parameterSplit);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Sets the market data name.
+     * <p>
+     * This name is used in the market data system to identify the data that the sensitivities refer to.
+     * @param marketDataName  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder marketDataName(MarketDataName<?> marketDataName) {
+      JodaBeanUtils.notNull(marketDataName, "marketDataName");
+      this.marketDataName = marketDataName;
+      return this;
+    }
+
+    /**
+     * Sets the list of parameter metadata.
+     * <p>
+     * There is one entry for each parameter.
+     * @param parameterMetadata  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder parameterMetadata(List<? extends ParameterMetadata> parameterMetadata) {
+      JodaBeanUtils.notNull(parameterMetadata, "parameterMetadata");
+      this.parameterMetadata = parameterMetadata;
+      return this;
+    }
+
+    /**
+     * Sets the {@code parameterMetadata} property in the builder
+     * from an array of objects.
+     * @param parameterMetadata  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder parameterMetadata(ParameterMetadata... parameterMetadata) {
+      return parameterMetadata(ImmutableList.copyOf(parameterMetadata));
+    }
+
+    /**
+     * Sets the currency of the sensitivity.
+     * @param currency  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
+      this.currency = currency;
+      return this;
+    }
+
+    /**
+     * Sets the parameter sensitivity values.
+     * <p>
+     * There is one sensitivity value for each parameter.
+     * @param sensitivity  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder sensitivity(DoubleArray sensitivity) {
+      JodaBeanUtils.notNull(sensitivity, "sensitivity");
+      this.sensitivity = sensitivity;
+      return this;
+    }
+
+    /**
+     * Sets the split of parameters between the underlying parameterized data.
+     * <p>
+     * A single {@code CurrencyParameterSensitivity} represents the sensitivity to a single {@link ParameterizedData} instance.
+     * However, a {@code ParameterizedData} instance can itself be backed by more than one underlying instance.
+     * For example, a curve formed from two underlying curves.
+     * If this list is present, it represents how to split this sensitivity between the underlying instances.
+     * @param parameterSplit  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder parameterSplit(List<ParameterSize> parameterSplit) {
+      this.parameterSplit = parameterSplit;
+      return this;
+    }
+
+    /**
+     * Sets the {@code parameterSplit} property in the builder
+     * from an array of objects.
+     * @param parameterSplit  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder parameterSplit(ParameterSize... parameterSplit) {
+      return parameterSplit(ImmutableList.copyOf(parameterSplit));
     }
 
     //-----------------------------------------------------------------------
