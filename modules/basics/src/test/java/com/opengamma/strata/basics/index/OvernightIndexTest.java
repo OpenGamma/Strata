@@ -274,6 +274,14 @@ public class OvernightIndexTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_alternateNames() {
+    assertEquals(OvernightIndex.of("JPY-TONA"), OvernightIndices.JPY_TONAR);
+    assertEquals(OvernightIndex.of("USD-FED-FUNDS"), OvernightIndices.USD_FED_FUND);
+    assertEquals(OvernightIndex.of("USD-FEDFUNDS"), OvernightIndices.USD_FED_FUND);
+    assertEquals(OvernightIndex.of("USD-FEDFUND"), OvernightIndices.USD_FED_FUND);
+  }
+
+  //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {

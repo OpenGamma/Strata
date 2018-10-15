@@ -322,11 +322,12 @@ public final class RatesCurveGroupDefinition
    */
   public ImmutableSet<CurveName> findForwardCurveNames(FloatingRateName forwardName) {
     ImmutableSet.Builder<CurveName> result = ImmutableSet.builder();
+    FloatingRateName normalized = forwardName.normalized();
     for (RatesCurveGroupEntry entry : entries) {
       for (Index index : entry.getIndices()) {
         if (index instanceof FloatingRateIndex) {
           FloatingRateName frName = ((FloatingRateIndex) index).getFloatingRateName();
-          if (frName.equals(forwardName)) {
+          if (frName.equals(normalized)) {
             result.add(entry.getCurveName());
             break;
           }
