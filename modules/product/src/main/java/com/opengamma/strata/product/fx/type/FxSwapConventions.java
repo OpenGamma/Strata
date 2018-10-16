@@ -42,6 +42,14 @@ public final class FxSwapConventions {
   public static final FxSwapConvention GBP_USD =
       FxSwapConvention.of(StandardFxSwapConventions.GBP_USD.getName());
 
+  /**
+   * The "GBP/JPY" FX Swap convention.
+   * <p>
+   * GBP/JPY convention with 2 days spot date.
+   */
+  public static final FxSwapConvention GBP_JPY =
+      FxSwapConvention.of(StandardFxSwapConventions.GBP_JPY.getName());
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
