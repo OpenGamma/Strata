@@ -84,11 +84,31 @@ public interface FloatingRateName
    */
   public static FloatingRateName parse(String str) {
     ArgChecker.notNull(str, "str");
+    return tryParse(str).orElseThrow(
+        () -> new IllegalArgumentException("Floating rate name not known: " + str));
+  }
+
+  /**
+   * Tries to parse a string, with extended handling of indices.
+   * <p>
+   * This tries a number of ways to parse the input:
+   * <ul>
+   * <li>{@link FloatingRateName#of(String)}
+   * <li>{@link IborIndex#of(String)}
+   * <li>{@link OvernightIndex#of(String)}
+   * <li>{@link PriceIndex#of(String)}
+   * </ul>
+   * Note that if an {@link IborIndex} is parsed, the tenor will be lost.
+   * 
+   * @param str  the string to parse
+   * @return the floating rate, empty if not found
+   */
+  public static Optional<FloatingRateName> tryParse(String str) {
     Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(str);
     if (frnOpt.isPresent()) {
-      return frnOpt.get();
+      return frnOpt;
     }
-    return FloatingRateIndex.parse(str).getFloatingRateName();
+    return FloatingRateIndex.tryParse(str).map(FloatingRateIndex::getFloatingRateName);
   }
 
   //-------------------------------------------------------------------------
