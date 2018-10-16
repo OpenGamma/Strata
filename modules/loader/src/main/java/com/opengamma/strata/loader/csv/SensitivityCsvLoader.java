@@ -64,7 +64,7 @@ import com.opengamma.strata.product.PortfolioItemInfo;
  * <ul>
  * <li>'Id Scheme' (optional) - the name of the scheme that the identifier is unique within, defaulted to 'OG-Sensitivity'.
  * <li>'Id' (optional) - the identifier of the sensitivity, such as 'SENS12345'.
- * <li>'Reference - a currency, floating rate name, index name or curve name.
+ * <li>'Reference' - a currency, floating rate name, index name or curve name.
  *   The standard reference name for a discount curve is the currency, such as 'GBP'.
  *   The standard reference name for a forward curve is the index name, such as 'GBP-LIBOR-3M'.
  *   Any curve name may be used however, which will be specific to the market data setup.
@@ -111,8 +111,8 @@ import com.opengamma.strata.product.PortfolioItemInfo;
  * <h4>Resolver</h4>
  * The standard resolver will ensure that the sensitivity always has a tenor and
  * implements {@link TenoredParameterMetadata}.
- * The resolver can be adjusted to allow date-only metadata and to manipulate the tenor that is parsed.
- * It can also adjust the curve name if desired.
+ * The resolver can be adjusted to allow date-only metadata (thereby making the 'Sensitivity Tenor' column optional.
+ * The resolver can manipulate the tenor and/or curve name that is parsed if desired.
  */
 public final class SensitivityCsvLoader {
 
@@ -201,10 +201,7 @@ public final class SensitivityCsvLoader {
       if (csv.containsHeader(REFERENCE_HEADER) || csv.containsHeader(TYPE_HEADER)) {
         return true;
       } else {
-        return csv.headers().stream()
-            .filter(header -> knownReference(header))
-            .findAny()
-            .isPresent();
+        return csv.headers().stream().anyMatch(SensitivityCsvLoader::knownReference);
       }
     } catch (RuntimeException ex) {
       return false;
@@ -415,7 +412,7 @@ public final class SensitivityCsvLoader {
 
   //-------------------------------------------------------------------------
   // parses the currency as a column or from the reference
-  private Currency parseCurrency(CsvRow row, CurveName reference) {
+  private static Currency parseCurrency(CsvRow row, CurveName reference) {
     Optional<String> currencyStr = row.findValue(CURRENCY_HEADER);
     if (currencyStr.isPresent()) {
       return LoaderUtils.parseCurrency(currencyStr.get());
@@ -494,7 +491,7 @@ public final class SensitivityCsvLoader {
   }
 
   // checks if the identifier in the row matches the previous one
-  private boolean matchId(CsvRow row, String id) {
+  private static boolean matchId(CsvRow row, String id) {
     String scheme = row.findValue(ID_SCHEME_HEADER).orElse(DEFAULT_SCHEME);
     String rowId = row.findValue(ID_HEADER).map(str -> StandardId.of(scheme, str).toString()).orElse("");
     return id.equals(rowId);
