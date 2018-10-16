@@ -8,6 +8,7 @@ package com.opengamma.strata.product.swap.type;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -31,6 +32,7 @@ final class StandardXCcyIborIborSwapConventions {
   private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
   private static final HolidayCalendarId EUTA_GBLO = EUTA.combinedWith(GBLO);
+  private static final HolidayCalendarId JPTO_GBLO = JPTO.combinedWith(GBLO);
 
   /**
    * EUR EURIBOR 3M v USD LIBOR 3M.
@@ -90,6 +92,26 @@ final class StandardXCcyIborIborSwapConventions {
               .notionalExchange(true)
               .build())
           .spotDateOffset(DaysAdjustment.ofBusinessDays(2, EUTA_GBLO))
+          .build();
+
+  /**
+   * GBP LIBOR 3M v JPY LIBOR 3M.
+   * The spread is on the GBP leg.
+   */
+  public static final XCcyIborIborSwapConvention GBP_LIBOR_3M_JPY_LIBOR_3M =
+      ImmutableXCcyIborIborSwapConvention.builder()
+          .name("GBP-LIBOR-3M-JPY-LIBOR-3M")
+          .spreadLeg(IborRateSwapLegConvention.builder()
+              .index(IborIndices.GBP_LIBOR_3M)
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_GBLO))
+              .notionalExchange(true)
+              .build())
+          .flatLeg(IborRateSwapLegConvention.builder()
+              .index(IborIndices.JPY_LIBOR_3M)
+              .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_GBLO))
+              .notionalExchange(true)
+              .build())
+          .spotDateOffset(DaysAdjustment.ofBusinessDays(2, JPTO_GBLO))
           .build();
 
   //-------------------------------------------------------------------------

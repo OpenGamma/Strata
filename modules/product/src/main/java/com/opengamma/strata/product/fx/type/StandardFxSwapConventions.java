@@ -7,9 +7,11 @@ package com.opengamma.strata.product.fx.type;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -27,6 +29,7 @@ public final class StandardFxSwapConventions {
   private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
+  private static final HolidayCalendarId GBLO_JPTO = GBLO.combinedWith(JPTO);
 
   /**
    * EUR/USD convention with 2 days spot date.
@@ -54,6 +57,15 @@ public final class StandardFxSwapConventions {
           CurrencyPair.of(GBP, USD),
           DaysAdjustment.ofBusinessDays(2, GBLO_USNY),
           BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, GBLO_USNY));
+
+  /**
+   * GBP/JPY convention with 2 days spot date.
+   */
+  public static final FxSwapConvention GBP_JPY =
+      ImmutableFxSwapConvention.of(
+          CurrencyPair.of(GBP, JPY),
+          DaysAdjustment.ofBusinessDays(2, GBLO_JPTO),
+          BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, GBLO_JPTO));
 
   //-------------------------------------------------------------------------
   /**
