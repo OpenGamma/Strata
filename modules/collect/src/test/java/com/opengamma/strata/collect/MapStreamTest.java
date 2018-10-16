@@ -9,6 +9,8 @@ import static com.opengamma.strata.collect.Guavate.entry;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.list;
+import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -384,6 +386,23 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  //-------------------------------------------------------------------------
+  public void toMapGrouping() {
+    Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
+    Map<String, List<Integer>> expected = ImmutableMap.of("a", list(1, 2), "b", list(10, 20), "c", list(1));
+    Map<String, List<Integer>> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toMapGrouping();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void toMapGroupingWithCollector() {
+    Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
+    Map<String, Integer> expected = ImmutableMap.of("a", 3, "b", 30, "c", 1);
+    Map<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1))
+        .toMapGrouping(reducing(0, Integer::sum));
+    assertThat(result).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void toListMultimap() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     ListMultimap<String, Integer> expected = ImmutableListMultimap.of("a", 1, "a", 2, "b", 10, "b", 20, "c", 1);

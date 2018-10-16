@@ -6,11 +6,17 @@
 package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entry;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.function.BiConsumer;
@@ -216,11 +222,14 @@ public final class MapStream<K, V>
   //-------------------------------------------------------------------------
   /**
    * Returns the keys as a stream, dropping the values.
+   * <p>
+   * A {@link MapStream} may contain the same key more than once, so callers
+   * may need to call {@link Stream#distinct()} on the result.
    *
    * @return a stream of the keys
    */
   public Stream<K> keys() {
-    return underlying.map(e -> e.getKey());
+    return underlying.map(Entry::getKey);
   }
 
   /**
@@ -229,7 +238,7 @@ public final class MapStream<K, V>
    * @return a stream of the values
    */
   public Stream<V> values() {
-    return underlying.map(e -> e.getValue());
+    return underlying.map(Entry::getValue);
   }
 
   //-------------------------------------------------------------------------
@@ -491,6 +500,8 @@ public final class MapStream<K, V>
   //-----------------------------------------------------------------------
   /**
    * Finds the minimum entry in the stream by comparing the keys using the supplied comparator.
+   * <p>
+   * This is a terminal operation.
    *
    * @param comparator  a comparator of keys
    * @return the minimum entry
@@ -501,6 +512,8 @@ public final class MapStream<K, V>
 
   /**
    * Finds the minimum entry in the stream by comparing the values using the supplied comparator.
+   * <p>
+   * This is a terminal operation.
    *
    * @param comparator  a comparator of values
    * @return the minimum entry
@@ -511,6 +524,8 @@ public final class MapStream<K, V>
 
   /**
    * Finds the maximum entry in the stream by comparing the keys using the supplied comparator.
+   * <p>
+   * This is a terminal operation.
    *
    * @param comparator  a comparator of keys
    * @return the maximum entry
@@ -521,6 +536,8 @@ public final class MapStream<K, V>
 
   /**
    * Finds the maximum entry in the stream by comparing the values using the supplied comparator.
+   * <p>
+   * This is a terminal operation.
    *
    * @param comparator  a comparator of values
    * @return the maximum entry
@@ -535,11 +552,14 @@ public final class MapStream<K, V>
    * <p>
    * The keys must be unique or an exception will be thrown.
    * Duplicate keys can be handled using {@link #toMap(BiFunction)}.
+   * <p>
+   * This is a terminal operation.
    *
    * @return an immutable map built from the entries in the stream
+   * @throws IllegalArgumentException if the same key occurs more than once
    */
   public ImmutableMap<K, V> toMap() {
-    return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue()));
+    return underlying.collect(Guavate.toImmutableMap(Entry::getKey, Entry::getValue));
   }
 
   /**
@@ -556,25 +576,66 @@ public final class MapStream<K, V>
    *   MapStream.concat(mapStreamA, mapStreamB).toMap((a,b) -> a);
    * </pre>
    * </p>
+   * <p>
+   * This is a terminal operation.
    *
    * @param mergeFn  function used to merge values when the same key appears multiple times in the stream
    * @return an immutable map built from the entries in the stream
    */
   public ImmutableMap<K, V> toMap(BiFunction<? super V, ? super V, ? extends V> mergeFn) {
-    return underlying.collect(Guavate.toImmutableMap(e -> e.getKey(), e -> e.getValue(), mergeFn));
+    return underlying.collect(Guavate.toImmutableMap(Entry::getKey, Entry::getValue, mergeFn));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an immutable map built from the entries in the stream, grouping by key.
+   * <p>
+   * Entries are grouped based on the equality of the key.
+   * <p>
+   * This is a terminal operation.
+   *
+   * @return an immutable map built from the entries in the stream
+   * @throws IllegalArgumentException if the same key occurs more than once
+   */
+  public ImmutableMap<K, List<V>> toMapGrouping() {
+    return toMapGrouping(toList());
   }
 
   /**
+   * Returns an immutable map built from the entries in the stream, grouping by key.
+   * <p>
+   * Entries are grouped based on the equality of the key.
+   * The collector allows the values to be flexibly combined.
+   * <p>
+   * This is a terminal operation.
+   *
+   * @param <A>  the internal collector type
+   * @param <R>  the type of the combined values
+   * @param valueCollector  the collector used to combined the values
+   * @return a stream where the values have been grouped
+   */
+  public <A, R> ImmutableMap<K, R> toMapGrouping(Collector<? super V, A, R> valueCollector) {
+    return underlying.collect(collectingAndThen(
+        groupingBy(Entry::getKey, mapping(Entry::getValue, valueCollector)),
+        ImmutableMap::copyOf));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns an immutable list multimap built from the entries in the stream.
+   * <p>
+   * This is a terminal operation.
    *
    * @return an immutable list multimap built from the entries in the stream
    */
   public ImmutableListMultimap<K, V> toListMultimap() {
-    return underlying.collect(Guavate.toImmutableListMultimap(e -> e.getKey(), e -> e.getValue()));
+    return underlying.collect(Guavate.toImmutableListMultimap(Entry::getKey, Entry::getValue));
   }
 
   /**
    * Performs an action for each entry in the stream, passing the key and value to the action.
+   * <p>
+   * This is a terminal operation.
    *
    * @param action  an action performed for each entry in the stream
    */
