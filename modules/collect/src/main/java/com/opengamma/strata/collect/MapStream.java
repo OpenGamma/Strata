@@ -575,7 +575,6 @@ public final class MapStream<K, V>
    * <pre>
    *   MapStream.concat(mapStreamA, mapStreamB).toMap((a,b) -> a);
    * </pre>
-   * </p>
    * <p>
    * This is a terminal operation.
    *
@@ -595,7 +594,6 @@ public final class MapStream<K, V>
    * This is a terminal operation.
    *
    * @return an immutable map built from the entries in the stream
-   * @throws IllegalArgumentException if the same key occurs more than once
    */
   public ImmutableMap<K, List<V>> toMapGrouping() {
     return toMapGrouping(toList());
