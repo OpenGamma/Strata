@@ -135,6 +135,28 @@ public class FixedRateCalculationTest {
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
+  
+  public void test_expand_distinctValues_blah() {
+    FixedRateCalculation test = FixedRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .rate(ValueSchedule.of(0.025d))
+        .accrualMethod(FixedAccrualMethod.BLAH)
+        .build();
+    SchedulePeriod period = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 5), date(2014, 1, 5), date(2014, 2, 5));
+    Schedule schedule = Schedule.builder()
+        .periods(period)
+        .frequency(Frequency.P1M)
+        .rollConvention(RollConventions.NONE)
+        .build();
+    double af = period.yearFraction(ACT_365F, schedule);
+    double simpleRate = (Math.pow((1 + 0.025d), af) - 1) / af;
+    RateAccrualPeriod rap = RateAccrualPeriod.builder(period)
+        .yearFraction(af)
+        .rateComputation(FixedRateComputation.of(simpleRate))
+        .build();
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
+    assertEquals(periods.get(0), rap);
+  }
 
   //-------------------------------------------------------------------------
   public void coverage() {
