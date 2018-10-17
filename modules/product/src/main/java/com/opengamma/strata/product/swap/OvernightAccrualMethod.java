@@ -30,6 +30,14 @@ public enum OvernightAccrualMethod implements NamedEnum {
    */
   COMPOUNDED,
   /**
+   * The BRL compounded method.
+   * <p>
+   * Interest is accrued by simple compounding of each rate published during the accrual period raised to the power of the accrual factor.
+   * <p>
+   * This is the most common formula for BRL OIS swaps.
+   */
+  BRL_COMPOUNDED,
+  /**
    * The averaged method.
    * <p>
    * Interest is accrued by taking the average of all the rates published on the

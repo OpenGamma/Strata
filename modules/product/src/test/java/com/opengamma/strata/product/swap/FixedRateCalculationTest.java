@@ -45,6 +45,7 @@ public class FixedRateCalculationTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.empty());
+    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.COMPOUNDED);
   }
 
   public void test_builder() {
@@ -53,11 +54,13 @@ public class FixedRateCalculationTest {
         .rate(ValueSchedule.of(0.025d))
         .initialStub(FixedRateStubCalculation.ofFixedRate(0.1d))
         .finalStub(FixedRateStubCalculation.ofFixedRate(0.2d))
+        .accrualMethod(FixedAccrualMethod.BLAH)
         .build();
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
     assertEquals(test.getFinalStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
+    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.BLAH);
   }
 
   //-------------------------------------------------------------------------

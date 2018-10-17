@@ -154,7 +154,7 @@ public final class OvernightRateCalculation
    * All optional fields will be set to their default values.
    * Thus, there will be no spread, gearing or rate cut-off.
    * If this method provides insufficient control, use the {@linkplain #builder() builder}.
-   * 
+   *
    * @param index  the index
    * @return the calculation
    */
