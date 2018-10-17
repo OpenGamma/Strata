@@ -46,7 +46,17 @@ public final class LabelDateParameterMetadata
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance using the tenor, specifying the label.
+   * Obtains an instance using the date.
+   * 
+   * @param date  the date associated with the parameter
+   * @return the parameter metadata based on the date
+   */
+  public static LabelDateParameterMetadata of(LocalDate date) {
+    return new LabelDateParameterMetadata(date, date.toString());
+  }
+
+  /**
+   * Obtains an instance using the date, specifying the label.
    * 
    * @param date  the date associated with the parameter
    * @param label  the label to use

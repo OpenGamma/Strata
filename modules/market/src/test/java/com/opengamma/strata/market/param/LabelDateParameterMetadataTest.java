@@ -24,7 +24,14 @@ public class LabelDateParameterMetadataTest {
   private static final LocalDate DATE = date(2015, 7, 30);
 
   //-------------------------------------------------------------------------
-  public void test_of() {
+  public void test_of_1arg() {
+    LabelDateParameterMetadata test = LabelDateParameterMetadata.of(DATE);
+    assertEquals(test.getDate(), DATE);
+    assertEquals(test.getLabel(), DATE.toString());
+    assertEquals(test.getIdentifier(), DATE.toString());
+  }
+
+  public void test_of_2args() {
     LabelDateParameterMetadata test = LabelDateParameterMetadata.of(DATE, "Label");
     assertEquals(test.getDate(), DATE);
     assertEquals(test.getLabel(), "Label");
