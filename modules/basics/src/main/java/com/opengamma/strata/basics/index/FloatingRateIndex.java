@@ -64,24 +64,68 @@ public interface FloatingRateIndex
    */
   public static FloatingRateIndex parse(String indexStr, Tenor defaultIborTenor) {
     ArgChecker.notNull(indexStr, "indexStr");
+    return tryParse(indexStr, defaultIborTenor)
+        .orElseThrow(() -> new IllegalArgumentException("Floating rate index not known: " + indexStr));
+  }
+
+  /**
+   * Parses a string, handling different types of index.
+   * <p>
+   * This tries a number of ways to parse the input:
+   * <ul>
+   * <li>{@link IborIndex#of(String)}
+   * <li>{@link OvernightIndex#of(String)}
+   * <li>{@link PriceIndex#of(String)}
+   * <li>{@link FloatingRateName#of(String)}
+   * </ul>
+   * If {@code FloatingRateName} is used to match an Ibor index, then a tenor is needed
+   * to return an index. The tenor from {@link FloatingRateName#getDefaultTenor()} will be used.
+   * 
+   * @param indexStr  the index string to parse
+   * @return the floating rate index, empty if not found
+   */
+  public static Optional<FloatingRateIndex> tryParse(String indexStr) {
+    return tryParse(indexStr, null);
+  }
+
+  /**
+   * Parses a string, handling different types of index, optionally specifying a tenor for Ibor.
+   * <p>
+   * This tries a number of ways to parse the input:
+   * <ul>
+   * <li>{@link IborIndex#of(String)}
+   * <li>{@link OvernightIndex#of(String)}
+   * <li>{@link PriceIndex#of(String)}
+   * <li>{@link FloatingRateName#of(String)}
+   * </ul>
+   * If {@code FloatingRateName} is used to match an Ibor index, then a tenor is needed
+   * to return an index. The tenor can optionally be supplied. If needed and missing,
+   * the result of {@link FloatingRateName#getDefaultTenor()} will be used.
+   * 
+   * @param indexStr  the index string to parse
+   * @param defaultIborTenor  the tenor to use for Ibor if matched as a {@code FloatingRateName}, may be null
+   * @return the floating rate index, empty if not found
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public static Optional<FloatingRateIndex> tryParse(String indexStr, Tenor defaultIborTenor) {
     Optional<IborIndex> iborOpt = IborIndex.extendedEnum().find(indexStr);
     if (iborOpt.isPresent()) {
-      return iborOpt.get();
+      return (Optional) iborOpt;
     }
     Optional<OvernightIndex> overnightOpt = OvernightIndex.extendedEnum().find(indexStr);
     if (overnightOpt.isPresent()) {
-      return overnightOpt.get();
+      return (Optional) overnightOpt;
     }
     Optional<PriceIndex> priceOpt = PriceIndex.extendedEnum().find(indexStr);
     if (priceOpt.isPresent()) {
-      return priceOpt.get();
+      return (Optional) priceOpt;
     }
     Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(indexStr);
     if (frnOpt.isPresent()) {
-      FloatingRateName frn = frnOpt.get();
-      return frn.toFloatingRateIndex(defaultIborTenor != null ? defaultIborTenor : frn.getDefaultTenor());
+      return frnOpt
+          .map(frn -> frn.toFloatingRateIndex(defaultIborTenor != null ? defaultIborTenor : frn.getDefaultTenor()));
     }
-    throw new IllegalArgumentException("Floating rate index not known: " + indexStr);
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------
