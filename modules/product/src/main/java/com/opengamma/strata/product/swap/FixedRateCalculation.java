@@ -165,7 +165,7 @@ public final class FixedRateCalculation
     }
     return accrualPeriods.build();
   }
-  
+
   //-------------------------------------------------------------------------
   // Compute the appropriate simple rate associated with the fixed accrual method.
   private double simpleRate(double fixedRate, double accrualFactor) {
