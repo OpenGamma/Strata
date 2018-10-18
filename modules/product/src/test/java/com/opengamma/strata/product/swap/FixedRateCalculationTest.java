@@ -140,7 +140,7 @@ public class FixedRateCalculationTest {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
         .rate(ValueSchedule.of(0.025d))
-        .accrualMethod(FixedAccrualMethod.BRL_COMPOUNDED)
+        .accrualMethod(FixedAccrualMethod.ANNUALISED_COMPOUNDED)
         .build();
     SchedulePeriod period = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 5), date(2014, 1, 5), date(2014, 2, 5));
     Schedule schedule = Schedule.builder()

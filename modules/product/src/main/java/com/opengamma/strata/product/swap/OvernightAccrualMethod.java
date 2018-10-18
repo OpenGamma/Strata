@@ -30,13 +30,13 @@ public enum OvernightAccrualMethod implements NamedEnum {
    */
   COMPOUNDED,
   /**
-   * The BRL style compounded method.
+   * The annualised compounded method.
    * <p>
-   * OpenGamma, "Brazilian Swaps" (2013).
+   * Interest is accrued by simple compounding of each rate during the accrual period using an annualised rate.
    * <p>
    * This is the most common type for Brazilian style swaps.
    */
-  BRL_COMPOUNDED,
+  ANNUALISED_COMPOUNDED,
   /**
    * The averaged method.
    * <p>
