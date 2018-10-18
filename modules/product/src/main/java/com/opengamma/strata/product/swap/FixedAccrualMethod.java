@@ -12,43 +12,29 @@ import com.opengamma.strata.collect.named.EnumNames;
 import com.opengamma.strata.collect.named.NamedEnum;
 
 /**
- * The method of accruing interest based on a fixed rate.
+ * The method of accruing interest based on the fixed rate of a fixed swap leg.
  * <p>
- * Two methods of accrual are supported - compounded and blah.
+ * Two methods of accrual are supported - simple and compounded.
  */
 public enum FixedAccrualMethod implements NamedEnum {
 
   /**
-   * The compounded method.
+   * The simple method.
    * <p>
-   * Interest is accrued by simple compounding of the fixed rate during the accrual period.
+   * Simple interest is accrued. This is determined by multiplying the fixed rate by the notional and the accrual factor.
+   * <></>
+   * This is the most common type for vanilla swaps.
    */
-  COMPOUNDED {
-    @Override
-    public double simpleRate(double fixedRate, double accrual) {
-      return fixedRate;
-    }
-  },
+  SIMPLE,
 
   /**
-   * The blah method.
+   * The BRL style compounded method.
    * <p>
-   * blah blah.
+   * OpenGamma, "Brazilian Swaps" (2013).
+   * <p>
+   * This is the most common type for Brazilian style swaps.
    */
-  BLAH {
-    @Override
-    public double simpleRate(double fixedRate, double accrual) {
-      return (Math.pow((1.0d + fixedRate), accrual) - 1.0d) / accrual;
-    }
-  };
-
-  /**
-   * Returns the simple rate associated with the accrual method.
-   *
-   *
-   * @return the simple rate
-   */
-  public abstract double simpleRate(double fixedRate, double accrual);
+   BRL_COMPOUNDED;
 
   // helper for name conversions
   private static final EnumNames<FixedAccrualMethod> NAMES = EnumNames.of(FixedAccrualMethod.class);

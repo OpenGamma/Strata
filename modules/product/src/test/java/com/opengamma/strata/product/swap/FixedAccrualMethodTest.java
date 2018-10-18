@@ -20,8 +20,8 @@ public class FixedAccrualMethodTest {
   @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
-        {FixedAccrualMethod.BLAH, "Blah"},
-        {FixedAccrualMethod.COMPOUNDED, "Compounded"},
+        {FixedAccrualMethod.SIMPLE, "Simple"},
+        {FixedAccrualMethod.BRL_COMPOUNDED, "BrlCompounded"},
     };
   }
   
@@ -49,10 +49,10 @@ public class FixedAccrualMethodTest {
   }
   
   public void test_serialization() {
-    assertSerialization(FixedAccrualMethod.COMPOUNDED);
+    assertSerialization(FixedAccrualMethod.BRL_COMPOUNDED);
   }
   
   public void test_jodaConvert() {
-    assertJodaConvert(FixedAccrualMethod.class, FixedAccrualMethod.BLAH);
+    assertJodaConvert(FixedAccrualMethod.class, FixedAccrualMethod.BRL_COMPOUNDED);
   }
 }

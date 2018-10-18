@@ -30,11 +30,11 @@ public enum OvernightAccrualMethod implements NamedEnum {
    */
   COMPOUNDED,
   /**
-   * The BRL compounded method.
+   * The BRL style compounded method.
    * <p>
-   * Interest is accrued by simple compounding of each rate published during the accrual period raised to the power of the accrual factor.
+   * OpenGamma, "Brazilian Swaps" (2013).
    * <p>
-   * This is the most common formula for BRL OIS swaps.
+   * This is the most common type for Brazilian style swaps.
    */
   BRL_COMPOUNDED,
   /**
@@ -64,7 +64,7 @@ public enum OvernightAccrualMethod implements NamedEnum {
    * <p>
    * Parsing handles the mixed case form produced by {@link #toString()} and
    * the upper and lower case variants of the enum constant name.
-   * 
+   *
    * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
@@ -77,7 +77,7 @@ public enum OvernightAccrualMethod implements NamedEnum {
   //-------------------------------------------------------------------------
   /**
    * Returns the formatted name of the type.
-   * 
+   *
    * @return the formatted string representing the type
    */
   @ToString

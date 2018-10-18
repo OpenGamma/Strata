@@ -45,7 +45,7 @@ public class FixedRateCalculationTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.COMPOUNDED);
+    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.SIMPLE);
   }
 
   public void test_builder() {
@@ -54,13 +54,13 @@ public class FixedRateCalculationTest {
         .rate(ValueSchedule.of(0.025d))
         .initialStub(FixedRateStubCalculation.ofFixedRate(0.1d))
         .finalStub(FixedRateStubCalculation.ofFixedRate(0.2d))
-        .accrualMethod(FixedAccrualMethod.BLAH)
+        .accrualMethod(FixedAccrualMethod.SIMPLE)
         .build();
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
     assertEquals(test.getFinalStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
-    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.BLAH);
+    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.SIMPLE);
   }
 
   //-------------------------------------------------------------------------
@@ -136,11 +136,11 @@ public class FixedRateCalculationTest {
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
   
-  public void test_expand_distinctValues_blah() {
+  public void test_expand_distinctValues_compounded() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
         .rate(ValueSchedule.of(0.025d))
-        .accrualMethod(FixedAccrualMethod.BLAH)
+        .accrualMethod(FixedAccrualMethod.BRL_COMPOUNDED)
         .build();
     SchedulePeriod period = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 5), date(2014, 1, 5), date(2014, 2, 5));
     Schedule schedule = Schedule.builder()
