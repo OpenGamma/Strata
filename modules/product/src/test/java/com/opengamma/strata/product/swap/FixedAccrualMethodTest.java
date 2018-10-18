@@ -21,7 +21,7 @@ public class FixedAccrualMethodTest {
   public static Object[][] data_name() {
     return new Object[][] {
         {FixedAccrualMethod.SIMPLE, "Simple"},
-        {FixedAccrualMethod.ANNUALISED_COMPOUNDED, "BrlCompounded"},
+        {FixedAccrualMethod.ANNUALISED_COMPOUNDED, "AnnualisedCompounded"},
     };
   }
   
