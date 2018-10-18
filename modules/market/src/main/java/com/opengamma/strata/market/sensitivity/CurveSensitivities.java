@@ -5,15 +5,16 @@
  */
 package com.opengamma.strata.market.sensitivity;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.util.stream.Collectors.joining;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
+import java.util.stream.Collector;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -35,6 +36,7 @@ import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesBuilder;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.PortfolioItem;
@@ -84,6 +86,9 @@ public final class CurveSensitivities
 
   /**
    * Returns a builder that can be used to create an instance of {@code CurveSensitivities}.
+   * <p>
+   * The builder takes into account the parameter metadata when creating the sensitivity map.
+   * As such, the parameter metadata added to the builder must not be empty.
    * 
    * @param info  the additional information
    * @return the builder
@@ -138,37 +143,61 @@ public final class CurveSensitivities
     return sens;
   }
 
+  /**
+   * Finds a sensitivity instance by type, returning empty if not found.
+   * 
+   * @param type  the type to find
+   * @return the sensitivity, empty if not found
+   */
+  public Optional<CurrencyParameterSensitivities> findTypedSensitivity(CurveSensitivitiesType type) {
+    return Optional.ofNullable(typedSensitivities.get(type));
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Combines this set of sensitivities with another set.
+   * Merges this set of sensitivities with another set.
    * <p>
    * This returns a new curve sensitivities with a combined map of typed sensitivities.
-   * Any sensitivities of the same type will be combined using
-   * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}.
+   * Any sensitivities of the same type will be combined as though using
+   * {@link CurrencyParameterSensitivities#mergedWith(CurrencyParameterSensitivities)}.
    * 
    * @param other  the other parameter sensitivities
    * @return an instance based on this one, with the other instance added
    */
-  public CurveSensitivities combinedWith(Map<CurveSensitivitiesType, CurrencyParameterSensitivities> other) {
+  public CurveSensitivities mergedWith(Map<CurveSensitivitiesType, CurrencyParameterSensitivities> other) {
+    // this uses a collector to merge all the instances at once which is more efficient than reduction
+    // because it creates a single CurrencyParameterSensitivitiesBuilder
     ImmutableMap<CurveSensitivitiesType, CurrencyParameterSensitivities> combinedSens =
         MapStream.concat(MapStream.of(typedSensitivities), MapStream.of(other))
-            .toMap(CurrencyParameterSensitivities::combinedWith);
+            .toMapGrouping(mergeSensitivities());
     return new CurveSensitivities(info, combinedSens);
+  }
+
+  // collector to merge sensitivities
+  private static
+      Collector<CurrencyParameterSensitivities, CurrencyParameterSensitivitiesBuilder, CurrencyParameterSensitivities>
+      mergeSensitivities() {
+
+    return Collector.of(
+        CurrencyParameterSensitivities::builder,
+        CurrencyParameterSensitivitiesBuilder::add,
+        (l, r) -> l.add(r.build()),
+        CurrencyParameterSensitivitiesBuilder::build);
   }
 
   /**
    * Combines this set of sensitivities with another set.
    * <p>
    * This returns a new curve sensitivities with a combined map of typed sensitivities.
-   * Any sensitivities of the same type will be combined using
-   * {@link CurrencyParameterSensitivities#combinedWith(CurrencyParameterSensitivities)}.
+   * Any sensitivities of the same type will be combined as though using
+   * {@link CurrencyParameterSensitivities#mergedWith(CurrencyParameterSensitivities)}.
    * The identifier and attributes of this instance will take precedence.
    * 
    * @param other  the other parameter sensitivities
    * @return an instance based on this one, with the other instance added
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
-  public CurveSensitivities combinedWith(CurveSensitivities other) {
+  public CurveSensitivities mergedWith(CurveSensitivities other) {
     PortfolioItemInfo combinedInfo = info;
     if (!info.getId().isPresent() && other.info.getId().isPresent()) {
       combinedInfo = combinedInfo.withId(other.info.getId().get());
@@ -178,7 +207,7 @@ public final class CurveSensitivities
         combinedInfo = combinedInfo.withAttribute(attrType, other.info.getAttribute(attrType));
       }
     }
-    return new CurveSensitivities(combinedInfo, combinedWith(other.typedSensitivities).getTypedSensitivities());
+    return new CurveSensitivities(combinedInfo, mergedWith(other.typedSensitivities).getTypedSensitivities());
   }
 
   //-------------------------------------------------------------------------
@@ -196,35 +225,26 @@ public final class CurveSensitivities
     return new CurveSensitivities(
         info,
         MapStream.of(typedSensitivities)
-            .mapValues(sens -> CurrencyParameterSensitivities.of(
-                sens.getSensitivities().stream()
-                    .map(single -> single.toBuilder()
-                        .marketDataName(nameFn.apply(single.getMarketDataName()))
-                        .build())
-                    .collect(toImmutableList())))
+            .mapValues(sens -> sens.withMarketDataNames(nameFn))
             .toMap());
   }
 
   /**
-   * Checks and adjusts the market data names.
+   * Checks and adjusts the parameter metadata.
    * <p>
-   * The supplied function is invoked for each market data name in this sensitivities.
-   * A typical use case would be to convert index names to curve names valid for an underlying system.
+   * The supplied function is invoked for each parameter metadata in this sensitivities.
+   * If the function returns the same metadata for two different inputs, the sensitivity value will be summed.
+   * A typical use case would be to normalize parameter metadata tenors to be valid for an underlying system.
    * 
-   * @param nameFn  the function for checking and adjusting the name
+   * @param mdFn  the function for checking and adjusting the metadata
    * @return the adjusted sensitivity
    * @throws RuntimeException if the function throws an exception
    */
-  public CurveSensitivities withParameterMetadatas(Function<List<ParameterMetadata>, List<ParameterMetadata>> nameFn) {
+  public CurveSensitivities withParameterMetadatas(UnaryOperator<ParameterMetadata> mdFn) {
     return new CurveSensitivities(
         info,
         MapStream.of(typedSensitivities)
-            .mapValues(sens -> CurrencyParameterSensitivities.of(
-                sens.getSensitivities().stream()
-                    .map(single -> single.toBuilder()
-                        .parameterMetadata(nameFn.apply(single.getParameterMetadata()))
-                        .build())
-                    .collect(toImmutableList())))
+            .mapValues(sens -> sens.withParameterMetadatas(mdFn))
             .toMap());
   }
 

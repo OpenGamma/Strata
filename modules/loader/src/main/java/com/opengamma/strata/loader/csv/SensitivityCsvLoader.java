@@ -26,7 +26,6 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -264,7 +263,7 @@ public final class SensitivityCsvLoader {
    * Most files will not have the identifier columns, thus the identifier will be the empty string.
    * <p>
    * The returned multimap is keyed by identifier. The value will contain one entry for each instance.
-   * If desired, the results can be reduced using {@link CurveSensitivities#combinedWith(CurveSensitivities)}
+   * If desired, the results can be reduced using {@link CurveSensitivities#mergedWith(CurveSensitivities)}
    * to merge those with the same identifier.
    * <p>
    * CSV files sometimes contain a Unicode Byte Order Mark.
@@ -340,7 +339,7 @@ public final class SensitivityCsvLoader {
             Currency currency = parseCurrency(batchRow, reference);
             if (!valueStr.isEmpty()) {
               double value = LoaderUtils.parseDouble(valueStr);
-              builder.add(type, resolvedCurveName, metadata, CurrencyAmount.of(currency, value));
+              builder.add(type, resolvedCurveName, currency, metadata, value);
             }
           }
 
@@ -394,7 +393,7 @@ public final class SensitivityCsvLoader {
             Currency currency = parseCurrency(batchRow, reference);
             if (!valueStr.isEmpty()) {
               double value = LoaderUtils.parseDouble(valueStr);
-              builder.add(type, resolvedCurveName, metadata, CurrencyAmount.of(currency, value));
+              builder.add(type, resolvedCurveName, currency, metadata, value);
             }
           }
 
