@@ -48,6 +48,7 @@
   <!-- ==================================================================== -->
   <modules>
     <module>modules</module>
+    <module>examples</module>
   </modules>
 
   <!-- ==================================================================== -->
@@ -61,16 +62,6 @@
 
   <!-- ==================================================================== -->
   <profiles>
-    <!-- Profile including examples only if JavaFX available -->
-    <profile>
-      <id>include-examples-module</id>
-      <activation>
-        <file><exists>${javafx.jar.path}</exists></file>
-      </activation>
-      <modules>
-        <module>examples</module>
-      </modules>
-    </profile>
     <!-- Profile creating dist zip triggered by -Ddist -->
     <profile>
       <id>build-dist-zip</id>
@@ -172,8 +163,6 @@
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
-    <!-- The relative module paths, can be overridden on command line -->
-    <javafx.jar.path>${java.home}/lib/ext/jfxrt.jar</javafx.jar.path>
   </properties>
 
 </project>
