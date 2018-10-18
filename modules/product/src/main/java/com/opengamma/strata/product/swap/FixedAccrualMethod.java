@@ -65,4 +65,5 @@ public enum FixedAccrualMethod implements NamedEnum {
   public String toString() {
     return NAMES.format(this);
   }
+
 }
