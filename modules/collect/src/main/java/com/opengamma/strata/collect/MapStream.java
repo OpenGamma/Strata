@@ -546,6 +546,44 @@ public final class MapStream<K, V>
     return underlying.max((e1, e2) -> comparator.compare(e1.getValue(), e2.getValue()));
   }
 
+  //-----------------------------------------------------------------------
+  /**
+   * Returns whether any elements of this stream match the provided predicate.
+   * <p>
+   * This is a short-circuiting terminal operation.
+   *
+   * @param predicate  the predicate to apply to the entries
+   * @return whether any of the entries matched the predicate
+   */
+  public boolean anyMatch(BiPredicate<? super K, ? super V> predicate) {
+    return underlying.anyMatch(e -> predicate.test(e.getKey(), e.getValue()));
+  }
+
+
+  /**
+   * Returns whether all elements of this stream match the provided predicate.
+   * <p>
+   * This is a short-circuiting terminal operation.
+   *
+   * @param predicate  the predicate to apply to the entries
+   * @return whether all of the entries matched the predicate
+   */
+  public boolean allMatch(BiPredicate<? super K, ? super V> predicate) {
+    return underlying.allMatch(e -> predicate.test(e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Returns whether no elements of this stream match the provided predicate.
+   * <p>
+   * This is a short-circuiting terminal operation.
+   *
+   * @param predicate  the predicate to apply to the entries
+   * @return whether none of the entries matched the predicate
+   */
+  public boolean noneMatch(BiPredicate<? super K, ? super V> predicate) {
+    return underlying.noneMatch(e -> predicate.test(e.getKey(), e.getValue()));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns an immutable map built from the entries in the stream.

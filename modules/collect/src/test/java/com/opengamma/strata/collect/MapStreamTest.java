@@ -277,6 +277,25 @@ public class MapStreamTest {
   }
 
   //-----------------------------------------------------------------------
+  public void anyMatch() {
+    assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 10)).isTrue();
+    assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 8)).isTrue();
+    assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 4)).isFalse();
+  }
+
+  public void allMatch() {
+    assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 10)).isTrue();
+    assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 8)).isFalse();
+    assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 4)).isFalse();
+  }
+
+  public void noneMatch() {
+    assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 10)).isFalse();
+    assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 8)).isFalse();
+    assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 4)).isTrue();
+  }
+
+  //-----------------------------------------------------------------------
   public void forEach() {
     HashMap<Object, Object> mutableMap = new HashMap<>();
     MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
