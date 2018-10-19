@@ -27,13 +27,13 @@ public enum FixedAccrualMethod implements NamedEnum {
    */
   SIMPLE,
   /**
-   * The annualised compounded method.
+   * The compounded daily method.
    * <p>
-   * Interest is accrued by simple compounding of each rate during the accrual period using an annualised rate.
+   * Interest is accrued by daily compounding using an annualised rate.
    * <p>
    * This is the most common type for Brazilian style swaps.
    */
-   ANNUALISED_COMPOUNDED;
+   COMPOUNDED_DAILY;
 
   // helper for name conversions
   private static final EnumNames<FixedAccrualMethod> NAMES = EnumNames.of(FixedAccrualMethod.class);

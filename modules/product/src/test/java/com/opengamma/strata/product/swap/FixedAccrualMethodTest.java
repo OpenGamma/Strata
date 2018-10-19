@@ -21,7 +21,7 @@ public class FixedAccrualMethodTest {
   public static Object[][] data_name() {
     return new Object[][] {
         {FixedAccrualMethod.SIMPLE, "Simple"},
-        {FixedAccrualMethod.ANNUALISED_COMPOUNDED, "AnnualisedCompounded"},
+        {FixedAccrualMethod.COMPOUNDED_DAILY, "CompoundedDaily"},
     };
   }
   
@@ -49,10 +49,10 @@ public class FixedAccrualMethodTest {
   }
   
   public void test_serialization() {
-    assertSerialization(FixedAccrualMethod.ANNUALISED_COMPOUNDED);
+    assertSerialization(FixedAccrualMethod.COMPOUNDED_DAILY);
   }
   
   public void test_jodaConvert() {
-    assertJodaConvert(FixedAccrualMethod.class, FixedAccrualMethod.ANNUALISED_COMPOUNDED);
+    assertJodaConvert(FixedAccrualMethod.class, FixedAccrualMethod.COMPOUNDED_DAILY);
   }
 }

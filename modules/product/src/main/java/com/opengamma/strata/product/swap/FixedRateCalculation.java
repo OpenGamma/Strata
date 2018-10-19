@@ -171,7 +171,7 @@ public final class FixedRateCalculation
     switch (getAccrualMethod()) {
       case SIMPLE:
         return fixedRate;
-      case ANNUALISED_COMPOUNDED:
+      case COMPOUNDED_DAILY:
         return (Math.pow(1 + fixedRate, accrualFactor) - 1) / accrualFactor;
       default:
         throw new IllegalArgumentException(Messages.format("unsupported fixed accrual method, {}", getAccrualMethod()));
