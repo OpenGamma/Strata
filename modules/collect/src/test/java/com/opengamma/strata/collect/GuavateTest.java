@@ -519,7 +519,8 @@ public class GuavateTest {
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    CompletableFuture<String> future = Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
+    CompletableFuture<String> future =
+        Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
     assertEquals(future.join(), "Yes");
   }
 
@@ -538,7 +539,8 @@ public class GuavateTest {
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     try {
-      CompletableFuture<String> future = Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
+      CompletableFuture<String> future =
+          Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
       assertThrows(() -> future.join(), CompletionException.class, "java.lang.IllegalStateException: Expected");
     } finally {
       executor.shutdown();

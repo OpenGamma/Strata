@@ -105,7 +105,8 @@ public final class CombinedExtendedEnum<T extends Named> {
         throw new IllegalArgumentException("Unable to find extendedEnum() method on class: " + cls.getName(), ex);
       }
       if (!method.getReturnType().equals(ExtendedEnum.class)) {
-        throw new IllegalArgumentException("Method extendedEnum() does not return ExtendedEnum on class: " + cls.getName());
+        throw new IllegalArgumentException(
+            "Method extendedEnum() does not return ExtendedEnum on class: " + cls.getName());
       }
       ExtendedEnum<?> result;
       try {
@@ -171,7 +172,8 @@ public final class CombinedExtendedEnum<T extends Named> {
    * @throws IllegalArgumentException if the name is not found
    */
   public T lookup(String name) {
-    return find(name).orElseThrow(() -> new IllegalArgumentException(type.getSimpleName() + " name not found: " + name));
+    return find(name)
+        .orElseThrow(() -> new IllegalArgumentException(type.getSimpleName() + " name not found: " + name));
   }
 
   //-------------------------------------------------------------------------

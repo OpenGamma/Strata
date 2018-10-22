@@ -73,7 +73,8 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
     SortedSet<String> formattedSet = new TreeSet<>();
     EnumMap<T, String> formatMap = new EnumMap<>(enumType);
     for (T value : enumType.getEnumConstants()) {
-      String formatted = manualToString ? value.toString() : CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, value.name());
+      String formatted =
+          manualToString ? value.toString() : CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, value.name());
       map.put(value.name(), value);
       map.put(value.name().toUpperCase(Locale.ENGLISH), value);
       map.put(value.name().toLowerCase(Locale.ENGLISH), value);
@@ -110,8 +111,8 @@ public final class EnumNames<T extends Enum<T> & NamedEnum> {
     ArgChecker.notNull(name, "name");
     T value = parseMap.get(name);
     if (value == null) {
-      throw new IllegalArgumentException(
-          Messages.format("Unknown enum name '{}' for type {}, valid values are {}", name, enumType.getName(), formattedSet));
+      throw new IllegalArgumentException(Messages.format(
+          "Unknown enum name '{}' for type {}, valid values are {}", name, enumType.getName(), formattedSet));
     }
     return value;
   }

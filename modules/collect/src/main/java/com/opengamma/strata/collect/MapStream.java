@@ -560,7 +560,6 @@ public final class MapStream<K, V>
     return underlying.anyMatch(e -> predicate.test(e.getKey(), e.getValue()));
   }
 
-
   /**
    * Returns whether all elements of this stream match the provided predicate.
    * <p>

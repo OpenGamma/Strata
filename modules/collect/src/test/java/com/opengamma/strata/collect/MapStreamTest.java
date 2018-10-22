@@ -374,14 +374,14 @@ public class MapStreamTest {
   public void concat() {
     ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
     ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
-    ImmutableMap<String, Integer> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    ImmutableMap<String, Integer> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a, b) -> a);
     assertThat(result).isEqualTo(map);
   }
 
   public void concatGeneric() {
     ImmutableMap<String, Object> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
-    ImmutableMap<Object, Object> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    ImmutableMap<Object, Object> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a, b) -> a);
     assertThat(result).isEqualTo(map);
   }
 
@@ -389,7 +389,7 @@ public class MapStreamTest {
     ImmutableMap<String, Double> map1 = ImmutableMap.of("one", 1D, "two", 2D, "three", 3D);
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
     ImmutableMap<Object, ? extends Number> result =
-        MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+        MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a, b) -> a);
     assertThat(result).isEqualTo(ImmutableMap.of("one", 1D, "two", 2D, "three", 3D, "four", 4));
   }
 

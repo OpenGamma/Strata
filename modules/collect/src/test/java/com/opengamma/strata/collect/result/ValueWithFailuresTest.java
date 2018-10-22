@@ -61,7 +61,8 @@ public class ValueWithFailuresTest {
   }
 
   public void test_flatMap() {
-    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("1", "a", "2"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<List<String>> base =
+        ValueWithFailures.of(ImmutableList.of("1", "a", "2"), ImmutableList.of(FAILURE1));
     ValueWithFailures<List<Integer>> test = base.flatMap(this::flatMapFunction);
     assertEquals(test.getValue(), ImmutableList.of(Integer.valueOf(1), Integer.valueOf(2)));
     assertEquals(test.getFailures().size(), 2);
@@ -85,7 +86,8 @@ public class ValueWithFailuresTest {
   // -------------------------------------------------------------------------
   public void test_combinedWith() {
     ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
-    ValueWithFailures<List<String>> other = ValueWithFailures.of(ImmutableList.of("b", "c"), ImmutableList.of(FAILURE2));
+    ValueWithFailures<List<String>> other =
+        ValueWithFailures.of(ImmutableList.of("b", "c"), ImmutableList.of(FAILURE2));
     ValueWithFailures<List<String>> test = base.combinedWith(other, Guavate::concatToList);
     assertEquals(test.getValue(), ImmutableList.of("a", "b", "c"));
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));

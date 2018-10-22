@@ -16,8 +16,9 @@ public final class Version {
   /**
    * The version, which will be populated by the Maven build.
    */
-  private static final String VERSION = PropertiesFile.of(
-      ResourceLocator.ofClasspath(Version.class, "version.properties").getCharSource()).getProperties().value("version");
+  private static final String VERSION =
+      PropertiesFile.of(ResourceLocator.ofClasspath(Version.class, "version.properties").getCharSource())
+          .getProperties().value("version");
 
   /**
    * Restricted constructor.
