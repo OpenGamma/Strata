@@ -16,6 +16,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.testng.annotations.Test;
@@ -40,6 +41,7 @@ public class NotionalScheduleTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getAmount(), ValueSchedule.of(1000d));
     assertEquals(test.getFxReset(), Optional.empty());
+    assertEquals(test.getFutureValueNotional(), Optional.empty());
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), false);
     assertEquals(test.isFinalExchange(), false);
@@ -50,6 +52,7 @@ public class NotionalScheduleTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getAmount(), ValueSchedule.of(1000d));
     assertEquals(test.getFxReset(), Optional.empty());
+    assertEquals(test.getFutureValueNotional(), Optional.empty());
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), false);
     assertEquals(test.isFinalExchange(), false);
@@ -61,6 +64,7 @@ public class NotionalScheduleTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getAmount(), valueSchedule);
     assertEquals(test.getFxReset(), Optional.empty());
+    assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), false);
     assertEquals(test.isFinalExchange(), false);
@@ -82,6 +86,28 @@ public class NotionalScheduleTest {
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getAmount(), ValueSchedule.of(2000d));
     assertEquals(test.getFxReset(), Optional.of(fxReset));
+    assertEquals(test.isInitialExchange(), false);
+    assertEquals(test.isIntermediateExchange(), true);
+    assertEquals(test.isFinalExchange(), true);
+  }
+  
+  public void test_builder_FutureValueNotional() {
+    FutureValueNotional futureValueNotional = FutureValueNotional.builder()
+        .value(10001d)
+        .calculationPeriodNumberOfDays(93)
+        .valueDate(LocalDate.of(2019, 12, 12))
+        .build();
+    NotionalSchedule test = NotionalSchedule.builder()
+        .currency(USD)
+        .amount(ValueSchedule.of(2000d))
+        .intermediateExchange(true)
+        .finalExchange(true)
+        .futureValueNotional(futureValueNotional)
+        .build();
+    assertEquals(test.getCurrency(), USD);
+    assertEquals(test.getAmount(), ValueSchedule.of(2000d));
+    assertEquals(test.getFxReset(), Optional.empty());
+    assertEquals(test.getFutureValueNotional(), Optional.of(futureValueNotional));
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), true);
     assertEquals(test.isFinalExchange(), true);

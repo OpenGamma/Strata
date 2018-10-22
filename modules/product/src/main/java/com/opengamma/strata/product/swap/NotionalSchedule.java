@@ -110,11 +110,19 @@ public final class NotionalSchedule
    */
   @PropertyDefinition
   private final boolean finalExchange;
+  /**
+   * The future value notional.
+   * <p>
+   * This property is used when the fixed leg of a swap has a future value notional.
+   * This is typically used for Brazilian swaps.
+   */
+  @PropertyDefinition(get = "optional")
+  private final FutureValueNotional futureValueNotional;
 
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance with a single amount that does not change over time.
-   * 
+   *
    * @param notional  the single notional that does not change over time
    * @return the notional amount
    */
@@ -128,7 +136,7 @@ public final class NotionalSchedule
 
   /**
    * Obtains an instance with a single amount that does not change over time.
-   * 
+   *
    * @param currency  the currency of the notional and swap payments
    * @param amount  the single notional amount that does not change over time
    * @return the notional amount
@@ -143,7 +151,7 @@ public final class NotionalSchedule
 
   /**
    * Obtains an instance with a notional amount that can change over time.
-   * 
+   *
    * @param currency  the currency of the notional and swap payments
    * @param amountSchedule  the schedule describing how the notional changes over time
    * @return the notional amount
@@ -184,7 +192,7 @@ public final class NotionalSchedule
   //-------------------------------------------------------------------------
   /**
    * Builds notional exchange events from the payment periods and notional exchange flags.
-   * 
+   *
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
    * @param refData  the reference data to use
@@ -205,7 +213,7 @@ public final class NotionalSchedule
    * <p>
    * The {@code initialExchangeDate} is only used of {@code initialExchange} is true,
    * however it is intended that the value is always set to an appropriate date.
-   * 
+   *
    * @param payPeriods  the payment periods
    * @param initialExchangeDate  the date of the initial notional exchange
    * @param initialExchange  whether there is an initial exchange
@@ -354,7 +362,8 @@ public final class NotionalSchedule
       ValueSchedule amount,
       boolean initialExchange,
       boolean intermediateExchange,
-      boolean finalExchange) {
+      boolean finalExchange,
+      FutureValueNotional futureValueNotional) {
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(amount, "amount");
     this.currency = currency;
@@ -363,6 +372,7 @@ public final class NotionalSchedule
     this.initialExchange = initialExchange;
     this.intermediateExchange = intermediateExchange;
     this.finalExchange = finalExchange;
+    this.futureValueNotional = futureValueNotional;
     validate();
   }
 
@@ -458,6 +468,15 @@ public final class NotionalSchedule
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the futureValueNotional.
+   * @return the optional value of the property, not null
+   */
+  public Optional<FutureValueNotional> getFutureValueNotional() {
+    return Optional.ofNullable(futureValueNotional);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -477,7 +496,8 @@ public final class NotionalSchedule
           JodaBeanUtils.equal(amount, other.amount) &&
           (initialExchange == other.initialExchange) &&
           (intermediateExchange == other.intermediateExchange) &&
-          (finalExchange == other.finalExchange);
+          (finalExchange == other.finalExchange) &&
+          JodaBeanUtils.equal(futureValueNotional, other.futureValueNotional);
     }
     return false;
   }
@@ -491,19 +511,21 @@ public final class NotionalSchedule
     hash = hash * 31 + JodaBeanUtils.hashCode(initialExchange);
     hash = hash * 31 + JodaBeanUtils.hashCode(intermediateExchange);
     hash = hash * 31 + JodaBeanUtils.hashCode(finalExchange);
+    hash = hash * 31 + JodaBeanUtils.hashCode(futureValueNotional);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("NotionalSchedule{");
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
     buf.append("amount").append('=').append(amount).append(',').append(' ');
     buf.append("initialExchange").append('=').append(initialExchange).append(',').append(' ');
     buf.append("intermediateExchange").append('=').append(intermediateExchange).append(',').append(' ');
-    buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange));
+    buf.append("finalExchange").append('=').append(finalExchange).append(',').append(' ');
+    buf.append("futureValueNotional").append('=').append(JodaBeanUtils.toString(futureValueNotional));
     buf.append('}');
     return buf.toString();
   }
@@ -549,6 +571,11 @@ public final class NotionalSchedule
     private final MetaProperty<Boolean> finalExchange = DirectMetaProperty.ofImmutable(
         this, "finalExchange", NotionalSchedule.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code futureValueNotional} property.
+     */
+    private final MetaProperty<FutureValueNotional> futureValueNotional = DirectMetaProperty.ofImmutable(
+        this, "futureValueNotional", NotionalSchedule.class, FutureValueNotional.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -558,7 +585,8 @@ public final class NotionalSchedule
         "amount",
         "initialExchange",
         "intermediateExchange",
-        "finalExchange");
+        "finalExchange",
+        "futureValueNotional");
 
     /**
      * Restricted constructor.
@@ -581,6 +609,8 @@ public final class NotionalSchedule
           return intermediateExchange;
         case -1048781383:  // finalExchange
           return finalExchange;
+        case -282775858:  // futureValueNotional
+          return futureValueNotional;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -649,6 +679,14 @@ public final class NotionalSchedule
       return finalExchange;
     }
 
+    /**
+     * The meta-property for the {@code futureValueNotional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FutureValueNotional> futureValueNotional() {
+      return futureValueNotional;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -665,6 +703,8 @@ public final class NotionalSchedule
           return ((NotionalSchedule) bean).isIntermediateExchange();
         case -1048781383:  // finalExchange
           return ((NotionalSchedule) bean).isFinalExchange();
+        case -282775858:  // futureValueNotional
+          return ((NotionalSchedule) bean).futureValueNotional;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -692,6 +732,7 @@ public final class NotionalSchedule
     private boolean initialExchange;
     private boolean intermediateExchange;
     private boolean finalExchange;
+    private FutureValueNotional futureValueNotional;
 
     /**
      * Restricted constructor.
@@ -710,6 +751,7 @@ public final class NotionalSchedule
       this.initialExchange = beanToCopy.isInitialExchange();
       this.intermediateExchange = beanToCopy.isIntermediateExchange();
       this.finalExchange = beanToCopy.isFinalExchange();
+      this.futureValueNotional = beanToCopy.futureValueNotional;
     }
 
     //-----------------------------------------------------------------------
@@ -728,6 +770,8 @@ public final class NotionalSchedule
           return intermediateExchange;
         case -1048781383:  // finalExchange
           return finalExchange;
+        case -282775858:  // futureValueNotional
+          return futureValueNotional;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -754,6 +798,9 @@ public final class NotionalSchedule
         case -1048781383:  // finalExchange
           this.finalExchange = (Boolean) newValue;
           break;
+        case -282775858:  // futureValueNotional
+          this.futureValueNotional = (FutureValueNotional) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -774,7 +821,8 @@ public final class NotionalSchedule
           amount,
           initialExchange,
           intermediateExchange,
-          finalExchange);
+          finalExchange,
+          futureValueNotional);
     }
 
     //-----------------------------------------------------------------------
@@ -871,17 +919,28 @@ public final class NotionalSchedule
       return this;
     }
 
+    /**
+     * Sets the futureValueNotional.
+     * @param futureValueNotional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder futureValueNotional(FutureValueNotional futureValueNotional) {
+      this.futureValueNotional = futureValueNotional;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("NotionalSchedule.Builder{");
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
       buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
       buf.append("initialExchange").append('=').append(JodaBeanUtils.toString(initialExchange)).append(',').append(' ');
       buf.append("intermediateExchange").append('=').append(JodaBeanUtils.toString(intermediateExchange)).append(',').append(' ');
-      buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange));
+      buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange)).append(',').append(' ');
+      buf.append("futureValueNotional").append('=').append(JodaBeanUtils.toString(futureValueNotional));
       buf.append('}');
       return buf.toString();
     }

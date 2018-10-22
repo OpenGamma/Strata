@@ -45,6 +45,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
  * Defines the schedule of payment dates relative to the accrual periods.
@@ -187,7 +188,7 @@ public final class PaymentSchedule
    * Rolling is backwards if there is an initial stub, otherwise rolling is forwards.
    * Grouping involves merging the existing accrual periods, thus the roll convention
    * of the accrual periods is implicitly applied.
-   * 
+   *
    * @param accrualSchedule  the accrual schedule
    * @param refData  the reference data to use when resolving
    * @return the payment schedule
@@ -247,7 +248,7 @@ public final class PaymentSchedule
    * Builds the list of payment periods from the list of accrual periods.
    * <p>
    * This applies the payment schedule.
-   * 
+   *
    * @param accrualSchedule  the accrual schedule
    * @param paymentSchedule  the payment schedule
    * @param accrualPeriods  the list of accrual periods
@@ -267,6 +268,25 @@ public final class PaymentSchedule
       ReferenceData refData) {
 
     DoubleArray notionals = notionalSchedule.getAmount().resolveValues(paymentSchedule);
+    Double futureValueNotionalAmount = null;
+    if (notionalSchedule.getFutureValueNotional().isPresent()) {
+      ArgChecker.isTrue(paymentSchedule.size() == 1 && accrualSchedule.size() == 1,
+          "payment and accrual schedule must be of size one in the presence of a future value notional");
+      if (accrualPeriods.get(0).getRateComputation() instanceof FixedRateComputation) {
+        FixedRateComputation fixedRateComputation = (FixedRateComputation) accrualPeriods.get(0).getRateComputation();
+        FutureValueNotional futureValueNotional = notionalSchedule.getFutureValueNotional().get();
+        if (futureValueNotional.getValue().isPresent()
+            && futureValueNotional.getValueDate().isPresent()
+            && futureValueNotional.getCalculationPeriodNumberOfDays().isPresent()) {
+          futureValueNotionalAmount = futureValueNotional.getValue().getAsDouble();
+        }
+        else {
+          SchedulePeriod period = accrualSchedule.getPeriod(0);
+          double yearFraction = period.yearFraction(dayCount, accrualSchedule);
+          futureValueNotionalAmount = notionals.get(0) * Math.pow((1 + fixedRateComputation.getRate()), yearFraction);
+        }
+      }
+    }
     // resolve against reference data once
     DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
     BiFunction<Integer, SchedulePeriod, Optional<FxReset>> fxResetFn =
@@ -291,7 +311,8 @@ public final class PaymentSchedule
             paymentDateAdjuster,
             fxResetFn,
             dayCount,
-            notional));
+            notional,
+            futureValueNotionalAmount));
       }
     } else {
       // multiple accrual periods per payment period, or accrual/payment schedules differ
@@ -311,7 +332,8 @@ public final class PaymentSchedule
             paymentDateAdjuster,
             fxResetFn,
             dayCount,
-            notional));
+            notional,
+            futureValueNotionalAmount));
         accrualIndex++;
       }
     }
@@ -349,7 +371,8 @@ public final class PaymentSchedule
       DateAdjuster paymentDateAdjuster,
       BiFunction<Integer, SchedulePeriod, Optional<FxReset>> fxResetFn,
       DayCount dayCount,
-      CurrencyAmount notional) {
+      CurrencyAmount notional,
+      Double futureValueNotional) {
 
     // FpML cash flow example 3 shows payment offset calculated from adjusted accrual date (not unadjusted)
     LocalDate paymentDate = paymentDateAdjuster.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod));
@@ -380,6 +403,7 @@ public final class PaymentSchedule
         notional.getCurrency(),
         fxReset,
         notional.getAmount(),
+        futureValueNotional,
         compoundingMethod);
   }
 
