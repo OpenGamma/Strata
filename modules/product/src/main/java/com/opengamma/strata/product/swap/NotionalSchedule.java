@@ -468,7 +468,10 @@ public final class NotionalSchedule
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the futureValueNotional.
+   * Gets the future value notional.
+   * <p>
+   * This property is used when the fixed leg of a swap has a future value notional.
+   * This is typically used for Brazilian swaps.
    * @return the optional value of the property, not null
    */
   public Optional<FutureValueNotional> getFutureValueNotional() {
@@ -920,7 +923,10 @@ public final class NotionalSchedule
     }
 
     /**
-     * Sets the futureValueNotional.
+     * Sets the future value notional.
+     * <p>
+     * This property is used when the fixed leg of a swap has a future value notional.
+     * This is typically used for Brazilian swaps.
      * @param futureValueNotional  the new value
      * @return this, for chaining, not null
      */

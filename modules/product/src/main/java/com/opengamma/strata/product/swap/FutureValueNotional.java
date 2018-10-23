@@ -139,14 +139,13 @@ public final class FutureValueNotional implements
     return new FutureValueNotional.Builder();
   }
 
-  /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
-   */
-  protected FutureValueNotional(FutureValueNotional.Builder builder) {
-    this.value = builder.value;
-    this.valueDate = builder.valueDate;
-    this.calculationPeriodNumberOfDays = builder.calculationPeriodNumberOfDays;
+  private FutureValueNotional(
+      Double value,
+      LocalDate valueDate,
+      Integer calculationPeriodNumberOfDays) {
+    this.value = value;
+    this.valueDate = valueDate;
+    this.calculationPeriodNumberOfDays = calculationPeriodNumberOfDays;
   }
 
   @Override
@@ -156,9 +155,9 @@ public final class FutureValueNotional implements
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional amount.
+   * Gets the amount.
    * <p>
-   * This defines the non-negative monetary quantity for determining the future value notional.
+   * The future value notional amount which is a non-negative monetary quantity.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getValue() {
@@ -178,7 +177,7 @@ public final class FutureValueNotional implements
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the calculation period number of days.
+   * Gets the number of days in the calculation period.
    * <p>
    * This defines the number of days from the adjusted calculation period start date to the adjusted value date,
    * calculated in accordance with the applicable day count fraction.
@@ -224,26 +223,18 @@ public final class FutureValueNotional implements
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FutureValueNotional{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("valueDate").append('=').append(valueDate).append(',').append(' ');
+    buf.append("calculationPeriodNumberOfDays").append('=').append(JodaBeanUtils.toString(calculationPeriodNumberOfDays));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
-    buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate)).append(',').append(' ');
-    buf.append("calculationPeriodNumberOfDays").append('=').append(JodaBeanUtils.toString(calculationPeriodNumberOfDays)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FutureValueNotional}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -276,7 +267,7 @@ public final class FutureValueNotional implements
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -312,7 +303,7 @@ public final class FutureValueNotional implements
      * The meta-property for the {@code value} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Double> value() {
+    public MetaProperty<Double> value() {
       return value;
     }
 
@@ -320,7 +311,7 @@ public final class FutureValueNotional implements
      * The meta-property for the {@code valueDate} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate> valueDate() {
+    public MetaProperty<LocalDate> valueDate() {
       return valueDate;
     }
 
@@ -328,7 +319,7 @@ public final class FutureValueNotional implements
      * The meta-property for the {@code calculationPeriodNumberOfDays} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> calculationPeriodNumberOfDays() {
+    public MetaProperty<Integer> calculationPeriodNumberOfDays() {
       return calculationPeriodNumberOfDays;
     }
 
@@ -361,7 +352,7 @@ public final class FutureValueNotional implements
   /**
    * The bean-builder for {@code FutureValueNotional}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<FutureValueNotional> {
+  public static final class Builder extends DirectFieldsBeanBuilder<FutureValueNotional> {
 
     private Double value;
     private LocalDate valueDate;
@@ -370,14 +361,14 @@ public final class FutureValueNotional implements
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(FutureValueNotional beanToCopy) {
+    private Builder(FutureValueNotional beanToCopy) {
       this.value = beanToCopy.value;
       this.valueDate = beanToCopy.valueDate;
       this.calculationPeriodNumberOfDays = beanToCopy.calculationPeriodNumberOfDays;
@@ -424,14 +415,17 @@ public final class FutureValueNotional implements
 
     @Override
     public FutureValueNotional build() {
-      return new FutureValueNotional(this);
+      return new FutureValueNotional(
+          value,
+          valueDate,
+          calculationPeriodNumberOfDays);
     }
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the notional amount.
+     * Sets the amount.
      * <p>
-     * This defines the non-negative monetary quantity for determining the future value notional.
+     * The future value notional amount which is a non-negative monetary quantity.
      * @param value  the new value
      * @return this, for chaining, not null
      */
@@ -453,7 +447,7 @@ public final class FutureValueNotional implements
     }
 
     /**
-     * Sets the calculation period number of days.
+     * Sets the number of days in the calculation period.
      * <p>
      * This defines the number of days from the adjusted calculation period start date to the adjusted value date,
      * calculated in accordance with the applicable day count fraction.
@@ -470,19 +464,11 @@ public final class FutureValueNotional implements
     public String toString() {
       StringBuilder buf = new StringBuilder(128);
       buf.append("FutureValueNotional.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
       buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate)).append(',').append(' ');
-      buf.append("calculationPeriodNumberOfDays").append('=').append(JodaBeanUtils.toString(calculationPeriodNumberOfDays)).append(',').append(' ');
+      buf.append("calculationPeriodNumberOfDays").append('=').append(JodaBeanUtils.toString(calculationPeriodNumberOfDays));
+      buf.append('}');
+      return buf.toString();
     }
 
   }

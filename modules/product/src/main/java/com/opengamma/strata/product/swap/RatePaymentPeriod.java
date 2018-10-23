@@ -375,7 +375,8 @@ public final class RatePaymentPeriod
   /**
    * Gets the future value notional.
    * <p>
-   * Compounding is used when combining accrual periods.
+   * This property is used when the fixed leg of a swap has a future value notional.
+   * This is typically used for Brazilian swaps.
    * @return the value of the property
    */
   public Double getFutureValueNotional() {
@@ -881,7 +882,8 @@ public final class RatePaymentPeriod
     /**
      * Sets the future value notional.
      * <p>
-     * Compounding is used when combining accrual periods.
+     * This property is used when the fixed leg of a swap has a future value notional.
+     * This is typically used for Brazilian swaps.
      * @param futureValueNotional  the new value
      * @return this, for chaining, not null
      */
