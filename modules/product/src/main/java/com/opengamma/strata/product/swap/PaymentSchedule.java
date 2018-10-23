@@ -279,8 +279,7 @@ public final class PaymentSchedule
             && futureValueNotional.getValueDate().isPresent()
             && futureValueNotional.getCalculationPeriodNumberOfDays().isPresent()) {
           futureValueNotionalAmount = futureValueNotional.getValue().getAsDouble();
-        }
-        else {
+        } else {
           SchedulePeriod period = accrualSchedule.getPeriod(0);
           double yearFraction = period.yearFraction(dayCount, accrualSchedule);
           futureValueNotionalAmount = notionals.get(0) * Math.pow((1 + fixedRateComputation.getRate()), yearFraction);

@@ -39,6 +39,10 @@ public class FutureValueNotional implements
     ImmutableBean, Serializable {
 
   /**
+   * An empty instance of {@code FutureValueNotional}.
+   */
+  private static final FutureValueNotional AUTO = FutureValueNotional.builder().build();
+  /**
    * The amount.
    * <p>
    * The future value notional amount which is a non-negative monetary quantity.
@@ -62,6 +66,17 @@ public class FutureValueNotional implements
   private final Integer calculationPeriodNumberOfDays;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains an empty instance, with no values or attributes.
+   * <p>
+   * In this case the future value notional will be determined automatically from the calling code using the specified formula.
+   * <p>
+   * @return the empty instance
+   */
+  public static FutureValueNotional auto() {
+    return AUTO;
+  }
+  
   /**
    * Obtains an instance from the specified amount, date and number of days.
    *
