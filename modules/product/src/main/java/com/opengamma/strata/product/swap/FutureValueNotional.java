@@ -78,7 +78,7 @@ public final class FutureValueNotional implements
   public static FutureValueNotional auto() {
     return AUTO;
   }
-  
+
   /**
    * Obtains an instance from the specified amount, date and number of days.
    *
@@ -99,7 +99,7 @@ public final class FutureValueNotional implements
         .calculationPeriodNumberOfDays(calculationPeriodNumberOfDays)
         .build();
   }
-  
+
   /**
    * Obtains an instance from the specified amount.
    *
