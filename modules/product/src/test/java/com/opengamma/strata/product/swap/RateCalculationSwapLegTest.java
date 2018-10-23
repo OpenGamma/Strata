@@ -20,7 +20,9 @@ import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -793,6 +795,127 @@ public class RateCalculationSwapLegTest {
         .build();
     ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
     assertEquals(testExpand, expected);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_future_value_notional_auto() {
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_06)
+            .endDate(DATE_04_07)
+            .frequency(TERM)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(TERM)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.builder()
+            .currency(GBP)
+            .amount(ValueSchedule.of(1000d))
+            .futureValueNotional(FutureValueNotional.auto())
+            .build())
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
+    // expected
+    double dayCount = ACT_365F.yearFraction(DATE_01_06, DATE_04_07);
+    double futureValueNotional= -1000d * Math.pow(1.0d + 0.025d, dayCount);
+    RatePaymentPeriod rpp = RatePaymentPeriod.builder()
+        .paymentDate(DATE_04_09)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_01_06)
+            .endDate(DATE_04_07)
+            .yearFraction(dayCount)
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .futureValueNotional(futureValueNotional)
+        .build();
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
+        .paymentPeriods(rpp)
+        .payReceive(PAY)
+        .type(SwapLegType.FIXED)
+        .build();
+    assertEquals(testExpand, expected);
+  }
+  
+  public void test_future_value_notional_manual() {
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_06)
+            .endDate(DATE_04_07)
+            .frequency(TERM)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(TERM)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.builder()
+            .currency(GBP)
+            .amount(ValueSchedule.of(1000d))
+            .futureValueNotional(FutureValueNotional.of(1006d))
+            .build())
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    ResolvedSwapLeg testExpand = test.resolve(REF_DATA);
+    // expected
+    RatePaymentPeriod rpp = RatePaymentPeriod.builder()
+        .paymentDate(DATE_04_09)
+        .accrualPeriods(RateAccrualPeriod.builder()
+            .startDate(DATE_01_06)
+            .endDate(DATE_04_07)
+            .yearFraction(ACT_365F.yearFraction(DATE_01_06, DATE_04_07))
+            .rateComputation(FixedRateComputation.of(0.025d))
+            .build())
+        .dayCount(ACT_365F)
+        .currency(GBP)
+        .notional(-1000d)
+        .futureValueNotional(-1006d)
+        .build();
+    ResolvedSwapLeg expected = ResolvedSwapLeg.builder()
+        .paymentPeriods(rpp)
+        .payReceive(PAY)
+        .type(SwapLegType.FIXED)
+        .build();
+    assertEquals(testExpand, expected);
+  }
+  
+  public void test_future_value_notional_exception() {
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(TERM)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.builder()
+            .currency(GBP)
+            .amount(ValueSchedule.of(1000d))
+            .futureValueNotional(FutureValueNotional.auto())
+            .build())
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    assertThrowsIllegalArg(() -> test.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------

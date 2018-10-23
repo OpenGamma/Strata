@@ -270,19 +270,17 @@ public final class PaymentSchedule
     DoubleArray notionals = notionalSchedule.getAmount().resolveValues(paymentSchedule);
     Double futureValueNotionalAmount = null;
     if (notionalSchedule.getFutureValueNotional().isPresent()) {
-      ArgChecker.isTrue(paymentSchedule.size() == 1 && accrualSchedule.size() == 1,
-          "payment and accrual schedule must be of size one in the presence of a future value notional");
       if (accrualPeriods.get(0).getRateComputation() instanceof FixedRateComputation) {
+        ArgChecker.isTrue(accrualSchedule.size() == 1,
+            "accrual schedule must be of size one in the presence of a future value notional");
         FixedRateComputation fixedRateComputation = (FixedRateComputation) accrualPeriods.get(0).getRateComputation();
         FutureValueNotional futureValueNotional = notionalSchedule.getFutureValueNotional().get();
-        if (futureValueNotional.getValue().isPresent()
-            && futureValueNotional.getValueDate().isPresent()
-            && futureValueNotional.getCalculationPeriodNumberOfDays().isPresent()) {
-          futureValueNotionalAmount = futureValueNotional.getValue().getAsDouble();
+        if (futureValueNotional.getValue().isPresent()) {
+          futureValueNotionalAmount = payReceive.normalize(futureValueNotional.getValue().getAsDouble());
         } else {
           SchedulePeriod period = accrualSchedule.getPeriod(0);
           double yearFraction = period.yearFraction(dayCount, accrualSchedule);
-          futureValueNotionalAmount = notionals.get(0) * Math.pow((1 + fixedRateComputation.getRate()), yearFraction);
+          futureValueNotionalAmount = payReceive.normalize(notionals.get(0) * Math.pow((1 + fixedRateComputation.getRate()), yearFraction));
         }
       }
     }

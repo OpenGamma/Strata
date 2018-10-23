@@ -25,6 +25,8 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.collect.ArgChecker;
+
 /**
  * A future value notional amount for a fixed swap leg .
  * <p>
@@ -35,7 +37,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * The future value notional is normally only required for BRL CDI Swaps.
  */
 @BeanDefinition
-public class FutureValueNotional implements
+public final class FutureValueNotional implements
     ImmutableBean, Serializable {
 
   /**
@@ -88,10 +90,26 @@ public class FutureValueNotional implements
   public static FutureValueNotional of(Double value,
                                        LocalDate valueDate,
                                        Integer calculationPeriodNumberOfDays) {
+    ArgChecker.isTrue(value != null);
+    ArgChecker.isTrue(valueDate != null);
+    ArgChecker.isTrue(calculationPeriodNumberOfDays != null);
     return FutureValueNotional.builder()
         .value(value)
         .valueDate(valueDate)
         .calculationPeriodNumberOfDays(calculationPeriodNumberOfDays)
+        .build();
+  }
+  
+  /**
+   * Obtains an instance from the specified amount.
+   *
+   * @param value  the amount
+   * @return the future value notional
+   */
+  public static FutureValueNotional of(Double value) {
+    ArgChecker.isTrue(value != null);
+    return FutureValueNotional.builder()
+        .value(value)
         .build();
   }
 

@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
@@ -25,21 +26,41 @@ public class FutureValueNotionalTest {
   public static final int NUM_DAYS = 512;
   
   public void test_of() {
-    FutureValueNotional futureValueNotional = FutureValueNotional.of(VALUE, VAL_DATE, NUM_DAYS);
-    assertEquals(futureValueNotional.getValue(), OptionalDouble.of(VALUE));
-    assertEquals(futureValueNotional.getCalculationPeriodNumberOfDays(), OptionalInt.of(NUM_DAYS));
-    assertEquals(futureValueNotional.getValueDate(), Optional.of(VAL_DATE));
+    FutureValueNotional test1 = FutureValueNotional.of(VALUE, VAL_DATE, NUM_DAYS);
+    assertEquals(test1.getValue(), OptionalDouble.of(VALUE));
+    assertEquals(test1.getCalculationPeriodNumberOfDays(), OptionalInt.of(NUM_DAYS));
+    assertEquals(test1.getValueDate(), Optional.of(VAL_DATE));
+  
+    FutureValueNotional test2 = FutureValueNotional.of(VALUE);
+    assertEquals(test2.getValue(), OptionalDouble.of(VALUE));
+    assertEquals(test2.getCalculationPeriodNumberOfDays(), OptionalInt.empty());
+    assertEquals(test2.getValueDate(), Optional.empty());
   }
   
   public void test_builder() {
-    FutureValueNotional futureValueNotional = FutureValueNotional.builder()
+    FutureValueNotional test1 = FutureValueNotional.builder()
         .value(VALUE)
         .valueDate(VAL_DATE)
         .calculationPeriodNumberOfDays(NUM_DAYS)
         .build();
-    assertEquals(futureValueNotional.getValue(), OptionalDouble.of(VALUE));
-    assertEquals(futureValueNotional.getCalculationPeriodNumberOfDays(), OptionalInt.of(NUM_DAYS));
-    assertEquals(futureValueNotional.getValueDate(), Optional.of(VAL_DATE));
+    assertEquals(test1.getValue(), OptionalDouble.of(VALUE));
+    assertEquals(test1.getCalculationPeriodNumberOfDays(), OptionalInt.of(NUM_DAYS));
+    assertEquals(test1.getValueDate(), Optional.of(VAL_DATE));
+  
+    FutureValueNotional test2 = FutureValueNotional.builder()
+        .value(VALUE)
+        .build();
+    assertEquals(test2.getValue(), OptionalDouble.of(VALUE));
+    assertEquals(test2.getCalculationPeriodNumberOfDays(), OptionalInt.empty());
+    assertEquals(test2.getValueDate(), Optional.empty());
+  }
+  
+  public void test_exceptions() {
+    assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, NUM_DAYS));
+    assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, NUM_DAYS));
+    assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, null));
+    assertThrowsIllegalArg(() -> FutureValueNotional.of(null, null, null));
+    assertThrowsIllegalArg(() -> FutureValueNotional.of(null));
   }
   
   public void test_auto() {
