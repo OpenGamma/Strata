@@ -586,17 +586,18 @@ public final class PeriodicSchedule
       LocalDate end) {
 
     if (stubCnv.isCalculateBackwards()) {
+      // called only when stub is initial
+      // validate that explicit stub flags have been resolved to stub convention of NONE
       ArgChecker.isFalse(explicitInitStub, "Value explicitInitStub must be false");
       ArgChecker.isFalse(explicitFinalStub, "Value explicitFinalStub must be false");
-      return generateBackwards(
-          this, regStart, regEnd, frequency, rollCnv, stubCnv, overrideStart, end);
+      return generateBackwards(this, regStart, regEnd, frequency, rollCnv, stubCnv, overrideStart);
     } else {
       return generateForwards(
           this, regStart, regEnd, frequency, rollCnv, stubCnv, explicitInitStub, overrideStart, explicitFinalStub, end);
     }
   }
 
-  // generate the schedule of dates backwards from the end
+  // generate the schedule of dates backwards from the end, only called when stub convention is initial
   private static List<LocalDate> generateBackwards(
       PeriodicSchedule schedule,
       LocalDate start,
@@ -604,8 +605,7 @@ public final class PeriodicSchedule
       Frequency frequency,
       RollConvention rollConv,
       StubConvention stubConv,
-      LocalDate explicitStartDate,
-      LocalDate explicitEndDate) {
+      LocalDate explicitStartDate) {
 
     // validate
     if (rollConv.matches(end) == false) {
@@ -659,7 +659,7 @@ public final class PeriodicSchedule
     }
   }
 
-  // generate the schedule of dates forwards from the start
+  // generate the schedule of dates forwards from the start, called when stub convention is not initial
   private static List<LocalDate> generateForwards(
       PeriodicSchedule schedule,
       LocalDate start,
