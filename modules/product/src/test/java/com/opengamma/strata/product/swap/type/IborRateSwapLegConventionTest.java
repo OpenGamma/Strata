@@ -63,8 +63,8 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
+    assertEquals(test.getStubConvention(), StubConvention.SMART_INITIAL);
+    assertEquals(test.getRollConvention(), RollConventions.EOM);
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
     assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
     assertEquals(test.getPaymentFrequency(), P3M);
@@ -82,8 +82,8 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
     assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
+    assertEquals(test.getStubConvention(), StubConvention.SMART_INITIAL);
+    assertEquals(test.getRollConvention(), RollConventions.EOM);
     assertEquals(test.getFixingRelativeTo(), PERIOD_START);
     assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
     assertEquals(test.getPaymentFrequency(), P3M);
@@ -107,7 +107,7 @@ public class IborRateSwapLegConventionTest {
         .startDateBusinessDayAdjustment(BDA_FOLLOW)
         .endDateBusinessDayAdjustment(BDA_FOLLOW)
         .stubConvention(LONG_INITIAL)
-        .rollConvention(RollConventions.EOM)
+        .rollConvention(RollConventions.DAY_1)
         .fixingRelativeTo(PERIOD_END)
         .fixingDateOffset(MINUS_FIVE_DAYS)
         .paymentFrequency(P6M)
@@ -123,7 +123,7 @@ public class IborRateSwapLegConventionTest {
     assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_FOLLOW);
     assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_FOLLOW);
     assertEquals(test.getStubConvention(), StubConvention.LONG_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.EOM);
+    assertEquals(test.getRollConvention(), RollConventions.DAY_1);
     assertEquals(test.getFixingRelativeTo(), PERIOD_END);
     assertEquals(test.getFixingDateOffset(), MINUS_FIVE_DAYS);
     assertEquals(test.getPaymentFrequency(), P6M);

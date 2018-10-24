@@ -137,7 +137,7 @@ public final class IborRateSwapLegConvention
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
    * <p>
-   * This will default to 'ShortInitial' if not specified.
+   * This will default to 'SmartInitial' if not specified.
    */
   @PropertyDefinition(get = "field")
   private final StubConvention stubConvention;
@@ -223,7 +223,7 @@ public final class IborRateSwapLegConvention
    * Obtains a convention based on the specified index.
    * <p>
    * The standard market convention for an Ibor rate leg is based on the index,
-   * with the stub convention set to 'ShortInitial'.
+   * with the stub convention set to 'SmartInitial'.
    * Use the {@linkplain #builder() builder} for unusual conventions.
    * 
    * @param index  the index, the market convention values are extracted from the index
@@ -232,7 +232,7 @@ public final class IborRateSwapLegConvention
   public static IborRateSwapLegConvention of(IborIndex index) {
     return IborRateSwapLegConvention.builder()
         .index(index)
-        .stubConvention(StubConvention.SHORT_INITIAL)
+        .stubConvention(StubConvention.SMART_INITIAL)
         .build();
   }
 
@@ -337,12 +337,12 @@ public final class IborRateSwapLegConvention
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
    * <p>
-   * This will default to 'ShortInitial' if not specified.
+   * This will default to 'SmartInitial' if not specified.
    * 
    * @return the stub convention, not null
    */
   public StubConvention getStubConvention() {
-    return stubConvention != null ? stubConvention : StubConvention.SHORT_INITIAL;
+    return stubConvention != null ? stubConvention : StubConvention.SMART_INITIAL;
   }
 
   /**
@@ -353,12 +353,12 @@ public final class IborRateSwapLegConvention
    * the frequency to the start date, or subtracting it from the end date.
    * The roll convention provides the detailed rule to adjust the day-of-month or day-of-week.
    * <p>
-   * This will default to 'None' if not specified.
+   * This will default to 'EOM' if not specified.
    * 
    * @return the roll convention, not null
    */
   public RollConvention getRollConvention() {
-    return rollConvention != null ? rollConvention : RollConventions.NONE;
+    return rollConvention != null ? rollConvention : RollConventions.EOM;
   }
 
   /**
@@ -1303,7 +1303,7 @@ public final class IborRateSwapLegConvention
      * remaining period occurs at the start or end of the schedule.
      * It also determines whether the irregular period is shorter or longer than the regular period.
      * <p>
-     * This will default to 'ShortInitial' if not specified.
+     * This will default to 'SmartInitial' if not specified.
      * @param stubConvention  the new value
      * @return this, for chaining, not null
      */

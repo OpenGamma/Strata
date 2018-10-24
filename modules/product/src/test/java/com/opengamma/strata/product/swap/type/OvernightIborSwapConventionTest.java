@@ -57,7 +57,7 @@ public class OvernightIborSwapConventionTest {
           .accrualMethod(AVERAGED)
           .accrualFrequency(Frequency.P3M)
           .paymentFrequency(Frequency.P3M)
-          .stubConvention(StubConvention.SHORT_INITIAL)
+          .stubConvention(StubConvention.SMART_INITIAL)
           .rateCutOffDays(2)
           .build();
   private static final OvernightRateSwapLegConvention FFUND_LEG2 =

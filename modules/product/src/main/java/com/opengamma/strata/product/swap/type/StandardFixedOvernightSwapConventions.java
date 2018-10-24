@@ -139,7 +139,7 @@ final class StandardFixedOvernightSwapConventions {
             .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, calendar))
             .paymentFrequency(frequency)
             .paymentDateOffset(paymentDateOffset)
-            .stubConvention(StubConvention.SHORT_INITIAL)
+            .stubConvention(StubConvention.SMART_INITIAL)
             .build(),
         OvernightRateSwapLegConvention.builder()
             .index(index)
@@ -147,7 +147,7 @@ final class StandardFixedOvernightSwapConventions {
             .accrualFrequency(frequency)
             .paymentFrequency(frequency)
             .paymentDateOffset(paymentDateOffset)
-            .stubConvention(StubConvention.SHORT_INITIAL)
+            .stubConvention(StubConvention.SMART_INITIAL)
             .build(),
         spotDateOffset);
   }
