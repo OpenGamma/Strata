@@ -236,6 +236,15 @@ public class DiscountingSwapProductPricer {
    * @return the par rate
    */
   public double parSpread(ResolvedSwap swap, RatesProvider provider) {
+    // does the fixed leg of the swap have a future value notional
+    if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
+      ResolvedSwapLeg fixedLeg = fixedLeg(swap);
+      RatePaymentPeriod firstPeriod = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
+      if (firstPeriod.getFutureValueNotional() != null) {
+        double accrualFactor = firstPeriod.getAccrualPeriods().get(0).getYearFraction();
+        return parRate(swap, provider) - accrualFactor;
+      }
+    }
     ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
     Currency ccyReferenceLeg = referenceLeg.getCurrency();
     // try one payment compounding, typically for inflation swaps
@@ -379,6 +388,14 @@ public class DiscountingSwapProductPricer {
    * @return the par spread curve sensitivity of the swap product
    */
   public PointSensitivityBuilder parSpreadSensitivity(ResolvedSwap swap, RatesProvider provider) {
+    // does the fixed leg of the swap have a future value notional
+    if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
+      ResolvedSwapLeg fixedLeg = fixedLeg(swap);
+      RatePaymentPeriod firstPeriod = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
+      if (firstPeriod.getFutureValueNotional() != null) {
+        return parRateSensitivity(swap, provider);
+      }
+    }
     ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
     Currency ccyReferenceLeg = referenceLeg.getCurrency();
     double convertedPv = presentValue(swap, ccyReferenceLeg, provider).getAmount();
