@@ -273,10 +273,8 @@ public final class FixedRateCalculation
   /**
    * Gets the future value notional.
    * <p>
-   * The final stub of a swap may have a different rate from the regular accrual periods.
-   * This property allows the stub rate to be specified, either as a known amount or a rate.
-   * If this property is not present, then the rate derived from the {@code rate} property applies during the stub.
-   * If this property is present and there is no initial stub, it is ignored.
+   * This property is used when the fixed leg of a swap has a future value notional.
+   * This is typically used for Brazilian swaps.
    * @return the optional value of the property, not null
    */
   public Optional<FutureValueNotional> getFutureValueNotional() {
@@ -637,10 +635,8 @@ public final class FixedRateCalculation
     /**
      * Sets the future value notional.
      * <p>
-     * The final stub of a swap may have a different rate from the regular accrual periods.
-     * This property allows the stub rate to be specified, either as a known amount or a rate.
-     * If this property is not present, then the rate derived from the {@code rate} property applies during the stub.
-     * If this property is present and there is no initial stub, it is ignored.
+     * This property is used when the fixed leg of a swap has a future value notional.
+     * This is typically used for Brazilian swaps.
      * @param futureValueNotional  the new value
      * @return this, for chaining, not null
      */
