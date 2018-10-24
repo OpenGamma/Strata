@@ -207,8 +207,7 @@ public class DiscountingSwapProductPricer {
         double notional = payment.getNotional();
         double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
         return Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d,   1.0 / accrualFactor) - 1.0d;
-      }
-      else { // no compounding
+      } else { // no compounding
         // PVBP
         double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
         // Par rate
