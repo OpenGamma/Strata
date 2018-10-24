@@ -110,14 +110,6 @@ public final class RatePaymentPeriod
   @PropertyDefinition
   private final double notional;
   /**
-   * The future value notional.
-   * <p>
-   * This property is used when the fixed leg of a swap has a future value notional.
-   * This is typically used for Brazilian swaps.
-   */
-  @PropertyDefinition
-  private final Double futureValueNotional;
-  /**
    * The compounding method to use when there is more than one accrual period, default is 'None'.
    * <p>
    * Compounding is used when combining accrual periods.
@@ -254,7 +246,6 @@ public final class RatePaymentPeriod
    * @param currency  the value of the property, not null
    * @param fxReset  the value of the property
    * @param notional  the value of the property
-   * @param futureValueNotional  the value of the property
    * @param compoundingMethod  the value of the property, not null
    */
   RatePaymentPeriod(
@@ -264,7 +255,6 @@ public final class RatePaymentPeriod
       Currency currency,
       FxReset fxReset,
       double notional,
-      Double futureValueNotional,
       CompoundingMethod compoundingMethod) {
     JodaBeanUtils.notNull(paymentDate, "paymentDate");
     JodaBeanUtils.notEmpty(accrualPeriods, "accrualPeriods");
@@ -277,7 +267,6 @@ public final class RatePaymentPeriod
     this.currency = currency;
     this.fxReset = fxReset;
     this.notional = notional;
-    this.futureValueNotional = futureValueNotional;
     this.compoundingMethod = compoundingMethod;
     validate();
   }
@@ -373,18 +362,6 @@ public final class RatePaymentPeriod
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the future value notional.
-   * <p>
-   * This property is used when the fixed leg of a swap has a future value notional.
-   * This is typically used for Brazilian swaps.
-   * @return the value of the property
-   */
-  public Double getFutureValueNotional() {
-    return futureValueNotional;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the compounding method to use when there is more than one accrual period, default is 'None'.
    * <p>
    * Compounding is used when combining accrual periods.
@@ -416,7 +393,6 @@ public final class RatePaymentPeriod
           JodaBeanUtils.equal(currency, other.currency) &&
           JodaBeanUtils.equal(fxReset, other.fxReset) &&
           JodaBeanUtils.equal(notional, other.notional) &&
-          JodaBeanUtils.equal(futureValueNotional, other.futureValueNotional) &&
           JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod);
     }
     return false;
@@ -431,14 +407,13 @@ public final class RatePaymentPeriod
     hash = hash * 31 + JodaBeanUtils.hashCode(currency);
     hash = hash * 31 + JodaBeanUtils.hashCode(fxReset);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
-    hash = hash * 31 + JodaBeanUtils.hashCode(futureValueNotional);
     hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("RatePaymentPeriod{");
     buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
     buf.append("accrualPeriods").append('=').append(accrualPeriods).append(',').append(' ');
@@ -446,7 +421,6 @@ public final class RatePaymentPeriod
     buf.append("currency").append('=').append(currency).append(',').append(' ');
     buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
     buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("futureValueNotional").append('=').append(futureValueNotional).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
     buf.append('}');
     return buf.toString();
@@ -494,11 +468,6 @@ public final class RatePaymentPeriod
     private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
         this, "notional", RatePaymentPeriod.class, Double.TYPE);
     /**
-     * The meta-property for the {@code futureValueNotional} property.
-     */
-    private final MetaProperty<Double> futureValueNotional = DirectMetaProperty.ofImmutable(
-        this, "futureValueNotional", RatePaymentPeriod.class, Double.class);
-    /**
      * The meta-property for the {@code compoundingMethod} property.
      */
     private final MetaProperty<CompoundingMethod> compoundingMethod = DirectMetaProperty.ofImmutable(
@@ -514,7 +483,6 @@ public final class RatePaymentPeriod
         "currency",
         "fxReset",
         "notional",
-        "futureValueNotional",
         "compoundingMethod");
 
     /**
@@ -538,8 +506,6 @@ public final class RatePaymentPeriod
           return fxReset;
         case 1585636160:  // notional
           return notional;
-        case -282775858:  // futureValueNotional
-          return futureValueNotional;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
       }
@@ -611,14 +577,6 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * The meta-property for the {@code futureValueNotional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> futureValueNotional() {
-      return futureValueNotional;
-    }
-
-    /**
      * The meta-property for the {@code compoundingMethod} property.
      * @return the meta-property, not null
      */
@@ -642,8 +600,6 @@ public final class RatePaymentPeriod
           return ((RatePaymentPeriod) bean).fxReset;
         case 1585636160:  // notional
           return ((RatePaymentPeriod) bean).getNotional();
-        case -282775858:  // futureValueNotional
-          return ((RatePaymentPeriod) bean).getFutureValueNotional();
         case -1376171496:  // compoundingMethod
           return ((RatePaymentPeriod) bean).getCompoundingMethod();
       }
@@ -673,7 +629,6 @@ public final class RatePaymentPeriod
     private Currency currency;
     private FxReset fxReset;
     private double notional;
-    private Double futureValueNotional;
     private CompoundingMethod compoundingMethod;
 
     /**
@@ -694,7 +649,6 @@ public final class RatePaymentPeriod
       this.currency = beanToCopy.getCurrency();
       this.fxReset = beanToCopy.fxReset;
       this.notional = beanToCopy.getNotional();
-      this.futureValueNotional = beanToCopy.getFutureValueNotional();
       this.compoundingMethod = beanToCopy.getCompoundingMethod();
     }
 
@@ -714,8 +668,6 @@ public final class RatePaymentPeriod
           return fxReset;
         case 1585636160:  // notional
           return notional;
-        case -282775858:  // futureValueNotional
-          return futureValueNotional;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
         default:
@@ -745,9 +697,6 @@ public final class RatePaymentPeriod
         case 1585636160:  // notional
           this.notional = (Double) newValue;
           break;
-        case -282775858:  // futureValueNotional
-          this.futureValueNotional = (Double) newValue;
-          break;
         case -1376171496:  // compoundingMethod
           this.compoundingMethod = (CompoundingMethod) newValue;
           break;
@@ -772,7 +721,6 @@ public final class RatePaymentPeriod
           currency,
           fxReset,
           notional,
-          futureValueNotional,
           compoundingMethod);
     }
 
@@ -880,19 +828,6 @@ public final class RatePaymentPeriod
     }
 
     /**
-     * Sets the future value notional.
-     * <p>
-     * This property is used when the fixed leg of a swap has a future value notional.
-     * This is typically used for Brazilian swaps.
-     * @param futureValueNotional  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder futureValueNotional(Double futureValueNotional) {
-      this.futureValueNotional = futureValueNotional;
-      return this;
-    }
-
-    /**
      * Sets the compounding method to use when there is more than one accrual period, default is 'None'.
      * <p>
      * Compounding is used when combining accrual periods.
@@ -908,7 +843,7 @@ public final class RatePaymentPeriod
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(288);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("RatePaymentPeriod.Builder{");
       buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
       buf.append("accrualPeriods").append('=').append(JodaBeanUtils.toString(accrualPeriods)).append(',').append(' ');
@@ -916,7 +851,6 @@ public final class RatePaymentPeriod
       buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
       buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-      buf.append("futureValueNotional").append('=').append(JodaBeanUtils.toString(futureValueNotional)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
       buf.append('}');
       return buf.toString();
