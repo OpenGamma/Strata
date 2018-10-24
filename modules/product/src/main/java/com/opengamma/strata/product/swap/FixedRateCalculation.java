@@ -35,6 +35,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
 
@@ -147,7 +148,7 @@ public final class FixedRateCalculation
       ArgChecker.isTrue(accrualSchedule.size() == 1, "only one accrual period when future value notional present");
       SchedulePeriod period = accrualSchedule.getPeriod(0);
       double yearFraction = period.yearFraction(dayCount, accrualSchedule);
-      RateComputation rateComputation = FixedOvernightCompoundedAnnualRateComputation.of(rate, yearFraction);
+      RateComputation rateComputation = FixedOvernightCompoundedAnnualRateComputation.of(resolvedRates.get(0), yearFraction);
       accrualPeriods.add(
           RateAccrualPeriod.builder(period).yearFraction(yearFraction).rateComputation(rateComputation).build());
       return accrualPeriods.build();
