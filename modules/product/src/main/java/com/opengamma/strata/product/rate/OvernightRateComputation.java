@@ -45,7 +45,7 @@ public interface OvernightRateComputation
       case COMPOUNDED:
         return OvernightCompoundedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
       case ANNUAL_RATE:
-        return OvernightAnnualRateComputation.of(index, startDate, endDate, referenceData);
+        return OvernightCompoundedAnnualRateComputation.of(index, startDate, endDate, referenceData);
       case AVERAGED:
         return OvernightAveragedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
       case AVERAGED_DAILY:
