@@ -548,6 +548,13 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_callerClass() {
+    assertEquals(Guavate.callerClass(0), Guavate.CallerClassSecurityManager.class);
+    assertEquals(Guavate.callerClass(1), Guavate.class);
+    assertEquals(Guavate.callerClass(2), GuavateTest.class);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_validUtilityClass() {
     assertUtilityClass(Guavate.class);
   }
