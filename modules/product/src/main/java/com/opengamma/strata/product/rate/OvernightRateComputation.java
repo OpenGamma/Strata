@@ -44,8 +44,8 @@ public interface OvernightRateComputation
     switch (accrualMethod) {
       case COMPOUNDED:
         return OvernightCompoundedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
-      case ANNUALISED_DAILY:
-        return AnnualisedDailyOvernightRateComputation.of(index, startDate, endDate, referenceData);
+      case ANNUAL_RATE:
+        return OvernightAnnualRateComputation.of(index, startDate, endDate, referenceData);
       case AVERAGED:
         return OvernightAveragedRateComputation.of(index, startDate, endDate, rateCutOffDays, referenceData);
       case AVERAGED_DAILY:

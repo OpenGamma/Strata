@@ -30,13 +30,13 @@ public enum OvernightAccrualMethod implements NamedEnum {
    */
   COMPOUNDED,
   /**
-   * The annualised daily compounded method.
+   * Defines overnight compounding using an an annual rate.
    * <p>
-   * Interest is accrued by daily compounding of each rate during the accrual period using an annualised rate.
+   * Interest is accrued by overnight compounding of each rate during the accrual period using an annual rate.
    * <p>
    * This is the most common type for Brazilian style swaps.
    */
-  ANNUALISED_DAILY,
+  ANNUAL_RATE,
   /**
    * The averaged method.
    * <p>
