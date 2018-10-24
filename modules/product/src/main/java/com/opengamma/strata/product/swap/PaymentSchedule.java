@@ -268,22 +268,6 @@ public final class PaymentSchedule
       ReferenceData refData) {
 
     DoubleArray notionals = notionalSchedule.getAmount().resolveValues(paymentSchedule);
-    Double futureValueNotionalAmount = null;
-    if (notionalSchedule.getFutureValueNotional().isPresent()) {
-      if (accrualPeriods.get(0).getRateComputation() instanceof FixedRateComputation) {
-        ArgChecker.isTrue(accrualSchedule.size() == 1,
-            "accrual schedule must be of size one in the presence of a future value notional");
-        FixedRateComputation fixedRateComputation = (FixedRateComputation) accrualPeriods.get(0).getRateComputation();
-        FutureValueNotional futureValueNotional = notionalSchedule.getFutureValueNotional().get();
-        if (futureValueNotional.getValue().isPresent()) {
-          futureValueNotionalAmount = payReceive.normalize(futureValueNotional.getValue().getAsDouble());
-        } else {
-          SchedulePeriod period = accrualSchedule.getPeriod(0);
-          double yearFraction = period.yearFraction(dayCount, accrualSchedule);
-          futureValueNotionalAmount = payReceive.normalize(notionals.get(0) * Math.pow((1 + fixedRateComputation.getRate()), yearFraction));
-        }
-      }
-    }
     // resolve against reference data once
     DateAdjuster paymentDateAdjuster = paymentDateOffset.resolve(refData);
     BiFunction<Integer, SchedulePeriod, Optional<FxReset>> fxResetFn =
@@ -308,8 +292,7 @@ public final class PaymentSchedule
             paymentDateAdjuster,
             fxResetFn,
             dayCount,
-            notional,
-            futureValueNotionalAmount));
+            notional));
       }
     } else {
       // multiple accrual periods per payment period, or accrual/payment schedules differ
@@ -329,8 +312,7 @@ public final class PaymentSchedule
             paymentDateAdjuster,
             fxResetFn,
             dayCount,
-            notional,
-            futureValueNotionalAmount));
+            notional));
         accrualIndex++;
       }
     }
@@ -368,8 +350,7 @@ public final class PaymentSchedule
       DateAdjuster paymentDateAdjuster,
       BiFunction<Integer, SchedulePeriod, Optional<FxReset>> fxResetFn,
       DayCount dayCount,
-      CurrencyAmount notional,
-      Double futureValueNotional) {
+      CurrencyAmount notional) {
 
     // FpML cash flow example 3 shows payment offset calculated from adjusted accrual date (not unadjusted)
     LocalDate paymentDate = paymentDateAdjuster.adjust(paymentRelativeTo.selectBaseDate(paymentPeriod));
@@ -400,7 +381,6 @@ public final class PaymentSchedule
         notional.getCurrency(),
         fxReset,
         notional.getAmount(),
-        futureValueNotional,
         compoundingMethod);
   }
 

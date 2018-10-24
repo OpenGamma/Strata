@@ -8,6 +8,7 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -28,6 +29,7 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueAdjustment;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
+import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
@@ -45,6 +47,7 @@ public class FixedRateCalculationTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.empty());
+    assertEquals(test.getFutureValueNotional(), Optional.empty());
   }
 
   public void test_builder() {
@@ -53,11 +56,13 @@ public class FixedRateCalculationTest {
         .rate(ValueSchedule.of(0.025d))
         .initialStub(FixedRateStubCalculation.ofFixedRate(0.1d))
         .finalStub(FixedRateStubCalculation.ofFixedRate(0.2d))
+        .futureValueNotional(FutureValueNotional.auto())
         .build();
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
     assertEquals(test.getFinalStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
+    assertEquals(test.getFutureValueNotional(), Optional.of(FutureValueNotional.auto()));
   }
 
   //-------------------------------------------------------------------------
@@ -133,6 +138,45 @@ public class FixedRateCalculationTest {
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_expand_onePeriod_with_futureValueNotional() {
+    FixedRateCalculation test = FixedRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .rate(ValueSchedule.of(0.025d))
+        .futureValueNotional(FutureValueNotional.of(1000d))
+        .build();
+    SchedulePeriod period = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 5), date(2014, 1, 5), date(2014, 2, 5));
+    Schedule schedule = Schedule.builder()
+        .periods(period)
+        .frequency(Frequency.TERM)
+        .rollConvention(RollConventions.NONE)
+        .build();
+    double yearFraction = period.yearFraction(ACT_365F, schedule);
+    RateAccrualPeriod rap = RateAccrualPeriod.builder(period)
+        .yearFraction(period.yearFraction(ACT_365F, schedule))
+        .rateComputation(FixedOvernightCompoundedAnnualRateComputation.of(0.025d, yearFraction))
+        .build();
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
+    assertEquals(periods, ImmutableList.of(rap));
+  }
+  
+  public void test_expand_multiplePeriod_with_futureValueNotional() {
+    FixedRateCalculation test = FixedRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .rate(ValueSchedule.of(0.025d))
+        .futureValueNotional(FutureValueNotional.of(1000d))
+        .build();
+    SchedulePeriod period1 = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 5), date(2014, 1, 5), date(2014, 2, 5));
+    SchedulePeriod period2 = SchedulePeriod.of(date(2014, 1, 5), date(2014, 2, 5), date(2014, 2, 5), date(2014, 3, 5));
+    SchedulePeriod period3 = SchedulePeriod.of(date(2014, 3, 5), date(2014, 4, 7), date(2014, 3, 5), date(2014, 4, 5));
+    Schedule schedule = Schedule.builder()
+        .periods(period1, period2, period3)
+        .frequency(Frequency.P1M)
+        .rollConvention(RollConventions.DAY_5)
+        .build();
+    assertThrowsIllegalArg(() -> test.createAccrualPeriods(schedule, schedule, REF_DATA));
+  }
+  
   //-------------------------------------------------------------------------
   public void coverage() {
     FixedRateCalculation test = FixedRateCalculation.builder()

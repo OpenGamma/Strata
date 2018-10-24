@@ -41,7 +41,6 @@ public class NotionalScheduleTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getAmount(), ValueSchedule.of(1000d));
     assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getFutureValueNotional(), Optional.empty());
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), false);
     assertEquals(test.isFinalExchange(), false);
@@ -52,7 +51,6 @@ public class NotionalScheduleTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getAmount(), ValueSchedule.of(1000d));
     assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getFutureValueNotional(), Optional.empty());
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), false);
     assertEquals(test.isFinalExchange(), false);
@@ -102,12 +100,10 @@ public class NotionalScheduleTest {
         .amount(ValueSchedule.of(2000d))
         .intermediateExchange(true)
         .finalExchange(true)
-        .futureValueNotional(futureValueNotional)
         .build();
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getAmount(), ValueSchedule.of(2000d));
     assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getFutureValueNotional(), Optional.of(futureValueNotional));
     assertEquals(test.isInitialExchange(), false);
     assertEquals(test.isIntermediateExchange(), true);
     assertEquals(test.isFinalExchange(), true);

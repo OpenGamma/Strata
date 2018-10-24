@@ -78,7 +78,6 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getAccrualPeriods(), ImmutableList.of(RAP2));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getFutureValueNotional(), null);
     assertEquals(test.getNotional(), 1000d, 0d);
     assertEquals(test.getNotionalAmount(), CurrencyAmount.of(GBP, 1000d));
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
@@ -100,7 +99,6 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getAccrualPeriods(), ImmutableList.of(RAP1, RAP2));
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getFutureValueNotional(), null);
     assertEquals(test.getNotional(), 1000d, 0d);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
     assertEquals(test.isCompoundingApplicable(), true);
@@ -135,7 +133,6 @@ public class RatePaymentPeriodTest {
         .currency(GBP)
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
-        .futureValueNotional(1023d)
         .build();
     assertEquals(test.getStartDate(), DATE_2014_03_30);
     assertEquals(test.getEndDate(), DATE_2014_09_30);
@@ -144,7 +141,6 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.getFxReset(),  Optional.empty());
     assertEquals(test.getNotional(), 1000d, 0d);
-    assertEquals(test.getFutureValueNotional(), 1023d, 0d);
     assertEquals(test.isCompoundingApplicable(), true);
   }
 
