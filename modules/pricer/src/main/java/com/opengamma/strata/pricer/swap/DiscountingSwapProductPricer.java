@@ -199,11 +199,19 @@ public class DiscountingSwapProductPricer {
     SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
     ArgChecker.isTrue(firstPeriod instanceof RatePaymentPeriod, "PaymentPeriod must be instance of RatePaymentPeriod");
     RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
-    if (payment.getAccrualPeriods().size() == 1) { // no compounding
-      // PVBP
-      double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
-      // Par rate
-      return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
+    if (payment.getAccrualPeriods().size() == 1) { // check for future value notional
+      if (payment.getFutureValueNotional() != null) {
+        double accrualFactor = payment.getAccrualPeriods().get(0).getYearFraction();
+        double notional = payment.getNotional();
+        double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
+        return Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d,   1.0 / accrualFactor) - 1.0d;
+      }
+      else { // no compounding
+        // PVBP
+        double pvbpFixedLeg = legPricer.pvbp(fixedLeg, provider);
+        // Par rate
+        return -(otherLegsConvertedPv + fixedLegEventsPv) / pvbpFixedLeg;
+      }
     }
     // try Compounding
     Triple<Boolean, Integer, Double> fixedCompounded = checkFixedCompounded(fixedLeg);
