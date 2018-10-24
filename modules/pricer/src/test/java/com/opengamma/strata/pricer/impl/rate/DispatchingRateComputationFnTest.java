@@ -33,6 +33,7 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.pricer.impl.MockRatesProvider;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
 import com.opengamma.strata.product.rate.IborAveragedRateComputation;
@@ -93,6 +94,13 @@ public class DispatchingRateComputationFnTest {
     FixedRateComputation ro = FixedRateComputation.of(0.0123d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
     assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), 0.0123d, 0d);
+  }
+  
+  public void test_rate_FixedOvernightCompoundedAnnualRateComputation() {
+    FixedOvernightCompoundedAnnualRateComputation ro = FixedOvernightCompoundedAnnualRateComputation.of(0.0123d, 0.5d);
+    DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
+    double simpleRate = (Math.pow(1 + 0.0123d, 0.5d) - 1) / 0.5d;
+    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), simpleRate, 0d);
   }
 
   public void test_rate_IborRateComputation() {
@@ -354,6 +362,16 @@ public class DispatchingRateComputationFnTest {
   //-------------------------------------------------------------------------
   public void test_explainRate_FixedRateComputation() {
     FixedRateComputation ro = FixedRateComputation.of(0.0123d);
+    DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
+    ExplainMapBuilder builder = ExplainMap.builder();
+    assertEquals(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder), 0.0123d, 0d);
+    ExplainMap built = builder.build();
+    assertEquals(built.get(ExplainKey.FIXED_RATE), Optional.of(0.0123d));
+    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(0.0123d));
+  }
+  
+  public void test_explainRate_FixedOvernightCompoundedAnnualRateComputation() {
+    FixedOvernightCompoundedAnnualRateComputation ro = FixedOvernightCompoundedAnnualRateComputation.of(0.0123d, 1.0d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
     assertEquals(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder), 0.0123d, 0d);

@@ -13,6 +13,7 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborAveragedRateComputation;
 import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
@@ -160,6 +161,9 @@ public class DispatchingRateComputationFn
     if (computation instanceof FixedRateComputation) {
       // inline code (performance) avoiding need for FixedRateComputationFn implementation
       return ((FixedRateComputation) computation).getRate();
+    } else if (computation instanceof FixedOvernightCompoundedAnnualRateComputation) {
+      // inline code (performance) avoiding need for FixedRateComputationFn implementation
+      return ((FixedOvernightCompoundedAnnualRateComputation) computation).simpleRate();
     } else if (computation instanceof IborRateComputation) {
       return iborRateComputationFn.rate(
           (IborRateComputation) computation, startDate, endDate, provider);
@@ -207,6 +211,9 @@ public class DispatchingRateComputationFn
 
     // dispatch by runtime type
     if (computation instanceof FixedRateComputation) {
+      // inline code (performance) avoiding need for FixedRateComputationFn implementation
+      return PointSensitivityBuilder.none();
+    } else if (computation instanceof FixedOvernightCompoundedAnnualRateComputation) {
       // inline code (performance) avoiding need for FixedRateComputationFn implementation
       return PointSensitivityBuilder.none();
     } else if (computation instanceof IborRateComputation) {
@@ -259,6 +266,12 @@ public class DispatchingRateComputationFn
     if (computation instanceof FixedRateComputation) {
       // inline code (performance) avoiding need for FixedRateComputationFn implementation
       double rate = ((FixedRateComputation) computation).getRate();
+      builder.put(ExplainKey.FIXED_RATE, rate);
+      builder.put(ExplainKey.COMBINED_RATE, rate);
+      return rate;
+    } else if (computation instanceof FixedOvernightCompoundedAnnualRateComputation) {
+      // inline code (performance) avoiding need for FixedRateComputationFn implementation
+      double rate = ((FixedOvernightCompoundedAnnualRateComputation) computation).getRate();
       builder.put(ExplainKey.FIXED_RATE, rate);
       builder.put(ExplainKey.COMBINED_RATE, rate);
       return rate;
