@@ -224,7 +224,7 @@ public class DiscountingSwapProductPricerTest {
           .index(BRL_CDI)
           .accrualFrequency(Frequency.TERM)
           .paymentFrequency(Frequency.TERM)
-          .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
+          .accrualMethod(OvernightAccrualMethod.ANNUAL_RATE)
           .accrualBusinessDayAdjustment(BDA_MF)
           .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
           .build();
@@ -420,7 +420,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     double parRateComputed = pricerSwap.parRate(BRL_SWAP, BRL_DSCON);
-    RateCalculationSwapLeg fixedLeg = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, parRateComputed);
+    RateCalculationSwapLeg fixedLeg = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, parRateComputed, FutureValueNotional.auto());
     ResolvedSwap swapWithParRate = Swap.of(BRL_FLOATING_LEG, fixedLeg).resolve(REF_DATA);
     double pvWithParRate = pricerSwap.presentValue(swapWithParRate, BRL_DSCON).getAmount(BRL).getAmount();
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
