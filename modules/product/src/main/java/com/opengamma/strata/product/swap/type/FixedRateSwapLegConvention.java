@@ -364,7 +364,7 @@ public final class FixedRateSwapLegConvention
       double notional,
       double fixedRate,
       FutureValueNotional futureValueNotional) {
-    
+
     return RateCalculationSwapLeg
         .builder()
         .payReceive(payReceive)
