@@ -32,9 +32,11 @@ import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
+import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
@@ -336,6 +338,57 @@ public final class FixedRateSwapLegConvention
             .build())
         .notionalSchedule(NotionalSchedule.of(currency, notional))
         .calculation(FixedRateCalculation.of(fixedRate, dayCount))
+        .build();
+  }
+  
+  /**
+   * Creates a leg based on this convention.
+   * <p>
+   * This returns a leg based on the specified date.
+   * The notional is unsigned, with pay/receive determining the direction of the leg.
+   * If the leg is 'Pay', the fixed rate is paid to the counterparty.
+   * If the leg is 'Receive', the fixed rate is received from the counterparty.
+   *
+   * @param startDate  the start date
+   * @param endDate  the end date
+   * @param payReceive  determines if the leg is to be paid or received
+   * @param notional  the notional
+   * @param fixedRate  the fixed rate, typically derived from the market
+   * @param futureValueNotional the future value notional
+   * @return the leg
+   */
+  public RateCalculationSwapLeg toLeg(
+      LocalDate startDate,
+      LocalDate endDate,
+      PayReceive payReceive,
+      double notional,
+      double fixedRate,
+      FutureValueNotional futureValueNotional) {
+    
+    return RateCalculationSwapLeg
+        .builder()
+        .payReceive(payReceive)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(startDate)
+            .endDate(endDate)
+            .frequency(accrualFrequency)
+            .businessDayAdjustment(accrualBusinessDayAdjustment)
+            .startDateBusinessDayAdjustment(startDateBusinessDayAdjustment)
+            .endDateBusinessDayAdjustment(endDateBusinessDayAdjustment)
+            .stubConvention(stubConvention)
+            .rollConvention(rollConvention)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(getPaymentFrequency())
+            .paymentDateOffset(getPaymentDateOffset())
+            .compoundingMethod(getCompoundingMethod())
+            .build())
+        .notionalSchedule(NotionalSchedule.of(currency, notional))
+        .calculation(FixedRateCalculation.builder()
+            .rate(ValueSchedule.of(fixedRate))
+            .futureValueNotional(futureValueNotional)
+            .dayCount(dayCount)
+            .build())
         .build();
   }
 
