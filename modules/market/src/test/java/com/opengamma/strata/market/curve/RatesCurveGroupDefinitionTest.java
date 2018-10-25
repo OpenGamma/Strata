@@ -6,8 +6,10 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_364;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.index.FloatingRateNames.GBP_LIBOR;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -35,6 +37,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
@@ -128,6 +131,12 @@ public class RatesCurveGroupDefinitionTest {
         .build();
     assertEquals(test.getName(), CurveGroupName.of("Test"));
     assertEquals(test.getEntries(), ImmutableList.of(ENTRY1, ENTRY2));
+    assertEquals(test.findDiscountCurveName(GBP), Optional.of(CURVE_NAME1));
+    assertEquals(test.findDiscountCurveName(USD), Optional.empty());
+    assertEquals(test.findForwardCurveName(GBP_LIBOR_1W), Optional.of(CURVE_NAME1));
+    assertEquals(test.findForwardCurveName(GBP_LIBOR_1M), Optional.of(CURVE_NAME2));
+    assertEquals(test.findForwardCurveName(GBP_LIBOR_6M), Optional.empty());
+    assertEquals(test.findForwardCurveNames(GBP_LIBOR), ImmutableSet.of(CURVE_NAME1, CURVE_NAME2));
     assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY1));
     assertEquals(test.findEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
     assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());

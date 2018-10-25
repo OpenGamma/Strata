@@ -21,6 +21,7 @@ import static org.testng.Assert.assertNotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 import org.testng.annotations.DataProvider;
@@ -150,6 +151,15 @@ public class FloatingRateNameTest {
     assertEquals(FloatingRateName.parse("GB-RPI"), FloatingRateNames.GB_RPI);
     assertThrowsIllegalArg(() -> FloatingRateName.parse(null));
     assertThrowsIllegalArg(() -> FloatingRateName.parse("NotAnIndex"));
+  }
+
+  public void test_tryParse() {
+    assertEquals(FloatingRateName.tryParse("GBP-LIBOR"), Optional.of(FloatingRateNames.GBP_LIBOR));
+    assertEquals(FloatingRateName.tryParse("GBP-LIBOR-3M"), Optional.of(FloatingRateNames.GBP_LIBOR));
+    assertEquals(FloatingRateName.tryParse("GBP-SONIA"), Optional.of(FloatingRateNames.GBP_SONIA));
+    assertEquals(FloatingRateName.tryParse("GB-RPI"), Optional.of(FloatingRateNames.GB_RPI));
+    assertEquals(FloatingRateName.tryParse(null), Optional.empty());
+    assertEquals(FloatingRateName.tryParse("NotAnIndex"), Optional.empty());
   }
 
   //-------------------------------------------------------------------------

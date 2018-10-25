@@ -98,6 +98,20 @@
 
   <!-- ==================================================================== -->
   <profiles>
+    <!-- Include OpenJDK jar files on Java 11 -->
+    <profile>
+      <id>openjfx-dep</id>
+      <activation>
+        <jdk>[11,)</jdk>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.openjfx</groupId>
+          <artifactId>javafx-controls</artifactId>
+          <version>11</version>
+        </dependency>
+      </dependencies>
+    </profile>
     <!-- Profile creating report-tool zip triggered by -Ddist -->
     <profile>
       <id>build-report-tool</id>

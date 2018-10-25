@@ -9,6 +9,8 @@ import static com.opengamma.strata.collect.Guavate.entry;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static com.opengamma.strata.collect.TestHelper.list;
+import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,6 +30,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -36,6 +39,7 @@ public class MapStreamTest {
 
   private final Map<String, Integer> map = ImmutableMap.of("one", 1, "two", 2, "three", 3, "four", 4);
 
+  //-------------------------------------------------------------------------
   public void keys() {
     List<String> result = MapStream.of(map).keys().collect(toImmutableList());
     assertThat(result).isEqualTo(ImmutableList.of("one", "two", "three", "four"));
@@ -273,10 +277,36 @@ public class MapStreamTest {
   }
 
   //-----------------------------------------------------------------------
+  public void anyMatch() {
+    assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 10)).isTrue();
+    assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 8)).isTrue();
+    assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 4)).isFalse();
+  }
+
+  public void allMatch() {
+    assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 10)).isTrue();
+    assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 8)).isFalse();
+    assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 4)).isFalse();
+  }
+
+  public void noneMatch() {
+    assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 10)).isFalse();
+    assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 8)).isFalse();
+    assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 4)).isTrue();
+  }
+
+  //-----------------------------------------------------------------------
   public void forEach() {
     HashMap<Object, Object> mutableMap = new HashMap<>();
     MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
     assertThat(mutableMap).isEqualTo(map);
+  }
+
+  //-------------------------------------------------------------------------
+  public void ofMultimap() {
+    ImmutableMultimap<String, Integer> input = ImmutableMultimap.of("one", 1, "two", 2, "one", 3);
+    assertThat(MapStream.of(input)).containsExactlyInAnyOrder(entry("one", 1), entry("two", 2), entry("one", 3));
+    assertThat(MapStream.of(input).toMap(Integer::sum)).containsOnly(entry("one", 4), entry("two", 2));
   }
 
   public void ofCollection() {
@@ -344,14 +374,14 @@ public class MapStreamTest {
   public void concat() {
     ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
     ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
-    ImmutableMap<String, Integer> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    ImmutableMap<String, Integer> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a, b) -> a);
     assertThat(result).isEqualTo(map);
   }
 
   public void concatGeneric() {
     ImmutableMap<String, Object> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
-    ImmutableMap<Object, Object> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+    ImmutableMap<Object, Object> result = MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a, b) -> a);
     assertThat(result).isEqualTo(map);
   }
 
@@ -359,7 +389,7 @@ public class MapStreamTest {
     ImmutableMap<String, Double> map1 = ImmutableMap.of("one", 1D, "two", 2D, "three", 3D);
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
     ImmutableMap<Object, ? extends Number> result =
-        MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a,b) -> a);
+        MapStream.concat(MapStream.of(map1), MapStream.of(map2)).toMap((a, b) -> a);
     assertThat(result).isEqualTo(ImmutableMap.of("one", 1D, "two", 2D, "three", 3D, "four", 4));
   }
 
@@ -375,6 +405,23 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  //-------------------------------------------------------------------------
+  public void toMapGrouping() {
+    Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
+    Map<String, List<Integer>> expected = ImmutableMap.of("a", list(1, 2), "b", list(10, 20), "c", list(1));
+    Map<String, List<Integer>> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toMapGrouping();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void toMapGroupingWithCollector() {
+    Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
+    Map<String, Integer> expected = ImmutableMap.of("a", 3, "b", 30, "c", 1);
+    Map<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1))
+        .toMapGrouping(reducing(0, Integer::sum));
+    assertThat(result).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void toListMultimap() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     ListMultimap<String, Integer> expected = ImmutableListMultimap.of("a", 1, "a", 2, "b", 10, "b", 20, "c", 1);

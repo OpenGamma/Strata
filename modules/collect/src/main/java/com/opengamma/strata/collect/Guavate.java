@@ -129,6 +129,8 @@ public final class Guavate {
   //-------------------------------------------------------------------------
   /**
    * Creates a single {@code Map.Entry}.
+   * <p>
+   * The entry is immutable.
    * 
    * @param <K>  the type of the key
    * @param <V>  the type of the value
@@ -899,6 +901,29 @@ public final class Guavate {
       }
     } catch (RuntimeException ex) {
       resultFuture.completeExceptionally(ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the caller class.
+   * <p>
+   * This takes an argument which is the number of stack levels to look back.
+   * This will be 2 to return the caller of this method, 3 to return the caller of the caller, and so on.
+   * 
+   * @param callStackDepth  the depth of the stack to look back
+   * @return the caller class
+   */
+  public static Class<?> callerClass(int callStackDepth) {
+    return CallerClassSecurityManager.INSTANCE.callerClass(callStackDepth);
+  }
+
+  // on Java 9 or later could use StackWalker, but this is a good choice for Java 8
+  static class CallerClassSecurityManager extends SecurityManager {
+    private static final CallerClassSecurityManager INSTANCE = new CallerClassSecurityManager();
+
+    Class<?> callerClass(int callStackDepth) {
+      return getClassContext()[callStackDepth];
     }
   }
 

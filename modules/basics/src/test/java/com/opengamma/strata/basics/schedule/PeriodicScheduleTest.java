@@ -32,6 +32,8 @@ import static com.opengamma.strata.basics.schedule.StubConvention.LONG_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.LONG_INITIAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_FINAL;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -79,31 +81,39 @@ public class PeriodicScheduleTest {
   private static final BusinessDayAdjustment BDA_NONE = BusinessDayAdjustment.NONE;
   private static final LocalDate NOV_29_2013 = date(2013, NOVEMBER, 29);  // Fri
   private static final LocalDate NOV_30_2013 = date(2013, NOVEMBER, 30);  // Sat
-  private static final LocalDate FEB_28 = date(2014, FEBRUARY, 28);
-  private static final LocalDate APR_01 = date(2014, APRIL, 1);
-  private static final LocalDate MAY_17 = date(2014, MAY, 17);
-  private static final LocalDate MAY_19 = date(2014, MAY, 19);
-  private static final LocalDate MAY_30 = date(2014, MAY, 30);
-  private static final LocalDate MAY_31 = date(2014, MAY, 31);
-  private static final LocalDate AUG_30 = date(2014, AUGUST, 30);
-  private static final LocalDate AUG_31 = date(2014, AUGUST, 31);
-  private static final LocalDate NOV_30 = date(2014, NOVEMBER, 30);
-  private static final LocalDate JUN_03 = date(2014, JUNE, 3);
-  private static final LocalDate JUN_04 = date(2014, JUNE, 4);
-  private static final LocalDate JUN_17 = date(2014, JUNE, 17);
-  private static final LocalDate JUL_04 = date(2014, JULY, 4);
-  private static final LocalDate JUL_11 = date(2014, JULY, 11);
-  private static final LocalDate JUL_17 = date(2014, JULY, 17);
-  private static final LocalDate AUG_04 = date(2014, AUGUST, 4);
-  private static final LocalDate AUG_11 = date(2014, AUGUST, 11);
-  private static final LocalDate AUG_17 = date(2014, AUGUST, 17);
-  private static final LocalDate AUG_18 = date(2014, AUGUST, 18);
-  private static final LocalDate SEP_04 = date(2014, SEPTEMBER, 4);
-  private static final LocalDate SEP_05 = date(2014, SEPTEMBER, 5);
-  private static final LocalDate SEP_11 = date(2014, SEPTEMBER, 11);
-  private static final LocalDate SEP_17 = date(2014, SEPTEMBER, 17);
-  private static final LocalDate SEP_18 = date(2014, SEPTEMBER, 18);
-  private static final LocalDate OCT_17 = date(2014, OCTOBER, 17);
+  private static final LocalDate FEB_28 = date(2014, FEBRUARY, 28); // Fri
+  private static final LocalDate APR_01 = date(2014, APRIL, 1); // Tue
+  private static final LocalDate MAY_17 = date(2014, MAY, 17);  // Sat
+  private static final LocalDate MAY_19 = date(2014, MAY, 19);  // Mon
+  private static final LocalDate MAY_30 = date(2014, MAY, 30);  // Fri
+  private static final LocalDate MAY_31 = date(2014, MAY, 31);  // Sat
+  private static final LocalDate JUN_03 = date(2014, JUNE, 3);  // Tue
+  private static final LocalDate JUN_04 = date(2014, JUNE, 4);  // Wed
+  private static final LocalDate JUN_10 = date(2014, JUNE, 10);  // Tue
+  private static final LocalDate JUN_11 = date(2014, JUNE, 11);  // Wed
+  private static final LocalDate JUN_17 = date(2014, JUNE, 17);  // Tue
+  private static final LocalDate JUL_04 = date(2014, JULY, 4); // Fri
+  private static final LocalDate JUL_11 = date(2014, JULY, 11); // Fri
+  private static final LocalDate JUL_17 = date(2014, JULY, 17); // Thu
+  private static final LocalDate JUL_30 = date(2014, JULY, 30);  // Wed
+  private static final LocalDate AUG_04 = date(2014, AUGUST, 4); // Mon
+  private static final LocalDate AUG_11 = date(2014, AUGUST, 11); // Mon
+  private static final LocalDate AUG_17 = date(2014, AUGUST, 17); // Sun
+  private static final LocalDate AUG_18 = date(2014, AUGUST, 18); // Mon
+  private static final LocalDate AUG_29 = date(2014, AUGUST, 29);  // Fri
+  private static final LocalDate AUG_30 = date(2014, AUGUST, 30);  // Sat
+  private static final LocalDate AUG_31 = date(2014, AUGUST, 31);  // Sun
+  private static final LocalDate SEP_04 = date(2014, SEPTEMBER, 4); // Thu
+  private static final LocalDate SEP_05 = date(2014, SEPTEMBER, 5); // Fri
+  private static final LocalDate SEP_10 = date(2014, SEPTEMBER, 10); // Wed
+  private static final LocalDate SEP_11 = date(2014, SEPTEMBER, 11); // Thu
+  private static final LocalDate SEP_17 = date(2014, SEPTEMBER, 17); // Wed
+  private static final LocalDate SEP_18 = date(2014, SEPTEMBER, 18); // Thu
+  private static final LocalDate SEP_30 = date(2014, SEPTEMBER, 30);  // Tue
+  private static final LocalDate OCT_17 = date(2014, OCTOBER, 17); // Fri
+  private static final LocalDate OCT_30 = date(2014, OCTOBER, 30);  // Thu
+  private static final LocalDate NOV_28 = date(2014, NOVEMBER, 28);  // Fri
+  private static final LocalDate NOV_30 = date(2014, NOVEMBER, 30);  // Sun
 
   //-------------------------------------------------------------------------
   public void test_of_LocalDateEomFalse() {
@@ -271,6 +281,20 @@ public class PeriodicScheduleTest {
             list(JUN_17, AUG_04),
             list(JUN_17, AUG_04), DAY_4},
 
+        // stub SMART_INITIAL
+        {JUN_04, SEP_17, P1M, SMART_INITIAL, null, BDA, null, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
+            list(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_10, SEP_17, P1M, SMART_INITIAL, null, BDA, null, null, null,
+            list(JUN_10, JUN_17, JUL_17, AUG_17, SEP_17),
+            list(JUN_10, JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_11, SEP_17, P1M, SMART_INITIAL, null, BDA, null, null, null,
+            list(JUN_11, JUL_17, AUG_17, SEP_17),
+            list(JUN_11, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_17, JUL_04, P1M, SMART_INITIAL, null, BDA, null, null, null,
+            list(JUN_17, JUL_04),
+            list(JUN_17, JUL_04), DAY_4},
+
         // stub SHORT_FINAL
         {JUN_04, SEP_17, P1M, SHORT_FINAL, null, BDA, null, null, null,
             list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17),
@@ -306,6 +330,20 @@ public class PeriodicScheduleTest {
         {JUN_17, AUG_04, P1M, LONG_FINAL, null, BDA, null, null, null,
             list(JUN_17, AUG_04),
             list(JUN_17, AUG_04), DAY_17},
+
+        // stub SMART_FINAL
+        {JUN_04, SEP_17, P1M, SMART_FINAL, null, BDA, null, null, null,
+            list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17),
+            list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17), DAY_4},
+        {JUN_04, SEP_11, P1M, SMART_FINAL, null, BDA, null, null, null,
+            list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_11),
+            list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_11), DAY_4},
+        {JUN_04, SEP_10, P1M, SMART_FINAL, null, BDA, null, null, null,
+            list(JUN_04, JUL_04, AUG_04, SEP_10),
+            list(JUN_04, JUL_04, AUG_04, SEP_10), DAY_4},
+        {JUN_17, JUL_04, P1M, SMART_FINAL, null, BDA, null, null, null,
+            list(JUN_17, JUL_04),
+            list(JUN_17, JUL_04), DAY_17},
 
         // explicit initial stub
         {JUN_04, SEP_17, P1M, null, null, BDA, JUN_17, null, null,
@@ -344,31 +382,43 @@ public class PeriodicScheduleTest {
         // EOM flag false, thus roll on 30th
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, null, BDA, null, null, null,
             list(NOV_30_2013, FEB_28, MAY_30, AUG_30, NOV_30),
-            list(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), DAY_30},
+            list(NOV_29_2013, FEB_28, MAY_30, AUG_29, NOV_28), DAY_30},
         // EOM flag true and is EOM, thus roll at EOM
         {NOV_30_2013, NOV_30, P3M, STUB_NONE, EOM, BDA, null, null, null,
             list(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
-            list(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), EOM},
-        // EOM flag true, but not EOM, thus roll on 30th (stub convention defined)
+            list(NOV_29_2013, FEB_28, MAY_30, AUG_29, NOV_28), EOM},
+        // EOM flag true, and last business day, thus roll at EOM (stub convention defined)
         {MAY_30, NOV_30, P3M, STUB_NONE, EOM, BDA, null, null, null,
-            list(MAY_30, AUG_30, NOV_30),
-            list(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), DAY_30},
-        // EOM flag true, but not EOM, thus roll on 30th (no stub convention defined)
+            list(MAY_31, AUG_31, NOV_30),
+            list(MAY_30, AUG_29, NOV_28), EOM},
+        // EOM flag true, and last business day, thus roll at EOM
         {MAY_30, NOV_30, P3M, null, EOM, BDA, null, null, null,
+            list(MAY_31, AUG_31, NOV_30),
+            list(MAY_30, AUG_29, NOV_28), EOM},
+        // EOM flag true, and last business day, thus roll at EOM (start adjustment none)
+        {MAY_30, NOV_30, P3M, null, EOM, BDA, null, null, BDA_NONE,
+            list(MAY_31, AUG_31, NOV_30),
+            list(MAY_30, AUG_29, NOV_28), EOM},
+        // roll date set to 30th, so roll on 30th
+        {MAY_30, NOV_30, P3M, null, DAY_30, BDA, null, null, null,
             list(MAY_30, AUG_30, NOV_30),
-            list(MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), DAY_30},
+            list(MAY_30, AUG_29, NOV_28), DAY_30},
+        // EOM flag true, but not EOM, thus roll on 30th
+        {JUL_30, OCT_30, P1M, null, EOM, BDA, null, null, null,
+            list(JUL_30, AUG_30, SEP_30, OCT_30),
+            list(JUL_30, AUG_29, SEP_30, OCT_30), DAY_30},
         // EOM flag true and is EOM, double stub, thus roll at EOM
         {date(2014, 1, 3), SEP_17, P3M, STUB_BOTH, EOM, BDA, FEB_28, AUG_31, null,
             list(date(2014, 1, 3), FEB_28, MAY_31, AUG_31, SEP_17),
-            list(date(2014, 1, 3), FEB_28, MAY_30, date(2014, AUGUST, 29), SEP_17), EOM},
+            list(date(2014, 1, 3), FEB_28, MAY_30, AUG_29, SEP_17), EOM},
         // EOM flag true plus start date as last business day of month with start date adjust of NONE
         {NOV_29_2013, NOV_30, P3M, STUB_NONE, EOM, BDA, null, null, BDA_NONE,
             list(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
-            list(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), EOM},
+            list(NOV_29_2013, FEB_28, MAY_30, AUG_29, NOV_28), EOM},
         // EOM flag true plus start date as last business day of month with start date adjust of NONE
         {NOV_29_2013, NOV_30, P3M, null, EOM, BDA, null, null, BDA_NONE,
             list(NOV_30_2013, FEB_28, MAY_31, AUG_31, NOV_30),
-            list(NOV_29_2013, FEB_28, MAY_30, date(2014, AUGUST, 29), date(2014, NOVEMBER, 28)), EOM},
+            list(NOV_29_2013, FEB_28, MAY_30, AUG_29, NOV_28), EOM},
         // EOM flag false, short initial, implies EOM true
         {date(2011, 6, 2), date(2011, 8, 31), P1M, SHORT_INITIAL, null, BDA, null, null, null,
             list(date(2011, 6, 2), date(2011, 6, 30), date(2011, 7, 31), date(2011, 8, 31)),
@@ -471,7 +521,7 @@ public class PeriodicScheduleTest {
         {date(2017, 3, 15), date(2018, 5, 19), P6M, null, IMM, BDA_JPY_MF, null, date(2018, 3, 22), BDA_NONE,
             list(date(2017, 3, 15), date(2017, 9, 20), date(2018, 3, 21), date(2018, 5, 19)),
             list(date(2017, 3, 15), date(2017, 9, 20), date(2018, 3, 22), date(2018, 5, 21)), IMM},
-        
+
         // Day30 rolling with February
         {date(2015, 1, 30), date(2015, 4, 30), P1M, STUB_NONE, DAY_30, BDA, null, null, null,
             list(date(2015, 1, 30), date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
@@ -598,7 +648,7 @@ public class PeriodicScheduleTest {
     ImmutableList<LocalDate> test = defn.createUnadjustedDates(REF_DATA);
     assertEquals(test, unadjusted);
     // createUnadjustedDates() does not work as expected without ReferenceData
-    if (startBusDayAdjustment == null) {
+    if (startBusDayAdjustment == null && !EOM.equals(rollConv)) {
       ImmutableList<LocalDate> testNoRefData = defn.createUnadjustedDates();
       assertEquals(testNoRefData, unadjusted);
     }
@@ -635,7 +685,7 @@ public class PeriodicScheduleTest {
     assertEquals(test.get(0), date(2011, 1, 9));
     assertEquals(test.subList(1, test.size()), unadjusted.subList(1, test.size()));
     // createUnadjustedDates() does not work as expected without ReferenceData
-    if (startBusDayAdjustment == null) {
+    if (startBusDayAdjustment == null && !EOM.equals(rollConv)) {
       ImmutableList<LocalDate> testNoRefData = defn.createUnadjustedDates();
       assertEquals(testNoRefData.get(0), date(2011, 1, 9));
       assertEquals(testNoRefData.subList(1, testNoRefData.size()), unadjusted.subList(1, testNoRefData.size()));

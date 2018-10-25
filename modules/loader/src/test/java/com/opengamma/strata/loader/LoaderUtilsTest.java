@@ -13,9 +13,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.YearMonth;
+import java.util.Optional;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -57,17 +59,19 @@ public class LoaderUtilsTest {
 
   public void test_parseInteger() {
     assertEquals(LoaderUtils.parseInteger("2"), 2);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseInteger("Rubbish"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseInteger("Rubbish"), "Unable to parse integer from 'Rubbish'");
   }
 
   public void test_parseDouble() {
     assertEquals(LoaderUtils.parseDouble("1.2"), 1.2d, 1e-10);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseDouble("Rubbish"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseDouble("Rubbish"), "Unable to parse double from 'Rubbish'");
   }
 
   public void test_parseDoublePercent() {
     assertEquals(LoaderUtils.parseDoublePercent("1.2"), 0.012d, 1e-10);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseDouble("Rubbish"));
+    assertThrowsIllegalArg(
+        () -> LoaderUtils.parseDoublePercent("Rubbish"),
+        "Unable to parse percentage from 'Rubbish'");
   }
 
   public void test_parseDate() {
@@ -131,6 +135,28 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseTenor("P2D"), Tenor.ofDays(2));
     assertEquals(LoaderUtils.parseTenor("2D"), Tenor.ofDays(2));
     assertThrowsIllegalArg(() -> LoaderUtils.parseTenor("2"));
+  }
+
+  public void test_tryParseTenor() {
+    assertEquals(LoaderUtils.tryParseTenor("P2D"), Optional.of(Tenor.ofDays(2)));
+    assertEquals(LoaderUtils.tryParseTenor("2D"), Optional.of(Tenor.ofDays(2)));
+    assertEquals(LoaderUtils.tryParseTenor("2X"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseTenor("2"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseTenor(""), Optional.empty());
+    assertEquals(LoaderUtils.tryParseTenor(null), Optional.empty());
+  }
+
+  public void test_parseCurrency() {
+    assertEquals(LoaderUtils.parseCurrency("GBP"), Currency.GBP);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseCurrency("A"));
+  }
+
+  public void test_tryParseCurrency() {
+    assertEquals(LoaderUtils.tryParseCurrency("GBP"), Optional.of(Currency.GBP));
+    assertEquals(LoaderUtils.tryParseCurrency("123"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseCurrency("G"), Optional.empty());
+    assertEquals(LoaderUtils.tryParseCurrency(""), Optional.empty());
+    assertEquals(LoaderUtils.tryParseCurrency(null), Optional.empty());
   }
 
   public void test_parseBuySell() {

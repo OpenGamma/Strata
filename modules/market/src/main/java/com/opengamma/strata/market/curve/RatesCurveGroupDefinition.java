@@ -39,8 +39,12 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.index.FloatingRateIndex;
+import com.opengamma.strata.basics.index.FloatingRateName;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.collect.ArgChecker;
@@ -278,6 +282,61 @@ public final class RatesCurveGroupDefinition
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Finds the discount curve name for the specified currency.
+   * <p>
+   * If the curve name is not found, optional empty is returned.
+   *
+   * @param discountCurrency  the currency to find a discount curve name for
+   * @return the curve name
+   */
+  public Optional<CurveName> findDiscountCurveName(Currency discountCurrency) {
+    return entries.stream()
+        .filter(entry -> entry.getDiscountCurrencies().contains(discountCurrency))
+        .findFirst()
+        .map(entry -> entry.getCurveName());
+  }
+
+  /**
+   * Finds the forward curve name for the specified index.
+   * <p>
+   * If the curve name is not found, optional empty is returned.
+   *
+   * @param forwardIndex  the index to find a forward curve name for
+   * @return the curve name
+   */
+  public Optional<CurveName> findForwardCurveName(Index forwardIndex) {
+    return entries.stream()
+        .filter(entry -> entry.getIndices().contains(forwardIndex))
+        .findFirst()
+        .map(entry -> entry.getCurveName());
+  }
+
+  /**
+   * Finds the forward curve names for the specified floating rate name.
+   * <p>
+   * If the curve name is not found, optional empty is returned.
+   *
+   * @param forwardName  the floating rate name to find a forward curve name for
+   * @return the set of curve names
+   */
+  public ImmutableSet<CurveName> findForwardCurveNames(FloatingRateName forwardName) {
+    ImmutableSet.Builder<CurveName> result = ImmutableSet.builder();
+    FloatingRateName normalized = forwardName.normalized();
+    for (RatesCurveGroupEntry entry : entries) {
+      for (Index index : entry.getIndices()) {
+        if (index instanceof FloatingRateIndex) {
+          FloatingRateName frName = ((FloatingRateIndex) index).getFloatingRateName();
+          if (frName.equals(normalized)) {
+            result.add(entry.getCurveName());
+            break;
+          }
+        }
+      }
+    }
+    return result.build();
+  }
+
   /**
    * Finds the entry for the curve with the specified name.
    * <p>

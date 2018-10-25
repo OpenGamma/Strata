@@ -332,7 +332,7 @@ public class CsvIteratorTest {
       assertEquals(total, 6);
     }
   }
-    
+
   //-------------------------------------------------------------------------
   public void test_asStream_empty_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(""), false)) {

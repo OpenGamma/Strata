@@ -21,4 +21,12 @@ public interface TenoredParameterMetadata extends ParameterMetadata {
    */
   public abstract Tenor getTenor();
 
+  /**
+   * Returns an instance with the tenor updated.
+   * 
+   * @param tenor  the tenor to update to
+   * @return the updated metadata
+   */
+  public abstract TenoredParameterMetadata withTenor(Tenor tenor);
+
 }

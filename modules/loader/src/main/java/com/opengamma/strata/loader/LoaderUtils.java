@@ -22,7 +22,10 @@ import java.time.format.ResolverStyle;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.util.Locale;
+import java.util.Optional;
 
+import com.google.common.base.CharMatcher;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -100,7 +103,10 @@ public final class LoaderUtils {
       .appendFraction(NANO_OF_SECOND, 0, 9, true)
       .toFormatter(Locale.ENGLISH)
       .withResolverStyle(ResolverStyle.STRICT);
+  // match a currency
+  private static final CharMatcher CURRENCY_MATCHER = CharMatcher.inRange('A', 'Z');
 
+  //-------------------------------------------------------------------------
   /**
    * Attempts to locate a rate index by reference name.
    * <p>
@@ -154,7 +160,13 @@ public final class LoaderUtils {
    * @throws NumberFormatException if the string cannot be parsed
    */
   public static int parseInteger(String str) {
-    return Integer.parseInt(str);
+    try {
+      return Integer.parseInt(str);
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse integer from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
   }
 
   /**
@@ -165,7 +177,13 @@ public final class LoaderUtils {
    * @throws NumberFormatException if the string cannot be parsed
    */
   public static double parseDouble(String str) {
-    return new BigDecimal(str).doubleValue();
+    try {
+      return new BigDecimal(str).doubleValue();
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
   }
 
   /**
@@ -176,7 +194,13 @@ public final class LoaderUtils {
    * @throws NumberFormatException if the string cannot be parsed
    */
   public static double parseDoublePercent(String str) {
-    return new BigDecimal(str).movePointLeft(2).doubleValue();
+    try {
+      return new BigDecimal(str).movePointLeft(2).doubleValue();
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse percentage from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
   }
 
   /**
@@ -322,6 +346,63 @@ public final class LoaderUtils {
     } catch (DateTimeParseException ex) {
       throw new IllegalArgumentException("Unknown tenor format: " + str);
     }
+  }
+
+  /**
+   * Tries to parse a tenor from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * 
+   * @param str  the string to parse, may be null
+   * @return the parsed tenor, empty if unable to parse
+   */
+  public static Optional<Tenor> tryParseTenor(String str) {
+    if (str != null && str.length() > 1) {
+      try {
+        return Optional.of(Tenor.parse(str));
+      } catch (RuntimeException ex) {
+        // ignore
+      }
+    }
+    return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses currency from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * 
+   * @param str  the string to parse
+   * @return the parsed currency
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static Currency parseCurrency(String str) {
+    try {
+      return Currency.parse(str);
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException(
+          "Unknown Currency, must be 3 letter ISO-4217 format but was '" + str + "'");
+    }
+  }
+
+  /**
+   * Tries to parse a currency from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * 
+   * @param str  the string to parse, may be null
+   * @return the parsed currency, empty if unable to parse
+   */
+  public static Optional<Currency> tryParseCurrency(String str) {
+    if (str != null && str.length() == 3 && CURRENCY_MATCHER.matchesAllOf(str)) {
+      try {
+        return Optional.of(Currency.parse(str));
+      } catch (RuntimeException ex) {
+        // ignore
+      }
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

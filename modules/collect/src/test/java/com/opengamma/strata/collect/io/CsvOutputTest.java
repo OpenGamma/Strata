@@ -22,7 +22,6 @@ public class CsvOutputTest {
   private static final String LINE_ITEM_SEP_COMMA = ",";
   private static final String LINE_ITEM_SEP_TAB = "\t";
 
-
   //-------------------------------------------------------------------------
   public void test_standard_writeLines_alwaysQuote() {
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b", "y"));
@@ -92,7 +91,8 @@ public class CsvOutputTest {
 
   public void test_safe_expressionPrefixNumbers() {
     StringBuilder buf = new StringBuilder();
-    CsvOutput.safe(buf, "\n", LINE_ITEM_SEP_COMMA).writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
+    CsvOutput.safe(buf, "\n", LINE_ITEM_SEP_COMMA)
+        .writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
     assertEquals(buf.toString(), "+8,-7,=\"+8-7\",=\"-7+8\",NaN,=\"-Infinity\"\n");
   }
 

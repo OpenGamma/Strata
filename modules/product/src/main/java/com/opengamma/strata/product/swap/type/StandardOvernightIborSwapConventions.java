@@ -72,7 +72,7 @@ final class StandardOvernightIborSwapConventions {
             .accrualFrequency(frequency)
             .paymentFrequency(frequency)
             .paymentDateOffset(paymentDateOffset)
-            .stubConvention(StubConvention.SHORT_INITIAL)
+            .stubConvention(StubConvention.SMART_INITIAL)
             .rateCutOffDays(cutOffDays)
             .build(),
         IborRateSwapLegConvention.of(iborIndex));

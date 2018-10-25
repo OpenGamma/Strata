@@ -80,7 +80,9 @@ public interface LocalDateDoubleTimeSeries {
    *
    * @return the time-series collector
    */
-  public static Collector<LocalDateDoublePoint, LocalDateDoubleTimeSeriesBuilder, LocalDateDoubleTimeSeries> collector() {
+  public static Collector<LocalDateDoublePoint, LocalDateDoubleTimeSeriesBuilder, LocalDateDoubleTimeSeries>
+      collector() {
+
     return Collector.of(
         LocalDateDoubleTimeSeriesBuilder::new,
         LocalDateDoubleTimeSeriesBuilder::put,

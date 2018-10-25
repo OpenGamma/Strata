@@ -462,7 +462,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_headSeries_negative() {
 
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base =
+        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     base.headSeries(-1);
   }
 
@@ -505,7 +506,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_tailSeries_negative() {
 
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base =
+        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     base.tailSeries(-1);
   }
 
@@ -556,7 +558,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   public void test_forEach() {
 
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base =
+        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     AtomicInteger counter = new AtomicInteger();
     base.forEach((date, value) -> counter.addAndGet((int) value));
     assertEquals(counter.get(), 10 + 11 + 12 + 13 + 14);
@@ -687,7 +690,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   public void test_mapValues_addConstantToSeries() {
 
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base =
+        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     LocalDateDoubleTimeSeries test = base.mapValues(d -> d + 5);
     List<Double> expectedValues = values(15, 16, 17, 18, 19);
 
@@ -746,7 +750,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_filter_byValue() {
 
-    LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
+    LocalDateDoubleTimeSeries base =
+        LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, VALUES_1_WEEK).build();
     LocalDateDoubleTimeSeries test = base.filter((ld, v) -> v % 2 == 1);
     assertEquals(test.size(), 2);
     assertEquals(test.get(DATE_2015_01_06), OptionalDouble.of(11d));
@@ -768,7 +773,8 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void test_equals_similarSeriesAreEqual() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
 
-    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates(DATE_2014_01_01), values(1d)).build();
+    LocalDateDoubleTimeSeries series2 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates(DATE_2014_01_01), values(1d)).build();
     assertEquals(series1.size(), 1);
     assertEquals(series1, series2);
     assertEquals(series1, series1);

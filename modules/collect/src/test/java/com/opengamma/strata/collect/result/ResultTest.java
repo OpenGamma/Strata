@@ -650,11 +650,11 @@ public class ResultTest {
     assertEquals(test.getFailure().getMessage(), "my big bad failure");
     assertEquals(test.getFailure().getItems().size(), 1);
     FailureItem item = test.getFailure().getItems().iterator().next();
-    assertEquals(item.getCauseType().isPresent(), false);
-    assertEquals(item.getStackTrace().contains(".FailureItem.of("), false);
-    assertEquals(item.getStackTrace().contains(".Failure.of("), false);
-    assertEquals(item.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"), true);
-    assertEquals(item.getStackTrace().contains(".generatedStackTrace("), true);
+    assertFalse(item.getCauseType().isPresent());
+    assertFalse(item.getStackTrace().contains(".FailureItem.of("));
+    assertFalse(item.getStackTrace().contains(".Failure.of("));
+    assertTrue(item.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"));
+    assertTrue(item.getStackTrace().contains(".generatedStackTrace("));
     assertEquals(item.toString(), "INVALID: my big bad failure");
   }
 
@@ -665,11 +665,11 @@ public class ResultTest {
     assertEquals(test.getMessage(), "my big bad failure");
     assertEquals(test.getItems().size(), 1);
     FailureItem item = test.getItems().iterator().next();
-    assertEquals(item.getCauseType().isPresent(), false);
-    assertEquals(item.getStackTrace().contains(".FailureItem.of("), false);
-    assertEquals(item.getStackTrace().contains(".Failure.of("), false);
-    assertEquals(item.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"), true);
-    assertEquals(item.getStackTrace().contains(".generatedStackTrace_Failure("), true);
+    assertFalse(item.getCauseType().isPresent());
+    assertFalse(item.getStackTrace().contains(".FailureItem.of("));
+    assertFalse(item.getStackTrace().contains(".Failure.of("));
+    assertTrue(item.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"));
+    assertTrue(item.getStackTrace().contains(".generatedStackTrace_Failure("));
     assertEquals(item.toString(), "INVALID: my big bad failure");
   }
 

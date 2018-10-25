@@ -565,7 +565,8 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   public void test_equals_similarSeriesAreEqual() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
-    LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates(DATE_2014_01_01), values(1d)).build();
+    LocalDateDoubleTimeSeries series2 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates(DATE_2014_01_01), values(1d)).build();
     assertEquals(series1.size(), 1);
     assertEquals(series1, series2);
     assertEquals(series1, series1);

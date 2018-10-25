@@ -62,6 +62,13 @@ public interface IborFutureTemplate
   public abstract IborIndex getIndex();
 
   /**
+   * Gets the market convention of the Ibor future.
+   * 
+   * @return the convention
+   */
+  public abstract IborFutureConvention getConvention();
+
+  /**
    * Creates a trade based on this template.
    * <p>
    * This returns a trade based on the specified date.
