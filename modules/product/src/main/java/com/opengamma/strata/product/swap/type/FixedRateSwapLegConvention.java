@@ -340,7 +340,7 @@ public final class FixedRateSwapLegConvention
         .calculation(FixedRateCalculation.of(fixedRate, dayCount))
         .build();
   }
-  
+
   /**
    * Creates a leg based on this convention.
    * <p>
@@ -364,7 +364,7 @@ public final class FixedRateSwapLegConvention
       double notional,
       double fixedRate,
       FutureValueNotional futureValueNotional) {
-    
+
     return RateCalculationSwapLeg
         .builder()
         .payReceive(payReceive)
