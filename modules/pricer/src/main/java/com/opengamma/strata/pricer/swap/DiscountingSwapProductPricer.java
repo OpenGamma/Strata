@@ -237,7 +237,7 @@ public class DiscountingSwapProductPricer {
    * @return the par rate
    */
   public double parSpread(ResolvedSwap swap, RatesProvider provider) {
-    // does the fixed leg of the swap have a future value notional
+    // does the fixed leg, if it exists, of the swap have a future value notional
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
       SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
@@ -358,6 +358,7 @@ public class DiscountingSwapProductPricer {
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
       }
     }
+    //does the fixed leg have a future value notional
     SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
     if (firstPeriod instanceof RatePaymentPeriod) {
       RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
@@ -416,7 +417,7 @@ public class DiscountingSwapProductPricer {
    * @return the par spread curve sensitivity of the swap product
    */
   public PointSensitivityBuilder parSpreadSensitivity(ResolvedSwap swap, RatesProvider provider) {
-    // does the fixed leg of the swap have a future value notional
+    // does the fixed leg of the swap, if it exists, have a future value notional
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
       SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
