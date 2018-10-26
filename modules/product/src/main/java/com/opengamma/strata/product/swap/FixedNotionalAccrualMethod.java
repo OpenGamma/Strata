@@ -15,7 +15,7 @@ import com.opengamma.strata.collect.named.NamedEnum;
  * The method of accruing interest on a notional amount using a fixed rate.
  */
 public enum FixedNotionalAccrualMethod implements NamedEnum {
-  
+
   /**
    * The default method.
    * <p>
@@ -32,10 +32,10 @@ public enum FixedNotionalAccrualMethod implements NamedEnum {
    * This is the most common type for Brazilian style fixed legs.
    */
   OVERNIGHT_COMPOUNDED_ANNUAL_RATE;
-  
+
   // helper for name conversions
   private static final EnumNames<FixedNotionalAccrualMethod> NAMES = EnumNames.of(FixedNotionalAccrualMethod.class);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Obtains an instance from the specified name.
