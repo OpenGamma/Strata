@@ -11,8 +11,13 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * Standard CSV information resolver.
  */
-final class StandardCsvInfoResolver
-    implements TradeCsvInfoResolver, PositionCsvInfoResolver, SensitivityCsvInfoResolver {
+final class StandardCsvInfoImpl
+    implements TradeCsvInfoResolver, PositionCsvInfoResolver, SensitivityCsvInfoResolver, SensitivityCsvInfoSupplier {
+
+  /**
+   * Standard instance.
+   */
+  static final StandardCsvInfoImpl INSTANCE = new StandardCsvInfoImpl(ReferenceData.standard());
 
   /**
    * The reference data.
@@ -25,12 +30,12 @@ final class StandardCsvInfoResolver
    * @param refData  the reference data
    * @return the loader
    */
-  public static StandardCsvInfoResolver of(ReferenceData refData) {
-    return new StandardCsvInfoResolver(refData);
+  public static StandardCsvInfoImpl of(ReferenceData refData) {
+    return new StandardCsvInfoImpl(refData);
   }
 
   // restricted constructor
-  private StandardCsvInfoResolver(ReferenceData refData) {
+  private StandardCsvInfoImpl(ReferenceData refData) {
     this.refData = ArgChecker.notNull(refData, "refData");
   }
 

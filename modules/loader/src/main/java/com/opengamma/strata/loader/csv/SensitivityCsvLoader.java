@@ -146,12 +146,12 @@ public final class SensitivityCsvLoader {
   // CSV column headers
   private static final String ID_SCHEME_HEADER = "Id Scheme";
   private static final String ID_HEADER = "Id";
-  private static final String REFERENCE_HEADER = "Reference";
-  private static final String TYPE_HEADER = "Sensitivity Type";
-  private static final String TENOR_HEADER = "Sensitivity Tenor";
-  private static final String DATE_HEADER = "Sensitivity Date";
-  private static final String CURRENCY_HEADER = "Currency";
-  private static final String VALUE_HEADER = "Value";
+  static final String REFERENCE_HEADER = "Reference";
+  static final String TYPE_HEADER = "Sensitivity Type";
+  static final String TENOR_HEADER = "Sensitivity Tenor";
+  static final String DATE_HEADER = "Sensitivity Date";
+  static final String CURRENCY_HEADER = "Currency";
+  static final String VALUE_HEADER = "Value";
   private static final ImmutableSet<String> TYPE_HEADERS =
       ImmutableSet.of(
           ID_SCHEME_HEADER.toLowerCase(Locale.ENGLISH),
