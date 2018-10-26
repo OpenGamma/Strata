@@ -36,7 +36,7 @@ public enum OvernightAccrualMethod implements NamedEnum {
    * <p>
    * This is the most common type for Brazilian style swaps.
    */
-  ANNUAL_RATE,
+  OVERNIGHT_COMPOUNDED_ANNUAL_RATE,
   /**
    * The averaged method.
    * <p>
