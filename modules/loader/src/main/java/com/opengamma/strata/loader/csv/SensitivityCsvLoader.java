@@ -57,6 +57,31 @@ import com.opengamma.strata.product.PortfolioItemInfo;
  * The parser currently supports two different CSV formats.
  * Columns may occur in any order.
  * 
+ * <h4>Standard format</h4>
+ * <p>
+ * The following columns are supported:
+ * <ul>
+ * <li>'Id Scheme' (optional) - the name of the scheme that the identifier is unique within, defaulted to 'OG-Sensitivity'.
+ * <li>'Id' (optional) - the identifier of the sensitivity, such as 'SENS12345'.
+ * <li>'Reference' - a currency, floating rate name, index name or curve name.
+ *   The standard reference name for a discount curve is the currency, such as 'GBP'.
+ *   The standard reference name for a forward curve is the index name, such as 'GBP-LIBOR-3M'.
+ *   Any curve name may be used however, which will be specific to the market data setup.
+ * <li>'Sensitivity Type' - defines the type of the sensitivity value, such as 'ZeroRateDelta' or 'ZeroRateGamma'.
+ * <li>'Sensitivity Tenor' - the tenor of the bucketed sensitivity, such as '1Y'.
+ * <li>'Sensitivity Date' (optional) - the date of the bucketed sensitivity, such as '2018-06-01'.
+ * <li>'Currency' (optional) - the currency of each sensitivity value, such as 'GBP'.
+ *   If omitted, the currency will be implied from the reference, which must start with the currency.
+ * <li>'Value' - the sensitivity value
+ * </ul>
+ * <p>
+ * The identifier columns are not normally present as the identifier is completely optional.
+ * If present, the values must be repeated for each row that forms part of one sensitivity.
+ * If the parser finds a different identifier, it will create a second sensitivity instance.
+ * <p>
+ * When parsing the value column, if the cell is empty, the combination of type/reference/tenor/value
+ * will not be added to the result, so use an explicit zero to include a zero value.
+ * 
  * <h4>List format</h4>
  * <p>
  * The following columns are supported:
@@ -126,6 +151,7 @@ public final class SensitivityCsvLoader {
   private static final String TENOR_HEADER = "Sensitivity Tenor";
   private static final String DATE_HEADER = "Sensitivity Date";
   private static final String CURRENCY_HEADER = "Currency";
+  private static final String VALUE_HEADER = "Value";
   private static final ImmutableSet<String> TYPE_HEADERS =
       ImmutableSet.of(
           ID_SCHEME_HEADER.toLowerCase(Locale.ENGLISH),
@@ -197,10 +223,12 @@ public final class SensitivityCsvLoader {
       if (!csv.containsHeader(TENOR_HEADER) && !csv.containsHeader(DATE_HEADER)) {
         return false;
       }
-      if (csv.containsHeader(REFERENCE_HEADER) || csv.containsHeader(TYPE_HEADER)) {
-        return true;
+      if (csv.containsHeader(REFERENCE_HEADER) && csv.containsHeader(TYPE_HEADER) && csv.containsHeader(VALUE_HEADER)) {
+        return true;  // standard format
+      } else if (csv.containsHeader(REFERENCE_HEADER) || csv.containsHeader(TYPE_HEADER)) {
+        return true;  // list or grid format
       } else {
-        return csv.headers().stream().anyMatch(SensitivityCsvLoader::knownReference);
+        return csv.headers().stream().anyMatch(SensitivityCsvLoader::knownReference);  // implied grid format
       }
     } catch (RuntimeException ex) {
       return false;
@@ -290,8 +318,11 @@ public final class SensitivityCsvLoader {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
       if (!csv.containsHeader(TENOR_HEADER) && !csv.containsHeader(DATE_HEADER)) {
         failures.add(FailureItem.of(
-            FailureReason.PARSING,
-            "CSV file could not be parsed: Missing column '{}' or '{}'", TENOR_HEADER, DATE_HEADER));
+            FailureReason.PARSING, "CSV file could not be parsed as sensitivities, invalid format"));
+      } else if (csv.containsHeader(REFERENCE_HEADER) &&
+          csv.containsHeader(TYPE_HEADER) &&
+          csv.containsHeader(VALUE_HEADER)) {
+        parseStandardFormat(csv, parsed, failures);
       } else if (csv.containsHeader(REFERENCE_HEADER)) {
         parseListFormat(csv, parsed, failures);
       } else {
@@ -299,6 +330,48 @@ public final class SensitivityCsvLoader {
       }
     } catch (RuntimeException ex) {
       failures.add(FailureItem.of(FailureReason.PARSING, ex, "CSV file could not be parsed: {}", ex.getMessage()));
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  // parses the file in standard format
+  private void parseStandardFormat(
+      CsvIterator csv,
+      ListMultimap<String, CurveSensitivities> parsed,
+      List<FailureItem> failures) {
+
+    // loop around all rows, peeking to match batches with the same identifier
+    // no exception catch at this level to avoid infinite loops
+    while (csv.hasNext()) {
+      CsvRow peekedRow = csv.peek();
+      PortfolioItemInfo info = parseInfo(peekedRow);
+      String id = info.getId().map(StandardId::toString).orElse("");
+
+      // process in batches, where the ID is the same
+      CurveSensitivitiesBuilder builder = CurveSensitivities.builder(info);
+      List<CsvRow> batchRows = csv.nextBatch(r -> matchId(r, id));
+      for (CsvRow batchRow : batchRows) {
+        try {
+          CurveName reference = CurveName.of(batchRow.getValue(REFERENCE_HEADER));
+          CurveName resolvedCurveName = resolver.checkCurveName(reference);
+          CurveSensitivitiesType type = CurveSensitivitiesType.of(batchRow.getValue(TYPE_HEADER));
+          ParameterMetadata metadata = parseMetadata(batchRow, false);
+          Currency currency = parseCurrency(batchRow, reference);
+          String valueStr = batchRow.getField(VALUE_HEADER);
+          if (!valueStr.isEmpty()) {
+            double value = LoaderUtils.parseDouble(valueStr);
+            builder.add(type, resolvedCurveName, currency, metadata, value);
+          }
+
+        } catch (IllegalArgumentException ex) {
+          failures.add(FailureItem.of(
+              PARSING, "CSV file could not be parsed at line {}: {}", batchRow.lineNumber(), ex.getMessage()));
+        }
+      }
+      CurveSensitivities sens = builder.build();
+      if (!sens.getTypedSensitivities().isEmpty()) {
+        parsed.put(sens.getId().map(Object::toString).orElse(""), sens);
+      }
     }
   }
 
@@ -330,7 +403,7 @@ public final class SensitivityCsvLoader {
       List<CsvRow> batchRows = csv.nextBatch(r -> matchId(r, id));
       for (CsvRow batchRow : batchRows) {
         try {
-          ParameterMetadata metadata = parseMetadata(batchRow);
+          ParameterMetadata metadata = parseMetadata(batchRow, true);
           CurveName reference = CurveName.of(batchRow.getValue(REFERENCE_HEADER));
           CurveName resolvedCurveName = resolver.checkCurveName(reference);
           for (Entry<String, CurveSensitivitiesType> entry : types.entrySet()) {
@@ -355,6 +428,7 @@ public final class SensitivityCsvLoader {
     }
   }
 
+  //-------------------------------------------------------------------------
   // parses the file in grid format
   private void parseGridFormat(
       CsvIterator csv,
@@ -382,7 +456,7 @@ public final class SensitivityCsvLoader {
       List<CsvRow> batchRows = csv.nextBatch(r -> matchId(r, id));
       for (CsvRow batchRow : batchRows) {
         try {
-          ParameterMetadata metadata = parseMetadata(batchRow);
+          ParameterMetadata metadata = parseMetadata(batchRow, true);
           CurveSensitivitiesType type = batchRow.findValue(TYPE_HEADER)
               .map(str -> CurveSensitivitiesType.of(str))
               .orElse(CurveSensitivitiesType.ZERO_RATE_DELTA);
@@ -440,13 +514,13 @@ public final class SensitivityCsvLoader {
   }
 
   // parses the currency as a column or from the reference
-  private ParameterMetadata parseMetadata(CsvRow row) {
+  private ParameterMetadata parseMetadata(CsvRow row, boolean lenientDateParsing) {
     // parse the tenor and date fields
     Optional<Tenor> tenorOpt = row.findValue(TENOR_HEADER).flatMap(LoaderUtils::tryParseTenor);
     Optional<LocalDate> dateOpt = row.findValue(DATE_HEADER).map(LoaderUtils::parseDate);
     Optional<String> tenorStrOpt = row.findValue(TENOR_HEADER);
     if (tenorStrOpt.isPresent() && !tenorOpt.isPresent()) {
-      if (!dateOpt.isPresent() && !resolver.isTenorRequired()) {
+      if (lenientDateParsing && !dateOpt.isPresent() && !resolver.isTenorRequired()) {
         try {
           dateOpt = tenorStrOpt.map(LoaderUtils::parseDate);
         } catch (RuntimeException ex2) {
