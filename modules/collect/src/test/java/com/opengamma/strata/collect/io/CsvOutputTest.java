@@ -6,7 +6,10 @@
 package com.opengamma.strata.collect.io;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertThrows;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -94,6 +97,54 @@ public class CsvOutputTest {
     CsvOutput.safe(buf, "\n", LINE_ITEM_SEP_COMMA)
         .writeLine(Arrays.asList("+8", "-7", "+8-7", "-7+8", "NaN", "-Infinity"));
     assertEquals(buf.toString(), "+8,-7,=\"+8-7\",=\"-7+8\",NaN,=\"-Infinity\"\n");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_writeCell() {
+    StringBuilder buf = new StringBuilder();
+    CsvOutput.standard(buf, "\n")
+        .writeCell("a")
+        .writeCell("x")
+        .writeNewLine()
+        .writeCell("b", true)
+        .writeCell("y", true)
+        .writeNewLine();
+    assertEquals(buf.toString(), "a,x\n\"b\",\"y\"\n");
+  }
+
+  public void test_mixed() {
+    List<String> row = Arrays.asList("x", "y");
+    StringBuilder buf = new StringBuilder();
+    CsvOutput.standard(buf, "\n")
+        .writeCell("a")
+        .writeCell("b")
+        .writeLine(row);
+    assertEquals(buf.toString(), "a,b,x,y\n");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_exception() {
+    Appendable throwingAppendable = new Appendable() {
+
+      @Override
+      public Appendable append(CharSequence csq, int start, int end) throws IOException {
+        throw new IOException();
+      }
+
+      @Override
+      public Appendable append(char c) throws IOException {
+        throw new IOException();
+      }
+
+      @Override
+      public Appendable append(CharSequence csq) throws IOException {
+        throw new IOException();
+      }
+    };
+
+    CsvOutput output = CsvOutput.standard(throwingAppendable, "\n");
+    assertThrows(UncheckedIOException.class, () -> output.writeCell("a"));
+    assertThrows(UncheckedIOException.class, () -> output.writeNewLine());
   }
 
 }
