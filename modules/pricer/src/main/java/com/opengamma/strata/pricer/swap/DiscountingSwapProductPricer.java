@@ -54,7 +54,7 @@ public class DiscountingSwapProductPricer {
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param legPricer  the pricer for {@link ResolvedSwapLeg}
    */
   public DiscountingSwapProductPricer(
@@ -65,7 +65,7 @@ public class DiscountingSwapProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Gets the underlying leg pricer.
-   * 
+   *
    * @return the leg pricer
    */
   public DiscountingSwapLegPricer getLegPricer() {
@@ -79,7 +79,7 @@ public class DiscountingSwapProductPricer {
    * The present value of the product is the value on the valuation date.
    * This is the discounted forecast value.
    * The result is converted to the specified currency.
-   * 
+   *
    * @param swap  the product
    * @param currency  the currency to convert to
    * @param provider  the rates provider
@@ -100,7 +100,7 @@ public class DiscountingSwapProductPricer {
    * The present value of the product is the value on the valuation date.
    * This is the discounted forecast value.
    * The result is expressed using the payment currency of each leg.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the present value of the swap product
@@ -114,7 +114,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The forecast value of the product is the value on the valuation date without present value discounting.
    * The result is expressed using the payment currency of each leg.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the forecast value of the swap product
@@ -150,7 +150,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * This determines the payment period applicable at the valuation date and calculates
    * the accrued interest since the last payment.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the accrued interest of the swap product
@@ -169,11 +169,11 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
    * <p>
-   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg 
+   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg
    * in which all the payments are fixed payments with a unique accrual period (no compounding) and no FX reset.
-   * If the fixed leg is compounding, the par rate is computed only when the number of fixed coupon payments is 1 and 
-   * accrual factor of each sub-period is 1 
-   * 
+   * If the fixed leg is compounding, the par rate is computed only when the number of fixed coupon payments is 1 and
+   * accrual factor of each sub-period is 1
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate
@@ -229,9 +229,9 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
    * <p>
-   * The par spread will be computed with respect to the first leg. For that leg, all the payments have a unique 
+   * The par spread will be computed with respect to the first leg. For that leg, all the payments have a unique
    * accrual period or multiple accrual periods with Flat compounding and no FX reset.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate
@@ -245,8 +245,9 @@ public class DiscountingSwapProductPricer {
         RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
         RateAccrualPeriod firstAccrualPeriod = payment.getAccrualPeriods().get(0);
         if (firstAccrualPeriod.getRateComputation() instanceof FixedOvernightCompoundedAnnualRateComputation) {
-          double accrualFactor = firstAccrualPeriod.getYearFraction();
-          return parRate(swap, provider) - accrualFactor;
+          FixedOvernightCompoundedAnnualRateComputation fixedOvernightCompoundedAnnualRateComputation
+              = (FixedOvernightCompoundedAnnualRateComputation) firstAccrualPeriod.getRateComputation();
+          return parRate(swap, provider) - fixedOvernightCompoundedAnnualRateComputation.getRate();
         }
       }
     }
@@ -277,7 +278,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the present value curve sensitivity of the swap product
@@ -291,7 +292,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The present value sensitivity of the product is the sensitivity of the present value to
    * the underlying curves.
-   * 
+   *
    * @param swap  the product
    * @param currency  the currency to convert to
    * @param provider  the rates provider
@@ -313,7 +314,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The forecast value sensitivity of the product is the sensitivity of the forecast value to
    * the underlying curves.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the forecast value curve sensitivity of the swap product
@@ -342,7 +343,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
    * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate curve sensitivity of the swap product
@@ -409,9 +410,9 @@ public class DiscountingSwapProductPricer {
    * <p>
    * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
    * <p>
-   * The par spread is computed with respect to the first leg. For that leg, all the payments have a unique 
+   * The par spread is computed with respect to the first leg. For that leg, all the payments have a unique
    * accrual period (no compounding) and no FX reset.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par spread curve sensitivity of the swap product
@@ -464,7 +465,7 @@ public class DiscountingSwapProductPricer {
    * <p>
    * Each expected cash flow is added to the result.
    * This is based on {@link #forecastValue(ResolvedSwap, RatesProvider)}.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the cash flow
@@ -480,7 +481,7 @@ public class DiscountingSwapProductPricer {
    * Explains the present value of the swap product.
    * <p>
    * This returns explanatory information about the calculation.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the explanatory information
@@ -498,7 +499,7 @@ public class DiscountingSwapProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Calculates the currency exposure of the swap product.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the currency exposure of the swap product
@@ -513,7 +514,7 @@ public class DiscountingSwapProductPricer {
 
   /**
    * Calculates the current cash of the swap product.
-   * 
+   *
    * @param swap  the product
    * @param provider  the rates provider
    * @return the current cash of the swap product
@@ -538,7 +539,7 @@ public class DiscountingSwapProductPricer {
 
   // Checks if the leg is a fixed leg with one payment and compounding
   // This type of leg is used in zero-coupon inflation swaps
-  // When returning a 'true' for the first element, the second element is the number of periods which are used in 
+  // When returning a 'true' for the first element, the second element is the number of periods which are used in
   //   par rate/spread computation and the third element is the common fixed rate
   private Triple<Boolean, Integer, Double> checkFixedCompounded(ResolvedSwapLeg leg) {
     if (leg.getPaymentEvents().size() != 0) {

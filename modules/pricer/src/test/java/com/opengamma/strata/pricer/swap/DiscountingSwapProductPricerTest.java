@@ -95,8 +95,8 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.swap.CompoundingMethod;
+import com.opengamma.strata.product.swap.FixedNotionalAccrualMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
-import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.PaymentSchedule;
@@ -217,6 +217,7 @@ public class DiscountingSwapProductPricerTest {
           .paymentFrequency(Frequency.TERM)
           .dayCount(BUS_252)
           .accrualBusinessDayAdjustment(BDA_MF)
+          .fixedNotionalAccrualMethod(FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
           .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
           .build();
   public static final OvernightRateSwapLegConvention BRL_FLOATING_LEG_CONV =
@@ -224,13 +225,12 @@ public class DiscountingSwapProductPricerTest {
           .index(BRL_CDI)
           .accrualFrequency(Frequency.TERM)
           .paymentFrequency(Frequency.TERM)
-          .accrualMethod(OvernightAccrualMethod.ANNUAL_RATE)
+          .accrualMethod(OvernightAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
           .accrualBusinessDayAdjustment(BDA_MF)
           .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
           .build();
 
-  public static final RateCalculationSwapLeg BRL_FIXED_LEG = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, COUPON,
-      FutureValueNotional.auto());
+  public static final RateCalculationSwapLeg BRL_FIXED_LEG = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, COUPON);
   public static final RateCalculationSwapLeg BRL_FLOATING_LEG = BRL_FLOATING_LEG_CONV.toLeg(START_DATE, END_DATE, RECEIVE, NOTIONAL, 0d);
 
   public static final ResolvedSwap BRL_SWAP = Swap.of(BRL_FIXED_LEG, BRL_FLOATING_LEG).resolve(REF_DATA);
@@ -420,7 +420,7 @@ public class DiscountingSwapProductPricerTest {
     DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
     double parRateComputed = pricerSwap.parRate(BRL_SWAP, BRL_DSCON);
-    RateCalculationSwapLeg fixedLeg = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, parRateComputed, FutureValueNotional.auto());
+    RateCalculationSwapLeg fixedLeg = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, parRateComputed);
     ResolvedSwap swapWithParRate = Swap.of(BRL_FLOATING_LEG, fixedLeg).resolve(REF_DATA);
     double pvWithParRate = pricerSwap.presentValue(swapWithParRate, BRL_DSCON).getAmount(BRL).getAmount();
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
