@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -88,6 +89,25 @@ public final class ValueWithFailures<T>
    */
   public static <T> ValueWithFailures<T> of(T successValue, List<FailureItem> failures) {
     return new ValueWithFailures<>(successValue, failures);
+  }
+
+  /**
+   * Creates an instance using a supplier.
+   * <p>
+   * If the supplier succeeds normally, the supplied value will be returned.
+   * If the supplier fails, the empty value will be returned along with a failure.
+   *
+   * @param <T> the type of the value
+   * @param emptyValue  the empty value
+   * @param supplier  supplier of the result value
+   * @return an instance containing the supplied value, or a failure if an exception is thrown
+   */
+  public static <T> ValueWithFailures<T> of(T emptyValue, Supplier<T> supplier) {
+    try {
+      return of(supplier.get());
+    } catch (Exception ex) {
+      return ValueWithFailures.of(emptyValue, FailureItem.of(FailureReason.ERROR, ex));
+    }
   }
 
   /**
