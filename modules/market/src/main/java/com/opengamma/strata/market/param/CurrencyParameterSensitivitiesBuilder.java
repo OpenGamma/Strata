@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketDataName;
 
 /**
- * Builder for {@code CurrencyParameterSensitivities}
+ * Builder for {@code CurrencyParameterSensitivities}.
  */
 public final class CurrencyParameterSensitivitiesBuilder {
 
