@@ -33,7 +33,7 @@ public class VolatilityArbitrage {
     private double worstVolFactor;
     private double originalPrice;
     
-    WorseCaseScenario( 
+    WorseCaseScenario(
         double worstSpot,
         double worstMoneyNess,
         double worstSpotBump,
@@ -45,7 +45,7 @@ public class VolatilityArbitrage {
       this.worstVolFactor = worstVolFactor;
       this.originalPrice = originalPrice;
     }
-  }  
+  }
   
    //This will become a portfolio of options, etc.
    public static WorseCaseScenario determineWorseMarketLevelScenario(Option option, double spot, double vol, double rate){
@@ -62,7 +62,7 @@ public class VolatilityArbitrage {
     DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - originalPrice)));
     
     int worstIndex = profitAndLoss.indexOf(profitAndLoss.min());
-    WorseCaseScenario wcs = new WorseCaseScenario(newSpots.get(worstIndex), moneyNess.get(worstIndex), bumps.get(worstIndex), volFactors.get(worstIndex), originalPrice);    
+    WorseCaseScenario wcs = new WorseCaseScenario(newSpots.get(worstIndex), moneyNess.get(worstIndex), bumps.get(worstIndex), volFactors.get(worstIndex), originalPrice);
     return wcs;
   }
   //This will become a portfolio of options, etc.
@@ -70,15 +70,15 @@ public class VolatilityArbitrage {
     double cOneVolFactor = BOUND_2D_INTERPOLATOR_TWO.interpolate(option.expiry(), worstScenario.worstMoneyNess);
     DoubleArray alphaOne = DoubleArray.of(IntStream.range(-10, 11).mapToDouble(x -> x/10.));
     DoubleArray volFactors = DoubleArray.of(alphaOne.stream().map(x -> {double factor = worstScenario.worstVolFactor + cOneVolFactor * x;
-                                                                          if(factor > 1.) 
+                                                                          if(factor > 1.)
                                                                             return 1.;
-                                                                          if(factor < -0.7) 
+                                                                          if(factor < -0.7)
                                                                             return -0.7;
                                                                           return factor;}));
     DoubleArray newVols = DoubleArray.of(volFactors.stream().map(x -> vol * (1 + x)));
     DoubleArray newPrices = DoubleArray.of(newVols.stream().map(x -> option.calculate( worstScenario.worstSpot, x, rate)));
     DoubleArray profitAndLoss = DoubleArray.of(newPrices.stream().map(i -> option.quantity() * (i - worstScenario.originalPrice)));
-    return option.notional() * Math.abs(profitAndLoss.min());    
+    return option.notional() * Math.abs(profitAndLoss.min());
   }
   
   public static double determineConcentrationRequirement(Option option, double originalPrice, double spot, double vol, double rate){

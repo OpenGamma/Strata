@@ -18,43 +18,43 @@ public class VIXIndexCalculator {
   private static double timeToMaturity(double numDays, LocalTime calcTime){
     double hour = calcTime.getHour();
     double minute = calcTime.getMinute();
-    double t = hour + minute / 60;
-    return ((24 - t) * 60 + 510 + 60 * 24 * numDays) / 525600;
+    double second = calcTime.getSecond();
+    return (1440 - (hour * 60 + minute + second / 60) + 510) / (1440*365) + (numDays-2)/365;
   }
   
   private static double determineF(CallsAndPutsPricesHolder callsAndPuts, double rate, double expiry){
     DoubleArray priceDifferences = DoubleArray.of(IntStream.range(0, callsAndPuts.getCalls().length)
-                                                           .mapToDouble(i -> Math.abs(callsAndPuts.getCalls()[i] - callsAndPuts.getPuts()[i])));
+        .mapToDouble(i -> Math.abs(callsAndPuts.getCalls()[i] - callsAndPuts.getPuts()[i])));
     int location = priceDifferences.indexOf(priceDifferences.min());
     return callsAndPuts.getStrikes()[location] + priceDifferences.get(location) * Math.exp(rate * expiry);
   }
   
   private static double determineKZero(double[] strikes, double forwardIndex){
     DoubleArray differences = DoubleArray.of(IntStream.range(0, strikes.length)
-                                          .mapToDouble(i -> forwardIndex - strikes[i])
-                                          .filter( i -> i > 0));
+        .mapToDouble(i -> forwardIndex - strikes[i])
+        .filter( i -> i > 0));
     int location = differences.indexOf(differences.min());
     return strikes[location];
   }
   
   private static double[][] filterPrices(CallsAndPutsPricesHolder callsAndPuts, double kZero){
     double[] filteredPuts = IntStream.range(0, callsAndPuts.getStrikes().length)
-                                     .filter( i-> callsAndPuts.getStrikes()[i] <= kZero)
-                                     .mapToDouble(i -> callsAndPuts.getPuts()[i])
-                                     .toArray();
+        .filter( i-> callsAndPuts.getStrikes()[i] <= kZero)
+        .mapToDouble(i -> callsAndPuts.getPuts()[i])
+        .toArray();
     double[] filteredCalls =  IntStream.range(0, callsAndPuts.getStrikes().length)
-                                       .filter(i-> callsAndPuts.getStrikes()[i] >= kZero)
-                                       .mapToDouble(i -> callsAndPuts.getCalls()[i])                                       
-                                       .toArray();
+        .filter(i-> callsAndPuts.getStrikes()[i] >= kZero)
+        .mapToDouble(i -> callsAndPuts.getCalls()[i])
+        .toArray();
     double[] concatenatedPut = IntStream.range(0, filteredPuts.length)
-                                        .filter(i -> i < filteredPuts.length - 1)
-                                        .mapToDouble(i ->filteredPuts[i])                                        
-                                        .toArray();
+        .filter(i -> i < filteredPuts.length - 1)
+        .mapToDouble(i ->filteredPuts[i])
+        .toArray();
     filteredCalls[0] = 0.5 * (filteredCalls[0] + filteredPuts[filteredPuts.length - 1]);
     double[][] filteredPrices = {callsAndPuts.getStrikes(), DoubleStream.concat(Arrays.stream(concatenatedPut),
-                                                                                Arrays.stream(filteredCalls))
-                                                                        .toArray() };
-  
+        Arrays.stream(filteredCalls))
+        .toArray() };
+    
     return filteredPrices;
   }
   
@@ -66,12 +66,12 @@ public class VIXIndexCalculator {
           if(i == 0)
             return strikes[1]-strikes[0];
           if(i == strikes.length-1)
-            return strikes[strikes.length-1] - strikes[strikes.length-2];            
+            return strikes[strikes.length-1] - strikes[strikes.length-2];
           return 0.5 * (strikes[i + 1] - strikes[i - 1]);})
         .toArray();
     double vixContributionsSummed = IntStream.range(0, strikes.length)
-                                             .mapToDouble(i -> (2 * Math.exp(riskFreeRate * expiry) * prices[i] * strikeDifferences[i]) / Math.pow(strikes[i], 2) / expiry)
-                                             .sum();
+        .mapToDouble(i -> (2 * Math.exp(riskFreeRate * expiry) * prices[i] * strikeDifferences[i]) / Math.pow(strikes[i], 2) / expiry)
+        .sum();
     return vixContributionsSummed - Math.pow(forward / kZero - 1, 2) / expiry;
   }
   
@@ -81,22 +81,18 @@ public class VIXIndexCalculator {
     double kZeroOne = determineKZero(nearestOptions.getStrikes(), forwardOne);
     double[][] testPricesOne = filterPrices(nearestOptions, kZeroOne);
     double varOne = subVariance(testPricesOne, forwardOne, kZeroOne, rate, expiryTimeOne);
-  
+    
     double expiryTimeTwo = timeToMaturity(furthestOptions.daysToExpiry(), calcTime);
     double forwardTwo = determineF(furthestOptions, rate, expiryTimeTwo);
     double kZeroTwo = determineKZero(furthestOptions.getStrikes(), forwardTwo);
     double[][] testPricesTwo = filterPrices(furthestOptions, kZeroTwo);
     double varTwo = subVariance(testPricesTwo, forwardTwo, kZeroTwo, rate, expiryTimeTwo);
-  
-    double hour = calcTime.getHour();
-    double minute = calcTime.getMinute();
-    double t = hour + minute / 60;
-    double nTOne = ((24 - t) * 60 + 510 + 60 * 24 * nearestOptions.daysToExpiry());
-    double nTTwo = ((24 - t) * 60 + 510 + 60 * 24 * furthestOptions.daysToExpiry());
-    double tOne = nTOne / 525600;
-    double tTwo = nTTwo / 525600;
-    double factorOne = tOne * varOne * (nTTwo - 43200) / (nTTwo - nTOne);
-    double factorTwo = tTwo * varTwo * (43200 - nTOne) / (nTTwo - nTOne);
+    
+
+    double nTOne = 365 * expiryTimeOne;
+    double nTTwo = 365 * expiryTimeTwo;
+    double factorOne = expiryTimeOne * varOne * (nTTwo - 30) / (nTTwo - nTOne);
+    double factorTwo = expiryTimeTwo * varTwo * (30 - nTOne) / (nTTwo - nTOne);
     return Math.sqrt( (factorOne + factorTwo) * 365 /30) * 100;
   }
   
@@ -111,12 +107,13 @@ public class VIXIndexCalculator {
         {2.72, 4.76, 8.01, 12.97, 20.18, 30.17, 43.31, 59.70, 79.10, 100.981, 4.38}};
     double rate = 0.01162;
     
-    CallsAndPutsPricesHolder nearOptionsHolder = new CallsAndPutsPricesHolder(nearestOptions, 14);
-    CallsAndPutsPricesHolder farOptionsHolder = new CallsAndPutsPricesHolder(farthestOptions, 42);
+    CallsAndPutsPricesHolder nearOptionsHolder = new CallsAndPutsPricesHolder(nearestOptions, 16);
+    CallsAndPutsPricesHolder farOptionsHolder = new CallsAndPutsPricesHolder(farthestOptions, 44);
     double vixCalc = vix(nearOptionsHolder, farOptionsHolder, LocalTime.of(8, 30), rate);
-   
+    
     //Replication of VIX index Calculation from CBOE (2003)
     System.out.println();
-    System.out.println("VIX Replication Against CBOE (2003 Paper). Expected: 25.361" + ", Actual: " + vixCalc);    
+    System.out.println("VIX Replication Against CBOE (2003 Paper). Expected: 25.361" + ", Actual: " + vixCalc);
   }
 }
+

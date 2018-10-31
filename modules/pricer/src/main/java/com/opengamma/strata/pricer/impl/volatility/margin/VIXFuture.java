@@ -15,19 +15,13 @@ import com.opengamma.strata.collect.io.CsvFile;
 
 public class VIXFuture {
   
-  VIXFuture(){}
-  //Let's make historic values a member. Also need to recalibrate parameters(?).
+  private CsvFile historicFiles;
   
-  public static double[] convertCSVListToArray(CsvFile historicFiles){
-    double[] closeValues = historicFiles.rows()
-                                        .reverse()
-                                        .stream()
-                                        .mapToDouble(x -> Double.parseDouble(x.getValue("Close")))
-                                        .toArray();
-    return closeValues;
+  VIXFuture(CsvFile historicFiles){
+    this.historicFiles = historicFiles;
   }
   
-  public static double median(double[] values){
+  private static double median(double[] values){
     Arrays.sort(values);
     double median = 0;
     double pos1 = Math.floor((values.length - 1.0) / 2.0);
@@ -36,19 +30,24 @@ public class VIXFuture {
       median = values[(int) pos1];
     } else {
       median = (values[(int) pos1] + values[(int) pos2]) / 2.0 ;
-    }  
+    }
     return median;
   }
   
-  public static double determineVIXEMA(double[] values, double currentValue){
+  private static double determineVIXEMA(double[] values, double currentValue){
     return 0.5 * currentValue + IntStream.range(0, values.length).mapToDouble(x -> Math.pow(0.5, x + 2) * values[x]).sum();
   }
   
-  public static double determineVIXRef(double currentValue, double emaValue, double daysToExpiry){
+  private static double determineVIXRef(double currentValue, double emaValue, double daysToExpiry){
     return currentValue - (currentValue - emaValue) * Math.log(daysToExpiry + 1) / 4.5;
   }
   
-  public static double calculate(double currentValue, double[] historicValues, double daysToExpiry){
+  public double calculate(double currentValue, double daysToExpiry){
+    double[] historicValues = historicFiles.rows()
+        .reverse()
+        .stream()
+        .mapToDouble(x -> Double.parseDouble(x.getValue("Close")))
+        .toArray();
     double vMedian = median(historicValues);
     double vEMA = determineVIXEMA(historicValues, currentValue);
     double vRef = determineVIXRef(currentValue, vEMA, daysToExpiry);
@@ -56,7 +55,7 @@ public class VIXFuture {
   }
   
   
-  public static void main(String[] args){         
+  public static void main(String[] args){
     //Test the median
     System.out.println(median(new double[]{1, 2, 3}));
     System.out.println(median(new double[]{2, 1, 6, 3, 10, 5, 8}));
@@ -71,16 +70,13 @@ public class VIXFuture {
     double ref = determineVIXRef(1, ema, 10);
     System.out.println(ref);
     System.out.println(1 - ((1 - 1.625) * Math.log( 11))/4.5);
-    
-    //Test VIX Future
-    System.out.println(calculate(1, new double[]{2, 3, 4}, 10));
-    System.out.println(ref + (2./3.) * Math.log(11) + Math.sqrt(10) * 0.21);
   
     //Actual Historic Values
     CsvFile historicCSVFile = CsvFile.of(Files.asCharSource(new File("/Users/richardweeks/Downloads/vix1.csv"), StandardCharsets.UTF_8), true);
-    double[] historicValues = convertCSVListToArray(historicCSVFile);
+    
     //Current Value of VIX as of 3/10/2018 11.61
     //Prediction of VIX for 100 days expiration
-    System.out.println(calculate(13.61, historicValues, 30));
+    VIXFuture vixFuture = new VIXFuture(historicCSVFile);
+    System.out.println(vixFuture.calculate(13.61, 30));
   }
 }
