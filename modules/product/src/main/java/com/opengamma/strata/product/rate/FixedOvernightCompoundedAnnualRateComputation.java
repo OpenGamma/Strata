@@ -16,6 +16,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableConstructor;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -46,6 +47,10 @@ public final class FixedOvernightCompoundedAnnualRateComputation
    */
   @PropertyDefinition
   private final double accrualFactor;
+  /**
+   * The calculated simple rate.
+   */
+  private final double simpleRate;  // not a property
 
   //-------------------------------------------------------------------------
   /**
@@ -60,13 +65,21 @@ public final class FixedOvernightCompoundedAnnualRateComputation
   }
 
   //-------------------------------------------------------------------------
+  @ImmutableConstructor
+  private FixedOvernightCompoundedAnnualRateComputation(double rate, double accrualFactor) {
+    this.rate = rate;
+    this.accrualFactor = accrualFactor;
+    this.simpleRate = (Math.pow(1 + rate, accrualFactor) - 1) / accrualFactor;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Calculates the simple interest rate associated with the compounded rate.
    * 
    * @return the simple rate
    */
-  public double simpleRate() {
-    return (Math.pow(1 + rate, accrualFactor) - 1) / accrualFactor;
+  public double getSimpleRate() {
+    return simpleRate;
   }
 
   //-------------------------------------------------------------------------
@@ -92,13 +105,6 @@ public final class FixedOvernightCompoundedAnnualRateComputation
    * The serialization version id.
    */
   private static final long serialVersionUID = 1L;
-
-  private FixedOvernightCompoundedAnnualRateComputation(
-      double rate,
-      double accrualFactor) {
-    this.rate = rate;
-    this.accrualFactor = accrualFactor;
-  }
 
   @Override
   public FixedOvernightCompoundedAnnualRateComputation.Meta metaBean() {

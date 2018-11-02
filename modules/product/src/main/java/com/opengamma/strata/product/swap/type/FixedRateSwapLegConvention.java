@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.swap.type;
 
+import static com.opengamma.strata.product.swap.FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -334,14 +336,6 @@ public final class FixedRateSwapLegConvention
       double notional,
       double fixedRate) {
 
-    FixedRateCalculation fixedCalculation = (fixedNotionalAccrualMethod == FixedNotionalAccrualMethod.NONE) ?
-        FixedRateCalculation.of(fixedRate, dayCount) :
-        FixedRateCalculation.builder()
-            .rate(ValueSchedule.of(fixedRate))
-            .dayCount(dayCount)
-            .futureValueNotional(FutureValueNotional.auto())
-            .build();
-
     return RateCalculationSwapLeg
         .builder()
         .payReceive(payReceive)
@@ -361,7 +355,12 @@ public final class FixedRateSwapLegConvention
             .compoundingMethod(getCompoundingMethod())
             .build())
         .notionalSchedule(NotionalSchedule.of(currency, notional))
-        .calculation(fixedCalculation)
+        .calculation(FixedRateCalculation.builder()
+            .rate(ValueSchedule.of(fixedRate))
+            .dayCount(dayCount)
+            .futureValueNotional(
+                fixedNotionalAccrualMethod == OVERNIGHT_COMPOUNDED_ANNUAL_RATE ? FutureValueNotional.auto() : null)
+            .build())
         .build();
   }
 

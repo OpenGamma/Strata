@@ -36,10 +36,10 @@ public class FixedOvernightCompoundedAnnualRateComputationTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_simpleRate() {
+  public void test_getSimpleRate() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
     assertEquals(
-        1 + test.getAccrualFactor() * test.simpleRate(),
+        1 + test.getAccrualFactor() * test.getSimpleRate(),
         Math.pow(1 + test.getRate(), test.getAccrualFactor()));
   }
 

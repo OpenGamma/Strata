@@ -61,10 +61,6 @@ public class FutureValueNotionalTest {
 
   public void test_exceptions() {
     assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, NUM_DAYS));
-    assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, NUM_DAYS));
-    assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, null));
-    assertThrowsIllegalArg(() -> FutureValueNotional.of(null, null, null));
-    assertThrowsIllegalArg(() -> FutureValueNotional.of(null));
   }
 
   public void test_auto() {
