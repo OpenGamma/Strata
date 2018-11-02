@@ -24,7 +24,7 @@ public interface OvernightRateComputation
 
   /**
    * Obtains an instance.
-   *
+   * 
    * @param index  the index
    * @param startDate  the start date
    * @param endDate  the end date
@@ -61,14 +61,14 @@ public interface OvernightRateComputation
    * <p>
    * The rate to be paid is based on this index.
    * It will be a well known market index such as 'GBP-SONIA'.
-   *
+   * 
    * @return the overnight index
    */
   public abstract OvernightIndex getIndex();
 
   /**
    * Obtains the resolved calendar that the index uses.
-   *
+   * 
    * @return the fixing calendar
    */
   public abstract HolidayCalendar getFixingCalendar();
@@ -82,7 +82,7 @@ public interface OvernightRateComputation
    * In general, the fixing dates and accrual dates are the same for an overnight index.
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
    * before the accrual period.
-   *
+   * 
    * @return the start date
    */
   public abstract LocalDate getStartDate();
@@ -95,7 +95,7 @@ public interface OvernightRateComputation
    * In general, the fixing dates and accrual dates are the same for an overnight index.
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
    * before the accrual period.
-   *
+   * 
    * @return the end date
    */
   public abstract LocalDate getEndDate();
@@ -109,7 +109,7 @@ public interface OvernightRateComputation
    * <p>
    * No error is thrown if the input date is not a valid fixing date.
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   *
+   * 
    * @param fixingDate  the fixing date
    * @return the publication date
    */
@@ -125,7 +125,7 @@ public interface OvernightRateComputation
    * <p>
    * No error is thrown if the input date is not a valid fixing date.
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   *
+   * 
    * @param fixingDate  the fixing date
    * @return the effective date
    */
@@ -141,7 +141,7 @@ public interface OvernightRateComputation
    * <p>
    * No error is thrown if the input date is not a valid fixing date.
    * Instead, the fixing date is moved to the next valid fixing date and then processed.
-   *
+   * 
    * @param fixingDate  the fixing date
    * @return the maturity date
    */
@@ -157,7 +157,7 @@ public interface OvernightRateComputation
    * <p>
    * No error is thrown if the input date is not a valid effective date.
    * Instead, the effective date is moved to the next valid effective date and then processed.
-   *
+   * 
    * @param effectiveDate  the effective date
    * @return the fixing date
    */
@@ -173,7 +173,7 @@ public interface OvernightRateComputation
    * <p>
    * No error is thrown if the input date is not a valid effective date.
    * Instead, the effective date is moved to the next valid effective date and then processed.
-   *
+   * 
    * @param effectiveDate  the effective date
    * @return the maturity date
    */
@@ -183,7 +183,7 @@ public interface OvernightRateComputation
 
   /**
    * Creates an observation object for the specified fixing date.
-   *
+   * 
    * @param fixingDate  the fixing date
    * @return the index observation
    */

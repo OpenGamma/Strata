@@ -72,7 +72,7 @@ public final class FutureValueNotional implements
    * Obtains an empty instance, with no values or attributes.
    * <p>
    * In this case the future value notional will be determined automatically from the calling code using the specified formula.
-   * <p>
+   * 
    * @return the empty instance
    */
   public static FutureValueNotional auto() {
@@ -81,15 +81,13 @@ public final class FutureValueNotional implements
 
   /**
    * Obtains an instance from the specified amount, date and number of days.
-   *
+   * 
    * @param value  the amount
    * @param valueDate  the value date
    * @param calculationPeriodNumberOfDays  the number of days
    * @return the future value notional
    */
-  public static FutureValueNotional of(Double value,
-                                       LocalDate valueDate,
-                                       Integer calculationPeriodNumberOfDays) {
+  public static FutureValueNotional of(Double value, LocalDate valueDate, Integer calculationPeriodNumberOfDays) {
     ArgChecker.isTrue(value != null);
     ArgChecker.isTrue(valueDate != null);
     ArgChecker.isTrue(calculationPeriodNumberOfDays != null);
@@ -102,7 +100,7 @@ public final class FutureValueNotional implements
 
   /**
    * Obtains an instance from the specified amount.
-   *
+   * 
    * @param value  the amount
    * @return the future value notional
    */

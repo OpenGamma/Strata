@@ -124,25 +124,6 @@ public class RatePaymentPeriodTest {
     assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, 1000d));
     assertEquals(test.isCompoundingApplicable(), false);
   }
-  
-  public void test_builder_twoAccrualPeriods_future_value_notional() {
-    RatePaymentPeriod test = RatePaymentPeriod.builder()
-        .paymentDate(DATE_2014_10_01)
-        .accrualPeriods(RAP1, RAP2)
-        .dayCount(ACT_365F)
-        .currency(GBP)
-        .notional(1000d)
-        .compoundingMethod(CompoundingMethod.STRAIGHT)
-        .build();
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_01);
-    assertEquals(test.getAccrualPeriods(), ImmutableList.of(RAP1, RAP2));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getFxReset(),  Optional.empty());
-    assertEquals(test.getNotional(), 1000d, 0d);
-    assertEquals(test.isCompoundingApplicable(), true);
-  }
 
   public void test_builder_badFxReset() {
     assertThrowsIllegalArg(() -> RatePaymentPeriod.builder()

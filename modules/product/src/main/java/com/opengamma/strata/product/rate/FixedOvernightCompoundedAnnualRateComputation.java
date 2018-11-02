@@ -49,10 +49,10 @@ public final class FixedOvernightCompoundedAnnualRateComputation
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance.
-   *
+   * Obtains an instance from the rate and accrual factor.
+   * 
    * @param rate  the fixed rate
-   * @param accrualFactor the accrual factor
+   * @param accrualFactor  the accrual factor
    * @return the fixed rate computation
    */
   public static FixedOvernightCompoundedAnnualRateComputation of(double rate, double accrualFactor) {
@@ -62,7 +62,7 @@ public final class FixedOvernightCompoundedAnnualRateComputation
   //-------------------------------------------------------------------------
   /**
    * Calculates the simple interest rate associated with the compounded rate.
-   *
+   * 
    * @return the simple rate
    */
   public double simpleRate() {

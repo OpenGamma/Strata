@@ -100,7 +100,7 @@ public final class FixedRateCalculation
    * <p>
    * The rate specified here does not vary during the life of the swap.
    * If this method provides insufficient control, use the {@linkplain #builder() builder}.
-   *
+   * 
    * @param rate  the rate
    * @param dayCount  the day count
    * @return the calculation

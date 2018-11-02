@@ -144,7 +144,7 @@ public final class RatePaymentPeriod
    * <p>
    * This is the first accrual date in the period.
    * This date has typically been adjusted to be a valid business day.
-   *
+   * 
    * @return the start date of the period
    */
   @Override
@@ -157,7 +157,7 @@ public final class RatePaymentPeriod
    * <p>
    * This is the last accrual date in the period.
    * This date has typically been adjusted to be a valid business day.
-   *
+   * 
    * @return the end date of the period
    */
   @Override
@@ -171,7 +171,7 @@ public final class RatePaymentPeriod
    * This is the notional amount applicable during the period.
    * The currency of the notional is specified by {@code currency} unless there
    * is the {@code fxReset} property is present.
-   *
+   * 
    * @return the notional as a {@code CurrencyAmount}
    */
   @Override
@@ -192,7 +192,7 @@ public final class RatePaymentPeriod
    * <p>
    * Compounding applies if there is more than one accrual period and the
    * compounding method is not 'None'.
-   *
+   * 
    * @return true if compounding applies
    */
   public boolean isCompoundingApplicable() {

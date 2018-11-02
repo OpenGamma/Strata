@@ -74,11 +74,12 @@ public final class OvernightCompoundedAnnualRateComputation
   @PropertyDefinition(validate = "notNull")
   private final LocalDate endDate;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an instance from an index and period dates
+   * Obtains an instance from an index and period dates
    * <p>
    * No rate cut-off applies.
-   *
+   * 
    * @param index  the index
    * @param startDate  the first date of the accrual period
    * @param endDate  the last date of the accrual period

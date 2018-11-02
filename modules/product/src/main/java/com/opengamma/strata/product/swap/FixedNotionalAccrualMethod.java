@@ -42,7 +42,7 @@ public enum FixedNotionalAccrualMethod implements NamedEnum {
    * <p>
    * Parsing handles the mixed case form produced by {@link #toString()} and
    * the upper and lower case variants of the enum constant name.
-   *
+   * 
    * @param name  the name to parse
    * @return the type
    * @throws IllegalArgumentException if the name is not known
@@ -55,7 +55,7 @@ public enum FixedNotionalAccrualMethod implements NamedEnum {
   //-------------------------------------------------------------------------
   /**
    * Returns the formatted name of the type.
-   *
+   * 
    * @return the formatted string representing the type
    */
   @ToString
