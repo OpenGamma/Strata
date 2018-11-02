@@ -304,7 +304,7 @@ public final class Guavate {
 
   /**
    * Collector used at the end of a stream to build an immutable list of
-   * immutable lists of size equal to or less than partitionSize.
+   * immutable lists of size equal to or less than size.
    * For example, the following list [a, b, c, d, e] with a partition
    * size of 2 will give [[a, b], [c, d], [e]].
    * <p>
@@ -312,15 +312,15 @@ public final class Guavate {
    * This method returns a collector allowing streams to be gathered into
    * an {@link ImmutableList} of {@link ImmutableList}.
    *
-   * @param partitionSize  the size of the partitions of the original list
+   * @param size  the size of the partitions of the original list
    * @param <T>  the type of element in the list
    * @return the immutable list of lists collector
    */
-  public static <T> Collector<T, ?, ImmutableList<ImmutableList<T>>> toImmutableListPartitions(int partitionSize) {
+  public static <T> Collector<T, ?, ImmutableList<ImmutableList<T>>> splittingBySize(int size) {
     return Collectors.collectingAndThen(
         Collectors.collectingAndThen(
             Guavate.toImmutableList(),
-            objects -> Lists.partition(objects, partitionSize)),
+            objects -> Lists.partition(objects, size)),
         Guavate::toImmutables);
   }
 
@@ -332,15 +332,9 @@ public final class Guavate {
    * @return the immutable lists
    */
   private static <T> ImmutableList<ImmutableList<T>> toImmutables(List<List<T>> lists) {
-    ImmutableList.Builder<ImmutableList<T>> builder = ImmutableList.builder();
-    for (List<T> innerList : lists) {
-      if (innerList instanceof ImmutableList) {
-        builder.add((ImmutableList<T>) innerList);
-      } else {
-        builder.add(ImmutableList.copyOf(innerList));
-      }
-    }
-    return builder.build();
+    return lists.stream()
+        .map(ImmutableList::copyOf)
+        .collect(Guavate.toImmutableList());
   }
 
   /**

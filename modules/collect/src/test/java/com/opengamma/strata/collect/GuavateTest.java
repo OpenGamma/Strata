@@ -181,10 +181,10 @@ public class GuavateTest {
     assertEquals(test, ImmutableList.of("a", "b", "c", "a"));
   }
 
-  public void test_toImmutableListPartitions() {
+  public void test_splittingBySize() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableList<ImmutableList<String>> test = list.stream()
-        .collect(Guavate.toImmutableListPartitions(4));
+        .collect(Guavate.splittingBySize(4));
     assertEquals(test, ImmutableList.of(ImmutableList.of("a", "ab", "b", "bb"), ImmutableList.of("c", "a")));
   }
 
