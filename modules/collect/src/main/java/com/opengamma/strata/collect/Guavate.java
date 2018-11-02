@@ -41,6 +41,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -299,6 +300,47 @@ public final class Guavate {
         ImmutableList.Builder<T>::add,
         (l, r) -> l.addAll(r.build()),
         ImmutableList.Builder<T>::build);
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable list of
+   * immutable lists of size equal to or less than partitionSize.
+   * For example, the following list [a, b, c, d, e] with a partition
+   * size of 2 will give [[a, b], [c, d], [e]].
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableList} of {@link ImmutableList}.
+   *
+   * @param partitionSize  the size of the partitions of the original list
+   * @param <T>  the type of element in the list
+   * @return the immutable list of lists collector
+   */
+  public static <T> Collector<T, ?, ImmutableList<ImmutableList<T>>> toImmutableListPartitions(int partitionSize) {
+    return Collectors.collectingAndThen(
+        Collectors.collectingAndThen(
+            Guavate.toImmutableList(),
+            objects -> Lists.partition(objects, partitionSize)),
+        Guavate::toImmutables);
+  }
+
+  /**
+   * Helper method to transform a list of lists into their immutable counterparts.
+   *
+   * @param lists  the list of lists
+   * @param <T>  the type of element in the list
+   * @return the immutable lists
+   */
+  private static <T> ImmutableList<ImmutableList<T>> toImmutables(List<List<T>> lists) {
+    ImmutableList.Builder<ImmutableList<T>> builder = ImmutableList.builder();
+    for (List<T> innerList : lists) {
+      if (innerList instanceof ImmutableList) {
+        builder.add((ImmutableList<T>) innerList);
+      } else {
+        builder.add(ImmutableList.copyOf(innerList));
+      }
+    }
+    return builder.build();
   }
 
   /**
