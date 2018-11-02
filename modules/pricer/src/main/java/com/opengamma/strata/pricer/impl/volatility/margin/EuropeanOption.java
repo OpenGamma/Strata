@@ -5,28 +5,18 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.margin;
 
-import com.opengamma.strata.pricer.impl.tree.BinomialTree;
-import com.opengamma.strata.pricer.impl.tree.CoxRossRubinsteinLatticeSpecification;
-import com.opengamma.strata.pricer.impl.tree.LatticeSpecification;
-import com.opengamma.strata.pricer.impl.tree.TrinomialTree;
 import com.opengamma.strata.product.common.PutCall;
 
-public abstract class AmericanOption implements Option, Product {
-  
-  protected static LatticeSpecification LATTICE = new CoxRossRubinsteinLatticeSpecification();
-  protected static final TrinomialTree TRINOMIAL_TREE = new TrinomialTree();
-  protected static final BinomialTree BINOMIAL_TREE = new BinomialTree();
-  protected static final int STEPS = 50;
-  
+public abstract class EuropeanOption implements Option, Product{
   private double quantity;
   private double strike;
   private double expiry;
   private PutCall putCall;
   private double multiplier;
   
-  AmericanOption(){}
+  EuropeanOption(){}
   
-  AmericanOption(
+  EuropeanOption(
       double quantity,
       double multiplier,
       double strike,
@@ -59,3 +49,4 @@ public abstract class AmericanOption implements Option, Product {
     return putCall;
   }
 }
+

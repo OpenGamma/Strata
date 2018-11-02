@@ -16,7 +16,7 @@ public class AmericanOptionWithDiscreteDividends extends AmericanOption implemen
   
   AmericanOptionWithDiscreteDividends(
       double quantity,
-      double notional,
+      double multiplier,
       double strike,
       double expiry,
       PutCall putCall,
@@ -24,7 +24,7 @@ public class AmericanOptionWithDiscreteDividends extends AmericanOption implemen
       double[] dividendAmounts){
     super(
         quantity,
-        notional,
+        multiplier,
         strike,
         expiry,
         putCall);

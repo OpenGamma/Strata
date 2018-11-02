@@ -4,10 +4,13 @@ package com.opengamma.strata.pricer.impl.volatility.margin;/*
  * Please see distribution for license.
  */
 
+import com.opengamma.strata.product.common.PutCall;
+
 public interface Option {
-  double strike();  
+  double strike();
   double expiry();
-  public double notional();
+  public double multiplier();
   public double quantity();
-  public double calculate(double spot, double rate, double vol);  
+  public PutCall putCall();
+  public double calculate(double spot, double rate, double vol);
 }

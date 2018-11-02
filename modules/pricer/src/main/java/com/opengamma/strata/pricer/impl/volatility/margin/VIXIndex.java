@@ -9,11 +9,11 @@ import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import com.google.common.io.Files;
-import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.io.CsvFile;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.market.surface.interpolator.BoundSurfaceInterpolator;
@@ -93,21 +93,42 @@ public class VIXIndex {
     return VIXIndexCalculator.vix(nearHolder, farHolder, calcTime, rate);
   }
   
-  private OptionInfoHolder formNewOptionInfoHolder(double bumpedSpot, OptionInfoHolder originalHolder, BoundSurfaceInterpolator BumpingFunc){
+  private OptionInfoHolder formNewOptionInfoHolder(
+      double bumpedSpot,
+      OptionInfoHolder originalHolder,
+      BoundSurfaceInterpolator BumpingFunc,
+      double alphaOne,
+      Optional<BoundSurfaceInterpolator> systematicFunc,
+      Optional<Double> alphaTwo){
+    
     double[] newCallVols = new double[originalHolder.strikes.length];
     double[] newPutVols = new double[originalHolder.strikes.length];
     for (int i = 0; i < originalHolder.strikes.length; ++i) {
-      double moneyness = bumpedSpot / originalHolder.strikes[i];
-      double volFactor = BumpingFunc.interpolate(originalHolder.expiry / 360., moneyness);
+      double moneyness = alphaOne * bumpedSpot / originalHolder.strikes[i];
+      double volFactor = BumpingFunc.interpolate(originalHolder.expiry / 365., moneyness);
+      if(systematicFunc.isPresent() && alphaTwo.isPresent()) {
+        double cOneVolFactor = systematicFunc.get().interpolate(originalHolder.expiry /365., moneyness);
+        volFactor += alphaTwo.get() * cOneVolFactor;
+        if(volFactor > 1.)
+          volFactor =  1.;
+        if(volFactor < -0.7)
+          volFactor = -0.7;
+      }
       newCallVols[i] = originalHolder.callVols[i] * (1 + volFactor);
       newPutVols[i] = originalHolder.putVols[i] * (1 + volFactor);
     }
-    return new OptionInfoHolder(nearInfoHolder.strikes, newCallVols, newPutVols, nearInfoHolder.expiry) ;
+    return new OptionInfoHolder(originalHolder.strikes, newCallVols, newPutVols, originalHolder.expiry) ;
   }
   
-  public double calculateScenarioBump(double bumpedSpot, double rate, LocalTime calcTime, BoundSurfaceInterpolator BumpingFunc){
-    OptionInfoHolder newNearInfoHolder = formNewOptionInfoHolder(bumpedSpot, nearInfoHolder, BumpingFunc);
-    OptionInfoHolder newFarInfoHolder = formNewOptionInfoHolder(bumpedSpot, farInfoHolder, BumpingFunc);
+  public double calculateScenarioBump(
+      double bumpedSpot,
+      double rate, LocalTime calcTime,
+      BoundSurfaceInterpolator BumpingFunc,
+      double alphaOne,
+      Optional<BoundSurfaceInterpolator> systematicFunc,
+      Optional<Double> alphaTwo){
+    OptionInfoHolder newNearInfoHolder = formNewOptionInfoHolder(bumpedSpot, nearInfoHolder, BumpingFunc, alphaOne, systematicFunc, alphaTwo);
+    OptionInfoHolder newFarInfoHolder = formNewOptionInfoHolder(bumpedSpot, farInfoHolder, BumpingFunc, alphaOne, systematicFunc, alphaTwo);
     CallsAndPutsPricesHolder newNearPriceHolder = formCallAndPutHolder(newNearInfoHolder, bumpedSpot, rate);
     CallsAndPutsPricesHolder newFarPriceHolder = formCallAndPutHolder(newFarInfoHolder, bumpedSpot, rate);
     return VIXIndexCalculator.vix(newNearPriceHolder, newFarPriceHolder, calcTime, rate);
@@ -116,12 +137,10 @@ public class VIXIndex {
   public static void main(String[] args){
     
     VIXIndex vix = new VIXIndex("/Users/richardweeks/Downloads/$spx-options-exp-2018-10-29-show-all-stacked-10-04-2018_equalVolsCallsAndPuts.csv",
-        "/Users/richardweeks/Downloads/$spx-options-exp-2018-11-07-show-all-stacked-10-04-2018_equalCallsAndPutsVols.csv");
+                                "/Users/richardweeks/Downloads/$spx-options-exp-2018-11-07-show-all-stacked-10-04-2018_equalCallsAndPutsVols.csv");
     double rate  = 0.03;
     double spot = 2900.83;
     System.out.println("Initial VIX calculation: " + vix.calculate(spot, rate, LocalTime.of(8, 30)));
-    
-    DoubleArray bumps = DoubleArray.of(-0.15, -0.1, -0.05, 0.05, 0.1);
   }
 }
 
