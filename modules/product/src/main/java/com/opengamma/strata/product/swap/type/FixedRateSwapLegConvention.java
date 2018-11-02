@@ -334,9 +334,9 @@ public final class FixedRateSwapLegConvention
       double notional,
       double fixedRate) {
 
-    FixedRateCalculation fixedCalculation = (fixedNotionalAccrualMethod == FixedNotionalAccrualMethod.NONE)
-        ? FixedRateCalculation.of(fixedRate, dayCount) :
-          FixedRateCalculation.builder()
+    FixedRateCalculation fixedCalculation = (fixedNotionalAccrualMethod == FixedNotionalAccrualMethod.NONE) ?
+        FixedRateCalculation.of(fixedRate, dayCount) :
+        FixedRateCalculation.builder()
             .rate(ValueSchedule.of(fixedRate))
             .dayCount(dayCount)
             .futureValueNotional(FutureValueNotional.auto())

@@ -159,7 +159,7 @@ public class FixedRateCalculationTest {
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
     assertEquals(periods, ImmutableList.of(rap));
   }
-  
+
   public void test_expand_multiplePeriod_with_futureValueNotional() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -176,7 +176,7 @@ public class FixedRateCalculationTest {
         .build();
     assertThrowsIllegalArg(() -> test.createAccrualPeriods(schedule, schedule, REF_DATA));
   }
-  
+
   //-------------------------------------------------------------------------
   public void coverage() {
     FixedRateCalculation test = FixedRateCalculation.builder()

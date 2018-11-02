@@ -27,9 +27,9 @@ import com.opengamma.strata.basics.index.Index;
 
 /**
  * Defines a known annual fixed rate of interest that follows overnight compounding.
- *
  * <p>
- * An interest rate that is specified in the contract. This is typically used in the fixed lego of a Brazilian swap.
+ * An interest rate that is specified in the contract.
+ * This is typically used in the fixed legs of a Brazilian swap.
  */
 @BeanDefinition(builderScope = "private")
 public final class FixedOvernightCompoundedAnnualRateComputation

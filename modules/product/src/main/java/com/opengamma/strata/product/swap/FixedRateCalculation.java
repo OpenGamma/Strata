@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
@@ -141,18 +140,23 @@ public final class FixedRateCalculation
     Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
     // resolve data by schedule
     DoubleArray resolvedRates = rate.resolveValues(accrualSchedule);
-    // build accrual periods
-    ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
-    // is future value notional present
+
+    // future value notional present
     if (getFutureValueNotional().isPresent()) {
-      ArgChecker.isTrue(accrualSchedule.size() == 1, "only one accrual period when future value notional present");
+      if (accrualSchedule.size() != 1) {
+        throw new IllegalArgumentException(
+            "Invalid swap, only one accrual period allowed when future value notional is present");
+      }
       SchedulePeriod period = accrualSchedule.getPeriod(0);
       double yearFraction = period.yearFraction(dayCount, accrualSchedule);
-      RateComputation rateComputation = FixedOvernightCompoundedAnnualRateComputation.of(resolvedRates.get(0), yearFraction);
-      accrualPeriods.add(
-          RateAccrualPeriod.builder(period).yearFraction(yearFraction).rateComputation(rateComputation).build());
-      return accrualPeriods.build();
+      double resolvedRate = resolvedRates.get(0);
+      RateComputation rateComputation = FixedOvernightCompoundedAnnualRateComputation.of(resolvedRate, yearFraction);
+      RateAccrualPeriod accrualPeriod = new RateAccrualPeriod(period, yearFraction, rateComputation);
+      return ImmutableList.of(accrualPeriod);
     }
+
+    // normal case
+    ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
       double yearFraction = period.yearFraction(dayCount, accrualSchedule);

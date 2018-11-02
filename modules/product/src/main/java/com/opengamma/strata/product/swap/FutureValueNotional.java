@@ -34,44 +34,44 @@ import com.opengamma.strata.collect.ArgChecker;
  * the power of the fixed rate day count fraction, i.e.
  * Future Value Notional = Notional Amount * (1 + Fixed Rate) ^ (Fixed Rate Day Count Fraction).
  * <p>
- * The future value notional is normally only required for BRL CDI Swaps.
+ * The future value notional is normally only required for Brazilian CDI Swaps.
  */
 @BeanDefinition
 public final class FutureValueNotional implements
     ImmutableBean, Serializable {
 
   /**
-   * An empty instance of {@code FutureValueNotional}.
+   * An empty instance that causes the future value notional to be automatically
+   * calculated using the standard formula..
    */
   private static final FutureValueNotional AUTO = FutureValueNotional.builder().build();
   /**
    * The amount.
    * <p>
-   * The future value notional amount which is a non-negative monetary quantity.
+   * The future value notional amount, derived as per the standard formula.
    */
   @PropertyDefinition(get = "optional")
   private final Double value;
   /**
    * The value date.
    * <p>
-   * This defines the adjusted value date of the future value amount. The value date should match the adjusted end date.
+   * This is the adjusted value date of the future value amount, which is the adjusted end date.
    */
   @PropertyDefinition(get = "optional")
   private final LocalDate valueDate;
   /**
    * The number of days in the calculation period.
    * <p>
-   * This defines the number of days from the adjusted calculation period start date to the adjusted value date,
-   * calculated in accordance with the applicable day count fraction.
+   * This defines the number of days from the adjusted start date to the adjusted end date
+   * as calculated by the day count.
    */
   @PropertyDefinition(get = "optional")
   private final Integer calculationPeriodNumberOfDays;
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an empty instance, with no values or attributes.
-   * <p>
-   * In this case the future value notional will be determined automatically from the calling code using the specified formula.
+   * Obtains an empty instance, that causes the future value notional to be automatically
+   * calculated using the standard formula.
    * 
    * @return the empty instance
    */
@@ -155,7 +155,7 @@ public final class FutureValueNotional implements
   /**
    * Gets the amount.
    * <p>
-   * The future value notional amount which is a non-negative monetary quantity.
+   * The future value notional amount, derived as per the standard formula.
    * @return the optional value of the property, not null
    */
   public OptionalDouble getValue() {
@@ -166,7 +166,7 @@ public final class FutureValueNotional implements
   /**
    * Gets the value date.
    * <p>
-   * This defines the adjusted value date of the future value amount. The value date should match the adjusted end date.
+   * This is the adjusted value date of the future value amount, which is the adjusted end date.
    * @return the optional value of the property, not null
    */
   public Optional<LocalDate> getValueDate() {
@@ -177,8 +177,8 @@ public final class FutureValueNotional implements
   /**
    * Gets the number of days in the calculation period.
    * <p>
-   * This defines the number of days from the adjusted calculation period start date to the adjusted value date,
-   * calculated in accordance with the applicable day count fraction.
+   * This defines the number of days from the adjusted start date to the adjusted end date
+   * as calculated by the day count.
    * @return the optional value of the property, not null
    */
   public OptionalInt getCalculationPeriodNumberOfDays() {
@@ -423,7 +423,7 @@ public final class FutureValueNotional implements
     /**
      * Sets the amount.
      * <p>
-     * The future value notional amount which is a non-negative monetary quantity.
+     * The future value notional amount, derived as per the standard formula.
      * @param value  the new value
      * @return this, for chaining, not null
      */
@@ -435,7 +435,7 @@ public final class FutureValueNotional implements
     /**
      * Sets the value date.
      * <p>
-     * This defines the adjusted value date of the future value amount. The value date should match the adjusted end date.
+     * This is the adjusted value date of the future value amount, which is the adjusted end date.
      * @param valueDate  the new value
      * @return this, for chaining, not null
      */
@@ -447,8 +447,8 @@ public final class FutureValueNotional implements
     /**
      * Sets the number of days in the calculation period.
      * <p>
-     * This defines the number of days from the adjusted calculation period start date to the adjusted value date,
-     * calculated in accordance with the applicable day count fraction.
+     * This defines the number of days from the adjusted start date to the adjusted end date
+     * as calculated by the day count.
      * @param calculationPeriodNumberOfDays  the new value
      * @return this, for chaining, not null
      */
