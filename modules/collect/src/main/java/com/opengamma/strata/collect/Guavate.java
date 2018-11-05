@@ -42,6 +42,7 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -317,6 +318,41 @@ public final class Guavate {
         ImmutableList.Builder<T>::add,
         (l, r) -> l.addAll(r.build()),
         ImmutableList.Builder<T>::build);
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable list of
+   * immutable lists of size equal to or less than size.
+   * For example, the following list [a, b, c, d, e] with a partition
+   * size of 2 will give [[a, b], [c, d], [e]].
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableList} of {@link ImmutableList}.
+   *
+   * @param size  the size of the partitions of the original list
+   * @param <T>  the type of element in the list
+   * @return the immutable list of lists collector
+   */
+  public static <T> Collector<T, ?, ImmutableList<ImmutableList<T>>> splittingBySize(int size) {
+    return Collectors.collectingAndThen(
+        Collectors.collectingAndThen(
+            Guavate.toImmutableList(),
+            objects -> Lists.partition(objects, size)),
+        Guavate::toImmutables);
+  }
+
+  /**
+   * Helper method to transform a list of lists into their immutable counterparts.
+   *
+   * @param lists  the list of lists
+   * @param <T>  the type of element in the list
+   * @return the immutable lists
+   */
+  private static <T> ImmutableList<ImmutableList<T>> toImmutables(List<List<T>> lists) {
+    return lists.stream()
+        .map(ImmutableList::copyOf)
+        .collect(Guavate.toImmutableList());
   }
 
   /**
