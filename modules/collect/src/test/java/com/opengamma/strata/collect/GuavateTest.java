@@ -555,6 +555,18 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  private static void doNothing() {
+  }
+
+  public void test_namedThreadFactory() {
+    assertEquals(Guavate.namedThreadFactory().newThread(() -> doNothing()).getName(), "GuavateTest-0");
+  }
+
+  public void test_namedThreadFactory_prefix() {
+    assertEquals(Guavate.namedThreadFactory("ThreadMaker").newThread(() -> doNothing()).getName(), "ThreadMaker-0");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_callerClass() {
     assertEquals(Guavate.callerClass(0), Guavate.CallerClassSecurityManager.class);
     assertEquals(Guavate.callerClass(1), Guavate.class);

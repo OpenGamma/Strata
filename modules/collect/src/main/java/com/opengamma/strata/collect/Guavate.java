@@ -21,6 +21,7 @@ import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -43,6 +44,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -268,7 +270,7 @@ public final class Guavate {
    * <pre>
    *  stream.filter(not(String::isEmpty))
    * </pre>
-   * 
+   *
    * @param <R>  the type of the object the predicate works on
    * @param predicate  the predicate to negate
    * @return the negated predicate
@@ -290,7 +292,7 @@ public final class Guavate {
    * <pre>
    *   stream.filter(...).reduce(Guavate.ensureOnlyOne()).get();
    * </pre>
-   * 
+   *
    * @param <T>  the type of element in the stream
    * @return the operator
    */
@@ -308,7 +310,7 @@ public final class Guavate {
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
    * an {@link ImmutableList}.
-   * 
+   *
    * @param <T>  the type of element in the list
    * @return the immutable list collector
    */
@@ -938,6 +940,26 @@ public final class Guavate {
     } catch (RuntimeException ex) {
       resultFuture.completeExceptionally(ex);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a ThreadFactory which names new threads with the name of the calling class plus a unique integer.
+   *
+   * @return the thread factory
+   */
+  public static ThreadFactory namedThreadFactory() {
+    return namedThreadFactory(callerClass(3).getSimpleName());
+  }
+
+  /**
+   * Creates a ThreadFactory which names new threads with the given name prefix plus a unique integer.
+   *
+   * @param threadNamePrefix  the name which new thread names should be prefixed by
+   * @return the thread factory
+   */
+  public static ThreadFactory namedThreadFactory(String threadNamePrefix) {
+    return new ThreadFactoryBuilder().setNameFormat(threadNamePrefix + "-%d").build();
   }
 
   //-------------------------------------------------------------------------
