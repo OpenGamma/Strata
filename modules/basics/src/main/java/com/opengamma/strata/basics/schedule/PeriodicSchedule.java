@@ -543,7 +543,7 @@ public final class PeriodicSchedule
     // handle TERM frequency
     if (frequency == Frequency.TERM) {
       if (explicitInitStub || explicitFinalStub) {
-        throw new ScheduleException(this, "Explict stubs must not be specified when using 'Term' frequency");
+        throw new ScheduleException(this, "Explicit stubs must not be specified when using 'Term' frequency");
       }
       return ImmutableList.of(overrideStart, end);
     }
