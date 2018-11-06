@@ -25,6 +25,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -552,6 +553,20 @@ public class GuavateTest {
     } finally {
       executor.shutdown();
     }
+  }
+
+  //-------------------------------------------------------------------------
+  private static void doNothing() {
+  }
+
+  public void test_namedThreadFactory() {
+    ThreadFactory threadFactory = Guavate.namedThreadFactory().build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "GuavateTest-0");
+  }
+
+  public void test_namedThreadFactory_prefix() {
+    ThreadFactory threadFactory = Guavate.namedThreadFactory("ThreadMaker").build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "ThreadMaker-0");
   }
 
   //-------------------------------------------------------------------------
