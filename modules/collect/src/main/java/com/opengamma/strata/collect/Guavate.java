@@ -944,22 +944,22 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates a ThreadFactory which names new threads with the name of the calling class plus a unique integer.
+   * Creates a ThreadFactoryBuilder which names new threads with the name of the calling class plus a unique integer.
    *
-   * @return the thread factory
+   * @return the thread factory builder
    */
-  public static ThreadFactory namedThreadFactory() {
+  public static ThreadFactoryBuilder namedThreadFactory() {
     return namedThreadFactory(callerClass(3).getSimpleName());
   }
 
   /**
-   * Creates a ThreadFactory which names new threads with the given name prefix plus a unique integer.
+   * Creates a ThreadFactoryBuilder which names new threads with the given name prefix plus a unique integer.
    *
    * @param threadNamePrefix  the name which new thread names should be prefixed by
-   * @return the thread factory
+   * @return the thread factory builder
    */
-  public static ThreadFactory namedThreadFactory(String threadNamePrefix) {
-    return new ThreadFactoryBuilder().setNameFormat(threadNamePrefix + "-%d").build();
+  public static ThreadFactoryBuilder namedThreadFactory(String threadNamePrefix) {
+    return new ThreadFactoryBuilder().setNameFormat(threadNamePrefix + "-%d");
   }
 
   //-------------------------------------------------------------------------

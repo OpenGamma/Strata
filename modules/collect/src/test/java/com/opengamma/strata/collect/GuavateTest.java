@@ -559,11 +559,13 @@ public class GuavateTest {
   }
 
   public void test_namedThreadFactory() {
-    assertEquals(Guavate.namedThreadFactory().newThread(() -> doNothing()).getName(), "GuavateTest-0");
+    ThreadFactory threadFactory = Guavate.namedThreadFactory().build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "GuavateTest-0");
   }
 
   public void test_namedThreadFactory_prefix() {
-    assertEquals(Guavate.namedThreadFactory("ThreadMaker").newThread(() -> doNothing()).getName(), "ThreadMaker-0");
+    ThreadFactory threadFactory = Guavate.namedThreadFactory("ThreadMaker").build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "ThreadMaker-0");
   }
 
   //-------------------------------------------------------------------------
