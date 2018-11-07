@@ -26,16 +26,19 @@ public class VIXIndex {
     double[] callVols;
     double[] putVols;
     double expiry;
+    double dividendYield;
     
     OptionInfoHolder(
         double[] strikes,
         double[] callVols,
         double[] putVols,
-        double expiry){
+        double expiry,
+        double dividendYield){
       this.strikes = strikes;
       this.callVols = callVols;
       this.putVols = putVols;
       this.expiry = expiry;
+      this.dividendYield = dividendYield;
     }
   }
   
@@ -56,31 +59,33 @@ public class VIXIndex {
     assert(calls.size() == puts.size());
     
     double daysToExpiry = Double.parseDouble(calls.get(0).getValue("DTE"));
+    double dividendYield = Double.parseDouble(calls.get(0).getValue("Dividend"));
     double[] strikes = calls.stream().mapToDouble(x->Double.parseDouble(x.getValue("Strike"))).toArray();
     double[] callVols = calls.stream().mapToDouble(x->Double.parseDouble(x.getValue("IV"))).toArray();
     double[] putVols = puts.stream().mapToDouble(x->Double.parseDouble(x.getValue("IV"))).toArray();
-    return new OptionInfoHolder(strikes, callVols, putVols, daysToExpiry);
+    return new OptionInfoHolder(strikes, callVols, putVols, daysToExpiry, dividendYield);
   }
   
   private CallsAndPutsPricesHolder formCallAndPutHolder(OptionInfoHolder infoHolder, double spot, double rate){
     double daysToExpiry = infoHolder.expiry;
+    double dividendYield = infoHolder.dividendYield;
     double[] callPrices = IntStream.range(0, infoHolder.strikes.length)
         .mapToDouble(x -> BlackScholesFormulaRepository.price(
             spot,
             infoHolder.strikes[x],
-            daysToExpiry / 360.,
+            daysToExpiry / 365.,
             infoHolder.callVols[x],
             rate,
-            rate,
+            rate - dividendYield,
             true)).toArray();
     double[] putPrices = IntStream.range(0, infoHolder.strikes.length)
         .mapToDouble(x -> BlackScholesFormulaRepository.price(
             spot,
             infoHolder.strikes[x],
-            daysToExpiry / 360.,
+            daysToExpiry / 365.,
             infoHolder.putVols[x],
             rate,
-            rate,
+            rate - dividendYield,
             false)).toArray();
     double[][] callsAndPuts = {infoHolder.strikes, callPrices, putPrices};
     
@@ -104,20 +109,28 @@ public class VIXIndex {
     double[] newCallVols = new double[originalHolder.strikes.length];
     double[] newPutVols = new double[originalHolder.strikes.length];
     for (int i = 0; i < originalHolder.strikes.length; ++i) {
-      double moneyness = alphaOne * bumpedSpot / originalHolder.strikes[i];
-      double volFactor = BumpingFunc.interpolate(originalHolder.expiry / 365., moneyness);
+      double callMoneyness =  bumpedSpot / originalHolder.strikes[i];
+      double putMoneyness = originalHolder.strikes[i] / bumpedSpot;
+      double callVolFactor = alphaOne * BumpingFunc.interpolate(originalHolder.expiry / 365., callMoneyness);
+      double putVolFactor = alphaOne * BumpingFunc.interpolate(originalHolder.expiry / 365.,putMoneyness);
       if(systematicFunc.isPresent() && alphaTwo.isPresent()) {
-        double cOneVolFactor = systematicFunc.get().interpolate(originalHolder.expiry /365., moneyness);
-        volFactor += alphaTwo.get() * cOneVolFactor;
-        if(volFactor > 1.)
-          volFactor =  1.;
-        if(volFactor < -0.7)
-          volFactor = -0.7;
+        double cOneCallVolFactor = systematicFunc.get().interpolate(originalHolder.expiry /365., callMoneyness);
+        double cOnePutVolFactor = systematicFunc.get().interpolate(originalHolder.expiry /365., putMoneyness);
+        callVolFactor += alphaTwo.get() * cOneCallVolFactor;
+        putVolFactor += alphaTwo.get() * cOnePutVolFactor;
+        if(callVolFactor > 1.)
+          callVolFactor =  1.;
+        if(callVolFactor < -0.7)
+          callVolFactor = -0.7;
+        if(putVolFactor > 1.)
+          putVolFactor =  1.;
+        if(putMoneyness < -0.7)
+          putVolFactor = -0.7;
       }
-      newCallVols[i] = originalHolder.callVols[i] * (1 + volFactor);
-      newPutVols[i] = originalHolder.putVols[i] * (1 + volFactor);
+      newCallVols[i] = originalHolder.callVols[i] * (1 + callVolFactor);
+      newPutVols[i] = originalHolder.putVols[i] * (1 + putVolFactor);
     }
-    return new OptionInfoHolder(originalHolder.strikes, newCallVols, newPutVols, originalHolder.expiry) ;
+    return new OptionInfoHolder(originalHolder.strikes, newCallVols, newPutVols, originalHolder.expiry, originalHolder.dividendYield) ;
   }
   
   public double calculateScenarioBump(

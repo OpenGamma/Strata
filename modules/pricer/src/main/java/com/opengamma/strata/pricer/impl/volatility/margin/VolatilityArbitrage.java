@@ -30,7 +30,7 @@ public class VolatilityArbitrage {
   private static final DoubleArray MONEYNESS = DoubleArray.of(0.5, 0.75, 1., 1.25, 1.5, 0.5, 0.75, 1., 1.25, 1.5, 0.5, 0.75, 1., 1.25, 1.5, 0.5, 0.75, 1., 1.25, 1.5);
   private static final DoubleArray FACTORS_ONE = DoubleArray.of(0.32, 0.40, 0.66, 0.37, 0.25, 0.29, 0.35, 0.54, 0.38, 0.26, 0.25, 0.30, 0.43, 0.37, 0.25, 0.18, 0.21, 0.27, 0.30, 0.22);
   private static final DoubleArray FACTORS_TWO = DoubleArray.of(-0.15, -0.1, -0.07, 0.18, 0.19, -0.1, -0.07, -0.05, 0.13, 0.16, -0.07, -0.04, -0.04, 0.07, 0.12, -0.03, -0.02, -0.02, 0., 0.04);
-  
+ 
   private static final BoundSurfaceInterpolator BOUND_2D_INTERPOLATOR_ONE = INTERPOLATOR_2D.bind(TIMES, MONEYNESS, FACTORS_ONE);
   private static final BoundSurfaceInterpolator BOUND_2D_INTERPOLATOR_TWO = INTERPOLATOR_2D.bind(TIMES, MONEYNESS, FACTORS_TWO);
   private static final double ALPHA = 1.0;
@@ -108,7 +108,6 @@ public class VolatilityArbitrage {
   public static void main(String[] args){
     //Look at a portfolio
     LocalTime calcTime = LocalTime.of(8, 30);
-    double dividend = 0.0175;
     double rate = 0.03;
     double spot = 2900.83;
     VIXIndex vix = new VIXIndex("/Users/richardweeks/Downloads/$spx-options-exp-2018-10-29-show-all-stacked-10-04-2018_equalVolsCallsAndPuts.csv",
@@ -120,7 +119,7 @@ public class VolatilityArbitrage {
     List<VIXFuture> futures = new ArrayList<>();
     List<Double> vols = new ArrayList<>();
     double initialPortfolioValue = 0.;
-    CsvFile historicCSVFile = CsvFile.of(Files.asCharSource(new File("/Users/richardweeks/Downloads/vix1.csv"), StandardCharsets.UTF_8), true);
+    CsvFile historicCSVFile = CsvFile.of(Files.asCharSource(new File("/Users/richardweeks/Downloads/LongVIX.csv"), StandardCharsets.UTF_8), true);
     CsvFile portfolioCSV = CsvFile.of(Files.asCharSource(new File("/Users/richardweeks/Downloads/PortfolioForIM.csv"), StandardCharsets.UTF_8), true);
     //Construct initial portfolio
     for(int i = 0; i < portfolioCSV.rowCount(); ++i) {
@@ -134,7 +133,7 @@ public class VolatilityArbitrage {
             Double.parseDouble(portfolioCSV.row(i).getValue("Strike")),
             Double.parseDouble(portfolioCSV.row(i).getValue("Expiry")) /365.,
             oType,
-            dividend);
+            Double.parseDouble(portfolioCSV.row(i).getValue("Dividend")));
         double vol = Double.parseDouble(portfolioCSV.row(i).getValue("Volatility"));
         options.add(eo);
         vols.add(vol);
@@ -146,7 +145,8 @@ public class VolatilityArbitrage {
             Double.parseDouble(portfolioCSV.row(i).getValue("Quantity")),
             Double.parseDouble(portfolioCSV.row(i).getValue("Multiplier")));
         futures.add(vf);
-        //initialPortfolioValue += vf.calculate(spotVix) * vf.quantity() * vf.multiplier();
+        double futureValue = vf.calculate(spotVix);
+        initialPortfolioValue += futureValue * vf.quantity() * vf.multiplier();
       }
     }
     System.out.println("Initial Portfolio Value: " + initialPortfolioValue);
@@ -159,7 +159,8 @@ public class VolatilityArbitrage {
       double bumpedSpot = spot * (1 + bumps.get(i));
       for(int j = 0; j < options.size(); ++j) {
         Option o = options.get(j);
-        double moneyness = bumpedSpot / o.strike();
+        
+        double moneyness = o.putCall().isCall() ? bumpedSpot / o.strike() : o.strike() / bumpedSpot;
         double volFactor = ALPHA * BOUND_2D_INTERPOLATOR_ONE.interpolate(o.expiry(), moneyness);
         double newVol = vols.get(j) * (1. + volFactor);
         bumpScenario += o.calculate( bumpedSpot, newVol, rate) * o.multiplier() * o.quantity();
@@ -167,6 +168,7 @@ public class VolatilityArbitrage {
       for(int k = 0; k < futures.size(); ++k) {
         double bumpedVix = vix.calculateScenarioBump(bumpedSpot, rate, calcTime, BOUND_2D_INTERPOLATOR_ONE, ALPHA, Optional.empty(), Optional.empty());
         VIXFuture vf = futures.get(k);
+        double val = vf.calculate(bumpedVix);
         bumpScenario += vf.calculate(bumpedVix) * vf.multiplier() * vf.quantity() ;
       }
       scenarioValues.add(i, bumpScenario);
@@ -180,20 +182,20 @@ public class VolatilityArbitrage {
     //Determine worst bump
     int worstCase = pNL.indexOf(pNL.stream().min(Comparator.comparing(Double::valueOf)).get());
     double worstSpotMove = spot * (1 + bumps.get(worstCase));
-    System.out.println("Worst Loss: " + pNL.get(worstCase));
-    System.out.println("Current Spot: " + spot);
-    System.out.println("Worst Spot Move: " + worstSpotMove);
+    System.out.println("Worst P/L: " + pNL.get(worstCase));
+    System.out.println("Current Spot: " + spot + ", Worst Spot Move: " + worstSpotMove + ", Worst Spot Bump: " + bumps.get(worstCase));
     
     //Systematic Stress
     List<Double> systematicStressScenarios = new ArrayList<>();
     DoubleArray alphaTwos = DoubleArray.of(IntStream.range(-10, 11).mapToDouble(x -> x/10.));
+   // DoubleArray alphaTwos = DoubleArray.of(0);
     for(int i = 0; i < alphaTwos.size(); ++i) {
       double bumpScenario = 0.;
       for(int j = 0; j < options.size(); ++j) {
         Option o = options.get(j);
-        double moneyness = worstSpotMove / o.strike();
+        double moneyness = o.putCall().isCall() ? worstSpotMove / o.strike() : o.strike() / worstSpotMove;
         double cOneVolFactor = BOUND_2D_INTERPOLATOR_TWO.interpolate(o.expiry(), moneyness);
-        double newVolFactor = ALPHA * BOUND_2D_INTERPOLATOR_ONE.interpolate(o.expiry(), moneyness) + alphaTwos.get(i) * cOneVolFactor;
+        double newVolFactor = vols.get(j) * (1 + ALPHA * BOUND_2D_INTERPOLATOR_ONE.interpolate(o.expiry(), moneyness) + alphaTwos.get(i) * cOneVolFactor);
           if(newVolFactor > 1.)
             newVolFactor =  1.;
           if(newVolFactor < -0.7)
@@ -217,8 +219,9 @@ public class VolatilityArbitrage {
   
     //Calculate profit and loss for worst case market scenario
     List<Double> systematicStress = new ArrayList<>();;
-    for(int i = 0; i < scenarioValues.size(); ++i) {
-      systematicStress.add(i, systematicStressScenarios.get(i) - initialPortfolioValue);
+    for(int i = 0; i < systematicStressScenarios.size(); ++i) {
+      systematicStress.add(i, Math.min(0, systematicStressScenarios.get(i) - initialPortfolioValue));
     }
+    System.out.println("Systematic Stress: " + Math.abs(systematicStress.stream().min(Comparator.comparing(Double::valueOf)).get()));
   }
 }

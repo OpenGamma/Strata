@@ -29,6 +29,6 @@ public class EuropeanOptionWithContinuousYield extends EuropeanOption implements
   }
   
   public double calculate(double spot, double rate, double vol){
-    return BlackScholesFormulaRepository.price(spot, strike(), expiry(), vol, rate, continuousYield, putCall().isCall());
+    return BlackScholesFormulaRepository.price(spot, strike(), expiry(), vol, rate, rate - continuousYield, putCall().isCall());
   }
 }
