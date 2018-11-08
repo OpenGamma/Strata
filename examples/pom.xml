@@ -185,7 +185,7 @@
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <jcommander.version>1.72</jcommander.version>
+    <jcommander.version>1.74</jcommander.version>
     <slf4j.version>1.7.25</slf4j.version>
     <testng.version>6.14.2</testng.version>
     <!-- Not installed/deployed -->

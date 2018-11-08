@@ -677,7 +677,7 @@
     <assertj.version>3.11.1</assertj.version>
     <guava.version>26.0-jre</guava.version>
     <guava-docs.version>snapshot</guava-docs.version>
-    <jcommander.version>1.72</jcommander.version>
+    <jcommander.version>1.74</jcommander.version>
     <joda-convert.version>2.1.2</joda-convert.version>
     <joda-beans.version>2.3</joda-beans.version>
     <mockito.version>2.21.0</mockito.version>
