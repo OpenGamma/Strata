@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
 
@@ -83,6 +84,14 @@ public final class FixedRateCalculation
    */
   @PropertyDefinition(get = "optional")
   private final FixedRateStubCalculation finalStub;
+  /**
+   * The future value notional.
+   * <p>
+   * This property is used when the fixed leg of a swap has a future value notional.
+   * This is typically used for Brazilian swaps.
+   */
+  @PropertyDefinition(get = "optional")
+  private final FutureValueNotional futureValueNotional;
 
   //-------------------------------------------------------------------------
   /**
@@ -131,7 +140,22 @@ public final class FixedRateCalculation
     Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
     // resolve data by schedule
     DoubleArray resolvedRates = rate.resolveValues(accrualSchedule);
-    // build accrual periods
+
+    // future value notional present
+    if (getFutureValueNotional().isPresent()) {
+      if (accrualSchedule.size() != 1) {
+        throw new IllegalArgumentException(
+            "Invalid swap, only one accrual period allowed when future value notional is present");
+      }
+      SchedulePeriod period = accrualSchedule.getPeriod(0);
+      double yearFraction = period.yearFraction(dayCount, accrualSchedule);
+      double resolvedRate = resolvedRates.get(0);
+      RateComputation rateComputation = FixedOvernightCompoundedAnnualRateComputation.of(resolvedRate, yearFraction);
+      RateAccrualPeriod accrualPeriod = new RateAccrualPeriod(period, yearFraction, rateComputation);
+      return ImmutableList.of(accrualPeriod);
+    }
+
+    // normal case
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
@@ -180,13 +204,15 @@ public final class FixedRateCalculation
       DayCount dayCount,
       ValueSchedule rate,
       FixedRateStubCalculation initialStub,
-      FixedRateStubCalculation finalStub) {
+      FixedRateStubCalculation finalStub,
+      FutureValueNotional futureValueNotional) {
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(rate, "rate");
     this.dayCount = dayCount;
     this.rate = rate;
     this.initialStub = initialStub;
     this.finalStub = finalStub;
+    this.futureValueNotional = futureValueNotional;
   }
 
   @Override
@@ -249,6 +275,18 @@ public final class FixedRateCalculation
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the future value notional.
+   * <p>
+   * This property is used when the fixed leg of a swap has a future value notional.
+   * This is typically used for Brazilian swaps.
+   * @return the optional value of the property, not null
+   */
+  public Optional<FutureValueNotional> getFutureValueNotional() {
+    return Optional.ofNullable(futureValueNotional);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -266,7 +304,8 @@ public final class FixedRateCalculation
       return JodaBeanUtils.equal(dayCount, other.dayCount) &&
           JodaBeanUtils.equal(rate, other.rate) &&
           JodaBeanUtils.equal(initialStub, other.initialStub) &&
-          JodaBeanUtils.equal(finalStub, other.finalStub);
+          JodaBeanUtils.equal(finalStub, other.finalStub) &&
+          JodaBeanUtils.equal(futureValueNotional, other.futureValueNotional);
     }
     return false;
   }
@@ -278,17 +317,19 @@ public final class FixedRateCalculation
     hash = hash * 31 + JodaBeanUtils.hashCode(rate);
     hash = hash * 31 + JodaBeanUtils.hashCode(initialStub);
     hash = hash * 31 + JodaBeanUtils.hashCode(finalStub);
+    hash = hash * 31 + JodaBeanUtils.hashCode(futureValueNotional);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("FixedRateCalculation{");
     buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
     buf.append("rate").append('=').append(rate).append(',').append(' ');
     buf.append("initialStub").append('=').append(initialStub).append(',').append(' ');
-    buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub));
+    buf.append("finalStub").append('=').append(finalStub).append(',').append(' ');
+    buf.append("futureValueNotional").append('=').append(JodaBeanUtils.toString(futureValueNotional));
     buf.append('}');
     return buf.toString();
   }
@@ -324,6 +365,11 @@ public final class FixedRateCalculation
     private final MetaProperty<FixedRateStubCalculation> finalStub = DirectMetaProperty.ofImmutable(
         this, "finalStub", FixedRateCalculation.class, FixedRateStubCalculation.class);
     /**
+     * The meta-property for the {@code futureValueNotional} property.
+     */
+    private final MetaProperty<FutureValueNotional> futureValueNotional = DirectMetaProperty.ofImmutable(
+        this, "futureValueNotional", FixedRateCalculation.class, FutureValueNotional.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -331,7 +377,8 @@ public final class FixedRateCalculation
         "dayCount",
         "rate",
         "initialStub",
-        "finalStub");
+        "finalStub",
+        "futureValueNotional");
 
     /**
      * Restricted constructor.
@@ -350,6 +397,8 @@ public final class FixedRateCalculation
           return initialStub;
         case 355242820:  // finalStub
           return finalStub;
+        case -282775858:  // futureValueNotional
+          return futureValueNotional;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -402,6 +451,14 @@ public final class FixedRateCalculation
       return finalStub;
     }
 
+    /**
+     * The meta-property for the {@code futureValueNotional} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<FutureValueNotional> futureValueNotional() {
+      return futureValueNotional;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -414,6 +471,8 @@ public final class FixedRateCalculation
           return ((FixedRateCalculation) bean).initialStub;
         case 355242820:  // finalStub
           return ((FixedRateCalculation) bean).finalStub;
+        case -282775858:  // futureValueNotional
+          return ((FixedRateCalculation) bean).futureValueNotional;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -439,6 +498,7 @@ public final class FixedRateCalculation
     private ValueSchedule rate;
     private FixedRateStubCalculation initialStub;
     private FixedRateStubCalculation finalStub;
+    private FutureValueNotional futureValueNotional;
 
     /**
      * Restricted constructor.
@@ -455,6 +515,7 @@ public final class FixedRateCalculation
       this.rate = beanToCopy.getRate();
       this.initialStub = beanToCopy.initialStub;
       this.finalStub = beanToCopy.finalStub;
+      this.futureValueNotional = beanToCopy.futureValueNotional;
     }
 
     //-----------------------------------------------------------------------
@@ -469,6 +530,8 @@ public final class FixedRateCalculation
           return initialStub;
         case 355242820:  // finalStub
           return finalStub;
+        case -282775858:  // futureValueNotional
+          return futureValueNotional;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -489,6 +552,9 @@ public final class FixedRateCalculation
         case 355242820:  // finalStub
           this.finalStub = (FixedRateStubCalculation) newValue;
           break;
+        case -282775858:  // futureValueNotional
+          this.futureValueNotional = (FutureValueNotional) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -507,7 +573,8 @@ public final class FixedRateCalculation
           dayCount,
           rate,
           initialStub,
-          finalStub);
+          finalStub,
+          futureValueNotional);
     }
 
     //-----------------------------------------------------------------------
@@ -569,15 +636,29 @@ public final class FixedRateCalculation
       return this;
     }
 
+    /**
+     * Sets the future value notional.
+     * <p>
+     * This property is used when the fixed leg of a swap has a future value notional.
+     * This is typically used for Brazilian swaps.
+     * @param futureValueNotional  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder futureValueNotional(FutureValueNotional futureValueNotional) {
+      this.futureValueNotional = futureValueNotional;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("FixedRateCalculation.Builder{");
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
       buf.append("initialStub").append('=').append(JodaBeanUtils.toString(initialStub)).append(',').append(' ');
-      buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub));
+      buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub)).append(',').append(' ');
+      buf.append("futureValueNotional").append('=').append(JodaBeanUtils.toString(futureValueNotional));
       buf.append('}');
       return buf.toString();
     }
