@@ -56,13 +56,13 @@ public class FixedRateCalculationTest {
         .rate(ValueSchedule.of(0.025d))
         .initialStub(FixedRateStubCalculation.ofFixedRate(0.1d))
         .finalStub(FixedRateStubCalculation.ofFixedRate(0.2d))
-        .futureValueNotional(FutureValueNotional.auto())
+        .futureValueNotional(FutureValueNotional.autoCalculate())
         .build();
     assertEquals(test.getRate(), ValueSchedule.of(0.025d));
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getInitialStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
     assertEquals(test.getFinalStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
-    assertEquals(test.getFutureValueNotional(), Optional.of(FutureValueNotional.auto()));
+    assertEquals(test.getFutureValueNotional(), Optional.of(FutureValueNotional.autoCalculate()));
   }
 
   //-------------------------------------------------------------------------

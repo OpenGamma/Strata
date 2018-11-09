@@ -66,7 +66,7 @@ public final class FutureValueNotional
    * as calculated by the day count.
    */
   @PropertyDefinition(get = "optional")
-  private final Integer calculationPeriodNumberOfDays;
+  private final Integer dayCountDays;
 
   //-------------------------------------------------------------------------
   /**
@@ -75,7 +75,7 @@ public final class FutureValueNotional
    * 
    * @return the empty instance
    */
-  public static FutureValueNotional auto() {
+  public static FutureValueNotional autoCalculate() {
     return AUTO;
   }
 
@@ -131,10 +131,10 @@ public final class FutureValueNotional
   private FutureValueNotional(
       Double value,
       LocalDate valueDate,
-      Integer calculationPeriodNumberOfDays) {
+      Integer dayCountDays) {
     this.value = value;
     this.valueDate = valueDate;
-    this.calculationPeriodNumberOfDays = calculationPeriodNumberOfDays;
+    this.dayCountDays = dayCountDays;
   }
 
   @Override
@@ -172,8 +172,8 @@ public final class FutureValueNotional
    * as calculated by the day count.
    * @return the optional value of the property, not null
    */
-  public OptionalInt getCalculationPeriodNumberOfDays() {
-    return calculationPeriodNumberOfDays != null ? OptionalInt.of(calculationPeriodNumberOfDays) : OptionalInt.empty();
+  public OptionalInt getDayCountDays() {
+    return dayCountDays != null ? OptionalInt.of(dayCountDays) : OptionalInt.empty();
   }
 
   //-----------------------------------------------------------------------
@@ -194,7 +194,7 @@ public final class FutureValueNotional
       FutureValueNotional other = (FutureValueNotional) obj;
       return JodaBeanUtils.equal(value, other.value) &&
           JodaBeanUtils.equal(valueDate, other.valueDate) &&
-          JodaBeanUtils.equal(calculationPeriodNumberOfDays, other.calculationPeriodNumberOfDays);
+          JodaBeanUtils.equal(dayCountDays, other.dayCountDays);
     }
     return false;
   }
@@ -204,7 +204,7 @@ public final class FutureValueNotional
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(value);
     hash = hash * 31 + JodaBeanUtils.hashCode(valueDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(calculationPeriodNumberOfDays);
+    hash = hash * 31 + JodaBeanUtils.hashCode(dayCountDays);
     return hash;
   }
 
@@ -214,7 +214,7 @@ public final class FutureValueNotional
     buf.append("FutureValueNotional{");
     buf.append("value").append('=').append(value).append(',').append(' ');
     buf.append("valueDate").append('=').append(valueDate).append(',').append(' ');
-    buf.append("calculationPeriodNumberOfDays").append('=').append(JodaBeanUtils.toString(calculationPeriodNumberOfDays));
+    buf.append("dayCountDays").append('=').append(JodaBeanUtils.toString(dayCountDays));
     buf.append('}');
     return buf.toString();
   }
@@ -240,10 +240,10 @@ public final class FutureValueNotional
     private final MetaProperty<LocalDate> valueDate = DirectMetaProperty.ofImmutable(
         this, "valueDate", FutureValueNotional.class, LocalDate.class);
     /**
-     * The meta-property for the {@code calculationPeriodNumberOfDays} property.
+     * The meta-property for the {@code dayCountDays} property.
      */
-    private final MetaProperty<Integer> calculationPeriodNumberOfDays = DirectMetaProperty.ofImmutable(
-        this, "calculationPeriodNumberOfDays", FutureValueNotional.class, Integer.class);
+    private final MetaProperty<Integer> dayCountDays = DirectMetaProperty.ofImmutable(
+        this, "dayCountDays", FutureValueNotional.class, Integer.class);
     /**
      * The meta-properties.
      */
@@ -251,7 +251,7 @@ public final class FutureValueNotional
         this, null,
         "value",
         "valueDate",
-        "calculationPeriodNumberOfDays");
+        "dayCountDays");
 
     /**
      * Restricted constructor.
@@ -266,8 +266,8 @@ public final class FutureValueNotional
           return value;
         case -766192449:  // valueDate
           return valueDate;
-        case -846977407:  // calculationPeriodNumberOfDays
-          return calculationPeriodNumberOfDays;
+        case -1430289974:  // dayCountDays
+          return dayCountDays;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -305,11 +305,11 @@ public final class FutureValueNotional
     }
 
     /**
-     * The meta-property for the {@code calculationPeriodNumberOfDays} property.
+     * The meta-property for the {@code dayCountDays} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Integer> calculationPeriodNumberOfDays() {
-      return calculationPeriodNumberOfDays;
+    public MetaProperty<Integer> dayCountDays() {
+      return dayCountDays;
     }
 
     //-----------------------------------------------------------------------
@@ -320,8 +320,8 @@ public final class FutureValueNotional
           return ((FutureValueNotional) bean).value;
         case -766192449:  // valueDate
           return ((FutureValueNotional) bean).valueDate;
-        case -846977407:  // calculationPeriodNumberOfDays
-          return ((FutureValueNotional) bean).calculationPeriodNumberOfDays;
+        case -1430289974:  // dayCountDays
+          return ((FutureValueNotional) bean).dayCountDays;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -345,7 +345,7 @@ public final class FutureValueNotional
 
     private Double value;
     private LocalDate valueDate;
-    private Integer calculationPeriodNumberOfDays;
+    private Integer dayCountDays;
 
     /**
      * Restricted constructor.
@@ -360,7 +360,7 @@ public final class FutureValueNotional
     private Builder(FutureValueNotional beanToCopy) {
       this.value = beanToCopy.value;
       this.valueDate = beanToCopy.valueDate;
-      this.calculationPeriodNumberOfDays = beanToCopy.calculationPeriodNumberOfDays;
+      this.dayCountDays = beanToCopy.dayCountDays;
     }
 
     //-----------------------------------------------------------------------
@@ -371,8 +371,8 @@ public final class FutureValueNotional
           return value;
         case -766192449:  // valueDate
           return valueDate;
-        case -846977407:  // calculationPeriodNumberOfDays
-          return calculationPeriodNumberOfDays;
+        case -1430289974:  // dayCountDays
+          return dayCountDays;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -387,8 +387,8 @@ public final class FutureValueNotional
         case -766192449:  // valueDate
           this.valueDate = (LocalDate) newValue;
           break;
-        case -846977407:  // calculationPeriodNumberOfDays
-          this.calculationPeriodNumberOfDays = (Integer) newValue;
+        case -1430289974:  // dayCountDays
+          this.dayCountDays = (Integer) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -407,7 +407,7 @@ public final class FutureValueNotional
       return new FutureValueNotional(
           value,
           valueDate,
-          calculationPeriodNumberOfDays);
+          dayCountDays);
     }
 
     //-----------------------------------------------------------------------
@@ -440,11 +440,11 @@ public final class FutureValueNotional
      * <p>
      * This defines the number of days from the adjusted start date to the adjusted end date
      * as calculated by the day count.
-     * @param calculationPeriodNumberOfDays  the new value
+     * @param dayCountDays  the new value
      * @return this, for chaining, not null
      */
-    public Builder calculationPeriodNumberOfDays(Integer calculationPeriodNumberOfDays) {
-      this.calculationPeriodNumberOfDays = calculationPeriodNumberOfDays;
+    public Builder dayCountDays(Integer dayCountDays) {
+      this.dayCountDays = dayCountDays;
       return this;
     }
 
@@ -455,7 +455,7 @@ public final class FutureValueNotional
       buf.append("FutureValueNotional.Builder{");
       buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
       buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate)).append(',').append(' ');
-      buf.append("calculationPeriodNumberOfDays").append('=').append(JodaBeanUtils.toString(calculationPeriodNumberOfDays));
+      buf.append("dayCountDays").append('=').append(JodaBeanUtils.toString(dayCountDays));
       buf.append('}');
       return buf.toString();
     }

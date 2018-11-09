@@ -14,7 +14,7 @@ import com.opengamma.strata.collect.named.NamedEnum;
 /**
  * The method of accruing interest on a notional amount using a fixed rate.
  */
-public enum FixedNotionalAccrualMethod implements NamedEnum {
+public enum FixedAccrualMethod implements NamedEnum {
 
   /**
    * The default method.
@@ -23,7 +23,7 @@ public enum FixedNotionalAccrualMethod implements NamedEnum {
    * <p>
    * This is the most common type for fixed legs.
    */
-  NONE,
+  DEFAULT,
   /**
    * Defines overnight compounding using an an annual rate.
    * <p>
@@ -34,7 +34,7 @@ public enum FixedNotionalAccrualMethod implements NamedEnum {
   OVERNIGHT_COMPOUNDED_ANNUAL_RATE;
 
   // helper for name conversions
-  private static final EnumNames<FixedNotionalAccrualMethod> NAMES = EnumNames.of(FixedNotionalAccrualMethod.class);
+  private static final EnumNames<FixedAccrualMethod> NAMES = EnumNames.of(FixedAccrualMethod.class);
 
   //-------------------------------------------------------------------------
   /**
@@ -48,7 +48,7 @@ public enum FixedNotionalAccrualMethod implements NamedEnum {
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FixedNotionalAccrualMethod of(String name) {
+  public static FixedAccrualMethod of(String name) {
     return NAMES.parse(name);
   }
 
