@@ -31,7 +31,7 @@ public class SampleSkewnessCalculator implements Function<double[], Double> {
     double sum = 0;
     double variance = 0;
     double mean = MEAN.apply(x);
-    for (Double d : x) {
+    for (double d : x) {
       double diff = d - mean;
       variance += diff * diff;
       sum += diff * diff * diff;

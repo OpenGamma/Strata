@@ -143,10 +143,8 @@ abstract class SingleBarrierKnockoutFunction implements OptionFunction {
       // Fast break out if it's an exact match.
       return index;
     }
-    if (index < 0) {
-      index = -(index + 1);
-      index--;
-    }
+    index = -(index + 1);
+    index--;
     if (value == -0. && index < n - 1 && set.get(index + 1) == 0.) {
       ++index;
     }

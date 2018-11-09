@@ -78,7 +78,7 @@ final class CurrencyDataLoader {
         boolean isHistoric =
             (properties.keys().contains("historic") && Boolean.parseBoolean(properties.value("historic")));
         if (isHistoric == loadHistoric) {
-          Integer minorUnits = Integer.parseInt(properties.value("minorUnitDigits"));
+          int minorUnits = Integer.parseInt(properties.value("minorUnitDigits"));
           String triangulationCurrency = properties.value("triangulationCurrency");
           builder.put(currencyCode, new Currency(currencyCode, minorUnits, triangulationCurrency));
         }

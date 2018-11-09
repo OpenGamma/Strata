@@ -29,9 +29,11 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * Defines the computation of a rate from a single overnight index that follows overnight compounding using an annualised rate.
+ * Defines the computation of a rate from a single overnight index that follows
+ * overnight compounding using an annualized rate.
  * <p>
- * An interest rate determined directly from an overnight index that follows overnight compounding using an annualised rate.
+ * An interest rate determined directly from an overnight index that follows
+ * overnight compounding using an annualized rate.
  * For example, a rate determined by compounding values from 'BRL-CDI'.
  */
 @BeanDefinition
@@ -43,12 +45,12 @@ public final class OvernightCompoundedAnnualRateComputation
    * <p>
    * The rate to be paid is based on this index.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightIndex index;
   /**
    * The resolved calendar that the index uses.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final HolidayCalendar fixingCalendar;
   /**
    * The fixing date associated with the start date of the accrual period.
@@ -60,7 +62,7 @@ public final class OvernightCompoundedAnnualRateComputation
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
    * before the accrual period.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate startDate;
   /**
    * The fixing date associated with the end date of the accrual period.
@@ -71,14 +73,13 @@ public final class OvernightCompoundedAnnualRateComputation
    * However, in the case of a Tomorrow/Next index, the fixing period is one business day
    * before the accrual period.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final LocalDate endDate;
 
+  //-------------------------------------------------------------------------
   /**
-   * Creates an instance from an index and period dates
-   * <p>
-   * No rate cut-off applies.
-   *
+   * Obtains an instance from an index and period dates
+   * 
    * @param index  the index
    * @param startDate  the first date of the accrual period
    * @param endDate  the last date of the accrual period
@@ -158,6 +159,7 @@ public final class OvernightCompoundedAnnualRateComputation
    * The rate to be paid is based on this index.
    * @return the value of the property, not null
    */
+  @Override
   public OvernightIndex getIndex() {
     return index;
   }
@@ -167,6 +169,7 @@ public final class OvernightCompoundedAnnualRateComputation
    * Gets the resolved calendar that the index uses.
    * @return the value of the property, not null
    */
+  @Override
   public HolidayCalendar getFixingCalendar() {
     return fixingCalendar;
   }
@@ -183,6 +186,7 @@ public final class OvernightCompoundedAnnualRateComputation
    * before the accrual period.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getStartDate() {
     return startDate;
   }
@@ -198,6 +202,7 @@ public final class OvernightCompoundedAnnualRateComputation
    * before the accrual period.
    * @return the value of the property, not null
    */
+  @Override
   public LocalDate getEndDate() {
     return endDate;
   }

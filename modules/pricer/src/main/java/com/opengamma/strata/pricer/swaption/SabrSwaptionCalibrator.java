@@ -890,7 +890,7 @@ public final class SabrSwaptionCalibrator {
   /**
    * Calculates the expiration date of a swaption from the calibration date and the underlying swap convention.
    * 
-   * @param convention  the underlying swap convention
+   * @param bda  the business day convention
    * @param calibrationDate  the calibration date
    * @param expiry  the period to expiry
    * @return the date

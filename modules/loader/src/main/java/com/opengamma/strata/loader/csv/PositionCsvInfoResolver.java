@@ -53,7 +53,7 @@ public interface PositionCsvInfoResolver {
    * @return the loader
    */
   public static PositionCsvInfoResolver standard() {
-    return StandardCsvInfoResolver.of(ReferenceData.standard());
+    return StandardCsvInfoImpl.INSTANCE;
   }
 
   /**
@@ -63,7 +63,7 @@ public interface PositionCsvInfoResolver {
    * @return the loader
    */
   public static PositionCsvInfoResolver of(ReferenceData refData) {
-    return StandardCsvInfoResolver.of(refData);
+    return StandardCsvInfoImpl.of(refData);
   }
 
   //-------------------------------------------------------------------------

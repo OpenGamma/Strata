@@ -326,9 +326,6 @@ public class GeneralizedLeastSquare {
 
     double[][] data = new double[m][m];
     if (m == 0) {
-      for (int i = 0; i < m; i++) {
-        data[i][i] = 1.0;
-      }
       return DoubleMatrix.copyOf(data);
     }
 

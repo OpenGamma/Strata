@@ -141,7 +141,22 @@ public final class FixedRateCalculation
     Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
     // resolve data by schedule
     DoubleArray resolvedRates = rate.resolveValues(accrualSchedule);
-    // build accrual periods
+
+    // future value notional present
+    if (getFutureValueNotional().isPresent()) {
+      if (accrualSchedule.size() != 1) {
+        throw new IllegalArgumentException(
+            "Invalid swap, only one accrual period allowed when future value notional is present");
+      }
+      SchedulePeriod period = accrualSchedule.getPeriod(0);
+      double yearFraction = period.yearFraction(dayCount, accrualSchedule);
+      double resolvedRate = resolvedRates.get(0);
+      RateComputation rateComputation = FixedOvernightCompoundedAnnualRateComputation.of(resolvedRate, yearFraction);
+      RateAccrualPeriod accrualPeriod = new RateAccrualPeriod(period, yearFraction, rateComputation);
+      return ImmutableList.of(accrualPeriod);
+    }
+
+    // normal case
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     // is future value notional present
     if (getFutureValueNotional().isPresent()) {

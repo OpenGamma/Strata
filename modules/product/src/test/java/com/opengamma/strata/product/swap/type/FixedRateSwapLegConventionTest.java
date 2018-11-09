@@ -33,7 +33,7 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.FixedNotionalAccrualMethod;
+import com.opengamma.strata.product.swap.FixedAccrualMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.NotionalSchedule;
@@ -65,7 +65,7 @@ public class FixedRateSwapLegConventionTest {
     assertEquals(test.getPaymentFrequency(), P3M);
     assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
-    assertEquals(test.getFixedNotionalAccrualMethod(), FixedNotionalAccrualMethod.NONE);
+    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.DEFAULT);
   }
 
   public void test_builder() {
@@ -106,7 +106,7 @@ public class FixedRateSwapLegConventionTest {
         .paymentFrequency(P6M)
         .paymentDateOffset(PLUS_TWO_DAYS)
         .compoundingMethod(CompoundingMethod.FLAT)
-        .fixedNotionalAccrualMethod(FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+        .accrualMethod(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
         .build();
     assertEquals(test.getCurrency(), USD);
     assertEquals(test.getDayCount(), ACT_360);
@@ -119,16 +119,16 @@ public class FixedRateSwapLegConventionTest {
     assertEquals(test.getPaymentFrequency(), P6M);
     assertEquals(test.getPaymentDateOffset(), PLUS_TWO_DAYS);
     assertEquals(test.getCompoundingMethod(), CompoundingMethod.FLAT);
-    assertEquals(test.getFixedNotionalAccrualMethod(), FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE);
+    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE);
   }
 
   //-------------------------------------------------------------------------
-  public void test_toLeg() {
-    FixedRateSwapLegConvention base1 = FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
+  public void test_toLeg1() {
+    FixedRateSwapLegConvention base = FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
     LocalDate endDate = LocalDate.of(2020, 5, 5);
-    RateCalculationSwapLeg test1 = base1.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
-    RateCalculationSwapLeg expected1 = RateCalculationSwapLeg.builder()
+    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
+    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(P3M)
@@ -144,18 +144,22 @@ public class FixedRateSwapLegConventionTest {
         .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL_2M))
         .calculation(FixedRateCalculation.of(0.25d, ACT_365F))
         .build();
-    assertEquals(test1, expected1);
-    
-    FixedRateSwapLegConvention base2 = FixedRateSwapLegConvention.builder()
+    assertEquals(test, expected);
+  }
+
+  public void test_toLeg2() {
+    FixedRateSwapLegConvention base = FixedRateSwapLegConvention.builder()
         .currency(GBP)
         .dayCount(ACT_365F)
         .accrualFrequency(P3M)
         .accrualBusinessDayAdjustment(BDA_MOD_FOLLOW)
-        .fixedNotionalAccrualMethod(FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+        .accrualMethod(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
         .stubConvention(StubConvention.SMART_INITIAL)
         .build();
-    RateCalculationSwapLeg test2 = base2.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
-    RateCalculationSwapLeg expected2 = RateCalculationSwapLeg.builder()
+    LocalDate startDate = LocalDate.of(2015, 5, 5);
+    LocalDate endDate = LocalDate.of(2020, 5, 5);
+    RateCalculationSwapLeg test = base.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d);
+    RateCalculationSwapLeg expected = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()
             .frequency(P3M)
@@ -172,10 +176,10 @@ public class FixedRateSwapLegConventionTest {
         .calculation(FixedRateCalculation.builder()
             .rate(ValueSchedule.of(0.25d))
             .dayCount(ACT_365F)
-            .futureValueNotional(FutureValueNotional.auto())
+            .futureValueNotional(FutureValueNotional.autoCalculate())
             .build())
         .build();
-    assertEquals(test2, expected2);
+    assertEquals(test, expected);
   }
 
   //-------------------------------------------------------------------------

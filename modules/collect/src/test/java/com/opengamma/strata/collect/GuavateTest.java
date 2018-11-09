@@ -25,6 +25,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -186,6 +187,13 @@ public class GuavateTest {
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableList());
     assertEquals(test, ImmutableList.of("a", "b", "c", "a"));
+  }
+
+  public void test_splittingBySize() {
+    List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
+    ImmutableList<ImmutableList<String>> test = list.stream()
+        .collect(Guavate.splittingBySize(4));
+    assertEquals(test, ImmutableList.of(ImmutableList.of("a", "ab", "b", "bb"), ImmutableList.of("c", "a")));
   }
 
   public void test_toImmutableSet() {
@@ -545,6 +553,20 @@ public class GuavateTest {
     } finally {
       executor.shutdown();
     }
+  }
+
+  //-------------------------------------------------------------------------
+  private static void doNothing() {
+  }
+
+  public void test_namedThreadFactory() {
+    ThreadFactory threadFactory = Guavate.namedThreadFactory().build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "GuavateTest-0");
+  }
+
+  public void test_namedThreadFactory_prefix() {
+    ThreadFactory threadFactory = Guavate.namedThreadFactory("ThreadMaker").build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "ThreadMaker-0");
   }
 
   //-------------------------------------------------------------------------
