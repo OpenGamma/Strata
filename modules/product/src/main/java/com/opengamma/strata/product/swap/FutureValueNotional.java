@@ -84,12 +84,12 @@ public final class FutureValueNotional
    * 
    * @param value  the amount
    * @param valueDate  the value date
-   * @param calculationPeriodNumberOfDays  the number of days
+   * @param dayCountDays  the number of days
    * @return the future value notional
    */
-  public static FutureValueNotional of(double value, LocalDate valueDate, int calculationPeriodNumberOfDays) {
+  public static FutureValueNotional of(double value, LocalDate valueDate, int dayCountDays) {
     ArgChecker.isTrue(valueDate != null);
-    return new FutureValueNotional(value, valueDate, calculationPeriodNumberOfDays);
+    return new FutureValueNotional(value, valueDate, dayCountDays);
   }
 
   /**

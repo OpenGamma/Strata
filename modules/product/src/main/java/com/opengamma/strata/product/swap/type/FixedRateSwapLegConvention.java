@@ -165,14 +165,12 @@ public final class FixedRateSwapLegConvention
   @PropertyDefinition(get = "field")
   private final CompoundingMethod compoundingMethod;
   /**
-   * The notional accrual method using the fixed rate.
+   * The accrual method using the fixed rate, defaulted to 'None'.
    * <p>
-   * This is typically used for Brazilian swaps.
-   * <p>
-   * This will default to 'None' if not specified.
+   * This is normally 'None', but can be set forBrazilian swaps.
    */
   @PropertyDefinition
-  private final FixedAccrualMethod notionalAccrualMethod;
+  private final FixedAccrualMethod accrualMethod;
 
   //-------------------------------------------------------------------------
   /**
@@ -205,7 +203,7 @@ public final class FixedRateSwapLegConvention
 
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
-    builder.notionalAccrualMethod = FixedAccrualMethod.DEFAULT;
+    builder.accrualMethod = FixedAccrualMethod.DEFAULT;
   }
 
   //-------------------------------------------------------------------------
@@ -359,7 +357,7 @@ public final class FixedRateSwapLegConvention
             .rate(ValueSchedule.of(fixedRate))
             .dayCount(dayCount)
             .futureValueNotional(
-                notionalAccrualMethod == OVERNIGHT_COMPOUNDED_ANNUAL_RATE ? FutureValueNotional.autoCalculate() : null)
+                accrualMethod == OVERNIGHT_COMPOUNDED_ANNUAL_RATE ? FutureValueNotional.autoCalculate() : null)
             .build())
         .build();
   }
@@ -402,7 +400,7 @@ public final class FixedRateSwapLegConvention
       Frequency paymentFrequency,
       DaysAdjustment paymentDateOffset,
       CompoundingMethod compoundingMethod,
-      FixedAccrualMethod notionalAccrualMethod) {
+      FixedAccrualMethod accrualMethod) {
     JodaBeanUtils.notNull(currency, "currency");
     JodaBeanUtils.notNull(dayCount, "dayCount");
     JodaBeanUtils.notNull(accrualFrequency, "accrualFrequency");
@@ -418,7 +416,7 @@ public final class FixedRateSwapLegConvention
     this.paymentFrequency = paymentFrequency;
     this.paymentDateOffset = paymentDateOffset;
     this.compoundingMethod = compoundingMethod;
-    this.notionalAccrualMethod = notionalAccrualMethod;
+    this.accrualMethod = accrualMethod;
   }
 
   @Override
@@ -476,15 +474,13 @@ public final class FixedRateSwapLegConvention
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the notional accrual method using the fixed rate.
+   * Gets the accrual method using the fixed rate, defaulted to 'None'.
    * <p>
-   * This is typically used for Brazilian swaps.
-   * <p>
-   * This will default to 'None' if not specified.
+   * This is normally 'None', but can be set forBrazilian swaps.
    * @return the value of the property
    */
-  public FixedAccrualMethod getNotionalAccrualMethod() {
-    return notionalAccrualMethod;
+  public FixedAccrualMethod getAccrualMethod() {
+    return accrualMethod;
   }
 
   //-----------------------------------------------------------------------
@@ -514,7 +510,7 @@ public final class FixedRateSwapLegConvention
           JodaBeanUtils.equal(paymentFrequency, other.paymentFrequency) &&
           JodaBeanUtils.equal(paymentDateOffset, other.paymentDateOffset) &&
           JodaBeanUtils.equal(compoundingMethod, other.compoundingMethod) &&
-          JodaBeanUtils.equal(notionalAccrualMethod, other.notionalAccrualMethod);
+          JodaBeanUtils.equal(accrualMethod, other.accrualMethod);
     }
     return false;
   }
@@ -533,7 +529,7 @@ public final class FixedRateSwapLegConvention
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentFrequency);
     hash = hash * 31 + JodaBeanUtils.hashCode(paymentDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(compoundingMethod);
-    hash = hash * 31 + JodaBeanUtils.hashCode(notionalAccrualMethod);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
     return hash;
   }
 
@@ -552,7 +548,7 @@ public final class FixedRateSwapLegConvention
     buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
     buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(compoundingMethod).append(',').append(' ');
-    buf.append("notionalAccrualMethod").append('=').append(JodaBeanUtils.toString(notionalAccrualMethod));
+    buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod));
     buf.append('}');
     return buf.toString();
   }
@@ -623,10 +619,10 @@ public final class FixedRateSwapLegConvention
     private final MetaProperty<CompoundingMethod> compoundingMethod = DirectMetaProperty.ofImmutable(
         this, "compoundingMethod", FixedRateSwapLegConvention.class, CompoundingMethod.class);
     /**
-     * The meta-property for the {@code notionalAccrualMethod} property.
+     * The meta-property for the {@code accrualMethod} property.
      */
-    private final MetaProperty<FixedAccrualMethod> notionalAccrualMethod = DirectMetaProperty.ofImmutable(
-        this, "notionalAccrualMethod", FixedRateSwapLegConvention.class, FixedAccrualMethod.class);
+    private final MetaProperty<FixedAccrualMethod> accrualMethod = DirectMetaProperty.ofImmutable(
+        this, "accrualMethod", FixedRateSwapLegConvention.class, FixedAccrualMethod.class);
     /**
      * The meta-properties.
      */
@@ -643,7 +639,7 @@ public final class FixedRateSwapLegConvention
         "paymentFrequency",
         "paymentDateOffset",
         "compoundingMethod",
-        "notionalAccrualMethod");
+        "accrualMethod");
 
     /**
      * Restricted constructor.
@@ -676,8 +672,8 @@ public final class FixedRateSwapLegConvention
           return paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
-        case -973473776:  // notionalAccrualMethod
-          return notionalAccrualMethod;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -787,11 +783,11 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * The meta-property for the {@code notionalAccrualMethod} property.
+     * The meta-property for the {@code accrualMethod} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixedAccrualMethod> notionalAccrualMethod() {
-      return notionalAccrualMethod;
+    public MetaProperty<FixedAccrualMethod> accrualMethod() {
+      return accrualMethod;
     }
 
     //-----------------------------------------------------------------------
@@ -820,8 +816,8 @@ public final class FixedRateSwapLegConvention
           return ((FixedRateSwapLegConvention) bean).paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return ((FixedRateSwapLegConvention) bean).compoundingMethod;
-        case -973473776:  // notionalAccrualMethod
-          return ((FixedRateSwapLegConvention) bean).getNotionalAccrualMethod();
+        case -1335729296:  // accrualMethod
+          return ((FixedRateSwapLegConvention) bean).getAccrualMethod();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -854,7 +850,7 @@ public final class FixedRateSwapLegConvention
     private Frequency paymentFrequency;
     private DaysAdjustment paymentDateOffset;
     private CompoundingMethod compoundingMethod;
-    private FixedAccrualMethod notionalAccrualMethod;
+    private FixedAccrualMethod accrualMethod;
 
     /**
      * Restricted constructor.
@@ -879,7 +875,7 @@ public final class FixedRateSwapLegConvention
       this.paymentFrequency = beanToCopy.paymentFrequency;
       this.paymentDateOffset = beanToCopy.paymentDateOffset;
       this.compoundingMethod = beanToCopy.compoundingMethod;
-      this.notionalAccrualMethod = beanToCopy.getNotionalAccrualMethod();
+      this.accrualMethod = beanToCopy.getAccrualMethod();
     }
 
     //-----------------------------------------------------------------------
@@ -908,8 +904,8 @@ public final class FixedRateSwapLegConvention
           return paymentDateOffset;
         case -1376171496:  // compoundingMethod
           return compoundingMethod;
-        case -973473776:  // notionalAccrualMethod
-          return notionalAccrualMethod;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -951,8 +947,8 @@ public final class FixedRateSwapLegConvention
         case -1376171496:  // compoundingMethod
           this.compoundingMethod = (CompoundingMethod) newValue;
           break;
-        case -973473776:  // notionalAccrualMethod
-          this.notionalAccrualMethod = (FixedAccrualMethod) newValue;
+        case -1335729296:  // accrualMethod
+          this.accrualMethod = (FixedAccrualMethod) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -980,7 +976,7 @@ public final class FixedRateSwapLegConvention
           paymentFrequency,
           paymentDateOffset,
           compoundingMethod,
-          notionalAccrualMethod);
+          accrualMethod);
     }
 
     //-----------------------------------------------------------------------
@@ -1150,16 +1146,14 @@ public final class FixedRateSwapLegConvention
     }
 
     /**
-     * Sets the notional accrual method using the fixed rate.
+     * Sets the accrual method using the fixed rate, defaulted to 'None'.
      * <p>
-     * This is typically used for Brazilian swaps.
-     * <p>
-     * This will default to 'None' if not specified.
-     * @param notionalAccrualMethod  the new value
+     * This is normally 'None', but can be set forBrazilian swaps.
+     * @param accrualMethod  the new value
      * @return this, for chaining, not null
      */
-    public Builder notionalAccrualMethod(FixedAccrualMethod notionalAccrualMethod) {
-      this.notionalAccrualMethod = notionalAccrualMethod;
+    public Builder accrualMethod(FixedAccrualMethod accrualMethod) {
+      this.accrualMethod = accrualMethod;
       return this;
     }
 
@@ -1179,7 +1173,7 @@ public final class FixedRateSwapLegConvention
       buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
       buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
       buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod)).append(',').append(' ');
-      buf.append("notionalAccrualMethod").append('=').append(JodaBeanUtils.toString(notionalAccrualMethod));
+      buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod));
       buf.append('}');
       return buf.toString();
     }
