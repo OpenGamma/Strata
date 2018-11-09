@@ -64,7 +64,7 @@ import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.swap.FixedNotionalAccrualMethod;
+import com.opengamma.strata.product.swap.FixedAccrualMethod;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
@@ -131,7 +131,7 @@ public class CalibrationDiscountingBrlTest {
           .accrualFrequency(Frequency.TERM)
           .paymentFrequency(Frequency.TERM)
           .accrualBusinessDayAdjustment(BDA_MF)
-          .fixedNotionalAccrualMethod(FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+          .accrualMethod(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
           .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
           .build();
   
