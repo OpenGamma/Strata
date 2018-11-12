@@ -39,6 +39,7 @@ import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixedRateStubCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
+import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.IborRateResetMethod;
 import com.opengamma.strata.product.swap.IborRateStubCalculation;
@@ -73,7 +74,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * <li>overnight leg first rate is known
  * <li>overnight leg stubs
  * <li>FRA discounting
- * <li>future value notional
  * <li>non-delivered settlement
  * <li>rate treatment
  * <li>FX reset first rate is known
@@ -97,6 +97,16 @@ final class SwapFpmlParserPlugin
   //-------------------------------------------------------------------------
   @Override
   public Trade parseTrade(FpmlDocument document, XmlElement tradeEl) {
+    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
+    Swap swap = parseSwap(document, tradeEl, tradeInfoBuilder);
+    return SwapTrade.builder()
+        .info(tradeInfoBuilder.build())
+        .product(swap)
+        .build();
+  }
+
+  // parses the swap
+  Swap parseSwap(FpmlDocument document, XmlElement tradeEl, TradeInfoBuilder tradeInfoBuilder) {
     // supported elements:
     //  'swapStream+'
     //  'swapStream/buyerPartyReference'
@@ -120,17 +130,6 @@ final class SwapFpmlParserPlugin
     //  'additionalTerms?'
     // rejected elements:
     //  'swapStream/calculationPeriodAmount/calculation/fxLinkedNotionalSchedule'
-    //  'swapStream/calculationPeriodAmount/calculation/futureValueNotional'
-    TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
-    Swap swap = parseSwap(document, tradeEl, tradeInfoBuilder);
-    return SwapTrade.builder()
-        .info(tradeInfoBuilder.build())
-        .product(swap)
-        .build();
-  }
-
-  // parses the swap
-  Swap parseSwap(FpmlDocument document, XmlElement tradeEl, TradeInfoBuilder tradeInfoBuilder) {
     XmlElement swapEl = tradeEl.getChild("swap");
     ImmutableList<XmlElement> legEls = swapEl.getChildren("swapStream");
     ImmutableList.Builder<SwapLeg> legsBuilder = ImmutableList.builder();
@@ -160,7 +159,6 @@ final class SwapFpmlParserPlugin
             .build());
       } else {
         document.validateNotPresent(calcEl, "fxLinkedNotionalSchedule");
-        document.validateNotPresent(calcEl, "futureValueNotional");
         // pay/receive and counterparty
         PayReceive payReceive = document.parsePayerReceiver(legEl, tradeInfoBuilder);
         NotionalSchedule notionalSchedule = parseSwapNotionalSchedule(legEl, calcEl, document);
@@ -367,6 +365,7 @@ final class SwapFpmlParserPlugin
   // Converts an FpML 'fixedRateSchedule' to a {@code RateCalculation}.
   private RateCalculation parseFixed(XmlElement legEl, XmlElement calcEl, XmlElement fixedEl, FpmlDocument document) {
     // supported elements:
+    //  'calculationPeriodAmount/calculation/futureValueNotional'
     //  'calculationPeriodAmount/calculation/fixedRateSchedule'
     //  'calculationPeriodAmount/calculation/dayCountFraction'
     //  'stubCalculationPeriodAmount'
@@ -376,6 +375,16 @@ final class SwapFpmlParserPlugin
     //  'stubCalculationPeriodAmount/finalStub/floatingRate'
     document.validateNotPresent(legEl, "resetDates");
     FixedRateCalculation.Builder fixedRateBuilder = FixedRateCalculation.builder();
+    calcEl.findChild("futureValueNotional").ifPresent(fvnEl -> {
+      FutureValueNotional notional = FutureValueNotional.builder()
+          .value(document.parseDecimal(fvnEl.getChild("amount")))
+          .dayCountDays(fvnEl.findChild("calculationPeriodNumberOfDays")
+              .map(str -> (int) document.parseDecimal(str))
+              .orElse(null))
+          .valueDate(fvnEl.findChild("valueDate").map(str -> document.parseDate(str)).orElse(null))
+          .build();
+      fixedRateBuilder.futureValueNotional(notional);
+    });
     fixedRateBuilder.rate(parseSchedule(fixedEl, document));
     fixedRateBuilder.dayCount(document.parseDayCountFraction(calcEl.getChild("dayCountFraction")));
     // stub

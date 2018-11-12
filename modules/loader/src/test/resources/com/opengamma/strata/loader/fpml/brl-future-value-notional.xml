@@ -1,0 +1,89 @@
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-6"
+  xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-6.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="partyA" />
+        <tradeId tradeIdScheme="OG-Trade">1</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2018-11-12</tradeDate>
+    </tradeHeader>
+    <swap>
+      <swapStream id="fixedLeg">
+        <payerPartyReference href="partyA" />
+        <receiverPartyReference href="partyB" />
+        <calculationPeriodDates id="fixedLegCalcPeriodDates">
+          <effectiveDate>
+            <unadjustedDate>2018-11-14</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>NONE</businessDayConvention>
+            </dateAdjustments>
+          </effectiveDate>
+          <terminationDate id="fixedLegTerminationDate">
+            <unadjustedDate>2020-11-14</unadjustedDate>
+            <dateAdjustments>
+              <businessDayConvention>FOLLOWING</businessDayConvention>
+              <businessCenters>
+                <businessCenter>BRBD</businessCenter>
+              </businessCenters>
+            </dateAdjustments>
+          </terminationDate>
+          <calculationPeriodDatesAdjustments>
+            <businessDayConvention>NONE</businessDayConvention>
+          </calculationPeriodDatesAdjustments>
+          <calculationPeriodFrequency>
+            <periodMultiplier>1</periodMultiplier>
+            <period>T</period>
+            <rollConvention>NONE</rollConvention>
+          </calculationPeriodFrequency>
+        </calculationPeriodDates>
+        <paymentDates>
+          <valuationDatesReference href="fixedLegCalcPeriodDates" />
+          <paymentFrequency>
+            <periodMultiplier>1</periodMultiplier>
+            <period>T</period>
+          </paymentFrequency>
+          <payRelativeTo>CalculationPeriodEndDate</payRelativeTo>
+          <paymentDaysOffset>
+            <periodMultiplier>1</periodMultiplier>
+            <period>D</period>
+            <dayType>Business</dayType>
+          </paymentDaysOffset>
+          <paymentDatesAdjustments>
+            <businessDayConvention>FOLLOWING</businessDayConvention>
+            <businessCenters>
+              <businessCenter>USNY</businessCenter>
+            </businessCenters>
+          </paymentDatesAdjustments>
+        </paymentDates>
+        <calculationPeriodAmount>
+          <calculation>
+            <notionalSchedule>
+              <notionalStepSchedule>
+                <initialValue>10000000.0</initialValue>
+                <currency>BRL</currency>
+              </notionalStepSchedule>
+            </notionalSchedule>
+            <fixedRateSchedule>
+              <initialValue>0.1</initialValue>
+            </fixedRateSchedule>
+            <futureValueNotional>
+              <currency>BRL</currency>
+              <amount>12345670</amount>
+            </futureValueNotional>
+            <dayCountFraction>BUS/252</dayCountFraction>
+          </calculation>
+        </calculationPeriodAmount>
+      </swapStream>
+    </swap>
+  </trade>
+  <party id="partyA">
+    <partyId>ABC</partyId>
+    <partyName>ABC</partyName>
+  </party>
+  <party id="partyB">
+    <partyId>DEF</partyId>
+    <partyName>DEF</partyName>
+  </party>
+</dataDocument>
