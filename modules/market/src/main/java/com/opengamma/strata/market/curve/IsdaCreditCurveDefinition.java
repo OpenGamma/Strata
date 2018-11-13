@@ -125,17 +125,6 @@ public final class IsdaCreditCurveDefinition
   }
 
   /**
-   * Creates the curve from an array of parameter values.
-   * <p>
-   * The meaning of the parameters is determined by the implementation.
-   * The size of the array must match the {@linkplain #getParameterCount() count of parameters}.
-   * 
-   * @param valuationDate  the valuation date
-   * @param metadata  the curve metadata
-   * @param parameters  the array of parameters
-   * @return the curve
-   */
-  /**
    * Creates the ISDA compliant curve.
    * <p>
    * The parameter metadata is not stored in the metadata of the curve.

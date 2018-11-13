@@ -30,7 +30,7 @@ public interface TradeCsvInfoResolver {
    * @return the loader
    */
   public static TradeCsvInfoResolver standard() {
-    return StandardCsvInfoResolver.of(ReferenceData.standard());
+    return StandardCsvInfoImpl.INSTANCE;
   }
 
   /**
@@ -40,7 +40,7 @@ public interface TradeCsvInfoResolver {
    * @return the loader
    */
   public static TradeCsvInfoResolver of(ReferenceData refData) {
-    return StandardCsvInfoResolver.of(refData);
+    return StandardCsvInfoImpl.of(refData);
   }
 
   //-------------------------------------------------------------------------

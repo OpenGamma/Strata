@@ -447,6 +447,7 @@ public final class CurrencyParameterSensitivity
    * This returns a {@code Map} keyed by the identifier of the metadata.
    * For example, this could be used to extract a {@code Map<Tenor, Double>}.
    * 
+   * @param <T> the type of the identifier
    * @param identifierType  the type of the parameter metadata identifier
    * @return a map containing the parameter metadata identifier and the sensitivity value
    * @throws ClassCastException if the identifier of the parameter metadata does not match the specified type

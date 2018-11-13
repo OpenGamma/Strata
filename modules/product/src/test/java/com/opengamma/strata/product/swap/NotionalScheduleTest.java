@@ -16,7 +16,6 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import org.testng.annotations.Test;
@@ -90,11 +89,6 @@ public class NotionalScheduleTest {
   }
   
   public void test_builder_FutureValueNotional() {
-    FutureValueNotional futureValueNotional = FutureValueNotional.builder()
-        .value(10001d)
-        .calculationPeriodNumberOfDays(93)
-        .valueDate(LocalDate.of(2019, 12, 12))
-        .build();
     NotionalSchedule test = NotionalSchedule.builder()
         .currency(USD)
         .amount(ValueSchedule.of(2000d))

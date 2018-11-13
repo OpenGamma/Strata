@@ -203,7 +203,7 @@ public final class RatesCurveInputsMarketDataFunction implements MarketDataFunct
   /**
    * Returns requirements for the market data needed by the curve nodes to build trades.
    *
-   * @param curveDefn  the curve definition containing the nodes
+   * @param curveDefns  the curve definition containing the nodes
    * @return requirements for the market data needed by the nodes to build trades
    */
   private static Set<MarketDataId<?>> nodeRequirements(List<CurveDefinition> curveDefns) {

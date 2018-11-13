@@ -866,6 +866,9 @@ final class GlobalHolidayCalendars {
         holidays.add(nyeve);
       }
     }
+    // 100th independence day anniversary
+    holidays.add(date(2018, 11, 12));
+
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("PLWA"), holidays, SATURDAY, SUNDAY);
   }

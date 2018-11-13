@@ -35,7 +35,7 @@ public final class LegalEntityGroup
   /**
    * Creates an instance.
    * 
-   * @param group  the legal entity group name
+   * @param name  the legal entity group name
    */
   private LegalEntityGroup(String name) {
     super(name);

@@ -5,15 +5,14 @@
  */
 package com.opengamma.strata.collect.io;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Unchecked;
 
 /**
  * Outputs a CSV formatted file.
@@ -29,6 +28,9 @@ import com.opengamma.strata.collect.Unchecked;
  * There are two modes of output.
  * Standard mode provides the encoding described above which is accepted by most CSV parsers.
  * Safe mode provides extra encoding to protect unsafe content from being run as a script in tools like Excel.
+ * <p>
+ * Instances of this class contain mutable state.
+ * A new instance must be created for each file to be output.
  */
 public final class CsvOutput {
 
@@ -54,9 +56,13 @@ public final class CsvOutput {
    */
   private final String separator;
   /**
-   * Whether expressions should be safely encoded
+   * Whether expressions should be safely encoded.
    */
   private final boolean safeExpressions;
+  /**
+   * Whether the writer is currently at the start of a line.
+   */
+  private boolean lineStarted;
 
   //-------------------------------------------------------------------------
   /**
@@ -167,7 +173,7 @@ public final class CsvOutput {
 
   //------------------------------------------------------------------------
   /**
-   * Writes CSV lines to the underlying.
+   * Writes multiple CSV lines to the underlying.
    * <p>
    * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
    *
@@ -183,10 +189,13 @@ public final class CsvOutput {
   }
 
   /**
-   * Writes a CSV line to the underlying, only quoting if needed.
+   * Writes a single CSV line to the underlying, only quoting if needed.
    * <p>
    * This can be used as a method reference from a {@code Stream} pipeline from
    * {@link Stream#forEachOrdered(Consumer)}.
+   * <p>
+   * This method writes each cell in the specified list to the underlying, followed by
+   * a new line character.
    *
    * @param line  the line to write
    * @throws UncheckedIOException if an IO exception occurs
@@ -196,9 +205,12 @@ public final class CsvOutput {
   }
 
   /**
-   * Writes a CSV line to the underlying.
+   * Writes a single CSV line to the underlying.
    * <p>
    * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   * <p>
+   * This method writes each cell in the specified list to the underlying, followed by
+   * a new line character.
    *
    * @param line  the line to write
    * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
@@ -206,58 +218,106 @@ public final class CsvOutput {
    */
   public void writeLine(List<String> line, boolean alwaysQuote) {
     ArgChecker.notNull(line, "line");
-    Unchecked.wrap(() -> underlying.append(formatLine(line, alwaysQuote)).append(newLine));
-  }
-
-  // formats the line
-  private String formatLine(List<String> line, boolean alwaysQuote) {
-    return line.stream()
-        .map(entry -> formatEntry(entry, alwaysQuote))
-        .collect(Collectors.joining(separator));
-  }
-
-  // formats a single entry, quoting if necessary
-  private String formatEntry(String entry, boolean alwaysQuote) {
-    if (alwaysQuote || isQuotingRequired(entry)) {
-      return quotedEntry(entry);
-    } else {
-      return entry;
+    for (String cell : line) {
+      writeCell(cell, alwaysQuote);
     }
+    writeNewLine();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Writes a single cell to the current line, only quoting if needed.
+   * <p>
+   * When using this method, either {@link #writeNewLine()} or one of the {@code writeLine}
+   * methods must be called at the end of the line.
+   *
+   * @param cell  the cell to write
+   * @return this, for method chaining
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public CsvOutput writeCell(String cell) {
+    writeCell(cell, false);
+    return this;
+  }
+
+  /**
+   * Writes a single cell to the current line.
+   * <p>
+   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   * <p>
+   * When using this method, either {@link #writeNewLine()} or one of the {@code writeLine}
+   * methods must be called at the end of the line.
+   *
+   * @param cell  the cell to write
+   * @param alwaysQuote  when true, the cell will be quoted, when false, quoting is selective
+   * @return this, for method chaining
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public CsvOutput writeCell(String cell, boolean alwaysQuote) {
+    try {
+      if (lineStarted) {
+        underlying.append(separator);
+      }
+      if (alwaysQuote || isQuotingRequired(cell)) {
+        outputQuotedCell(cell);
+      } else {
+        underlying.append(cell);
+      }
+      lineStarted = true;
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+    return this;
+  }
+
+  /**
+   * Writes a new line character.
+   *
+   * @return this, for method chaining
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public CsvOutput writeNewLine() {
+    try {
+      underlying.append(newLine);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+    lineStarted = false;
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
   // quoting is required if entry contains quote, comma, trimmable whitespace, or starts with an expression character
-  private boolean isQuotingRequired(String entry) {
-    return entry.indexOf('"') >= 0 ||
-        entry.indexOf(',') >= 0 ||
-        entry.trim().length() != entry.length() ||
-        isExpressionPrefix(entry);
+  private boolean isQuotingRequired(String cell) {
+    return cell.indexOf('"') >= 0 ||
+        cell.indexOf(',') >= 0 ||
+        cell.trim().length() != cell.length() ||
+        isExpressionPrefix(cell);
   }
 
   // checks if quoting should be applied
-  private boolean isExpressionPrefix(String entry) {
-    if (entry.isEmpty()) {
+  private boolean isExpressionPrefix(String cell) {
+    if (cell.isEmpty()) {
       return false;
     }
-    char first = entry.charAt(0);
+    char first = cell.charAt(0);
     if (first == '=' || first == '@') {
       return true;
     }
     if (safeExpressions && (first == '+' || first == '-')) {
-      return !FP_REGEX.matcher(entry.substring(1)).matches();
+      return !FP_REGEX.matcher(cell.substring(1)).matches();
     }
     return false;
   }
 
   // quotes the entry
-  private String quotedEntry(String entry) {
-    StringBuilder buf = new StringBuilder(entry.length() + 8);
-    if (safeExpressions && isExpressionPrefix(entry)) {
-      buf.append('=');
+  private void outputQuotedCell(String cell) throws IOException {
+    if (safeExpressions && isExpressionPrefix(cell)) {
+      underlying.append('=');
     }
-    buf.append('"');
-    buf.append(entry.replace("\"", "\"\""));
-    buf.append('"');
-    return buf.toString();
+    underlying.append('"');
+    underlying.append(cell.replace("\"", "\"\""));
+    underlying.append('"');
   }
 
 }

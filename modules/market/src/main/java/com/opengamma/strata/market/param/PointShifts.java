@@ -130,7 +130,7 @@ public final class PointShifts
 
   private ParameterizedData applyShifts(int scenarioIndex, ParameterizedData prams) {
     return prams.withPerturbation((index, value, meta) -> {
-      Double shiftAmount = shiftForNode(scenarioIndex, meta);
+      double shiftAmount = shiftForNode(scenarioIndex, meta);
       return shiftType.applyShift(value, shiftAmount);
     });
   }

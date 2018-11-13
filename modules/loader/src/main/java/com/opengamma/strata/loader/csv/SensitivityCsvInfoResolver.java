@@ -26,7 +26,7 @@ public interface SensitivityCsvInfoResolver {
    * @return the loader
    */
   public static SensitivityCsvInfoResolver standard() {
-    return StandardCsvInfoResolver.of(ReferenceData.standard());
+    return StandardCsvInfoImpl.INSTANCE;
   }
 
   /**
@@ -36,7 +36,7 @@ public interface SensitivityCsvInfoResolver {
    * @return the loader
    */
   public static SensitivityCsvInfoResolver of(ReferenceData refData) {
-    return StandardCsvInfoResolver.of(refData);
+    return StandardCsvInfoImpl.of(refData);
   }
 
   //-------------------------------------------------------------------------

@@ -30,7 +30,7 @@ public class SampleVarianceCalculator implements Function<double[], Double> {
     ArgChecker.isTrue(x.length >= 2, "Need at least two points to calculate the sample variance");
     Double mean = MEAN.apply(x);
     double sum = 0;
-    for (Double value : x) {
+    for (double value : x) {
       double diff = value - mean;
       sum += diff * diff;
     }

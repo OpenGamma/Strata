@@ -18,7 +18,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.product.PortfolioItemInfo;
 
 /**
- * Builder for {@code CurveSensitivities}
+ * Builder for {@code CurveSensitivities}.
  */
 public final class CurveSensitivitiesBuilder {
 

@@ -45,7 +45,6 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.product.common.PayReceive;
-import com.opengamma.strata.product.rate.FixedRateComputation;
 
 /**
  * Defines the schedule of payment dates relative to the accrual periods.

@@ -91,6 +91,66 @@ public final class SensitivityCsvLoaderTest {
   private static final SensitivityCsvLoader LOADER_DATE = SensitivityCsvLoader.of(RESOLVER_DATE);
 
   //-------------------------------------------------------------------------
+  public void test_parse_standard() {
+    CharSource source =
+        ResourceLocator.ofClasspath("com/opengamma/strata/loader/csv/sensitivity-standard.csv").getCharSource();
+
+    assertEquals(LOADER.isKnownFormat(source), true);
+    ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
+    assertEquals(test.getFailures().size(), 0, test.getFailures().toString());
+    assertEquals(test.getValue().size(), 1);
+    List<CurveSensitivities> list = test.getValue().get("");
+    assertEquals(list.size(), 1);
+
+    CurveSensitivities csens0 = list.get(0);
+    assertEquals(csens0.getTypedSensitivities().size(), 2);
+    String tenors = "1D, 1W, 2W, 1M, 3M, 6M, 12M, 2Y, 5Y, 10Y";
+    assertSens(csens0, ZERO_RATE_DELTA, "GBP", GBP, tenors, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    assertSens(csens0, ZERO_RATE_DELTA, "GBP-LIBOR", GBP, tenors, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    assertSens(csens0, ZERO_RATE_GAMMA, "GBP", GBP, tenors, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1);
+    assertSens(csens0, ZERO_RATE_GAMMA, "GBP-LIBOR", GBP, tenors, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1);
+  }
+
+  public void test_parse_standard_full() {
+    CharSource source =
+        ResourceLocator.ofClasspath("com/opengamma/strata/loader/csv/sensitivity-standard-full.csv").getCharSource();
+
+    assertEquals(LOADER_CCP.isKnownFormat(source), true);
+    ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER_CCP.parse(ImmutableList.of(source));
+    assertEquals(test.getFailures().size(), 0, test.getFailures().toString());
+    assertEquals(test.getValue().size(), 2);
+
+    List<CurveSensitivities> list0 = test.getValue().get("SCHEME~TR1");
+    assertEquals(list0.size(), 1);
+    CurveSensitivities csens0 = list0.get(0);
+    assertEquals(csens0.getInfo().getAttribute(CCP_ATTR), "LCH");
+    assertEquals(csens0.getTypedSensitivities().size(), 1);
+    assertSens(csens0, ZERO_RATE_DELTA, "GBCURVE", GBP, "1M, 3M, 6M", 1, 2, 3);
+
+    List<CurveSensitivities> list1 = test.getValue().get("OG-Sensitivity~TR2");
+    assertEquals(list1.size(), 1);
+    CurveSensitivities csens1 = list1.get(0);
+    assertEquals(csens1.getInfo().getAttribute(CCP_ATTR), "CME");
+    assertEquals(csens1.getTypedSensitivities().size(), 1);
+    assertSens(csens1, ZERO_RATE_GAMMA, "GBCURVE", GBP, "1M, 3M, 6M", 4, 5, 6);
+  }
+
+  public void test_parse_standard_dateInTenorColumn() {
+    CharSource source = CharSource.wrap(
+        "Reference,Sensitivity Type,Sensitivity Tenor,Value\n" +
+            "GBP,ZeroRateGamma,2018-06-30,1\n");
+    assertEquals(LOADER_DATE.isKnownFormat(source), true);
+    ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER_DATE.parse(ImmutableList.of(source));
+    assertEquals(test.getFailures().size(), 1);
+    assertEquals(test.getValue().size(), 0);
+    FailureItem failure0 = test.getFailures().get(0);
+    assertEquals(failure0.getReason(), FailureReason.PARSING);
+    assertEquals(
+        failure0.getMessage(),
+        "CSV file could not be parsed at line 2: Invalid tenor '2018-06-30', must be expressed as nD, nW, nM or nY");
+  }
+
+  //-------------------------------------------------------------------------
   public void test_parse_list() {
     CharSource source =
         ResourceLocator.ofClasspath("com/opengamma/strata/loader/csv/sensitivity-list.csv").getCharSource();
@@ -374,7 +434,7 @@ public final class SensitivityCsvLoaderTest {
     assertEquals(failure0.getReason(), FailureReason.PARSING);
     assertEquals(
         failure0.getMessage(),
-        "CSV file could not be parsed: Missing column 'Sensitivity Tenor' or 'Sensitivity Date'");
+        "CSV file could not be parsed as sensitivities, invalid format");
   }
 
   public void test_parse_grid_neitherTenorNorDate() {

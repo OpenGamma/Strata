@@ -51,6 +51,23 @@ public class ValueWithFailuresTest {
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
+  public void test_of_supplier_success() {
+    ValueWithFailures<String> test = ValueWithFailures.of("", () -> "A");
+    assertEquals(test.hasFailures(), false);
+    assertEquals(test.getValue(), "A");
+    assertEquals(test.getFailures(), ImmutableList.of());
+  }
+
+  public void test_of_supplier_failure() {
+    ValueWithFailures<String> test = ValueWithFailures.of("", () -> {
+      throw new IllegalArgumentException();
+    });
+    assertEquals(test.hasFailures(), true);
+    assertEquals(test.getValue(), "");
+    assertEquals(test.getFailures().size(), 1);
+    assertEquals(test.getFailures().get(0).getReason(), FailureReason.ERROR);
+  }
+
   //-------------------------------------------------------------------------
   public void test_map() {
     ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("1", "2"), ImmutableList.of(FAILURE1));

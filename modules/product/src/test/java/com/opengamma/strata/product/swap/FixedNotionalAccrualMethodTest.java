@@ -14,45 +14,49 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+/**
+ * Test {@link FixedAccrualMethod}.
+ */
+@Test
 public class FixedNotionalAccrualMethodTest {
-  
-  //-------------------------------------------------------------------------
+
   @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
-        {FixedNotionalAccrualMethod.NONE, "None"},
-        {FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE, "OvernightCompoundedAnnualRate"},
+        {FixedAccrualMethod.DEFAULT, "Default"},
+        {FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE, "OvernightCompoundedAnnualRate"},
     };
   }
-  
+
   @Test(dataProvider = "name")
-  public void test_toString(FixedNotionalAccrualMethod convention, String name) {
+  public void test_toString(FixedAccrualMethod convention, String name) {
     assertEquals(convention.toString(), name);
   }
-  
+
   @Test(dataProvider = "name")
-  public void test_of_lookup(FixedNotionalAccrualMethod convention, String name) {
-    assertEquals(FixedNotionalAccrualMethod.of(name), convention);
+  public void test_of_lookup(FixedAccrualMethod convention, String name) {
+    assertEquals(FixedAccrualMethod.of(name), convention);
   }
-  
+
   public void test_of_lookup_notFound() {
-    assertThrows(() -> FixedNotionalAccrualMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThrows(() -> FixedAccrualMethod.of("Rubbish"), IllegalArgumentException.class);
   }
-  
+
   public void test_of_lookup_null() {
-    assertThrows(() -> FixedNotionalAccrualMethod.of(null), IllegalArgumentException.class);
+    assertThrows(() -> FixedAccrualMethod.of(null), IllegalArgumentException.class);
   }
-  
+
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverEnum(FixedNotionalAccrualMethod.class);
+    coverEnum(FixedAccrualMethod.class);
   }
-  
+
   public void test_serialization() {
-    assertSerialization(FixedNotionalAccrualMethod.NONE);
+    assertSerialization(FixedAccrualMethod.DEFAULT);
   }
-  
+
   public void test_jodaConvert() {
-    assertJodaConvert(FixedNotionalAccrualMethod.class, FixedNotionalAccrualMethod.NONE);
+    assertJodaConvert(FixedAccrualMethod.class, FixedAccrualMethod.DEFAULT);
   }
+
 }

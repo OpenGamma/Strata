@@ -104,7 +104,7 @@ public class DispatchingRateComputationFn
    * @param iborInterpolatedRateComputationFn  the rate computation for {@link IborInterpolatedRateComputation}
    * @param iborAveragedRateComputationFn  the rate computation for {@link IborAveragedRateComputation}
    * @param overnightCompoundedRateComputationFn  the rate computation for {@link OvernightCompoundedRateComputation}
-   * @param overnightCompoundedRateComputationFn  the rate computation for {@link OvernightCompoundedAnnualRateComputation}
+   * @param overnightCompundedAnnualRateComputationFn  the rate computation for {@link OvernightCompoundedAnnualRateComputation}
    * @param overnightAveragedRateComputationFn  the rate computation for {@link OvernightAveragedRateComputation}
    * @param overnightAveragedDailyRateComputationFn  the rate computation for {@link OvernightAveragedDailyRateComputation}
    * @param inflationMonthlyRateComputationFn  the rate computation for {@link InflationMonthlyRateComputation}
@@ -117,7 +117,7 @@ public class DispatchingRateComputationFn
       RateComputationFn<IborInterpolatedRateComputation> iborInterpolatedRateComputationFn,
       RateComputationFn<IborAveragedRateComputation> iborAveragedRateComputationFn,
       RateComputationFn<OvernightCompoundedRateComputation> overnightCompoundedRateComputationFn,
-      RateComputationFn<OvernightCompoundedAnnualRateComputation> brazilOvernightCompundedRateComputationFn,
+      RateComputationFn<OvernightCompoundedAnnualRateComputation> overnightCompundedAnnualRateComputationFn,
       RateComputationFn<OvernightAveragedRateComputation> overnightAveragedRateComputationFn,
       RateComputationFn<OvernightAveragedDailyRateComputation> overnightAveragedDailyRateComputationFn,
       RateComputationFn<InflationMonthlyRateComputation> inflationMonthlyRateComputationFn,
@@ -134,7 +134,7 @@ public class DispatchingRateComputationFn
     this.overnightCompoundedRateComputationFn =
         ArgChecker.notNull(overnightCompoundedRateComputationFn, "overnightCompoundedRateComputationFn");
     this.overnightCompundedAnnualRateComputationFn =
-        ArgChecker.notNull(brazilOvernightCompundedRateComputationFn, "brazilOvernightCompoundedRateComputationFn");
+        ArgChecker.notNull(overnightCompundedAnnualRateComputationFn, "overnightCompundedAnnualRateComputationFn");
     this.overnightAveragedRateComputationFn =
         ArgChecker.notNull(overnightAveragedRateComputationFn, "overnightAveragedRateComputationFn");
     this.overnightAveragedDailyRateComputationFn =
@@ -163,7 +163,7 @@ public class DispatchingRateComputationFn
       return ((FixedRateComputation) computation).getRate();
     } else if (computation instanceof FixedOvernightCompoundedAnnualRateComputation) {
       // inline code (performance) avoiding need for FixedRateComputationFn implementation
-      return ((FixedOvernightCompoundedAnnualRateComputation) computation).simpleRate();
+      return ((FixedOvernightCompoundedAnnualRateComputation) computation).getSimpleRate();
     } else if (computation instanceof IborRateComputation) {
       return iborRateComputationFn.rate(
           (IborRateComputation) computation, startDate, endDate, provider);

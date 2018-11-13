@@ -180,7 +180,6 @@ public class ForwardOvernightCompoundedAnnualRateComputationFn
         LocalDate startDate = obs.getEffectiveDate();
         LocalDate endDate = computation.calculateMaturityFromFixing(lastFixing);
         double accrualFactor = dayCount.yearFraction(startDate, endDate);
-        double rate = rates.periodRate(obs, endDate);
         PointSensitivityBuilder rateSensitivity = rates.periodRatePointSensitivity(obs, endDate);
         return rateSensitivity.multipliedBy(factor * accrualFactor);
       }

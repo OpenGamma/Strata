@@ -95,7 +95,7 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.swap.CompoundingMethod;
-import com.opengamma.strata.product.swap.FixedNotionalAccrualMethod;
+import com.opengamma.strata.product.swap.FixedAccrualMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
@@ -217,7 +217,7 @@ public class DiscountingSwapProductPricerTest {
           .paymentFrequency(Frequency.TERM)
           .dayCount(BUS_252)
           .accrualBusinessDayAdjustment(BDA_MF)
-          .fixedNotionalAccrualMethod(FixedNotionalAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+          .accrualMethod(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
           .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
           .build();
   public static final OvernightRateSwapLegConvention BRL_FLOATING_LEG_CONV =
