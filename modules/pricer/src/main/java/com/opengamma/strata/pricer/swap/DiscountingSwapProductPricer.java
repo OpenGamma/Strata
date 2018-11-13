@@ -242,7 +242,7 @@ public class DiscountingSwapProductPricer {
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
       Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
-      if(annualRateCompIfPresent.isPresent()) {
+      if (annualRateCompIfPresent.isPresent()) {
         return parRate(swap, provider) - annualRateCompIfPresent.get().getRate();
       }
     }
@@ -356,7 +356,7 @@ public class DiscountingSwapProductPricer {
     }
     //does the fixed leg have a future value notional
     Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
-    if(annualRateCompIfPresent.isPresent()) {
+    if (annualRateCompIfPresent.isPresent()) {
       RatePaymentPeriod payment = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
       double af = annualRateCompIfPresent.get().getAccrualFactor();
       double notional = payment.getNotional();
@@ -437,7 +437,7 @@ public class DiscountingSwapProductPricer {
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
       Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
-      if(annualRateCompIfPresent.isPresent()) {
+      if (annualRateCompIfPresent.isPresent()) {
         return parRateSensitivity(swap, provider);
       }
     }
