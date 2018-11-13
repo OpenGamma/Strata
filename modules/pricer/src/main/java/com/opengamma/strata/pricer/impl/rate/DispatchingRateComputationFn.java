@@ -272,8 +272,9 @@ public class DispatchingRateComputationFn
     } else if (computation instanceof FixedOvernightCompoundedAnnualRateComputation) {
       // inline code (performance) avoiding need for FixedRateComputationFn implementation
       double rate = ((FixedOvernightCompoundedAnnualRateComputation) computation).getRate();
+      double simpleRate = ((FixedOvernightCompoundedAnnualRateComputation) computation).simpleRate();
       builder.put(ExplainKey.FIXED_RATE, rate);
-      builder.put(ExplainKey.COMBINED_RATE, rate);
+      builder.put(ExplainKey.COMBINED_RATE, simpleRate);
       return rate;
     } else if (computation instanceof IborRateComputation) {
       return iborRateComputationFn.explainRate(

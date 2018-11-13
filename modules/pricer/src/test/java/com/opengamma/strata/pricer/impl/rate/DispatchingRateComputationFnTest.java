@@ -371,13 +371,14 @@ public class DispatchingRateComputationFnTest {
   }
   
   public void test_explainRate_FixedOvernightCompoundedAnnualRateComputation() {
-    FixedOvernightCompoundedAnnualRateComputation ro = FixedOvernightCompoundedAnnualRateComputation.of(0.0123d, 1.0d);
+    double simpleRate = (Math.pow(1 + 0.0123d, 0.5d) - 1) / 0.5d;
+    FixedOvernightCompoundedAnnualRateComputation ro = FixedOvernightCompoundedAnnualRateComputation.of(0.0123d, 0.5d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
     assertEquals(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder), 0.0123d, 0d);
     ExplainMap built = builder.build();
     assertEquals(built.get(ExplainKey.FIXED_RATE), Optional.of(0.0123d));
-    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(0.0123d));
+    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(simpleRate));
   }
 
   //-------------------------------------------------------------------------

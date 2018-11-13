@@ -25,8 +25,7 @@ import com.opengamma.strata.product.rate.OvernightCompoundedAnnualRateComputatio
  * Rate computation implementation for a rate based on a single overnight index that is compounded using an annual rate.
  * <p>
  * Rates that are already fixed are retrieved from the time series of the {@link RatesProvider}.
- * Rates that are in the future and not in the cut-off period are computed as unique forward rate in the full future period.
- * Rates that are in the cut-off period (already fixed or forward) are compounded.
+ * Rates that are in the future are computed as a unique forward rate in the full future period.
  */
 public class ForwardOvernightCompoundedAnnualRateComputationFn
     implements RateComputationFn<OvernightCompoundedAnnualRateComputation> {

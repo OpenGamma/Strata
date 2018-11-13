@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.swap;
 import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.ToDoubleBiFunction;
 
@@ -240,15 +241,9 @@ public class DiscountingSwapProductPricer {
     // does the fixed leg, if it exists, of the swap have a future value notional
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
-      SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
-      if (firstPeriod instanceof RatePaymentPeriod) {
-        RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
-        RateAccrualPeriod firstAccrualPeriod = payment.getAccrualPeriods().get(0);
-        if (firstAccrualPeriod.getRateComputation() instanceof FixedOvernightCompoundedAnnualRateComputation) {
-          FixedOvernightCompoundedAnnualRateComputation fixedOvernightCompoundedAnnualRateComputation
-              = (FixedOvernightCompoundedAnnualRateComputation) firstAccrualPeriod.getRateComputation();
-          return parRate(swap, provider) - fixedOvernightCompoundedAnnualRateComputation.getRate();
-        }
+      Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
+      if(annualRateCompIfPresent.isPresent()) {
+        return parRate(swap, provider) - annualRateCompIfPresent.get().getRate();
       }
     }
     ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
@@ -360,6 +355,26 @@ public class DiscountingSwapProductPricer {
       }
     }
     //does the fixed leg have a future value notional
+    Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
+    if(annualRateCompIfPresent.isPresent()) {
+      RatePaymentPeriod payment = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
+      double af = annualRateCompIfPresent.get().getAccrualFactor();
+      double notional = payment.getNotional();
+      double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
+      double otherLegsConvertedPvBar = -Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d, 1.0 / af - 1.0d) / (af * notional * df);
+      double dfBar = Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d, 1.0 / af - 1.0d) * otherLegsConvertedPv / (af * notional * df * df);
+      PointSensitivityBuilder otherLegsConvertedPvDr = PointSensitivityBuilder.none();
+      for (ResolvedSwapLeg leg : swap.getLegs()) {
+        if (leg != fixedLeg) {
+          PointSensitivityBuilder pvLegDr = getLegPricer().presentValueSensitivity(leg, provider)
+              .multipliedBy(provider.fxRate(leg.getCurrency(), ccyFixedLeg));
+          otherLegsConvertedPvDr = otherLegsConvertedPvDr.combinedWith(pvLegDr);
+        }
+      }
+      otherLegsConvertedPvDr = otherLegsConvertedPvDr.withCurrency(ccyFixedLeg);
+      PointSensitivityBuilder dfDr = provider.discountFactors(ccyFixedLeg).zeroRatePointSensitivity(fixedLeg.getPaymentPeriods().get(0).getPaymentDate());
+      return dfDr.multipliedBy(dfBar).combinedWith(otherLegsConvertedPvDr.multipliedBy(otherLegsConvertedPvBar));
+    }
     SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
     if (firstPeriod instanceof RatePaymentPeriod) {
       RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
@@ -421,13 +436,9 @@ public class DiscountingSwapProductPricer {
     // does the fixed leg of the swap, if it exists, have a future value notional
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
-      SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
-      if (firstPeriod instanceof RatePaymentPeriod) {
-        RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
-        RateAccrualPeriod firstAccrualPeriod = payment.getAccrualPeriods().get(0);
-        if (firstAccrualPeriod.getRateComputation() instanceof FixedOvernightCompoundedAnnualRateComputation) {
-          return parRateSensitivity(swap, provider);
-        }
+      Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
+      if(annualRateCompIfPresent.isPresent()) {
+        return parRateSensitivity(swap, provider);
       }
     }
     ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
@@ -525,6 +536,24 @@ public class DiscountingSwapProductPricer {
       ce = ce.plus(legPricer.currentCash(leg, provider));
     }
     return ce;
+  }
+
+  /**
+   * Finds a fixed overnight compounded annual rate computation if present.
+   *
+   * @param fixedLeg the fixed leg of the swap
+   * @return the fixed overnight compounded annual rate computation if present
+   */
+  public Optional<FixedOvernightCompoundedAnnualRateComputation> findFixedOvernightCompoundedAnnualRateComputation(ResolvedSwapLeg fixedLeg) {
+    SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
+    if (firstPeriod instanceof RatePaymentPeriod) {
+      RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;
+      RateAccrualPeriod firstAccrualPeriod = payment.getAccrualPeriods().get(0);
+      if (firstAccrualPeriod.getRateComputation() instanceof FixedOvernightCompoundedAnnualRateComputation) {
+        return Optional.of((FixedOvernightCompoundedAnnualRateComputation) firstAccrualPeriod.getRateComputation());
+      }
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

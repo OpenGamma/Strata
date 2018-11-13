@@ -75,7 +75,6 @@ import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.product.swap.type.ImmutableFixedOvernightSwapConvention;
 import com.opengamma.strata.product.swap.type.OvernightRateSwapLegConvention;
 
-
 /**
  * Test for curve calibration with 1 curves in BRL.
  */
@@ -142,13 +141,9 @@ public class CalibrationDiscountingBrlTest {
       DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()));
   
   /** Market values for the BRL curve */
-  private static final double[] OIS_MARKET_QUOTES = new double[] {
-      0.1380, 0.1340, 0.1250, 0.1175, 0.1150,
-      0.1150, 0.1160};
+  private static final double[] OIS_MARKET_QUOTES = new double[] {0.1380, 0.1340, 0.1250, 0.1175, 0.1150, 0.1150, 0.1160};
   private static final int OIS_NB_NODES = OIS_MARKET_QUOTES.length;
-  private static final String[] OIS_ID_VALUE = new String[] {
-      "OIS-3M", "OIS-6M", "OIS-1Y", "OIS-2Y", "OIS-3Y",
-      "OIS-4Y", "OIS-5Y"};
+  private static final String[] OIS_ID_VALUE = new String[] {"OIS-3M", "OIS-6M", "OIS-1Y", "OIS-2Y", "OIS-3Y", "OIS-4Y", "OIS-5Y"};
   
   /** Nodes for the BRL curve */
   private static final CurveNode[] ALL_NODES = new CurveNode[OIS_NB_NODES];
@@ -187,13 +182,16 @@ public class CalibrationDiscountingBrlTest {
   private static final List<List<CurveMetadata>> CURVES_METADATA = new ArrayList<>();
   static {
     List<CurveMetadata> groupMetadata = new ArrayList<>();
-    groupMetadata.add(DefaultCurveMetadata.builder().curveName(ALL_CURVE_NAME).xValueType(ValueType.YEAR_FRACTION)
-        .yValueType(ValueType.ZERO_RATE).dayCount(CURVE_DC).build());
+    groupMetadata.add(DefaultCurveMetadata.builder()
+        .curveName(ALL_CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.ZERO_RATE)
+        .dayCount(CURVE_DC)
+        .build());
     CURVES_METADATA.add(groupMetadata);
   }
   
-  private static final DiscountingSwapProductPricer SWAP_PRICER =
-      DiscountingSwapProductPricer.DEFAULT;
+  private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
   private static final MarketQuoteSensitivityCalculator MQC = MarketQuoteSensitivityCalculator.DEFAULT;
   
   private static final RatesCurveCalibrator CALIBRATOR = RatesCurveCalibrator.of(1e-9, 1e-9, 100);
@@ -273,6 +271,7 @@ public class CalibrationDiscountingBrlTest {
   private void calibration_market_quote_sensitivity_check(
       Function<MarketData, RatesProvider> calibrator,
       double shift) {
+
     double notional = 100_000_000.0;
     double rate = 0.1723;
     SwapTrade trade = BRL_OIS_CONVENTION.createTrade(
