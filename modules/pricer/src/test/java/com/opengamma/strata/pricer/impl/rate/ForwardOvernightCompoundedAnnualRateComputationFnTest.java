@@ -3,11 +3,6 @@
  *
  * Please see distribution for license.
  */
-/*
- * Copyright (C) 2018 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
- * Please see distribution for license.
- */
 package com.opengamma.strata.pricer.impl.rate;
 
 import static com.opengamma.strata.basics.index.OvernightIndices.BRL_CDI;
@@ -75,12 +70,8 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
       OvernightIndexObservation.of(BRL_CDI, date(2015, 1, 14), REF_DATA),
       OvernightIndexObservation.of(BRL_CDI, date(2015, 1, 15), REF_DATA)};
 
-  private static final double[] FIXING_RATES = {
-      0.0012, 0.0023, 0.0034,
-      0.0045, 0.0056, 0.0067, 0.0078};
-  private static final double[] FORWARD_RATES = {
-      0.0112, 0.0123, 0.0134,
-      0.0145, 0.0156, 0.0167, 0.0178};
+  private static final double[] FIXING_RATES = {0.0012, 0.0023, 0.0034, 0.0045, 0.0056, 0.0067, 0.0078};
+  private static final double[] FORWARD_RATES = {0.0112, 0.0123, 0.0134, 0.0145, 0.0156, 0.0167, 0.0178};
 
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double EPS_FD = 1.0E-7;
