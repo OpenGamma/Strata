@@ -178,6 +178,7 @@ public class DiscountingSwapProductPricer {
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate
+   * @throws IllegalArgumentException if there is no fixed leg
    */
   public double parRate(ResolvedSwap swap, RatesProvider provider) {
     // find fixed leg
@@ -241,9 +242,9 @@ public class DiscountingSwapProductPricer {
     // does the fixed leg, if it exists, of the swap have a future value notional
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
-      Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
-      if (annualRateCompIfPresent.isPresent()) {
-        return parRate(swap, provider) - annualRateCompIfPresent.get().getRate();
+      Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompOpt = findAnnualRateComputation(fixedLeg);
+      if (annualRateCompOpt.isPresent()) {
+        return parRate(swap, provider) - annualRateCompOpt.get().getRate();
       }
     }
     ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
@@ -342,6 +343,7 @@ public class DiscountingSwapProductPricer {
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate curve sensitivity of the swap product
+   * @throws IllegalArgumentException if there is no fixed leg
    */
   public PointSensitivityBuilder parRateSensitivity(ResolvedSwap swap, RatesProvider provider) {
     ResolvedSwapLeg fixedLeg = fixedLeg(swap);
@@ -354,11 +356,11 @@ public class DiscountingSwapProductPricer {
         otherLegsConvertedPv += (pvLocal * provider.fxRate(leg.getCurrency(), ccyFixedLeg));
       }
     }
-    //does the fixed leg have a future value notional
-    Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
-    if (annualRateCompIfPresent.isPresent()) {
+    // does the fixed leg have a future value notional
+    Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompOpt = findAnnualRateComputation(fixedLeg);
+    if (annualRateCompOpt.isPresent()) {
       RatePaymentPeriod payment = (RatePaymentPeriod) fixedLeg.getPaymentPeriods().get(0);
-      double af = annualRateCompIfPresent.get().getAccrualFactor();
+      double af = annualRateCompOpt.get().getAccrualFactor();
       double notional = payment.getNotional();
       double df = provider.discountFactor(ccyFixedLeg, payment.getPaymentDate());
       double otherLegsConvertedPvBar = -Math.pow(-otherLegsConvertedPv  / (notional * df) + 1.0d, 1.0 / af - 1.0d) / (af * notional * df);
@@ -413,8 +415,8 @@ public class DiscountingSwapProductPricer {
     // does the fixed leg of the swap, if it exists, have a future value notional
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
       ResolvedSwapLeg fixedLeg = fixedLeg(swap);
-      Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompIfPresent = findFixedOvernightCompoundedAnnualRateComputation(fixedLeg);
-      if (annualRateCompIfPresent.isPresent()) {
+      Optional<FixedOvernightCompoundedAnnualRateComputation> annualRateCompOpt = findAnnualRateComputation(fixedLeg);
+      if (annualRateCompOpt.isPresent()) {
         return parRateSensitivity(swap, provider);
       }
     }
@@ -515,13 +517,8 @@ public class DiscountingSwapProductPricer {
     return ce;
   }
 
-  /**
-   * Finds a fixed overnight compounded annual rate computation if present.
-   *
-   * @param fixedLeg the fixed leg of the swap
-   * @return the fixed overnight compounded annual rate computation if present
-   */
-  public Optional<FixedOvernightCompoundedAnnualRateComputation> findFixedOvernightCompoundedAnnualRateComputation(ResolvedSwapLeg fixedLeg) {
+  // finds a fixed overnight compounded annual rate computation if present
+  private Optional<FixedOvernightCompoundedAnnualRateComputation> findAnnualRateComputation(ResolvedSwapLeg fixedLeg) {
     SwapPaymentPeriod firstPeriod = fixedLeg.getPaymentPeriods().get(0);
     if (firstPeriod instanceof RatePaymentPeriod) {
       RatePaymentPeriod payment = (RatePaymentPeriod) firstPeriod;

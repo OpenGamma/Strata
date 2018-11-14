@@ -141,9 +141,11 @@ public class CalibrationDiscountingBrlTest {
       DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()));
   
   /** Market values for the BRL curve */
-  private static final double[] OIS_MARKET_QUOTES = new double[] {0.1380, 0.1340, 0.1250, 0.1175, 0.1150, 0.1150, 0.1160};
+  private static final double[] OIS_MARKET_QUOTES = new double[] {
+      0.1380, 0.1340, 0.1250, 0.1175, 0.1150, 0.1150, 0.1160};
   private static final int OIS_NB_NODES = OIS_MARKET_QUOTES.length;
-  private static final String[] OIS_ID_VALUE = new String[] {"OIS-3M", "OIS-6M", "OIS-1Y", "OIS-2Y", "OIS-3Y", "OIS-4Y", "OIS-5Y"};
+  private static final String[] OIS_ID_VALUE = new String[] {
+      "OIS-3M", "OIS-6M", "OIS-1Y", "OIS-2Y", "OIS-3Y", "OIS-4Y", "OIS-5Y"};
   
   /** Nodes for the BRL curve */
   private static final CurveNode[] ALL_NODES = new CurveNode[OIS_NB_NODES];
