@@ -21,6 +21,8 @@ import static com.opengamma.strata.basics.schedule.StubConvention.LONG_INITIAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.NONE;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_FINAL;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -107,6 +109,16 @@ public class StubConventionTest {
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {LONG_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
 
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_16},
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_16},
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, JUNE, 30), P1M, false, DAY_30},
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, JUNE, 30), P1M, true, EOM},
+
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, false, DAY_SAT},
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_SAT},
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
+        {SMART_INITIAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
+
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
         {SHORT_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
         {SHORT_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, false, DAY_30},
@@ -126,6 +138,16 @@ public class StubConventionTest {
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_TUE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
         {LONG_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
+
+        {SMART_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
+        {SMART_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
+        {SMART_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, false, DAY_30},
+        {SMART_FINAL, date(2014, JUNE, 30), date(2014, AUGUST, 16), P1M, true, EOM},
+
+        {SMART_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, false, DAY_TUE},
+        {SMART_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P2W, true, DAY_TUE},
+        {SMART_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, false, RollConventions.NONE},
+        {SMART_FINAL, date(2014, JANUARY, 14), date(2014, AUGUST, 16), TERM, true, RollConventions.NONE},
 
         {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
         {BOTH, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, true, DAY_14},
@@ -157,6 +179,11 @@ public class StubConventionTest {
         {LONG_INITIAL, false, true, null},
         {LONG_INITIAL, true, true, null},
 
+        {SMART_INITIAL, false, false, SMART_INITIAL},
+        {SMART_INITIAL, true, false, NONE},
+        {SMART_INITIAL, false, true, null},
+        {SMART_INITIAL, true, true, null},
+
         {SHORT_FINAL, false, false, SHORT_FINAL},
         {SHORT_FINAL, true, false, null},
         {SHORT_FINAL, false, true, NONE},
@@ -166,6 +193,11 @@ public class StubConventionTest {
         {LONG_FINAL, true, false, null},
         {LONG_FINAL, false, true, NONE},
         {LONG_FINAL, true, true, null},
+
+        {SMART_FINAL, false, false, SMART_FINAL},
+        {SMART_FINAL, true, false, null},
+        {SMART_FINAL, false, true, NONE},
+        {SMART_FINAL, true, true, null},
 
         {BOTH, false, false, null},
         {BOTH, true, false, null},
@@ -185,11 +217,45 @@ public class StubConventionTest {
   }
 
   //-------------------------------------------------------------------------
+  @DataProvider(name = "isStubLong")
+  public static Object[][] data_isStubLong() {
+    return new Object[][] {
+        {NONE, date(2018, 6, 1), date(2018, 6, 8), false},
+        {SHORT_INITIAL, date(2018, 6, 1), date(2018, 6, 8), false},
+        {LONG_INITIAL, date(2018, 6, 1), date(2018, 6, 8), true},
+        {SHORT_FINAL, date(2018, 6, 1), date(2018, 6, 8), false},
+        {LONG_FINAL, date(2018, 6, 1), date(2018, 6, 8), true},
+        {BOTH, date(2018, 6, 1), date(2018, 6, 8), false},
+
+        {SMART_INITIAL, date(2018, 6, 1), date(2018, 6, 2), true},
+        {SMART_INITIAL, date(2018, 6, 1), date(2018, 6, 7), true},
+        {SMART_INITIAL, date(2018, 6, 1), date(2018, 6, 8), false},
+        {SMART_INITIAL, date(2018, 6, 1), date(2018, 6, 9), false},
+
+        {SMART_FINAL, date(2018, 6, 1), date(2018, 6, 2), true},
+        {SMART_FINAL, date(2018, 6, 1), date(2018, 6, 7), true},
+        {SMART_FINAL, date(2018, 6, 1), date(2018, 6, 8), false},
+        {SMART_FINAL, date(2018, 6, 1), date(2018, 6, 9), false},
+    };
+  }
+
+  @Test(dataProvider = "isStubLong")
+  public void test_isStubLong(
+      StubConvention conv, LocalDate date1, LocalDate date2, Boolean expected) {
+    if (expected == null) {
+      assertThrowsIllegalArg(() -> conv.isStubLong(date1, date2));
+    } else {
+      assertEquals(conv.isStubLong(date1, date2), expected.booleanValue());
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void test_NONE() {
     assertEquals(NONE.isCalculateForwards(), true);
     assertEquals(NONE.isCalculateBackwards(), false);
     assertEquals(NONE.isLong(), false);
     assertEquals(NONE.isShort(), false);
+    assertEquals(NONE.isSmart(), false);
   }
 
   public void test_SHORT_INITIAL() {
@@ -197,6 +263,7 @@ public class StubConventionTest {
     assertEquals(SHORT_INITIAL.isCalculateBackwards(), true);
     assertEquals(SHORT_INITIAL.isLong(), false);
     assertEquals(SHORT_INITIAL.isShort(), true);
+    assertEquals(SHORT_INITIAL.isSmart(), false);
   }
 
   public void test_LONG_INITIAL() {
@@ -204,6 +271,15 @@ public class StubConventionTest {
     assertEquals(LONG_INITIAL.isCalculateBackwards(), true);
     assertEquals(LONG_INITIAL.isLong(), true);
     assertEquals(LONG_INITIAL.isShort(), false);
+    assertEquals(LONG_INITIAL.isSmart(), false);
+  }
+
+  public void test_SMART_INITIAL() {
+    assertEquals(SMART_INITIAL.isCalculateForwards(), false);
+    assertEquals(SMART_INITIAL.isCalculateBackwards(), true);
+    assertEquals(SMART_INITIAL.isLong(), false);
+    assertEquals(SMART_INITIAL.isShort(), false);
+    assertEquals(SMART_INITIAL.isSmart(), true);
   }
 
   public void test_SHORT_FINAL() {
@@ -211,6 +287,7 @@ public class StubConventionTest {
     assertEquals(SHORT_FINAL.isCalculateBackwards(), false);
     assertEquals(SHORT_FINAL.isLong(), false);
     assertEquals(SHORT_FINAL.isShort(), true);
+    assertEquals(SHORT_FINAL.isSmart(), false);
   }
 
   public void test_LONG_FINAL() {
@@ -218,6 +295,15 @@ public class StubConventionTest {
     assertEquals(LONG_FINAL.isCalculateBackwards(), false);
     assertEquals(LONG_FINAL.isLong(), true);
     assertEquals(LONG_FINAL.isShort(), false);
+    assertEquals(LONG_FINAL.isSmart(), false);
+  }
+
+  public void test_SMART_FINAL() {
+    assertEquals(SMART_FINAL.isCalculateForwards(), true);
+    assertEquals(SMART_FINAL.isCalculateBackwards(), false);
+    assertEquals(SMART_FINAL.isLong(), false);
+    assertEquals(SMART_FINAL.isShort(), false);
+    assertEquals(SMART_FINAL.isSmart(), true);
   }
 
   public void test_BOTH() {
@@ -225,6 +311,7 @@ public class StubConventionTest {
     assertEquals(BOTH.isCalculateBackwards(), false);
     assertEquals(BOTH.isLong(), false);
     assertEquals(BOTH.isShort(), false);
+    assertEquals(BOTH.isSmart(), false);
   }
 
   //-------------------------------------------------------------------------
@@ -234,8 +321,10 @@ public class StubConventionTest {
         {NONE, "None"},
         {SHORT_INITIAL, "ShortInitial"},
         {LONG_INITIAL, "LongInitial"},
+        {SMART_INITIAL, "SmartInitial"},
         {SHORT_FINAL, "ShortFinal"},
         {LONG_FINAL, "LongFinal"},
+        {SMART_FINAL, "SmartFinal"},
         {BOTH, "Both"},
     };
   }

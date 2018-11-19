@@ -273,7 +273,8 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    * @return the stream wrapping this iterator
    */
   public Stream<CsvRow> asStream() {
-    Spliterator<CsvRow> spliterator = Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED | Spliterator.NONNULL);
+    Spliterator<CsvRow> spliterator =
+        Spliterators.spliteratorUnknownSize(this, Spliterator.ORDERED | Spliterator.NONNULL);
     return StreamSupport.stream(spliterator, false);
   }
 

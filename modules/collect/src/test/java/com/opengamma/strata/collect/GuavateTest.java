@@ -25,6 +25,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -186,6 +187,13 @@ public class GuavateTest {
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableList());
     assertEquals(test, ImmutableList.of("a", "b", "c", "a"));
+  }
+
+  public void test_splittingBySize() {
+    List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
+    ImmutableList<ImmutableList<String>> test = list.stream()
+        .collect(Guavate.splittingBySize(4));
+    assertEquals(test, ImmutableList.of(ImmutableList.of("a", "ab", "b", "bb"), ImmutableList.of("c", "a")));
   }
 
   public void test_toImmutableSet() {
@@ -519,7 +527,8 @@ public class GuavateTest {
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-    CompletableFuture<String> future = Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
+    CompletableFuture<String> future =
+        Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
     assertEquals(future.join(), "Yes");
   }
 
@@ -538,11 +547,33 @@ public class GuavateTest {
 
     ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     try {
-      CompletableFuture<String> future = Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
+      CompletableFuture<String> future =
+          Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
       assertThrows(() -> future.join(), CompletionException.class, "java.lang.IllegalStateException: Expected");
     } finally {
       executor.shutdown();
     }
+  }
+
+  //-------------------------------------------------------------------------
+  private static void doNothing() {
+  }
+
+  public void test_namedThreadFactory() {
+    ThreadFactory threadFactory = Guavate.namedThreadFactory().build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "GuavateTest-0");
+  }
+
+  public void test_namedThreadFactory_prefix() {
+    ThreadFactory threadFactory = Guavate.namedThreadFactory("ThreadMaker").build();
+    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "ThreadMaker-0");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_callerClass() {
+    assertEquals(Guavate.callerClass(0), Guavate.CallerClassSecurityManager.class);
+    assertEquals(Guavate.callerClass(1), Guavate.class);
+    assertEquals(Guavate.callerClass(2), GuavateTest.class);
   }
 
   //-------------------------------------------------------------------------

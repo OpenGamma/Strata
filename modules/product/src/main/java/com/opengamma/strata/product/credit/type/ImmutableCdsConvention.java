@@ -113,7 +113,7 @@ public final class ImmutableCdsConvention
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
    * <p>
-   * This will default to 'short initial' if not specified.
+   * This will default to 'SmartInitial' if not specified.
    */
   @PropertyDefinition(validate = "notNull")
   private final StubConvention stubConvention;
@@ -196,7 +196,7 @@ public final class ImmutableCdsConvention
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.stubConvention == null) {
-      builder.stubConvention = StubConvention.SHORT_INITIAL;
+      builder.stubConvention = StubConvention.SMART_INITIAL;
     }
     if (builder.paymentOnDefault == null) {
       builder.paymentOnDefault = PaymentOnDefault.ACCRUED_PREMIUM;
@@ -469,7 +469,7 @@ public final class ImmutableCdsConvention
    * remaining period occurs at the start or end of the schedule.
    * It also determines whether the irregular period is shorter or longer than the regular period.
    * <p>
-   * This will default to 'short initial' if not specified.
+   * This will default to 'SmartInitial' if not specified.
    * @return the value of the property, not null
    */
   public StubConvention getStubConvention() {
@@ -1152,7 +1152,7 @@ public final class ImmutableCdsConvention
      * remaining period occurs at the start or end of the schedule.
      * It also determines whether the irregular period is shorter or longer than the regular period.
      * <p>
-     * This will default to 'short initial' if not specified.
+     * This will default to 'SmartInitial' if not specified.
      * @param stubConvention  the new value, not null
      * @return this, for chaining, not null
      */

@@ -21,6 +21,7 @@ import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -42,6 +43,8 @@ import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
 
@@ -129,6 +132,8 @@ public final class Guavate {
   //-------------------------------------------------------------------------
   /**
    * Creates a single {@code Map.Entry}.
+   * <p>
+   * The entry is immutable.
    * 
    * @param <K>  the type of the key
    * @param <V>  the type of the value
@@ -265,7 +270,7 @@ public final class Guavate {
    * <pre>
    *  stream.filter(not(String::isEmpty))
    * </pre>
-   * 
+   *
    * @param <R>  the type of the object the predicate works on
    * @param predicate  the predicate to negate
    * @return the negated predicate
@@ -287,7 +292,7 @@ public final class Guavate {
    * <pre>
    *   stream.filter(...).reduce(Guavate.ensureOnlyOne()).get();
    * </pre>
-   * 
+   *
    * @param <T>  the type of element in the stream
    * @return the operator
    */
@@ -305,7 +310,7 @@ public final class Guavate {
    * A collector is used to gather data at the end of a stream operation.
    * This method returns a collector allowing streams to be gathered into
    * an {@link ImmutableList}.
-   * 
+   *
    * @param <T>  the type of element in the list
    * @return the immutable list collector
    */
@@ -315,6 +320,41 @@ public final class Guavate {
         ImmutableList.Builder<T>::add,
         (l, r) -> l.addAll(r.build()),
         ImmutableList.Builder<T>::build);
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable list of
+   * immutable lists of size equal to or less than size.
+   * For example, the following list [a, b, c, d, e] with a partition
+   * size of 2 will give [[a, b], [c, d], [e]].
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableList} of {@link ImmutableList}.
+   *
+   * @param size  the size of the partitions of the original list
+   * @param <T>  the type of element in the list
+   * @return the immutable list of lists collector
+   */
+  public static <T> Collector<T, ?, ImmutableList<ImmutableList<T>>> splittingBySize(int size) {
+    return Collectors.collectingAndThen(
+        Collectors.collectingAndThen(
+            Guavate.toImmutableList(),
+            objects -> Lists.partition(objects, size)),
+        Guavate::toImmutables);
+  }
+
+  /**
+   * Helper method to transform a list of lists into their immutable counterparts.
+   *
+   * @param lists  the list of lists
+   * @param <T>  the type of element in the list
+   * @return the immutable lists
+   */
+  private static <T> ImmutableList<ImmutableList<T>> toImmutables(List<List<T>> lists) {
+    return lists.stream()
+        .map(ImmutableList::copyOf)
+        .collect(Guavate.toImmutableList());
   }
 
   /**
@@ -899,6 +939,49 @@ public final class Guavate {
       }
     } catch (RuntimeException ex) {
       resultFuture.completeExceptionally(ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a ThreadFactoryBuilder which names new threads with the name of the calling class plus a unique integer.
+   *
+   * @return the thread factory builder
+   */
+  public static ThreadFactoryBuilder namedThreadFactory() {
+    return namedThreadFactory(callerClass(3).getSimpleName());
+  }
+
+  /**
+   * Creates a ThreadFactoryBuilder which names new threads with the given name prefix plus a unique integer.
+   *
+   * @param threadNamePrefix  the name which new thread names should be prefixed by
+   * @return the thread factory builder
+   */
+  public static ThreadFactoryBuilder namedThreadFactory(String threadNamePrefix) {
+    return new ThreadFactoryBuilder().setNameFormat(threadNamePrefix + "-%d");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the caller class.
+   * <p>
+   * This takes an argument which is the number of stack levels to look back.
+   * This will be 2 to return the caller of this method, 3 to return the caller of the caller, and so on.
+   * 
+   * @param callStackDepth  the depth of the stack to look back
+   * @return the caller class
+   */
+  public static Class<?> callerClass(int callStackDepth) {
+    return CallerClassSecurityManager.INSTANCE.callerClass(callStackDepth);
+  }
+
+  // on Java 9 or later could use StackWalker, but this is a good choice for Java 8
+  static class CallerClassSecurityManager extends SecurityManager {
+    private static final CallerClassSecurityManager INSTANCE = new CallerClassSecurityManager();
+
+    Class<?> callerClass(int callStackDepth) {
+      return getClassContext()[callStackDepth];
     }
   }
 

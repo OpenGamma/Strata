@@ -7,6 +7,7 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URL;
@@ -49,13 +50,13 @@ public class ResourceLocatorTest {
 
   public void test_of_classpath() throws Exception {
     ResourceLocator test = ResourceLocator.of("classpath:com/opengamma/strata/collect/io/TestFile.txt");
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.getLocator().startsWith("classpath"));
+    assertTrue(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.toString().startsWith("classpath"));
+    assertTrue(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
   }
 
   public void test_of_invalid() throws Exception {
@@ -76,23 +77,31 @@ public class ResourceLocatorTest {
   public void test_ofPath() throws Exception {
     Path path = Paths.get("src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
     ResourceLocator test = ResourceLocator.ofPath(path);
-    assertEquals(test.getLocator().replace('\\', '/'), "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
+    assertEquals(
+        test.getLocator().replace('\\', '/'),
+        "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().replace('\\', '/'), "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
+    assertEquals(
+        test.toString().replace('\\', '/'),
+        "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.txt");
   }
 
   public void test_ofPath_zipFile() throws Exception {
     Path path = Paths.get("src/test/resources/com/opengamma/strata/collect/io/TestFile.zip");
     ResourceLocator test = ResourceLocator.ofPath(path);
-    assertEquals(test.getLocator().replace('\\', '/'), "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.zip");
+    assertEquals(
+        test.getLocator().replace('\\', '/'),
+        "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.zip");
     byte[] read = test.getByteSource().read();
     assertEquals(read[0], 80);  // these are the standard header of a zip file
     assertEquals(read[1], 75);
     assertEquals(read[2], 3);
     assertEquals(read[3], 4);
-    assertEquals(test.toString().replace('\\', '/'), "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.zip");
+    assertEquals(
+        test.toString().replace('\\', '/'),
+        "file:src/test/resources/com/opengamma/strata/collect/io/TestFile.zip");
   }
 
   public void test_ofPath_fileInZipFile() throws Exception {
@@ -101,8 +110,8 @@ public class ResourceLocatorTest {
       Path path = fs.getPath("TestFile.txt").toAbsolutePath();
       ResourceLocator test = ResourceLocator.ofPath(path);
       String locator = test.getLocator();
-      assertEquals(locator.startsWith("url:jar:file:"), true);
-      assertEquals(locator.endsWith("src/test/resources/com/opengamma/strata/collect/io/TestFile.zip!/TestFile.txt"), true);
+      assertTrue(locator.startsWith("url:jar:file:"));
+      assertTrue(locator.endsWith("src/test/resources/com/opengamma/strata/collect/io/TestFile.zip!/TestFile.txt"));
       assertEquals(test.getByteSource().read()[0], 'H');
       assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
       assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
@@ -115,8 +124,8 @@ public class ResourceLocatorTest {
     URL url = file.toURI().toURL();
     ResourceLocator test = ResourceLocator.ofUrl(url);
     String locator = test.getLocator();
-    assertEquals(locator.startsWith("url:file:"), true);
-    assertEquals(locator.endsWith("src/test/resources/com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(locator.startsWith("url:file:"));
+    assertTrue(locator.endsWith("src/test/resources/com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
@@ -125,59 +134,59 @@ public class ResourceLocatorTest {
 
   public void test_ofClasspath_absolute() throws Exception {
     ResourceLocator test = ResourceLocator.ofClasspath("/com/opengamma/strata/collect/io/TestFile.txt");
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.getLocator().startsWith("classpath"));
+    assertTrue(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.toString().startsWith("classpath"));
+    assertTrue(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
   }
 
   public void test_ofClasspath_relativeConvertedToAbsolute() throws Exception {
     ResourceLocator test = ResourceLocator.ofClasspath("com/opengamma/strata/collect/io/TestFile.txt");
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.getLocator().startsWith("classpath"));
+    assertTrue(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.toString().startsWith("classpath"));
+    assertTrue(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
   }
 
   public void test_ofClasspath_withClass_absolute() throws Exception {
     ResourceLocator test =
         ResourceLocator.ofClasspath(ResourceLocator.class, "/com/opengamma/strata/collect/io/TestFile.txt");
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.getLocator().startsWith("classpath"));
+    assertTrue(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.toString().startsWith("classpath"));
+    assertTrue(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
   }
 
   public void test_ofClasspath_withClass_relative() throws Exception {
     ResourceLocator test = ResourceLocator.ofClasspath(ResourceLocator.class, "TestFile.txt");
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.getLocator().startsWith("classpath"));
+    assertTrue(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.toString().startsWith("classpath"));
+    assertTrue(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
   }
 
   public void test_ofClasspathUrl() throws Exception {
     URL url = Resources.getResource("com/opengamma/strata/collect/io/TestFile.txt");
     ResourceLocator test = ResourceLocator.ofClasspathUrl(url);
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.getLocator().startsWith("classpath"));
+    assertTrue(test.getLocator().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
     assertEquals(test.getByteSource().read()[0], 'H');
     assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
     assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"), true);
+    assertTrue(test.toString().startsWith("classpath"));
+    assertTrue(test.toString().endsWith("com/opengamma/strata/collect/io/TestFile.txt"));
   }
 
   //-------------------------------------------------------------------------

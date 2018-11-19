@@ -275,7 +275,6 @@ public class MonotonicityPreservingCubicSplineInterpolator extends PiecewisePoly
 
   /**
    * First derivatives are modified such that cubic interpolant has the same sign as linear interpolator 
-   * @param yValues  the y-values
    * @param intervals  the intervals
    * @param slopes  the slopes
    * @param initialFirst  the initial first

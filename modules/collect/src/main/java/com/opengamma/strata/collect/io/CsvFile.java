@@ -283,7 +283,11 @@ public final class CsvFile {
    * @param searchHeaders  the headers transformed for searching
    * @param rows  the data rows
    */
-  private CsvFile(ImmutableList<String> headers, ImmutableMap<String, Integer> searchHeaders, ImmutableList<CsvRow> rows) {
+  private CsvFile(
+      ImmutableList<String> headers,
+      ImmutableMap<String, Integer> searchHeaders,
+      ImmutableList<CsvRow> rows) {
+
     this.headers = headers;
     this.searchHeaders = searchHeaders;
     this.rows = rows;

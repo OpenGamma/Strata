@@ -1,0 +1,9 @@
+Id Scheme,Id,Reference,Sensitivity Type,Sensitivity Tenor,Currency,Value,CCP
+SCHEME,TR1,GBCURVE,ZeroRateDelta,1M,GBP,1,LCH
+SCHEME,TR1,GBCURVE,ZeroRateDelta,3M,GBP,2,LCH
+SCHEME,TR1,GBCURVE,ZeroRateDelta,6M,GBP,3,LCH
+
+OG-Sensitivity,TR2,GBCURVE,ZeroRateGamma,1M,GBP,4,CME
+,TR2,GBCURVE,ZeroRateGamma,3M,GBP,5,CME
+,TR2,GBCURVE,ZeroRateGamma,6M,GBP,6,CME
+,TR2,GBCURVE,ZeroRateGamma,12M,GBP,,CME

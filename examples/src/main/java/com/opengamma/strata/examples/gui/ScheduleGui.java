@@ -96,7 +96,7 @@ public class ScheduleGui extends Application {
     stubOptions.add(0, null);
     ChoiceBox<StubConvention> stubInp = new ChoiceBox<>(stubOptions);
     stubLbl.setLabelFor(stubInp);
-    stubInp.setValue(StubConvention.SHORT_INITIAL);
+    stubInp.setValue(StubConvention.SMART_INITIAL);
 
     Label rollLbl = new Label("Roll:");
     ChoiceBox<RollConvention> rollInp = new ChoiceBox<>(

@@ -216,7 +216,12 @@ public final class Result<T>
    * @param messageArgs  the arguments for the message
    * @return a failure result
    */
-  public static <R> Result<R> failure(FailureReason reason, Exception exception, String message, Object... messageArgs) {
+  public static <R> Result<R> failure(
+      FailureReason reason,
+      Exception exception,
+      String message,
+      Object... messageArgs) {
+
     return new Result<>(Failure.of(reason, exception, message, messageArgs));
   }
 

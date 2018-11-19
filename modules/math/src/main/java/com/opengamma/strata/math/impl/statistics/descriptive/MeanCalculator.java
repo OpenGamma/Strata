@@ -28,7 +28,7 @@ public class MeanCalculator implements Function<double[], Double> {
       return x[0];
     }
     double sum = 0;
-    for (Double d : x) {
+    for (double d : x) {
       sum += d;
     }
     return sum / x.length;

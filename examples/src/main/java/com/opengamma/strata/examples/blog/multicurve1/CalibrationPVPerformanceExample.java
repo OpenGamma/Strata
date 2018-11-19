@@ -9,6 +9,7 @@ import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GB
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.Map;
 
 import com.opengamma.strata.basics.ReferenceData;
@@ -19,8 +20,8 @@ import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -125,7 +126,7 @@ public class CalibrationPVPerformanceExample {
     System.out.println("Computation time: " + (end - start) + " ms");
 
     System.out.println("Performance estimate for curve calibration, " + (NB_COUPONS * NB_TENORS) + " trades and " +
-        nbRunPerf + " repetitions.\n" + r.getFirst() + r.getSecond());
+        nbRunPerf + " repetitions.\n" + Arrays.toString(r.getFirst()) + Arrays.toString(r.getSecond()));
   }
 
   private static Pair<MultiCurrencyAmount[], CurrencyParameterSensitivities[]> computation(

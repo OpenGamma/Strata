@@ -690,16 +690,6 @@ public class DiscountingCapitalIndexedBondTradePricer {
         .orElse(valuationDate);
   }
 
-  // extracts the repo curve discount factors for the bond
-  private RepoCurveDiscountFactors repoCurveDf(ResolvedCapitalIndexedBond bond, LegalEntityDiscountingProvider provider) {
-    return provider.repoCurveDiscountFactors(bond.getSecurityId(), bond.getLegalEntityId(), bond.getCurrency());
-  }
-
-  // extracts the issuer curve discount factors for the bond
-  private IssuerCurveDiscountFactors issuerCurveDf(ResolvedCapitalIndexedBond bond, LegalEntityDiscountingProvider provider) {
-    return provider.issuerCurveDiscountFactors(bond.getLegalEntityId(), bond.getCurrency());
-  }
-
   private void validate(RatesProvider ratesProvider, LegalEntityDiscountingProvider discountingProvider) {
     ArgChecker.isTrue(ratesProvider.getValuationDate().isEqual(discountingProvider.getValuationDate()),
         "the rates providers should be for the same date");

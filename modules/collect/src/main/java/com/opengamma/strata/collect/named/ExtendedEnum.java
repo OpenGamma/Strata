@@ -573,7 +573,10 @@ public final class ExtendedEnum<T extends Named> {
       T result = lookup(name);
       if (!subtype.isInstance(result)) {
         throw new IllegalArgumentException(Messages.format(
-            "{}:{} external name found but did not match expected type: {}", extendedEnum.type.getSimpleName(), group, name));
+            "{}:{} external name found but did not match expected type: {}",
+            extendedEnum.type.getSimpleName(),
+            group,
+            name));
       }
       return subtype.cast(result);
     }

@@ -866,6 +866,9 @@ final class GlobalHolidayCalendars {
         holidays.add(nyeve);
       }
     }
+    // 100th independence day anniversary
+    holidays.add(date(2018, 11, 12));
+
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of("PLWA"), holidays, SATURDAY, SUNDAY);
   }
@@ -1134,6 +1137,7 @@ final class GlobalHolidayCalendars {
   }
 
   // generate BRBD
+  // a holiday in this calendar is only declared if there is a holiday in Sao Paulo, Rio de Janeiro and Brasilia
   // http://www.planalto.gov.br/ccivil_03/leis/l0662.htm
   // http://www.planalto.gov.br/ccivil_03/Leis/L6802.htm
   // http://www.planalto.gov.br/ccivil_03/leis/2002/L10607.htm

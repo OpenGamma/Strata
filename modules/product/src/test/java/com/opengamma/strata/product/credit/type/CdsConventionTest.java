@@ -76,7 +76,7 @@ public class CdsConventionTest {
     assertEquals(test.getRollConvention(), RollConventions.DAY_20);
     assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
     assertEquals(test.getStepinDateOffset(), DaysAdjustment.ofCalendarDays(1));
-    assertEquals(test.getStubConvention(), StubConvention.SHORT_INITIAL);
+    assertEquals(test.getStubConvention(), StubConvention.SMART_INITIAL);
   }
 
   public void test_builder() {
@@ -129,7 +129,7 @@ public class CdsConventionTest {
                 .businessDayAdjustment(BUSI_ADJ_STD)
                 .startDateBusinessDayAdjustment(BUSI_ADJ_STD)
                 .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
-                .stubConvention(StubConvention.SHORT_INITIAL)
+                .stubConvention(StubConvention.SMART_INITIAL)
                 .rollConvention(RollConventions.DAY_20)
                 .build())
         .buySell(BUY)
