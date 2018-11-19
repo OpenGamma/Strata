@@ -10,7 +10,6 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.MonthDay;
@@ -19,13 +18,13 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -58,6 +57,12 @@ final class HolidayCalendarIniLookup
    * The Weekend key name.
    */
   private static final String WEEKEND_KEY = "Weekend";
+  
+  /**
+   * The Exclude key name.
+   */
+  private static final String EXCLUDE_KEY = "Exclude";
+  
   /**
    * The lenient day-of-week parser.
    */
@@ -134,6 +139,7 @@ final class HolidayCalendarIniLookup
     String weekendStr = section.value(WEEKEND_KEY);
     Set<DayOfWeek> weekends = parseWeekends(weekendStr);
     List<LocalDate> holidays = new ArrayList<>();
+    Set<LocalDate> excludes = new HashSet<>();
     for (String key : section.keys()) {
       if (key.equals(WEEKEND_KEY)) {
         continue;
@@ -142,10 +148,13 @@ final class HolidayCalendarIniLookup
       if (key.length() == 4) {
         int year = Integer.parseInt(key);
         holidays.addAll(parseYearDates(year, value));
+      } else if(key.equals(EXCLUDE_KEY)){
+        excludes.addAll(parseDates(value));
       } else {
         holidays.add(LocalDate.parse(key));
       }
     }
+    holidays.removeAll(excludes);
     // build result
     return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends);
   }
@@ -164,6 +173,14 @@ final class HolidayCalendarIniLookup
     return split.stream()
         .map(v -> parseDate(year, v))
         .collect(toImmutableList());
+  }
+  
+  // parse year format, such as 'Jan1,Mar12,Dec25' or '2015-01-01,2015-03-12,2015-12-25'
+  private static List<LocalDate> parseDates(String str) {
+    List<String> split = Splitter.on(',').splitToList(str);
+    return split.stream()
+        .map(LocalDate::parse)
+        .collect(toImmutableList());  
   }
 
   private static LocalDate parseDate(int year, String str) {

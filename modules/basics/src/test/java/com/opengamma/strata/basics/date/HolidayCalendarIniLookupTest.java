@@ -101,4 +101,19 @@ public class HolidayCalendarIniLookupTest {
     assertTrue(record.getMessage().contains("Error processing resource"));
   }
 
+  public void test_exclude() {
+    ImmutableMap<String, HolidayCalendar> lookup = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarExclude.ini");
+    assertEquals(lookup.size(), 1);
+
+    HolidayCalendar test = lookup.get("TEST-EXCLUDE");
+    assertTrue(test.isHoliday(date(2015, 1, 1)));
+    assertTrue(test.isHoliday(date(2015, 1, 6)));
+    assertTrue(test.isHoliday(date(2015, 4, 5)));
+    assertTrue(test.isHoliday(date(2015, 12, 25)));
+    assertTrue(test.isHoliday(date(2016, 1, 1)));
+    assertTrue(test.isBusinessDay(date(2016, 1, 2)));
+    assertTrue(test.isBusinessDay(date(2016, 1, 3)));
+    assertEquals(test.getName(), "TEST-EXCLUDE");
+    assertEquals(test.toString(), "HolidayCalendar[TEST-EXCLUDE]");
+  }
 }
