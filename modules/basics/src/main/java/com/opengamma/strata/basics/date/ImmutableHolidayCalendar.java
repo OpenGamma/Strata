@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -148,8 +149,33 @@ public final class ImmutableHolidayCalendar
       Iterable<LocalDate> holidays,
       Iterable<DayOfWeek> weekendDays) {
 
-    return of(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays));
+    return of(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays), Collections.emptySet());
   }
+
+  /**
+   * Obtains an instance from a set of holiday dates and weekend days.
+   * <p>
+   * The holiday dates will be extracted into a set with duplicates ignored.
+   * The minimum supported date for query is the start of the year of the earliest holiday.
+   * The maximum supported date for query is the end of the year of the latest holiday.
+   * <p>
+   * The weekend days may be empty, in which case the holiday dates should contain any weekends.
+   * The excludes are processed finally to mark a holiday as business day, most likely it is a weekend.
+   * 
+   * @param id  the identifier
+   * @param holidays  the set of holiday dates
+   * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
+   * @param excludes  the days that should be excluded from holiday sets
+   * @return  the holiday calendar
+   */
+  public static ImmutableHolidayCalendar of(HolidayCalendarId id,
+      Iterable<LocalDate> holidays,
+      Iterable<DayOfWeek> weekendDays,
+      Iterable<LocalDate> excludes) {
+
+    return of(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays), Sets.newHashSet(excludes));
+  }
+
 
   /**
    * Obtains a combined holiday calendar instance.
@@ -198,7 +224,7 @@ public final class ImmutableHolidayCalendar
   }
 
   // creates an instance calculating the supported range
-  static ImmutableHolidayCalendar of(HolidayCalendarId id, SortedSet<LocalDate> holidays, Set<DayOfWeek> weekendDays) {
+  static ImmutableHolidayCalendar of(HolidayCalendarId id, SortedSet<LocalDate> holidays, Set<DayOfWeek> weekendDays, Set<LocalDate> excludes) {
     ArgChecker.notNull(id, "id");
     ArgChecker.notNull(holidays, "holidays");
     ArgChecker.notNull(weekendDays, "weekendDays");
@@ -213,7 +239,7 @@ public final class ImmutableHolidayCalendar
       // normal case where holidays are specified
       startYear = holidays.first().getYear();
       int endYearExclusive = holidays.last().getYear() + 1;
-      lookup = buildLookupArray(holidays, weekendDays, startYear, endYearExclusive);
+      lookup = buildLookupArray(holidays, weekendDays, startYear, endYearExclusive, excludes);
     }
     return new ImmutableHolidayCalendar(id, weekends, startYear, lookup);
   }
@@ -224,7 +250,8 @@ public final class ImmutableHolidayCalendar
       Iterable<LocalDate> holidays,
       Iterable<DayOfWeek> weekendDays,
       int startYear,
-      int endYearExclusive) {
+      int endYearExclusive,
+      Iterable<LocalDate> excludes) {
 
     // array that has one entry for each month
     int[] array = new int[(endYearExclusive - startYear) * 12];
@@ -250,6 +277,14 @@ public final class ImmutableHolidayCalendar
     for (LocalDate date : holidays) {
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
       array[index] &= ~(1 << (date.getDayOfMonth() - 1));
+    }
+    // set the bit associated with each excludes date
+    for (LocalDate date : excludes) {
+      if (date.getYear() >= endYearExclusive) {
+        continue;
+      }
+      int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
+      array[index] |= (1 << (date.getDayOfMonth() - 1));
     }
     return array;
   }

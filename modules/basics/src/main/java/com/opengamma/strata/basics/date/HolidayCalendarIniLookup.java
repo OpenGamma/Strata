@@ -19,6 +19,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,6 +59,10 @@ final class HolidayCalendarIniLookup
    * The Weekend key name.
    */
   private static final String WEEKEND_KEY = "Weekend";
+  /**
+   * The Exclude key name.
+   */
+  private static final String EXCLUDE_KEY = "Exclude";
   /**
    * The lenient day-of-week parser.
    */
@@ -134,6 +139,7 @@ final class HolidayCalendarIniLookup
     String weekendStr = section.value(WEEKEND_KEY);
     Set<DayOfWeek> weekends = parseWeekends(weekendStr);
     List<LocalDate> holidays = new ArrayList<>();
+    Set<LocalDate> excludes = new HashSet<>();
     for (String key : section.keys()) {
       if (key.equals(WEEKEND_KEY)) {
         continue;
@@ -142,12 +148,14 @@ final class HolidayCalendarIniLookup
       if (key.length() == 4) {
         int year = Integer.parseInt(key);
         holidays.addAll(parseYearDates(year, value));
+      } else if (EXCLUDE_KEY.equals(key)) {
+        excludes.addAll(parseDates(value));
       } else {
         holidays.add(LocalDate.parse(key));
       }
     }
     // build result
-    return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends, excludes);
   }
 
   // parse weekend format, such as 'Sat,Sun'
@@ -163,6 +171,13 @@ final class HolidayCalendarIniLookup
     List<String> split = Splitter.on(',').splitToList(str);
     return split.stream()
         .map(v -> parseDate(year, v))
+        .collect(toImmutableList());
+  }
+  // parse date formate such as "2015-01-01,2015-03-12"
+  private static List<LocalDate> parseDates(String str) {
+    List<String> split = Splitter.on(',').splitToList(str);
+    return split.stream()
+        .map(LocalDate::parse)
         .collect(toImmutableList());
   }
 
