@@ -40,6 +40,27 @@ public class HolidayCalendarIniLookupTest {
     assertEquals(test.toString(), "HolidayCalendar[TEST-VALID]");
   }
 
+  public void test_exclude() {
+    ImmutableMap<String, HolidayCalendar> lookup = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataExclude.ini");
+    assertEquals(lookup.size(), 1);
+
+    HolidayCalendar test = lookup.get("TEST-EXCLUDE");
+    assertTrue(test.isHoliday(date(2015, 1, 1)));
+    assertTrue(test.isHoliday(date(2015, 1, 6)));
+    assertTrue(test.isHoliday(date(2015, 4, 5)));
+    assertTrue(test.isHoliday(date(2015, 12, 25)));
+    assertTrue(test.isHoliday(date(2016, 1, 1)));
+    assertFalse(test.isHoliday(date(2016, 1, 2)));
+    assertFalse(test.isHoliday(date(2016, 1, 3)));
+    assertEquals(test.getName(), "TEST-EXCLUDE");
+    assertEquals(test.toString(), "HolidayCalendar[TEST-EXCLUDE]");
+  }
+
+  private void assertFalse(boolean holiday) {
+    // TODO Auto-generated method stub
+    
+  }
+
   public void test_valid2() {
     ImmutableMap<String, HolidayCalendar> lookup = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataValid2.ini");
     assertEquals(lookup.size(), 1);
