@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
  * Test {@link FixedAccrualMethod}.
  */
 @Test
-public class FixedNotionalAccrualMethodTest {
+public class FixedAccrualMethodTest {
 
   @DataProvider(name = "name")
   public static Object[][] data_name() {
