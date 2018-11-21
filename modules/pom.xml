@@ -680,7 +680,7 @@
     <jcommander.version>1.72</jcommander.version>
     <joda-convert.version>2.1.2</joda-convert.version>
     <joda-beans.version>2.3</joda-beans.version>
-    <mockito.version>2.23.0</mockito.version>
+    <mockito.version>2.23.4</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <testng.version>6.14.2</testng.version>
     <!-- Properties for maven-checkstyle-plugin -->
