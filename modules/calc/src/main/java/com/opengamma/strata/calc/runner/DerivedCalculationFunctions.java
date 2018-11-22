@@ -5,13 +5,11 @@
  */
 package com.opengamma.strata.calc.runner;
 
-import static java.util.stream.Collectors.groupingBy;
-
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.CalculationTarget;
 
 /**
@@ -24,7 +22,7 @@ class DerivedCalculationFunctions implements CalculationFunctions {
   private final CalculationFunctions delegateFunctions;
 
   /** Derived calculation functions keyed by the type of target they handle. */
-  private final Map<Class<?>, List<DerivedCalculationFunction<?, ?>>> functionsByTargetType;
+  private final ListMultimap<Class<?>, DerivedCalculationFunction<?, ?>> functionsByTargetType;
 
   /**
    * Creates an instance.
@@ -32,9 +30,17 @@ class DerivedCalculationFunctions implements CalculationFunctions {
    * @param delegateFunctions  the underlying set of calculation functions
    * @param functions  the derived calculation functions
    */
-  DerivedCalculationFunctions(CalculationFunctions delegateFunctions, DerivedCalculationFunction<?, ?>... functions) {
+  DerivedCalculationFunctions(
+      CalculationFunctions delegateFunctions,
+      List<DerivedCalculationFunction<?, ?>> functions) {
+
     this.delegateFunctions = delegateFunctions;
-    this.functionsByTargetType = Arrays.stream(functions).collect(groupingBy(fn -> fn.targetType()));
+    // need to preserve order, and generics are complex, so avoid streams
+    ListMultimap<Class<?>, DerivedCalculationFunction<?, ?>> listMultimap = ArrayListMultimap.create();
+    for (DerivedCalculationFunction<?, ?> fn : functions) {
+      listMultimap.put(fn.targetType(), fn);
+    }
+    this.functionsByTargetType = listMultimap;
   }
 
   @Override
@@ -43,10 +49,15 @@ class DerivedCalculationFunctions implements CalculationFunctions {
   }
 
   @SuppressWarnings("unchecked")
-  private <T extends CalculationTarget, R> CalculationFunction<? super T> wrap(CalculationFunction<? super T> fn, T target) {
-    List<DerivedCalculationFunction<?, ?>> derivedFunctions = functionsByTargetType.get(target.getClass());
-    CalculationFunction<? super T> wrappedFn = fn;
+  private <T extends CalculationTarget, R> CalculationFunction<? super T> wrap(
+      CalculationFunction<? super T> fn,
+      T target) {
 
+    List<DerivedCalculationFunction<?, ?>> derivedFunctions = functionsByTargetType.get(target.getClass());
+    if (derivedFunctions == null) {
+      return fn;
+    }
+    CalculationFunction<? super T> wrappedFn = fn;
     for (DerivedCalculationFunction<?, ?> derivedFn : derivedFunctions) {
       // These casts are necessary because the type information is lost when the functions are stored in the map.
       // They are safe because T is the target type which is is the map key and R isn't actually used
