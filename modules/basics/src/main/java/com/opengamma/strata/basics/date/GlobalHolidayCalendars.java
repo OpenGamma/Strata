@@ -479,6 +479,7 @@ final class GlobalHolidayCalendars {
     holidays.add(date(2004, 6, 11));  // Death of Ronald Reagan
     holidays.add(date(2007, 1, 2));  // Death of Gerald Ford
     holidays.add(date(2012, 10, 30));  // Hurricane Sandy
+    holidays.add(date(2018, 12, 5));  // Death of George H.W. Bush
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.NYSE, holidays, SATURDAY, SUNDAY);
   }
