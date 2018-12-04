@@ -224,7 +224,10 @@ public final class IborIndices {
    * The 2 week EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
+   * 
+   * @deprecated Not published as of 2018-12-03
    */
+  @Deprecated
   public static final IborIndex EUR_EURIBOR_2W = IborIndex.of("EUR-EURIBOR-2W");
   /**
    * The 1 month EURIBOR index.
@@ -236,7 +239,10 @@ public final class IborIndices {
    * The 2 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
+   * 
+   * @deprecated Not published as of 2018-12-03
    */
+  @Deprecated
   public static final IborIndex EUR_EURIBOR_2M = IborIndex.of("EUR-EURIBOR-2M");
   /**
    * The 3 month EURIBOR index.
@@ -254,7 +260,10 @@ public final class IborIndices {
    * The 9 month EURIBOR index.
    * <p>
    * The "Euro Interbank Offered Rate".
+   * 
+   * @deprecated Not published as of 2018-12-03
    */
+  @Deprecated
   public static final IborIndex EUR_EURIBOR_9M = IborIndex.of("EUR-EURIBOR-9M");
   /**
    * The 12 month EURIBOR index.
