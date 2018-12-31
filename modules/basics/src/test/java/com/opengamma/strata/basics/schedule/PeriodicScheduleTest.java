@@ -184,6 +184,39 @@ public class PeriodicScheduleTest {
     assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
     assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
   }
+  
+  public void test_firstPaymentDate_before_effectiveDate() {
+  
+    // Schedule where the combination of override start date and regular first period start date produce a first
+    // payment date which is before the (non-overridden) start date
+  
+    LocalDate startDate = LocalDate.of(2018, 7, 26);
+    LocalDate endDate = LocalDate.of(2019, 6, 20);
+    LocalDate overrideStartDate = LocalDate.of(2018, 3, 20);
+    LocalDate firstRegularStartDate = LocalDate.of(2018, 6, 20);
+    
+    PeriodicSchedule scheduleDefinition = PeriodicSchedule.builder()
+        .startDate(startDate)
+        .endDate(endDate)
+        .frequency(Frequency.P3M)
+        .businessDayAdjustment(BDA)
+        .firstRegularStartDate(firstRegularStartDate)
+        .overrideStartDate(AdjustableDate.of(overrideStartDate))
+        .build();
+  
+    Schedule schedule = scheduleDefinition.createSchedule(REF_DATA);
+    assertEquals(schedule.size(), 5);
+    
+    for (int i = 0; i < schedule.size(); i++) {
+
+      LocalDate expectedStart = overrideStartDate.plusMonths(3 * i);
+      LocalDate expectedEnd = expectedStart.plusMonths(3);
+      SchedulePeriod expectedPeriod = SchedulePeriod.of(expectedStart, expectedEnd);
+  
+      SchedulePeriod actualPeriod = schedule.getPeriod(i);
+      assertEquals(expectedPeriod, actualPeriod);
+    }
+  }
 
   public void test_of_LocalDateRoll_null() {
     assertThrowsIllegalArg(() -> PeriodicSchedule.of(null, SEP_17, P1M, BDA, SHORT_INITIAL, DAY_17));
