@@ -356,15 +356,17 @@ public final class PeriodicSchedule
     ArgChecker.inOrderNotEqual(
         startDate, endDate, "startDate", "endDate");
     if (firstRegularStartDate != null) {
-      ArgChecker.inOrderOrEqual(
-          startDate, firstRegularStartDate, "unadjusted", "firstRegularStartDate");
       if (lastRegularEndDate != null) {
         ArgChecker.inOrderNotEqual(
             firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
       }
+      // Check override start date if present, otherwise use regular start date
       if (overrideStartDate != null) {
         ArgChecker.inOrderNotEqual(
             overrideStartDate.getUnadjusted(), firstRegularStartDate, "overrideStartDate", "firstRegularStartDate");
+      } else {
+        ArgChecker.inOrderOrEqual(
+            startDate, firstRegularStartDate, "unadjusted", "firstRegularStartDate");
       }
     }
     if (lastRegularEndDate != null) {
