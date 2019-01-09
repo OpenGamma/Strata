@@ -209,7 +209,7 @@ public final class ValueWithFailures<T>
    * Useful in cases where one has a {@code Stream<ValueWithFailures>} and wants to call {@code .reduce()}.
    *
    * @param combiner the combiner of the values of the ValueWithFailures objects
-   * @param <T> the type of the first value
+   * @param <T> the type of the values
    * @return the combining binary operator
    */
   public static <T> BinaryOperator<ValueWithFailures<T>> combining(BinaryOperator<T> combiner) {
