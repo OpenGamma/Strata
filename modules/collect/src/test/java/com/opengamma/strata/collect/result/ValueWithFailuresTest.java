@@ -13,6 +13,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -115,6 +116,20 @@ public class ValueWithFailuresTest {
     ValueWithFailures<Integer> other = ValueWithFailures.of(Integer.valueOf(1), ImmutableList.of(FAILURE2));
     ValueWithFailures<String> test = base.combinedWith(other, (a, b) -> a.toString() + b.toString());
     assertEquals(test.getValue(), "true1");
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  @Test
+  public void test_combining() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<List<String>> other =
+        ValueWithFailures.of(ImmutableList.of("b", "c"), ImmutableList.of(FAILURE2));
+
+    ValueWithFailures<List<String>> test = Stream.of(base, other)
+        .reduce(ValueWithFailures.combining(Guavate::concatToList))
+        .get();
+
+    assertEquals(test.getValue(), ImmutableList.of("a", "b", "c"));
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
