@@ -210,7 +210,7 @@ public final class ValueWithFailures<T>
    *
    * @param combiner the combiner of the values of the ValueWithFailures objects
    * @param <T> the type of the first value
-   * @return
+   * @return the combining binary operator
    */
   public static <T> BinaryOperator<ValueWithFailures<T>> combining(BinaryOperator<T> combiner) {
     ArgChecker.notNull(combiner, "combiner");
