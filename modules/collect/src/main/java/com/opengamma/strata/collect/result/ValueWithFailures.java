@@ -204,7 +204,7 @@ public final class ValueWithFailures<T>
 
   //-----------------------------------------------------------------------
   /**
-   * Returns a BiFunction that combines ValueWithFailures objects using the provided combiner function.
+   * Returns a BinaryOperator that combines ValueWithFailures objects using the provided combiner function.
    * <p>
    * Useful in cases where one has a {@code Stream<ValueWithFailures>} and wants to call {@code .reduce()}.
    *
