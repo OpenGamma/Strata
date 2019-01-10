@@ -126,7 +126,7 @@ public class ValueWithFailuresTest {
         ValueWithFailures.of(ImmutableList.of("b", "c"), ImmutableList.of(FAILURE2));
 
     ValueWithFailures<List<String>> test = Stream.of(base, other)
-        .reduce(ValueWithFailures.combining(Guavate::concatToList))
+        .reduce(ValueWithFailures.combiningValues(Guavate::concatToList))
         .get();
 
     assertEquals(test.getValue(), ImmutableList.of("a", "b", "c"));

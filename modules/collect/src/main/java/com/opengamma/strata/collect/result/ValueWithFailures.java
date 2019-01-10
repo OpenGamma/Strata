@@ -121,7 +121,7 @@ public final class ValueWithFailures<T>
    * @param <T>  the type of the values
    * @return the combining binary operator
    */
-  public static <T> BinaryOperator<ValueWithFailures<T>> combining(BinaryOperator<T> combiner) {
+  public static <T> BinaryOperator<ValueWithFailures<T>> combiningValues(BinaryOperator<T> combiner) {
     ArgChecker.notNull(combiner, "combiner");
     return (vwf1, vwf2) -> vwf1.combinedWith(vwf2, combiner);
   }
@@ -142,7 +142,7 @@ public final class ValueWithFailures<T>
       T identityValue,
       BinaryOperator<T> operator) {
 
-    return Collectors.reducing(ValueWithFailures.of(identityValue), combining(operator));
+    return Collectors.reducing(ValueWithFailures.of(identityValue), combiningValues(operator));
   }
 
   //-------------------------------------------------------------------------
