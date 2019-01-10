@@ -863,7 +863,7 @@ public final class Guavate {
    *
    * @return a collector that combines the input futures as single future
    */
-  public static Collector<CompletableFuture<Void>, ?, CompletableFuture<Void>> toCombinedVoidFuture() {
+  public static Collector<? extends CompletableFuture<Void>, ?, CompletableFuture<Void>> toCombinedVoidFuture() {
     return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsVoid);
   }
 
