@@ -438,8 +438,7 @@ public class GuavateTest {
     assertEquals(combined.get(1), "B");
   }
 
-  //-------------------------------------------------------------------------
-  public void test_combineFuturesAsVoid() {
+  public void test_combineFuturesAsList_Void() {
     CompletableFuture<Void> future1 = new CompletableFuture<>();
     future1.complete(null);
     CountDownLatch latch = new CountDownLatch(1);
@@ -453,16 +452,18 @@ public class GuavateTest {
     });
     List<CompletableFuture<Void>> input = ImmutableList.of(future1, future2);
 
-    CompletableFuture<Void> test = Guavate.combineFuturesAsVoid(input);
+    CompletableFuture<List<Void>> test = Guavate.combineFuturesAsList(input);
 
     assertEquals(test.isDone(), false);
     latch.countDown();
-    Void combined = test.join();
+    List<Void> combined = test.join();
     assertEquals(test.isDone(), true);
-    assertNull(combined);
+    assertEquals(combined.size(), 2);
+    assertNull(combined.get(0));
+    assertNull(combined.get(1));
   }
 
-  public void test_combineFuturesAsVoid_exception() {
+  public void test_combineFuturesAsList_Void_exception() {
     CompletableFuture<Void> future1 = new CompletableFuture<>();
     future1.complete(null);
     CountDownLatch latch = new CountDownLatch(1);
@@ -476,7 +477,7 @@ public class GuavateTest {
     });
     List<CompletableFuture<Void>> input = ImmutableList.of(future1, future2);
 
-    CompletableFuture<Void> test = Guavate.combineFuturesAsVoid(input);
+    CompletableFuture<List<Void>> test = Guavate.combineFuturesAsList(input);
 
     assertEquals(test.isDone(), false);
     latch.countDown();
@@ -485,7 +486,7 @@ public class GuavateTest {
     assertEquals(test.isCompletedExceptionally(), true);
   }
 
-  public void test_toCombinedVoidFuture() {
+  public void test_toCombinedFuture_Void() {
     CompletableFuture<Void> future1 = new CompletableFuture<>();
     future1.complete(null);
     CountDownLatch latch = new CountDownLatch(1);
@@ -499,13 +500,15 @@ public class GuavateTest {
     });
     List<CompletableFuture<Void>> input = ImmutableList.of(future1, future2);
 
-    CompletableFuture<Void> test = input.stream().collect(Guavate.toCombinedVoidFuture());
+    CompletableFuture<List<Void>> test = input.stream().collect(Guavate.toCombinedFuture());
 
     assertEquals(test.isDone(), false);
     latch.countDown();
-    Void combined = test.join();
+    List<Void> combined = test.join();
     assertEquals(test.isDone(), true);
-    assertNull(combined);
+    assertEquals(combined.size(), 2);
+    assertNull(combined.get(0));
+    assertNull(combined.get(1));
   }
 
   //-------------------------------------------------------------------------

@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 
 import java.time.Duration;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -793,9 +794,8 @@ public final class Guavate {
    * Effectively, this converts {@code List<CompletableFuture<T>>} to {@code CompletableFuture<List<T>>}.
    * <p>
    * If any input future completes exceptionally, the result will also complete exceptionally.
-   * The results must not be null.
    *
-   * @param <T> the type of the values in the list, must not be Void
+   * @param <T> the type of the values in the list
    * @param futures the futures to convert, may be empty
    * @return a future that combines the input futures as a list
    */
@@ -806,11 +806,11 @@ public final class Guavate {
     CompletableFuture<? extends T>[] futuresArray = futures.toArray(new CompletableFuture[size]);
     return CompletableFuture.allOf(futuresArray)
         .thenApply(unused -> {
-          ImmutableList.Builder<T> builder = ImmutableList.builderWithExpectedSize(size);
+          List<T> builder = new ArrayList<>(size);
           for (int i = 0; i < size; i++) {
             builder.add(futuresArray[i].join());
           }
-          return builder.build();
+          return builder;
         });
   }
 
@@ -823,48 +823,13 @@ public final class Guavate {
    * This converts {@code List<CompletableFuture<T>>} to {@code CompletableFuture<List<T>>}.
    *
    * @param <S> the type of the input futures
-   * @param <T> the type of the values, must not be Void
+   * @param <T> the type of the values
    * @return a collector that combines the input futures as a list
    */
   public static <T, S extends CompletableFuture<? extends T>>
       Collector<S, ?, CompletableFuture<List<T>>> toCombinedFuture() {
 
     return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsList);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Converts a list of void futures to a single future.
-   * <p>
-   * Convenience function to avoid manually converting a list to an array.
-   * This is similar to {@link #combineFuturesAsList(List)} but specifically for {@code CompletableFuture<Void>}.
-   * <p>
-   * If any input future completes exceptionally, the result will also complete exceptionally.
-   *
-   * @param futures the void futures, may be empty
-   * @return a void future that combines the input future
-   */
-  public static CompletableFuture<Void> combineFuturesAsVoid(List<? extends CompletableFuture<Void>> futures) {
-    int size = futures.size();
-    CompletableFuture[] futuresArray = futures.toArray(new CompletableFuture[size]);
-    return CompletableFuture.allOf(futuresArray);
-  }
-
-  /**
-   * Collector used at the end of a stream to convert a list of void futures to a single future.
-   * <p>
-   * NOTE: This is used instead of {@link #toCombinedFuture()} as the result of a {@code CompletableFuture<Void>} is
-   * null, which is not permissible in an {@code ImmutableList}.
-   * <p>
-   * A collector is used to gather data at the end of a stream operation.
-   * This method returns a collector allowing a stream of futures to be combined into a single future.
-   * This converts {@code List<CompletableFuture<Void>>} to {@code CompletableFuture<Void>}.
-   * Can be used when starting multiple void futures in a stream and wanting to wait on all of the results.
-   *
-   * @return a collector that combines the input futures as single future
-   */
-  public static Collector<? extends CompletableFuture<Void>, ?, CompletableFuture<Void>> toCombinedVoidFuture() {
-    return collectingAndThen(toImmutableList(), Guavate::combineFuturesAsVoid);
   }
 
   //-------------------------------------------------------------------------
