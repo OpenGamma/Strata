@@ -714,7 +714,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableMap<K, V>> entriesToImmutableMap() {
+  public static <K, V> Collector<Map.Entry<? extends K, ? extends V>, ?, ImmutableMap<K, V>> entriesToImmutableMap() {
     return toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
   }
 
@@ -748,7 +748,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <K, V> Collector<Pair<K, V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
+  public static <K, V> Collector<Pair<? extends K, ? extends V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
     return toImmutableMap(Pair::getFirst, Pair::getSecond);
   }
 
@@ -848,13 +848,13 @@ public final class Guavate {
    */
   @SuppressWarnings("unchecked")
   public static <K, V, F extends CompletableFuture<? extends V>> CompletableFuture<Map<K, V>>
-      combineFuturesAsMap(Map<K, F> futures) {
+      combineFuturesAsMap(Map<? extends K, ? extends F> futures) {
 
     int size = futures.size();
     K[] keyArray = (K[]) new Object[size];
     CompletableFuture<? extends V>[] futuresArray = new CompletableFuture[size];
     int index = 0;
-    for (Entry<K, F> entry : futures.entrySet()) {
+    for (Entry<? extends K, ? extends F> entry : futures.entrySet()) {
       keyArray[index] = entry.getKey();
       futuresArray[index] = entry.getValue();
       index++;
@@ -883,7 +883,7 @@ public final class Guavate {
    * @return a collector that combines the input futures as a map
    */
   public static <K, V, F extends CompletableFuture<? extends V>>
-      Collector<Map.Entry<K, F>, ?, CompletableFuture<Map<K, V>>> toCombinedFutureMap() {
+      Collector<Map.Entry<? extends K, ? extends F>, ?, CompletableFuture<Map<K, V>>> toCombinedFutureMap() {
 
     return collectingAndThen(entriesToImmutableMap(), Guavate::combineFuturesAsMap);
   }
