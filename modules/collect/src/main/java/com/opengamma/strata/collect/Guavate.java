@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 
 import java.time.Duration;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -805,11 +806,11 @@ public final class Guavate {
     CompletableFuture<? extends T>[] futuresArray = futures.toArray(new CompletableFuture[size]);
     return CompletableFuture.allOf(futuresArray)
         .thenApply(unused -> {
-          ImmutableList.Builder<T> builder = ImmutableList.builderWithExpectedSize(size);
+          List<T> builder = new ArrayList<>(size);
           for (int i = 0; i < size; i++) {
             builder.add(futuresArray[i].join());
           }
-          return builder.build();
+          return builder;
         });
   }
 
@@ -839,10 +840,11 @@ public final class Guavate {
    * Effectively, this converts {@code Map<K, CompletableFuture<V>>} to {@code CompletableFuture<Map<K, V>>}.
    * <p>
    * If any input future completes exceptionally, the result will also complete exceptionally.
+   * The results must be non-null.
    *
    * @param <K> the type of the keys in the map
    * @param <V> the type of the values in the map
-   * @param <F> the type of the futures
+   * @param <F> the type of the futures, must not be Void
    * @param futures the futures to convert, may be empty
    * @return a future that combines the input futures as a map
    */
@@ -967,7 +969,7 @@ public final class Guavate {
    * <p>
    * This takes an argument which is the number of stack levels to look back.
    * This will be 2 to return the caller of this method, 3 to return the caller of the caller, and so on.
-   * 
+   *
    * @param callStackDepth  the depth of the stack to look back
    * @return the caller class
    */

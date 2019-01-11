@@ -11,6 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertThrows;
 
 import java.time.Duration;
@@ -435,6 +436,79 @@ public class GuavateTest {
     assertEquals(combined.size(), 2);
     assertEquals(combined.get(0), "A");
     assertEquals(combined.get(1), "B");
+  }
+
+  public void test_combineFuturesAsList_Void() {
+    CompletableFuture<Void> future1 = new CompletableFuture<>();
+    future1.complete(null);
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
+      try {
+        latch.await();
+      } catch (InterruptedException ex) {
+        // ignore
+      }
+      return null;
+    });
+    List<CompletableFuture<Void>> input = ImmutableList.of(future1, future2);
+
+    CompletableFuture<List<Void>> test = Guavate.combineFuturesAsList(input);
+
+    assertEquals(test.isDone(), false);
+    latch.countDown();
+    List<Void> combined = test.join();
+    assertEquals(test.isDone(), true);
+    assertEquals(combined.size(), 2);
+    assertNull(combined.get(0));
+    assertNull(combined.get(1));
+  }
+
+  public void test_combineFuturesAsList_Void_exception() {
+    CompletableFuture<Void> future1 = new CompletableFuture<>();
+    future1.complete(null);
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
+      try {
+        latch.await();
+      } catch (InterruptedException ex) {
+        // ignore
+      }
+      throw new IllegalStateException("Oops");
+    });
+    List<CompletableFuture<Void>> input = ImmutableList.of(future1, future2);
+
+    CompletableFuture<List<Void>> test = Guavate.combineFuturesAsList(input);
+
+    assertEquals(test.isDone(), false);
+    latch.countDown();
+    assertThrows(CompletionException.class, () -> test.join());
+    assertEquals(test.isDone(), true);
+    assertEquals(test.isCompletedExceptionally(), true);
+  }
+
+  public void test_toCombinedFuture_Void() {
+    CompletableFuture<Void> future1 = new CompletableFuture<>();
+    future1.complete(null);
+    CountDownLatch latch = new CountDownLatch(1);
+    CompletableFuture<Void> future2 = CompletableFuture.supplyAsync(() -> {
+      try {
+        latch.await();
+      } catch (InterruptedException ex) {
+        // ignore
+      }
+      return null;
+    });
+    List<CompletableFuture<Void>> input = ImmutableList.of(future1, future2);
+
+    CompletableFuture<List<Void>> test = input.stream().collect(Guavate.toCombinedFuture());
+
+    assertEquals(test.isDone(), false);
+    latch.countDown();
+    List<Void> combined = test.join();
+    assertEquals(test.isDone(), true);
+    assertEquals(combined.size(), 2);
+    assertNull(combined.get(0));
+    assertNull(combined.get(1));
   }
 
   //-------------------------------------------------------------------------
