@@ -186,8 +186,8 @@ public class GuavateTest {
     assertEquals(Stream.empty().map(Guavate.casting(Integer.class)).collect(toList()), ImmutableList.of());
     List<Number> baseList = Arrays.asList(1, 2, 3);
     List<Integer> castList = baseList.stream().map(Guavate.casting(Integer.class)).collect(toList());
-    assertEquals(castList, ImmutableList.of(1, 2, 3));
-    List<Number> baseListMixed = Arrays.asList(1, 2f, 3);
+    assertEquals(castList, baseList);
+    List<Number> baseListMixed = ImmutableList.of(1, 2f, 3);
     assertThrows(
         ClassCastException.class,
         () -> baseListMixed.stream().map(Guavate.casting(Short.class)).collect(toList()));
@@ -195,7 +195,7 @@ public class GuavateTest {
 
   //-------------------------------------------------------------------------
   public void test_filtering() {
-    List<Number> list = Arrays.asList(1, 2d, 3f, 4, (short) 5, 6L, 7);
+    List<Number> list = ImmutableList.of(1, 2d, 3f, 4, (short) 5, 6L, 7);
     assertEquals(Stream.empty().flatMap(Guavate.filtering(Integer.class)).collect(toList()), ImmutableList.of());
     assertEquals(list.stream().flatMap(Guavate.filtering(Integer.class)).collect(toList()), ImmutableList.of(1, 4, 7));
     assertEquals(list.stream().flatMap(Guavate.filtering(Double.class)).collect(toList()), ImmutableList.of(2d));
