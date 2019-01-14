@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
+import static java.util.stream.Collectors.toList;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertThrows;
@@ -179,6 +180,26 @@ public class GuavateTest {
     assertEquals(Stream.empty().reduce(Guavate.ensureOnlyOne()), Optional.empty());
     assertEquals(Stream.of("a").reduce(Guavate.ensureOnlyOne()), Optional.of("a"));
     assertThrowsIllegalArg(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_casting() {
+    assertEquals(Stream.empty().map(Guavate.casting(Integer.class)).collect(toList()), ImmutableList.of());
+    List<Number> baseList = Arrays.asList(1, 2, 3);
+    List<Integer> castList = baseList.stream().map(Guavate.casting(Integer.class)).collect(toList());
+    assertEquals(castList, baseList);
+    List<Number> baseListMixed = ImmutableList.of(1, 2f, 3);
+    assertThrows(
+        ClassCastException.class,
+        () -> baseListMixed.stream().map(Guavate.casting(Short.class)).collect(toList()));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_filtering() {
+    List<Number> list = ImmutableList.of(1, 2d, 3f, 4, (short) 5, 6L, 7);
+    assertEquals(Stream.empty().flatMap(Guavate.filtering(Integer.class)).collect(toList()), ImmutableList.of());
+    assertEquals(list.stream().flatMap(Guavate.filtering(Integer.class)).collect(toList()), ImmutableList.of(1, 4, 7));
+    assertEquals(list.stream().flatMap(Guavate.filtering(Double.class)).collect(toList()), ImmutableList.of(2d));
   }
 
   //-------------------------------------------------------------------------

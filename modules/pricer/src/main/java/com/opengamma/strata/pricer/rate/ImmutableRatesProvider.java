@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.rate;
 
+import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.io.Serializable;
@@ -161,24 +162,21 @@ public final class ImmutableRatesProvider
   @Override
   public ImmutableSet<IborIndex> getIborIndices() {
     return indexCurves.keySet().stream()
-        .filter(IborIndex.class::isInstance)
-        .map(IborIndex.class::cast)
+        .flatMap(filtering(IborIndex.class))
         .collect(toImmutableSet());
   }
 
   @Override
   public ImmutableSet<OvernightIndex> getOvernightIndices() {
     return indexCurves.keySet().stream()
-        .filter(OvernightIndex.class::isInstance)
-        .map(OvernightIndex.class::cast)
+        .flatMap(filtering(OvernightIndex.class))
         .collect(toImmutableSet());
   }
 
   @Override
   public ImmutableSet<PriceIndex> getPriceIndices() {
     return indexCurves.keySet().stream()
-        .filter(PriceIndex.class::isInstance)
-        .map(PriceIndex.class::cast)
+        .flatMap(filtering(PriceIndex.class))
         .collect(toImmutableSet());
   }
 

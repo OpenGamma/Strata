@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.curve;
 
+import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
@@ -216,8 +217,7 @@ public final class RatesCurveCalibrator {
       ReferenceData refData) {
 
     Map<Index, LocalDateDoubleTimeSeries> timeSeries = marketData.getTimeSeriesIds().stream()
-        .filter(IndexQuoteId.class::isInstance)
-        .map(IndexQuoteId.class::cast)
+        .flatMap(filtering(IndexQuoteId.class))
         .collect(toImmutableMap(id -> id.getIndex(), id -> marketData.getTimeSeries(id)));
     ImmutableRatesProvider knownData = ImmutableRatesProvider.builder(marketData.getValuationDate())
         .fxRateProvider(MarketDataFxRateProvider.of(marketData))

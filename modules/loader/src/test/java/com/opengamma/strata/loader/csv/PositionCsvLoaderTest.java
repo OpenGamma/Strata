@@ -6,6 +6,7 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
 import static org.testng.Assert.assertEquals;
@@ -111,8 +112,7 @@ public class PositionCsvLoaderTest {
     ValueWithFailures<List<Position>> trades = test.load(FILE);
 
     List<SecurityPosition> filtered = trades.getValue().stream()
-        .filter(SecurityPosition.class::isInstance)
-        .map(SecurityPosition.class::cast)
+        .flatMap(filtering(SecurityPosition.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 2);
 
@@ -125,8 +125,7 @@ public class PositionCsvLoaderTest {
     ValueWithFailures<List<Position>> trades = test.load(FILE);
 
     List<GenericSecurityPosition> filtered = trades.getValue().stream()
-        .filter(GenericSecurityPosition.class::isInstance)
-        .map(GenericSecurityPosition.class::cast)
+        .flatMap(filtering(GenericSecurityPosition.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 1);
 

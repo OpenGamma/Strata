@@ -288,9 +288,9 @@ public final class Guavate {
    * or {@link Stream#findAny()}, this approach ensures an exception is thrown if there
    * is more than one element in the stream.
    * <p>
-   * This would be used as follows:
+   * This would be used as follows (with a static import):
    * <pre>
-   *   stream.filter(...).reduce(Guavate.ensureOnlyOne()).get();
+   *   stream.filter(...).reduce(ensureOnlyOne()).get();
    * </pre>
    *
    * @param <T>  the type of element in the stream
@@ -301,6 +301,58 @@ public final class Guavate {
       throw new IllegalArgumentException(Messages.format(
           "Multiple values found where only one was expected: {} and {}", a, b));
     };
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Function used in a stream to cast instances to a particular type without filtering.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#map(Function)}
+   * to cast elements in a stream to a particular type, throwing an exception if any
+   * element is not of the specified type.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.map(casting(Foo.class));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.map(Foo.class::cast);
+   * </pre>
+   *
+   * @param <T>  the type of element in the input stream
+   * @param <R>  the type of element in the output stream
+   * @param cls  the type of element in the output stream
+   * @return the function
+   */
+  public static <T, R extends T> Function<T, R> casting(Class<R> cls) {
+    return input -> cls.cast(input);
+  }
+
+  /**
+   * Function used in a stream to filter instances to a particular type.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#flatMap(Function)}
+   * to filter elements in a stream to a particular type.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.flatMap(filtering(Foo.class));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.filter(Foo.class::isInstance).map(Foo.class::cast);
+   * </pre>
+   *
+   * @param <T>  the type of element in the input stream
+   * @param <R>  the type of element in the output stream
+   * @param cls  the type of element in the output stream
+   * @return the function
+   */
+  public static <T, R extends T> Function<T, Stream<R>> filtering(Class<R> cls) {
+    return input -> cls.isInstance(input) ? Stream.of(cls.cast(input)) : Stream.empty();
   }
 
   //-------------------------------------------------------------------------

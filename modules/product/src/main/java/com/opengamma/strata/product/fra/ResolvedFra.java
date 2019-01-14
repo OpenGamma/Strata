@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.fra;
 
+import static com.opengamma.strata.collect.Guavate.casting;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.io.Serializable;
@@ -163,7 +164,7 @@ public final class ResolvedFra
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     floatingRate.collectIndices(builder);
     return builder.build().stream()
-        .map(index -> IborIndex.class.cast(index))
+        .map(casting(IborIndex.class))
         .collect(toImmutableSet());
   }
 
