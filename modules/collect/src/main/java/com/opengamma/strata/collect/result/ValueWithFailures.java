@@ -113,9 +113,22 @@ public final class ValueWithFailures<T>
 
   //-----------------------------------------------------------------------
   /**
-   * Returns a BinaryOperator that combines ValueWithFailures objects using the provided combiner function.
+   * Returns a {@code BinaryOperator} that combines {@code ValueWithFailures} objects using the provided combiner
+   * function.
    * <p>
-   * Useful in cases where one has a {@code Stream<ValueWithFailures>} and wants to call {@code .reduce()}.
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.reduce(combiningValues(Guavate::concatToList));
+   *
+   *   stream.reduce(baseValueWithFailures, combiningValues(Guavate::concatToList));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.reduce((vwf1, vwf2) -> vwf1.combinedWith(vwf2, Guavate::concatToList));
+   *
+   *   stream.reduce(baseValueWithFailures, (vwf1, vwf2) -> vwf1.combinedWith(vwf2, Guavate::concatToList));
+   * </pre>
    *
    * @param combiner  the combiner of the values
    * @param <T>  the type of the values
