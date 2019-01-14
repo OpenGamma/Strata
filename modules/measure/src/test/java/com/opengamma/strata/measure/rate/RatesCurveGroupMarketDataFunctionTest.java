@@ -6,6 +6,7 @@
 package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.collect.Guavate.casting;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -91,7 +92,7 @@ public class RatesCurveGroupMarketDataFunctionTest {
     InterpolatedNodalCurveDefinition curveDefn = CurveTestUtils.fraCurveDefinition();
 
     List<FraCurveNode> nodes = curveDefn.getNodes().stream()
-        .map(FraCurveNode.class::cast)
+        .map(casting(FraCurveNode.class))
         .collect(toImmutableList());
 
     List<MarketDataId<?>> keys = nodes.stream().map(CurveTestUtils::key).collect(toImmutableList());

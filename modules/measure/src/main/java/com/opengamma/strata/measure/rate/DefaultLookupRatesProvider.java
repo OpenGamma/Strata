@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.rate;
 
+import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.io.Serializable;
@@ -120,32 +121,28 @@ final class DefaultLookupRatesProvider
   @Override
   public ImmutableSet<IborIndex> getIborIndices() {
     return lookup.getForwardIndices().stream()
-        .filter(IborIndex.class::isInstance)
-        .map(IborIndex.class::cast)
+        .flatMap(filtering(IborIndex.class))
         .collect(toImmutableSet());
   }
 
   @Override
   public ImmutableSet<OvernightIndex> getOvernightIndices() {
     return lookup.getForwardIndices().stream()
-        .filter(OvernightIndex.class::isInstance)
-        .map(OvernightIndex.class::cast)
+        .flatMap(filtering(OvernightIndex.class))
         .collect(toImmutableSet());
   }
 
   @Override
   public ImmutableSet<PriceIndex> getPriceIndices() {
     return lookup.getForwardIndices().stream()
-        .filter(PriceIndex.class::isInstance)
-        .map(PriceIndex.class::cast)
+        .flatMap(filtering(PriceIndex.class))
         .collect(toImmutableSet());
   }
 
   @Override
   public ImmutableSet<Index> getTimeSeriesIndices() {
     return marketData.getTimeSeriesIds().stream()
-        .filter(IndexQuoteId.class::isInstance)
-        .map(IndexQuoteId.class::cast)
+        .flatMap(filtering(IndexQuoteId.class))
         .map(id -> id.getIndex())
         .collect(toImmutableSet());
   }

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.credit;
 
+import static com.opengamma.strata.collect.Guavate.casting;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -149,7 +151,7 @@ public class IsdaCompliantIndexCurveCalibrator {
   private double computeIndexFactor(CdsIndexIsdaCreditCurveNode node, MarketData marketData) {
     double numDefaulted = node.getLegalEntityIds().stream()
         .map(s -> marketData.getValue(LegalEntityInformationId.of(s)))
-        .map(LegalEntityInformation.class::cast)
+        .map(casting(LegalEntityInformation.class))
         .filter(LegalEntityInformation::isDefaulted)
         .collect(Collectors.toList())
         .size();
