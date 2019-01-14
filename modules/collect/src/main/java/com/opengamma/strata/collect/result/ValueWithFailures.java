@@ -33,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A value with associated failures.
@@ -110,6 +111,34 @@ public final class ValueWithFailures<T>
     }
   }
 
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a {@code BinaryOperator} that combines {@code ValueWithFailures} objects using the provided combiner
+   * function.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.reduce(combiningValues(Guavate::concatToList));
+   *
+   *   stream.reduce(baseValueWithFailures, combiningValues(Guavate::concatToList));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.reduce((vwf1, vwf2) -> vwf1.combinedWith(vwf2, Guavate::concatToList));
+   *
+   *   stream.reduce(baseValueWithFailures, (vwf1, vwf2) -> vwf1.combinedWith(vwf2, Guavate::concatToList));
+   * </pre>
+   *
+   * @param combiner  the combiner of the values
+   * @param <T>  the type of the values
+   * @return the combining binary operator
+   */
+  public static <T> BinaryOperator<ValueWithFailures<T>> combiningValues(BinaryOperator<T> combiner) {
+    ArgChecker.notNull(combiner, "combiner");
+    return (vwf1, vwf2) -> vwf1.combinedWith(vwf2, combiner);
+  }
+
   /**
    * Returns a collector that can be used to create a ValueWithFailure instance from a stream of ValueWithFailure
    * instances.
@@ -126,10 +155,7 @@ public final class ValueWithFailures<T>
       T identityValue,
       BinaryOperator<T> operator) {
 
-    BinaryOperator<ValueWithFailures<T>> reduceFunction =
-        (result1, result2) -> result1.combinedWith(result2, operator);
-
-    return Collectors.reducing(ValueWithFailures.of(identityValue), reduceFunction);
+    return Collectors.reducing(ValueWithFailures.of(identityValue), combiningValues(operator));
   }
 
   //-------------------------------------------------------------------------
@@ -174,10 +200,7 @@ public final class ValueWithFailures<T>
    */
   public <R> ValueWithFailures<R> flatMap(Function<? super T, ValueWithFailures<R>> function) {
     ValueWithFailures<R> transformedValue = Objects.requireNonNull(function.apply(value));
-    ImmutableList<FailureItem> combinedFailures = ImmutableList.<FailureItem>builder()
-        .addAll(this.failures)
-        .addAll(transformedValue.failures)
-        .build();
+    ImmutableList<FailureItem> combinedFailures = concatToList(failures, transformedValue.failures);
     return ValueWithFailures.of(transformedValue.value, combinedFailures);
   }
 
