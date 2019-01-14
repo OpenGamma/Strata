@@ -203,6 +203,12 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_filteringOptional() {
+    List<Optional<String>> list = ImmutableList.of(Optional.of("A"), Optional.empty(), Optional.of("C"));
+    assertEquals(list.stream().flatMap(Guavate.filteringOptional()).collect(toList()), ImmutableList.of("A", "C"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toImmutableList() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableList<String> test = list.stream()

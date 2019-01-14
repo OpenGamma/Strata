@@ -355,6 +355,30 @@ public final class Guavate {
     return input -> cls.isInstance(input) ? Stream.of(cls.cast(input)) : Stream.empty();
   }
 
+  /**
+   * Function used in a stream to filter optionals.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#flatMap(Function)}
+   * to filter optional elements in a stream.
+   * The resulting stream only contains the optional elements that are present.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.flatMap(filteringOptional());
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.filter(Optional::isPresent).map(Optional::get);
+   * </pre>
+   *
+   * @param <T>  the type of element in the output stream
+   * @return the function
+   */
+  public static <T> Function<Optional<T>, Stream<T>> filteringOptional() {
+    return opt -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Collector used at the end of a stream to build an immutable list.
