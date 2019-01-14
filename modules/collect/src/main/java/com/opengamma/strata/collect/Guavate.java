@@ -342,7 +342,7 @@ public final class Guavate {
    * <p>
    * This replaces code of the form:
    * <pre>
-   *   stream.filtering(Foo.class::isInstance).map(Foo.class::cast);
+   *   stream.filter(Foo.class::isInstance).map(Foo.class::cast);
    * </pre>
    *
    * @param <T>  the type of element in the input stream
