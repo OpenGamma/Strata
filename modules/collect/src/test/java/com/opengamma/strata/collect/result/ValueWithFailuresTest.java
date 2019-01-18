@@ -101,7 +101,7 @@ public class ValueWithFailuresTest {
     return ValueWithFailures.of(integers, failures);
   }
 
-  // -------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   public void test_combinedWith() {
     ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
     ValueWithFailures<List<String>> other =
@@ -130,6 +130,35 @@ public class ValueWithFailuresTest {
         .get();
 
     assertEquals(test.getValue(), ImmutableList.of("a", "b", "c"));
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withValue_value() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<String> test = base.withValue("combined");
+    assertEquals(test.getValue(), "combined");
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1));
+  }
+
+  public void test_withValue_valueFailures() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<String> test = base.withValue("combined", ImmutableList.of(FAILURE2));
+    assertEquals(test.getValue(), "combined");
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  public void test_withValue_ValueWithFailures() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("a"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<String> test = base.withValue(ValueWithFailures.of("combined", ImmutableList.of(FAILURE2)));
+    assertEquals(test.getValue(), "combined");
+    assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
+  }
+
+  public void test_withAdditionalFailures() {
+    ValueWithFailures<String> base = ValueWithFailures.of("combined", ImmutableList.of(FAILURE1));
+    ValueWithFailures<String> test = base.withAdditionalFailures(ImmutableList.of(FAILURE2));
+    assertEquals(test.getValue(), "combined");
     assertEquals(test.getFailures(), ImmutableList.of(FAILURE1, FAILURE2));
   }
 
