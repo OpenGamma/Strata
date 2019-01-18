@@ -244,7 +244,7 @@ public final class PeriodicSchedule
    * This is used to identify the boundary date between the last regular schedule period and the final stub.
    * <p>
    * This is an unadjusted date, and as such it might not be a valid business day.
-   * This date must be after 'startDate' and after 'firstRegularStartDate'.
+   * This date must be after 'startDate' and on or after 'firstRegularStartDate'.
    * This date must be on or before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to determine the schedule.
@@ -357,7 +357,7 @@ public final class PeriodicSchedule
         startDate, endDate, "startDate", "endDate");
     if (firstRegularStartDate != null) {
       if (lastRegularEndDate != null) {
-        ArgChecker.inOrderNotEqual(
+        ArgChecker.inOrderOrEqual(
             firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
       }
       // Check override start date if present, otherwise use regular start date
@@ -1237,7 +1237,7 @@ public final class PeriodicSchedule
    * This is used to identify the boundary date between the last regular schedule period and the final stub.
    * <p>
    * This is an unadjusted date, and as such it might not be a valid business day.
-   * This date must be after 'startDate' and after 'firstRegularStartDate'.
+   * This date must be after 'startDate' and on or after 'firstRegularStartDate'.
    * This date must be on or before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to determine the schedule.
@@ -1919,7 +1919,7 @@ public final class PeriodicSchedule
      * This is used to identify the boundary date between the last regular schedule period and the final stub.
      * <p>
      * This is an unadjusted date, and as such it might not be a valid business day.
-     * This date must be after 'startDate' and after 'firstRegularStartDate'.
+     * This date must be after 'startDate' and on or after 'firstRegularStartDate'.
      * This date must be on or before 'endDate'.
      * <p>
      * During schedule generation, if this is present it will be used to determine the schedule.

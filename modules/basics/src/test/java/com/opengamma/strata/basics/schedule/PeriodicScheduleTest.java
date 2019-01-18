@@ -236,7 +236,7 @@ public class PeriodicScheduleTest {
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, JUN_03, null));
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, null, SEP_18));
     // first regular vs last regular
-    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_05));
+    createDates(JUN_04, SEP_05, SEP_05, SEP_05);  // allow this
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_04));
     // first regular vs override start date
     assertThrowsIllegalArg(() -> PeriodicSchedule.builder()
