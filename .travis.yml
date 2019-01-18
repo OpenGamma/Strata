@@ -1,8 +1,13 @@
-sudo: required
+sudo: false
 language: java
-jdk:
-  - oraclejdk8
-  - openjdk11
+before_script:
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+jobs:
+  include:
+  - env: JDK 8
+    jdk: openjdk8
+  - env: JDK 11
+    script: source install-jdk.sh -F 11
 cache:
   directories:
     - "$HOME/.m2/repository"
