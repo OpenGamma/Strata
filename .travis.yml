@@ -1,13 +1,8 @@
 sudo: false
 language: java
-before_script:
-  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
-jobs:
-  include:
-  - env: oraclejdk8
-    jdk: oraclejdk8
-  - env: openjdk11
-    script: source install-jdk.sh -F 11
+jdk:
+  - openjdk11
+  - oraclejdk8
 cache:
   directories:
     - "$HOME/.m2/repository"
