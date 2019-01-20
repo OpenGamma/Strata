@@ -4,9 +4,9 @@ before_script:
   - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
 jobs:
   include:
-  - env: JDK 8
-    jdk: openjdk8
-  - env: JDK 11
+  - env: oraclejdk8
+    jdk: oraclejdk8
+  - env: openjdk11
     script: source install-jdk.sh -F 11
 cache:
   directories:
