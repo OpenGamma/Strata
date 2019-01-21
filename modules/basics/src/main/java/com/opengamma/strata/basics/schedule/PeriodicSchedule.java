@@ -662,6 +662,7 @@ public final class PeriodicSchedule
   }
 
   // generate the schedule of dates forwards from the start, called when stub convention is not initial
+  // start/end dates are regular start/end
   private static List<LocalDate> generateForwards(
       PeriodicSchedule schedule,
       LocalDate start,
@@ -687,23 +688,25 @@ public final class PeriodicSchedule
     } else {
       dates.add(explicitStartDate);
     }
-    LocalDate temp = rollConv.next(start, frequency);
-    while (temp.isBefore(end)) {
-      dates.add(temp);
-      temp = rollConv.next(temp, frequency);
-    }
-    // convert short stub to long stub, but only if we actually have a stub
-    boolean stub = temp.equals(end) == false;
-    if (stub && dates.size() > 1) {
-      if (stubConv == StubConvention.NONE) {
-        throw new ScheduleException(
-            schedule, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end, frequency);
+    if (!start.equals(end)) {
+      LocalDate temp = rollConv.next(start, frequency);
+      while (temp.isBefore(end)) {
+        dates.add(temp);
+        temp = rollConv.next(temp, frequency);
       }
-      if (stubConv.isStubLong(dates.get(dates.size() - 1), end)) {
-        dates.remove(dates.size() - 1);
+      // convert short stub to long stub, but only if we actually have a stub
+      boolean stub = temp.equals(end) == false;
+      if (stub && dates.size() > 1) {
+        if (stubConv == StubConvention.NONE) {
+          throw new ScheduleException(
+              schedule, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end, frequency);
+        }
+        if (stubConv.isStubLong(dates.get(dates.size() - 1), end)) {
+          dates.remove(dates.size() - 1);
+        }
       }
+      dates.add(end);
     }
-    dates.add(end);
     if (explicitFinalStub) {
       dates.add(explicitEndDate);
     }
