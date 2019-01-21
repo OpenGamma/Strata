@@ -1,8 +1,8 @@
-sudo: required
+sudo: false
 language: java
 jdk:
-  - oraclejdk8
   - openjdk11
+  - oraclejdk8
 cache:
   directories:
     - "$HOME/.m2/repository"
