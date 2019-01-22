@@ -20,6 +20,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_11;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_17;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_22;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_24;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_28;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_29;
@@ -236,7 +237,7 @@ public class PeriodicScheduleTest {
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, JUN_03, null));
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, null, SEP_18));
     // first regular vs last regular
-    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_05));
+    createDates(JUN_04, SEP_05, SEP_05, SEP_05);  // allow this
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_04));
     // first regular vs override start date
     assertThrowsIllegalArg(() -> PeriodicSchedule.builder()
@@ -565,6 +566,15 @@ public class PeriodicScheduleTest {
         {date(2015, 2, 28), date(2015, 4, 30), P1M, SHORT_INITIAL, DAY_30, BDA, null, null, null,
             list(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
             list(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30)), DAY_30},
+
+        // Two stubs no regular
+        {date(2019, 1, 16), date(2020, 10, 22), P12M, null, DAY_22, BDA, date(2020, 1, 22), date(2020, 1, 22), null,
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)),
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)), DAY_22},
+        {date(2019, 1, 16), date(2020, 10, 22), P12M, STUB_BOTH, DAY_22, BDA, date(2020, 1, 22), date(2020, 1, 22),
+            null,
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)),
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)), DAY_22},
     };
   }
 
