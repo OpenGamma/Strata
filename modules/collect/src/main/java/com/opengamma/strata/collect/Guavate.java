@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.collectingAndThen;
 
 import java.time.Duration;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -21,7 +22,6 @@ import java.util.Spliterators;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -288,9 +288,9 @@ public final class Guavate {
    * or {@link Stream#findAny()}, this approach ensures an exception is thrown if there
    * is more than one element in the stream.
    * <p>
-   * This would be used as follows:
+   * This would be used as follows (with a static import):
    * <pre>
-   *   stream.filter(...).reduce(Guavate.ensureOnlyOne()).get();
+   *   stream.filter(...).reduce(ensureOnlyOne()).get();
    * </pre>
    *
    * @param <T>  the type of element in the stream
@@ -301,6 +301,82 @@ public final class Guavate {
       throw new IllegalArgumentException(Messages.format(
           "Multiple values found where only one was expected: {} and {}", a, b));
     };
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Function used in a stream to cast instances to a particular type without filtering.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#map(Function)}
+   * to cast elements in a stream to a particular type, throwing an exception if any
+   * element is not of the specified type.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.map(casting(Foo.class));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.map(Foo.class::cast);
+   * </pre>
+   *
+   * @param <T>  the type of element in the input stream
+   * @param <R>  the type of element in the output stream
+   * @param cls  the type of element in the output stream
+   * @return the function
+   */
+  public static <T, R extends T> Function<T, R> casting(Class<R> cls) {
+    return input -> cls.cast(input);
+  }
+
+  /**
+   * Function used in a stream to filter instances to a particular type.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#flatMap(Function)}
+   * to filter elements in a stream to a particular type.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.flatMap(filtering(Foo.class));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.filter(Foo.class::isInstance).map(Foo.class::cast);
+   * </pre>
+   *
+   * @param <T>  the type of element in the input stream
+   * @param <R>  the type of element in the output stream
+   * @param cls  the type of element in the output stream
+   * @return the function
+   */
+  public static <T, R extends T> Function<T, Stream<R>> filtering(Class<R> cls) {
+    return input -> cls.isInstance(input) ? Stream.of(cls.cast(input)) : Stream.empty();
+  }
+
+  /**
+   * Function used in a stream to filter optionals.
+   * <p>
+   * This method returns a function that can be used with {@link Stream#flatMap(Function)}
+   * to filter optional elements in a stream.
+   * The resulting stream only contains the optional elements that are present.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.flatMap(filteringOptional());
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.filter(Optional::isPresent).map(Optional::get);
+   * </pre>
+   *
+   * @param <T>  the type of element in the output stream
+   * @return the function
+   */
+  public static <T> Function<Optional<T>, Stream<T>> filteringOptional() {
+    return opt -> opt.isPresent() ? Stream.of(opt.get()) : Stream.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -715,7 +791,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <K, V> Collector<Map.Entry<K, V>, ?, ImmutableMap<K, V>> entriesToImmutableMap() {
+  public static <K, V> Collector<Map.Entry<? extends K, ? extends V>, ?, ImmutableMap<K, V>> entriesToImmutableMap() {
     return toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
   }
 
@@ -749,7 +825,7 @@ public final class Guavate {
    * @return the immutable map collector
    * @throws IllegalArgumentException if the same key is generated twice
    */
-  public static <K, V> Collector<Pair<K, V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
+  public static <K, V> Collector<Pair<? extends K, ? extends V>, ?, ImmutableMap<K, V>> pairsToImmutableMap() {
     return toImmutableMap(Pair::getFirst, Pair::getSecond);
   }
 
@@ -806,11 +882,11 @@ public final class Guavate {
     CompletableFuture<? extends T>[] futuresArray = futures.toArray(new CompletableFuture[size]);
     return CompletableFuture.allOf(futuresArray)
         .thenApply(unused -> {
-          ImmutableList.Builder<T> builder = ImmutableList.builderWithExpectedSize(size);
+          List<T> builder = new ArrayList<>(size);
           for (int i = 0; i < size; i++) {
             builder.add(futuresArray[i].join());
           }
-          return builder.build();
+          return builder;
         });
   }
 
@@ -840,22 +916,23 @@ public final class Guavate {
    * Effectively, this converts {@code Map<K, CompletableFuture<V>>} to {@code CompletableFuture<Map<K, V>>}.
    * <p>
    * If any input future completes exceptionally, the result will also complete exceptionally.
+   * The results must be non-null.
    *
    * @param <K> the type of the keys in the map
    * @param <V> the type of the values in the map
-   * @param <F> the type of the futures
+   * @param <F> the type of the futures, must not be Void
    * @param futures the futures to convert, may be empty
    * @return a future that combines the input futures as a map
    */
   @SuppressWarnings("unchecked")
   public static <K, V, F extends CompletableFuture<? extends V>> CompletableFuture<Map<K, V>>
-      combineFuturesAsMap(Map<K, F> futures) {
+      combineFuturesAsMap(Map<? extends K, ? extends F> futures) {
 
     int size = futures.size();
     K[] keyArray = (K[]) new Object[size];
     CompletableFuture<? extends V>[] futuresArray = new CompletableFuture[size];
     int index = 0;
-    for (Entry<K, F> entry : futures.entrySet()) {
+    for (Entry<? extends K, ? extends F> entry : futures.entrySet()) {
       keyArray[index] = entry.getKey();
       futuresArray[index] = entry.getValue();
       index++;
@@ -884,7 +961,7 @@ public final class Guavate {
    * @return a collector that combines the input futures as a map
    */
   public static <K, V, F extends CompletableFuture<? extends V>>
-      Collector<Map.Entry<K, F>, ?, CompletableFuture<Map<K, V>>> toCombinedFutureMap() {
+      Collector<Map.Entry<? extends K, ? extends F>, ?, CompletableFuture<Map<K, V>>> toCombinedFutureMap() {
 
     return collectingAndThen(entriesToImmutableMap(), Guavate::combineFuturesAsMap);
   }
@@ -968,7 +1045,7 @@ public final class Guavate {
    * <p>
    * This takes an argument which is the number of stack levels to look back.
    * This will be 2 to return the caller of this method, 3 to return the caller of the caller, and so on.
-   * 
+   *
    * @param callStackDepth  the depth of the stack to look back
    * @return the caller class
    */

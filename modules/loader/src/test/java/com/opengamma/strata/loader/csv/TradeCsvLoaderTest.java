@@ -18,6 +18,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.CZPR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -329,8 +330,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<FraTrade> filtered = trades.getValue().stream()
-        .filter(FraTrade.class::isInstance)
-        .map(FraTrade.class::cast)
+        .flatMap(filtering(FraTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 3);
 
@@ -383,8 +383,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY);
 
     List<FraTrade> filtered = trades.getValue().stream()
-        .filter(FraTrade.class::isInstance)
-        .map(FraTrade.class::cast)
+        .flatMap(filtering(FraTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 3);
 
@@ -439,8 +438,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY2);
 
     List<FraTrade> filtered = trades.getValue().stream()
-        .filter(FraTrade.class::isInstance)
-        .map(FraTrade.class::cast)
+        .flatMap(filtering(FraTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 3);
 
@@ -495,8 +493,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<SwapTrade> filtered = trades.getValue().stream()
-        .filter(SwapTrade.class::isInstance)
-        .map(SwapTrade.class::cast)
+        .flatMap(filtering(SwapTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), NUMBER_SWAPS);
 
@@ -1185,8 +1182,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<TermDepositTrade> filtered = trades.getValue().stream()
-        .filter(TermDepositTrade.class::isInstance)
-        .map(TermDepositTrade.class::cast)
+        .flatMap(filtering(TermDepositTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 3);
 
@@ -1275,8 +1271,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<SecurityTrade> filtered = trades.getValue().stream()
-        .filter(SecurityTrade.class::isInstance)
-        .map(SecurityTrade.class::cast)
+        .flatMap(filtering(SecurityTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 2);
 
@@ -1310,8 +1305,7 @@ public class TradeCsvLoaderTest {
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
     List<GenericSecurityTrade> filtered = trades.getValue().stream()
-        .filter(GenericSecurityTrade.class::isInstance)
-        .map(GenericSecurityTrade.class::cast)
+        .flatMap(filtering(GenericSecurityTrade.class))
         .collect(toImmutableList());
     assertEquals(filtered.size(), 1);
 

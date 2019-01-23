@@ -20,6 +20,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_11;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_17;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_22;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_24;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_28;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_29;
@@ -184,6 +185,39 @@ public class PeriodicScheduleTest {
     assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
     assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
   }
+  
+  public void test_firstPaymentDate_before_effectiveDate() {
+  
+    // Schedule where the combination of override start date and regular first period start date produce a first
+    // payment date which is before the (non-overridden) start date
+  
+    LocalDate startDate = LocalDate.of(2018, 7, 26);
+    LocalDate endDate = LocalDate.of(2019, 6, 20);
+    LocalDate overrideStartDate = LocalDate.of(2018, 3, 20);
+    LocalDate firstRegularStartDate = LocalDate.of(2018, 6, 20);
+    
+    PeriodicSchedule scheduleDefinition = PeriodicSchedule.builder()
+        .startDate(startDate)
+        .endDate(endDate)
+        .frequency(Frequency.P3M)
+        .businessDayAdjustment(BDA)
+        .firstRegularStartDate(firstRegularStartDate)
+        .overrideStartDate(AdjustableDate.of(overrideStartDate))
+        .build();
+  
+    Schedule schedule = scheduleDefinition.createSchedule(REF_DATA);
+    assertEquals(schedule.size(), 5);
+    
+    for (int i = 0; i < schedule.size(); i++) {
+
+      LocalDate expectedStart = overrideStartDate.plusMonths(3 * i);
+      LocalDate expectedEnd = expectedStart.plusMonths(3);
+      SchedulePeriod expectedPeriod = SchedulePeriod.of(expectedStart, expectedEnd);
+  
+      SchedulePeriod actualPeriod = schedule.getPeriod(i);
+      assertEquals(expectedPeriod, actualPeriod);
+    }
+  }
 
   public void test_of_LocalDateRoll_null() {
     assertThrowsIllegalArg(() -> PeriodicSchedule.of(null, SEP_17, P1M, BDA, SHORT_INITIAL, DAY_17));
@@ -203,7 +237,7 @@ public class PeriodicScheduleTest {
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, JUN_03, null));
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, null, SEP_18));
     // first regular vs last regular
-    assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_05));
+    createDates(JUN_04, SEP_05, SEP_05, SEP_05);  // allow this
     assertThrowsIllegalArg(() -> createDates(JUN_04, SEP_17, SEP_05, SEP_04));
     // first regular vs override start date
     assertThrowsIllegalArg(() -> PeriodicSchedule.builder()
@@ -532,6 +566,15 @@ public class PeriodicScheduleTest {
         {date(2015, 2, 28), date(2015, 4, 30), P1M, SHORT_INITIAL, DAY_30, BDA, null, null, null,
             list(date(2015, 2, 28), date(2015, 3, 30), date(2015, 4, 30)),
             list(date(2015, 2, 27), date(2015, 3, 30), date(2015, 4, 30)), DAY_30},
+
+        // Two stubs no regular
+        {date(2019, 1, 16), date(2020, 10, 22), P12M, null, DAY_22, BDA, date(2020, 1, 22), date(2020, 1, 22), null,
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)),
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)), DAY_22},
+        {date(2019, 1, 16), date(2020, 10, 22), P12M, STUB_BOTH, DAY_22, BDA, date(2020, 1, 22), date(2020, 1, 22),
+            null,
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)),
+            list(date(2019, 1, 16), date(2020, 1, 22), date(2020, 10, 22)), DAY_22},
     };
   }
 

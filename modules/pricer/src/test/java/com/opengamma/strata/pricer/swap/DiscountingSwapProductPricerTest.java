@@ -5,10 +5,12 @@
  */
 package com.opengamma.strata.pricer.swap;
 
+import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_5Y;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
@@ -39,6 +41,7 @@ import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_INFLATION;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE_CROSS_CURRENCY;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
@@ -59,9 +62,12 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.ImmutableOvernightIndex;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -72,6 +78,8 @@ import com.opengamma.strata.market.amount.CashFlows;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -87,22 +95,27 @@ import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.product.swap.CompoundingMethod;
+import com.opengamma.strata.product.swap.FixedAccrualMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.NotionalSchedule;
+import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 import com.opengamma.strata.product.swap.PaymentSchedule;
 import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
+import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapPaymentEvent;
 import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
 import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 import com.opengamma.strata.product.swap.type.ImmutableIborIborSwapConvention;
+import com.opengamma.strata.product.swap.type.OvernightRateSwapLegConvention;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConvention;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 
@@ -117,7 +130,7 @@ public class DiscountingSwapProductPricerTest {
   private static final LocalDate VAL_DATE_INFLATION = date(2014, 7, 8);
 
   private static final ImmutableRatesProvider RATES_GBP = RatesProviderDataSets.MULTI_GBP;
-  
+
   private static final ImmutableRatesProvider RATES_GBP_USD = RatesProviderDataSets.MULTI_GBP_USD;
   private static final double FD_SHIFT = 1.0E-7;
   private static final RatesFiniteDifferenceSensitivityCalculator FINITE_DIFFERENCE_CALCULATOR =
@@ -128,7 +141,9 @@ public class DiscountingSwapProductPricerTest {
   private static final double TOLERANCE_PV = 1.0e-2;
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
+  private static final CurveExtrapolator EXTRAPOLATOR = CurveExtrapolators.FLAT;
   private static final double[] INDEX_VALUES = {242d, 242d, 242d, 242d, 242d, 242d};
+
   private static final double START_INDEX = 218d;
   private static final LocalDateDoubleTimeSeries TS_INFLATION = LocalDateDoubleTimeSeries.of(date(2014, 3, 31), START_INDEX);
   private static final Curve PRICE_CURVE = InterpolatedNodalCurve.of(
@@ -140,7 +155,7 @@ public class DiscountingSwapProductPricerTest {
       .discountCurves(RatesProviderDataSets.multiGbp(VAL_DATE_INFLATION).getDiscountCurves())
       .priceIndexCurve(GB_RPI, PRICE_CURVE)
       .timeSeries(GB_RPI, TS_INFLATION)
-      .build();  
+      .build();
 
   // non compounding
   private static final IborIborSwapConvention CONV_USD_LIBOR3M_LIBOR6M = ImmutableIborIborSwapConvention.of(
@@ -156,9 +171,69 @@ public class DiscountingSwapProductPricerTest {
       .createTrade(MULTI_USD.getValuationDate(), BUY, NOTIONAL_SWAP, SPREAD, REF_DATA);
   private static final SwapTrade SWAP_GBP_ZC_INFLATION_5Y = FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI
       .createTrade(VAL_DATE_INFLATION, TENOR_5Y, BUY, NOTIONAL_SWAP, FIXED_RATE, REF_DATA);
-  
+
   private static final DiscountingSwapProductPricer SWAP_PRODUCT_PRICER = DiscountingSwapProductPricer.DEFAULT;
   private static final DiscountingSwapTradePricer SWAP_TRADE_PRICER = DiscountingSwapTradePricer.DEFAULT;
+
+  //Brl Swaps
+  public static final double EPS_FD = 1E-7;
+  public static final double TOLERANCE_PS = 1E-7;
+  public static final double TOLERANCE_PV_PS = 1E1;
+  public static final RatesFiniteDifferenceSensitivityCalculator CAL_FD = new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
+  private static final BusinessDayAdjustment BDA_MF = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, BRBD);
+  public static final LocalDate VAL_DATE = LocalDate.of(2016, 9, 26);
+  private static final DayCount BUS_252 = DayCount.ofBus252(BRBD);
+  public static final LocalDate START_DATE = VAL_DATE;
+  public static final LocalDate END_DATE = VAL_DATE.plus(Period.ofYears(2));
+  public static final double COUPON = 0.1250;
+  private static final OvernightIndex BRL_CDI =
+      ImmutableOvernightIndex.builder()
+          .currency(BRL)
+          .dayCount(BUS_252)
+          .effectiveDateOffset(0)
+          .fixingCalendar(BRBD)
+          .name("BRL_CDI").build();
+
+  private static final DoubleArray DSC_TIMES = DoubleArray.of(0.25, 0.50, 1.00, 2.00, 3.00, 5.00, 10.00);
+  private static final DoubleArray DSC_VALUES = DoubleArray.of( 0.1150, 0.1200, 0.1250, 0.1250, 0.1275, 0.1275, 0.130);
+  public static final InterpolatedNodalCurve DSCON = InterpolatedNodalCurve.builder()
+      .metadata(Curves.zeroRates("BRL-DSCON-CDIS", BUS_252))
+      .xValues(DSC_TIMES)
+      .yValues(DSC_VALUES)
+      .extrapolatorLeft(EXTRAPOLATOR)
+      .interpolator(INTERPOLATOR)
+      .extrapolatorRight(EXTRAPOLATOR)
+      .build();
+  public static final RatesProvider BRL_DSCON =
+      ImmutableRatesProvider.builder(VAL_DATE)
+          .discountCurve(BRL, DSCON)
+          .overnightIndexCurve(BRL_CDI, DSCON)
+          .build();
+
+  public static final FixedRateSwapLegConvention BRL_FIXED_LEG_CONV =
+      FixedRateSwapLegConvention.builder()
+          .currency(BRL)
+          .accrualFrequency(Frequency.TERM)
+          .paymentFrequency(Frequency.TERM)
+          .dayCount(BUS_252)
+          .accrualBusinessDayAdjustment(BDA_MF)
+          .accrualMethod(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+          .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
+          .build();
+  public static final OvernightRateSwapLegConvention BRL_FLOATING_LEG_CONV =
+      OvernightRateSwapLegConvention.builder()
+          .index(BRL_CDI)
+          .accrualFrequency(Frequency.TERM)
+          .paymentFrequency(Frequency.TERM)
+          .accrualMethod(OvernightAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
+          .accrualBusinessDayAdjustment(BDA_MF)
+          .paymentDateOffset(DaysAdjustment.ofBusinessDays(0, BRL_CDI.getFixingCalendar()))
+          .build();
+
+  public static final RateCalculationSwapLeg BRL_FIXED_LEG = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, COUPON);
+  public static final RateCalculationSwapLeg BRL_FLOATING_LEG = BRL_FLOATING_LEG_CONV.toLeg(START_DATE, END_DATE, RECEIVE, NOTIONAL, 0d);
+
+  public static final ResolvedSwap BRL_SWAP = Swap.of(BRL_FIXED_LEG, BRL_FLOATING_LEG).resolve(REF_DATA);
 
   //-------------------------------------------------------------------------
   public void test_getters() {
@@ -341,6 +416,16 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
   }
 
+  public void test_parRate_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    double parRateComputed = pricerSwap.parRate(BRL_SWAP, BRL_DSCON);
+    RateCalculationSwapLeg fixedLeg = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, parRateComputed);
+    ResolvedSwap swapWithParRate = Swap.of(BRL_FLOATING_LEG, fixedLeg).resolve(REF_DATA);
+    double pvWithParRate = pricerSwap.presentValue(swapWithParRate, BRL_DSCON).getAmount(BRL).getAmount();
+    assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValue_singleCurrency() {
     SwapPaymentPeriodPricer<SwapPaymentPeriod> mockPeriod = mock(SwapPaymentPeriodPricer.class);
@@ -414,6 +499,18 @@ public class DiscountingSwapProductPricerTest {
     assertEquals(pvComputed.getAmount(GBP).getAmount(), pvExpected, NOTIONAL * TOLERANCE_RATE);
   }
 
+  public void test_presentValue_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    LocalDate paymentDate = BRL_SWAP.getLegs().get(0).getPaymentPeriods().get(0).getPaymentDate();
+    LocalDate startDate = BRL_SWAP.getLegs().get(0).getPaymentPeriods().get(0).getStartDate();
+    double af = BUS_252.yearFraction(startDate, paymentDate);
+    MultiCurrencyAmount pvComputed = pricerSwap.presentValue(BRL_SWAP, BRL_DSCON);
+    double pvExpected = (-Math.pow((1 + COUPON), af)*BRL_DSCON.discountFactor(BRL, paymentDate) + BRL_DSCON.discountFactor(BRL, startDate)) * NOTIONAL;
+    assertTrue(pvComputed.getCurrencies().size() == 1);
+    assertEquals(pvComputed.getAmount(BRL).getAmount(), pvExpected, NOTIONAL * TOLERANCE_RATE);
+  }
+
   //-------------------------------------------------------------------------
   public void test_forecastValue_singleCurrency() {
     SwapPaymentPeriodPricer<SwapPaymentPeriod> mockPeriod = mock(SwapPaymentPeriodPricer.class);
@@ -465,6 +562,19 @@ public class DiscountingSwapProductPricerTest {
     double fvExpected = (-(INDEX_VALUES[0] / START_INDEX - 1.0) + Math.pow(1.0 + fixedRate, 5) - 1.0) * NOTIONAL;
     assertTrue(fvComputed.getCurrencies().size() == 1);
     assertEquals(fvComputed.getAmount(GBP).getAmount(), fvExpected, NOTIONAL * TOLERANCE_RATE);
+  }
+
+  public void test_forecastValue_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    LocalDate paymentDate = BRL_SWAP.getLegs().get(0).getPaymentPeriods().get(0).getPaymentDate();
+    LocalDate startDate = BRL_SWAP.getLegs().get(0).getPaymentPeriods().get(0).getStartDate();
+    double af = BUS_252.yearFraction(startDate, paymentDate);
+    MultiCurrencyAmount forecastComputed = pricerSwap.forecastValue(BRL_SWAP, BRL_DSCON);
+    double forecastExpected = (-Math.pow((1 + COUPON), af)
+        + BRL_DSCON.discountFactor(BRL, startDate) / BRL_DSCON.discountFactor(BRL, paymentDate)) * NOTIONAL;
+    assertTrue(forecastComputed.getCurrencies().size() == 1);
+    assertEquals(forecastComputed.getAmount(BRL).getAmount(), forecastExpected, NOTIONAL * TOLERANCE_RATE);
   }
 
   //-------------------------------------------------------------------------
@@ -529,6 +639,16 @@ public class DiscountingSwapProductPricerTest {
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
   }
 
+  public void test_parRateSensitivity_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    PointSensitivities parRateSens = pricerSwap.parRateSensitivity(BRL_SWAP, BRL_DSCON).build();
+    CurrencyParameterSensitivities parRateSensiComputed = BRL_DSCON.parameterSensitivity(parRateSens);
+    CurrencyParameterSensitivities parRateSensiExpected = CAL_FD.sensitivity(BRL_DSCON,
+        (p) -> CurrencyAmount.of(BRL, pricerSwap.parRate(BRL_SWAP, (p))));
+    assertTrue(parRateSensiComputed.equalWithTolerance(parRateSensiExpected, TOLERANCE_PS));
+  }
+
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity() {
     // ibor leg
@@ -586,6 +706,16 @@ public class DiscountingSwapProductPricerTest {
         .equalWithTolerance(pvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
   }
 
+  public void test_presentValueSensitivity_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    PointSensitivities pts = pricerSwap.presentValueSensitivity(BRL_SWAP, BRL_DSCON).build();
+    CurrencyParameterSensitivities psComputed = BRL_DSCON.parameterSensitivity(pts);
+    CurrencyParameterSensitivities psExpected = CAL_FD.sensitivity(BRL_DSCON,
+        (p) -> pricerSwap.presentValue(BRL_SWAP, (p)).getAmount(BRL));
+    assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_PV_PS));
+  }
+
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity() {
     // ibor leg
@@ -635,6 +765,16 @@ public class DiscountingSwapProductPricerTest {
     PointSensitivityBuilder fvSensiExpected = fvSensiFixedLeg.combinedWith(fvSensiInflationLeg);
     assertTrue(fvSensiComputed.build().normalized()
         .equalWithTolerance(fvSensiExpected.build().normalized(), TOLERANCE_RATE * NOTIONAL));
+  }
+
+  public void test_forecastValueSensitivity_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    PointSensitivities pts = pricerSwap.forecastValueSensitivity(BRL_SWAP, BRL_DSCON).build();
+    CurrencyParameterSensitivities psComputed = BRL_DSCON.parameterSensitivity(pts);
+    CurrencyParameterSensitivities psExpected = CAL_FD.sensitivity(BRL_DSCON,
+        (p) -> pricerSwap.forecastValue(BRL_SWAP, (p)).getAmount(BRL));
+    assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_PV_PS));
   }
 
   //-------------------------------------------------------------------------
@@ -715,7 +855,7 @@ public class DiscountingSwapProductPricerTest {
         pricerTrade.explainPresentValue(SWAP_TRADE, MOCK_PROV),
         pricerSwap.explainPresentValue(SWAP, MOCK_PROV));
   }
-  
+
   //-------------------------------------------------------------------------
   public void test_parSpread_fixedIbor() {
     ResolvedSwapTrade swapTrade = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.resolve(REF_DATA);
@@ -733,14 +873,24 @@ public class DiscountingSwapProductPricerTest {
         pricerTrade.parSpread(swapTrade, MULTI_USD),
         pricerSwap.parSpread(swapTrade.getProduct(), MULTI_USD));
   }
-  
+
   public void test_parSpread_fixedInflation() {
     ResolvedSwapTrade tradeZc = SWAP_GBP_ZC_INFLATION_5Y.resolve(REF_DATA);
     double ps = SWAP_PRODUCT_PRICER.parSpread(tradeZc.getProduct(), RATES_GBP_INFLATION);
     SwapTrade swap0 = FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI
         .createTrade(VAL_DATE_INFLATION, TENOR_5Y, BUY, NOTIONAL_SWAP, FIXED_RATE + ps, REF_DATA);
     CurrencyAmount pv0 = SWAP_PRODUCT_PRICER.presentValue(swap0.getProduct().resolve(REF_DATA), GBP, RATES_GBP_INFLATION);
-    assertEquals(pv0.getAmount(),  0, TOLERANCE_PV);    
+    assertEquals(pv0.getAmount(),  0, TOLERANCE_PV);
+  }
+
+  public void test_parSpread_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    double parSpreadComputed = pricerSwap.parSpread(BRL_SWAP, BRL_DSCON);
+    RateCalculationSwapLeg fixedLeg = BRL_FIXED_LEG_CONV.toLeg(START_DATE, END_DATE, PAY, NOTIONAL, COUPON + parSpreadComputed);
+    ResolvedSwap swapWithParSpread = Swap.of(BRL_FLOATING_LEG, fixedLeg).resolve(REF_DATA);
+    double pvWithParSpread = pricerSwap.presentValue(swapWithParSpread, BRL_DSCON).getAmount(BRL).getAmount();
+    assertEquals(pvWithParSpread, 0.0d, NOTIONAL * TOLERANCE_RATE);
   }
 
   public void test_parSpread_iborIbor() {
@@ -789,7 +939,7 @@ public class DiscountingSwapProductPricerTest {
         pricerTrade.parSpreadSensitivity(trade, MULTI_USD),
         pricerSwap.parSpreadSensitivity(trade.getProduct(), MULTI_USD).build());
   }
-  
+
   public void test_parSpreadSensitivity_fixedInflation() {
     ResolvedSwapTrade tradeZc = SWAP_GBP_ZC_INFLATION_5Y.resolve(REF_DATA);
     PointSensitivities point = SWAP_PRODUCT_PRICER.parSpreadSensitivity(tradeZc.getProduct(), RATES_GBP_INFLATION).build();
@@ -833,6 +983,16 @@ public class DiscountingSwapProductPricerTest {
     CurrencyParameterSensitivities prFd = FINITE_DIFFERENCE_CALCULATOR.sensitivity(
         MULTI_USD, p -> CurrencyAmount.of(USD, SWAP_PRODUCT_PRICER.parSpread(swap, p)));
     assertTrue(prAd.equalWithTolerance(prFd, TOLERANCE_RATE_DELTA));
+  }
+
+  public void test_parSpreadSensitivity_brl_swap() {
+    DiscountingSwapLegPricer pricerLeg = DiscountingSwapLegPricer.DEFAULT;
+    DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
+    PointSensitivities parSpreadSens = pricerSwap.parSpreadSensitivity(BRL_SWAP, BRL_DSCON).build();
+    CurrencyParameterSensitivities parSpreadSensiComputed = BRL_DSCON.parameterSensitivity(parSpreadSens);
+    CurrencyParameterSensitivities parRateSensiExpected = CAL_FD.sensitivity(BRL_DSCON,
+        (p) -> CurrencyAmount.of(BRL, pricerSwap.parSpread(BRL_SWAP, (p))));
+    assertTrue(parSpreadSensiComputed.equalWithTolerance(parRateSensiExpected, TOLERANCE_RATE_DELTA));
   }
 
   //-------------------------------------------------------------------------
@@ -927,5 +1087,5 @@ public class DiscountingSwapProductPricerTest {
         p -> CurrencyAmount.of(EUR, SWAP_PRODUCT_PRICER.parSpread(swap, p)));
     assertTrue(parSpreadSensiComputed.equalWithTolerance(parSpreadSensiExpected, TOLERANCE_RATE_DELTA));
   }
-
 }
+

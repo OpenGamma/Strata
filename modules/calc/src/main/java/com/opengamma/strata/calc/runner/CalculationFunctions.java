@@ -7,6 +7,7 @@ package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,6 +135,27 @@ public interface CalculationFunctions {
    *   derived calculation functions
    */
   public default CalculationFunctions composedWith(DerivedCalculationFunction<?, ?>... functions) {
+    return new DerivedCalculationFunctions(this, Arrays.asList(functions));
+  }
+
+  /**
+   * Returns a set of calculation functions which combines the functions in this set with some
+   * derived calculation functions.
+   * <p>
+   * Each derived function calculates one measure for one type of target, possibly using other calculated measures
+   * as inputs.
+   * <p>
+   * If any of the derived functions depend on each other they must be passed to this method in the correct
+   * order to ensure their dependencies can be satisfied. For example, if there is a derived function
+   * {@code fnA} which depends on the measure calculated by function {@code fnB} they must be passed to
+   * this method in the order {@code fnB, fnA}.
+   *
+   * @param functions  the functions
+   * @return a set of calculation functions which combines the functions in this set with some
+   *   derived calculation functions
+   */
+  public default CalculationFunctions composedWith(List<DerivedCalculationFunction<?, ?>> functions) {
     return new DerivedCalculationFunctions(this, functions);
   }
+
 }

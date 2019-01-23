@@ -33,6 +33,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * A value with associated failures.
@@ -110,6 +111,34 @@ public final class ValueWithFailures<T>
     }
   }
 
+  //-----------------------------------------------------------------------
+  /**
+   * Returns a {@code BinaryOperator} that combines {@code ValueWithFailures} objects using the provided combiner
+   * function.
+   * <p>
+   * This would be used as follows (with a static import):
+   * <pre>
+   *   stream.reduce(combiningValues(Guavate::concatToList));
+   *
+   *   stream.reduce(baseValueWithFailures, combiningValues(Guavate::concatToList));
+   * </pre>
+   * <p>
+   * This replaces code of the form:
+   * <pre>
+   *   stream.reduce((vwf1, vwf2) -> vwf1.combinedWith(vwf2, Guavate::concatToList));
+   *
+   *   stream.reduce(baseValueWithFailures, (vwf1, vwf2) -> vwf1.combinedWith(vwf2, Guavate::concatToList));
+   * </pre>
+   *
+   * @param combiner  the combiner of the values
+   * @param <T>  the type of the values
+   * @return the combining binary operator
+   */
+  public static <T> BinaryOperator<ValueWithFailures<T>> combiningValues(BinaryOperator<T> combiner) {
+    ArgChecker.notNull(combiner, "combiner");
+    return (vwf1, vwf2) -> vwf1.combinedWith(vwf2, combiner);
+  }
+
   /**
    * Returns a collector that can be used to create a ValueWithFailure instance from a stream of ValueWithFailure
    * instances.
@@ -126,10 +155,7 @@ public final class ValueWithFailures<T>
       T identityValue,
       BinaryOperator<T> operator) {
 
-    BinaryOperator<ValueWithFailures<T>> reduceFunction =
-        (result1, result2) -> result1.combinedWith(result2, operator);
-
-    return Collectors.reducing(ValueWithFailures.of(identityValue), reduceFunction);
+    return Collectors.reducing(ValueWithFailures.of(identityValue), combiningValues(operator));
   }
 
   //-------------------------------------------------------------------------
@@ -149,6 +175,7 @@ public final class ValueWithFailures<T>
    * The specified function represents a conversion to be performed on the value.
    * <p>
    * It is strongly advised to ensure that the function cannot throw an exception.
+   * Exceptions from the function are not caught.
    *
    * @param <R>  the type of the value in the returned result
    * @param function  the function to transform the value with
@@ -167,6 +194,7 @@ public final class ValueWithFailures<T>
    * The result of this method consists of the transformed value, and the combined list of failures.
    * <p>
    * It is strongly advised to ensure that the function cannot throw an exception.
+   * Exceptions from the function are not caught.
    *
    * @param <R>  the type of the value in the returned result
    * @param function  the function to transform the value with
@@ -174,10 +202,7 @@ public final class ValueWithFailures<T>
    */
   public <R> ValueWithFailures<R> flatMap(Function<? super T, ValueWithFailures<R>> function) {
     ValueWithFailures<R> transformedValue = Objects.requireNonNull(function.apply(value));
-    ImmutableList<FailureItem> combinedFailures = ImmutableList.<FailureItem>builder()
-        .addAll(this.failures)
-        .addAll(transformedValue.failures)
-        .build();
+    ImmutableList<FailureItem> combinedFailures = concatToList(failures, transformedValue.failures);
     return ValueWithFailures.of(transformedValue.value, combinedFailures);
   }
 
@@ -188,6 +213,7 @@ public final class ValueWithFailures<T>
    * often be {@code Guavate::concatToList}.
    * <p>
    * It is strongly advised to ensure that the function cannot throw an exception.
+   * Exceptions from the function are not caught.
    * 
    * @param <U>  the type of the value in the other instance
    * @param <R>  the type of the value in the returned result
@@ -199,6 +225,59 @@ public final class ValueWithFailures<T>
     R combinedValue = Objects.requireNonNull(combiner.apply(value, other.value));
     ImmutableList<FailureItem> combinedFailures = concatToList(failures, other.failures);
     return ValueWithFailures.of(combinedValue, combinedFailures);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a new instance with the specified value, retaining the current failures.
+   * <p>
+   * This can be useful as an inline alternative to {@link #map(Function)}.
+   * 
+   * @param <R>  the type of the value in the returned result
+   * @param value  the new value
+   * @return the combined instance of value and failures
+   */
+  public <R> ValueWithFailures<R> withValue(R value) {
+    return ValueWithFailures.of(value, this.failures);
+  }
+
+  /**
+   * Returns a new instance with the specified value, combining the failures.
+   * <p>
+   * This can be useful as an inline alternative to {@link #flatMap(Function)}.
+   * 
+   * @param <R>  the type of the value in the returned result
+   * @param value  the new value
+   * @param additionalFailures  the additional failures
+   * @return the combined instance of value and failures
+   */
+  public <R> ValueWithFailures<R> withValue(R value, List<FailureItem> additionalFailures) {
+    return ValueWithFailures.of(value, concatToList(this.failures, additionalFailures));
+  }
+
+  /**
+   * Returns a new instance with the specified value, combining the failures.
+   * <p>
+   * This can be useful as an inline alternative to {@link #flatMap(Function)}.
+   * 
+   * @param <R>  the type of the value in the returned result
+   * @param valueWithFailures  the new value with failures
+   * @return the combined instance of value and failures
+   */
+  public <R> ValueWithFailures<R> withValue(ValueWithFailures<R> valueWithFailures) {
+    return ValueWithFailures.of(
+        valueWithFailures.getValue(),
+        concatToList(this.failures, valueWithFailures.getFailures()));
+  }
+
+  /**
+   * Returns a new instance with the specified failures, retaining the current value.
+   * 
+   * @param additionalFailures  the additional failures
+   * @return the combined instance of value and failures
+   */
+  public ValueWithFailures<T> withAdditionalFailures(List<FailureItem> additionalFailures) {
+    return ValueWithFailures.of(value, concatToList(this.failures, additionalFailures));
   }
 
   //------------------------- AUTOGENERATED START -------------------------

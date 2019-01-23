@@ -165,7 +165,7 @@ public final class StandardId
     ArgChecker.matches(VALUE_MATCHER, 1, Integer.MAX_VALUE, value, "value", "[!-z][ -z]+");
     if (value.charAt(0) == ' ') {
       throw new IllegalArgumentException(Messages.format(
-          "Invalid initial space in value '{}' must match regex '[!-z][ -z]*'", value));
+          "Invalid initial space in value '{}' must match regex '[!-z][ -z]+'", value));
     }
     this.scheme = scheme;
     this.value = value;
