@@ -40,7 +40,10 @@ public final class OvernightIndices {
    * The TOIS index for CHF.
    * <p>
    * The Tomorrow/Next Overnight Indexed Swaps (TOIS) index, which is a "Tomorrow/Next" index.
+   * 
+   * @deprecated TOIS was replaced by SARON at the end of 2017
    */
+  @Deprecated
   public static final OvernightIndex CHF_TOIS = OvernightIndex.of("CHF-TOIS");
   /**
    * The EONIA index for EUR.

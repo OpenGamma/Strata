@@ -99,13 +99,14 @@ final class IborIndexCsvLookup
   private static ImmutableMap<String, IborIndex> loadFromCsv() {
     List<ResourceLocator> resources = ResourceConfig.orderedResources("IborIndexData.csv");
     Map<String, IborIndex> map = new HashMap<>();
+    // files are ordered lowest priority to highest, thus Map::put is used
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
         for (CsvRow row : csv.rows()) {
           IborIndex parsed = parseIborIndex(row);
           map.put(parsed.getName(), parsed);
-          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
+          map.put(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as Ibor Index CSV file: " + resource, ex);
