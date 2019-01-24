@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
@@ -36,9 +37,12 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.calc.runner.FxRateLookup;
+import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FxRateId;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
@@ -67,6 +71,8 @@ import com.opengamma.strata.pricer.rate.RatesProvider;
 @Test
 public class RatesMarketDataLookupTest {
 
+  private static final IborIndex INACTIVE_IBOR_INDEX = IborIndex.of("GBP-LIBOR-10M");
+  private static final OvernightIndex INACTIVE_ON_INDEX = OvernightIndex.of("CHF-TOIS");
   private static final CurveId CURVE_ID_DSC = CurveId.of("Group", "USD-DSC");
   private static final CurveId CURVE_ID_FWD = CurveId.of("Group", "USD-L3M");
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
@@ -74,6 +80,7 @@ public class RatesMarketDataLookupTest {
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("deprecation")
   public void test_of_map() {
     ImmutableMap<Currency, CurveId> discounts = ImmutableMap.of(USD, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards = ImmutableMap.of(USD_LIBOR_3M, CURVE_ID_FWD);
@@ -92,10 +99,10 @@ public class RatesMarketDataLookupTest {
         test.requirements(USD),
         FunctionRequirements.builder().valueRequirements(CURVE_ID_DSC).outputCurrencies(USD).build());
     assertEquals(
-        test.requirements(USD, USD_LIBOR_3M),
+        test.requirements(USD, USD_LIBOR_3M, EUR_EURIBOR_2M),
         FunctionRequirements.builder()
             .valueRequirements(CURVE_ID_DSC, CURVE_ID_FWD)
-            .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M))
+            .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_2M))
             .outputCurrencies(USD)
             .build());
     assertEquals(
@@ -164,7 +171,13 @@ public class RatesMarketDataLookupTest {
     LocalDate valDate = date(2015, 6, 30);
     Curve dscCurve = ConstantCurve.of(Curves.discountFactors(CURVE_ID_DSC.getCurveName(), ACT_360), 1d);
     Curve fwdCurve = ConstantCurve.of(Curves.discountFactors(CURVE_ID_FWD.getCurveName(), ACT_360), 2d);
-    MarketData md = ImmutableMarketData.of(valDate, ImmutableMap.of(CURVE_ID_DSC, dscCurve, CURVE_ID_FWD, fwdCurve));
+    LocalDateDoubleTimeSeries dummyTimeSeries = LocalDateDoubleTimeSeries.of(valDate, 1);
+    MarketData md = ImmutableMarketData.builder(valDate)
+        .addValue(CURVE_ID_DSC, dscCurve)
+        .addValue(CURVE_ID_FWD, fwdCurve)
+        .addTimeSeries(IndexQuoteId.of(INACTIVE_IBOR_INDEX), dummyTimeSeries)
+        .addTimeSeries(IndexQuoteId.of(INACTIVE_ON_INDEX), dummyTimeSeries)
+        .build();
     RatesProvider ratesProvider = test.ratesProvider(md);
     assertEquals(ratesProvider.getValuationDate(), valDate);
     assertEquals(ratesProvider.findData(CURVE_ID_DSC.getCurveName()), Optional.of(dscCurve));
@@ -173,7 +186,7 @@ public class RatesMarketDataLookupTest {
     assertEquals(ratesProvider.getIborIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(ratesProvider.getOvernightIndices(), ImmutableSet.of(USD_FED_FUND));
     assertEquals(ratesProvider.getPriceIndices(), ImmutableSet.of(US_CPI_U));
-    assertEquals(ratesProvider.getTimeSeriesIndices(), ImmutableSet.of());
+    assertEquals(ratesProvider.getTimeSeriesIndices(), ImmutableSet.of(INACTIVE_IBOR_INDEX, INACTIVE_ON_INDEX));
     // check discount factors
     SimpleDiscountFactors df = (SimpleDiscountFactors) ratesProvider.discountFactors(USD);
     assertEquals(df.getCurve().getName(), dscCurve.getName());
@@ -183,11 +196,15 @@ public class RatesMarketDataLookupTest {
     SimpleDiscountFactors iborDf = (SimpleDiscountFactors) ibor.getDiscountFactors();
     assertEquals(iborDf.getCurve().getName(), fwdCurve.getName());
     assertThrowsIllegalArg(() -> ratesProvider.iborIndexRates(GBP_LIBOR_3M));
+    assertEquals(ratesProvider.iborIndexRates(INACTIVE_IBOR_INDEX).getIndex(), INACTIVE_IBOR_INDEX);
+    assertEquals(ratesProvider.iborIndexRates(INACTIVE_IBOR_INDEX).getFixings(), dummyTimeSeries);
     // check Overnight
     DiscountOvernightIndexRates on = (DiscountOvernightIndexRates) ratesProvider.overnightIndexRates(USD_FED_FUND);
     SimpleDiscountFactors onDf = (SimpleDiscountFactors) on.getDiscountFactors();
     assertEquals(onDf.getCurve().getName(), dscCurve.getName());
     assertThrowsIllegalArg(() -> ratesProvider.overnightIndexRates(GBP_SONIA));
+    assertEquals(ratesProvider.overnightIndexRates(INACTIVE_ON_INDEX).getIndex(), INACTIVE_ON_INDEX);
+    assertEquals(ratesProvider.overnightIndexRates(INACTIVE_ON_INDEX).getFixings(), dummyTimeSeries);
     // check price curve must be interpolated
     assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(US_CPI_U));
     // to immutable
@@ -197,6 +214,8 @@ public class RatesMarketDataLookupTest {
         .indexCurve(USD_FED_FUND, dscCurve)
         .indexCurve(USD_LIBOR_3M, fwdCurve)
         .indexCurve(US_CPI_U, fwdCurve)
+        .timeSeries(INACTIVE_IBOR_INDEX, dummyTimeSeries)
+        .timeSeries(INACTIVE_ON_INDEX, dummyTimeSeries)
         .build();
     assertEquals(ratesProvider.toImmutableRatesProvider(), expectedImmutable);
   }

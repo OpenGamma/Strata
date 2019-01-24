@@ -41,7 +41,7 @@ public final class OvernightIndices {
    * <p>
    * The Tomorrow/Next Overnight Indexed Swaps (TOIS) index, which is a "Tomorrow/Next" index.
    * 
-   * @deprecated TOIS was replaced by SARON at the end of 2017
+   * @deprecated Not published as of 2017-12-29
    */
   @Deprecated
   public static final OvernightIndex CHF_TOIS = OvernightIndex.of("CHF-TOIS");
