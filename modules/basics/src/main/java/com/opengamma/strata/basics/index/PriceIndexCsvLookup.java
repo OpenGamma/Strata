@@ -68,13 +68,14 @@ final class PriceIndexCsvLookup
   private static ImmutableMap<String, PriceIndex> loadFromCsv() {
     List<ResourceLocator> resources = ResourceConfig.orderedResources("PriceIndexData.csv");
     Map<String, PriceIndex> map = new HashMap<>();
+    // files are ordered lowest priority to highest, thus Map::put is used
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
         for (CsvRow row : csv.rows()) {
           PriceIndex parsed = parsePriceIndex(row);
           map.put(parsed.getName(), parsed);
-          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
+          map.put(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as Price Index CSV file: " + resource, ex);
