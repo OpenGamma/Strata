@@ -1,0 +1,41 @@
+version: 2
+jobs:
+  build:
+    docker:
+      # specify the version you desire here https://circleci.com/docs/2.0/circleci-images/
+      - image: circleci/openjdk:8u181-jdk
+
+    working_directory: ~/repo
+
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+    
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - m2-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+          - m2-repo-v1-{{ .Branch }}
+          - m2-repo-v1-
+
+      - run:
+          name: Maven version
+          command: mvn --version
+
+      - run:
+          name: Maven install (no tests)
+          command: mvn -e -B install -DskipTests -Dstrict
+
+      - run:
+          name: Maven take dependencies local
+          command: mvn -e -B dependency:go-offline -Dsilent=true
+
+      - run:
+          name: Maven run tests
+          command: mvn -e -B test -Dsurefire.useSystemClassLoader=false
+
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: m2-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
