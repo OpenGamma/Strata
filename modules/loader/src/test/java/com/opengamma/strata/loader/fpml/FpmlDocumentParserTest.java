@@ -6,6 +6,7 @@
 package com.opengamma.strata.loader.fpml;
 
 import static com.opengamma.strata.basics.currency.Currency.AUD;
+import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -19,6 +20,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.FRPA;
@@ -75,6 +77,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
@@ -117,6 +120,7 @@ import com.opengamma.strata.product.rate.IborInterpolatedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
+import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.IborRateCalculation;
 import com.opengamma.strata.product.swap.IborRateResetMethod;
 import com.opengamma.strata.product.swap.IborRateStubCalculation;
@@ -1139,6 +1143,43 @@ public class FpmlDocumentParserTest {
         .build();
     assertEqualsBean((Bean) swap.getLegs().get(0), payLeg);
     assertEqualsBean((Bean) swap.getLegs().get(1), recLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  public void brlCdiSwap() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/brl-future-value-notional.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1")).parseTrades(resource);
+    assertEquals(trades.size(), 1);
+    Trade trade = trades.get(0);
+    assertEquals(trade.getClass(), SwapTrade.class);
+    SwapTrade swapTrade = (SwapTrade) trade;
+    assertEquals(swapTrade.getInfo().getTradeDate(), Optional.of(date(2018, 11, 12)));
+    Swap swap = swapTrade.getProduct();
+
+    NotionalSchedule notional = NotionalSchedule.of(BRL, 10000000d);
+    RateCalculationSwapLeg recLeg = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(date(2018, 11, 14))
+            .endDate(date(2020, 11, 14))
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDateBusinessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, BRBD))
+            .frequency(Frequency.TERM)
+            .rollConvention(RollConventions.NONE)
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(Frequency.TERM)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(1, USNY, BusinessDayAdjustment.NONE))
+            .build())
+        .notionalSchedule(notional)
+        .calculation(FixedRateCalculation.builder()
+            .rate(ValueSchedule.of(0.1))
+            .dayCount(DayCount.ofBus252(BRBD))
+            .futureValueNotional(FutureValueNotional.of(12345670))
+            .build())
+        .build();
+    assertEqualsBean((Bean) swap.getLegs().get(0), recLeg);
   }
 
   //-------------------------------------------------------------------------
