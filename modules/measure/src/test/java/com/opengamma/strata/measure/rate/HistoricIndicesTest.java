@@ -6,6 +6,7 @@
 package com.opengamma.strata.measure.rate;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
+import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
@@ -20,12 +21,10 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
-import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.calc.CalculationRules;
@@ -70,6 +69,8 @@ public class HistoricIndicesTest {
 
   @SuppressWarnings("deprecation")
   public void testHistoricIndex() {
+    
+    // trade with interpolated front stub using 2M EURIBOR
     PeriodicSchedule schedule = PeriodicSchedule.builder()
         .startDate(LocalDate.of(2014, 9, 12))
         .endDate(LocalDate.of(2016, 7, 12))
@@ -87,10 +88,10 @@ public class HistoricIndicesTest {
             .build())
         .notionalSchedule(NotionalSchedule.of(EUR, 10_000_000))
         .calculation(IborRateCalculation.builder()
-            .index(IborIndices.EUR_EURIBOR_3M)
+            .index(EUR_EURIBOR_3M)
             .initialStub(
-                IborRateStubCalculation.ofIborInterpolatedRate(IborIndices.EUR_EURIBOR_2M, IborIndices.EUR_EURIBOR_3M))
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendarIds.USNY, BusinessDayAdjustment.NONE))
+                IborRateStubCalculation.ofIborInterpolatedRate(EUR_EURIBOR_2M, EUR_EURIBOR_3M))
+            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, HolidayCalendarIds.EUTA, BusinessDayAdjustment.NONE))
             .build())
         .build();
 
@@ -101,17 +102,18 @@ public class HistoricIndicesTest {
             .paymentFrequency(P3M)
             .paymentDateOffset(DaysAdjustment.NONE)
             .build())
-        .notionalSchedule(NotionalSchedule.of(Currency.EUR, 10_000_000))
+        .notionalSchedule(NotionalSchedule.of(EUR, 10_000_000))
         .calculation(FixedRateCalculation.of(0.0123d, DayCounts.ACT_365F))
         .build();
 
     SwapTrade trade = SwapTrade.of(TradeInfo.empty(), Swap.of(payLeg, recLeg));
 
+    // construct market data; 3M EURIBOR forward curve and fixings for both 2M and 3M EURIBOR
     CurveGroupName curveGroupName = CurveGroupName.of("ALL");
-    CurveName curveName = CurveName.of(IborIndices.EUR_EURIBOR_3M.getName());
+    CurveName curveName = CurveName.of(EUR_EURIBOR_3M.getName());
     CurveId curveId = CurveId.of(curveGroupName, curveName);
     DefaultCurveMetadata metadata = DefaultCurveMetadata.builder()
-        .curveName(CurveName.of(IborIndices.EUR_EURIBOR_3M.getName()))
+        .curveName(CurveName.of(EUR_EURIBOR_3M.getName()))
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .addInfo(CurveInfoType.DAY_COUNT, DayCounts.ACT_360)
@@ -119,18 +121,22 @@ public class HistoricIndicesTest {
 
     ConstantNodalCurve curve = ConstantNodalCurve.of(metadata, 1, 1);
 
-    IndexQuoteId libor2m = IndexQuoteId.of(IborIndices.EUR_EURIBOR_2M);
-    IndexQuoteId libor3m = IndexQuoteId.of(IborIndices.EUR_EURIBOR_3M);
-
+    IndexQuoteId euribor2m = IndexQuoteId.of(EUR_EURIBOR_2M);
+    LocalDateDoubleTimeSeries euribor2mFixings = LocalDateDoubleTimeSeries.of(LocalDate.of(2014, 9, 10), 0.018);
+    
+    IndexQuoteId euribor3m = IndexQuoteId.of(EUR_EURIBOR_3M);
+    LocalDateDoubleTimeSeries euribor3mFixings = LocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2014, 9, 10), 0.019)
+        .put(LocalDate.of(2014, 10, 9), 0.02)
+        .build();
+    
     Map<MarketDataId<?>, Object> curves = ImmutableMap.of(curveId, curve);
-    ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries = ImmutableMap.of(
-        libor2m,
-        LocalDateDoubleTimeSeries.builder().put(LocalDate.of(2014, 9, 10), 0.019).put(LocalDate.of(2014, 10, 9), 0.019)
-            .put(LocalDate.of(2014, 10, 10), 0.02).build(),
-        libor3m, LocalDateDoubleTimeSeries.builder().put(LocalDate.of(2014, 9, 10), 0.019)
-            .put(LocalDate.of(2014, 10, 9), 0.02).put(LocalDate.of(2014, 10, 10), 0.021).build());
+    ImmutableMap<ObservableId, LocalDateDoubleTimeSeries> timeSeries =
+        ImmutableMap.of(euribor2m, euribor2mFixings, euribor3m, euribor3mFixings);
 
-    MarketData marketData = MarketData.of(LocalDate.of(2014, 10, 12), curves, timeSeries);
+    // valuation date during initial stub period; 2M EURIBOR fixing should be available so no forward curve required
+    LocalDate valuationDate = LocalDate.of(2014, 10, 12);
+    MarketData marketData = MarketData.of(valuationDate, curves, timeSeries);
 
     RatesCurveGroupDefinition definition = RatesCurveGroupDefinition.builder()
         .name(curveGroupName)
@@ -148,6 +154,8 @@ public class HistoricIndicesTest {
     try (CalculationRunner runner = CalculationRunner.ofMultiThreaded()) {
       results = runner.calculate(rules, ImmutableList.of(trade), columns, marketData, ReferenceData.standard());
     }
+    
+    // assert result is succes
     assertTrue(results.get(0, 0).isSuccess());
   }
 
