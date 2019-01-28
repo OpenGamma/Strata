@@ -80,11 +80,6 @@ public final class UnicodeBom {
     return new CharSource() {
 
       @Override
-      public ByteSource asByteSource(Charset charset) {
-        return byteSource;
-      }
-
-      @Override
       public Reader openStream() throws IOException {
         return toReader(byteSource.openStream());
       }
