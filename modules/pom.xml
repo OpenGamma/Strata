@@ -675,14 +675,14 @@
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
     <assertj.version>3.11.1</assertj.version>
-    <guava.version>27.0.1-jre</guava.version>
+    <guava.version>26.0-jre</guava.version><!-- v27 has nasty dependencies, https://github.com/google/guava/issues/3320 -->
     <guava-docs.version>snapshot</guava-docs.version>
     <jcommander.version>1.72</jcommander.version>
     <joda-convert.version>2.2.0</joda-convert.version>
     <joda-beans.version>2.4.0</joda-beans.version>
     <mockito.version>2.23.4</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
-    <testng.version>6.14.2</testng.version>
+    <testng.version>6.14.2</testng.version><!-- 6.14.3 and 6.14.4 are invalid -->
     <!-- Properties for maven-checkstyle-plugin -->
     <checkstyle.config.location>checkstyle/checkstyle-oss.xml</checkstyle.config.location>
     <build-config.version>2.4.1</build-config.version>
