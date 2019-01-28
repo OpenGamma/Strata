@@ -50,6 +50,9 @@ import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 import com.opengamma.strata.pricer.fx.ForwardFxIndexRates;
 import com.opengamma.strata.pricer.fx.FxForwardRates;
 import com.opengamma.strata.pricer.fx.FxIndexRates;
+import com.opengamma.strata.pricer.rate.HistoricIborIndexRates;
+import com.opengamma.strata.pricer.rate.HistoricOvernightIndexRates;
+import com.opengamma.strata.pricer.rate.HistoricPriceIndexValues;
 import com.opengamma.strata.pricer.rate.IborIndexRates;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.OvernightIndexRates;
@@ -207,10 +210,18 @@ final class DefaultLookupRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
+      return historicCurve(index);
+    }
+    return IborIndexRates.of(index, getValuationDate(), marketData.getValue(curveId), timeSeries(index));
+  }
+
+  // creates a historic rates instance if index is inactive and time-series is available
+  private IborIndexRates historicCurve(IborIndex index) {
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
+    if (index.isActive() || fixings.isEmpty()) {
       throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
-    Curve curve = marketData.getValue(curveId);
-    return IborIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
+    return HistoricIborIndexRates.of(index, getValuationDate(), fixings);
   }
 
   //-------------------------------------------------------------------------
@@ -218,10 +229,18 @@ final class DefaultLookupRatesProvider
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
+      return historicCurve(index);
+    }
+    return OvernightIndexRates.of(index, getValuationDate(), marketData.getValue(curveId), timeSeries(index));
+  }
+
+  // creates a historic rates instance if index is inactive and time-series is available
+  private OvernightIndexRates historicCurve(OvernightIndex index) {
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
+    if (index.isActive() || fixings.isEmpty()) {
       throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
-    Curve curve = marketData.getValue(curveId);
-    return OvernightIndexRates.of(index, getValuationDate(), curve, timeSeries(index));
+    return HistoricOvernightIndexRates.of(index, getValuationDate(), fixings);
   }
 
   //-------------------------------------------------------------------------
@@ -229,10 +248,18 @@ final class DefaultLookupRatesProvider
   public PriceIndexValues priceIndexValues(PriceIndex index) {
     CurveId curveId = lookup.getForwardCurves().get(index);
     if (curveId == null) {
+      return historicCurve(index);
+    }
+    return PriceIndexValues.of(index, getValuationDate(), marketData.getValue(curveId), timeSeries(index));
+  }
+
+  // creates a historic rates instance if index is inactive and time-series is available
+  private PriceIndexValues historicCurve(PriceIndex index) {
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
+    if (index.isActive() || fixings.isEmpty()) {
       throw new MarketDataNotFoundException(lookup.msgIndexNotFound(index));
     }
-    Curve curve = marketData.getValue(curveId);
-    return PriceIndexValues.of(index, getValuationDate(), curve, timeSeries(index));
+    return HistoricPriceIndexValues.of(index, getValuationDate(), fixings);
   }
 
   //-------------------------------------------------------------------------

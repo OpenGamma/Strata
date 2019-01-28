@@ -209,15 +209,6 @@ public final class ImmutableRatesProvider
     return timeSeries.getOrDefault(index, LocalDateDoubleTimeSeries.empty());
   }
 
-  // finds the index curve
-  private Curve indexCurve(Index index) {
-    Curve curve = indexCurves.get(index);
-    if (curve == null) {
-      throw new IllegalArgumentException("Unable to find index curve: " + index);
-    }
-    return curve;
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public double fxRate(Currency baseCurrency, Currency counterCurrency) {
@@ -253,23 +244,58 @@ public final class ImmutableRatesProvider
   //-------------------------------------------------------------------------
   @Override
   public IborIndexRates iborIndexRates(IborIndex index) {
-    LocalDateDoubleTimeSeries fixings = timeSeries(index);
-    Curve curve = indexCurve(index);
-    return IborIndexRates.of(index, valuationDate, curve, fixings);
+    Curve curve = indexCurves.get(index);
+    if (curve == null) {
+      return historicCurve(index);
+    }
+    return IborIndexRates.of(index, valuationDate, curve, timeSeries(index));
   }
 
+  // creates a historic rates instance if index is inactive and time-series is available
+  private IborIndexRates historicCurve(IborIndex index) {
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
+    if (index.isActive() || fixings.isEmpty()) {
+      throw new IllegalArgumentException("Unable to find Ibor index curve: " + index);
+    }
+    return HistoricIborIndexRates.of(index, valuationDate, fixings);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public OvernightIndexRates overnightIndexRates(OvernightIndex index) {
-    LocalDateDoubleTimeSeries fixings = timeSeries(index);
-    Curve curve = indexCurve(index);
-    return OvernightIndexRates.of(index, valuationDate, curve, fixings);
+    Curve curve = indexCurves.get(index);
+    if (curve == null) {
+      return historicCurve(index);
+    }
+    return OvernightIndexRates.of(index, valuationDate, curve, timeSeries(index));
   }
 
+  // creates a historic rates instance if index is inactive and time-series is available
+  private OvernightIndexRates historicCurve(OvernightIndex index) {
+    LocalDateDoubleTimeSeries fixings = timeSeries(index);
+    if (index.isActive() || fixings.isEmpty()) {
+      throw new IllegalArgumentException("Unable to find Overnight index curve: " + index);
+    }
+    return HistoricOvernightIndexRates.of(index, valuationDate, fixings);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public PriceIndexValues priceIndexValues(PriceIndex index) {
+    Curve curve = indexCurves.get(index);
+    if (curve == null) {
+      return historicCurve(index);
+    }
+    return PriceIndexValues.of(index, valuationDate, curve, timeSeries(index));
+  }
+
+  // creates a historic rates instance if index is inactive and time-series is available
+  private PriceIndexValues historicCurve(PriceIndex index) {
     LocalDateDoubleTimeSeries fixings = timeSeries(index);
-    Curve curve = indexCurve(index);
-    return PriceIndexValues.of(index, valuationDate, curve, fixings);
+    if (index.isActive() || fixings.isEmpty()) {
+      throw new IllegalArgumentException("Unable to find Price index curve: " + index);
+    }
+    return HistoricPriceIndexValues.of(index, valuationDate, fixings);
   }
 
   //-------------------------------------------------------------------------

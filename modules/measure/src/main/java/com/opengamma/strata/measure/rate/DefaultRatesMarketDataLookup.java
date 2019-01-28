@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.measure.rate;
 
+import static com.opengamma.strata.collect.Guavate.not;
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
 import java.io.Serializable;
@@ -25,6 +26,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRateProvider;
+import com.opengamma.strata.basics.index.FloatingRateIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -135,18 +137,19 @@ final class DefaultRatesMarketDataLookup
       }
     }
     for (Index index : indices) {
-      if (!forwardCurves.keySet().contains(index)) {
+      if (!forwardCurves.keySet().contains(index) && !isHistoric(index)) {
         throw new IllegalArgumentException(msgIndexNotFound(index));
       }
     }
 
-    // keys for time-series
+    // keys for time-series (requested for historic indices)
     Set<ObservableId> indexQuoteIds = indices.stream()
         .map(IndexQuoteId::of)
         .collect(toImmutableSet());
 
-    // keys for forward curves
+    // keys for forward curves (not requested for historic indices)
     Set<MarketDataId<?>> indexCurveIds = indices.stream()
+        .filter(not(this::isHistoric))
         .map(idx -> forwardCurves.get(idx))
         .collect(toImmutableSet());
 
@@ -161,6 +164,15 @@ final class DefaultRatesMarketDataLookup
         .outputCurrencies(currencies)
         .observableSource(observableSource)
         .build();
+  }
+
+  // returns true if the index is historic (no longer active)
+  private boolean isHistoric(Index index) {
+    if (index instanceof FloatingRateIndex) {
+      FloatingRateIndex fri = (FloatingRateIndex) index;
+      return !fri.isActive();
+    }
+    return false;
   }
 
   //-------------------------------------------------------------------------
