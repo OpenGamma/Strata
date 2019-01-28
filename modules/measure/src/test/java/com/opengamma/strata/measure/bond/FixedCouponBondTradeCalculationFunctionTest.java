@@ -188,6 +188,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
         Measures.PV01_MARKET_QUOTE_BUCKETED);
     Map<Measure, Result<?>> computed = function.calculate(TRADE, measures, PARAMS, md, REF_DATA);
     MultiCurrencyScenarioArray sumComputed =(MultiCurrencyScenarioArray) computed.get(Measures.PV01_MARKET_QUOTE_SUM).getValue();
+    @SuppressWarnings("unchecked")
     ScenarioArray<CurrencyParameterSensitivities> bucketedComputed =
         (ScenarioArray<CurrencyParameterSensitivities>) computed.get(Measures.PV01_MARKET_QUOTE_BUCKETED).getValue();
     assertEquals(sumComputed.getScenarioCount(), 1);
