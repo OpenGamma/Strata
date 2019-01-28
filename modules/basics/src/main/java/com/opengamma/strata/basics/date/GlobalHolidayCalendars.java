@@ -367,6 +367,7 @@ final class GlobalHolidayCalendars {
         holidays.add(date(year, 10, 30));
       }
     }
+    holidays.add(date(2018, 12, 5));  // Death of George H.W. Bush
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.USGS, holidays, SATURDAY, SUNDAY);
   }
