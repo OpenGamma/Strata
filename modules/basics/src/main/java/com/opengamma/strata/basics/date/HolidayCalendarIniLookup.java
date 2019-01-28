@@ -60,9 +60,9 @@ final class HolidayCalendarIniLookup
    */
   private static final String WEEKEND_KEY = "Weekend";
   /**
-   * The Exclude key name.
+   * The WorkingDays key name.
    */
-  private static final String EXCLUDE_KEY = "Exclude";
+  private static final String WORKING_DAYS_KEY = "WorkingDays";
   /**
    * The lenient day-of-week parser.
    */
@@ -135,11 +135,12 @@ final class HolidayCalendarIniLookup
     return ImmutableMap.copyOf(map);
   }
 
+  // parses the holiday calendar
   private static HolidayCalendar parseHolidayCalendar(String calendarName, PropertySet section) {
     String weekendStr = section.value(WEEKEND_KEY);
     Set<DayOfWeek> weekends = parseWeekends(weekendStr);
     List<LocalDate> holidays = new ArrayList<>();
-    Set<LocalDate> excludes = new HashSet<>();
+    Set<LocalDate> workingDays = new HashSet<>();
     for (String key : section.keys()) {
       if (key.equals(WEEKEND_KEY)) {
         continue;
@@ -148,14 +149,14 @@ final class HolidayCalendarIniLookup
       if (key.length() == 4) {
         int year = Integer.parseInt(key);
         holidays.addAll(parseYearDates(year, value));
-      } else if (EXCLUDE_KEY.equals(key)) {
-        excludes.addAll(parseDates(value));
+      } else if (WORKING_DAYS_KEY.equals(key)) {
+        workingDays.addAll(parseDates(value));
       } else {
         holidays.add(LocalDate.parse(key));
       }
     }
     // build result
-    return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends, excludes);
+    return ImmutableHolidayCalendar.of(HolidayCalendarId.of(calendarName), holidays, weekends, workingDays);
   }
 
   // parse weekend format, such as 'Sat,Sun'
@@ -173,7 +174,8 @@ final class HolidayCalendarIniLookup
         .map(v -> parseDate(year, v))
         .collect(toImmutableList());
   }
-  // parse date formate such as "2015-01-01,2015-03-12"
+
+  // parse comma separated date format such as "2015-01-01,2015-03-12"
   private static List<LocalDate> parseDates(String str) {
     List<String> split = Splitter.on(',').splitToList(str);
     return split.stream()

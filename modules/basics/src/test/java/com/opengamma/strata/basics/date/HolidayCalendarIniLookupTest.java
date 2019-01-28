@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.collect.TestHelper.caputureLog;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 import java.time.format.DateTimeParseException;
@@ -40,11 +41,12 @@ public class HolidayCalendarIniLookupTest {
     assertEquals(test.toString(), "HolidayCalendar[TEST-VALID]");
   }
 
-  public void test_exclude() {
-    ImmutableMap<String, HolidayCalendar> lookup = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataExclude.ini");
+  public void test_workingDays() {
+    ImmutableMap<String, HolidayCalendar> lookup =
+        HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataWorkingDays.ini");
     assertEquals(lookup.size(), 1);
 
-    HolidayCalendar test = lookup.get("TEST-EXCLUDE");
+    HolidayCalendar test = lookup.get("TEST-WORKINGDAYS");
     assertTrue(test.isHoliday(date(2015, 1, 1)));
     assertTrue(test.isHoliday(date(2015, 1, 6)));
     assertTrue(test.isHoliday(date(2015, 4, 5)));
@@ -52,13 +54,8 @@ public class HolidayCalendarIniLookupTest {
     assertTrue(test.isHoliday(date(2016, 1, 1)));
     assertFalse(test.isHoliday(date(2016, 1, 2)));
     assertFalse(test.isHoliday(date(2016, 1, 3)));
-    assertEquals(test.getName(), "TEST-EXCLUDE");
-    assertEquals(test.toString(), "HolidayCalendar[TEST-EXCLUDE]");
-  }
-
-  private void assertFalse(boolean holiday) {
-    // TODO Auto-generated method stub
-    
+    assertEquals(test.getName(), "TEST-WORKINGDAYS");
+    assertEquals(test.toString(), "HolidayCalendar[TEST-WORKINGDAYS]");
   }
 
   public void test_valid2() {

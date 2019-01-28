@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -35,12 +34,14 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import org.joda.beans.ser.SerDeserializer;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * An immutable holiday calendar implementation.
@@ -127,7 +128,7 @@ public final class ImmutableHolidayCalendar
       DayOfWeek secondWeekendDay) {
 
     ImmutableSet<DayOfWeek> weekendDays = Sets.immutableEnumSet(firstWeekendDay, secondWeekendDay);
-    return of(id, ImmutableSortedSet.copyOf(holidays), weekendDays);
+    return of(id, ImmutableSortedSet.copyOf(holidays), weekendDays, ImmutableSet.of());
   }
 
   /**
@@ -149,7 +150,7 @@ public final class ImmutableHolidayCalendar
       Iterable<LocalDate> holidays,
       Iterable<DayOfWeek> weekendDays) {
 
-    return of(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays), Collections.emptySet());
+    return of(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays), ImmutableSet.of());
   }
 
   /**
@@ -160,22 +161,27 @@ public final class ImmutableHolidayCalendar
    * The maximum supported date for query is the end of the year of the latest holiday.
    * <p>
    * The weekend days may be empty, in which case the holiday dates should contain any weekends.
-   * The excludes are processed finally to mark a holiday as business day, most likely it is a weekend.
+   * The working days are processed last, changing holidays and weekends back to business days,
+   * but only within the range of supported years.
    * 
    * @param id  the identifier
    * @param holidays  the set of holiday dates
    * @param weekendDays  the days that define the weekend, if empty then weekends are treated as business days
-   * @param excludes  the days that should be excluded from holiday sets
-   * @return  the holiday calendar
+   * @param workingDays  the working days that override holidays and weekends
+   * @return the holiday calendar
    */
-  public static ImmutableHolidayCalendar of(HolidayCalendarId id,
+  public static ImmutableHolidayCalendar of(
+      HolidayCalendarId id,
       Iterable<LocalDate> holidays,
       Iterable<DayOfWeek> weekendDays,
-      Iterable<LocalDate> excludes) {
+      Iterable<LocalDate> workingDays) {
 
-    return of(id, ImmutableSortedSet.copyOf(holidays), Sets.immutableEnumSet(weekendDays), Sets.newHashSet(excludes));
+    return of(
+        id,
+        ImmutableSortedSet.copyOf(holidays),
+        Sets.immutableEnumSet(weekendDays),
+        ArgChecker.notNull(workingDays, "workingDays"));
   }
-
 
   /**
    * Obtains a combined holiday calendar instance.
@@ -198,11 +204,15 @@ public final class ImmutableHolidayCalendar
     int endYear1 = cal1.startYear + cal1.lookup.length / 12;
     int endYear2 = cal2.startYear + cal2.lookup.length / 12;
     if (endYear1 < cal2.startYear || endYear2 < cal1.startYear) {
+      Pair<ImmutableSortedSet<LocalDate>, ImmutableSortedSet<LocalDate>> holsWork1 = cal1.getHolidaysAndWorkingDays();
+      Pair<ImmutableSortedSet<LocalDate>, ImmutableSortedSet<LocalDate>> holsWork2 = cal2.getHolidaysAndWorkingDays();
       ImmutableSortedSet<LocalDate> newHolidays =
-          ImmutableSortedSet.copyOf(Iterables.concat(cal1.getHolidays(), cal2.getHolidays()));
+          ImmutableSortedSet.copyOf(Iterables.concat(holsWork1.getFirst(), holsWork2.getFirst()));
       ImmutableSet<DayOfWeek> newWeekends =
           ImmutableSet.copyOf(Iterables.concat(cal1.getWeekendDays(), cal2.getWeekendDays()));
-      return of(newId, newHolidays, newWeekends);
+      ImmutableSet<LocalDate> newWorkingDays =
+          ImmutableSet.copyOf(Iterables.concat(holsWork1.getSecond(), holsWork2.getSecond()));
+      return of(newId, newHolidays, newWeekends, newWorkingDays);
     }
 
     // merge calendars using bitwise operations
@@ -224,10 +234,13 @@ public final class ImmutableHolidayCalendar
   }
 
   // creates an instance calculating the supported range
-  static ImmutableHolidayCalendar of(HolidayCalendarId id, SortedSet<LocalDate> holidays, Set<DayOfWeek> weekendDays, Set<LocalDate> excludes) {
+  static ImmutableHolidayCalendar of(
+      HolidayCalendarId id,
+      SortedSet<LocalDate> holidays,
+      Set<DayOfWeek> weekendDays,
+      Iterable<LocalDate> workingDays) {
+
     ArgChecker.notNull(id, "id");
-    ArgChecker.notNull(holidays, "holidays");
-    ArgChecker.notNull(weekendDays, "weekendDays");
     int weekends = weekendDays.stream().mapToInt(dow -> 1 << (dow.getValue() - 1)).sum();
     int startYear = 0;
     int[] lookup = new int[0];
@@ -239,7 +252,7 @@ public final class ImmutableHolidayCalendar
       // normal case where holidays are specified
       startYear = holidays.first().getYear();
       int endYearExclusive = holidays.last().getYear() + 1;
-      lookup = buildLookupArray(holidays, weekendDays, startYear, endYearExclusive, excludes);
+      lookup = buildLookupArray(holidays, weekendDays, startYear, endYearExclusive, workingDays);
     }
     return new ImmutableHolidayCalendar(id, weekends, startYear, lookup);
   }
@@ -251,7 +264,7 @@ public final class ImmutableHolidayCalendar
       Iterable<DayOfWeek> weekendDays,
       int startYear,
       int endYearExclusive,
-      Iterable<LocalDate> excludes) {
+      Iterable<LocalDate> workingDays) {
 
     // array that has one entry for each month
     int[] array = new int[(endYearExclusive - startYear) * 12];
@@ -278,9 +291,9 @@ public final class ImmutableHolidayCalendar
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
       array[index] &= ~(1 << (date.getDayOfMonth() - 1));
     }
-    // set the bit associated with each excludes date
-    for (LocalDate date : excludes) {
-      if (date.getYear() >= endYearExclusive) {
+    // set the bit associated with each overriding working day
+    for (LocalDate date : workingDays) {
+      if (date.getYear() < startYear || date.getYear() >= endYearExclusive) {
         continue;
       }
       int index = (date.getYear() - startYear) * 12 + date.getMonthValue() - 1;
@@ -331,11 +344,32 @@ public final class ImmutableHolidayCalendar
 
   //-------------------------------------------------------------------------
   // returns the holidays as a set
+  @VisibleForTesting
   ImmutableSortedSet<LocalDate> getHolidays() {
+    return getHolidaysAndWorkingDays().getFirst();
+  }
+
+  // returns the weekend days as a set
+  @VisibleForTesting
+  ImmutableSet<DayOfWeek> getWeekendDays() {
+    return Stream.of(DayOfWeek.values())
+        .filter(dow -> (weekends & (1 << dow.ordinal())) != 0)
+        .collect(toImmutableSet());
+  }
+
+  // returns the working day overrides as a set
+  @VisibleForTesting
+  ImmutableSortedSet<LocalDate> getWorkingDays() {
+    return getHolidaysAndWorkingDays().getSecond();
+  }
+
+  // returns the working day overrides as a set
+  private Pair<ImmutableSortedSet<LocalDate>, ImmutableSortedSet<LocalDate>> getHolidaysAndWorkingDays() {
     if (startYear == 0) {
-      return ImmutableSortedSet.of();
+      return Pair.of(ImmutableSortedSet.of(), ImmutableSortedSet.of());
     }
-    ImmutableSortedSet.Builder<LocalDate> builder = ImmutableSortedSet.naturalOrder();
+    ImmutableSortedSet.Builder<LocalDate> holidays = ImmutableSortedSet.naturalOrder();
+    ImmutableSortedSet.Builder<LocalDate> workingDays = ImmutableSortedSet.naturalOrder();
     LocalDate firstOfMonth = LocalDate.of(startYear, 1, 1);
     for (int i = 0; i < lookup.length; i++) {
       int monthData = lookup[i];
@@ -345,21 +379,18 @@ public final class ImmutableHolidayCalendar
       for (int j = 0; j < monthLen; j++) {
         // if it is a holiday and not a weekend, then add the date
         if ((monthData & bit) == 0 && (weekends & (1 << dow0)) == 0) {
-          builder.add(firstOfMonth.withDayOfMonth(j + 1));
+          holidays.add(firstOfMonth.withDayOfMonth(j + 1));
+        }
+        // if it is a working day and a weekend, then add the date
+        if ((monthData & bit) != 0 && (weekends & (1 << dow0)) != 0) {
+          workingDays.add(firstOfMonth.withDayOfMonth(j + 1));
         }
         dow0 = (dow0 + 1) % 7;
         bit <<= 1;
       }
       firstOfMonth = firstOfMonth.plusMonths(1);
     }
-    return builder.build();
-  }
-
-  // returns the weekend days as a set
-  ImmutableSet<DayOfWeek> getWeekendDays() {
-    return Stream.of(DayOfWeek.values())
-        .filter(dow -> (weekends & (1 << dow.ordinal())) != 0)
-        .collect(toImmutableSet());
+    return Pair.of(holidays.build(), workingDays.build());
   }
 
   //-------------------------------------------------------------------------

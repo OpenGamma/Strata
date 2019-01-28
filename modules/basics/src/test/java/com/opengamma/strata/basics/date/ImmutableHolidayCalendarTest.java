@@ -44,6 +44,7 @@ public class ImmutableHolidayCalendarTest {
   private static final HolidayCalendarId TEST_ID2 = HolidayCalendarId.of("Test2");
 
   private static final LocalDate MON_2014_06_30 = LocalDate.of(2014, 6, 30);
+  private static final LocalDate TUE_2014_07_08 = LocalDate.of(2014, 7, 8);
   private static final LocalDate WED_2014_07_09 = LocalDate.of(2014, 7, 9);
   private static final LocalDate THU_2014_07_10 = LocalDate.of(2014, 7, 10);
   private static final LocalDate FRI_2014_07_11 = LocalDate.of(2014, 7, 11);
@@ -320,6 +321,50 @@ public class ImmutableHolidayCalendarTest {
     assertEquals(test.isHoliday(date), !isBusinessDay);
     assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
     assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY));
+    assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
+  }
+
+  //-------------------------------------------------------------------------
+  @DataProvider(name = "createWorkingDayOverrides")
+  public static Object[][] data_createWorkingDayOverrides() {
+    return new Object[][] {
+        {TUE_2014_07_08, true},
+        {WED_2014_07_09, false},
+        {THU_2014_07_10, false},
+        {FRI_2014_07_11, false},
+        {SAT_2014_07_12, true},
+        {SUN_2014_07_13, true},
+    };
+  }
+
+  @Test(dataProvider = "createWorkingDayOverrides")
+  public void test_of_IterableIterableIterable(LocalDate date, boolean isBusinessDay) {
+    Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_09, THU_2014_07_10);
+    Iterable<DayOfWeek> weekendDays = Arrays.asList(FRIDAY, SATURDAY);
+    Iterable<LocalDate> workingDays = Arrays.asList(SAT_2014_07_12);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of(TEST_ID, holidays, weekendDays, workingDays);
+    assertEquals(test.isBusinessDay(date), isBusinessDay);
+    assertEquals(test.isHoliday(date), !isBusinessDay);
+    assertEquals(test.getHolidays(), ImmutableSortedSet.copyOf(holidays));
+    assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY));
+    assertEquals(test.getWorkingDays(), ImmutableSortedSet.of(SAT_2014_07_12));
+    assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
+  }
+
+  @Test(dataProvider = "createWorkingDayOverrides")
+  public void test_of_IterableIterableIterable_combined(LocalDate date, boolean isBusinessDay) {
+    Iterable<LocalDate> holidays = Arrays.asList(WED_2014_07_09, THU_2014_07_10);
+    Iterable<DayOfWeek> weekendDays = Arrays.asList(FRIDAY, SATURDAY);
+    Iterable<LocalDate> workingDays = Arrays.asList(SAT_2014_07_12);
+    ImmutableHolidayCalendar base1 = ImmutableHolidayCalendar.of(TEST_ID, holidays, weekendDays, workingDays);
+    Iterable<LocalDate> holidays2 = Arrays.asList(date(2010, 6, 1));
+    ImmutableHolidayCalendar base2 = ImmutableHolidayCalendar.of(TEST_ID, holidays2, weekendDays);
+    ImmutableHolidayCalendar test = ImmutableHolidayCalendar.combined(base1, base2);
+    assertEquals(test.isBusinessDay(date), isBusinessDay);
+    assertEquals(test.isHoliday(date), !isBusinessDay);
+    assertEquals(test.getHolidays(), ImmutableSortedSet.of(date(2010, 6, 1), WED_2014_07_09, THU_2014_07_10));
+    assertEquals(test.getWeekendDays(), ImmutableSet.of(FRIDAY, SATURDAY));
+    assertEquals(test.getWorkingDays(), ImmutableSortedSet.of(SAT_2014_07_12));
     assertEquals(test.toString(), "HolidayCalendar[" + TEST_ID.getName() + "]");
   }
 
