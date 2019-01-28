@@ -131,6 +131,7 @@ public class OvernightRateCalculationTest {
     assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
   }
 
+  @SuppressWarnings("deprecation")
   public void test_expand_tomNext() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_360)
