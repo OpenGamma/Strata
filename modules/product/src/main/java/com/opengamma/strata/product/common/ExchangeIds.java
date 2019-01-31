@@ -104,6 +104,10 @@ public final class ExchangeIds {
 
   /** Borsa Istanbul Exchange */
   public static final ExchangeId XFNO = ExchangeId.of("XFNO");
+
+  /** Eurenext Exchange */
+  public static final ExchangeId XMAT = ExchangeId.of("XMAT");
+  
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
