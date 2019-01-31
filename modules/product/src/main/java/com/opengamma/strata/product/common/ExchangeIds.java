@@ -108,6 +108,9 @@ public final class ExchangeIds {
   /** Euronext Exchange - Paris MATIF */
   public static final ExchangeId XMAT = ExchangeId.of("XMAT");
 
+  /** Korea Exchange (Futures Market) */
+  public static final ExchangeId XKFE = ExchangeId.of("XKFE");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
