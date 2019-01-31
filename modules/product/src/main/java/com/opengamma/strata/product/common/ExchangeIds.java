@@ -105,7 +105,7 @@ public final class ExchangeIds {
   /** Borsa Istanbul Exchange */
   public static final ExchangeId XFNO = ExchangeId.of("XFNO");
 
-  /** Euronext Exchange - PARISBOURSE S.A. (FORMERLY MATIF S.A.) */
+  /** Euronext Exchange - Paris MATIF */
   public static final ExchangeId XMAT = ExchangeId.of("XMAT");
 
   //-------------------------------------------------------------------------
