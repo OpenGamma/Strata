@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.5.2</version>
+    <version>2.6.0</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.strata</groupId>
@@ -57,29 +57,24 @@
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-measure</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-report</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-loader</artifactId>
-      <version>${project.version}</version>
     </dependency>
     
     <!-- External dependencies -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
-      <version>${slf4j.version}</version>
     </dependency>
     <dependency>
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
-      <version>${jcommander.version}</version>
     </dependency>
     <dependency>
       <groupId>org.testng</groupId>
@@ -90,11 +85,23 @@
     <dependency>
       <groupId>com.opengamma.strata</groupId>
       <artifactId>strata-collect</artifactId>
-      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <!-- Manage dependencies -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.opengamma.strata</groupId>
+        <artifactId>strata-parent</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <!-- ==================================================================== -->
   <profiles>
@@ -184,10 +191,6 @@
   <properties>
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
-    <!-- Versions -->
-    <jcommander.version>1.72</jcommander.version>
-    <slf4j.version>1.7.25</slf4j.version>
-    <testng.version>6.14.2</testng.version>
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
