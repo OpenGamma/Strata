@@ -308,8 +308,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "AUD-BBSW-1M");
     assertEquals(test.getTenor(), TENOR_1M);
     assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(
             TENOR_1M,
@@ -326,8 +326,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "AUD-BBSW-2M");
     assertEquals(test.getTenor(), TENOR_2M);
     assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(
             TENOR_2M,
@@ -343,8 +343,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "AUD-BBSW-3M");
     assertEquals(test.getTenor(), TENOR_3M);
     assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(
             TENOR_3M,
@@ -360,8 +360,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "AUD-BBSW-4M");
     assertEquals(test.getTenor(), TENOR_4M);
     assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(
             TENOR_4M,
@@ -377,8 +377,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "AUD-BBSW-5M");
     assertEquals(test.getTenor(), TENOR_5M);
     assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(
             TENOR_5M,
@@ -394,8 +394,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "AUD-BBSW-6M");
     assertEquals(test.getTenor(), TENOR_6M);
     assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, AUSY));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, AUSY));
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(
             TENOR_6M,
@@ -442,8 +442,8 @@ public class IborIndexTest {
     assertEquals(test.getName(), "HKD-HIBOR-3M");
     assertEquals(test.getTenor(), TENOR_3M);
     assertEquals(test.getFixingCalendar(), HKHK);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, HKHK));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, HKHK));
+    assertEquals(test.getFixingDateOffset(),  DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, HKHK)));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, HKHK)));
     assertEquals(test.getMaturityDateOffset(),
         TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HKHK)));
     assertEquals(test.getDayCount(), ACT_365F);
