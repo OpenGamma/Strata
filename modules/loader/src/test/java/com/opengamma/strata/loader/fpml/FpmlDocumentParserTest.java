@@ -15,6 +15,7 @@ import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
@@ -1276,7 +1277,7 @@ public class FpmlDocumentParserTest {
         .calculation(IborRateCalculation.builder()
             .index(AUD_BBSW_3M)
             .dayCount(ACT_365F)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-1, AUSY))
+            .fixingDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)))
             .build())
         .build();   
     assertEqualsBean((Bean) floatLeg, expectedFloatLeg);
