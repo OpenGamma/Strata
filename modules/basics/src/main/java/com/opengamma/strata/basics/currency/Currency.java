@@ -118,7 +118,11 @@ public final class Currency
    */
   public static final Currency CLP = of("CLP");
   /**
-   * The currency 'CNY' - Chinese Yuan.
+   * The currency 'CNY' - Chinese Offshore Yuan.
+   */
+  public static final Currency CNH = of("CNH");
+  /**
+   * The currency 'CNY' - Chinese Onshore Yuan.
    */
   public static final Currency CNY = of("CNY");
   /**
