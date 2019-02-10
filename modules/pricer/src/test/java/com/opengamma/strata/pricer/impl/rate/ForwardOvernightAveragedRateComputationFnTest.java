@@ -51,6 +51,7 @@ import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
  * Test {@link ForwardOvernightAveragedRateComputationFn}.
  */
 @Test
+@SuppressWarnings("deprecation")
 public class ForwardOvernightAveragedRateComputationFnTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();

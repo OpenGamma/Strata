@@ -286,7 +286,7 @@ public class OvernightIndexTest {
   public static Object[][] data_name() {
     return new Object[][] {
         {OvernightIndices.GBP_SONIA, "GBP-SONIA"},
-        {OvernightIndices.CHF_TOIS, "CHF-TOIS"},
+        {OvernightIndices.CHF_SARON, "CHF-SARON"},
         {OvernightIndices.EUR_EONIA, "EUR-EONIA"},
         {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
         {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},

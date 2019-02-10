@@ -111,7 +111,10 @@ public final class FloatingRateNames {
   public static final FloatingRateName CHF_SARON = FloatingRateName.of("CHF-SARON");
   /**
    * Constant for CHF-TOIS Overnight index.
+   * 
+   * @deprecated Not published as of 2017-12-29
    */
+  @Deprecated
   public static final FloatingRateName CHF_TOIS = FloatingRateName.of("CHF-TOIS");
   /**
    * Constant for EUR-EONIA Overnight index.

@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.index.OvernightIndexObservation;
  * Test.
  */
 @Test
+@SuppressWarnings("deprecation")
 public class OvernightAveragedRateComputationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();

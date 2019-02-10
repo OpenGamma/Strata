@@ -78,7 +78,7 @@ public final class OvernightCompoundedAnnualRateComputation
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance from an index and period dates
+   * Obtains an instance from an index and period dates.
    * 
    * @param index  the index
    * @param startDate  the first date of the accrual period

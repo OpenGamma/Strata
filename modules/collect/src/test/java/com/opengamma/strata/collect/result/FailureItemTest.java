@@ -55,6 +55,17 @@ public class FailureItemTest {
     assertEquals(test.toString(), "INVALID: exmsg: java.lang.IllegalArgumentException");
   }
 
+  public void test_of_reasonError() {
+    NoClassDefFoundError ex = new NoClassDefFoundError("exmsg");
+    FailureItem test = FailureItem.of(FailureReason.INVALID, ex);
+    assertEquals(test.getReason(), FailureReason.INVALID);
+    assertEquals(test.getMessage(), "exmsg");
+    assertEquals(test.getCauseType().isPresent(), true);
+    assertEquals(test.getCauseType().get(), NoClassDefFoundError.class);
+    assertEquals(test.getStackTrace().contains(".test_of_reasonError("), true);
+    assertEquals(test.toString(), "INVALID: exmsg: java.lang.NoClassDefFoundError");
+  }
+
   //-------------------------------------------------------------------------
   public void test_of_reasonMessageException() {
     IllegalArgumentException ex = new IllegalArgumentException("exmsg");

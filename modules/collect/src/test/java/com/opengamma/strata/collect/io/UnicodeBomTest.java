@@ -7,6 +7,7 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class UnicodeBomTest {
     CharSource charSource = UnicodeBom.toCharSource(byteSource);
     String str = charSource.read();
     assertEquals(str, "Hello");
-    assertEquals(charSource.asByteSource(StandardCharsets.UTF_8), byteSource);
+    assertTrue(charSource.asByteSource(StandardCharsets.UTF_8).contentEquals(byteSource));
     assertEquals(charSource.toString().startsWith("UnicodeBom"), true);
   }
 

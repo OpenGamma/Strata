@@ -71,13 +71,14 @@ final class OvernightIndexCsvLookup
   private static ImmutableMap<String, OvernightIndex> loadFromCsv() {
     List<ResourceLocator> resources = ResourceConfig.orderedResources("OvernightIndexData.csv");
     Map<String, OvernightIndex> map = new HashMap<>();
+    // files are ordered lowest priority to highest, thus Map::put is used
     for (ResourceLocator resource : resources) {
       try {
         CsvFile csv = CsvFile.of(resource.getCharSource(), true);
         for (CsvRow row : csv.rows()) {
           OvernightIndex parsed = parseOvernightIndex(row);
           map.put(parsed.getName(), parsed);
-          map.putIfAbsent(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
+          map.put(parsed.getName().toUpperCase(Locale.ENGLISH), parsed);
         }
       } catch (RuntimeException ex) {
         log.log(Level.SEVERE, "Error processing resource as Overnight Index CSV file: " + resource, ex);
