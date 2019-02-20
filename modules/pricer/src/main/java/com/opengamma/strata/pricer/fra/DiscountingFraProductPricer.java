@@ -83,6 +83,9 @@ public class DiscountingFraProductPricer {
    * @return the point sensitivity of the present value
    */
   public PointSensitivities presentValueSensitivity(ResolvedFra fra, RatesProvider provider) {
+    if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
+      return PointSensitivities.empty();
+    }
     DiscountFactors discountFactors = provider.discountFactors(fra.getCurrency());
     double df = discountFactors.discountFactor(fra.getPaymentDate());
     double notional = fra.getNotional();
@@ -121,6 +124,9 @@ public class DiscountingFraProductPricer {
    * @return the point sensitivity of the forecast value
    */
   public PointSensitivities forecastValueSensitivity(ResolvedFra fra, RatesProvider provider) {
+    if (fra.getPaymentDate().isBefore(provider.getValuationDate())) {
+      return PointSensitivities.empty();
+    }
     double notional = fra.getNotional();
     double derivative = derivative(fra, provider);
     PointSensitivityBuilder iborSens = forwardRateSensitivity(fra, provider)
