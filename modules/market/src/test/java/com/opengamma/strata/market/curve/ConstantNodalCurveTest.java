@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -90,6 +91,7 @@ public class ConstantNodalCurveTest {
     assertThat(test.yValueParameterSensitivity(10.2421).getMarketDataName()).isEqualTo(CURVE_NAME);
     assertThat(test.yValueParameterSensitivity(10.2421).getSensitivity()).isEqualTo(DoubleArray.of(1d));
     assertThat(test.firstDerivative(10.2421)).isEqualTo(0d);
+    assertThat(test.values().toMap()).isEqualTo(ImmutableMap.of(XVALUE, YVALUE));
   }
 
   //-------------------------------------------------------------------------
