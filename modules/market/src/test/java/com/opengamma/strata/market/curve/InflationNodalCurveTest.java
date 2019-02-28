@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.time.temporal.ChronoUnit.MONTHS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import java.util.function.DoubleBinaryOperator;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -197,6 +199,7 @@ public class InflationNodalCurveTest {
         .of(CURVE2_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE + 1.0d,
             SEASONALITY_ADDITIVE_DEF);
     coverBeanEquals(test, test2);
+    assertThat(test.values().toMap()).isEqualTo(MapStream.zip(TIMES.stream().boxed(), VALUES.stream().boxed()).toMap());
   }
 
   public void test_serialization() {

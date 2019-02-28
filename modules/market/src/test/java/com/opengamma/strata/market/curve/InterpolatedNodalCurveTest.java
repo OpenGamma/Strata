@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
@@ -249,6 +250,7 @@ public class InterpolatedNodalCurveTest {
         .extrapolatorRight(CurveExtrapolators.LOG_LINEAR)
         .build();
     coverBeanEquals(test, test2);
+    assertThat(test.values().toMap()).isEqualTo(ImmutableMap.of(1d, 5d, 2d, 7d, 3d, 8d));
   }
 
   public void test_serialization() {
