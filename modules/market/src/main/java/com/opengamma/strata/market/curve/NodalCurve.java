@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.curve;
 
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -90,6 +91,18 @@ public interface NodalCurve
    * @return the new curve
    */
   public abstract NodalCurve withValues(DoubleArray xValues, DoubleArray yValues);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this instance to a stream of y-values, keyed by the x-values.
+   * <p>
+   * This returns a {@link MapStream} keyed by the x-values.
+   *
+   * @return a map stream containing the x-values and the y-values
+   */
+  public default MapStream<Double, Double> values() {
+    return MapStream.zip(getXValues().stream().boxed(), getYValues().stream().boxed());
+  }
 
   //-------------------------------------------------------------------------
   @Override
