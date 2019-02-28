@@ -507,7 +507,8 @@ public final class Tenor
    * If the two tenors are both based on days, then comparison is easy.
    * If the two tenors are both based on months/years, then comparison is easy.
    * Otherwise, months are converted to days to form an estimated length in days which is compared.
-   * The conversion from months to days divides by 12 and then multiplies by 365.25.
+   * The conversion from months to days divides by 12 and then multiplies by 365.2425.
+   * As a result, this method is compatible with {@link #equals(Object)} for tenors less than 400 years.
    * <p>
    * The resulting order places:
    * <ul>
@@ -516,6 +517,7 @@ public final class Tenor
    * <li>a 3 month tenor between 91 and 92 days
    * <li>a 6 month tenor between 182 and 183 days
    * <li>a 1 year tenor between 365 and 366 days
+   * <li>a 4 year tenor between 1460 and 1461 days
    * </ul>
    * 
    * @param other  the other tenor
@@ -536,8 +538,8 @@ public final class Tenor
       return Long.compare(thisMonths, otherMonths);
     }
     // complex
-    double thisMonthsInDays = (thisMonths / 12d) * 365.25d;
-    double otherMonthsInDays = (otherMonths / 12d) * 365.25d;
+    double thisMonthsInDays = (thisMonths / 12d) * 365.2425d;
+    double otherMonthsInDays = (otherMonths / 12d) * 365.2425d;
     return Double.compare(thisDays + thisMonthsInDays, otherDays + otherMonthsInDays);
   }
 

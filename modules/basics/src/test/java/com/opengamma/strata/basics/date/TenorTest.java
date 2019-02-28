@@ -300,7 +300,16 @@ public class TenorTest {
         Tenor.ofDays(183),
         Tenor.ofDays(365),
         Tenor.ofYears(1),
-        Tenor.ofDays(366));
+        Tenor.ofDays(366),
+        Tenor.ofDays(730),
+        Tenor.ofYears(2),
+        Tenor.ofDays(731),
+        Tenor.ofDays(1095),
+        Tenor.ofYears(3),
+        Tenor.ofDays(1096),
+        Tenor.ofDays(1460),
+        Tenor.ofYears(4),
+        Tenor.ofDays(1461));
 
     List<Tenor> test = new ArrayList<>(tenors);
     Collections.shuffle(test);
