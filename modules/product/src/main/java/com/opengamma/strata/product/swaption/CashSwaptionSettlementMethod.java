@@ -35,7 +35,14 @@ public enum CashSwaptionSettlementMethod implements NamedEnum {
    * <p>
    * The settlement amount is computed with the discount factor based on the agreed zero coupon curve.
    */
-  ZERO_COUPON_YIELD;
+  ZERO_COUPON_YIELD,
+  /**
+   * The Collateralized Cash Price
+   * <p>
+   * The settlement amount is computed  with the discount factor based where the parties are deemed to have a 
+   * bilateral, zero-threshold ISDA CSA. (ISDA definition 18.3 (g)
+   */
+  COLLATERALIZED_CASH_PRICE;
 
   // helper for name conversions
   private static final EnumNames<CashSwaptionSettlementMethod> NAMES = EnumNames.of(CashSwaptionSettlementMethod.class);
