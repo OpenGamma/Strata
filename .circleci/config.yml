@@ -1,41 +1,74 @@
-version: 2
+version: 2.1
+
+#############################################################################
+# execution environment
+executors:
+
+#----------------------------------------------------------------------------
+# vital to set the MaxRAM parameter as cgroups settings are not pased to the JVM
+  jdk8:
+    docker:
+      - image: circleci/openjdk:8u181-jdk
+    working_directory: ~/repo
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
+      MAVEN_OPTS: -Xmx1g
+
+
+#############################################################################
+# jobs to run
 jobs:
   build:
-    docker:
-      # specify the version you desire here https://circleci.com/docs/2.0/circleci-images/
-      - image: circleci/openjdk:8u181-jdk
-
-    working_directory: ~/repo
-
-    environment:
-      MAVEN_OPTS: -Xmx3200m
-    
+    executor: jdk8
     steps:
       - checkout
 
       - restore_cache:
+          name: "Restoring Maven cache"
           keys:
-          - m2-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
-          - m2-repo-v1-{{ .Branch }}
-          - m2-repo-v1-
+            - mvn-repo-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pom.xml" }}
+            - mvn-repo-v1-{{ .Environment.CIRCLE_JOB }}
+            - mvn-repo-v1-
 
       - run:
-          name: Maven version
-          command: mvn --version
+          name: "Initializing Maven"
+          command: |
+            mkdir -p ./.mvn
+            echo '-e -B -DtrimStackTrace=false -Dsurefire.useSystemClassLoader=false' > ./.mvn/maven.config
+            mvn --version
 
       - run:
-          name: Maven install (no tests)
-          command: mvn -e -B install -DskipTests -Dstrict
+          name: "Maven install (no tests)"
+          command: mvn install -T 4 -DskipTests -Dstrict
 
       - run:
-          name: Maven take dependencies local
-          command: mvn -e -B dependency:go-offline -Dsilent=true
+          name: "Maven take dependencies local"
+          command: mvn de.qaware.maven:go-offline-maven-plugin:1.1.0:resolve-dependencies
 
       - run:
-          name: Maven run tests
-          command: mvn -e -B test -Dsurefire.useSystemClassLoader=false
+          name: "Maven run tests"
+          command: mvn test -T 2 -Dcheckstyle.skip=true
+
+      - run:
+          name: "Gathering test results"
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+          when: always
+
+      - store_test_results:
+          name: "Uploading test results"
+          path: ~/test-results
+          when: always
+
+      - store_artifacts:
+          name: "Storing test artifacts"
+          path: ~/test-results/junit
+          destination: test-results
+          when: always
 
       - save_cache:
+          name: "Storing Maven cache"
+          key: mvn-repo-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pom.xml" }}
           paths:
-            - ~/.m2
-          key: m2-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+            - ~/.m2/repository
