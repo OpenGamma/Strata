@@ -267,8 +267,11 @@ final class FullSwapTradeCsvLoader {
     builder.endDate(LoaderUtils.parseDate(getValueWithFallback(row, leg, END_DATE_FIELD)));
     builder.frequency(Frequency.parse(getValue(row, leg, FREQUENCY_FIELD)));
     // adjustments
-    BusinessDayAdjustment dateAdj = parseBusinessDayAdjustment(row, leg, DATE_ADJ_CNV_FIELD, DATE_ADJ_CAL_FIELD)
-        .orElse(BusinessDayAdjustment.NONE);
+    BusinessDayAdjustment dateAdj = parseBusinessDayAdjustmentWithFallback(
+        row,
+        leg,
+        DATE_ADJ_CNV_FIELD,
+        DATE_ADJ_CAL_FIELD);
     Optional<BusinessDayAdjustment> startDateAdj =
         parseBusinessDayAdjustment(row, leg, START_DATE_CNV_FIELD, START_DATE_CAL_FIELD);
     Optional<BusinessDayAdjustment> endDateAdj =
@@ -658,6 +661,23 @@ final class FullSwapTradeCsvLoader {
     return findValue(row, leg, calField)
         .map(s -> HolidayCalendarId.of(s))
         .map(cal -> BusinessDayAdjustment.of(dateCnv, cal));
+  }
+
+  // days adjustment, defaulting business day convention and holiday calendar
+  private static BusinessDayAdjustment parseBusinessDayAdjustmentWithFallback(
+      CsvRow row,
+      String leg,
+      String cnvField,
+      String calField) {
+
+    Currency currency = Currency.of(getValueWithFallback(row, leg, CURRENCY_FIELD));
+    BusinessDayConvention dateCnv = findValue(row, leg, cnvField)
+        .map(s -> LoaderUtils.parseBusinessDayConvention(s))
+        .orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
+    HolidayCalendarId holidayCalendarId = findValue(row, leg, calField)
+        .map(s -> HolidayCalendarId.of(s))
+        .orElseGet(() -> HolidayCalendarId.defaultByCurrency(currency));
+    return BusinessDayAdjustment.of(dateCnv, holidayCalendarId);
   }
 
   // days adjustment, defaulting calendar and adjustment

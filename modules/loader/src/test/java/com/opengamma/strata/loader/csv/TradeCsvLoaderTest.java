@@ -53,6 +53,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -599,7 +600,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 8, 1))
                     .endDate(date(2022, 8, 1))
                     .frequency(Frequency.P3M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SHORT_FINAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -615,7 +618,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 8, 1))
                     .endDate(date(2022, 8, 1))
                     .frequency(Frequency.P3M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SHORT_FINAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -667,7 +672,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 8, 8))
                     .endDate(date(2022, 8, 8))
                     .frequency(Frequency.P3M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -718,7 +725,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 8, 8))
                     .endDate(date(2022, 8, 8))
                     .frequency(Frequency.P6M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -933,7 +942,7 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 5, 2))
                     .endDate(date(2022, 5, 22))
                     .frequency(Frequency.P12M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -954,7 +963,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 5, 2))
                     .endDate(date(2022, 5, 22))
                     .frequency(Frequency.P12M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -986,7 +997,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 5, 2))
                     .endDate(date(2022, 5, 22))
                     .frequency(Frequency.P12M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -1007,7 +1020,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 5, 2))
                     .endDate(date(2022, 5, 22))
                     .frequency(Frequency.P6M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -1030,7 +1045,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 5, 2))
                     .endDate(date(2022, 5, 22))
                     .frequency(Frequency.P6M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
@@ -1054,7 +1071,9 @@ public class TradeCsvLoaderTest {
                     .startDate(date(2017, 5, 2))
                     .endDate(date(2022, 5, 22))
                     .frequency(Frequency.P6M)
-                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(
+                        MODIFIED_FOLLOWING,
+                        HolidayCalendarId.defaultByCurrency(GBP)))
                     .stubConvention(StubConvention.SMART_INITIAL)
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
