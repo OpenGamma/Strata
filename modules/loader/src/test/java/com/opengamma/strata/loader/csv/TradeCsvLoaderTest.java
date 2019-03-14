@@ -54,6 +54,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -607,7 +608,10 @@ public class TradeCsvLoaderTest {
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
                     .paymentFrequency(Frequency.P3M)
-                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .paymentDateOffset(DaysAdjustment.ofBusinessDays(
+                        2,
+                        HolidayCalendarId.defaultByCurrency(GBP),
+                        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarId.defaultByCurrency(GBP))))
                     .build())
                 .notionalSchedule(NotionalSchedule.of(GBP, 2_500_000))
                 .calculation(FixedRateCalculation.of(0.011, DayCounts.THIRTY_360_ISDA))
@@ -625,7 +629,10 @@ public class TradeCsvLoaderTest {
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
                     .paymentFrequency(Frequency.P3M)
-                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .paymentDateOffset(DaysAdjustment.ofBusinessDays(
+                        3,
+                        GBLO,
+                        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarId.defaultByCurrency(GBP))))
                     .build())
                 .notionalSchedule(NotionalSchedule.of(GBP, 2_500_000))
                 .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_3M))
@@ -653,6 +660,9 @@ public class TradeCsvLoaderTest {
                 .payReceive(PAY)
                 .accrualSchedule(PeriodicSchedule.builder()
                     .startDate(date(2017, 8, 1))
+                    .overrideStartDate(AdjustableDate.of(
+                        LocalDate.of(2017, 7, 31),
+                        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarId.defaultByCurrency(GBP))))
                     .endDate(date(2022, 8, 8))
                     .frequency(Frequency.P3M)
                     .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO.combinedWith(EUTA)))
@@ -661,7 +671,10 @@ public class TradeCsvLoaderTest {
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
                     .paymentFrequency(Frequency.P3M)
-                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .paymentDateOffset(DaysAdjustment.ofBusinessDays(
+                        3,
+                        GBLO,
+                        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HolidayCalendarId.defaultByCurrency(GBP))))
                     .build())
                 .notionalSchedule(NotionalSchedule.of(GBP, 1_200_000))
                 .calculation(FixedRateCalculation.of(0.012, DayCounts.THIRTY_360_ISDA))
@@ -679,7 +692,10 @@ public class TradeCsvLoaderTest {
                     .build())
                 .paymentSchedule(PaymentSchedule.builder()
                     .paymentFrequency(Frequency.P3M)
-                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .paymentDateOffset(DaysAdjustment.ofBusinessDays(
+                        3,
+                        GBLO,
+                        BusinessDayAdjustment.of(FOLLOWING, GBLO.combinedWith(EUTA))))
                     .build())
                 .notionalSchedule(NotionalSchedule.of(GBP, 1_200_000))
                 .calculation(IborRateCalculation.of(IborIndices.GBP_LIBOR_3M))

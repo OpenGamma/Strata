@@ -36,7 +36,6 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
-import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateIndex;
 import com.opengamma.strata.basics.index.FloatingRateName;
@@ -267,11 +266,11 @@ final class FullSwapTradeCsvLoader {
     builder.endDate(LoaderUtils.parseDate(getValueWithFallback(row, leg, END_DATE_FIELD)));
     builder.frequency(Frequency.parse(getValue(row, leg, FREQUENCY_FIELD)));
     // adjustments
-    BusinessDayAdjustment dateAdj = parseBusinessDayAdjustmentWithFallback(
-        row,
-        leg,
-        DATE_ADJ_CNV_FIELD,
-        DATE_ADJ_CAL_FIELD);
+    Currency currency = Currency.of(getValueWithFallback(row, leg, CURRENCY_FIELD));
+    BusinessDayAdjustment dateAdj = parseBusinessDayAdjustment(row, leg, DATE_ADJ_CNV_FIELD, DATE_ADJ_CAL_FIELD)
+        .orElse(BusinessDayAdjustment.of(
+            BusinessDayConventions.MODIFIED_FOLLOWING,
+            HolidayCalendarId.defaultByCurrency(currency)));
     Optional<BusinessDayAdjustment> startDateAdj =
         parseBusinessDayAdjustment(row, leg, START_DATE_CNV_FIELD, START_DATE_CAL_FIELD);
     Optional<BusinessDayAdjustment> endDateAdj =
@@ -663,23 +662,6 @@ final class FullSwapTradeCsvLoader {
         .map(cal -> BusinessDayAdjustment.of(dateCnv, cal));
   }
 
-  // days adjustment, defaulting business day convention and holiday calendar
-  private static BusinessDayAdjustment parseBusinessDayAdjustmentWithFallback(
-      CsvRow row,
-      String leg,
-      String cnvField,
-      String calField) {
-
-    Currency currency = Currency.of(getValueWithFallback(row, leg, CURRENCY_FIELD));
-    BusinessDayConvention dateCnv = findValue(row, leg, cnvField)
-        .map(s -> LoaderUtils.parseBusinessDayConvention(s))
-        .orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
-    HolidayCalendarId holidayCalendarId = findValue(row, leg, calField)
-        .map(s -> HolidayCalendarId.of(s))
-        .orElseGet(() -> HolidayCalendarId.defaultByCurrency(currency));
-    return BusinessDayAdjustment.of(dateCnv, holidayCalendarId);
-  }
-
   // days adjustment, defaulting calendar and adjustment
   private static Optional<DaysAdjustment> parseDaysAdjustment(
       CsvRow row,
@@ -691,14 +673,13 @@ final class FullSwapTradeCsvLoader {
 
     Optional<Integer> daysOpt = findValue(row, leg, daysField)
         .map(s -> Integer.valueOf(s));
-    HolidayCalendarId cal = findValue(row, leg, daysCalField)
-        .map(s -> HolidayCalendarId.of(s))
-        .orElse(HolidayCalendarIds.NO_HOLIDAYS);
-    BusinessDayAdjustment bda = parseBusinessDayAdjustment(row, leg, cnvField, calField)
-        .orElse(BusinessDayAdjustment.NONE);
     if (!daysOpt.isPresent()) {
       return Optional.empty();
     }
+
+    HolidayCalendarId cal = parseHolidayCalendarIdWithDefault(row, leg, daysCalField);
+    BusinessDayAdjustment bda = parseBusinessDayAdjustment(row, leg, cnvField, calField)
+        .orElse(BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, cal));
     return Optional.of(DaysAdjustment.builder()
         .days(daysOpt.get())
         .calendar(cal)
@@ -718,13 +699,23 @@ final class FullSwapTradeCsvLoader {
     if (!dateOpt.isPresent()) {
       return Optional.empty();
     }
+
     BusinessDayConvention dateCnv = findValue(row, leg, cnvField)
         .map(s -> LoaderUtils.parseBusinessDayConvention(s))
         .orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
-    HolidayCalendarId cal = findValue(row, leg, calField)
-        .map(s -> HolidayCalendarId.of(s))
-        .orElse(HolidayCalendarIds.NO_HOLIDAYS);
+    HolidayCalendarId cal = parseHolidayCalendarIdWithDefault(row, leg, calField);
     return Optional.of(AdjustableDate.of(dateOpt.get(), BusinessDayAdjustment.of(dateCnv, cal)));
+  }
+
+  // holiday calendar, with currency default
+  private static HolidayCalendarId parseHolidayCalendarIdWithDefault(
+      CsvRow row,
+      String leg,
+      String daysCalField) {
+    Currency currency = Currency.of(getValueWithFallback(row, leg, CURRENCY_FIELD));
+    return findValue(row, leg, daysCalField)
+        .map(s -> HolidayCalendarId.of(s))
+        .orElse(HolidayCalendarId.defaultByCurrency(currency));
   }
 
   //-------------------------------------------------------------------------
