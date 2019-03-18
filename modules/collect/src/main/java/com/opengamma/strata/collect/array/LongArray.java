@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Longs;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.function.IntLongConsumer;
+import com.opengamma.strata.collect.function.IntLongToLongFunction;
 import com.opengamma.strata.collect.function.LongTernaryOperator;
 
 /**
@@ -660,7 +661,7 @@ public final class LongArray
    * This is a special case of {@link #map(LongUnaryOperator)}.
    * This instance is immutable and unaffected by this method.
    *
-   * @param divisor  the value by which the array applyAsLong() divided
+   * @param divisor  the value by which the array values are divided
    * @return a copy of this array with the each value divided by the divisor
    */
   public LongArray dividedBy(long divisor) {
@@ -712,7 +713,7 @@ public final class LongArray
    * @param function  the function to be applied
    * @return a copy of this array with the operator applied to the original values
    */
-  public LongArray mapWithIndex(LongBinaryOperator function) {
+  public LongArray mapWithIndex(IntLongToLongFunction function) {
     long[] result = new long[array.length];
     for (int i = 0; i < array.length; i++) {
       result[i] = function.applyAsLong(i, array[i]);
