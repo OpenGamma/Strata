@@ -278,7 +278,7 @@ public final class LongArray
 
   //-----------------------------------------------------------------------
   /**
-   * Obtains an instance from a collection of {@code Integer}.
+   * Obtains an instance from a collection of {@code Long}.
    * <p>
    * The order of the values in the returned array is the order in which elements are returned
    * from the iterator of the collection.
@@ -878,11 +878,11 @@ public final class LongArray
    * @return the result of the reduction
    * @throws IllegalArgumentException if the arrays have different sizes
    */
-  public int combineReduce(LongArray other, LongTernaryOperator operator) {
+  public long combineReduce(LongArray other, LongTernaryOperator operator) {
     if (array.length != other.array.length) {
       throw new IllegalArgumentException("Arrays have different sizes");
     }
-    int result = 0;
+    long result = 0;
     for (int i = 0; i < array.length; i++) {
       result = operator.applyAsLong(result, array[i], other.array[i]);
     }
@@ -1170,12 +1170,12 @@ public final class LongArray
 
     @Override
     public int indexOf(Object obj) {
-      return (obj instanceof Integer ? underlying.indexOf((Integer) obj) : -1);
+      return (obj instanceof Long ? underlying.indexOf((Long) obj) : -1);
     }
 
     @Override
     public int lastIndexOf(Object obj) {
-      return (obj instanceof Integer ? underlying.lastIndexOf((Integer) obj) : -1);
+      return (obj instanceof Long ? underlying.lastIndexOf((Long) obj) : -1);
     }
 
     @Override

@@ -21,6 +21,6 @@ public interface LongTernaryOperator {
    * @param c  the third argument
    * @return the result of the function
    */
-  public abstract int applyAsLong(long a, long b, long c);
+  public abstract long applyAsLong(long a, long b, long c);
 
 }
