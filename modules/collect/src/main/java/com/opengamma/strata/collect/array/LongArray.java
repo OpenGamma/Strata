@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.function.IntToLongFunction;
 import java.util.function.LongBinaryOperator;
 import java.util.function.LongUnaryOperator;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import org.joda.beans.Bean;
@@ -54,11 +53,11 @@ public final class LongArray
   /**
    * An empty long array.
    */
-  private static final long[] EMPTY_INT_ARRAY = new long[0];
+  private static final long[] EMPTY_LONG_ARRAY = new long[0];
   /**
    * An empty array.
    */
-  public static final LongArray EMPTY = new LongArray(EMPTY_INT_ARRAY);
+  public static final LongArray EMPTY = new LongArray(EMPTY_LONG_ARRAY);
 
   /**
    * Serialization version.
@@ -69,7 +68,7 @@ public final class LongArray
   }
 
   /**
-   * The underlying array of ints.
+   * The underlying array of longs.
    */
   private final long[] array;
 
@@ -250,7 +249,7 @@ public final class LongArray
   /**
    * Obtains an instance with entries filled from a stream.
    * <p>
-   * The stream is converted to an array using {@link IntStream#toArray()}.
+   * The stream is converted to an array using {@link LongStream#toArray()}.
    *
    * @param stream  the stream of elements
    * @return an array initialized using the stream
@@ -577,7 +576,7 @@ public final class LongArray
    * @return a copy of this array with the value at the index changed
    * @throws IndexOutOfBoundsException if the index is invalid
    */
-  public LongArray with(int index, int newValue) {
+  public LongArray with(int index, long newValue) {
     if (array[index] == newValue) {
       return this;
     }
@@ -598,7 +597,7 @@ public final class LongArray
    * @param amount  the amount to add, may be negative
    * @return a copy of this array with the amount added to each value
    */
-  public LongArray plus(int amount) {
+  public LongArray plus(long amount) {
     if (amount == 0) {
       return this;
     }
@@ -620,7 +619,7 @@ public final class LongArray
    * @param amount  the amount to subtract, may be negative
    * @return a copy of this array with the amount subtracted from each value
    */
-  public LongArray minus(int amount) {
+  public LongArray minus(long amount) {
     if (amount == 0) {
       return this;
     }
@@ -642,7 +641,7 @@ public final class LongArray
    * @param factor  the multiplicative factor
    * @return a copy of this array with the each value multiplied by the factor
    */
-  public LongArray multipliedBy(int factor) {
+  public LongArray multipliedBy(long factor) {
     if (factor == 1) {
       return this;
     }
@@ -664,7 +663,7 @@ public final class LongArray
    * @param divisor  the value by which the array applyAsLong() divided
    * @return a copy of this array with the each value divided by the divisor
    */
-  public LongArray dividedBy(int divisor) {
+  public LongArray dividedBy(long divisor) {
     if (divisor == 1) {
       return this;
     }
@@ -1003,12 +1002,12 @@ public final class LongArray
   /**
    * Returns the sum of all the values in the array.
    * <p>
-   * This is a special case of {@link #reduce(int, LongBinaryOperator)}.
+   * This is a special case of {@link #reduce(long, LongBinaryOperator)}.
    * 
    * @return the total of all the values
    */
-  public int sum() {
-    int total = 0;
+  public long sum() {
+    long total = 0;
     for (int i = 0; i < array.length; i++) {
       total += array[i];
     }
@@ -1029,7 +1028,7 @@ public final class LongArray
    * @param operator  the operator used to combine the value with the current total
    * @return the result of the reduction
    */
-  public long reduce(int identity, LongBinaryOperator operator) {
+  public long reduce(long identity, LongBinaryOperator operator) {
     long result = identity;
     for (int i = 0; i < array.length; i++) {
       result = operator.applyAsLong(result, array[i]);
@@ -1256,7 +1255,7 @@ public final class LongArray
     @Override
     public BeanBuilder<LongArray> builder() {
       return new BasicImmutableBeanBuilder<LongArray>(this) {
-        private long[] array = EMPTY_INT_ARRAY;
+        private long[] array = EMPTY_LONG_ARRAY;
 
         @Override
         public Object get(String propertyName) {
