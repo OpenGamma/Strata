@@ -37,23 +37,28 @@ public abstract class VectorRootFinder implements SingleRootFinder<DoubleArray, 
   /**
    * @param function The function, not null
    * @param x0 The starting point, not null
+   * @return the result of applying the function to x0
    */
-  protected void checkInputs(Function<DoubleArray, DoubleArray> function, DoubleArray x0) {
+  protected DoubleArray checkInputsAndApplyFunction(Function<DoubleArray, DoubleArray> function, DoubleArray x0) {
     ArgChecker.notNull(function, "function");
     ArgChecker.notNull(x0, "x0");
-    int n = x0.size();
-    for (int i = 0; i < n; i++) {
+    int xSize = x0.size();
+    for (int i = 0; i < xSize; i++) {
       if (!Doubles.isFinite(x0.get(i))) {
         throw new IllegalArgumentException("Invalid start position x0 = " + x0.toString());
       }
     }
     DoubleArray y = function.apply(x0);
-    int m = y.size();
-    for (int i = 0; i < m; i++) {
+    int ySize = y.size();
+    if (xSize != ySize) {
+      throw new IllegalArgumentException("Invalid function result, must return an array of size " + xSize);
+    }
+    for (int i = 0; i < ySize; i++) {
       if (!Doubles.isFinite(y.get(i))) {
         throw new IllegalArgumentException("Invalid start position f(x0) = " + y.toString());
       }
     }
+    return y;
   }
 
 }

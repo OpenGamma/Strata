@@ -160,8 +160,7 @@ public abstract class VectorRootFinderTest {
 
     @Override
     public DoubleArray getRoot(final Function<DoubleArray, DoubleArray> function, final DoubleArray x) {
-      checkInputs(function, x);
-      return null;
+      return checkInputsAndApplyFunction(function, x);
     }
 
   };
