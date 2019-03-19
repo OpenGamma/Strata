@@ -77,10 +77,8 @@ public class BaseNewtonVectorRootFinder
       Function<DoubleArray, DoubleMatrix> jacobianFunction,
       DoubleArray startPosition) {
 
-    checkInputs(function, startPosition);
-
     DataBundle data = new DataBundle();
-    DoubleArray y = function.apply(startPosition);
+    DoubleArray y = checkInputsAndApplyFunction(function, startPosition);
     data.setX(startPosition);
     data.setY(y);
     data.setG0(_algebra.getInnerProduct(y, y));
