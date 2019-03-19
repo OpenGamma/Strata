@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.INR;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
@@ -23,6 +24,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.AUSY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.CHZU;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.DKCO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.PLWA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SEST;
@@ -153,6 +155,32 @@ public class OvernightIndexTest {
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_360);
     assertEquals(test.toString(), "USD-SOFR");
+  }
+
+  //-------------------------------------------------------------------------
+
+  public void test_eurEonia() {
+    OvernightIndex test = OvernightIndex.of("EUR-EONIA");
+    assertEquals(test.getName(), "EUR-EONIA");
+    assertEquals(test.getCurrency(), EUR);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), EUTA);
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "EUR-EONIA");
+  }
+
+  public void test_eurEster() {
+    OvernightIndex test = OvernightIndex.of("EUR-ESTER");
+    assertEquals(test.getName(), "EUR-ESTER");
+    assertEquals(test.getCurrency(), EUR);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), EUTA);
+    assertEquals(test.getPublicationDateOffset(), 1);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.toString(), "EUR-ESTER");
   }
 
   //-------------------------------------------------------------------------
