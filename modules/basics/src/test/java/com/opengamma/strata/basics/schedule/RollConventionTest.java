@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_2;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_29;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_30;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_THU;
 import static com.opengamma.strata.basics.schedule.RollConventions.EOM;
@@ -40,6 +41,8 @@ import static java.time.Month.SEPTEMBER;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -51,6 +54,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Test {@link RollConvention}.
@@ -603,8 +607,15 @@ public class RollConventionTest {
   public static Object[][] data_lenient() {
     return new Object[][] {
         {"2", DAY_2},
+        {"29", DAY_29},
+        {"Day29", DAY_29},
+        {"Day_29", DAY_29},
         {"30", DAY_30},
+        {"Day30", DAY_30},
+        {"Day_30", DAY_30},
         {"31", EOM},
+        {"Day31", EOM},
+        {"Day_31", EOM},
         {"THU", DAY_THU},
     };
   }
@@ -612,6 +623,22 @@ public class RollConventionTest {
   @Test(dataProvider = "lenient")
   public void test_lenientLookup_specialNames(String name, RollConvention convention) {
     assertEquals(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
+  }
+
+  public void test_lenientLookup_constants() throws IllegalAccessException {
+    Field[] fields = RollConventions.class.getDeclaredFields();
+    for (Field field : fields) {
+      if (Modifier.isPublic(field.getModifiers()) &&
+          Modifier.isStatic(field.getModifiers()) &&
+          Modifier.isFinal(field.getModifiers())) {
+
+        String name = field.getName();
+        Object value = field.get(null);
+        ExtendedEnum<RollConvention> ext = RollConvention.extendedEnum();
+        assertEquals(ext.findLenient(name), Optional.of(value));
+        assertEquals(ext.findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(value));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

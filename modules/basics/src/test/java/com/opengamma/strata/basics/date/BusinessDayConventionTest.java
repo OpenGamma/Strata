@@ -21,6 +21,8 @@ import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static org.testng.Assert.assertEquals;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
@@ -30,6 +32,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Test {@link BusinessDayConvention}.
@@ -221,6 +224,7 @@ public class BusinessDayConventionTest {
   public static Object[][] data_lenient() {
     return new Object[][] {
         {"F", FOLLOWING},
+        {"FOLLOWING", FOLLOWING},
         {"M", MODIFIED_FOLLOWING},
         {"MF", MODIFIED_FOLLOWING},
         {"P", PRECEDING},
@@ -235,6 +239,7 @@ public class BusinessDayConventionTest {
         {"ModifiedPreceding", MODIFIED_PRECEDING},
         {"Mod Preceding", MODIFIED_PRECEDING},
         {"ModPreceding", MODIFIED_PRECEDING},
+        {"ModFollowingBiMonthly", MODIFIED_FOLLOWING_BI_MONTHLY},
         {"None", NO_ADJUST},
     };
   }
@@ -242,6 +247,22 @@ public class BusinessDayConventionTest {
   @Test(dataProvider = "lenient")
   public void test_lenientLookup_specialNames(String name, BusinessDayConvention convention) {
     assertEquals(BusinessDayConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
+  }
+
+  public void test_lenientLookup_constants() throws IllegalAccessException {
+    Field[] fields = BusinessDayConventions.class.getDeclaredFields();
+    for (Field field : fields) {
+      if (Modifier.isPublic(field.getModifiers()) &&
+          Modifier.isStatic(field.getModifiers()) &&
+          Modifier.isFinal(field.getModifiers())) {
+
+        String name = field.getName();
+        Object value = field.get(null);
+        ExtendedEnum<BusinessDayConvention> ext = BusinessDayConvention.extendedEnum();
+        assertEquals(ext.findLenient(name), Optional.of(value));
+        assertEquals(ext.findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(value));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
