@@ -37,6 +37,8 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Optional;
@@ -47,6 +49,7 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Test {@link DayCount}.
@@ -1170,6 +1173,22 @@ public class DayCountTest {
   @Test(dataProvider = "lenient")
   public void test_lenientLookup_specialNames(String name, DayCount convention) {
     assertEquals(DayCount.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
+  }
+
+  public void test_lenientLookup_constants() throws IllegalAccessException {
+    Field[] fields = DayCounts.class.getDeclaredFields();
+    for (Field field : fields) {
+      if (Modifier.isPublic(field.getModifiers()) &&
+          Modifier.isStatic(field.getModifiers()) &&
+          Modifier.isFinal(field.getModifiers())) {
+
+        String name = field.getName();
+        Object value = field.get(null);
+        ExtendedEnum<DayCount> ext = DayCount.extendedEnum();
+        assertEquals(ext.findLenient(name), Optional.of(value));
+        assertEquals(ext.findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(value));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

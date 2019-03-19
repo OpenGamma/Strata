@@ -16,13 +16,18 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Locale;
+import java.util.Optional;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Test {@link PeriodAdditionConvention}.
@@ -109,6 +114,23 @@ public class PeriodAdditionConventionTest {
 
   public void test_of_lookup_null() {
     assertThrowsIllegalArg(() -> PeriodAdditionConvention.of(null));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_lenientLookup_constants() throws IllegalAccessException {
+    Field[] fields = PeriodAdditionConventions.class.getDeclaredFields();
+    for (Field field : fields) {
+      if (Modifier.isPublic(field.getModifiers()) &&
+          Modifier.isStatic(field.getModifiers()) &&
+          Modifier.isFinal(field.getModifiers())) {
+
+        String name = field.getName();
+        Object value = field.get(null);
+        ExtendedEnum<PeriodAdditionConvention> ext = PeriodAdditionConvention.extendedEnum();
+        assertEquals(ext.findLenient(name), Optional.of(value));
+        assertEquals(ext.findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(value));
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
