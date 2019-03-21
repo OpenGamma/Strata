@@ -697,11 +697,24 @@ public final class PeriodicSchedule
       // convert short stub to long stub, but only if we actually have a stub
       boolean stub = temp.equals(end) == false;
       if (stub && dates.size() > 1) {
+        StubConvention applicableStubConv = stubConv;
         if (stubConv == StubConvention.NONE) {
-          throw new ScheduleException(
-              schedule, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end, frequency);
+          // handle edge case where the end date does not follow the EOM rule
+          if (rollConv == RollConventions.EOM &&
+              frequency.isMonthBased() &&
+              !explicitFinalStub &&
+              start.getDayOfMonth() == start.lengthOfMonth() &&
+              end.getDayOfMonth() == start.getDayOfMonth()) {
+            // accept the date and move on using smart rules
+            applicableStubConv = StubConvention.SMART_FINAL;
+          } else {
+            throw new ScheduleException(
+                schedule, "Period '{}' to '{}' resulted in a disallowed stub with frequency '{}'", start, end,
+                frequency);
+          }
         }
-        if (stubConv.isStubLong(dates.get(dates.size() - 1), end)) {
+        // convert a short stub to a long one if necessary
+        if (applicableStubConv.isStubLong(dates.get(dates.size() - 1), end)) {
           dates.remove(dates.size() - 1);
         }
       }
