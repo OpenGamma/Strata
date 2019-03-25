@@ -242,6 +242,14 @@ SGD-SOR-6M,SGD,true,Act/365F,SGSI+GBLO,2,SGSI+GBLO,SGSI+GBLO,6M,ModifiedFollowin
 SGD-SOR-9M,SGD,false,Act/365F,SGSI+GBLO,2,SGSI+GBLO,SGSI+GBLO,9M,ModifiedFollowing,12:00,Europe/London,Act/365F
 SGD-SOR-12M,SGD,false,Act/365F,SGSI+GBLO,2,SGSI+GBLO,SGSI+GBLO,12M,ModifiedFollowing,12:00,Europe/London,Act/365F
 ,,,,,,,,,,,
+THB-THBFIX-1W,THB,true,Act/365F,THBA,2,THBA,THBA,1W,Following,11:00,Europe/London,Act/365F
+THB-THBFIX-1M,THB,true,Act/365F,THBA,2,THBA,THBA,1M,ModifiedFollowing,11:00,Europe/London,Act/365F
+THB-THBFIX-2M,THB,false,Act/365F,THBA,2,THBA,THBA,2M,ModifiedFollowing,11:00,Europe/London,Act/365F
+THB-THBFIX-3M,THB,true,Act/365F,THBA,2,THBA,THBA,3M,ModifiedFollowing,11:00,Europe/London,Act/365F
+THB-THBFIX-6M,THB,true,Act/365F,THBA,2,THBA,THBA,6M,ModifiedFollowing,11:00,Europe/London,Act/365F
+THB-THBFIX-9M,THB,false,Act/365F,THBA,2,THBA,THBA,9M,ModifiedFollowing,11:00,Europe/London,Act/365F
+THB-THBFIX-12M,THB,true,Act/365F,THBA,2,THBA,THBA,12M,ModifiedFollowing,11:00,Europe/London,Act/365F
+,,,,,,,,,,,
 ZAR-JIBAR-1M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,1M,ModifiedFollowing,10:00,Africa/Johannesburg,Act/365F
 ZAR-JIBAR-3M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,3M,ModifiedFollowing,10:00,Africa/Johannesburg,Act/365F
 ZAR-JIBAR-6M,ZAR,true,Act/365F,ZAJO,0,ZAJO,ZAJO,6M,ModifiedFollowing,10:00,Africa/Johannesburg,Act/365F
