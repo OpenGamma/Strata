@@ -43,6 +43,7 @@ import com.opengamma.strata.product.fra.type.FraConventions;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.FxTrade;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
 
@@ -219,6 +220,9 @@ public final class TradeCsvLoader {
   static final String DATE_ADJ_CAL_FIELD = "Date Calendar";
   static final String DAY_COUNT_FIELD = "Day Count";
   static final String FX_RATE_FIELD = "FX Rate";
+  static final String PAYMENT_DATE_FIELD = "Payment Date";
+  static final String PAYMENT_DATE_CNV_FIELD = "Payment Date Convention";
+  static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";
 
   // CSV column headers
   private static final String TYPE_FIELD = "Strata Trade Type";
@@ -443,6 +447,13 @@ public final class TradeCsvLoader {
                 variableRows.add(csv.next());
               }
               trades.add(tradeType.cast(SwapTradeCsvLoader.parse(row, variableRows, info, resolver)));
+            }
+            break;
+          case "BULLET":
+          case "BULLETPAYMENT":
+          case "BULLET PAYMENT":
+            if (tradeType == BulletPaymentTrade.class || tradeType == Trade.class) {
+              trades.add(tradeType.cast(BulletPaymentTradeCsvLoader.parse(row, info, resolver)));
             }
             break;
           case "TERMDEPOSIT":
