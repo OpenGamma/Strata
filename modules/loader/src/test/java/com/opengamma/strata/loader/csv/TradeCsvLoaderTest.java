@@ -88,6 +88,8 @@ import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.payment.BulletPayment;
+import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixedRateStubCalculation;
@@ -158,9 +160,13 @@ public class TradeCsvLoaderTest {
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId1"))
             .build())
-        .product(FxSingle.of(CurrencyAmount.of(USD, -3850000), FxRate.of(USD, INR, 67.40), LocalDate.parse("2016-12-08")))
+        .product(FxSingle.of(
+            CurrencyAmount.of(USD, -3850000),
+            FxRate.of(USD, INR, 67.40),
+            LocalDate.parse("2016-12-08"),
+            BusinessDayAdjustment.of(FOLLOWING, USNY)))
         .build();
-    assertEquals(loadedTrades.get(0), expectedTrade1);
+    assertBeanEquals(loadedTrades.get(0), expectedTrade1);
 
     FxSingleTrade expectedTrade2 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -169,7 +175,7 @@ public class TradeCsvLoaderTest {
             .build())
         .product(FxSingle.of(CurrencyAmount.of(EUR, 1920000), FxRate.of(EUR, CZK, 25.62), LocalDate.parse("2016-12-24")))
         .build();
-    assertEquals(loadedTrades.get(1), expectedTrade2);
+    assertBeanEquals(loadedTrades.get(1), expectedTrade2);
   }
 
   @Test
@@ -1177,6 +1183,41 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_load_bulletPayment() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<BulletPaymentTrade>> loadedData = test.parse(charSources, BulletPaymentTrade.class);
+    assertEquals(loadedData.getValue().size(), 2);
+
+    BulletPaymentTrade expected0 = BulletPaymentTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "tradeId21"))
+            .tradeDate(date(2016, 12, 6))
+            .build())
+        .product(BulletPayment.builder()
+            .payReceive(RECEIVE)
+            .value(CurrencyAmount.of(USD, 25000))
+            .date(AdjustableDate.of(date(2016, 12, 8), BusinessDayAdjustment.of(FOLLOWING, USNY)))
+            .build())
+        .build();
+    assertBeanEquals(expected0, loadedData.getValue().get(0));
+
+    BulletPaymentTrade expected1 = BulletPaymentTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "tradeId22"))
+            .tradeDate(date(2016, 12, 22))
+            .build())
+        .product(BulletPayment.builder()
+            .payReceive(PAY)
+            .value(CurrencyAmount.of(GBP, 35000))
+            .date(AdjustableDate.of(date(2016, 12, 24), BusinessDayAdjustment.of(FOLLOWING, GBLO)))
+            .build())
+        .build();
+    assertBeanEquals(expected1, loadedData.getValue().get(1));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_termDeposit() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1377,6 +1418,17 @@ public class TradeCsvLoaderTest {
     assertEquals(failure.getMessage(),
         "CSV file trade could not be parsed at line 2: Swap trade had invalid combination of fields. " +
             "Must include either 'Convention' or '" + "Leg 1 Direction'");
+  }
+
+  public void test_load_invalidBulletPayment() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades =
+        test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Direction\nBulletPayment,Pay")));
+
+    assertEquals(trades.getFailures().size(), 1);
+    FailureItem failure = trades.getFailures().get(0);
+    assertEquals(failure.getReason(), FailureReason.PARSING);
+    assertEquals(failure.getMessage(), "CSV file trade could not be parsed at line 2: Header not found: 'Currency'");
   }
 
   public void test_load_invalidTermDeposit() {

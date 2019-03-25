@@ -11,6 +11,9 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.FX_RATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -37,10 +40,6 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
  * Loads FX trades (spot or forward) from CSV files.
  */
 class FxSingleTradeCsvLoader {
-
-  private static final String PAYMENT_DATE_FIELD = "Payment Date";
-  private static final String PAYMENT_DATE_CNV_FIELD = "Payment Date Convention";  // Optional
-  private static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";  // Optional
 
   private static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
   private static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
