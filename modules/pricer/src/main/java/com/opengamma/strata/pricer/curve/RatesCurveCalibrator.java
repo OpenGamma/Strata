@@ -234,14 +234,14 @@ public final class RatesCurveCalibrator {
    * <p>
    * A curve must only exist in one group.
    *
-   * @param allGroupsDefn  the curve group definitions
+   * @param allGroupDefns  the curve group definitions
    * @param knownData  the starting data for the calibration
    * @param marketData  the market data required to build a trade for the instrument
    * @param refData  the reference data, used to resolve the trades
    * @return the rates provider resulting from the calibration
    */
   public ImmutableRatesProvider calibrate(
-      List<RatesCurveGroupDefinition> allGroupsDefn,
+      List<RatesCurveGroupDefinition> allGroupDefns,
       ImmutableRatesProvider knownData,
       MarketData marketData,
       ReferenceData refData) {
@@ -256,7 +256,7 @@ public final class RatesCurveCalibrator {
     ImmutableRatesProvider providerCombined = knownData;
     ImmutableList<CurveParameterSize> orderPrev = ImmutableList.of();
     ImmutableMap<CurveName, JacobianCalibrationMatrix> jacobians = ImmutableMap.of();
-    for (RatesCurveGroupDefinition groupDefn : allGroupsDefn) {
+    for (RatesCurveGroupDefinition groupDefn : allGroupDefns) {
       if (groupDefn.getEntries().isEmpty()) {
         continue;
       }
@@ -295,6 +295,7 @@ public final class RatesCurveCalibrator {
     return providerCombined;
   }
 
+  //-------------------------------------------------------------------------
   // converts a definition to the curve order list
   private static ImmutableList<CurveParameterSize> toOrder(RatesCurveGroupDefinition groupDefn) {
     return groupDefn.getCurveDefinitions().stream().map(def -> def.toCurveParameterSize()).collect(toImmutableList());
@@ -314,8 +315,8 @@ public final class RatesCurveCalibrator {
         new CalibrationDerivative(trades, measures, providerGenerator, curveOrder);
 
     // calibrate
-    DoubleArray initGuessMatrix = DoubleArray.copyOf(initialGuesses);
-    return rootFinder.findRoot(valueCalculator, derivativeCalculator, initGuessMatrix);
+    DoubleArray initialGuess = DoubleArray.copyOf(initialGuesses);
+    return rootFinder.findRoot(valueCalculator, derivativeCalculator, initialGuess);
   }
 
   //-------------------------------------------------------------------------
@@ -335,13 +336,13 @@ public final class RatesCurveCalibrator {
 
     // jacobian direct
     int nbTrades = trades.size();
-    int totalParamsGroup = orderGroup.stream().mapToInt(e -> e.getParameterCount()).sum();
-    int totalParamsPrevious = totalParamsAll - totalParamsGroup;
-    DoubleMatrix pDmCurrentMatrix = jacobianDirect(res, nbTrades, totalParamsGroup, totalParamsPrevious);
+    int totParamsGroup = orderGroup.stream().mapToInt(e -> e.getParameterCount()).sum();
+    int totParamsPrev = totalParamsAll - totParamsGroup;
+    DoubleMatrix pDmCurMatrix = jacobianDirect(res, nbTrades, totParamsGroup, totParamsPrev);
 
     // jacobian indirect: when totalParamsPrevious > 0
-    DoubleMatrix pDmPrevious = jacobianIndirect(
-        res, pDmCurrentMatrix, nbTrades, totalParamsGroup, totalParamsPrevious, orderPrev, jacobians);
+    DoubleMatrix pDmPrev = jacobianIndirect(
+        res, pDmCurMatrix, nbTrades, totParamsGroup, totParamsPrev, orderPrev, jacobians);
 
     // add to the map of jacobians, one entry for each curve in this group
     ImmutableMap.Builder<CurveName, JacobianCalibrationMatrix> jacobianBuilder = ImmutableMap.builder();
@@ -351,14 +352,14 @@ public final class RatesCurveCalibrator {
       int paramCount = order.getParameterCount();
       double[][] pDmCurveArray = new double[paramCount][totalParamsAll];
       // copy data for previous groups
-      if (totalParamsPrevious > 0) {
+      if (totParamsPrev > 0) {
         for (int p = 0; p < paramCount; p++) {
-          System.arraycopy(pDmPrevious.rowArray(startIndex + p), 0, pDmCurveArray[p], 0, totalParamsPrevious);
+          System.arraycopy(pDmPrev.rowArray(startIndex + p), 0, pDmCurveArray[p], 0, totParamsPrev);
         }
       }
       // copy data for this group
       for (int p = 0; p < paramCount; p++) {
-        System.arraycopy(pDmCurrentMatrix.rowArray(startIndex + p), 0, pDmCurveArray[p], totalParamsPrevious, totalParamsGroup);
+        System.arraycopy(pDmCurMatrix.rowArray(startIndex + p), 0, pDmCurveArray[p], totParamsPrev, totParamsGroup);
       }
       // build final Jacobian matrix
       DoubleMatrix pDmCurveMatrix = DoubleMatrix.ofUnsafe(pDmCurveArray);
@@ -368,6 +369,7 @@ public final class RatesCurveCalibrator {
     return jacobianBuilder.build();
   }
 
+  //-------------------------------------------------------------------------
   private ImmutableMap<CurveName, DoubleArray> sensitivityToMarketQuoteForGroup(
       ImmutableRatesProvider provider,
       ImmutableList<ResolvedTrade> trades,
@@ -448,7 +450,7 @@ public final class RatesCurveCalibrator {
       int startIndexInner = 0;
       for (int j = 0; j < orderPrevious.size(); j++) {
         int paramCountInner = orderPrevious.get(j).getParameterCount();
-        if (thisInfo.containsCurve(orderPrevious.get(j).getName())) { // If not, the matrix stay with 0
+        if (thisInfo.containsCurve(orderPrevious.get(j).getName())) { // If not, the matrix stays with 0
           for (int k = 0; k < paramCountOuter; k++) {
             System.arraycopy(
                 thisMatrix.rowArray(k),
