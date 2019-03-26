@@ -223,24 +223,38 @@ public class BusinessDayConventionTest {
   @DataProvider(name = "lenient")
   public static Object[][] data_lenient() {
     return new Object[][] {
-        {"F", FOLLOWING},
         {"FOLLOWING", FOLLOWING},
+        {"MODIFIED_FOLLOWING", MODIFIED_FOLLOWING},
+        {"MODIFIED_FOLLOWING_BI_MONTHLY", MODIFIED_FOLLOWING_BI_MONTHLY},
+        {"PRECEDING", PRECEDING},
+        {"MODIFIED_PRECEDING", MODIFIED_PRECEDING},
+
+        {"F", FOLLOWING},
         {"M", MODIFIED_FOLLOWING},
         {"MF", MODIFIED_FOLLOWING},
         {"P", PRECEDING},
         {"MP", MODIFIED_PRECEDING},
+
+        {"Follow", FOLLOWING},
+        {"None", NO_ADJUST},
         {"Modified", MODIFIED_FOLLOWING},
         {"Mod", MODIFIED_FOLLOWING},
+
         {"Modified Following", MODIFIED_FOLLOWING},
         {"ModifiedFollowing", MODIFIED_FOLLOWING},
+        {"Modified Follow", MODIFIED_FOLLOWING},
+        {"ModifiedFollow", MODIFIED_FOLLOWING},
         {"Mod Following", MODIFIED_FOLLOWING},
         {"ModFollowing", MODIFIED_FOLLOWING},
+        {"Mod Follow", MODIFIED_FOLLOWING},
+        {"ModFollow", MODIFIED_FOLLOWING},
+
         {"Modified Preceding", MODIFIED_PRECEDING},
         {"ModifiedPreceding", MODIFIED_PRECEDING},
         {"Mod Preceding", MODIFIED_PRECEDING},
         {"ModPreceding", MODIFIED_PRECEDING},
+
         {"ModFollowingBiMonthly", MODIFIED_FOLLOWING_BI_MONTHLY},
-        {"None", NO_ADJUST},
     };
   }
 

@@ -5,20 +5,30 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.BusinessDayConvention;
+import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.etd.EtdOptionType;
 import com.opengamma.strata.product.etd.EtdSettlementType;
 import com.opengamma.strata.product.etd.EtdType;
@@ -237,6 +247,123 @@ public final class CsvLoaderUtils {
     double longQuantity = ArgChecker.notNegative(longQuantityOpt.orElse(0d), LONG_QUANTITY_FIELD);
     double shortQuantity = ArgChecker.notNegative(shortQuantityOpt.orElse(0d), SHORT_QUANTITY_FIELD);
     return DoublesPair.of(longQuantity, shortQuantity);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a business day adjustment, without defaulting the adjustment.
+   * 
+   * @param row  the CSV row to parse
+   * @param dateField  the date field
+   * @param conventionField  the convention field
+   * @param calendarField  the calendar field
+   * @return the adjustment
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  static AdjustableDate parseAdjustableDate(
+      CsvRow row,
+      String dateField,
+      String conventionField,
+      String calendarField) {
+
+    LocalDate date = LoaderUtils.parseDate(row.getValue(dateField));
+    return parseBusinessDayAdjustment(row, conventionField, calendarField)
+        .map(adj -> AdjustableDate.of(date, adj))
+        .orElse(AdjustableDate.of(date));
+  }
+
+  /**
+   * Parses a business day adjustment, defaulting the adjustment using the currency.
+   * <p>
+   * The default uses {@link BusinessDayConventions#FOLLOWING}.
+   * 
+   * @param row  the CSV row to parse
+   * @param dateField  the date field
+   * @param conventionField  the convention field
+   * @param calendarField  the calendar field
+   * @param currency  the applicable currency, used for defaulting
+   * @return the adjustment
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  static AdjustableDate parseAdjustableDate(
+      CsvRow row,
+      String dateField,
+      String conventionField,
+      String calendarField,
+      Currency currency) {
+
+    LocalDate date = LoaderUtils.parseDate(row.getValue(dateField));
+    BusinessDayAdjustment adj = parseBusinessDayAdjustment(row, conventionField, calendarField)
+        .orElseGet(() -> BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarId.defaultByCurrency(currency)));
+    return AdjustableDate.of(date, adj);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a business day adjustment.
+   * 
+   * @param row  the CSV row to parse
+   * @param conventionField  the convention field
+   * @param calendarField  the calendar field
+   * @return the adjustment
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  static Optional<BusinessDayAdjustment> parseBusinessDayAdjustment(
+      CsvRow row,
+      String conventionField,
+      String calendarField) {
+
+    Optional<String> cnvOpt = row.findValue(conventionField);
+    if (cnvOpt.isPresent()) {
+      BusinessDayConvention cnv = LoaderUtils.parseBusinessDayConvention(cnvOpt.get());
+      if (cnv.equals(BusinessDayConventions.NO_ADJUST)) {
+        return Optional.of(BusinessDayAdjustment.NONE);
+      }
+      Optional<String> calOpt = row.findValue(calendarField);
+      if (calOpt.isPresent()) {
+        HolidayCalendarId cal = HolidayCalendarId.of(calOpt.get());
+        return Optional.of(BusinessDayAdjustment.of(cnv, cal));
+      }
+    }
+    return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a currency amount.
+   * 
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @return the currency amount
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  static CurrencyAmount parseCurrencyAmount(CsvRow row, String currencyField, String amountField) {
+    Currency currency = LoaderUtils.parseCurrency(row.getValue(currencyField));
+    double amount = LoaderUtils.parseDouble(row.getValue(amountField));
+    return CurrencyAmount.of(currency, amount);
+  }
+
+  /**
+   * Parses a currency amount with direction.
+   * 
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @return the currency amount
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  static CurrencyAmount parseCurrencyAmountWithDirection(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField) {
+
+    Currency currency = LoaderUtils.parseCurrency(row.getValue(currencyField));
+    double amount = LoaderUtils.parseDouble(row.getValue(amountField));
+    PayReceive direction = LoaderUtils.parsePayReceive(row.getValue(directionField));
+    return CurrencyAmount.of(currency, direction.normalize(amount));
   }
 
 }

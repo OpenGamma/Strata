@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.testng.Assert.assertEquals;
@@ -23,7 +24,9 @@ import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -159,6 +162,21 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.tryParseCurrency(null), Optional.empty());
   }
 
+  //-------------------------------------------------------------------------
+  public void test_parseBusinessDayConvention() {
+    assertEquals(LoaderUtils.parseBusinessDayConvention("MODFOLLOW"), MODIFIED_FOLLOWING);
+    assertEquals(LoaderUtils.parseBusinessDayConvention("ModifiedFollowing"), MODIFIED_FOLLOWING);
+    assertEquals(LoaderUtils.parseBusinessDayConvention("MF"), MODIFIED_FOLLOWING);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseBusinessDayConvention("Rubbish"));
+  }
+
+  public void test_parseRollConvention() {
+    assertEquals(LoaderUtils.parseRollConvention("IMM"), RollConventions.IMM);
+    assertEquals(LoaderUtils.parseRollConvention("imm"), RollConventions.IMM);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseRollConvention("Rubbish"));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_parseBuySell() {
     assertEquals(LoaderUtils.parseBuySell("BUY"), BuySell.BUY);
     assertEquals(LoaderUtils.parseBuySell("Buy"), BuySell.BUY);
@@ -168,7 +186,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseBuySell("Sell"), BuySell.SELL);
     assertEquals(LoaderUtils.parseBuySell("sell"), BuySell.SELL);
     assertEquals(LoaderUtils.parseBuySell("s"), BuySell.SELL);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parseBuySell("Rubbish"));
   }
 
   public void test_parsePayReceive() {
@@ -181,7 +199,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parsePayReceive("receive"), PayReceive.RECEIVE);
     assertEquals(LoaderUtils.parsePayReceive("rec"), PayReceive.RECEIVE);
     assertEquals(LoaderUtils.parsePayReceive("r"), PayReceive.RECEIVE);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parsePayReceive("Rubbish"));
   }
 
   public void test_parsePutCall() {
@@ -193,7 +211,19 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parsePutCall("Call"), PutCall.CALL);
     assertEquals(LoaderUtils.parsePutCall("call"), PutCall.CALL);
     assertEquals(LoaderUtils.parsePutCall("c"), PutCall.CALL);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+    assertThrowsIllegalArg(() -> LoaderUtils.parsePutCall("Rubbish"));
+  }
+
+  public void test_parseLongShort() {
+    assertEquals(LoaderUtils.parseLongShort("LONG"), LongShort.LONG);
+    assertEquals(LoaderUtils.parseLongShort("Long"), LongShort.LONG);
+    assertEquals(LoaderUtils.parseLongShort("long"), LongShort.LONG);
+    assertEquals(LoaderUtils.parseLongShort("l"), LongShort.LONG);
+    assertEquals(LoaderUtils.parseLongShort("SHORT"), LongShort.SHORT);
+    assertEquals(LoaderUtils.parseLongShort("Short"), LongShort.SHORT);
+    assertEquals(LoaderUtils.parseLongShort("short"), LongShort.SHORT);
+    assertEquals(LoaderUtils.parseLongShort("s"), LongShort.SHORT);
+    assertThrowsIllegalArg(() -> LoaderUtils.parseLongShort("Rubbish"));
   }
 
   //-------------------------------------------------------------------------
