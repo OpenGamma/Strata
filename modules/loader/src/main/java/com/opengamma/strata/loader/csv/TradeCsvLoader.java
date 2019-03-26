@@ -43,6 +43,7 @@ import com.opengamma.strata.product.fra.type.FraConventions;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fx.FxTrade;
+import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
@@ -223,6 +224,16 @@ public final class TradeCsvLoader {
   static final String PAYMENT_DATE_FIELD = "Payment Date";
   static final String PAYMENT_DATE_CNV_FIELD = "Payment Date Convention";
   static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";
+  static final String LONG_SHORT_FIELD = "Long Short";
+  static final String EXPIRY_DATE_FIELD = "Expiry Date";
+  static final String EXPIRY_TIME_FIELD = "Expiry Time";
+  static final String EXPIRY_ZONE_FIELD = "Expiry Zone";
+  static final String PREMIUM_CURRENCY_FIELD = "Premium Currency";
+  static final String PREMIUM_AMOUNT_FIELD = "Premium Amount";
+  static final String PREMIUM_DIRECTION_FIELD = "Premium Direction";
+  static final String PREMIUM_DATE_FIELD = "Premium Date";
+  static final String PREMIUM_DATE_CNV_FIELD = "Premium Date Convention";
+  static final String PREMIUM_DATE_CAL_FIELD = "Premium Date Calendar";
 
   // CSV column headers
   private static final String TYPE_FIELD = "Strata Trade Type";
@@ -479,6 +490,12 @@ public final class TradeCsvLoader {
           case "FX SWAP":
             if (tradeType == FxSwapTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(FxSwapTradeCsvPlugin.parse(row, info, resolver)));
+            }
+            break;
+          case "FXVANILLAOPTION":
+          case "FX VANILLA OPTION":
+            if (tradeType == FxVanillaOptionTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
+              trades.add(tradeType.cast(FxVanillaOptionTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           default:

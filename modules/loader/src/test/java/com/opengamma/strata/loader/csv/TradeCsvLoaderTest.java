@@ -44,6 +44,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -78,6 +79,7 @@ import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
@@ -88,6 +90,8 @@ import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fxopt.FxVanillaOption;
+import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.CompoundingMethod;
@@ -329,7 +333,41 @@ public class TradeCsvLoaderTest {
         .build();
     assertBeanEquals(loadedTrades.get(0), expectedTrade1);
   }
-  
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_load_fx_vanilla_option() throws Exception {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<FxVanillaOptionTrade>> loadedData = standard.parse(charSources, FxVanillaOptionTrade.class);
+    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
+
+    List<FxVanillaOptionTrade> loadedTrades = loadedData.getValue();
+    assertEquals(loadedTrades.size(), 1);
+
+    FxVanillaOptionTrade expectedTrade0 = FxVanillaOptionTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(LocalDate.parse("2016-12-06"))
+            .id(StandardId.of("OG", "tradeId31"))
+            .build())
+        .product(FxVanillaOption.builder()
+            .longShort(LongShort.LONG)
+            .expiryDate(LocalDate.of(2017, 1, 8))
+            .expiryTime(LocalTime.of(11, 0))
+            .expiryZone(ZoneId.of("Europe/London"))
+            .underlying(FxSingle.of(
+                CurrencyAmount.of(USD, 30000),
+                FxRate.of(USD, CAD, 1.31),
+                LocalDate.of(2017, 1, 10)))
+            .build())
+        .premium(AdjustablePayment.of(
+            CurrencyAmount.of(GBP, -2000),
+            AdjustableDate.of(LocalDate.of(2016, 12, 8))))
+        .build();
+    assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+  }
+
   //-------------------------------------------------------------------------
   public void test_load_fra() {
     TradeCsvLoader test = TradeCsvLoader.standard();

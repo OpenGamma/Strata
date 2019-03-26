@@ -1,7 +1,8 @@
-Strata Trade Type,Id Scheme,Id,Trade Date,Trade Time,Trade Zone,Convention,Buy Sell,Direction,Currency,Notional,FX Rate,Payment Date,Payment Date Convention,Payment Date Calendar,Far FX Rate,Far Payment Date
-FX,OG,tradeId1,06/12/2016,,,USD/INR,Sell,,USD,3850000,67.4,08/12/2016,Following,USNY,,
-FX,OG,tradeId2,22/12/2016,,,EUR/CZK,Buy,,EUR,1920000,25.62,24/12/2016,,,,
-FxSwap,OG,tradeId11,06/12/2016,,,USD/CAD,Buy,,USD,120000,1.31,08/12/2016,,,1.34,08/01/2017
-Fx Swap,OG,tradeId12,06/12/2016,,,USD/CAD,Sell,,CAD,-160000,1.32,08/12/2016,,,1.34,08/01/2017
-Bullet,OG,tradeId21,06/12/2016,,,,,Receive,USD,25000,,08/12/2016,Following,USNY,,
-BulletPayment,OG,tradeId22,22/12/2016,,,,,Pay,GBP,35000,,24/12/2016,,,,
+Strata Trade Type,Id Scheme,Id,Trade Date,Trade Time,Trade Zone,Convention,Buy Sell,Direction,Currency,Notional,FX Rate,Payment Date,Payment Date Convention,Payment Date Calendar,Far FX Rate,Far Payment Date,Long Short,Expiry Date,Expiry Time,Expiry Zone,Premium Direction,Premium Currency,Premium Amount,Premium Date,Premium Date Convention,Premium Date Calendar
+FX,OG,tradeId1,06/12/2016,,,USD/INR,Sell,,USD,3850000,67.4,08/12/2016,Following,USNY,,,,,,,,,,,,
+FX,OG,tradeId2,22/12/2016,,,EUR/CZK,Buy,,EUR,1920000,25.62,24/12/2016,,,,,,,,,,,,,,
+FxSwap,OG,tradeId11,06/12/2016,,,USD/CAD,Buy,,USD,120000,1.31,08/12/2016,,,1.34,08/01/2017,,,,,,,,,,
+Fx Swap,OG,tradeId12,06/12/2016,,,USD/CAD,Sell,,CAD,-160000,1.32,08/12/2016,,,1.34,08/01/2017,,,,,,,,,,
+Bullet,OG,tradeId21,06/12/2016,,,,,Receive,USD,25000,,08/12/2016,Following,USNY,,,,,,,,,,,,
+BulletPayment,OG,tradeId22,22/12/2016,,,,,Pay,GBP,35000,,24/12/2016,,,,,,,,,,,,,,
+FxVanillaOption,OG,tradeId31,06/12/2016,,,USD/CAD,Buy,,USD,30000,1.31,10/01/2017,,,,,Long,08/01/2017,11:00,Europe/London,Pay,GBP,2000,08/12/2016,,

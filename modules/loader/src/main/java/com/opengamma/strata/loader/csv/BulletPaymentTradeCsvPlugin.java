@@ -5,21 +5,16 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
 
-import java.time.LocalDate;
-
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvRow;
-import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.payment.BulletPayment;
@@ -45,18 +40,17 @@ final class BulletPaymentTradeCsvPlugin {
 
   // parse the row to a trade
   private static BulletPaymentTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    PayReceive payReceive = LoaderUtils.parsePayReceive(row.getValue(DIRECTION_FIELD));
-    Currency currency = LoaderUtils.parseCurrency(row.getValue(CURRENCY_FIELD));
-    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
-    LocalDate paymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
-    BusinessDayAdjustment paymentAdj = FxSingleTradeCsvPlugin.parsePaymentDateAdjustment(row)
-        .orElseGet(() -> BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarId.defaultByCurrency(currency)));
-    CurrencyAmount amount = CurrencyAmount.of(currency, notional);
-    BulletPayment.Builder builder = BulletPayment.builder()
-        .payReceive(payReceive)
-        .value(amount)
-        .date(AdjustableDate.of(paymentDate, paymentAdj));
-    return BulletPaymentTrade.of(info, builder.build());
+    CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
+        row, CURRENCY_FIELD, NOTIONAL_FIELD, DIRECTION_FIELD);
+    AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(
+        row, PAYMENT_DATE_FIELD, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD, amount.getCurrency());
+
+    BulletPayment payment = BulletPayment.builder()
+        .payReceive(PayReceive.ofSignedAmount(amount.getAmount()))
+        .value(amount.positive())
+        .date(date)
+        .build();
+    return BulletPaymentTrade.of(info, payment);
   }
 
   //-------------------------------------------------------------------------

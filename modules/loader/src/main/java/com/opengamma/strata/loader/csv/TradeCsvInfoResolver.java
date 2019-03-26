@@ -14,6 +14,7 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -176,8 +177,8 @@ public interface TradeCsvInfoResolver {
    * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
    *
    * @param row  the CSV row to parse
-   * @param trade  the parsed trade, as an instance of {@link FxSingleTrade}
-   * @return the updated trade, as an instance of {@link FxSingleTrade}
+   * @param trade  the parsed trade
+   * @return the updated trade
    */
   public default FxSingleTrade completeTrade(CsvRow row, FxSingleTrade trade) {
     //do nothing
@@ -193,10 +194,27 @@ public interface TradeCsvInfoResolver {
    * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
    *
    * @param row  the CSV row to parse
-   * @param trade  the parsed trade, as an instance of {@link FxSwapTrade}
-   * @return the updated trade, as an instance of {@link FxSwapTrade}
+   * @param trade  the parsed trade
+   * @return the updated trade
    */
   public default FxSwapTrade completeTrade(CsvRow row, FxSwapTrade trade) {
+    //do nothing
+    return completeTradeCommon(row, trade);
+  }
+
+  /**
+   * Completes the FX Vanilla Option trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default FxVanillaOptionTrade completeTrade(CsvRow row, FxVanillaOptionTrade trade) {
     //do nothing
     return completeTradeCommon(row, trade);
   }
