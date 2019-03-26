@@ -39,6 +39,9 @@ public class CurrencyAmountTest {
     CurrencyAmount test = CurrencyAmount.zero(Currency.USD);
     assertEquals(test.getCurrency(), Currency.USD);
     assertEquals(test.getAmount(), 0d, 0);
+    assertTrue(test.isZero());
+    assertFalse(test.isPositive());
+    assertFalse(test.isNegative());
   }
 
   public void test_zero_Currency_nullCurrency() {
@@ -50,6 +53,27 @@ public class CurrencyAmountTest {
     CurrencyAmount test = CurrencyAmount.of(Currency.USD, AMT1);
     assertEquals(test.getCurrency(), Currency.USD);
     assertEquals(test.getAmount(), AMT1, 0);
+    assertFalse(test.isZero());
+    assertTrue(test.isPositive());
+    assertFalse(test.isNegative());
+  }
+
+  public void test_of_Currency_negative() {
+    CurrencyAmount test = CurrencyAmount.of(Currency.USD, -1);
+    assertEquals(test.getCurrency(), Currency.USD);
+    assertEquals(test.getAmount(), -1, 0);
+    assertFalse(test.isZero());
+    assertFalse(test.isPositive());
+    assertTrue(test.isNegative());
+  }
+
+  public void test_of_Currency_negativeZero() {
+    CurrencyAmount test = CurrencyAmount.of(Currency.USD, -0d);
+    assertEquals(test.getCurrency(), Currency.USD);
+    assertEquals(Double.doubleToLongBits(test.getAmount()), Double.doubleToLongBits(0d));
+    assertTrue(test.isZero());
+    assertFalse(test.isPositive());
+    assertFalse(test.isNegative());
   }
 
   public void test_of_Currency_nullCurrency() {
