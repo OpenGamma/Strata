@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.common;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -15,6 +16,8 @@ import java.util.Locale;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link BuySell}.
@@ -28,16 +31,31 @@ public class BuySellTest {
     assertEquals(BuySell.ofBuy(false), BuySell.SELL);
   }
 
-  public void test_normalize_sell() {
+  //-------------------------------------------------------------------------
+  public void test_normalize_sell_double() {
     assertEquals(BuySell.SELL.normalize(1d), -1d, 0d);
-    assertEquals(BuySell.SELL.normalize(0d), -0d, 0d);
+    assertEquals(BuySell.SELL.normalize(0d), 0d, 0d);
+    assertEquals(BuySell.SELL.normalize(-0d), 0d, 0d);
     assertEquals(BuySell.SELL.normalize(-1d), -1d, 0d);
   }
 
-  public void test_normalize_buy() {
+  public void test_normalize_sell_amount() {
+    assertEquals(BuySell.SELL.normalize(CurrencyAmount.of(GBP, 1d)), CurrencyAmount.of(GBP, -1d));
+    assertEquals(BuySell.SELL.normalize(CurrencyAmount.of(GBP, 0d)), CurrencyAmount.of(GBP, 0d));
+    assertEquals(BuySell.SELL.normalize(CurrencyAmount.of(GBP, -1d)), CurrencyAmount.of(GBP, -1d));
+  }
+
+  public void test_normalize_buy_double() {
     assertEquals(BuySell.BUY.normalize(1d), 1d, 0d);
     assertEquals(BuySell.BUY.normalize(0d), 0d, 0d);
+    assertEquals(BuySell.BUY.normalize(-0d), 0d, 0d);
     assertEquals(BuySell.BUY.normalize(-1d), 1d, 0d);
+  }
+
+  public void test_normalize_buy_amount() {
+    assertEquals(BuySell.BUY.normalize(CurrencyAmount.of(GBP, 1d)), CurrencyAmount.of(GBP, 1d));
+    assertEquals(BuySell.BUY.normalize(CurrencyAmount.of(GBP, 0d)), CurrencyAmount.of(GBP, 0d));
+    assertEquals(BuySell.BUY.normalize(CurrencyAmount.of(GBP, -1d)), CurrencyAmount.of(GBP, 1d));
   }
 
   public void test_isBuy() {
