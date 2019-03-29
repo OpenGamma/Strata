@@ -511,7 +511,7 @@ public class DiscountingFixedCouponBondProductPricer {
     LocalDate previousAccrualDate = period.getUnadjustedStartDate();
     double accruedYearFraction = bond.yearFraction(previousAccrualDate, settlementDate);
     double result = 0d;
-    if (settlementDate.isAfter(period.getDetachmentDate())) {
+    if (!settlementDate.isBefore(period.getDetachmentDate())) {
       result = accruedYearFraction - period.getYearFraction();
     } else {
       result = accruedYearFraction;
