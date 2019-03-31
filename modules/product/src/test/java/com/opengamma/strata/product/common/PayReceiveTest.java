@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.common;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
@@ -15,6 +16,8 @@ import java.util.Locale;
 
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link PayReceive}.
@@ -37,16 +40,30 @@ public class PayReceiveTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_normalize_pay() {
+  public void test_normalize_pay_double() {
     assertEquals(PayReceive.PAY.normalize(1d), -1d, 0d);
-    assertEquals(PayReceive.PAY.normalize(0d), -0d, 0d);
+    assertEquals(PayReceive.PAY.normalize(0d), 0d, 0d);
+    assertEquals(PayReceive.PAY.normalize(-0d), 0d, 0d);
     assertEquals(PayReceive.PAY.normalize(-1d), -1d, 0d);
   }
 
-  public void test_normalize_receive() {
+  public void test_normalize_pay_amount() {
+    assertEquals(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 1d)), CurrencyAmount.of(GBP, -1d));
+    assertEquals(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 0d)), CurrencyAmount.of(GBP, 0d));
+    assertEquals(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, -1d)), CurrencyAmount.of(GBP, -1d));
+  }
+
+  public void test_normalize_receive_double() {
     assertEquals(PayReceive.RECEIVE.normalize(1d), 1d, 0d);
     assertEquals(PayReceive.RECEIVE.normalize(0d), 0d, 0d);
+    assertEquals(PayReceive.RECEIVE.normalize(-0d), 0d, 0d);
     assertEquals(PayReceive.RECEIVE.normalize(-1d), 1d, 0d);
+  }
+
+  public void test_normalize_receive_amount() {
+    assertEquals(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 1d)), CurrencyAmount.of(GBP, 1d));
+    assertEquals(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 0d)), CurrencyAmount.of(GBP, 0d));
+    assertEquals(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, -1d)), CurrencyAmount.of(GBP, 1d));
   }
 
   public void test_isPay() {

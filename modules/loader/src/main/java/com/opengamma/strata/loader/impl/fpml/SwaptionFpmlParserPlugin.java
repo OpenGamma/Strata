@@ -161,15 +161,19 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
   }
 
   private CashSwaptionSettlementMethod parseCashSettlementMethod(XmlElement cashSettlementEl) {
-    if (cashSettlementEl.findChild("cashPriceAlternateMethod").isPresent()) {
+    if (cashSettlementEl.findChild("cashPriceMethod").isPresent() ||
+        cashSettlementEl.findChild("cashPriceAlternateMethod").isPresent()) {
       return CashSwaptionSettlementMethod.CASH_PRICE;
 
     } else if (cashSettlementEl.findChild("parYieldCurveUnadjustedMethod").isPresent() ||
-        cashSettlementEl.findChild("parYieldCurveAadjustedMethod").isPresent()) {
+        cashSettlementEl.findChild("parYieldCurveAdjustedMethod").isPresent()) {
       return CashSwaptionSettlementMethod.PAR_YIELD;
 
     } else if (cashSettlementEl.findChild("zeroCouponYieldAdjustedMethod").isPresent()) {
       return CashSwaptionSettlementMethod.ZERO_COUPON_YIELD;
+
+    } else if (cashSettlementEl.findChild("collateralizedCashPriceMethod").isPresent()) {
+      return CashSwaptionSettlementMethod.COLLATERALIZED_CASH_PRICE;
 
     } else {
       throw new FpmlParseException("Invalid swaption cash settlement method: " + cashSettlementEl);

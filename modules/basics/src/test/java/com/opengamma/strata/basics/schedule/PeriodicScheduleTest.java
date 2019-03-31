@@ -470,6 +470,14 @@ public class PeriodicScheduleTest {
             list(date(2011, 2, 2), date(2011, 2, 28), date(2011, 3, 30), date(2011, 4, 30), date(2011, 5, 30)),
             list(date(2011, 2, 2), date(2011, 2, 28), date(2011, 3, 30), date(2011, 4, 29), date(2011, 5, 30)),
             DAY_30},
+        // EOM flag true and is EOM, but end date equals start day rather than EOM
+        {date(2018, 2, 28), date(2024, 2, 28), Frequency.ofYears(2), STUB_NONE, EOM, BDA, null, null, null,
+            list(date(2018, 2, 28), date(2020, 2, 29), date(2022, 2, 28), date(2024, 2, 28)),
+            list(date(2018, 2, 28), date(2020, 2, 28), date(2022, 2, 28), date(2024, 2, 28)), EOM},
+        // EOM flag true and is EOM, but end date equals start day rather than EOM
+        {date(2018, 4, 30), date(2018, 10, 30), P2M, STUB_NONE, EOM, BDA, null, null, null,
+            list(date(2018, 4, 30), date(2018, 6, 30), date(2018, 8, 31), date(2018, 10, 30)),
+            list(date(2018, 4, 30), date(2018, 6, 29), date(2018, 8, 31), date(2018, 10, 30)), EOM},
 
         // pre-adjusted start date, no change needed
         {JUL_17, OCT_17, P1M, null, DAY_17, BDA, null, null, BDA_NONE,

@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
@@ -36,6 +37,7 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
 
@@ -310,6 +312,22 @@ public final class LoaderUtils {
     }
   }
 
+  /**
+   * Parses time-zone from the input string.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static ZoneId parseZoneId(String str) {
+    try {
+      return ZoneId.of(str);
+
+    } catch (DateTimeParseException ex) {
+      throw new IllegalArgumentException("Unknown time-zone, was: " + str);
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a period from the input string.
@@ -539,6 +557,33 @@ public final class LoaderUtils {
         throw new IllegalArgumentException(
             "Unknown PutCall value, must be 'Put' or 'Call' but was '" + str + "'; " +
                 "parser is case insensitive and also accepts 'P' and 'C'");
+    }
+  }
+
+  /**
+   * Parses long/short from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * Long is parsed as 'LONG', 'L'.
+   * Short is parsed as 'SHORT', 'S'.
+   * Other strings are rejected.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static LongShort parseLongShort(String str) {
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "LONG":
+      case "L":
+        return LongShort.LONG;
+      case "SHORT":
+      case "S":
+        return LongShort.SHORT;
+      default:
+        throw new IllegalArgumentException(
+            "Unknown LongShort value, must be 'Long' or 'Short' but was '" + str + "'; " +
+                "parser is case insensitive and also accepts 'L' and 'S'");
     }
   }
 

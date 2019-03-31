@@ -38,7 +38,7 @@ import com.opengamma.strata.basics.date.Tenor;
  * Test {@link FloatingRateName}.
  */
 @Test
-public class FloatingRateNameTest {
+public class FloatingRateNamesTest {
 
   //-------------------------------------------------------------------------
   @DataProvider(name = "nameType")
@@ -68,6 +68,8 @@ public class FloatingRateNameTest {
         {"CHF-TOIS-OIS-COMPOUND", "CHF-TOIS", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"EUR-EONIA", "EUR-EONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"EUR-EONIA-OIS-COMPOUND", "EUR-EONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-ESTER", "EUR-ESTER", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-ESTER-OIS-COMPOUND", "EUR-ESTER", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"JPY-TONAR", "JPY-TONAR", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"JPY-TONA-OIS-COMPOUND", "JPY-TONAR", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"USD-FED-FUND", "USD-FED-FUND", FloatingRateType.OVERNIGHT_COMPOUNDED},

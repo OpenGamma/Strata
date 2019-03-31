@@ -52,6 +52,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex EUR_EONIA = OvernightIndex.of("EUR-EONIA");
   /**
+   * The ESTER index for EUR.
+   * <p>
+   * The Euro Short-Term Rate (ESTER) index.
+   */
+  public static final OvernightIndex EUR_ESTER = OvernightIndex.of("EUR-ESTER");
+  /**
    * The TONAR index for JPY.
    * <p>
    * The Tokyo Overnight Average Rate (TONAR) index.

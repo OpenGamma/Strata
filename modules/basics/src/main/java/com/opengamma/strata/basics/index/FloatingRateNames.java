@@ -121,6 +121,10 @@ public final class FloatingRateNames {
    */
   public static final FloatingRateName EUR_EONIA = FloatingRateName.of("EUR-EONIA");
   /**
+   * Constant for EUR-ESTER Overnight index.
+   */
+  public static final FloatingRateName EUR_ESTER = FloatingRateName.of("EUR-ESTER");
+  /**
    * Constant for JPY-TONAR Overnight index.
    */
   public static final FloatingRateName JPY_TONAR = FloatingRateName.of("JPY-TONAR");

@@ -8,6 +8,7 @@ package com.opengamma.strata.product.common;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.named.EnumNames;
 import com.opengamma.strata.collect.named.NamedEnum;
 
@@ -66,13 +67,32 @@ public enum BuySell implements NamedEnum {
    * This returns a positive signed amount if this is 'buy', and a negative signed amount 
    * if this is 'sell'. This effectively normalizes the input notional
    * to the buy/sell sign conventions of this library.
+   * The negative form of zero will never be returned.
    * 
    * @param amount  the amount to adjust
    * @return the adjusted amount
    */
   public double normalize(double amount) {
     double normalized = Math.abs(amount);
+    if (normalized == 0) {
+      return 0;
+    }
     return isBuy() ? normalized : -normalized;
+  }
+
+  /**
+   * Normalizes the specified amount using this buy/sell rule.
+   * <p>
+   * This returns a positive signed amount if this is 'buy', and a negative signed amount 
+   * if this is 'sell'. This effectively normalizes the input notional
+   * to the buy/sell sign conventions of this library.
+   * The negative form of zero will never be returned.
+   * 
+   * @param amount  the amount to adjust
+   * @return the adjusted amount
+   */
+  public CurrencyAmount normalize(CurrencyAmount amount) {
+    return isBuy() ? amount.positive() : amount.negative();
   }
 
   //-------------------------------------------------------------------------

@@ -22,20 +22,31 @@ public enum CashSwaptionSettlementMethod implements NamedEnum {
    * The cash price method
    * <p>
    * If exercised, the value of the underlying swap is exchanged at the cash settlement date.
+   * Defined by the 2006 ISDA definitions 18.3a and 18.3b.
    */
   CASH_PRICE,
   /**
    * The par yield curve method.
    * <p>
    * The settlement amount is computed with cash-settled annuity using the pre-agreed strike swap rate.
+   * Defined by the 2006 ISDA definitions 18.3c and 18.3e.
    */
   PAR_YIELD,
   /**
    * The zero coupon yield method.
    * <p>
    * The settlement amount is computed with the discount factor based on the agreed zero coupon curve.
+   * Defined by the 2006 ISDA definitions 18.3d.
    */
-  ZERO_COUPON_YIELD;
+  ZERO_COUPON_YIELD,
+  /**
+   * The Collateralized Cash Price
+   * <p>
+   * The settlement amount is computed  with the discount factor based where the parties are deemed to have a 
+   * bilateral, zero-threshold ISDA CSA. 
+   * Defined by the 2006 ISDA definitions 18.3g.
+   */
+  COLLATERALIZED_CASH_PRICE;
 
   // helper for name conversions
   private static final EnumNames<CashSwaptionSettlementMethod> NAMES = EnumNames.of(CashSwaptionSettlementMethod.class);

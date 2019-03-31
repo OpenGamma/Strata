@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_AFMA;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_NONE;
+import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_PAID;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_TRADE;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.mockito.Mockito.mock;
@@ -186,7 +187,7 @@ public class DiscountingFraProductPricerTest {
    * Test FRA paying in the past.
    */
   public void test_presentValue_inPast() {
-    ResolvedFra fra = RFRA.toBuilder().paymentDate(VAL_DATE.minusDays(1)).build();
+    ResolvedFra fra = FRA_PAID.resolve(REF_DATA);
     SimpleRatesProvider prov = createProvider(fra);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
@@ -254,6 +255,18 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivity0.getIndex(), FRA_AFMA.getIndex());
     assertEquals(sensitivity0.getObservation().getFixingDate(), FRA_AFMA.getStartDate());
     assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
+  }
+
+  /**
+   * Test FRA paying in the past.
+   */
+  public void test_forecastValueSensitivity_inPast() {
+    ResolvedFra fra = FRA_PAID.resolve(REF_DATA);
+    SimpleRatesProvider prov = createProvider(fra);
+
+    DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
+    PointSensitivities computed = test.forecastValueSensitivity(fra, prov);
+    assertEquals(computed.size(), 0);
   }
 
   //-------------------------------------------------------------------------
@@ -385,6 +398,18 @@ public class DiscountingFraProductPricerTest {
     assertEquals(sensitivity1.getCurrency(), FRA_AFMA.getCurrency());
     assertEquals(sensitivity1.getYearFraction(), paymentTime);
     assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_AFMA.getNotional() * eps);
+  }
+
+  /**
+   * Test FRA paying in the past.
+   */
+  public void test_presentValueSensitivity_inPast() {
+    ResolvedFra fra = FRA_PAID.resolve(REF_DATA);
+    SimpleRatesProvider prov = createProvider(fra);
+
+    DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
+    PointSensitivities computed = test.presentValueSensitivity(fra, prov);
+    assertEquals(computed.size(), 0);
   }
 
   //-------------------------------------------------------------------------
