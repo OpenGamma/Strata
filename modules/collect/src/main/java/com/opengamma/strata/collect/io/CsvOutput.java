@@ -185,7 +185,9 @@ public final class CsvOutput {
    * cells to be written by header name.
    * <p>
    * This writes the header line to the underlying.
-   * The returned instance should then be used to write additional rows.
+   * This is normally called once when the {@code CsvOutput} instance is created
+   * with only the returned instance used to write additional rows.
+   * While it is possible to write rows through both instances, this is likely to get confusing.
    *
    * @param headers  the list of headers
    * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
