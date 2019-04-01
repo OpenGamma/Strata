@@ -15,6 +15,9 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
+
 /**
  * Test {@link CsvOutput}.
  */
@@ -120,6 +123,46 @@ public class CsvOutputTest {
         .writeCell("b")
         .writeLine(row);
     assertEquals(buf.toString(), "a,b,x,y\n");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withHeaders_writeCell() {
+    List<String> headers = Arrays.asList("h1", "h2", "h3");
+    StringBuilder buf = new StringBuilder();
+    CsvRowOutputWithHeaders csv = CsvOutput.standard(buf).withHeaders(headers, false);
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
+    csv.writeCell("h1", "a");
+    csv.writeCell("h3", "c");
+    csv.writeCell("h1", "A");
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
+    csv.writeNewLine();
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "A,,c" + LINE_SEP);
+    assertThrows(IllegalArgumentException.class, () -> csv.writeCell("H1", "x"));
+  }
+
+  public void test_withHeaders_writeCells() {
+    List<String> headers = Arrays.asList("h1", "h2", "h3");
+    StringBuilder buf = new StringBuilder();
+    CsvRowOutputWithHeaders csv = CsvOutput.standard(buf).withHeaders(headers, false);
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
+    csv.writeCells(ImmutableMap.of("h1", "a", "h2", "b"));
+    csv.writeCell("h3", "c");
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
+    csv.writeNewLine();
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "a,b,c" + LINE_SEP);
+  }
+
+  public void test_withHeaders_writeLine() {
+    List<String> headers = Arrays.asList("h1", "h2", "h3");
+    StringBuilder buf = new StringBuilder();
+    CsvRowOutputWithHeaders csv = CsvOutput.standard(buf).withHeaders(headers, false);
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
+    csv.writeLine(ImmutableMap.of("h1", "a", "h2", "b"));
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "a,b," + LINE_SEP);
+    csv.writeCell("h3", "c");
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "a,b," + LINE_SEP);
+    csv.writeNewLine();
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "a,b," + LINE_SEP + ",,c" + LINE_SEP);
   }
 
   //-------------------------------------------------------------------------
