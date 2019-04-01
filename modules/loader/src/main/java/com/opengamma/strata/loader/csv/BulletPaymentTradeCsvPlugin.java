@@ -28,7 +28,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
 /**
  * Loads BulletPayment trades from CSV files.
  */
-final class BulletPaymentTradeCsvLoader {
+final class BulletPaymentTradeCsvPlugin {
 
   /**
    * Parses from the CSV row.
@@ -49,7 +49,7 @@ final class BulletPaymentTradeCsvLoader {
     Currency currency = LoaderUtils.parseCurrency(row.getValue(CURRENCY_FIELD));
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     LocalDate paymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
-    BusinessDayAdjustment paymentAdj = FxSingleTradeCsvLoader.parsePaymentDateAdjustment(row)
+    BusinessDayAdjustment paymentAdj = FxSingleTradeCsvPlugin.parsePaymentDateAdjustment(row)
         .orElseGet(() -> BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarId.defaultByCurrency(currency)));
     CurrencyAmount amount = CurrencyAmount.of(currency, notional);
     BulletPayment.Builder builder = BulletPayment.builder()
@@ -61,7 +61,7 @@ final class BulletPaymentTradeCsvLoader {
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private BulletPaymentTradeCsvLoader() {
+  private BulletPaymentTradeCsvPlugin() {
   }
 
 }

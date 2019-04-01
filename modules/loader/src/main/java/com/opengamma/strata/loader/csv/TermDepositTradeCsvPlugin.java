@@ -40,7 +40,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositConvention;
 /**
  * Loads TermDeposit trades from CSV files.
  */
-final class TermDepositTradeCsvLoader {
+final class TermDepositTradeCsvPlugin {
 
   /**
    * Parses from the CSV row.
@@ -156,7 +156,7 @@ final class TermDepositTradeCsvLoader {
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private TermDepositTradeCsvLoader() {
+  private TermDepositTradeCsvPlugin() {
   }
 
 }

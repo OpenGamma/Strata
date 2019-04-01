@@ -1444,11 +1444,14 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(FraTradeCsvLoader.class);
-    coverPrivateConstructor(SecurityCsvLoader.class);
-    coverPrivateConstructor(SwapTradeCsvLoader.class);
-    coverPrivateConstructor(TermDepositTradeCsvLoader.class);
-    coverPrivateConstructor(FullSwapTradeCsvLoader.class);
+    coverPrivateConstructor(BulletPaymentTradeCsvPlugin.class);
+    coverPrivateConstructor(FraTradeCsvPlugin.class);
+    coverPrivateConstructor(FxSingleTradeCsvPlugin.class);
+    coverPrivateConstructor(FxSwapTradeCsvPlugin.class);
+    coverPrivateConstructor(SecurityCsvPlugin.class);
+    coverPrivateConstructor(SwapTradeCsvPlugin.class);
+    coverPrivateConstructor(TermDepositTradeCsvPlugin.class);
+    coverPrivateConstructor(FullSwapTradeCsvPlugin.class);
   }
 
 }

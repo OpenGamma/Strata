@@ -41,7 +41,7 @@ import com.opengamma.strata.product.fra.type.FraConvention;
 /**
  * Loads FRA trades from CSV files.
  */
-final class FraTradeCsvLoader {
+final class FraTradeCsvPlugin {
 
   /**
    * Parses from the CSV row.
@@ -159,7 +159,7 @@ final class FraTradeCsvLoader {
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private FraTradeCsvLoader() {
+  private FraTradeCsvPlugin() {
   }
 
 }

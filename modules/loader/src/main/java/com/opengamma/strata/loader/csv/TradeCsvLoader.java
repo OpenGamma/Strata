@@ -428,13 +428,13 @@ public final class TradeCsvLoader {
         switch (typeRaw.toUpperCase(Locale.ENGLISH)) {
           case "FRA":
             if (tradeType == FraTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(FraTradeCsvLoader.parse(row, info, resolver)));
+              trades.add(tradeType.cast(FraTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           case "SECURITY":
             if (tradeType == SecurityTrade.class || tradeType == GenericSecurityTrade.class ||
                 tradeType == ResolvableSecurityTrade.class || tradeType == Trade.class) {
-              SecurityQuantityTrade parsed = SecurityCsvLoader.parseTrade(row, info, resolver);
+              SecurityQuantityTrade parsed = SecurityCsvPlugin.parseTrade(row, info, resolver);
               if (tradeType.isInstance(parsed)) {
                 trades.add(tradeType.cast(parsed));
               }
@@ -446,20 +446,20 @@ public final class TradeCsvLoader {
               while (csv.hasNext() && csv.peek().getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE")) {
                 variableRows.add(csv.next());
               }
-              trades.add(tradeType.cast(SwapTradeCsvLoader.parse(row, variableRows, info, resolver)));
+              trades.add(tradeType.cast(SwapTradeCsvPlugin.parse(row, variableRows, info, resolver)));
             }
             break;
           case "BULLET":
           case "BULLETPAYMENT":
           case "BULLET PAYMENT":
             if (tradeType == BulletPaymentTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(BulletPaymentTradeCsvLoader.parse(row, info, resolver)));
+              trades.add(tradeType.cast(BulletPaymentTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           case "TERMDEPOSIT":
           case "TERM DEPOSIT":
             if (tradeType == TermDepositTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(TermDepositTradeCsvLoader.parse(row, info, resolver)));
+              trades.add(tradeType.cast(TermDepositTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           case "VARIABLE":
@@ -472,13 +472,13 @@ public final class TradeCsvLoader {
           case "FXSINGLE":
           case "FX SINGLE":
             if (tradeType == FxSingleTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(FxSingleTradeCsvLoader.parse(row, info, resolver)));
+              trades.add(tradeType.cast(FxSingleTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           case "FXSWAP":
           case "FX SWAP":
             if (tradeType == FxSwapTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(FxSwapTradeCsvLoader.parse(row, info, resolver)));
+              trades.add(tradeType.cast(FxSwapTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           default:

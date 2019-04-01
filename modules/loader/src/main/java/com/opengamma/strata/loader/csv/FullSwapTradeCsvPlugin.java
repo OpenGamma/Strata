@@ -81,7 +81,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Loads Swap trades from CSV files.
  */
-final class FullSwapTradeCsvLoader {
+final class FullSwapTradeCsvPlugin {
 
   // CSV column headers
   private static final String FREQUENCY_FIELD = "Frequency";
@@ -732,7 +732,7 @@ final class FullSwapTradeCsvLoader {
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private FullSwapTradeCsvLoader() {
+  private FullSwapTradeCsvPlugin() {
   }
 
 }
