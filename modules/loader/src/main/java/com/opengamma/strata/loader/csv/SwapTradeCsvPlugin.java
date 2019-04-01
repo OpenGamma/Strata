@@ -51,7 +51,7 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
 /**
  * Loads Swap trades from CSV files.
  */
-final class SwapTradeCsvLoader {
+final class SwapTradeCsvPlugin {
 
   // CSV column headers
   private static final String ROLL_CONVENTION_FIELD = "Roll Convention";
@@ -138,7 +138,7 @@ final class SwapTradeCsvLoader {
     } else {
       Optional<String> payReceive = row.findValue("Leg 1 " + DIRECTION_FIELD);
       if (payReceive.isPresent()) {
-        return FullSwapTradeCsvLoader.parse(row, info);
+        return FullSwapTradeCsvPlugin.parse(row, info);
       }
       throw new IllegalArgumentException(
           "Swap trade had invalid combination of fields. Must include either '" +
@@ -301,7 +301,7 @@ final class SwapTradeCsvLoader {
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private SwapTradeCsvLoader() {
+  private SwapTradeCsvPlugin() {
   }
 
 }

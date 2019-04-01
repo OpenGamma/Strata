@@ -39,7 +39,7 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
 /**
  * Loads FX trades (spot or forward) from CSV files.
  */
-class FxSingleTradeCsvLoader {
+class FxSingleTradeCsvPlugin {
 
   private static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
   private static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
@@ -141,6 +141,11 @@ class FxSingleTradeCsvLoader {
       }
     }
     return paymentAdj;
+  }
+
+  //-------------------------------------------------------------------------
+  // Restricted constructor.
+  private FxSingleTradeCsvPlugin() {
   }
 
 }

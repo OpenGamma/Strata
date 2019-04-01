@@ -31,7 +31,7 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 /**
  * Loads FX swap trades from CSV files.
  */
-class FxSwapTradeCsvLoader {
+class FxSwapTradeCsvPlugin {
 
   private static final String PAYMENT_DATE_FIELD = "Payment Date";
   private static final String FAR_FX_RATE_DATE_FIELD = "Far FX Rate";
@@ -71,7 +71,7 @@ class FxSwapTradeCsvLoader {
     double farFxRate = LoaderUtils.parseDouble(row.getValue(FAR_FX_RATE_DATE_FIELD));
     LocalDate nearPaymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
     LocalDate farPaymentDate = LoaderUtils.parseDate(row.getValue(FAR_PAYMENT_DATE_FIELD));
-    Optional<BusinessDayAdjustment> paymentAdj = FxSingleTradeCsvLoader.parsePaymentDateAdjustment(row);
+    Optional<BusinessDayAdjustment> paymentAdj = FxSingleTradeCsvPlugin.parsePaymentDateAdjustment(row);
 
     CurrencyAmount amount = CurrencyAmount.of(currency, buySell.normalize(notional));
     FxRate nearRate = FxRate.of(pair, nearFxRate);
@@ -84,9 +84,14 @@ class FxSwapTradeCsvLoader {
 
   // parse full definition
   private static FxSwapTrade parseFull(CsvRow row, TradeInfo info) {
-    FxSingle nearFx = FxSingleTradeCsvLoader.parseFxSingle(row, "");
-    FxSingle farFx = FxSingleTradeCsvLoader.parseFxSingle(row, "Far ");
+    FxSingle nearFx = FxSingleTradeCsvPlugin.parseFxSingle(row, "");
+    FxSingle farFx = FxSingleTradeCsvPlugin.parseFxSingle(row, "Far ");
     return FxSwapTrade.of(info, FxSwap.of(nearFx, farFx));
+  }
+
+  //-------------------------------------------------------------------------
+  // Restricted constructor.
+  private FxSwapTradeCsvPlugin() {
   }
 
 }

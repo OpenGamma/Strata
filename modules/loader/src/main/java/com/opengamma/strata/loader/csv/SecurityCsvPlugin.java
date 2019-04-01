@@ -43,7 +43,7 @@ import com.opengamma.strata.product.common.BuySell;
 /**
  * Loads security trades from CSV files.
  */
-final class SecurityCsvLoader {
+final class SecurityCsvPlugin {
 
   // parses a trade from the CSV row
   static SecurityQuantityTrade parseTrade(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
@@ -141,7 +141,7 @@ final class SecurityCsvLoader {
 
   //-------------------------------------------------------------------------
   // Restricted constructor.
-  private SecurityCsvLoader() {
+  private SecurityCsvPlugin() {
   }
 
 }
