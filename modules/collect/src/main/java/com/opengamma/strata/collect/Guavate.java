@@ -823,7 +823,6 @@ public final class Guavate {
    * @param <K> the type of the keys in the result map
    * @param <V> the type of the values in the result map
    * @return the immutable map collector
-   * @throws IllegalArgumentException if the same key is generated twice
    */
   public static <K, V> Collector<Map.Entry<? extends K, ? extends V>, ?, ImmutableMap<K, V>> entriesToImmutableMap(
       BiFunction<? super V, ? super V, ? extends V> mergeFn) {
