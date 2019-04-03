@@ -372,6 +372,19 @@ public class GuavateTest {
     assertEquals(output, expected);
   }
 
+  public void test_mapEntriesToImmutableMap_mergeFn() {
+    Map<Integer, String> input = ImmutableMap.of(1, "a", 2, "b", 3, "c", 4, "d", 5, "e");
+    Map<Integer, String> expected = ImmutableMap.of(0, "bd", 1, "ace");
+
+    ImmutableMap<Integer, String> output =
+        input.entrySet()
+            .stream()
+            .map(e -> Guavate.entry(e.getKey() % 2, e.getValue()))
+            .collect(entriesToImmutableMap(String::concat));
+
+    assertEquals(output, expected);
+  }
+
   public void test_pairsToImmutableMap() {
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
     Map<String, Double> expected = ImmutableMap.of("A", 1.0, "B", 4.0, "C", 9.0, "D", 16.0);
