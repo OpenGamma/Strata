@@ -768,7 +768,7 @@ public final class Guavate {
    * {@code entrySet} has undergone a {@code filter} operation. For example:
    * <pre>
    *   {@code
-   *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
+   *       Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
    *       ImmutableMap<String, Integer> output =
    *         input.entrySet()
    *           .stream()
@@ -793,6 +793,41 @@ public final class Guavate {
    */
   public static <K, V> Collector<Map.Entry<? extends K, ? extends V>, ?, ImmutableMap<K, V>> entriesToImmutableMap() {
     return toImmutableMap(Map.Entry::getKey, Map.Entry::getValue);
+  }
+
+  /**
+   * Collector used at the end of a stream to build an immutable map
+   * from a stream containing map entries which could have duplicate keys.
+   * <p>
+   * This is a common case if a map's {@code entrySet} has undergone a {@code map} operation. For example:
+   * <pre>
+   *   {@code
+   *       Map<Integer, String> input = ImmutableMap.of(1, "a", 2, "b", 3, "c", 4, "d", 5, "e");
+   *       ImmutableMap<String, Integer> output =
+   *         input.entrySet()
+   *           .stream()
+   *           .map(e -> Guavate.entry(e.getKey() % 2, e.getValue()))
+   *           .collect(entriesToImmutableMap(String::concat));
+   *
+   *       // Produces map with 0 -> "bd", 1 -> "ace"
+   *   }
+   * </pre>
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableMap}.
+   * <p>
+   * This returns a map by converting each {@code Map.Entry} to a key and value.
+   *
+   * @param mergeFn function to merge values with the same key
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @return the immutable map collector
+   */
+  public static <K, V> Collector<Map.Entry<? extends K, ? extends V>, ?, ImmutableMap<K, V>> entriesToImmutableMap(
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    return toImmutableMap(Map.Entry::getKey, Map.Entry::getValue, mergeFn);
   }
 
   /**
