@@ -20,6 +20,7 @@ import static com.opengamma.strata.basics.currency.Currency.PLN;
 import static com.opengamma.strata.basics.currency.Currency.SEK;
 import static com.opengamma.strata.basics.currency.Currency.SGD;
 import static com.opengamma.strata.basics.currency.Currency.THB;
+import static com.opengamma.strata.basics.currency.Currency.TWD;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.Currency.ZAR;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
@@ -579,6 +580,23 @@ public class IborIndexTest {
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
     assertEquals(test.toString(), "THB-THBFIX-6M");
+  }
+
+  public void test_twd_taibor() {
+    HolidayCalendarId TWTA = HolidayCalendarId.of("TWTA");
+    IborIndex test = IborIndex.of("TWD-TAIBOR-6M");
+    assertEquals(test.getCurrency(), TWD);
+    assertEquals(test.getName(), "TWD-TAIBOR-6M");
+    assertEquals(test.getTenor(), TENOR_6M);
+    assertEquals(test.getFixingCalendar(), TWTA);
+    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, TWTA));
+    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, TWTA));
+    assertEquals(test.getMaturityDateOffset(),
+        TenorAdjustment.of(TENOR_6M, PeriodAdditionConventions.NONE,
+            BusinessDayAdjustment.of(MODIFIED_FOLLOWING, TWTA)));
+    assertEquals(test.getDayCount(), ACT_365F);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
+    assertEquals(test.toString(), "TWD-TAIBOR-6M");
   }
 
   public void test_zar_jibar() {
