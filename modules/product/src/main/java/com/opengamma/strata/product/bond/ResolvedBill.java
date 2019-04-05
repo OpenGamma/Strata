@@ -34,7 +34,7 @@ import com.opengamma.strata.product.SecurityId;
  * A bill, resolved for pricing.
  */
 @BeanDefinition(constructorScope = "package")
-public class ResolvedBill
+public final class ResolvedBill
     implements ResolvedProduct, ImmutableBean, Serializable {
 
   /**
@@ -138,22 +138,33 @@ public class ResolvedBill
   }
 
   /**
-   * Restricted constructor.
-   * @param builder  the builder to copy from, not null
+   * Creates an instance.
+   * @param securityId  the value of the property, not null
+   * @param notional  the value of the property, not null
+   * @param dayCount  the value of the property, not null
+   * @param yieldConvention  the value of the property, not null
+   * @param legalEntityId  the value of the property, not null
+   * @param settlementDateOffset  the value of the property, not null
    */
-  protected ResolvedBill(ResolvedBill.Builder builder) {
-    JodaBeanUtils.notNull(builder.securityId, "securityId");
-    JodaBeanUtils.notNull(builder.notional, "notional");
-    JodaBeanUtils.notNull(builder.dayCount, "dayCount");
-    JodaBeanUtils.notNull(builder.yieldConvention, "yieldConvention");
-    JodaBeanUtils.notNull(builder.legalEntityId, "legalEntityId");
-    JodaBeanUtils.notNull(builder.settlementDateOffset, "settlementDateOffset");
-    this.securityId = builder.securityId;
-    this.notional = builder.notional;
-    this.dayCount = builder.dayCount;
-    this.yieldConvention = builder.yieldConvention;
-    this.legalEntityId = builder.legalEntityId;
-    this.settlementDateOffset = builder.settlementDateOffset;
+  ResolvedBill(
+      SecurityId securityId,
+      Payment notional,
+      DayCount dayCount,
+      BillYieldConvention yieldConvention,
+      LegalEntityId legalEntityId,
+      DaysAdjustment settlementDateOffset) {
+    JodaBeanUtils.notNull(securityId, "securityId");
+    JodaBeanUtils.notNull(notional, "notional");
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    JodaBeanUtils.notNull(yieldConvention, "yieldConvention");
+    JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
+    JodaBeanUtils.notNull(settlementDateOffset, "settlementDateOffset");
+    this.securityId = securityId;
+    this.notional = notional;
+    this.dayCount = dayCount;
+    this.yieldConvention = yieldConvention;
+    this.legalEntityId = legalEntityId;
+    this.settlementDateOffset = settlementDateOffset;
   }
 
   @Override
@@ -267,29 +278,21 @@ public class ResolvedBill
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ResolvedBill{");
-    int len = buf.length();
-    toString(buf);
-    if (buf.length() > len) {
-      buf.setLength(buf.length() - 2);
-    }
+    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
+    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();
-  }
-
-  protected void toString(StringBuilder buf) {
-    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
-    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
-    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
-    buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResolvedBill}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static final class Meta extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -340,7 +343,7 @@ public class ResolvedBill
     /**
      * Restricted constructor.
      */
-    protected Meta() {
+    private Meta() {
     }
 
     @Override
@@ -382,7 +385,7 @@ public class ResolvedBill
      * The meta-property for the {@code securityId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<SecurityId> securityId() {
+    public MetaProperty<SecurityId> securityId() {
       return securityId;
     }
 
@@ -390,7 +393,7 @@ public class ResolvedBill
      * The meta-property for the {@code notional} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Payment> notional() {
+    public MetaProperty<Payment> notional() {
       return notional;
     }
 
@@ -398,7 +401,7 @@ public class ResolvedBill
      * The meta-property for the {@code dayCount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DayCount> dayCount() {
+    public MetaProperty<DayCount> dayCount() {
       return dayCount;
     }
 
@@ -406,7 +409,7 @@ public class ResolvedBill
      * The meta-property for the {@code yieldConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BillYieldConvention> yieldConvention() {
+    public MetaProperty<BillYieldConvention> yieldConvention() {
       return yieldConvention;
     }
 
@@ -414,7 +417,7 @@ public class ResolvedBill
      * The meta-property for the {@code legalEntityId} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LegalEntityId> legalEntityId() {
+    public MetaProperty<LegalEntityId> legalEntityId() {
       return legalEntityId;
     }
 
@@ -422,7 +425,7 @@ public class ResolvedBill
      * The meta-property for the {@code settlementDateOffset} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<DaysAdjustment> settlementDateOffset() {
+    public MetaProperty<DaysAdjustment> settlementDateOffset() {
       return settlementDateOffset;
     }
 
@@ -461,7 +464,7 @@ public class ResolvedBill
   /**
    * The bean-builder for {@code ResolvedBill}.
    */
-  public static class Builder extends DirectFieldsBeanBuilder<ResolvedBill> {
+  public static final class Builder extends DirectFieldsBeanBuilder<ResolvedBill> {
 
     private SecurityId securityId;
     private Payment notional;
@@ -473,14 +476,14 @@ public class ResolvedBill
     /**
      * Restricted constructor.
      */
-    protected Builder() {
+    private Builder() {
     }
 
     /**
      * Restricted copy constructor.
      * @param beanToCopy  the bean to copy from, not null
      */
-    protected Builder(ResolvedBill beanToCopy) {
+    private Builder(ResolvedBill beanToCopy) {
       this.securityId = beanToCopy.getSecurityId();
       this.notional = beanToCopy.getNotional();
       this.dayCount = beanToCopy.getDayCount();
@@ -545,7 +548,13 @@ public class ResolvedBill
 
     @Override
     public ResolvedBill build() {
-      return new ResolvedBill(this);
+      return new ResolvedBill(
+          securityId,
+          notional,
+          dayCount,
+          yieldConvention,
+          legalEntityId,
+          settlementDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -630,22 +639,14 @@ public class ResolvedBill
     public String toString() {
       StringBuilder buf = new StringBuilder(224);
       buf.append("ResolvedBill.Builder{");
-      int len = buf.length();
-      toString(buf);
-      if (buf.length() > len) {
-        buf.setLength(buf.length() - 2);
-      }
-      buf.append('}');
-      return buf.toString();
-    }
-
-    protected void toString(StringBuilder buf) {
       buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
       buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
-      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
+      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
+      buf.append('}');
+      return buf.toString();
     }
 
   }
