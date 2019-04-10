@@ -69,6 +69,38 @@ public class GuavateTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_combineMap() {
+    Map<String, String> map1 = ImmutableMap.of("a", "one", "b", "two");
+    Map<String, String> map2 = ImmutableMap.of("c", "three", "d", "four");
+    Map<String, String> test = Guavate.combineMaps(map1, map2);
+    assertEquals(test, ImmutableMap.of("a", "one", "b", "two", "c", "three", "d", "four"));
+  }
+
+  public void test_combineMap_differentTypes() {
+    Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
+    Map<String, Double> map2 = ImmutableMap.of("c", 3d, "d", 4d);
+    Map<String, Number> test = Guavate.combineMaps(map1, map2);
+    assertEquals(test, ImmutableMap.of("a", 1, "b", 2, "c", 3d, "d", 4d));
+  }
+
+  public void test_combineMap_merge() {
+    Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
+    Map<String, Integer> map2 = ImmutableMap.of("a", 5, "c", 3);
+    Map<String, Integer> test = Guavate.combineMaps(map1, map2, Integer::sum);
+    assertEquals(test, ImmutableMap.of("a", 6, "b", 2, "c", 3));
+  }
+
+  public void test_combineMap_mergeDifferentTypes() {
+    Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
+    Map<String, Double> map2 = ImmutableMap.of("a", 5d, "c", 3d);
+    Map<String, Number> test = Guavate.combineMaps(
+        map1,
+        map2,
+        (a, b) -> Double.sum(a.doubleValue(), b.doubleValue()));
+    assertEquals(test, ImmutableMap.of("a", 6d, "b", 2, "c", 3d));
+  }
+
+  //-------------------------------------------------------------------------
   public void test_firstNonEmpty_supplierMatch1() {
     Optional<Number> test = Guavate.firstNonEmpty(
         () -> Optional.of(Integer.valueOf(1)),
