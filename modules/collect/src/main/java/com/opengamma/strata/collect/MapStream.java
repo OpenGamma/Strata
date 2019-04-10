@@ -251,8 +251,8 @@ public final class MapStream<K, V>
    * @param predicate  a predicate function applied to each key and value in the stream
    * @return a stream including the entries for which the predicate function returned true
    */
-  public MapStream<K, V> filter(BiFunction<? super K, ? super V, Boolean> predicate) {
-    return wrap(underlying.filter(e -> predicate.apply(e.getKey(), e.getValue())));
+  public MapStream<K, V> filter(BiPredicate<? super K, ? super V> predicate) {
+    return wrap(underlying.filter(e -> predicate.test(e.getKey(), e.getValue())));
   }
 
   /**
@@ -383,7 +383,7 @@ public final class MapStream<K, V>
    * @param <R>  the type of the new keys
    * @return a stream of entries with new keys from the mapper function assigned to the values
    */
-  public <R> MapStream<R, V> flatMapKeys(Function<? super K, Stream<R>> mapper) {
+  public <R> MapStream<R, V> flatMapKeys(Function<? super K, Stream<? extends R>> mapper) {
     return wrap(underlying.flatMap(e -> mapper.apply(e.getKey()).map(newKey -> entry(newKey, e.getValue()))));
   }
 
@@ -399,7 +399,7 @@ public final class MapStream<K, V>
    * @param <R>  the type of the new keys
    * @return a stream of entries with new keys from the mapper function assigned to the values
    */
-  public <R> MapStream<R, V> flatMapKeys(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+  public <R> MapStream<R, V> flatMapKeys(BiFunction<? super K, ? super V, Stream<? extends R>> mapper) {
     return wrap(underlying
         .flatMap(e -> mapper.apply(e.getKey(), e.getValue()).map(newKey -> entry(newKey, e.getValue()))));
   }
@@ -416,7 +416,7 @@ public final class MapStream<K, V>
    * @param <R>  the type of the new values
    * @return a stream of entries with new values from the mapper function assigned to the keys
    */
-  public <R> MapStream<K, R> flatMapValues(Function<? super V, Stream<R>> mapper) {
+  public <R> MapStream<K, R> flatMapValues(Function<? super V, Stream<? extends R>> mapper) {
     return wrap(underlying.flatMap(e -> mapper.apply(e.getValue()).map(newValue -> entry(e.getKey(), newValue))));
   }
 
@@ -432,7 +432,7 @@ public final class MapStream<K, V>
    * @param <R>  the type of the new values
    * @return a stream of entries with new values from the mapper function assigned to the keys
    */
-  public <R> MapStream<K, R> flatMapValues(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+  public <R> MapStream<K, R> flatMapValues(BiFunction<? super K, ? super V, Stream<? extends R>> mapper) {
     return wrap(underlying
         .flatMap(e -> mapper.apply(e.getKey(), e.getValue()).map(newValue -> entry(e.getKey(), newValue))));
   }
@@ -445,7 +445,7 @@ public final class MapStream<K, V>
    * @param <R>  the type of the elements in the new stream
    * @return a stream containing the values returned from the mapper function
    */
-  public <R> Stream<R> flatMap(BiFunction<? super K, ? super V, Stream<R>> mapper) {
+  public <R> Stream<R> flatMap(BiFunction<? super K, ? super V, Stream<? extends R>> mapper) {
     return underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue()));
   }
 
