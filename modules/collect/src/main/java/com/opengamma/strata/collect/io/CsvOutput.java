@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 
 import org.joda.beans.JodaBeanUtils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
@@ -200,7 +201,7 @@ public final class CsvOutput {
     ImmutableMap<String, Integer> headerIndices = zipWithIndex(headers.stream())
         .collect(toImmutableMap(ObjIntPair::getFirst, ObjIntPair::getSecond));
     writeLine(headers, alwaysQuote);
-    return new CsvRowOutputWithHeaders(headerIndices, alwaysQuote);
+    return new CsvRowOutputWithHeaders(ImmutableList.copyOf(headers), headerIndices, alwaysQuote);
   }
 
   //------------------------------------------------------------------------
@@ -357,14 +358,31 @@ public final class CsvOutput {
    * Class used when outputting CSV with headers.
    */
   public class CsvRowOutputWithHeaders {
+    private final ImmutableList<String> headers;
     private final ImmutableMap<String, Integer> headerIndices;
     private final boolean alwaysQuote;
     private final List<String> mutableValueList;
 
-    private CsvRowOutputWithHeaders(ImmutableMap<String, Integer> headerIndices, boolean alwaysQuote) {
+    private CsvRowOutputWithHeaders(
+        ImmutableList<String> headers,
+        ImmutableMap<String, Integer> headerIndices,
+        boolean alwaysQuote) {
+
+      this.headers = headers;
       this.headerIndices = headerIndices;
       this.alwaysQuote = alwaysQuote;
       this.mutableValueList = new ArrayList<>(Collections.nCopies(headerIndices.size(), ""));
+    }
+
+    /**
+     * Gets the list of headers that are in use.
+     * <p>
+     * This is the same list that was passed into {@link CsvOutput#withHeaders(List, boolean)}.
+     *
+     * @return the list of headers
+     */
+    public ImmutableList<String> headers() {
+      return headers;
     }
 
     /**

@@ -130,6 +130,7 @@ public class CsvOutputTest {
     List<String> headers = Arrays.asList("h1", "h2", "h3");
     StringBuilder buf = new StringBuilder();
     CsvRowOutputWithHeaders csv = CsvOutput.standard(buf).withHeaders(headers, false);
+    assertEquals(csv.headers(), headers);
     assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
     csv.writeCell("h1", "a");
     csv.writeCell("h3", "c");
