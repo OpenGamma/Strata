@@ -24,8 +24,13 @@ final class GlobalHolidayCalendarLookup implements NamedLookup<HolidayCalendar> 
   public static final GlobalHolidayCalendarLookup INSTANCE = new GlobalHolidayCalendarLookup();
 
   // lookup of conventions
-  static final ImmutableMap<String, HolidayCalendar> MAP;
-  static {
+  private final ImmutableMap<String, HolidayCalendar> map;
+
+  /**
+   * Restricted constructor.
+   */
+  private GlobalHolidayCalendarLookup() {
+    // not a static initializer, as Hotspot does not work in static code
     ImmutableMap.Builder<String, HolidayCalendar> builder = ImmutableMap.builder();
     ResourceLocator locator =
         ResourceLocator.ofClasspath("com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
@@ -45,19 +50,13 @@ final class GlobalHolidayCalendarLookup implements NamedLookup<HolidayCalendar> 
       System.err.println("ERROR: Unable to parse holiday calendar data file: " + ex.getMessage());
       ex.printStackTrace();
     }
-    MAP = builder.build();
-  }
-
-  /**
-   * Restricted constructor.
-   */
-  private GlobalHolidayCalendarLookup() {
+    map = builder.build();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ImmutableMap<String, HolidayCalendar> lookupAll() {
-    return MAP;
+    return map;
   }
 
 }
