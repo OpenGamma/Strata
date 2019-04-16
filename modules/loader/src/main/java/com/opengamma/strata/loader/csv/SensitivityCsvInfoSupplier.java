@@ -12,10 +12,9 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.sensitivity.CurveSensitivities;
 
 /**
- * Resolves additional information when parsing sensitivity CSV files.
+ * Resolves additional information when writing sensitivity CSV files.
  * <p>
- * Data loaded from a CSV may contain additional information that needs to be captured.
- * This plugin point allows the additional CSV columns to be parsed and captured.
+ * This allows additional CSV columns to be written.
  */
 public interface SensitivityCsvInfoSupplier {
 
@@ -30,7 +29,7 @@ public interface SensitivityCsvInfoSupplier {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the column header is an info column that this resolver will parse.
+   * Returns the list of additional headers this supplier provides.
    * 
    * @param curveSens  the curve sensitivities to output
    * @return the list of additional headers

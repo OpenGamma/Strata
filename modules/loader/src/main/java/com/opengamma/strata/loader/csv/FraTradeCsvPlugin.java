@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
@@ -24,6 +25,7 @@ import java.time.Period;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -35,6 +37,7 @@ import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.Fra;
+import com.opengamma.strata.product.fra.FraDiscountingMethod;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConvention;
 
@@ -43,6 +46,10 @@ import com.opengamma.strata.product.fra.type.FraConvention;
  */
 final class FraTradeCsvPlugin {
 
+  /** The discounting method. */
+  private static final String FRA_DISCOUNTING_FIELD = "FRA Discounting Method";
+
+  //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
    * 
@@ -59,6 +66,7 @@ final class FraTradeCsvPlugin {
   // parse the row to a trade
   private static FraTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(s -> Currency.of(s));
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
     Optional<FraConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> FraConvention.of(s));
@@ -68,6 +76,8 @@ final class FraTradeCsvPlugin {
     Optional<IborIndex> indexOpt = row.findValue(INDEX_FIELD).map(s -> IborIndex.of(s));
     Optional<IborIndex> interpolatedOpt = row.findValue(INTERPOLATED_INDEX_FIELD).map(s -> IborIndex.of(s));
     Optional<DayCount> dayCountOpt = row.findValue(DAY_COUNT_FIELD).map(s -> LoaderUtils.parseDayCount(s));
+    Optional<FraDiscountingMethod> discMethodOpt =
+        row.findValue(FRA_DISCOUNTING_FIELD).map(s -> FraDiscountingMethod.of(s));
     BusinessDayConvention dateCnv = row.findValue(DATE_ADJ_CNV_FIELD)
         .map(s -> LoaderUtils.parseBusinessDayConvention(s)).orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
     Optional<HolidayCalendarId> dateCalOpt = row.findValue(DATE_ADJ_CAL_FIELD).map(s -> HolidayCalendarId.of(s));
@@ -95,7 +105,7 @@ final class FraTradeCsvPlugin {
         LocalDate endDate = endDateOpt.get();
         // NOTE: payment date assumed to be the start date
         FraTrade trade = convention.toTrade(info, startDate, endDate, startDate, buySell, notional, fixedRate);
-        return adjustTrade(trade, dateCnv, dateCalOpt);
+        return adjustTrade(trade, currencyOpt, discMethodOpt, dateCnv, dateCalOpt);
       }
       // relative dates
       if (periodToStartOpt.isPresent() && info.getTradeDate().isPresent()) {
@@ -111,7 +121,7 @@ final class FraTradeCsvPlugin {
         FraTrade trade =
             convention.createTrade(tradeDate, periodToStart, buySell, notional, fixedRate, resolver.getReferenceData());
         trade = trade.toBuilder().info(info).build();
-        return adjustTrade(trade, dateCnv, dateCalOpt);
+        return adjustTrade(trade, currencyOpt, discMethodOpt, dateCnv, dateCalOpt);
       }
 
     } else if (startDateOpt.isPresent() && endDateOpt.isPresent() && indexOpt.isPresent()) {
@@ -127,7 +137,7 @@ final class FraTradeCsvPlugin {
           .index(index);
       interpolatedOpt.ifPresent(interpolated -> builder.indexInterpolated(interpolated));
       dayCountOpt.ifPresent(dayCount -> builder.dayCount(dayCount));
-      return adjustTrade(FraTrade.of(info, builder.build()), dateCnv, dateCalOpt);
+      return adjustTrade(FraTrade.of(info, builder.build()), currencyOpt, discMethodOpt, dateCnv, dateCalOpt);
     }
     // no match
     throw new IllegalArgumentException(
@@ -144,13 +154,17 @@ final class FraTradeCsvPlugin {
   // adjust trade based on additional fields specified
   private static FraTrade adjustTrade(
       FraTrade trade,
+      Optional<Currency> currencyOpt,
+      Optional<FraDiscountingMethod> discMethodOpt,
       BusinessDayConvention dateCnv,
       Optional<HolidayCalendarId> dateCalOpt) {
 
-    if (!dateCalOpt.isPresent()) {
+    if (!currencyOpt.isPresent() && !discMethodOpt.isPresent() && !dateCalOpt.isPresent()) {
       return trade;
     }
     Fra.Builder builder = trade.getProduct().toBuilder();
+    currencyOpt.ifPresent(currency -> builder.currency(currency));
+    discMethodOpt.ifPresent(discMethod -> builder.discounting(discMethod));
     dateCalOpt.ifPresent(cal -> builder.businessDayAdjustment(BusinessDayAdjustment.of(dateCnv, cal)));
     return trade.toBuilder()
         .product(builder.build())

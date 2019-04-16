@@ -58,7 +58,7 @@ import com.opengamma.strata.product.common.PayReceive;
  */
 @BeanDefinition
 public final class KnownAmountSwapLeg
-    implements SwapLeg, ImmutableBean, Serializable {
+    implements ScheduledSwapLeg, ImmutableBean, Serializable {
 
   /**
    * Whether the leg is pay or receive.
@@ -76,7 +76,7 @@ public final class KnownAmountSwapLeg
    * This is used to define the accrual periods.
    * These are used directly or indirectly to determine other dates in the swap.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PeriodicSchedule accrualSchedule;
   /**
    * The payment period schedule.
@@ -84,7 +84,7 @@ public final class KnownAmountSwapLeg
    * This is used to define the payment periods, including any compounding.
    * The payment period dates are based on the accrual schedule.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final PaymentSchedule paymentSchedule;
   /**
    * The known amount schedule.
@@ -252,6 +252,7 @@ public final class KnownAmountSwapLeg
    * These are used directly or indirectly to determine other dates in the swap.
    * @return the value of the property, not null
    */
+  @Override
   public PeriodicSchedule getAccrualSchedule() {
     return accrualSchedule;
   }
@@ -264,6 +265,7 @@ public final class KnownAmountSwapLeg
    * The payment period dates are based on the accrual schedule.
    * @return the value of the property, not null
    */
+  @Override
   public PaymentSchedule getPaymentSchedule() {
     return paymentSchedule;
   }

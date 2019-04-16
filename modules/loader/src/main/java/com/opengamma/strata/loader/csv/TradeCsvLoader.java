@@ -204,7 +204,6 @@ public final class TradeCsvLoader {
   private static final String DEFAULT_CPTY_SCHEME = "OG-Counterparty";
 
   // shared CSV headers
-  static final String TRADE_DATE_FIELD = "Trade Date";
   static final String CONVENTION_FIELD = "Convention";
   static final String BUY_SELL_FIELD = "Buy Sell";
   static final String DIRECTION_FIELD = "Direction";
@@ -236,14 +235,15 @@ public final class TradeCsvLoader {
   static final String PREMIUM_DATE_CAL_FIELD = "Premium Date Calendar";
 
   // CSV column headers
-  private static final String TYPE_FIELD = "Strata Trade Type";
-  private static final String ID_SCHEME_FIELD = "Id Scheme";
-  private static final String ID_FIELD = "Id";
-  private static final String CPTY_SCHEME_FIELD = "Counterparty Scheme";
-  private static final String CPTY_FIELD = "Counterparty";
-  private static final String TRADE_TIME_FIELD = "Trade Time";
-  private static final String TRADE_ZONE_FIELD = "Trade Zone";
-  private static final String SETTLEMENT_DATE_FIELD = "Settlement Date";
+  static final String TYPE_FIELD = "Strata Trade Type";
+  static final String ID_SCHEME_FIELD = "Id Scheme";
+  static final String ID_FIELD = "Id";
+  static final String CPTY_SCHEME_FIELD = "Counterparty Scheme";
+  static final String CPTY_FIELD = "Counterparty";
+  static final String TRADE_DATE_FIELD = "Trade Date";
+  static final String TRADE_TIME_FIELD = "Trade Time";
+  static final String TRADE_ZONE_FIELD = "Trade Zone";
+  static final String SETTLEMENT_DATE_FIELD = "Settlement Date";
 
   /**
    * The resolver, providing additional information.
