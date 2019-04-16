@@ -28,7 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A future value notional amount for a fixed swap leg .
+ * A future value notional amount for a fixed swap leg.
  * <p>
  * The future value notional is calculated as the notional multiplied by one plus the fixed rate raised to
  * the power of the fixed rate day count fraction, i.e.

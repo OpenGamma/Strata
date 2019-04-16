@@ -58,6 +58,7 @@ import com.opengamma.strata.product.swap.CompoundingMethod;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.FixedRateStubCalculation;
 import com.opengamma.strata.product.swap.FixingRelativeTo;
+import com.opengamma.strata.product.swap.FutureValueNotional;
 import com.opengamma.strata.product.swap.FxResetCalculation;
 import com.opengamma.strata.product.swap.FxResetFixingRelativeTo;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -117,13 +118,16 @@ final class FullSwapTradeCsvPlugin {
   private static final String FX_RESET_OFFSET_CAL_FIELD = "FX Reset Offset Calendar";
   private static final String FX_RESET_OFFSET_ADJ_CNV_FIELD = "FX Reset Offset Adjustment Convention";
   private static final String FX_RESET_OFFSET_ADJ_CAL_FIELD = "FX Reset Offset Adjustment Calendar";
+  private static final String FX_RESET_INITIAL_NOTIONAL_FIELD = "FX Reset Initial Notional";
 
   private static final String INITIAL_STUB_RATE_FIELD = "Initial Stub Rate";
   private static final String INITIAL_STUB_AMOUNT_FIELD = "Initial Stub Amount";
+  private static final String INITIAL_STUB_AMOUNT_CURRENCY_FIELD = "Initial Stub Amount Currency";
   private static final String INITIAL_STUB_INDEX_FIELD = "Initial Stub Index";
   private static final String INITIAL_STUB_INTERPOLATED_INDEX_FIELD = "Initial Stub Interpolated Index";
   private static final String FINAL_STUB_RATE_FIELD = "Final Stub Rate";
   private static final String FINAL_STUB_AMOUNT_FIELD = "Final Stub Amount";
+  private static final String FINAL_STUB_AMOUNT_CURRENCY_FIELD = "Final Stub Amount Currency";
   private static final String FINAL_STUB_INDEX_FIELD = "Final Stub Index";
   private static final String FINAL_STUB_INTERPOLATED_INDEX_FIELD = "Final Stub Interpolated Index";
   private static final String RESET_FREQUENCY_FIELD = "Reset Frequency";
@@ -135,8 +139,10 @@ final class FullSwapTradeCsvPlugin {
   private static final String FIXING_OFFSET_CAL_FIELD = "Fixing Offset Calendar";
   private static final String FIXING_OFFSET_ADJ_CNV_FIELD = "Fixing Offset Adjustment Convention";
   private static final String FIXING_OFFSET_ADJ_CAL_FIELD = "Fixing Offset Adjustment Calendar";
+  private static final String FUTURE_VALUE_NOTIONAL_FIELD = "Future Value Notional";
   private static final String NEGATIVE_RATE_METHOD_FIELD = "Negative Rate Method";
   private static final String FIRST_RATE_FIELD = "First Rate";
+  private static final String FIRST_REGULAR_RATE_FIELD = "First Regular Rate";
   private static final String ACCRUAL_METHOD_FIELD = "Accrual Method";
   private static final String RATE_CUT_OFF_DAYS_FIELD = "Rate Cut Off Days";
   private static final String INFLATION_LAG_FIELD = "Inflation Lag";
@@ -146,6 +152,7 @@ final class FullSwapTradeCsvPlugin {
   private static final String GEARING_FIELD = "Gearing";
   private static final String SPREAD_FIELD = "Spread";
 
+  //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
    * 
@@ -358,6 +365,9 @@ final class FullSwapTradeCsvPlugin {
       fxResetBuilder.referenceCurrency(notionalCurrencyOpt.orElse(fxIndex.getCurrencyPair().other(currency)));
       fxFixingRelativeToOpt.ifPresent(v -> fxResetBuilder.fixingRelativeTo(v));
       fxResetAdjOpt.ifPresent(v -> fxResetBuilder.fixingDateOffset(v));
+      findValue(row, leg, FX_RESET_INITIAL_NOTIONAL_FIELD)
+          .map(s -> LoaderUtils.parseDouble(s))
+          .ifPresent(initialNotional -> fxResetBuilder.initialNotionalValue(initialNotional));
       builder.fxReset(fxResetBuilder.build());
     } else if (notionalCurrencyOpt.isPresent() || fxFixingRelativeToOpt.isPresent() || fxResetAdjOpt.isPresent()) {
       throw new IllegalArgumentException("Swap trade FX Reset must define field '" + leg + FX_RESET_INDEX_FIELD + "'");
@@ -424,11 +434,16 @@ final class FullSwapTradeCsvPlugin {
     }
     builder.dayCount(dayCount);
     builder.rate(ValueSchedule.of(fixedRate));
+    findValue(row, leg, FUTURE_VALUE_NOTIONAL_FIELD)
+        .map(s -> LoaderUtils.parseDouble(s))
+        .ifPresent(val -> builder.futureValueNotional(FutureValueNotional.of(val)));
     // initial stub
     Optional<Double> initialStubRateOpt = findValue(row, leg, INITIAL_STUB_RATE_FIELD)
         .map(s -> LoaderUtils.parseDoublePercent(s));
     Optional<Double> initialStubAmountOpt = findValue(row, leg, INITIAL_STUB_AMOUNT_FIELD)
         .map(s -> LoaderUtils.parseDouble(s));
+    Optional<Currency> initialStubAmountCcyOpt = findValue(row, leg, INITIAL_STUB_AMOUNT_CURRENCY_FIELD)
+        .map(s -> LoaderUtils.parseCurrency(s));
     if (initialStubRateOpt.isPresent() && initialStubAmountOpt.isPresent()) {
       throw new IllegalArgumentException(
           "Swap leg must not define both '" + leg + INITIAL_STUB_RATE_FIELD + "' and  '" + leg + INITIAL_STUB_AMOUNT_FIELD + "'");
@@ -436,12 +451,14 @@ final class FullSwapTradeCsvPlugin {
     initialStubRateOpt.ifPresent(v -> builder.initialStub(
         FixedRateStubCalculation.ofFixedRate(v)));
     initialStubAmountOpt.ifPresent(v -> builder.initialStub(
-        FixedRateStubCalculation.ofKnownAmount(CurrencyAmount.of(currency, v))));
+        FixedRateStubCalculation.ofKnownAmount(CurrencyAmount.of(initialStubAmountCcyOpt.orElse(currency), v))));
     // final stub
     Optional<Double> finalStubRateOpt = findValue(row, leg, FINAL_STUB_RATE_FIELD)
         .map(s -> LoaderUtils.parseDoublePercent(s));
     Optional<Double> finalStubAmountOpt = findValue(row, leg, FINAL_STUB_AMOUNT_FIELD)
         .map(s -> LoaderUtils.parseDouble(s));
+    Optional<Currency> finalStubAmountCcyOpt = findValue(row, leg, FINAL_STUB_AMOUNT_CURRENCY_FIELD)
+        .map(s -> LoaderUtils.parseCurrency(s));
     if (finalStubRateOpt.isPresent() && finalStubAmountOpt.isPresent()) {
       throw new IllegalArgumentException(
           "Swap leg must not define both '" + leg + FINAL_STUB_RATE_FIELD + "' and  '" + leg + FINAL_STUB_AMOUNT_FIELD + "'");
@@ -449,7 +466,7 @@ final class FullSwapTradeCsvPlugin {
     finalStubRateOpt.ifPresent(v -> builder.finalStub(
         FixedRateStubCalculation.ofFixedRate(v)));
     finalStubAmountOpt.ifPresent(v -> builder.finalStub(
-        FixedRateStubCalculation.ofKnownAmount(CurrencyAmount.of(currency, v))));
+        FixedRateStubCalculation.ofKnownAmount(CurrencyAmount.of(finalStubAmountCcyOpt.orElse(currency), v))));
     return builder.build();
   }
 
@@ -497,6 +514,9 @@ final class FullSwapTradeCsvPlugin {
     findValue(row, leg, FIRST_RATE_FIELD)
         .map(s -> LoaderUtils.parseDoublePercent(s))
         .ifPresent(v -> builder.firstRate(v));
+    findValue(row, leg, FIRST_REGULAR_RATE_FIELD)
+        .map(s -> LoaderUtils.parseDoublePercent(s))
+        .ifPresent(v -> builder.firstRegularRate(v));
     findValue(row, leg, GEARING_FIELD)
         .map(s -> LoaderUtils.parseDouble(s))
         .ifPresent(v -> builder.gearing(ValueSchedule.of(v)));
