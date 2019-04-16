@@ -82,6 +82,46 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
+   * Combines two distinct maps into a single map.
+   *
+   * @param first  the first map
+   * @param second  the second map
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return a combined map
+   * @throws IllegalArgumentException if the same key is encountered in both maps
+   */
+  public static <K, V> ImmutableMap<K, V> combineMaps(
+      Map<? extends K, ? extends V> first,
+      Map<? extends K, ? extends V> second) {
+
+    return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
+        .collect(entriesToImmutableMap());
+  }
+
+  /**
+   * Combines two maps into a single map.
+   * <p>
+   * If the maps have shared keys then the merge function is used on the two values
+   * and the result is placed in the resulting map.
+   *
+   * @param first  the first map
+   * @param second  the second map
+   * @param <K>  the type of the keys
+   * @param <V>  the type of the values
+   * @return a combined map
+   */
+  public static <K, V> ImmutableMap<K, V> combineMaps(
+      Map<? extends K, ? extends V> first,
+      Map<? extends K, ? extends V> second,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    return Stream.concat(first.entrySet().stream(), second.entrySet().stream())
+        .collect(entriesToImmutableMap(mergeFn));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Uses a number of suppliers to create a single optional result.
    * <p>
    * This invokes each supplier in turn until a non empty optional is returned.
