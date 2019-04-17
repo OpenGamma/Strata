@@ -107,6 +107,7 @@ public final class Guavate {
    *
    * @param first  the first map
    * @param second  the second map
+   * @param mergeFn  the function used to merge values
    * @param <K>  the type of the keys
    * @param <V>  the type of the values
    * @return a combined map
