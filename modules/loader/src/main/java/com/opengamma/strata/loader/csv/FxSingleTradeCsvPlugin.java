@@ -16,36 +16,60 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FI
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 
 /**
- * Loads FX trades (spot or forward) from CSV files.
+ * Handles the CSV file format for FX Single trades.
  */
-class FxSingleTradeCsvPlugin {
+class FxSingleTradeCsvPlugin implements TradeTypeCsvWriter<FxSingleTrade> {
 
-  private static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
-  private static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
-  private static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
-  private static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
+  /**
+   * The singleton instance of the plugin.
+   */
+  public static final FxSingleTradeCsvPlugin INSTANCE = new FxSingleTradeCsvPlugin();
 
-  private static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
-  private static final String LEG_2_PAYMENT_DATE_FIELD = "Leg 2 " + PAYMENT_DATE_FIELD;
-  private static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
-  private static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
+  static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
+  static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
+  static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
+  static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
 
+  static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
+  static final String LEG_2_PAYMENT_DATE_FIELD = "Leg 2 " + PAYMENT_DATE_FIELD;
+  static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
+  static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
+
+  /** The headers. */
+  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+      .add(LEG_1_DIRECTION_FIELD)
+      .add(LEG_1_PAYMENT_DATE_FIELD)
+      .add(LEG_1_CURRENCY_FIELD)
+      .add(LEG_1_NOTIONAL_FIELD)
+      .add(LEG_2_DIRECTION_FIELD)
+      .add(LEG_2_PAYMENT_DATE_FIELD)
+      .add(LEG_2_CURRENCY_FIELD)
+      .add(LEG_2_NOTIONAL_FIELD)
+      .add(PAYMENT_DATE_CNV_FIELD)
+      .add(PAYMENT_DATE_CAL_FIELD)
+      .build();
+
+  //-------------------------------------------------------------------------
   /**
    * Parses the data from a CSV row.
    *
@@ -121,6 +145,37 @@ class FxSingleTradeCsvPlugin {
   static Optional<BusinessDayAdjustment> parsePaymentDateAdjustment(CsvRow row) {
     return CsvLoaderUtils.parseBusinessDayAdjustment(row, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD)
         .filter(adj -> !adj.equals(BusinessDayAdjustment.NONE));
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public List<String> headers(List<FxSingleTrade> trades) {
+    return HEADERS;
+  }
+
+  @Override
+  public void writeCsv(CsvRowOutputWithHeaders csv, FxSingleTrade trade) {
+    csv.writeCell(TradeCsvLoader.TYPE_FIELD, "FxSingle");
+    writeProduct(csv, "", trade.getProduct());
+    csv.writeNewLine();
+  }
+
+  // writes the product to CSV
+  void writeProduct(CsvRowOutputWithHeaders csv, String prefix, FxSingle product) {
+    Payment basePayment = product.getBaseCurrencyPayment();
+    csv.writeCell(prefix + LEG_1_DIRECTION_FIELD, PayReceive.ofSignedAmount(basePayment.getAmount()));
+    csv.writeCell(prefix + LEG_1_CURRENCY_FIELD, basePayment.getCurrency());
+    csv.writeCell(prefix + LEG_1_NOTIONAL_FIELD, basePayment.getAmount());
+    csv.writeCell(prefix + LEG_1_PAYMENT_DATE_FIELD, basePayment.getDate());
+    Payment counterPayment = product.getCounterCurrencyPayment();
+    csv.writeCell(prefix + LEG_2_DIRECTION_FIELD, PayReceive.ofSignedAmount(counterPayment.getAmount()));
+    csv.writeCell(prefix + LEG_2_CURRENCY_FIELD, counterPayment.getCurrency());
+    csv.writeCell(prefix + LEG_2_NOTIONAL_FIELD, counterPayment.getAmount());
+    csv.writeCell(prefix + LEG_2_PAYMENT_DATE_FIELD, counterPayment.getDate());
+    product.getPaymentDateAdjustment().ifPresent(bda -> {
+      csv.writeCell(PAYMENT_DATE_CAL_FIELD, bda.getCalendar());
+      csv.writeCell(PAYMENT_DATE_CNV_FIELD, bda.getConvention());
+    });
   }
 
   //-------------------------------------------------------------------------

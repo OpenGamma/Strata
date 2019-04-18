@@ -12,8 +12,12 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FI
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
 
+import java.util.List;
+
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.PayReceive;
@@ -21,10 +25,26 @@ import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 
 /**
- * Loads BulletPayment trades from CSV files.
+ * Handles the CSV file format for Bullet Payment trades.
  */
-final class BulletPaymentTradeCsvPlugin {
+final class BulletPaymentTradeCsvPlugin implements TradeTypeCsvWriter<BulletPaymentTrade> {
 
+  /**
+   * The singleton instance of the plugin.
+   */
+  public static final BulletPaymentTradeCsvPlugin INSTANCE = new BulletPaymentTradeCsvPlugin();
+
+  /** The headers. */
+  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+      .add(DIRECTION_FIELD)
+      .add(CURRENCY_FIELD)
+      .add(NOTIONAL_FIELD)
+      .add(PAYMENT_DATE_FIELD)
+      .add(PAYMENT_DATE_CNV_FIELD)
+      .add(PAYMENT_DATE_CAL_FIELD)
+      .build();
+
+  //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
    * 
@@ -51,6 +71,25 @@ final class BulletPaymentTradeCsvPlugin {
         .date(date)
         .build();
     return BulletPaymentTrade.of(info, payment);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public List<String> headers(List<BulletPaymentTrade> trades) {
+    return HEADERS;
+  }
+
+  @Override
+  public void writeCsv(CsvRowOutputWithHeaders csv, BulletPaymentTrade trade) {
+    BulletPayment product = trade.getProduct();
+    csv.writeCell(TradeCsvLoader.TYPE_FIELD, "BulletPayment");
+    csv.writeCell(DIRECTION_FIELD, product.getPayReceive());
+    csv.writeCell(CURRENCY_FIELD, product.getValue().getCurrency());
+    csv.writeCell(NOTIONAL_FIELD, product.getValue().getAmount());
+    csv.writeCell(PAYMENT_DATE_FIELD, product.getDate().getUnadjusted());
+    csv.writeCell(PAYMENT_DATE_CAL_FIELD, product.getDate().getAdjustment().getCalendar());
+    csv.writeCell(PAYMENT_DATE_CNV_FIELD, product.getDate().getAdjustment().getConvention());
+    csv.writeNewLine();
   }
 
   //-------------------------------------------------------------------------
