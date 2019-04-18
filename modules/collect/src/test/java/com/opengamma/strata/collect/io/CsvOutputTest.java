@@ -153,6 +153,21 @@ public class CsvOutputTest {
     assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "a,b,c" + LINE_SEP);
   }
 
+  public void test_withHeaders_writeCells_numbers() {
+    List<String> headers = Arrays.asList("h1", "h2", "h3");
+    StringBuilder buf = new StringBuilder();
+    CsvRowOutputWithHeaders csv = CsvOutput.standard(buf).withHeaders(headers, false);
+    csv.writeCell("h1", 1.23d);
+    csv.writeCell("h2", 123d);
+    csv.writeCell("h3", 123L);
+    csv.writeNewLine();
+    csv.writeCell("h1", Double.valueOf(123d));
+    csv.writeCell("h2", Float.valueOf(123f));
+    csv.writeCell("h3", Long.valueOf(123L));
+    csv.writeNewLine();
+    assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "1.23,123,123" + LINE_SEP + "123,123,123" + LINE_SEP);
+  }
+
   public void test_withHeaders_writeLine() {
     List<String> headers = Arrays.asList("h1", "h2", "h3");
     StringBuilder buf = new StringBuilder();

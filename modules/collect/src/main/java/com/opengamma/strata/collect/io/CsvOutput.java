@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.zipWithIndex;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -461,6 +462,11 @@ public final class CsvOutput {
      * @throws UncheckedIOException if an IO exception occurs
      */
     public CsvRowOutputWithHeaders writeCell(String header, Object value) {
+      if (value instanceof Double) {
+        return writeCell(header, ((Double) value).doubleValue());
+      } else if (value instanceof Float) {
+        return writeCell(header, ((Float) value).doubleValue());
+      }
       return writeCell(header, JodaBeanUtils.stringConverter().convertToString(value));
     }
 
@@ -479,7 +485,8 @@ public final class CsvOutput {
      * @throws UncheckedIOException if an IO exception occurs
      */
     public CsvRowOutputWithHeaders writeCell(String header, double value) {
-      return writeCell(header, Double.valueOf(value));
+      String str = BigDecimal.valueOf(value).toPlainString();
+      return writeCell(header, str.endsWith(".0") ? str.substring(0, str.length() - 2) : str);
     }
 
     /**

@@ -160,4 +160,19 @@ public class CsvLoaderUtilsTest {
     assertThrowsIllegalArg(() -> CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCX", "AMT", "DIR"));
   }
 
+  //-------------------------------------------------------------------------
+  public void test_formattedDouble() {
+    assertEquals(CsvLoaderUtils.formattedDouble(123.45d), "123.45");
+    assertEquals(CsvLoaderUtils.formattedDouble(0.7d), "0.7");
+    assertEquals(CsvLoaderUtils.formattedDouble(0.08d), "0.08");
+    assertEquals(CsvLoaderUtils.formattedDouble(789d), "789");
+  }
+
+  public void test_formattedPercentage() {
+    assertEquals(CsvLoaderUtils.formattedPercentage(1.2345d), "123.45");
+    assertEquals(CsvLoaderUtils.formattedPercentage(0.007d), "0.7");
+    assertEquals(CsvLoaderUtils.formattedPercentage(0.08d), "8");
+    assertEquals(CsvLoaderUtils.formattedPercentage(7.89d), "789");
+  }
+
 }
