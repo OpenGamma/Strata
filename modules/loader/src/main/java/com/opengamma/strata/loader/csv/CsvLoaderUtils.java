@@ -8,6 +8,7 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Locale;
@@ -364,6 +365,33 @@ public final class CsvLoaderUtils {
     double amount = LoaderUtils.parseDouble(row.getValue(amountField));
     PayReceive direction = LoaderUtils.parsePayReceive(row.getValue(directionField));
     return CurrencyAmount.of(currency, direction.normalize(amount));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a value formatted as a percentage.
+   * <p>
+   * Using this method avoids nasty effects from floating point arithmetic.
+   * 
+   * @param value  the value in decimal format (to be multiplied by 100)
+   * @return the formatted percentage value
+   */
+  public static String formattedPercentage(double value) {
+    String str = BigDecimal.valueOf(value).movePointRight(2).toPlainString();
+    return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
+  }
+
+  /**
+   * Returns a value formatted as a double.
+   * <p>
+   * Using this method avoids nasty effects from floating point arithmetic.
+   * 
+   * @param value  the value
+   * @return the formatted value
+   */
+  public static String formattedDouble(double value) {
+    String str = BigDecimal.valueOf(value).toPlainString();
+    return str.endsWith(".0") ? str.substring(0, str.length() - 2) : str;
   }
 
 }
