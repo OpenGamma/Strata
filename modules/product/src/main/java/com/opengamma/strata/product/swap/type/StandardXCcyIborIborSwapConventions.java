@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.schedule.StubConvention;
 
 /**
  * Market standard cross-currency Ibor-Ibor swap conventions.
@@ -43,11 +44,13 @@ final class StandardXCcyIborIborSwapConventions {
           .name("EUR-EURIBOR-3M-USD-LIBOR-3M")
           .spreadLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.EUR_EURIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY))
               .notionalExchange(true)
               .build())
           .flatLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.USD_LIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_USNY))
               .notionalExchange(true)
               .build())
@@ -63,11 +66,13 @@ final class StandardXCcyIborIborSwapConventions {
           .name("GBP-LIBOR-3M-USD-LIBOR-3M")
           .spreadLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.GBP_LIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY))
               .notionalExchange(true)
               .build())
           .flatLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.USD_LIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY))
               .notionalExchange(true)
               .build())
@@ -83,11 +88,13 @@ final class StandardXCcyIborIborSwapConventions {
           .name("GBP-LIBOR-3M-EUR-EURIBOR-3M")
           .spreadLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.GBP_LIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_GBLO))
               .notionalExchange(true)
               .build())
           .flatLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.EUR_EURIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA_GBLO))
               .notionalExchange(true)
               .build())
@@ -103,11 +110,13 @@ final class StandardXCcyIborIborSwapConventions {
           .name("GBP-LIBOR-3M-JPY-LIBOR-3M")
           .spreadLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.GBP_LIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_GBLO))
               .notionalExchange(true)
               .build())
           .flatLeg(IborRateSwapLegConvention.builder()
               .index(IborIndices.JPY_LIBOR_3M)
+              .stubConvention(StubConvention.SMART_INITIAL)
               .accrualBusinessDayAdjustment(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO_GBLO))
               .notionalExchange(true)
               .build())
