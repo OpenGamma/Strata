@@ -13,6 +13,7 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.FRA_DISCOUNTING_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.INDEX_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.INTERPOLATED_INDEX_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
@@ -45,9 +46,6 @@ import com.opengamma.strata.product.fra.type.FraConvention;
  * Loads FRA trades from CSV files.
  */
 final class FraTradeCsvPlugin {
-
-  /** The discounting method. */
-  private static final String FRA_DISCOUNTING_FIELD = "FRA Discounting Method";
 
   //-------------------------------------------------------------------------
   /**

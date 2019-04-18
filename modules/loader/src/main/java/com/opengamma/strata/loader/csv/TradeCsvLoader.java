@@ -203,7 +203,7 @@ public final class TradeCsvLoader {
   private static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
   private static final String DEFAULT_CPTY_SCHEME = "OG-Counterparty";
 
-  // shared CSV headers
+  // common CSV headers
   static final String CONVENTION_FIELD = "Convention";
   static final String BUY_SELL_FIELD = "Buy Sell";
   static final String DIRECTION_FIELD = "Direction";
@@ -233,8 +233,9 @@ public final class TradeCsvLoader {
   static final String PREMIUM_DATE_FIELD = "Premium Date";
   static final String PREMIUM_DATE_CNV_FIELD = "Premium Date Convention";
   static final String PREMIUM_DATE_CAL_FIELD = "Premium Date Calendar";
+  static final String FRA_DISCOUNTING_FIELD = "FRA Discounting Method";
 
-  // CSV column headers
+  // basic CSV column headers
   static final String TYPE_FIELD = "Strata Trade Type";
   static final String ID_SCHEME_FIELD = "Id Scheme";
   static final String ID_FIELD = "Id";
