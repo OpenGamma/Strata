@@ -76,6 +76,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 import com.opengamma.strata.product.index.OvernightFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Writes trades to a CSV file.
@@ -96,6 +97,7 @@ public final class TradeCsvWriter {
           .put(SwapTrade.class, FullSwapTradeCsvPlugin.INSTANCE)  // then swap
           .put(FxSingleTrade.class, FxSingleTradeCsvPlugin.INSTANCE)  // then FX
           .put(FxSwapTrade.class, FxSwapTradeCsvPlugin.INSTANCE)
+          .put(SwaptionTrade.class, SwaptionTradeCsvPlugin.INSTANCE)  // then options
           .put(FxVanillaOptionTrade.class, FxVanillaOptionTradeCsvPlugin.INSTANCE)
           .put(SecurityTrade.class, SecurityTradeCsvPlugin.INSTANCE)  // then securities
           .put(EtdFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)

@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.opengamma.strata.product.common.SettlementType;
 
 /**
- * Defines the settlement type and settlement method of swaptions.
+ * Defines the cash settlement type for the payoff of a swaption.
  * <p>
  * The settlement type is {@link SettlementType#CASH}, This means that a cash amount is paid
  * by the short party to the long party at the exercise date.

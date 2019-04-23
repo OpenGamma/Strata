@@ -926,8 +926,14 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, SwapTrade trade) {
-    Swap product = trade.getProduct();
     csv.writeCell(TradeCsvLoader.TYPE_FIELD, "Swap");
+    VariableElements variableElements = writeProduct(csv, trade.getProduct());
+    csv.writeNewLine();
+    variableElements.writeLines(csv);
+  }
+
+  // writes the product to CSV
+  VariableElements writeProduct(CsvRowOutputWithHeaders csv, Swap product) {
     VariableElements variableElements = new VariableElements();
     for (int i = 0; i < product.getLegs().size(); i++) {
       String prefix = "Leg " + (i + 1) + " ";
@@ -948,8 +954,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
         throw new IllegalArgumentException("Unable to convert swap leg to CSV: " + swapLeg.getClass().getSimpleName());
       }
     }
-    csv.writeNewLine();
-    variableElements.writeLines(csv);
+    return variableElements;
   }
 
   // writes the accrual schedule
@@ -1173,7 +1178,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
 
   //-------------------------------------------------------------------------
   // class to simplify variable elements
-  private static class VariableElements {
+  static class VariableElements {
     private final Map<LocalDate, Map<String, String>> entries = new TreeMap<>();
 
     private VariableElements() {
@@ -1190,7 +1195,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
       return innerMap;
     }
 
-    private void writeLines(CsvRowOutputWithHeaders csv) {
+    void writeLines(CsvRowOutputWithHeaders csv) {
       for (Map<String, String> variableForDate : entries.values()) {
         csv.writeLine(variableForDate);
       }
