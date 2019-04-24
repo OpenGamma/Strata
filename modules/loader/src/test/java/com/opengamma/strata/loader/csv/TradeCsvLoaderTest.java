@@ -81,6 +81,11 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.credit.Cds;
+import com.opengamma.strata.product.credit.CdsTrade;
+import com.opengamma.strata.product.credit.PaymentOnDefault;
+import com.opengamma.strata.product.credit.ProtectionStartOfDay;
+import com.opengamma.strata.product.credit.type.CdsConventions;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
@@ -1392,13 +1397,116 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_load_cds() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE);
+
+    List<CdsTrade> filtered = trades.getValue().stream()
+        .flatMap(filtering(CdsTrade.class))
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 4);
+
+    CdsTrade expected0 = expectedCds0();
+    CdsTrade expected1 = expectedCds1();
+    CdsTrade expected2 = expectedCds2();
+    CdsTrade expected3 = expectedCds3();
+
+    assertBeanEquals(expected0, filtered.get(0));
+    assertBeanEquals(expected1, filtered.get(1));
+    assertBeanEquals(expected2, filtered.get(2));
+    assertBeanEquals(expected3, filtered.get(3));
+
+    checkRoundtrip(CdsTrade.class, filtered, expected0, expected1, expected2, expected3);
+  }
+
+  private CdsTrade expectedCds0() {
+    StandardId legEnt = StandardId.of("OG-Entity", "FOO");
+    return CdsConventions.GBP_STANDARD
+        .createTrade(legEnt, date(2017, 6, 1), Tenor.ofYears(5), BUY, 2_000_000, 0.005, REF_DATA)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123441"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .build();
+  }
+
+  private CdsTrade expectedCds1() {
+    StandardId legEnt = StandardId.of("BLUE", "BAR");
+    return CdsConventions.EUR_GB_STANDARD
+        .createTrade(legEnt, date(2017, 6, 1), date(2017, 6, 21), date(2019, 6, 19), SELL, 1_500_000, 0.011, REF_DATA)
+        .toBuilder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123442"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .build();
+  }
+
+  private CdsTrade expectedCds2() {
+    return CdsTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123443"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(Cds.builder()
+            .buySell(BUY)
+            .legalEntityId(StandardId.of("BLUE", "CAT"))
+            .fixedRate(0.026)
+            .currency(EUR)
+            .notional(1_500_000)
+            .paymentSchedule(PeriodicSchedule.builder()
+                .startDate(date(2017, 6, 21))
+                .endDate(date(2019, 6, 19))
+                .frequency(Frequency.P3M)
+                .stubConvention(StubConvention.SMART_INITIAL)
+                .rollConvention(RollConventions.IMM)
+                .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                .build())
+            .build())
+        .build();
+  }
+
+  private CdsTrade expectedCds3() {
+    return CdsTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123444"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(Cds.builder()
+            .buySell(BUY)
+            .legalEntityId(StandardId.of("BLUE", "CAT"))
+            .fixedRate(0.026)
+            .currency(EUR)
+            .notional(1_500_000)
+            .dayCount(DayCounts.ACT_365F)
+            .paymentOnDefault(PaymentOnDefault.NONE)
+            .protectionStart(ProtectionStartOfDay.NONE)
+            .paymentSchedule(PeriodicSchedule.builder()
+                .startDate(date(2017, 6, 21))
+                .endDate(date(2019, 6, 19))
+                .frequency(Frequency.P3M)
+                .stubConvention(StubConvention.SMART_FINAL)
+                .rollConvention(RollConventions.IMM)
+                .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+                .build())
+            .stepinDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+            .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+            .build())
+        .upfrontFee(
+            AdjustablePayment.of(CurrencyAmount.of(GBP, -1000),
+            AdjustableDate.of(date(2017, 6, 3), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))))
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_filtered() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertEquals(trades.getValue().size(), 6);
-    assertEquals(trades.getFailures().size(), 13);
+    assertEquals(trades.getFailures().size(), 17);
     assertEquals(trades.getFailures().get(0).getMessage(),
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }

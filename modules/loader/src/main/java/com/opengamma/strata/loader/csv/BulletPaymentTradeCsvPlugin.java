@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
@@ -63,7 +64,7 @@ final class BulletPaymentTradeCsvPlugin implements TradeTypeCsvWriter<BulletPaym
     CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, CURRENCY_FIELD, NOTIONAL_FIELD, DIRECTION_FIELD);
     AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(
-        row, PAYMENT_DATE_FIELD, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD, amount.getCurrency());
+        row, PAYMENT_DATE_FIELD, PAYMENT_DATE_CNV_FIELD, PAYMENT_DATE_CAL_FIELD, FOLLOWING, amount.getCurrency());
 
     BulletPayment payment = BulletPayment.builder()
         .payReceive(PayReceive.ofSignedAmount(amount.getAmount()))

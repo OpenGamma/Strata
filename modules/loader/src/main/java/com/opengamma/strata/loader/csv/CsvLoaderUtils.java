@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.math.BigDecimal;
@@ -22,7 +21,9 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvRow;
@@ -275,13 +276,12 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses a business day adjustment, defaulting the adjustment using the currency.
-   * <p>
-   * The default uses {@link BusinessDayConventions#FOLLOWING}.
    * 
    * @param row  the CSV row to parse
    * @param dateField  the date field
    * @param conventionField  the convention field
    * @param calendarField  the calendar field
+   * @param defaultConvention  the default convention
    * @param currency  the applicable currency, used for defaulting
    * @return the adjustment
    * @throws IllegalArgumentException if the row cannot be parsed
@@ -291,11 +291,12 @@ public final class CsvLoaderUtils {
       String dateField,
       String conventionField,
       String calendarField,
+      BusinessDayConvention defaultConvention,
       Currency currency) {
 
     LocalDate date = LoaderUtils.parseDate(row.getValue(dateField));
     BusinessDayAdjustment adj = parseBusinessDayAdjustment(row, conventionField, calendarField)
-        .orElseGet(() -> BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarId.defaultByCurrency(currency)));
+        .orElseGet(() -> BusinessDayAdjustment.of(defaultConvention, HolidayCalendarId.defaultByCurrency(currency)));
     return AdjustableDate.of(date, adj);
   }
 
@@ -327,6 +328,37 @@ public final class CsvLoaderUtils {
       }
     }
     return Optional.empty();
+  }
+
+  /**
+   * Parses days adjustment from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param daysField  the days field
+   * @param daysCalField  the days calendar field
+   * @param cnvField  the convention field
+   * @param calField  the calendar field
+   * @return the adjustment
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  static DaysAdjustment parseDaysAdjustment(
+      CsvRow row,
+      String daysField,
+      String daysCalField,
+      String cnvField,
+      String calField) {
+
+    int days = LoaderUtils.parseInteger(row.getValue(daysField));
+    HolidayCalendarId daysCal = row.findValue(daysCalField)
+        .map(s -> HolidayCalendarId.of(s))
+        .orElse(HolidayCalendarIds.NO_HOLIDAYS);
+    BusinessDayAdjustment bda = parseBusinessDayAdjustment(row, cnvField, calField)
+        .orElse(BusinessDayAdjustment.NONE);
+    return DaysAdjustment.builder()
+        .days(days)
+        .calendar(daysCal)
+        .adjustment(bda)
+        .build();
   }
 
   //-------------------------------------------------------------------------

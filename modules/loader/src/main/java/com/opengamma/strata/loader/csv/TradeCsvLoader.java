@@ -36,6 +36,7 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -237,6 +238,19 @@ public final class TradeCsvLoader {
   static final String PREMIUM_DATE_CNV_FIELD = "Premium Date Convention";
   static final String PREMIUM_DATE_CAL_FIELD = "Premium Date Calendar";
   static final String FRA_DISCOUNTING_FIELD = "FRA Discounting Method";
+
+  static final String FREQUENCY_FIELD = "Frequency";
+  static final String START_DATE_CNV_FIELD = "Start Date Convention";
+  static final String START_DATE_CAL_FIELD = "Start Date Calendar";
+  static final String END_DATE_CNV_FIELD = "End Date Convention";
+  static final String END_DATE_CAL_FIELD = "End Date Calendar";
+  static final String ROLL_CONVENTION_FIELD = "Roll Convention";
+  static final String STUB_CONVENTION_FIELD = "Stub Convention";
+  static final String FIRST_REGULAR_START_DATE_FIELD = "First Regular Start Date";
+  static final String LAST_REGULAR_END_DATE_FIELD = "Last Regular End Date";
+  static final String OVERRIDE_START_DATE_FIELD = "Override Start Date";
+  static final String OVERRIDE_START_DATE_CNV_FIELD = "Override Start Date Convention";
+  static final String OVERRIDE_START_DATE_CAL_FIELD = "Override Start Date Calendar";
 
   // basic CSV column headers
   static final String TYPE_FIELD = "Strata Trade Type";
@@ -509,6 +523,11 @@ public final class TradeCsvLoader {
           case "FX VANILLA OPTION":
             if (tradeType == FxVanillaOptionTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(FxVanillaOptionTradeCsvPlugin.parse(row, info, resolver)));
+            }
+            break;
+          case "CDS":
+            if (tradeType == CdsTrade.class || tradeType == Trade.class) {
+              trades.add(tradeType.cast(CdsTradeCsvPlugin.parse(row, info, resolver)));
             }
             break;
           default:

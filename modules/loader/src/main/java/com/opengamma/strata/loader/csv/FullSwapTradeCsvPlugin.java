@@ -13,11 +13,23 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIRST_REGULAR_START_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.FREQUENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.INDEX_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.LAST_REGULAR_END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.OVERRIDE_START_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.OVERRIDE_START_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.OVERRIDE_START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.ROLL_CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.STUB_CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.TYPE_FIELD;
 
 import java.time.LocalDate;
@@ -104,19 +116,6 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
   public static final FullSwapTradeCsvPlugin INSTANCE = new FullSwapTradeCsvPlugin();
 
   // CSV column headers
-  private static final String FREQUENCY_FIELD = "Frequency";
-  private static final String START_DATE_CNV_FIELD = "Start Date Convention";
-  private static final String START_DATE_CAL_FIELD = "Start Date Calendar";
-  private static final String END_DATE_CNV_FIELD = "End Date Convention";
-  private static final String END_DATE_CAL_FIELD = "End Date Calendar";
-  private static final String ROLL_CONVENTION_FIELD = "Roll Convention";
-  private static final String STUB_CONVENTION_FIELD = "Stub Convention";
-  private static final String FIRST_REGULAR_START_DATE_FIELD = "First Regular Start Date";
-  private static final String LAST_REGULAR_END_DATE_FIELD = "Last Regular End Date";
-  private static final String OVERRIDE_START_DATE_FIELD = "Override Start Date";
-  private static final String OVERRIDE_START_DATE_CNV_FIELD = "Override Start Date Convention";
-  private static final String OVERRIDE_START_DATE_CAL_FIELD = "Override Start Date Calendar";
-
   private static final String PAYMENT_FREQUENCY_FIELD = "Payment Frequency";
   private static final String PAYMENT_RELATIVE_TO_FIELD = "Payment Relative To";
   private static final String PAYMENT_OFFSET_DAYS_FIELD = "Payment Offset Days";

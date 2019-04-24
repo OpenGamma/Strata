@@ -63,6 +63,7 @@ import com.opengamma.strata.product.bond.BillTrade;
 import com.opengamma.strata.product.bond.BondFutureOptionTrade;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
 import com.opengamma.strata.product.bond.FixedCouponBondTrade;
+import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.dsf.DsfTrade;
 import com.opengamma.strata.product.etd.EtdFutureTrade;
@@ -99,6 +100,7 @@ public final class TradeCsvWriter {
           .put(FxSwapTrade.class, FxSwapTradeCsvPlugin.INSTANCE)
           .put(SwaptionTrade.class, SwaptionTradeCsvPlugin.INSTANCE)  // then options
           .put(FxVanillaOptionTrade.class, FxVanillaOptionTradeCsvPlugin.INSTANCE)
+          .put(CdsTrade.class, CdsTradeCsvPlugin.INSTANCE)  // then credit
           .put(SecurityTrade.class, SecurityTradeCsvPlugin.INSTANCE)  // then securities
           .put(EtdFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)
           .put(EtdOptionTrade.class, SecurityTradeCsvPlugin.INSTANCE)
