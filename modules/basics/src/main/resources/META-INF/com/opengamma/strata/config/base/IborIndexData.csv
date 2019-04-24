@@ -251,7 +251,6 @@ THB-THBFIX-9M,THB,false,Act/365F,THBA,2,THBA,THBA,9M,ModifiedFollowing,11:00,Eur
 THB-THBFIX-12M,THB,true,Act/365F,THBA,2,THBA,THBA,12M,ModifiedFollowing,11:00,Europe/London,Act/365F
 ,,,,,,,,,,,
 TWD-TAIBOR-1W,TWD,true,Act/365F,TWTA,2,TWTA,TWTA,1W,Following,11:30,Asia/Taipei,Act/365F
-TWD-TAIBOR-1W,TWD,true,Act/365F,TWTA,2,TWTA,TWTA,1W,Following,11:30,Asia/Taipei,Act/365F
 TWD-TAIBOR-1M,TWD,true,Act/365F,TWTA,2,TWTA,TWTA,1M,ModifiedFollowing,11:30,Asia/Taipei,Act/365F
 TWD-TAIBOR-2M,TWD,true,Act/365F,TWTA,2,TWTA,TWTA,2M,ModifiedFollowing,11:30,Asia/Taipei,Act/365F
 TWD-TAIBOR-3M,TWD,true,Act/365F,TWTA,2,TWTA,TWTA,3M,ModifiedFollowing,11:30,Asia/Taipei,Act/365F
