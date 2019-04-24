@@ -118,6 +118,11 @@ import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
+import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
+import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
+import com.opengamma.strata.product.swaption.Swaption;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Test {@link TradeCsvLoader}.
@@ -1235,6 +1240,70 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_load_swaption() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE);
+
+    List<SwaptionTrade> filtered = trades.getValue().stream()
+        .flatMap(filtering(SwaptionTrade.class))
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 3);
+
+    SwaptionTrade expected0 = expectedSwaption0();
+    SwaptionTrade expected1 = expectedSwaption1();
+    SwaptionTrade expected2 = expectedSwaption2();
+
+    assertBeanEquals(expected0, filtered.get(0));
+    assertBeanEquals(expected1, filtered.get(1));
+    assertBeanEquals(expected2, filtered.get(2));
+
+    checkRoundtrip(
+        SwaptionTrade.class, filtered, expected0, expected1, expected2);
+  }
+
+  private SwaptionTrade expectedSwaption0() {
+    SwapTrade swapTrade = expectedSwap0();
+    Swaption swaption = Swaption.builder()
+        .longShort(LongShort.LONG)
+        .swaptionSettlement(CashSwaptionSettlement.of(date(2017, 7, 3), CashSwaptionSettlementMethod.PAR_YIELD))
+        .expiryDate(AdjustableDate.of(date(2017, 6, 30)))
+        .expiryTime(LocalTime.of(11, 0))
+        .expiryZone(ZoneId.of("Europe/London"))
+        .underlying(swapTrade.getProduct())
+        .build();
+    Payment premium = Payment.of(CurrencyAmount.of(GBP, -1000), date(2017, 6, 3));
+    return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
+  }
+
+  private SwaptionTrade expectedSwaption1() {
+    SwapTrade swapTrade = expectedSwap1();
+    Swaption swaption = Swaption.builder()
+        .longShort(LongShort.SHORT)
+        .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
+        .expiryDate(AdjustableDate.of(date(2017, 6, 30)))
+        .expiryTime(LocalTime.of(11, 0))
+        .expiryZone(ZoneId.of("Europe/London"))
+        .underlying(swapTrade.getProduct())
+        .build();
+    Payment premium = Payment.of(CurrencyAmount.of(GBP, 1000), date(2017, 6, 3));
+    return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
+  }
+
+  private SwaptionTrade expectedSwaption2() {
+    SwapTrade swapTrade = expectedSwap2();
+    Swaption swaption = Swaption.builder()
+        .longShort(LongShort.SHORT)
+        .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
+        .expiryDate(AdjustableDate.of(date(2017, 6, 30)))
+        .expiryTime(LocalTime.of(11, 0))
+        .expiryZone(ZoneId.of("Europe/London"))
+        .underlying(swapTrade.getProduct())
+        .build();
+    Payment premium = Payment.of(CurrencyAmount.of(GBP, 1000), date(2017, 6, 3));
+    return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_bulletPayment() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
@@ -1329,7 +1398,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertEquals(trades.getValue().size(), 6);
-    assertEquals(trades.getFailures().size(), 10);
+    assertEquals(trades.getFailures().size(), 13);
     assertEquals(trades.getFailures().get(0).getMessage(),
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }

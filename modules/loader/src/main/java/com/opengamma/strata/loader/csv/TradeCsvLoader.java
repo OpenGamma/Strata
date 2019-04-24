@@ -47,6 +47,7 @@ import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Loads trades from CSV files.
@@ -225,6 +226,8 @@ public final class TradeCsvLoader {
   static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";
   static final String LONG_SHORT_FIELD = "Long Short";
   static final String EXPIRY_DATE_FIELD = "Expiry Date";
+  static final String EXPIRY_DATE_CNV_FIELD = "Expiry Date Convention";
+  static final String EXPIRY_DATE_CAL_FIELD = "Expiry Date Calendar";
   static final String EXPIRY_TIME_FIELD = "Expiry Time";
   static final String EXPIRY_ZONE_FIELD = "Expiry Zone";
   static final String PREMIUM_CURRENCY_FIELD = "Premium Currency";
@@ -459,6 +462,15 @@ public final class TradeCsvLoader {
                 variableRows.add(csv.next());
               }
               trades.add(tradeType.cast(SwapTradeCsvPlugin.parse(row, variableRows, info, resolver)));
+            }
+            break;
+          case "SWAPTION":
+            if (tradeType == SwaptionTrade.class || tradeType == Trade.class) {
+              List<CsvRow> variableRows = new ArrayList<>();
+              while (csv.hasNext() && csv.peek().getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE")) {
+                variableRows.add(csv.next());
+              }
+              trades.add(tradeType.cast(SwaptionTradeCsvPlugin.parse(row, variableRows, info, resolver)));
             }
             break;
           case "BULLET":

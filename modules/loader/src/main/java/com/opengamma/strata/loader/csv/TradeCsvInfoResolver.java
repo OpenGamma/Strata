@@ -17,6 +17,7 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Resolves additional information when parsing trade CSV files.
@@ -118,7 +119,7 @@ public interface TradeCsvInfoResolver {
   }
 
   /**
-   * Completes the FRA trade, potentially parsing additional columns.
+   * Completes the Swap trade, potentially parsing additional columns.
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
@@ -130,6 +131,23 @@ public interface TradeCsvInfoResolver {
    * @return the updated trade
    */
   public default SwapTrade completeTrade(CsvRow row, SwapTrade trade) {
+    // do nothing
+    return completeTradeCommon(row, trade);
+  }
+
+  /**
+   * Completes the Swaption trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
+   * 
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default SwaptionTrade completeTrade(CsvRow row, SwaptionTrade trade) {
     // do nothing
     return completeTradeCommon(row, trade);
   }

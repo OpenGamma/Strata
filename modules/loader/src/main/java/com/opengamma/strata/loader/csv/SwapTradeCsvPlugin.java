@@ -28,6 +28,7 @@ import java.util.function.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -73,11 +74,17 @@ final class SwapTradeCsvPlugin {
    * @return the parsed trade
    */
   static SwapTrade parse(CsvRow row, List<CsvRow> variableRows, TradeInfo info, TradeCsvInfoResolver resolver) {
-    SwapTrade trade = parseRow(row, info, resolver);
+    SwapTrade trade = parseSwap(row, variableRows, info, resolver.getReferenceData());
+    return resolver.completeTrade(row, trade);
+  }
+
+  // parses the swap without resolving it
+  static SwapTrade parseSwap(CsvRow row, List<CsvRow> variableRows, TradeInfo info, ReferenceData refData) {
+    SwapTrade trade = parseRow(row, info, refData);
     trade = parseVariableNotional(trade, variableRows);
     trade = parseVariableFixedRate(trade, variableRows);
     trade = parseVariableKnownAmount(trade, variableRows);
-    return resolver.completeTrade(row, trade);
+    return trade;
   }
 
   // variable notional
@@ -183,10 +190,10 @@ final class SwapTradeCsvPlugin {
 
   //-------------------------------------------------------------------------
   // parse the row to a trade
-  private static SwapTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+  private static SwapTrade parseRow(CsvRow row, TradeInfo info, ReferenceData refData) {
     Optional<String> conventionOpt = row.findValue(CONVENTION_FIELD);
     if (conventionOpt.isPresent()) {
-      return parseWithConvention(row, info, resolver, conventionOpt.get());
+      return parseWithConvention(row, info, refData, conventionOpt.get());
     } else {
       Optional<String> payReceive = row.findValue("Leg 1 " + DIRECTION_FIELD);
       if (payReceive.isPresent()) {
@@ -199,7 +206,7 @@ final class SwapTradeCsvPlugin {
   }
 
   // parse a trade based on a convention
-  static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver, String conventionStr) {
+  static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, ReferenceData refData, String conventionStr) {
     BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
     double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
     double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
@@ -264,13 +271,13 @@ final class SwapTradeCsvPlugin {
         XCcyIborIborSwapConvention convention = XCcyIborIborSwapConvention.of(conventionStr);
         double notionalFlat = notional * fxRateOpt.get();
         SwapTrade trade = convention.createTrade(
-            tradeDate, periodToStart, tenor, buySell, notional, notionalFlat, fixedRate, resolver.getReferenceData());
+            tradeDate, periodToStart, tenor, buySell, notional, notionalFlat, fixedRate, refData);
         trade = trade.toBuilder().info(info).build();
         return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
       } else {
         SingleCurrencySwapConvention convention = SingleCurrencySwapConvention.of(conventionStr);
         SwapTrade trade = convention.createTrade(
-            tradeDate, periodToStart, tenor, buySell, notional, fixedRate, resolver.getReferenceData());
+            tradeDate, periodToStart, tenor, buySell, notional, fixedRate, refData);
         trade = trade.toBuilder().info(info).build();
         return adjustTrade(trade, rollCnvOpt, stubCnvOpt, firstRegStartDateOpt, lastRegEndDateOpt, dateCnv, dateCalOpt);
       }

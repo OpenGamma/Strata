@@ -21,7 +21,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.opengamma.strata.product.common.SettlementType;
 
 /**
- * Defines the settlement type and settlement method of swaptions.
+ * Defines the physical settlement type for the payoff of a swaption.
  * <p>
  * The settlement type is {@link SettlementType#PHYSICAL}. This means that the two
  * parties enter into the actual interest rate swap at the expiry date of the option.
