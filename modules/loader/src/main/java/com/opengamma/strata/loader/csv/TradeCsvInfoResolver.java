@@ -10,6 +10,7 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
@@ -233,6 +234,23 @@ public interface TradeCsvInfoResolver {
    * @return the updated trade
    */
   public default FxVanillaOptionTrade completeTrade(CsvRow row, FxVanillaOptionTrade trade) {
+    //do nothing
+    return completeTradeCommon(row, trade);
+  }
+
+  /**
+   * Completes the CDS trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default CdsTrade completeTrade(CsvRow row, CdsTrade trade) {
     //do nothing
     return completeTradeCommon(row, trade);
   }
