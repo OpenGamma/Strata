@@ -239,7 +239,7 @@ public interface TradeCsvInfoResolver {
   }
 
   /**
-   * Completes the FX Vanilla Option trade, potentially parsing additional columns.
+   * Completes the CDS trade, potentially parsing additional columns.
    * <p>
    * This is called after the trade has been parsed and after
    * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
