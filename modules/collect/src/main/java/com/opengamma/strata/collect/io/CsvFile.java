@@ -257,7 +257,7 @@ public final class CsvFile {
   // this handles lines that contain separators but nothing else
   private static boolean hasContent(ImmutableList<String> fields) {
     for (String field : fields) {
-      if (!field.trim().isEmpty()) {
+      if (!field.isEmpty()) {
         return true;
       }
     }
