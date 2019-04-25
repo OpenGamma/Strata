@@ -147,7 +147,7 @@ public final class CsvRow {
    * Matching is case insensitive.
    * 
    * @param header  the column header
-   * @return the trimmed field value
+   * @return the field value, trimmed unless surrounded by quotes
    * @throws IllegalArgumentException if the header is not found
    */
   public String getField(String header) {
@@ -165,7 +165,7 @@ public final class CsvRow {
    * Matching is case insensitive.
    * 
    * @param header  the column header
-   * @return the trimmed field value, empty if not found
+   * @return the field value, trimmed unless surrounded by quotes, empty if not found
    */
   public Optional<String> findField(String header) {
     Integer index = findIndex(header);
@@ -184,7 +184,7 @@ public final class CsvRow {
    * This returns the value of the first column where the header matches the specified header pattern.
    * 
    * @param headerPattern  the header pattern to match
-   * @return the trimmed field value, empty
+   * @return the field value, trimmed unless surrounded by quotes
    * @throws IllegalArgumentException if the header is not found
    */
   public String getField(Pattern headerPattern) {
@@ -202,7 +202,7 @@ public final class CsvRow {
    * This returns the value of the first column where the header matches the specified header pattern.
    * 
    * @param headerPattern  the header pattern to match
-   * @return the trimmed field value, empty if not found
+   * @return the field value, trimmed unless surrounded by quotes, empty if not found
    */
   public Optional<String> findField(Pattern headerPattern) {
     for (int i = 0; i < headers.size(); i++) {
@@ -221,7 +221,7 @@ public final class CsvRow {
    * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
    *
    * @param header the column header
-   * @return the trimmed field value, empty
+   * @return the field value, trimmed unless surrounded by quotes
    * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
    */
   public String getValue(String header) {
@@ -239,7 +239,7 @@ public final class CsvRow {
    * If the value is an empty string, then an empty optional is returned.
    *
    * @param header the column header
-   * @return the trimmed field value, empty
+   * @return the field value, trimmed unless surrounded by quotes, empty if not found
    */
   public Optional<String> findValue(String header) {
     return findField(header).filter(str -> !str.isEmpty());
@@ -253,7 +253,7 @@ public final class CsvRow {
    * If the header is not found or the value found is an empty string, then an IllegalArgumentException is thrown.
    *
    * @param headerPattern the header pattern to match
-   * @return the trimmed field value
+   * @return the field value, trimmed unless surrounded by quotes
    * @throws IllegalArgumentException if the header is not found or if the value in the field is empty.
    */
   public String getValue(Pattern headerPattern) {
@@ -271,7 +271,7 @@ public final class CsvRow {
    * If the value is an empty string, then an empty optional is returned.
    *
    * @param headerPattern the header pattern to match
-   * @return the trimmed field value, empty
+   * @return the field value, trimmed unless surrounded by quotes, empty if not found
    */
   public Optional<String> findValue(Pattern headerPattern) {
     return findField(headerPattern).filter(str -> !str.isEmpty());

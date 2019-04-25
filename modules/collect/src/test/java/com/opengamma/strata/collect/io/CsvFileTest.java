@@ -318,6 +318,14 @@ public class CsvFileTest {
     assertEquals(csvFile.row(1).field(1), "r22");
   }
 
+  public void test_of_blank_row_variants() {
+    assertEquals(CsvFile.of(CharSource.wrap(""), false).rowCount(), 0);
+    assertEquals(CsvFile.of(CharSource.wrap(","), false).rowCount(), 0);
+    assertEquals(CsvFile.of(CharSource.wrap(",,,"), false).rowCount(), 0);
+    assertEquals(CsvFile.of(CharSource.wrap(" , , , "), false).rowCount(), 0);
+    assertEquals(CsvFile.of(CharSource.wrap(" , ,\" \", "), false).rowCount(), 1);  // not blank
+  }
+
   public void test_of_headerComment() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV7), true);
     assertEquals(csvFile.rowCount(), 1);
@@ -364,6 +372,15 @@ public class CsvFileTest {
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"pha"), false));
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"\"pha"), false));
     assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al,pha"), false));
+  }
+
+  public void test_of_quotingTrimmed() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap("a\n\" x \"\n\" \""), true);
+    assertEquals(csvFile.rowCount(), 2);
+    assertEquals(csvFile.row(0).field(0), " x ");
+    assertEquals(csvFile.row(1).field(0), " ");
+    assertEquals(csvFile.row(0).getField("a"), " x ");
+    assertEquals(csvFile.row(1).getField("a"), " ");
   }
 
   //-------------------------------------------------------------------------
