@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.index;
 import static com.opengamma.strata.basics.currency.Currency.AUD;
 import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CHF;
+import static com.opengamma.strata.basics.currency.Currency.CLP;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -207,6 +208,19 @@ public class OvernightIndexTest {
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), DayCount.ofBus252(BRBD));
     assertEquals(test.toString(), "BRL-CDI");
+  }
+
+  public void test_clpOis() {
+    OvernightIndex test = OvernightIndex.of("CLP-TNA");
+    assertEquals(test.getName(), "CLP-TNA");
+    assertEquals(test.getCurrency(), CLP);
+    assertEquals(test.isActive(), true);
+    assertEquals(test.getFixingCalendar(), HolidayCalendarId.of("CLSA"));
+    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getEffectiveDateOffset(), 0);
+    assertEquals(test.getDayCount(), ACT_360);
+    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
+    assertEquals(test.toString(), "CLP-TNA");
   }
 
   public void test_dkkOis() {
