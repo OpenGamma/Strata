@@ -74,6 +74,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.0.0-M1</version><!-- Latest version didn't work, also needed to remove assembly plugin below -->
             <executions>
               <execution>
                 <id>make-javadoc</id>
@@ -89,8 +90,11 @@
                   <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
                   <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
                   <!-- If that happens to you, remove the line or upgrade to a later Java 8 version -->
+                  <additionalJOptions>
+                    <additionalJOption>--allow-script-in-comments</additionalJOption>
+                    <additionalJOption>--no-module-directories</additionalJOption>
+                  </additionalJOptions>
                   <additionalOptions>
-                    <additionalOption>--allow-script-in-comments</additionalOption>
                     <additionalOption>-Xdoclint:missing</additionalOption>
                     <additionalOption>-Xdoclint:reference</additionalOption>
                   </additionalOptions>
