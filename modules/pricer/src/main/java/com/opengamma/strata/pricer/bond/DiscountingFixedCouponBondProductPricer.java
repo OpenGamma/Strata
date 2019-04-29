@@ -511,7 +511,7 @@ public class DiscountingFixedCouponBondProductPricer {
     LocalDate previousAccrualDate = period.getUnadjustedStartDate();
     double accruedYearFraction = bond.yearFraction(previousAccrualDate, settlementDate);
     double result = 0d;
-    if (!settlementDate.isBefore(period.getDetachmentDate())) {
+    if (settlementDate.isAfter(period.getDetachmentDate())) {
       result = accruedYearFraction - period.getYearFraction();
     } else {
       result = accruedYearFraction;
@@ -843,7 +843,7 @@ public class DiscountingFixedCouponBondProductPricer {
 
     double total = 0d;
     for (FixedCouponBondPaymentPeriod period : bond.getPeriodicPayments()) {
-      if (period.getDetachmentDate().isAfter(referenceDate)) {
+      if (!period.getDetachmentDate().isBefore(referenceDate)) {
         total += periodPricer.presentValueWithSpread(period, discountFactors, zSpread, compoundedRateType, periodsPerYear);
       }
     }
