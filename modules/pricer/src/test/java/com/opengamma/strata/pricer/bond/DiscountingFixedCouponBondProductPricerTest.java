@@ -20,7 +20,6 @@ import static org.testng.Assert.assertTrue;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.testng.annotations.Test;
 
@@ -801,26 +800,29 @@ public class DiscountingFixedCouponBondProductPricerTest {
             BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, HolidayCalendarIds.GBLO)))
         .build()
         .resolve(REF_DATA);
-
     List<LocalDate> dates = ImmutableList.of(threeDayBeforeExDiv, twoDayBeforeExDiv, oneDayBeforeExDiv, exDiv, exDivP1);
-    List<Double> zSpreads = dates.stream().map(d -> {
-      LegalEntityDiscountingProvider dateProvider = ImmutableLegalEntityDiscountingProvider.builder()
-          .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), ZeroRateDiscountFactors.of(GBP, d, CURVE_ISSUER)))
-          .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
-          .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, GBP), ZeroRateDiscountFactors.of(GBP, d, CURVE_REPO)))
-          .repoCurveSecurityGroups(ImmutableMap.of(SECURITY_ID, GROUP_REPO))
-          .valuationDate(d)
-          .build();
-      LocalDate settlement = DaysAdjustment.ofBusinessDays(1, HolidayCalendarIds.GBLO).adjust(d, REF_DATA);
-      double dirtyPrice = PRICER.dirtyPriceFromCleanPrice(bond, settlement, 1.04494d);
-      double zSpread = PRICER.zSpreadFromCurvesAndDirtyPrice(bond, dateProvider, REF_DATA, dirtyPrice, PERIODIC, 2);
-      assertEquals(PRICER.dirtyPriceFromCurvesWithZSpread(bond, dateProvider, REF_DATA, zSpread, PERIODIC, 2),
-          dirtyPrice, TOL);
-      return zSpread;
-    }).collect(Collectors.toList());
 
-    for (int i = 0; i < zSpreads.size(); ++i) {
-      assertEquals(zSpreads.get(i), -.025, 5e-3, dates.get(i).format(DateTimeFormatter.ISO_DATE));
+    for (LocalDate date : dates) {
+      LegalEntityDiscountingProvider dateProvider = ImmutableLegalEntityDiscountingProvider.builder()
+          .issuerCurves(
+              ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), ZeroRateDiscountFactors.of(GBP, date, CURVE_ISSUER)))
+          .issuerCurveGroups(ImmutableMap.of(ISSUER_ID, GROUP_ISSUER))
+          .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO, GBP), ZeroRateDiscountFactors.of(GBP, date, CURVE_REPO)))
+          .repoCurveSecurityGroups(ImmutableMap.of(SECURITY_ID, GROUP_REPO))
+          .valuationDate(date)
+          .build();
+      LocalDate settlement = DaysAdjustment.ofBusinessDays(1, HolidayCalendarIds.GBLO).adjust(date, REF_DATA);
+      double dirtyPrice = PRICER.dirtyPriceFromCleanPrice(bond, settlement, 1.04494d);
+
+      double zSpread = PRICER.zSpreadFromCurvesAndDirtyPrice(bond, dateProvider, REF_DATA, dirtyPrice, PERIODIC, 2);
+      double dirtyPriceZ = PRICER.dirtyPriceFromCurvesWithZSpread(bond, dateProvider, REF_DATA, zSpread, PERIODIC, 2);
+      assertEquals(dirtyPriceZ, dirtyPrice, TOL);
+      assertEquals(zSpread, -.025, 5e-3, date.format(DateTimeFormatter.ISO_DATE));
+
+      double yield = PRICER.yieldFromDirtyPrice(bond, settlement, dirtyPrice);
+      double dirtyPriceY = PRICER.dirtyPriceFromYield(bond, settlement, yield);
+      assertEquals(dirtyPriceY, dirtyPrice, TOL);
+      assertEquals(yield, .007, 1e-3, date.format(DateTimeFormatter.ISO_DATE));
     }
   }
 
