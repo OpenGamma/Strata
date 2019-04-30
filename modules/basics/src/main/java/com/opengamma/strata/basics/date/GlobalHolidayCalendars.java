@@ -17,7 +17,6 @@ import static java.time.temporal.TemporalAdjusters.firstInMonth;
 import static java.time.temporal.TemporalAdjusters.lastInMonth;
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.time.temporal.TemporalAdjusters.previous;
-import static java.util.stream.Collectors.toSet;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -25,7 +24,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.MonthDay;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -183,7 +181,7 @@ final class GlobalHolidayCalendars {
   // New Years Eve is holiday for cash markets and derivatives in 2015
   // https://www.euronext.com/en/holidays-and-hours
   // https://www.euronext.com/en/trading/nyse-euronext-trading-calendar/archives
-  // evidence suggests that Monday is holiday when Tuesday is, and Friday is holiday when Thursday is
+  // some sources have Monday is holiday when Tuesday is, and Friday is holiday when Thursday is (not applying this)
   static ImmutableHolidayCalendar generateParis() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -204,7 +202,6 @@ final class GlobalHolidayCalendars {
       holidays.add(date(year, 12, 26));  // saint stephen
     }
     holidays.add(date(1999, 12, 31));  // millennium
-    applyBridging(holidays);
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.FRPA, holidays, SATURDAY, SUNDAY);
   }
@@ -214,6 +211,7 @@ final class GlobalHolidayCalendars {
   // data sources
   // https://www.feiertagskalender.ch/index.php?geo=3122&klasse=3&jahr=2017&hl=en
   // http://jollyday.sourceforge.net/data/de.html
+  // http://en.boerse-frankfurt.de/basics-marketplaces-tradingcalendar2019
   static ImmutableHolidayCalendar generateFrankfurt() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -231,6 +229,7 @@ final class GlobalHolidayCalendars {
         // Wed before the Sunday that is 2 weeks before first advent, which is 4th Sunday before Christmas
         holidays.add(date(year, 12, 25).with(previous(SUNDAY)).minusWeeks(6).minusDays(4));  // repentance
       }
+      holidays.add(date(year, 12, 24));  // christmas eve
       holidays.add(date(year, 12, 25));  // christmas day
       holidays.add(date(year, 12, 26));  // saint stephen
       holidays.add(date(year, 12, 31));  // new year
@@ -494,6 +493,7 @@ final class GlobalHolidayCalendars {
   // http://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html (law)
   // http://www.nao.ac.jp/faq/a0301.html (equinox)
   // http://eco.mtk.nao.ac.jp/koyomi/faq/holiday.html.en
+  // https://www.jpx.co.jp/english/announce/market-holidays.html
   static ImmutableHolidayCalendar generateTokyo() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -545,7 +545,7 @@ final class GlobalHolidayCalendars {
       }
       // mountain
       if (year >= 2016) {
-        holidays.add(bumpSunToMon(date(year, 8, 11)));
+        holidays.add(bumpSunAndTueToMon(date(year, 8, 11)));
       }
       // aged
       if (year >= 2003) {
@@ -571,9 +571,12 @@ final class GlobalHolidayCalendars {
       holidays.add(bumpSunToMon(date(year, 11, 3)));
       // labor (from 1948)
       holidays.add(bumpSunToMon(date(year, 11, 23)));
-      // emperor (current emporer)
-      if (year >= 1990) {
+      // emperor (current emporer birthday)
+      if (year >= 1990 && year < 2019) {
         holidays.add(bumpSunToMon(date(year, 12, 23)));
+      }
+      if (year >= 2020) {
+        holidays.add(bumpSunToMon(date(year, 2, 23)));
       }
       // new years eve - bank of Japan, but not national holiday
       holidays.add(bumpSunToMon(date(year, 12, 31)));
@@ -582,6 +585,10 @@ final class GlobalHolidayCalendars {
     holidays.add(date(1989, 2, 24));  // funeral showa
     holidays.add(date(1990, 11, 12));  // enthrone akihito
     holidays.add(date(1993, 6, 9));  // marriage naruhito
+    holidays.add(date(2019, 4, 30));  // abdication
+    holidays.add(date(2019, 5, 1));  // accession
+    holidays.add(date(2019, 5, 2));  // accession
+    holidays.add(date(2019, 10, 22));  // enthronement
     removeSatSun(holidays);
     return ImmutableHolidayCalendar.of(HolidayCalendarIds.JPTO, holidays, SATURDAY, SUNDAY);
   }
@@ -820,6 +827,9 @@ final class GlobalHolidayCalendars {
   // http://isap.sejm.gov.pl/DetailsServlet?id=WDU19510040028 and linked pages
   // https://www.gpw.pl/dni_bez_sesji_en
   // http://jollyday.sourceforge.net/data/pl.html
+  // https://www.gpw.pl/session-details
+  // https://www.gpw.pl/news?cmn_id=107609&title=No+exchange+trading+session+on+12+November+2018
+  // https://www.gpw.pl/news?cmn_id=107794&title=December+24%2C+2018+-+Closing+day
   static ImmutableHolidayCalendar generateWarsaw() {
     // holiday law dates from 1951, but don't know situation before then, so ignore 1951 date
     List<LocalDate> holidays = new ArrayList<>(2000);
@@ -830,8 +840,6 @@ final class GlobalHolidayCalendars {
       if (year < 1961 || year >= 2011) {
         holidays.add(date(year, 1, 6));
       }
-      // good friday
-      holidays.add(easter(year).minusDays(2));
       // easter monday
       holidays.add(easter(year).plusDays(1));
       // state
@@ -1010,6 +1018,7 @@ final class GlobalHolidayCalendars {
   // https://englishhungary.wordpress.com/2012/01/15/bridge-days/
   // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2015/
   // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2014/
+  // https://www.bse.hu/Products-and-Services/Trading-information/tranding-calendar-2019
   static ImmutableHolidayCalendar generateBudapest() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     Set<LocalDate> workDays = new HashSet<>(500);
@@ -1035,6 +1044,7 @@ final class GlobalHolidayCalendars {
       // all saints day
       addDateWithHungarianBridging(date(year, 11, 1), -3, 1, holidays, workDays);
       // christmas
+      holidays.add(date(year, 12, 24));
       holidays.add(date(year, 12, 25));
       holidays.add(date(year, 12, 26));
       if (date(year, 12, 25).getDayOfWeek() == TUESDAY) {
@@ -1240,6 +1250,17 @@ final class GlobalHolidayCalendars {
     return date;
   }
 
+  // bump Sunday & Tuesday to the Monday
+  private static LocalDate bumpSunAndTueToMon(LocalDate date) {
+    if (date.getDayOfWeek() == SUNDAY) {
+      return date.plusDays(1);
+    }
+    if (date.getDayOfWeek() == TUESDAY) {
+      return date.minusDays(1);
+    }
+    return date;
+  }
+
   // bump to Saturday to Friday and Sunday to Monday
   private static LocalDate bumpToFriOrMon(LocalDate date) {
     if (date.getDayOfWeek() == SATURDAY) {
@@ -1294,22 +1315,6 @@ final class GlobalHolidayCalendars {
   // remove any holidays covered by Sat/Sun
   private static void removeSatSun(List<LocalDate> holidays) {
     holidays.removeIf(date -> date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY);
-  }
-
-  // apply bridging (Mon/Fri are holidays if Tue/Thu are)
-  private static void applyBridging(List<LocalDate> holidays) {
-    Set<LocalDate> additional1 = holidays.stream()
-        .filter(date -> date.getDayOfWeek() == TUESDAY &&
-            !MonthDay.from(date).equals(MonthDay.of(1, 1)))
-        .map(date -> date.minusDays(1))
-        .collect(toSet());
-    Set<LocalDate> additional2 = holidays.stream()
-        .filter(date -> date.getDayOfWeek() == THURSDAY &&
-            !MonthDay.from(date).equals(MonthDay.of(12, 26)))
-        .map(date -> date.plusDays(1))
-        .collect(toSet());
-    holidays.addAll(additional1);
-    holidays.addAll(additional2);
   }
 
   // calculate easter day by Delambre
