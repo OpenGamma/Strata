@@ -72,9 +72,9 @@ final class DefaultCalculationTaskRunner implements CalculationTaskRunner {
   // create an executor with daemon threads
   private static ExecutorService createExecutor(int threads) {
     int effectiveThreads = (threads <= 0 ? Runtime.getRuntime().availableProcessors() : threads);
-    final ThreadFactory factory = Executors.defaultThreadFactory();
+    ThreadFactory defaultFactory = Executors.defaultThreadFactory();
     ThreadFactory threadFactory = r -> {
-      Thread t = factory.newThread(r);
+      Thread t = defaultFactory.newThread(r);
       t.setName("CalculationTaskRunner-" + t.getName());
       t.setDaemon(true);
       return t;
