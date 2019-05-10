@@ -11,11 +11,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Base64;
 
 import com.google.common.base.Optional;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
+import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
@@ -141,6 +145,29 @@ public final class ArrayByteSource extends ByteSource {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates an instance from a base-64 encoded string.
+   * 
+   * @param base64  the base64 string to convert
+   * @return the decoded byte source
+   * @throws IllegalArgumentException if the input is not Base64 encoded
+   */
+  public static ArrayByteSource fromBase64(String base64) {
+    return new ArrayByteSource(Base64.getDecoder().decode(base64));
+  }
+
+  /**
+   * Creates an instance from a hex encoded string, sometimes referred to as base-16.
+   * 
+   * @param hex  the hex string to convert
+   * @return the decoded byte source
+   * @throws IllegalArgumentException if the input is not hex encoded
+   */
+  public static ArrayByteSource fromHex(String hex) {
+    return new ArrayByteSource(BaseEncoding.base16().decode(hex));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates an instance, without copying the array.
    * 
    * @param array  the array, not copied
@@ -187,6 +214,66 @@ public final class ArrayByteSource extends ByteSource {
    */
   public CharSource asCharSourceUtf8UsingBom() {
     return CharSource.wrap(readUtf8UsingBom());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns the MD5 hash of the bytes.
+   * 
+   * @return the MD5 hash
+   */
+  public ArrayByteSource toMd5() {
+    try {
+      // MessageDigest instances are not thread safe so must be created each time
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      return ArrayByteSource.ofUnsafe(md.digest(array));
+    } catch (NoSuchAlgorithmException ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
+
+  /**
+   * Returns the SHA-512 hash of the bytes.
+   * 
+   * @return the SHA-512 hash
+   */
+  public ArrayByteSource toSha512() {
+    try {
+      // MessageDigest instances are not thread safe so must be created each time
+      MessageDigest md = MessageDigest.getInstance("SHA-512");
+      return ArrayByteSource.ofUnsafe(md.digest(array));
+    } catch (NoSuchAlgorithmException ex) {
+      throw new IllegalStateException(ex);
+    }
+  }
+
+  /**
+   * Encodes the byte source using base-64.
+   * 
+   * @return the base-64 encoded form
+   */
+  public ArrayByteSource toBase64() {
+    return ArrayByteSource.ofUnsafe(Base64.getEncoder().encode(array));
+  }
+
+  /**
+   * Encodes the byte source using base-64, returning a string.
+   * <p>
+   * Equivalent to {@code toBase64().readUtf8()}.
+   * 
+   * @return the base-64 encoded string
+   */
+  public String toBase64String() {
+    return Base64.getEncoder().encodeToString(array);
+  }
+
+  /**
+   * Encodes the byte source using hex, sometimes referred to as base-16, returning a string.
+   * 
+   * @return the hex encoded string
+   */
+  public String toHexString() {
+    return BaseEncoding.base16().encode(array);
   }
 
   //-------------------------------------------------------------------------
@@ -240,6 +327,20 @@ public final class ArrayByteSource extends ByteSource {
   @Override
   public HashCode hash(HashFunction hashFunction) {
     return hashFunction.hashBytes(array);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof ArrayByteSource) {
+      return Arrays.equals(array, ((ArrayByteSource) obj).array);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(array);
   }
 
   @Override
