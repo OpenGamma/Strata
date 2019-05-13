@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.impl.rate;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
-import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -74,13 +74,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 14), REF_DATA),
       OvernightIndexObservation.of(USD_FED_FUND, date(2015, 1, 15), REF_DATA)};
   private static final OvernightIndexObservation[] GBP_OBS = new OvernightIndexObservation[] {
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 7), REF_DATA),
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 8), REF_DATA),
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 9), REF_DATA),
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 12), REF_DATA),
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 13), REF_DATA),
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 14), REF_DATA),
-      OvernightIndexObservation.of(GBP_SONIA, date(2015, 1, 15), REF_DATA)};
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 7), REF_DATA),
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 8), REF_DATA),
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 9), REF_DATA),
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 12), REF_DATA),
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 13), REF_DATA),
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 14), REF_DATA),
+      OvernightIndexObservation.of(EUR_EONIA, date(2015, 1, 15), REF_DATA)};
   private static final OvernightIndexObservation[] CHF_OBS = new OvernightIndexObservation[] {
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 7), REF_DATA),
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 8), REF_DATA),
@@ -456,14 +456,14 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
   }
 
   //-------------------------------------------------------------------------
-  /** No cutoff period and two already fixed ON rate. ON index is SONIA. */
-  public void rateSonia0CutOffValuation2() {
+  /** No cutoff period and two already fixed ON rate. ON index is EONIA. */
+  public void rateEonia0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateComputation ro =
-        OvernightCompoundedRateComputation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
+        OvernightCompoundedRateComputation.of(EUR_EONIA, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
-    when(mockRates.getIndex()).thenReturn(GBP_SONIA);
+    when(mockRates.getIndex()).thenReturn(EUR_EONIA);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
 
     LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
@@ -482,16 +482,16 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     double investmentFactorKnown = 1.0d;
     for (int i = 0; i < lastFixing - 1; i++) {
       LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = GBP_SONIA.calculateMaturityFromEffective(fixingknown, REF_DATA);
-      double af = GBP_SONIA.getDayCount().yearFraction(fixingknown, endDateKnown);
+      LocalDate endDateKnown = EUR_EONIA.calculateMaturityFromEffective(fixingknown, REF_DATA);
+      double af = EUR_EONIA.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
       investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
     }
     double afNoCutoff = 0.0d;
     double investmentFactorNoCutoff = 1.0d;
     for (int i = lastFixing; i < 6; i++) {
-      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
-      double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      LocalDate endDate = EUR_EONIA.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
+      double af = EUR_EONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactorNoCutoff *= 1.0d + af * FORWARD_RATES[i];
     }
@@ -508,13 +508,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
 
   /** Test rate sensitivity against FD approximation.
    * No cutoff period and two already fixed ON rate. ON index is SONIA. */
-  public void rateSonia0CutOffValuation2Sensitivity() {
+  public void rateEonia0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedRateComputation ro =
-        OvernightCompoundedRateComputation.of(GBP_SONIA, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
+        OvernightCompoundedRateComputation.of(EUR_EONIA, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
-    when(mockRates.getIndex()).thenReturn(GBP_SONIA);
+    when(mockRates.getIndex()).thenReturn(EUR_EONIA);
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
 
     LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
@@ -533,8 +533,8 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     double afNoCutoff = 0.0d;
     double investmentFactorNoCutoff = 1.0d;
     for (int i = lastFixing; i < 6; i++) {
-      LocalDate endDate = GBP_SONIA.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
-      double af = GBP_SONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
+      LocalDate endDate = EUR_EONIA.calculateMaturityFromEffective(FIXING_DATES[i], REF_DATA);
+      double af = EUR_EONIA.getDayCount().yearFraction(FIXING_DATES[i], endDate);
       afNoCutoff += af;
       investmentFactorNoCutoff *= 1.0d + af * FORWARD_RATES[i];
     }
