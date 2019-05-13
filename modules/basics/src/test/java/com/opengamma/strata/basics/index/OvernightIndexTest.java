@@ -63,7 +63,7 @@ public class OvernightIndexTest {
     assertEquals(test.getCurrency(), GBP);
     assertEquals(test.isActive(), true);
     assertEquals(test.getFixingCalendar(), GBLO);
-    assertEquals(test.getPublicationDateOffset(), 0);
+    assertEquals(test.getPublicationDateOffset(), 1);
     assertEquals(test.getEffectiveDateOffset(), 0);
     assertEquals(test.getDayCount(), ACT_365F);
     assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
@@ -73,19 +73,19 @@ public class OvernightIndexTest {
 
   public void test_gbpSonia_dates() {
     OvernightIndex test = OvernightIndex.of("GBP-SONIA");
-    assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
+    assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 14));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 14));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 13), REF_DATA), date(2014, 10, 14));
     // weekend
-    assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
+    assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 13));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 13));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
     assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 10), REF_DATA), date(2014, 10, 13));
     // input date is Sunday
-    assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
+    assertEquals(test.calculatePublicationFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 14));
     assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
     assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 14));
     assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));

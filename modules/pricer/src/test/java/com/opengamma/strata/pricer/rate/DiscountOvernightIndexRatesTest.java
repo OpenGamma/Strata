@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.rate;
 
-import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -47,16 +47,16 @@ public class DiscountOvernightIndexRatesTest {
   private static final LocalDate DATE_AFTER = date(2015, 7, 30);
   private static final LocalDate DATE_AFTER_END = date(2015, 7, 31);
 
-  private static final OvernightIndexObservation GBP_SONIA_VAL =
-      OvernightIndexObservation.of(GBP_SONIA, DATE_VAL, REF_DATA);
-  private static final OvernightIndexObservation GBP_SONIA_BEFORE =
-      OvernightIndexObservation.of(GBP_SONIA, DATE_BEFORE, REF_DATA);
+  private static final OvernightIndexObservation EUR_EONIA_VAL =
+      OvernightIndexObservation.of(EUR_EONIA, DATE_VAL, REF_DATA);
+  private static final OvernightIndexObservation EUR_EONIA_BEFORE =
+      OvernightIndexObservation.of(EUR_EONIA, DATE_BEFORE, REF_DATA);
   private static final OvernightIndexObservation USD_FEDFUND_BEFORE =
       OvernightIndexObservation.of(USD_FED_FUND, DATE_BEFORE, REF_DATA);
-  private static final OvernightIndexObservation GBP_SONIA_AFTER =
-      OvernightIndexObservation.of(GBP_SONIA, DATE_AFTER, REF_DATA);
-  private static final OvernightIndexObservation GBP_SONIA_AFTER_END =
-      OvernightIndexObservation.of(GBP_SONIA, DATE_AFTER_END, REF_DATA);
+  private static final OvernightIndexObservation EUR_EONIA_AFTER =
+      OvernightIndexObservation.of(EUR_EONIA, DATE_AFTER, REF_DATA);
+  private static final OvernightIndexObservation EUR_EONIA_AFTER_END =
+      OvernightIndexObservation.of(EUR_EONIA, DATE_AFTER_END, REF_DATA);
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final CurveName NAME = CurveName.of("TestCurve");
@@ -65,8 +65,8 @@ public class DiscountOvernightIndexRatesTest {
       InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(0.01, 0.02), INTERPOLATOR);
   private static final InterpolatedNodalCurve CURVE2 =
       InterpolatedNodalCurve.of(METADATA, DoubleArray.of(0, 10), DoubleArray.of(0.01, 0.03), INTERPOLATOR);
-  private static final ZeroRateDiscountFactors DFCURVE = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE);
-  private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(GBP, DATE_VAL, CURVE2);
+  private static final ZeroRateDiscountFactors DFCURVE = ZeroRateDiscountFactors.of(EUR, DATE_VAL, CURVE);
+  private static final ZeroRateDiscountFactors DFCURVE2 = ZeroRateDiscountFactors.of(EUR, DATE_VAL, CURVE2);
 
   private static final double RATE_BEFORE = 0.013d;
   private static final double RATE_VAL = 0.014d;
@@ -79,8 +79,8 @@ public class DiscountOvernightIndexRatesTest {
 
   //-------------------------------------------------------------------------
   public void test_of_withoutFixings() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE);
-    assertEquals(test.getIndex(), GBP_SONIA);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE);
+    assertEquals(test.getIndex(), EUR_EONIA);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES_EMPTY);
     assertEquals(test.getDiscountFactors(), DFCURVE);
@@ -92,13 +92,13 @@ public class DiscountOvernightIndexRatesTest {
     assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
     assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
     // check IborIndexRates
-    OvernightIndexRates test2 = OvernightIndexRates.of(GBP_SONIA, DATE_VAL, CURVE);
+    OvernightIndexRates test2 = OvernightIndexRates.of(EUR_EONIA, DATE_VAL, CURVE);
     assertEquals(test, test2);
   }
 
   public void test_of_withFixings() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertEquals(test.getIndex(), GBP_SONIA);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    assertEquals(test.getIndex(), EUR_EONIA);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE);
@@ -106,9 +106,9 @@ public class DiscountOvernightIndexRatesTest {
 
   //-------------------------------------------------------------------------
   public void test_withDiscountFactors() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
     test = test.withDiscountFactors(DFCURVE2);
-    assertEquals(test.getIndex(), GBP_SONIA);
+    assertEquals(test.getIndex(), EUR_EONIA);
     assertEquals(test.getValuationDate(), DATE_VAL);
     assertEquals(test.getFixings(), SERIES);
     assertEquals(test.getDiscountFactors(), DFCURVE2);
@@ -116,83 +116,83 @@ public class DiscountOvernightIndexRatesTest {
 
   //-------------------------------------------------------------------------
   public void test_rate_beforeValuation_fixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertEquals(test.rate(GBP_SONIA_BEFORE), RATE_BEFORE);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    assertEquals(test.rate(EUR_EONIA_BEFORE), RATE_BEFORE);
   }
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_EMPTY);
-    assertThrowsIllegalArg(() -> test.rate(GBP_SONIA_BEFORE));
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES_EMPTY);
+    assertThrowsIllegalArg(() -> test.rate(EUR_EONIA_BEFORE));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_MINIMAL);
-    assertThrowsIllegalArg(() -> test.rate(GBP_SONIA_BEFORE));
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES_MINIMAL);
+    assertThrowsIllegalArg(() -> test.rate(EUR_EONIA_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertEquals(test.rate(GBP_SONIA_VAL), RATE_VAL);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    assertEquals(test.rate(EUR_EONIA_VAL), RATE_VAL);
   }
 
   public void test_rateIgnoringFixings_onValuation_fixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    LocalDate startDate = GBP_SONIA_VAL.getEffectiveDate();
-    LocalDate endDate = GBP_SONIA_VAL.getMaturityDate();
-    double accrualFactor = GBP_SONIA_VAL.getYearFraction();
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    LocalDate startDate = EUR_EONIA_VAL.getEffectiveDate();
+    LocalDate endDate = EUR_EONIA_VAL.getMaturityDate();
+    double accrualFactor = EUR_EONIA_VAL.getYearFraction();
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
-    assertEquals(test.rateIgnoringFixings(GBP_SONIA_VAL), expected, 1e-8);
+    assertEquals(test.rateIgnoringFixings(EUR_EONIA_VAL), expected, 1e-8);
   }
 
   public void test_rate_onPublication_noFixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_EMPTY);
-    LocalDate startDate = GBP_SONIA_VAL.getEffectiveDate();
-    LocalDate endDate = GBP_SONIA_VAL.getMaturityDate();
-    double accrualFactor = GBP_SONIA.getDayCount().yearFraction(startDate, endDate);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES_EMPTY);
+    LocalDate startDate = EUR_EONIA_VAL.getEffectiveDate();
+    LocalDate endDate = EUR_EONIA_VAL.getMaturityDate();
+    double accrualFactor = EUR_EONIA.getDayCount().yearFraction(startDate, endDate);
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
-    assertEquals(test.rate(GBP_SONIA_VAL), expected, 1e-4);
+    assertEquals(test.rate(EUR_EONIA_VAL), expected, 1e-4);
   }
 
   public void test_rate_afterPublication() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    LocalDate startDate = GBP_SONIA_AFTER.getEffectiveDate();
-    LocalDate endDate = GBP_SONIA_AFTER.getMaturityDate();
-    double accrualFactor = GBP_SONIA.getDayCount().yearFraction(startDate, endDate);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    LocalDate startDate = EUR_EONIA_AFTER.getEffectiveDate();
+    LocalDate endDate = EUR_EONIA_AFTER.getMaturityDate();
+    double accrualFactor = EUR_EONIA.getDayCount().yearFraction(startDate, endDate);
     double expected = (DFCURVE.discountFactor(startDate) / DFCURVE.discountFactor(endDate) - 1) / accrualFactor;
-    assertEquals(test.rate(GBP_SONIA_AFTER), expected, 1e-8);
+    assertEquals(test.rate(EUR_EONIA_AFTER), expected, 1e-8);
   }
 
   //-------------------------------------------------------------------------
   public void test_ratePointSensitivity_fixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertEquals(test.ratePointSensitivity(GBP_SONIA_BEFORE), PointSensitivityBuilder.none());
-    assertEquals(test.ratePointSensitivity(GBP_SONIA_VAL), PointSensitivityBuilder.none());
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    assertEquals(test.ratePointSensitivity(EUR_EONIA_BEFORE), PointSensitivityBuilder.none());
+    assertEquals(test.ratePointSensitivity(EUR_EONIA_VAL), PointSensitivityBuilder.none());
   }
 
   public void test_rateIgnoringFixingsPointSensitivity_onValuation() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA_VAL, 1d);
-    assertEquals(test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_VAL), expected);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.of(EUR_EONIA_VAL, 1d);
+    assertEquals(test.rateIgnoringFixingsPointSensitivity(EUR_EONIA_VAL), expected);
   }
 
   public void test_ratePointSensitivity_onPublication_noFixing() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES_EMPTY);
-    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA_VAL, 1d);
-    assertEquals(test.ratePointSensitivity(GBP_SONIA_VAL), expected);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES_EMPTY);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.of(EUR_EONIA_VAL, 1d);
+    assertEquals(test.ratePointSensitivity(EUR_EONIA_VAL), expected);
   }
 
   public void test_ratePointSensitivity_afterPublication() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    OvernightRateSensitivity expected = OvernightRateSensitivity.of(GBP_SONIA_AFTER, 1d);
-    assertEquals(test.ratePointSensitivity(GBP_SONIA_AFTER), expected);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.of(EUR_EONIA_AFTER, 1d);
+    assertEquals(test.ratePointSensitivity(EUR_EONIA_AFTER), expected);
   }
 
   //-------------------------------------------------------------------------
   public void test_periodRate() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    double accrualFactor = GBP_SONIA.getDayCount().yearFraction(DATE_AFTER, DATE_AFTER_END);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    double accrualFactor = EUR_EONIA.getDayCount().yearFraction(DATE_AFTER, DATE_AFTER_END);
     double expected = (DFCURVE.discountFactor(DATE_AFTER) / DFCURVE.discountFactor(DATE_AFTER_END) - 1) / accrualFactor;
-    assertEquals(test.periodRate(GBP_SONIA_AFTER, DATE_AFTER_END), expected, 1e-8);
+    assertEquals(test.periodRate(EUR_EONIA_AFTER, DATE_AFTER_END), expected, 1e-8);
   }
   
   // This type of "forward" for the day before is required when the publication offset is 1.
@@ -205,15 +205,15 @@ public class DiscountOvernightIndexRatesTest {
   }
 
   public void test_periodRate_badDates() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertThrowsIllegalArg(() -> test.periodRate(GBP_SONIA_AFTER_END, DATE_AFTER));
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    assertThrowsIllegalArg(() -> test.periodRate(EUR_EONIA_AFTER_END, DATE_AFTER));
   }
 
   //-------------------------------------------------------------------------
   public void test_periodRatePointSensitivity() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    OvernightRateSensitivity expected = OvernightRateSensitivity.ofPeriod(GBP_SONIA_AFTER, DATE_AFTER_END, GBP, 1d);
-    assertEquals(test.periodRatePointSensitivity(GBP_SONIA_AFTER, DATE_AFTER_END), expected);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    OvernightRateSensitivity expected = OvernightRateSensitivity.ofPeriod(EUR_EONIA_AFTER, DATE_AFTER_END, EUR, 1d);
+    assertEquals(test.periodRatePointSensitivity(EUR_EONIA_AFTER, DATE_AFTER_END), expected);
   }
   
   public void test_periodRatePointSensitivity_onholidaybeforepublication() {
@@ -234,21 +234,21 @@ public class DiscountOvernightIndexRatesTest {
   }
 
   public void test_periodRatePointSensitivity_badDates() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(GBP_SONIA_AFTER_END, DATE_AFTER));
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(EUR_EONIA_AFTER_END, DATE_AFTER));
   }
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
   public void test_parameterSensitivity() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
-    OvernightRateSensitivity point = OvernightRateSensitivity.ofPeriod(GBP_SONIA_AFTER, DATE_AFTER_END, GBP, 1d);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
+    OvernightRateSensitivity point = OvernightRateSensitivity.ofPeriod(EUR_EONIA_AFTER, DATE_AFTER_END, EUR, 1d);
     assertEquals(test.parameterSensitivity(point).size(), 1);
   }
   
   //-------------------------------------------------------------------------
   public void test_createParameterSensitivity() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15);
     CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
     assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
@@ -256,7 +256,7 @@ public class DiscountOvernightIndexRatesTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(GBP_SONIA, DFCURVE, SERIES);
+    DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
     coverImmutableBean(test);
     DiscountOvernightIndexRates test2 = DiscountOvernightIndexRates.of(USD_FED_FUND, DFCURVE2, SERIES_EMPTY);
     coverBeanEquals(test, test2);

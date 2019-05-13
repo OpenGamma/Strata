@@ -1,6 +1,6 @@
 Name,Currency,Active,Day Count,Fixing Calendar,Publication Offset Days,Effective Offset Days,Fixed Leg Day Count
 ,,,,,,,
-GBP-SONIA,GBP,TRUE,Act/365F,GBLO,0,0,Act/365F
+GBP-SONIA,GBP,TRUE,Act/365F,GBLO,1,0,Act/365F
 CHF-SARON,CHF,TRUE,Act/360,CHZU,0,0,Act/360
 CHF-TOIS,CHF,FALSE,Act/360,CHZU,0,1,Act/360
 EUR-EONIA,EUR,TRUE,Act/360,EUTA,0,0,Act/360
