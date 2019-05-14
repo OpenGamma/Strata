@@ -624,6 +624,7 @@ public class GlobalHolidayCalendarsTest {
     return new Object[][] {
         // https://www.boj.or.jp/en/about/outline/holi.htm/
         // http://web.archive.org/web/20110513190217/http://www.boj.or.jp/en/about/outline/holi.htm/
+        // https://www.japanspecialist.co.uk/travel-tips/national-holidays-in-japan/
         {1999, mds(1999, md(1, 1), md(1, 2), md(1, 3), md(1, 15), md(2, 11), md(3, 22), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
             md(7, 20), md(9, 15), md(9, 23), md(10, 11), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
         {2000, mds(2000, md(1, 1), md(1, 2), md(1, 3), md(1, 10), md(2, 11), md(3, 20), md(4, 29), md(5, 3), md(5, 4), md(5, 5),
@@ -653,6 +654,18 @@ public class GlobalHolidayCalendarsTest {
         {2015, mds(2015, md(1, 1), md(1, 2), md(1, 3), md(1, 12), md(2, 11), md(3, 21), md(4, 29),
             md(5, 3), md(5, 4), md(5, 5), md(5, 6),
             md(7, 20), md(9, 21), md(9, 22), md(9, 23), md(10, 12), md(11, 3), md(11, 23), md(12, 23), md(12, 31))},
+        {2018, mds(2018, md(1, 1), md(1, 2), md(1, 3), md(1, 8), md(2, 12), md(3, 21), md(4, 30),
+            md(5, 3), md(5, 4), md(5, 5), md(7, 16), md(8, 11), md(9, 17), md(9, 24),
+            md(10, 8), md(11, 3), md(11, 23), md(12, 23), md(12, 24), md(12, 31))},
+        {2019, mds(2019, md(1, 1), md(1, 2), md(1, 3), md(1, 14), md(2, 11), md(3, 21), md(4, 29), md(4, 30),
+            md(5, 1), md(5, 2), md(5, 3), md(5, 4), md(5, 5), md(5, 6), md(7, 15), md(8, 12), md(9, 16), md(9, 23),
+            md(10, 14), md(10, 22), md(11, 4), md(11, 23), md(12, 31))},
+        {2020, mds(2020, md(1, 1), md(1, 2), md(1, 3), md(1, 13), md(2, 11), md(2, 24), md(3, 20), md(4, 29),
+            md(5, 3), md(5, 4), md(5, 5), md(5, 6), md(7, 23), md(7, 24), md(8, 10), md(9, 21), md(9, 22),
+            md(11, 3), md(11, 23), md(12, 31))},
+        {2021, mds(2021, md(1, 1), md(1, 11), md(2, 11), md(2, 23), md(3, 20), md(4, 29),
+            md(5, 3), md(5, 4), md(5, 5), md(7, 19), md(8, 11), md(9, 20), md(9, 23),
+            md(10, 11), md(11, 3), md(11, 23), md(12, 31))},
     };
   }
 
