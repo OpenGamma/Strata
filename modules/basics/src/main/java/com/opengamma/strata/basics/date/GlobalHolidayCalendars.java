@@ -494,6 +494,7 @@ final class GlobalHolidayCalendars {
   // http://www.nao.ac.jp/faq/a0301.html (equinox)
   // http://eco.mtk.nao.ac.jp/koyomi/faq/holiday.html.en
   // https://www.jpx.co.jp/english/announce/market-holidays.html
+  // https://www.loc.gov/law/foreign-news/article/japan-three-holidays-to-be-moved-to-ease-2020-olympic-ceremony-traffic/
   static ImmutableHolidayCalendar generateTokyo() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -538,14 +539,20 @@ final class GlobalHolidayCalendars {
         holidays.add(bumpSunToMon(date(year, 5, 5)));
       }
       // marine
-      if (year >= 2003) {
+      if (year == 2020) {
+        // moved because of the Olympics (day prior to opening ceremony)
+        holidays.add(date(year, 7, 23));
+      } else if (year >= 2003) {
         holidays.add(date(year, 7, 1).with(dayOfWeekInMonth(3, MONDAY)));
       } else if (year >= 1996) {
         holidays.add(bumpSunToMon(date(year, 7, 20)));
       }
       // mountain
-      if (year >= 2016) {
-        holidays.add(bumpSunAndTueToMon(date(year, 8, 11)));
+      if (year == 2020) {
+        // moved because of the Olympics (day after closing ceremony)
+        holidays.add(date(year, 8, 10));
+      } else if (year >= 2016) {
+        holidays.add(bumpSunToMon(date(year, 8, 11)));
       }
       // aged
       if (year >= 2003) {
@@ -562,7 +569,10 @@ final class GlobalHolidayCalendars {
       citizensDay(holidays, date(year, 9, 20), date(year, 9, 22));
       citizensDay(holidays, date(year, 9, 21), date(year, 9, 23));
       // health-sports
-      if (year >= 2000) {
+      if (year == 2020) {
+        // moved because of the Olympics (day of opening ceremony)
+        holidays.add(date(2020, 7, 24));
+      } else if (year >= 2000) {
         holidays.add(date(year, 10, 1).with(dayOfWeekInMonth(2, MONDAY)));
       } else if (year >= 1966) {
         holidays.add(bumpSunToMon(date(year, 10, 10)));
@@ -574,8 +584,7 @@ final class GlobalHolidayCalendars {
       // emperor (current emporer birthday)
       if (year >= 1990 && year < 2019) {
         holidays.add(bumpSunToMon(date(year, 12, 23)));
-      }
-      if (year >= 2020) {
+      } else if (year >= 2020) {
         holidays.add(bumpSunToMon(date(year, 2, 23)));
       }
       // new years eve - bank of Japan, but not national holiday
@@ -1246,17 +1255,6 @@ final class GlobalHolidayCalendars {
   private static LocalDate bumpSunToMon(LocalDate date) {
     if (date.getDayOfWeek() == SUNDAY) {
       return date.plusDays(1);
-    }
-    return date;
-  }
-
-  // bump Sunday & Tuesday to the Monday
-  private static LocalDate bumpSunAndTueToMon(LocalDate date) {
-    if (date.getDayOfWeek() == SUNDAY) {
-      return date.plusDays(1);
-    }
-    if (date.getDayOfWeek() == TUESDAY) {
-      return date.minusDays(1);
     }
     return date;
   }
