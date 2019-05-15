@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.currency;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.ZoneId;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -57,6 +58,11 @@ public final class Currency
    */
   private static final ConcurrentMap<String, Currency> DYNAMIC =
       new ConcurrentHashMap<>(CurrencyDataLoader.loadCurrencies(true));
+
+  /**
+   * A default ZoneId, when a value is not specified
+   */
+  private static final ZoneId DEFAULT_ZONE_ID = ZoneId.of("UTC");
 
   // a selection of commonly traded, stable currencies
   /**
@@ -282,6 +288,11 @@ public final class Currency
    */
   private final transient int cachedHashCode;
 
+  /**
+   * The primary ZoneID, typically determined by the currencies' country capital timezone.
+   */
+  private final transient ZoneId primaryZoneId;
+
   //-------------------------------------------------------------------------
   /**
    * Obtains the set of configured currencies.
@@ -322,7 +333,7 @@ public final class Currency
   // add code
   private static Currency addCode(String currencyCode) {
     ArgChecker.matches(CODE_MATCHER, 3, 3, currencyCode, "currencyCode", "[A-Z][A-Z][A-Z]");
-    return DYNAMIC.computeIfAbsent(currencyCode, code -> new Currency(code, 0, "USD"));
+    return DYNAMIC.computeIfAbsent(currencyCode, code -> new Currency(code, 0, "USD", DEFAULT_ZONE_ID));
   }
 
   //-------------------------------------------------------------------------
@@ -352,10 +363,11 @@ public final class Currency
    * @param fractionDigits  the number of fraction digits, validated
    * @param triangulationCurrency  the triangulation currency
    */
-  Currency(String code, int fractionDigits, String triangulationCurrency) {
+  Currency(String code, int fractionDigits, String triangulationCurrency, ZoneId zoneId) {
     this.code = code;
     this.minorUnitDigits = fractionDigits;
     this.triangulationCurrency = triangulationCurrency;
+    this.primaryZoneId = zoneId;
     // total universe is (26 * 26 * 26) codes, which can provide a unique hash code
     this.cachedHashCode = ((code.charAt(0) - 64) << 16) + ((code.charAt(1) - 64) << 8) + (code.charAt(2) - 64);
   }
@@ -405,6 +417,15 @@ public final class Currency
    */
   public Currency getTriangulationCurrency() {
     return Currency.of(triangulationCurrency);
+  }
+
+  /**
+   * Gets the primary ZoneID for the given currency.
+   *
+   * @return the zone ID
+   */
+  public ZoneId getPrimaryZone() {
+    return primaryZoneId;
   }
 
   //-------------------------------------------------------------------------

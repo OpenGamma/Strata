@@ -7,6 +7,8 @@ package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -80,7 +82,14 @@ final class CurrencyDataLoader {
         if (isHistoric == loadHistoric) {
           int minorUnits = Integer.parseInt(properties.value("minorUnitDigits"));
           String triangulationCurrency = properties.value("triangulationCurrency");
-          builder.put(currencyCode, new Currency(currencyCode, minorUnits, triangulationCurrency));
+
+          double offsetFromUTC = Double.parseDouble(properties.value("offsetFromUTC"));
+          int hoursOffset = Double.valueOf(Math.floor(offsetFromUTC)).intValue();
+          int minutesOffset = (Double.valueOf(offsetFromUTC).intValue() - hoursOffset) * 60;
+          ZoneOffset zoneOffset = ZoneOffset.ofHoursMinutes(hoursOffset, minutesOffset);
+          ZoneId zoneId = ZoneId.ofOffset("UTC", zoneOffset);
+
+          builder.put(currencyCode, new Currency(currencyCode, minorUnits, triangulationCurrency, zoneId));
         }
       }
     }
