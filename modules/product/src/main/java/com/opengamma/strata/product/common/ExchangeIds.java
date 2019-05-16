@@ -111,6 +111,30 @@ public final class ExchangeIds {
   /** Korea Exchange (Futures Market) */
   public static final ExchangeId XKFE = ExchangeId.of("XKFE");
 
+  /** European Energy Exchange. */
+  public static final ExchangeId XEEE = ExchangeId.of("XEEE");
+
+  /** APX Power Nl. */
+  public static final ExchangeId NLPX = ExchangeId.of("NLPX");
+
+  /** Central Eastern European Gas Exchange. */
+  public static final ExchangeId XGAS = ExchangeId.of("XGAS");
+
+  /** Powernext. */
+  public static final ExchangeId XPOW = ExchangeId.of("XPOW");
+
+  /** Hungarian Power Exchange. */
+  public static final ExchangeId HUPX = ExchangeId.of("HUPX");
+
+  /** Hungarian Derivative Energy Exchange. */
+  public static final ExchangeId HUDX = ExchangeId.of("HUDX");
+
+  /** Gaspoint Nordic. */
+  public static final ExchangeId NPGA = ExchangeId.of("NPGA");
+
+  /** Norexeco. */
+  public static final ExchangeId NEXO = ExchangeId.of("NEXO");
+
   //-------------------------------------------------------------------------
   /**
    * Restricted constructor.
