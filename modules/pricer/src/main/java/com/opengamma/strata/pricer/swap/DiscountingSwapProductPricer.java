@@ -228,7 +228,7 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Computes the market quote of swap.
+   * Computes the market quote of swaps.
    * <p>
    * For swaps with a fixed leg, this is equal to the par rate. For swaps without a fixed leg, this is the 
    * constant spread on the first leg required to have a PV of 0.
@@ -442,19 +442,20 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
-   * Calculates the par rate curve sensitivity for a swap with a fixed leg.
+   * Computes the market quote curve sensitivity for swaps.
    * <p>
-   * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
+   * For swaps with a fixed leg, this is equal to the par rate. For swaps without a fixed leg, this is the 
+   * constant spread on the first leg required to have a PV of 0.
    * <p>
-   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
-   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * All the payment periods of the first leg must be of the type {@link RatePaymentPeriod}.
    * <p>
    * The figures are reported in the currency of the first leg, even if in theory they should be dimensionless.
    * 
    * @param swap  the product
    * @param provider  the rates provider
    * @return the par rate curve sensitivity of the swap product
-   * @throws IllegalArgumentException if there is no fixed leg
+   * @throws IllegalArgumentException if there is no fixed leg and not all the payment periods of the first leg
+   * are of the type RatePaymentPeriod
    */
   public PointSensitivityBuilder marketQuoteSensitivity(ResolvedSwap swap, RatesProvider provider) {
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
