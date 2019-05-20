@@ -702,7 +702,7 @@
     <guava-docs.version>snapshot</guava-docs.version>
     <jcommander.version>1.72</jcommander.version>
     <joda-convert.version>2.2.1</joda-convert.version>
-    <joda-beans.version>2.6.1</joda-beans.version>
+    <joda-beans.version>2.6.2</joda-beans.version>
     <joda.beans.version>2.6.0</joda.beans.version><!-- version for the Joda-Beans plugin -->
     <mockito.version>2.27.0</mockito.version>
     <slf4j.version>1.7.26</slf4j.version>
