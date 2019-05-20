@@ -20,7 +20,9 @@ import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_EUR;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY;
@@ -46,6 +48,7 @@ import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
+import static com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -66,6 +69,7 @@ import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.ImmutableOvernightIndex;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -138,6 +142,7 @@ public class DiscountingSwapProductPricerTest {
 
   private static final double TOLERANCE_RATE = 1.0e-12;
   private static final double TOLERANCE_RATE_DELTA = 1.0E-6;
+  private static final double TOLERANCE_RATE_DELTA_FD = 1.0E-2;
   private static final double TOLERANCE_PV = 1.0e-2;
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -425,6 +430,47 @@ public class DiscountingSwapProductPricerTest {
     double pvWithParRate = pricerSwap.presentValue(swapWithParRate, BRL_DSCON).getAmount(BRL).getAmount();
     assertEquals(pvWithParRate, 0.0d, NOTIONAL * TOLERANCE_RATE);
   }
+  
+  //-------------------------------------------------------------------------
+  public void test_marketQuote_singleCurrency_fixedVFloat() {
+    ResolvedSwapTrade swapTrade = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.resolve(REF_DATA);
+    double mq = SWAP_PRODUCT_PRICER.marketQuote(swapTrade.getProduct(), MULTI_USD);
+    double pr = SWAP_PRODUCT_PRICER.parRate(swapTrade.getProduct(), MULTI_USD);
+    assertEquals(mq, pr, TOLERANCE_RATE);
+  }
+  
+  public void test_marketQuote_singleCurrency_basis() {
+    IborIborSwapConvention GBP_LIBOR_3M_LIBOR_6M =
+      ImmutableIborIborSwapConvention.of(
+          "GBP-LIBOR-3M-LIBOR-6M",
+          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M),
+          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
+    ResolvedSwapTrade swapTrade20 = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 0.0020, REF_DATA).resolve(REF_DATA);
+    ResolvedSwapTrade swapTrade0 = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 0.0020, REF_DATA).resolve(REF_DATA);
+    double mq20 = SWAP_PRODUCT_PRICER.marketQuote(swapTrade20.getProduct(), MULTI_GBP);
+    double mq0 = SWAP_PRODUCT_PRICER.marketQuote(swapTrade0.getProduct(), MULTI_GBP);
+    assertEquals(mq20, mq0, TOLERANCE_RATE);
+    ResolvedSwapTrade swapTradeATM = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, mq20, REF_DATA).resolve(REF_DATA);
+    MultiCurrencyAmount pv = SWAP_PRODUCT_PRICER.presentValue(swapTradeATM.getProduct(), MULTI_GBP);
+    assertEquals(pv.getAmount(GBP).getAmount(), 0.0d, TOLERANCE_PV);
+  }
+  
+  public void test_marketQuote_xccy() {
+    ResolvedSwapTrade swapTrade20 = GBP_LIBOR_3M_USD_LIBOR_3M.createTrade(MULTI_GBP_USD.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 1_440_00.0d, 0.0020, REF_DATA).resolve(REF_DATA);
+    ResolvedSwapTrade swapTrade0 = GBP_LIBOR_3M_USD_LIBOR_3M.createTrade(MULTI_GBP_USD.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 1_440_00.0d, 0.00, REF_DATA).resolve(REF_DATA);
+    double mq20 = SWAP_PRODUCT_PRICER.marketQuote(swapTrade20.getProduct(), MULTI_GBP_USD);
+    double mq0 = SWAP_PRODUCT_PRICER.marketQuote(swapTrade0.getProduct(), MULTI_GBP_USD);
+    assertEquals(mq20, mq0, TOLERANCE_RATE);
+    ResolvedSwapTrade swapTradeATM = GBP_LIBOR_3M_USD_LIBOR_3M.createTrade(MULTI_GBP.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 1_440_00.0d, mq20, REF_DATA).resolve(REF_DATA);
+    CurrencyAmount pv = SWAP_PRODUCT_PRICER.presentValue(swapTradeATM.getProduct(), GBP, MULTI_GBP_USD);
+    assertEquals(pv.getAmount(), 0.0d, TOLERANCE_PV);
+  }
 
   //-------------------------------------------------------------------------
   public void test_presentValue_singleCurrency() {
@@ -647,6 +693,41 @@ public class DiscountingSwapProductPricerTest {
     CurrencyParameterSensitivities parRateSensiExpected = CAL_FD.sensitivity(BRL_DSCON,
         (p) -> CurrencyAmount.of(BRL, pricerSwap.parRate(BRL_SWAP, (p))));
     assertTrue(parRateSensiComputed.equalWithTolerance(parRateSensiExpected, TOLERANCE_PS));
+  }
+  
+  //-------------------------------------------------------------------------
+  public void test_marketQuoteSensitivity_singleCurrency_fixedVFloat() {
+    ResolvedSwapTrade swapTrade = SWAP_USD_FIXED_6M_LIBOR_3M_5Y.resolve(REF_DATA);
+    PointSensitivities mqPts = SWAP_PRODUCT_PRICER.marketQuoteSensitivity(swapTrade.getProduct(), MULTI_USD).build();
+    PointSensitivities prPts = SWAP_PRODUCT_PRICER.parRateSensitivity(swapTrade.getProduct(), MULTI_USD).build();
+    CurrencyParameterSensitivities mqPs = MULTI_USD.parameterSensitivity(mqPts);
+    CurrencyParameterSensitivities prPs = MULTI_USD.parameterSensitivity(prPts);
+    assertTrue(mqPs.equalWithTolerance(prPs, TOLERANCE_PS));
+  }
+  
+  public void test_marketQuoteSensitivity_singleCurrency_basis() {
+    IborIborSwapConvention GBP_LIBOR_3M_LIBOR_6M =
+      ImmutableIborIborSwapConvention.of(
+          "GBP-LIBOR-3M-LIBOR-6M",
+          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M),
+          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
+    ResolvedSwapTrade swapTrade20 = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 0.0020, REF_DATA).resolve(REF_DATA);
+    PointSensitivities mqPts = SWAP_PRODUCT_PRICER.marketQuoteSensitivity(swapTrade20.getProduct(), MULTI_GBP).build();
+    CurrencyParameterSensitivities mqPsComputed = MULTI_GBP.parameterSensitivity(mqPts);
+    CurrencyParameterSensitivities mqPsExpected = CAL_FD.sensitivity(MULTI_GBP,
+        (p) -> CurrencyAmount.of(GBP, SWAP_PRODUCT_PRICER.marketQuote(swapTrade20.getProduct(), (p))));
+    assertTrue(mqPsComputed.equalWithTolerance(mqPsExpected, TOLERANCE_PS));
+  }
+  
+  public void test_marketQuoteSensitivity_xccy() {
+    ResolvedSwapTrade swapTrade20 = GBP_LIBOR_3M_USD_LIBOR_3M.createTrade(MULTI_GBP_USD.getValuationDate(), 
+        Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 1_440_00.0d, 0.0020, REF_DATA).resolve(REF_DATA);
+    PointSensitivities mqPts = SWAP_PRODUCT_PRICER.marketQuoteSensitivity(swapTrade20.getProduct(), MULTI_GBP_USD).build();
+    CurrencyParameterSensitivities mqPsComputed = MULTI_GBP_USD.parameterSensitivity(mqPts);
+    CurrencyParameterSensitivities mqPsExpected = CAL_FD.sensitivity(MULTI_GBP_USD,
+        (p) -> CurrencyAmount.of(GBP, SWAP_PRODUCT_PRICER.marketQuote(swapTrade20.getProduct(), (p))));
+    assertTrue(mqPsComputed.equalWithTolerance(mqPsExpected, TOLERANCE_RATE_DELTA_FD));
   }
 
   //-------------------------------------------------------------------------
