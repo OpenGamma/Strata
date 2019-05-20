@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.swap;
 
 import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -227,6 +228,47 @@ public class DiscountingSwapProductPricer {
   }
 
   /**
+   * Computes the market quote of swap.
+   * <p>
+   * For swaps with a fixed leg, this is equal to the par rate. For swaps without a fixed leg, this is the 
+   * constant spread on the first leg required to have a PV of 0.
+   * <p>
+   * All the payment periods of the first leg must be of the type {@link RatePaymentPeriod}.
+   * 
+   * @param swap  the product
+   * @param provider  the rates provider
+   * @return the market quote
+   * @throws IllegalArgumentException if there is no fixed leg and not all the payment periods of the first leg
+   * are of the type RatePaymentPeriod
+   */
+  public double marketQuote(ResolvedSwap swap, RatesProvider provider) {
+    if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
+      return parRate(swap, provider);
+    }
+    // For non-fixed first legs: generate a new swap with spread to 0
+    ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
+    Currency ccyReferenceLeg = referenceLeg.getCurrency();
+    List<SwapPaymentPeriod> paymentPeriods0 = new ArrayList<>();
+    for (SwapPaymentPeriod period : referenceLeg.getPaymentPeriods()) {
+      ArgChecker.isTrue(period instanceof RatePaymentPeriod, "Must be RatePaymentPeriod");
+      RatePaymentPeriod ratePeriod = (RatePaymentPeriod) period;
+      List<RateAccrualPeriod> accrualPeriods0 = new ArrayList<>();
+      for (RateAccrualPeriod accrualPeriod : ratePeriod.getAccrualPeriods()) {
+        accrualPeriods0.add(accrualPeriod.toBuilder().spread(0.0).build());
+      }
+      paymentPeriods0.add(ratePeriod.toBuilder().accrualPeriods(accrualPeriods0).build());
+    }
+    ResolvedSwapLeg referenceLeg0 = referenceLeg.toBuilder().paymentPeriods(paymentPeriods0).build();
+    double convertedPvOtherLegs = 0.0;
+    for (int i = 1; i < swap.getLegs().size(); i++) {
+      convertedPvOtherLegs += legPricer.presentValue(swap.getLegs().get(i), ccyReferenceLeg, provider).getAmount();
+    }
+    double convertedPvLeg0 = legPricer.presentValue(referenceLeg0, provider).getAmount();
+    double pvbp = legPricer.pvbp(referenceLeg, provider);
+    return -(convertedPvOtherLegs + convertedPvLeg0) / pvbp;
+  }
+
+  /**
    * Computes the par spread for swaps.
    * <p>
    * The par spread is the common spread on all payments of the first leg for which the total swap present value is 0.
@@ -397,6 +439,67 @@ public class DiscountingSwapProductPricer {
     return pvbpFixedLegDr.multipliedBy(pvbpFixedLegBar)
         .combinedWith(fixedLegEventsPvDr.multipliedBy(fixedLegEventsPvBar))
         .combinedWith(otherLegsConvertedPvDr.multipliedBy(otherLegsConvertedPvBar));
+  }
+
+  /**
+   * Calculates the par rate curve sensitivity for a swap with a fixed leg.
+   * <p>
+   * The par rate is the common rate on all payments of the fixed leg for which the total swap present value is 0.
+   * <p>
+   * At least one leg must be a fixed leg. The par rate will be computed with respect to the first fixed leg.
+   * All the payments in that leg should be fixed payments with a unique accrual period (no compounding) and no FX reset.
+   * <p>
+   * The figures are reported in the currency of the first leg, even if in theory they should be dimensionless.
+   * 
+   * @param swap  the product
+   * @param provider  the rates provider
+   * @return the par rate curve sensitivity of the swap product
+   * @throws IllegalArgumentException if there is no fixed leg
+   */
+  public PointSensitivityBuilder marketQuoteSensitivity(ResolvedSwap swap, RatesProvider provider) {
+    if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
+      return parRateSensitivity(swap, provider);
+    }
+    // For non-fixed first legs: generate a new swap with spread to 0
+    ResolvedSwapLeg referenceLeg = swap.getLegs().get(0);
+    Currency ccyReferenceLeg = referenceLeg.getCurrency();
+    List<SwapPaymentPeriod> paymentPeriods0 = new ArrayList<>();
+    for (SwapPaymentPeriod period : referenceLeg.getPaymentPeriods()) {
+      ArgChecker.isTrue(period instanceof RatePaymentPeriod, "Must be RatePaymentPeriod");
+      RatePaymentPeriod ratePeriod = (RatePaymentPeriod) period;
+      List<RateAccrualPeriod> accrualPeriods0 = new ArrayList<>();
+      for (RateAccrualPeriod accrualPeriod : ratePeriod.getAccrualPeriods()) {
+        accrualPeriods0.add(accrualPeriod.toBuilder().spread(0.0).build());
+      }
+      paymentPeriods0.add(ratePeriod.toBuilder().accrualPeriods(accrualPeriods0).build());
+    }
+    ResolvedSwapLeg referenceLeg0 = referenceLeg.toBuilder().paymentPeriods(paymentPeriods0).build();
+
+    double convertedPvOtherLegs = 0.0;
+    for (int i = 1; i < swap.getLegs().size(); i++) {
+      convertedPvOtherLegs += legPricer.presentValue(swap.getLegs().get(i), ccyReferenceLeg, provider).getAmount();
+    }
+    double convertedPvLeg0 = legPricer.presentValue(referenceLeg0, provider).getAmount();
+    double pvbp = legPricer.pvbp(referenceLeg, provider);
+    // double marketQuote = -(convertedPvOtherLegs + convertedPvLeg0) / pvbp;
+    // Backward sweep
+    double marketQuoteBar = 1.0d;
+    double convertedPvOtherLegsBar = -marketQuoteBar / pvbp;
+    double convertedPvLeg0Bar = -marketQuoteBar / pvbp;
+    double pvbpBar = (convertedPvOtherLegs + convertedPvLeg0) / (pvbp * pvbp) * marketQuoteBar;
+    PointSensitivityBuilder dconvertedPvLeg0dr = legPricer.presentValueSensitivity(referenceLeg0, provider);
+    PointSensitivityBuilder dconvertedPvOtherLegsdr = PointSensitivityBuilder.none();
+    for (int i = 1; i < swap.getLegs().size(); i++) {
+      ResolvedSwapLeg leg = swap.getLegs().get(i);
+      dconvertedPvOtherLegsdr = dconvertedPvOtherLegsdr.combinedWith(
+          legPricer.presentValueSensitivity(leg, provider)
+              .multipliedBy(provider.fxRate(leg.getCurrency(), ccyReferenceLeg))
+              .withCurrency(ccyReferenceLeg));
+    }
+    PointSensitivityBuilder dpvbpdr = legPricer.pvbpSensitivity(referenceLeg, provider);
+    return dconvertedPvLeg0dr.multipliedBy(convertedPvLeg0Bar)
+        .combinedWith(dconvertedPvOtherLegsdr.multipliedBy(convertedPvOtherLegsBar))
+        .combinedWith(dpvbpdr.multipliedBy(pvbpBar));
   }
 
   /**

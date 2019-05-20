@@ -61,8 +61,8 @@ public final class MarketQuoteMeasure<T extends ResolvedTrade>
       MarketQuoteMeasure.of(
           "SwapParRateDiscounting",
           ResolvedSwapTrade.class,
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRate(trade.getProduct(), p),
-          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.parRateSensitivity(
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.marketQuote(trade.getProduct(), p),
+          (trade, p) -> DiscountingSwapProductPricer.DEFAULT.marketQuoteSensitivity(
               trade.getProduct(), p).build());
 
   /**
