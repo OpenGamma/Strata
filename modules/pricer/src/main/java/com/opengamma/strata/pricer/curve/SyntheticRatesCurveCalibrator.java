@@ -184,7 +184,13 @@ public final class SyntheticRatesCurveCalibrator {
       CurrencyPair ccyPair = CurrencyPair.of(ccyRequired.get(0), ccyRequired.get(loopccy));
       FxRateId fxId = FxRateId.of(ccyPair);
       mapIdSy.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));
-      mapId0.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));  // Required to generate the trade
+    }
+    for (int loopccy1 = 0; loopccy1 < ccyRequired.size(); loopccy1++) {
+      for (int loopccy2 = loopccy1 + 1; loopccy2 < ccyRequired.size(); loopccy2++) {
+        CurrencyPair ccyPair = CurrencyPair.of(ccyRequired.get(loopccy1), ccyRequired.get(loopccy2));
+        FxRateId fxId = FxRateId.of(ccyPair);
+        mapId0.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));  // Required to generate the trade
+      }
     }
     ImmutableMarketData marketQuotes0 = ImmutableMarketData.of(valuationDate, mapId0);
     for (CurveDefinition entry : curveGroups) {
