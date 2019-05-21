@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,6 +108,16 @@ public final class ArrayByteSource extends ByteSource {
    */
   public static ArrayByteSource ofUnsafe(byte[] array) {
     return new ArrayByteSource(array);
+  }
+
+  /**
+   * Creates an instance from a string using UTF-8.
+   * 
+   * @param str  the string to store using UTF-8
+   * @return the byte source
+   */
+  public static ArrayByteSource ofUtf8(String str) {
+    return new ArrayByteSource(str.getBytes(StandardCharsets.UTF_8));
   }
 
   //-------------------------------------------------------------------------
@@ -308,6 +320,19 @@ public final class ArrayByteSource extends ByteSource {
   }
 
   @Override
+  public ArrayByteSource slice(long offset, long length) {
+    checkArgument(offset >= 0, "offset (%s) may not be negative", offset);
+    checkArgument(length >= 0, "length (%s) may not be negative", length);
+    if (offset > array.length) {
+      return EMPTY;
+    }
+    int minPos = (int) offset;
+    long len = Math.min(Math.min(length, Integer.MAX_VALUE), array.length);
+    int maxPos = (int) Math.min(minPos + len, array.length);
+    return new ArrayByteSource(Arrays.copyOfRange(array, minPos, maxPos));
+  }
+
+  @Override
   public long copyTo(OutputStream output) throws IOException {
     output.write(array);
     return array.length;
@@ -327,6 +352,14 @@ public final class ArrayByteSource extends ByteSource {
   @Override
   public HashCode hash(HashFunction hashFunction) {
     return hashFunction.hashBytes(array);
+  }
+
+  @Override
+  public boolean contentEquals(ByteSource other) throws IOException {
+    if (other instanceof ArrayByteSource) {
+      return equals(other);
+    }
+    return super.contentEquals(other);
   }
 
   //-------------------------------------------------------------------------
