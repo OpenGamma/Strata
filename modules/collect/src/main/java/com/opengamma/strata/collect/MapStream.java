@@ -39,6 +39,7 @@ import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Streams;
 
@@ -666,6 +667,17 @@ public final class MapStream<K, V>
    */
   public ImmutableListMultimap<K, V> toListMultimap() {
     return underlying.collect(Guavate.toImmutableListMultimap(Entry::getKey, Entry::getValue));
+  }
+
+  /**
+   * Returns an immutable set multimap built from the entries in the stream.
+   * <p>
+   * This is a terminal operation.
+   *
+   * @return an immutable set multimap built from the entries in the stream
+   */
+  public ImmutableSetMultimap<K, V> toSetMultimap() {
+    return underlying.collect(Guavate.toImmutableSetMultimap(Entry::getKey, Entry::getValue));
   }
 
   /**
