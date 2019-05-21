@@ -239,7 +239,7 @@ public class DiscountingSwapProductPricer {
    * @param provider  the rates provider
    * @return the market quote
    * @throws IllegalArgumentException if there is no fixed leg and not all the payment periods of the first leg
-   * are of the type RatePaymentPeriod
+   *   are of the type RatePaymentPeriod
    */
   public double marketQuote(ResolvedSwap swap, RatesProvider provider) {
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
@@ -455,7 +455,7 @@ public class DiscountingSwapProductPricer {
    * @param provider  the rates provider
    * @return the par rate curve sensitivity of the swap product
    * @throws IllegalArgumentException if there is no fixed leg and not all the payment periods of the first leg
-   * are of the type RatePaymentPeriod
+   *   are of the type RatePaymentPeriod
    */
   public PointSensitivityBuilder marketQuoteSensitivity(ResolvedSwap swap, RatesProvider provider) {
     if (!swap.getLegs(SwapLegType.FIXED).isEmpty()) {
