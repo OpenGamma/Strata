@@ -31,7 +31,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ListMultimap;
+import com.google.common.collect.SetMultimap;
 import com.opengamma.strata.collect.tuple.Pair;
 
 @Test
@@ -426,6 +428,20 @@ public class MapStreamTest {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     ListMultimap<String, Integer> expected = ImmutableListMultimap.of("a", 1, "a", 2, "b", 10, "b", 20, "c", 1);
     ListMultimap<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toListMultimap();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void toSetMultimap() {
+    Map<String, Integer> map = ImmutableMap.<String, Integer>builder()
+        .put("a", 1)
+        .put("aa", 2)
+        .put("aaa", 1)
+        .put("b", 10)
+        .put("bb", 20)
+        .put("c", 1)
+        .build();
+    SetMultimap<String, Integer> expected = ImmutableSetMultimap.of("a", 1, "a", 2, "b", 10, "b", 20, "c", 1);
+    SetMultimap<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).toSetMultimap();
     assertThat(result).isEqualTo(expected);
   }
 
