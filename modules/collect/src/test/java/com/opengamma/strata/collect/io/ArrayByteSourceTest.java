@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.io;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,6 +84,14 @@ public class ArrayByteSourceTest {
     assertEquals(test.read()[0], 4);
   }
 
+  public void test_ofUtf8() {
+    ArrayByteSource test = ArrayByteSource.ofUtf8("ABC");
+    assertEquals(test.size(), 3);
+    assertEquals(test.read()[0], 'A');
+    assertEquals(test.read()[1], 'B');
+    assertEquals(test.read()[2], 'C');
+  }
+
   public void test_from_ByteSource() {
     ByteSource source = ByteSource.wrap(new byte[] {1, 2, 3});
     ArrayByteSource test = ArrayByteSource.from(source);
@@ -147,6 +156,25 @@ public class ArrayByteSourceTest {
     assertEquals(test.read()[2], 3);
   }
 
+  public void test_slice() throws IOException {
+    ArrayByteSource test = ArrayByteSource.copyOf(new byte[] {65, 66, 67, 68, 69});
+    assertEquals(test.size(), 5);
+    assertEquals(test.slice(0, 3).readUtf8(), "ABC");
+    assertEquals(test.slice(0, 5).readUtf8(), "ABCDE");
+    assertEquals(test.slice(0, Long.MAX_VALUE).readUtf8(), "ABCDE");
+    assertEquals(test.slice(1, 1).readUtf8(), "B");
+    assertEquals(test.slice(1, 2).readUtf8(), "BC");
+    assertEquals(test.slice(1, 3).readUtf8(), "BCD");
+    assertEquals(test.slice(1, 4).readUtf8(), "BCDE");
+    assertEquals(test.slice(2, 1).readUtf8(), "C");
+    assertEquals(test.slice(2, 2).readUtf8(), "CD");
+    assertEquals(test.slice(2, 3).readUtf8(), "CDE");
+    assertEquals(test.slice(2, Long.MAX_VALUE).readUtf8(), "CDE");
+    assertEquals(test.slice(5, 6).readUtf8(), "");
+    assertEquals(test.slice(5, Long.MAX_VALUE).readUtf8(), "");
+    assertEquals(test.slice(Long.MAX_VALUE - 10, Long.MAX_VALUE).readUtf8(), "");
+  }
+
   public void test_methods() throws IOException {
     ArrayByteSource test = ArrayByteSource.copyOf(new byte[] {65, 66, 67});
     assertEquals(test.size(), 3);
@@ -156,6 +184,7 @@ public class ArrayByteSourceTest {
     assertEquals(test.readUtf8(), "ABC");
     assertEquals(test.readUtf8UsingBom(), "ABC");
     assertEquals(test.asCharSourceUtf8UsingBom().read(), "ABC");
+    assertTrue(test.contentEquals(test));
     assertEquals(test.toString(), "ArrayByteSource[3 bytes]");
   }
 
