@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.fpml;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +105,31 @@ public final class FpmlDocumentParser {
   }
 
   /**
+   * Obtains an instance of the parser, based on the specified selector, trade info plugin and reference data.
+   * <p>
+   * The FpML parser has a number of plugin points that can be controlled:
+   * <ul>
+   * <li>the {@linkplain FpmlPartySelector party selector}
+   * <li>the {@linkplain FpmlTradeInfoParserPlugin trade info parser}
+   * <li>the {@linkplain FpmlParserPlugin trade parsers}
+   * <li>the {@linkplain ReferenceData reference data}
+   * </ul>
+   * This method uses the trade parsers registered in {@link FpmlParserPlugin} configuration.
+   * 
+   * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
+   * @param tradeInfoParser  the trade info parser
+   * @param refData  the reference data to use
+   * @return the document parser
+   */
+  public static FpmlDocumentParser of(
+      FpmlPartySelector ourPartySelector,
+      FpmlTradeInfoParserPlugin tradeInfoParser,
+      ReferenceData refData) {
+
+    return of(ourPartySelector, tradeInfoParser, FpmlParserPlugin.extendedEnum().lookupAllNormalized(), refData);
+  }
+
+  /**
    * Obtains an instance of the parser, based on the specified selector and plugins.
    * <p>
    * The FpML parser has a number of plugin points that can be controlled:
@@ -176,6 +202,33 @@ public final class FpmlDocumentParser {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if the source can be parsed as FpML.
+   * <p>
+   * This parses the specified byte source to determine if it appears to be FpML.
+   * <p>
+   * Sometimes, the FpML document is embedded in a non-FpML wrapper.
+   * This method will intelligently find the FpML document at the root or within one or two levels
+   * of wrapper by searching for an element that contains both {@code <trade>} and {@code <party>}.
+   * 
+   * @param source  the source to check
+   * @return true if the source appears to be FpML
+   * @throws UncheckedIOException if an IO error occurred
+   */
+  public boolean isKnownFormat(ByteSource source) {
+    try {
+      XmlElement root = XmlFile.parseElements(
+          source,
+          name -> name.equals("party") || name.equals("trade") ? 0 : Integer.MAX_VALUE);
+      XmlElement actualRoot = findFpmlRoot(root);
+      return actualRoot != null;
+    } catch (UncheckedIOException ex) {
+      throw ex;
+    } catch (RuntimeException ex) {
+      return false;
+    }
+  }
+
+  /**
    * Parses FpML from the specified source, extracting the trades.
    * <p>
    * This parses the specified byte source which must be an XML document.
@@ -191,6 +244,9 @@ public final class FpmlDocumentParser {
   public List<Trade> parseTrades(ByteSource source) {
     XmlFile xmlFile = XmlFile.of(source, FpmlDocument.ID);
     XmlElement root = findFpmlRoot(xmlFile.getRoot());
+    if (root == null) {
+      throw new FpmlParseException("Unable to find FpML root element");
+    }
     return parseTrades(root, xmlFile.getReferences());
   }
 
@@ -216,7 +272,7 @@ public final class FpmlDocumentParser {
         }
       }
     }
-    throw new FpmlParseException("Unable to find FpML root element");
+    return null;
   }
 
   // simple check to see if this is an FpML root

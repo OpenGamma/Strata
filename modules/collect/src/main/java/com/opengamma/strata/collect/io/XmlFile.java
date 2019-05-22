@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.ToIntFunction;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -101,6 +102,35 @@ public final class XmlFile {
     });
   }
 
+  /**
+   * Parses the element names and structure from the specified XML, filtering to reduce memory usage.
+   * <p>
+   * This parses the specified byte source expecting an XML file format.
+   * The filter function should return the number of levels below the current one
+   * that should be included in the response.
+   * Always returning {@code Integer.MAX_VALUE} will not filter the children.
+   * 
+   * @param source  the XML source data
+   * @param filterFn  the filter function to use
+   * @return the parsed file
+   * @throws UncheckedIOException if an IO exception occurs
+   * @throws IllegalArgumentException if the file cannot be parsed
+   */
+  public static XmlElement parseElements(ByteSource source, ToIntFunction<String> filterFn) {
+    ArgChecker.notNull(source, "source");
+    ArgChecker.notNull(filterFn, "filterFn");
+    return Unchecked.wrap(() -> {
+      try (InputStream in = source.openBufferedStream()) {
+        XMLStreamReader xmlReader = xmlInputFactory().createXMLStreamReader(in);
+        try {
+          return parseElements(xmlReader, filterFn, Integer.MAX_VALUE);
+        } finally {
+          xmlReader.close();
+        }
+      }
+    });
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses the tree from the StAX stream reader, capturing references.
@@ -152,6 +182,36 @@ public final class XmlFile {
       if (ref != null) {
         refs.put(ref, parsed);
       }
+      return parsed;
+
+    } catch (XMLStreamException ex) {
+      throw new IllegalArgumentException(ex);
+    }
+  }
+
+  // parses the element structure from the input, filtering as necessary
+  private static XmlElement parseElements(XMLStreamReader reader, ToIntFunction<String> filterFn, int currentLevel) {
+    try {
+      // parse start element
+      String elementName = parseElementName(reader);
+
+      // parse children or content
+      ImmutableList.Builder<XmlElement> childBuilder = ImmutableList.builder();
+      int event = reader.next();
+      while (event != XMLStreamConstants.END_ELEMENT) {
+        if (event == XMLStreamConstants.START_ELEMENT) {
+          int childLevel = currentLevel == Integer.MAX_VALUE ? filterFn.applyAsInt(elementName) : currentLevel - 1;
+          XmlElement child = parseElements(reader, filterFn, childLevel);
+          if (childLevel > 0) {
+            childBuilder.add(child);
+          }
+        }
+        event = reader.next();
+      }
+      ImmutableList<XmlElement> children = childBuilder.build();
+      XmlElement parsed = children.isEmpty() ?
+          XmlElement.ofContent(elementName, "") :
+          XmlElement.ofChildren(elementName, children);
       return parsed;
 
     } catch (XMLStreamException ex) {

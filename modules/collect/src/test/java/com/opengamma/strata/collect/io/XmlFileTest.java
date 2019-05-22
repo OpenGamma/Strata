@@ -37,6 +37,7 @@ public class XmlFileTest {
       "  <leaf1>l<![CDATA[e]]>af</leaf1>" +
       "  <leaf2>a<!-- comment ignored --></leaf2>" +
       "  <leaf2>b</leaf2>" +
+      "  <obj><leaf3>c</leaf3></obj>" +
       " </test>" +
       "</base>";
   private static final String SAMPLE_MISMATCHED_TAGS = "" +
@@ -59,10 +60,12 @@ public class XmlFileTest {
 
   private static final Map<String, String> ATTR_MAP_EMPTY = ImmutableMap.of();
   private static final Map<String, String> ATTR_MAP = ImmutableMap.of("key", "value", "og", "strata");
-  private static final XmlElement LEAF1 = XmlElement.ofContent("leaf1", ATTR_MAP_EMPTY, "leaf");
-  private static final XmlElement LEAF2A = XmlElement.ofContent("leaf2", ATTR_MAP_EMPTY, "a");
-  private static final XmlElement LEAF2B = XmlElement.ofContent("leaf2", ATTR_MAP_EMPTY, "b");
-  private static final List<XmlElement> CHILD_LIST_MULTI = ImmutableList.of(LEAF1, LEAF2A, LEAF2B);
+  private static final XmlElement LEAF1 = XmlElement.ofContent("leaf1", "leaf");
+  private static final XmlElement LEAF2A = XmlElement.ofContent("leaf2", "a");
+  private static final XmlElement LEAF2B = XmlElement.ofContent("leaf2", "b");
+  private static final XmlElement LEAF3 = XmlElement.ofContent("leaf3", "c");
+  private static final XmlElement OBJ = XmlElement.ofChildren("obj", ImmutableList.of(LEAF3));
+  private static final List<XmlElement> CHILD_LIST_MULTI = ImmutableList.of(LEAF1, LEAF2A, LEAF2B, OBJ);
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
@@ -129,6 +132,67 @@ public class XmlFileTest {
   public void test_of_ByteSource_parsedReferences_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
     assertThrows(() -> XmlFile.of(source, "key"), UncheckedIOException.class);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parseElements_ByteSource_Fn_noFilter() {
+    List<XmlElement> expected = ImmutableList.of(
+        XmlElement.ofContent("leaf1", ""),
+        XmlElement.ofContent("leaf2", ""),
+        XmlElement.ofContent("leaf2", ""),
+        XmlElement.ofChildren("obj", ImmutableList.of(XmlElement.ofContent("leaf3", ""))));
+
+    ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
+    XmlElement test = XmlFile.parseElements(source, name -> Integer.MAX_VALUE);
+    assertEquals(test.getName(), "base");
+    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
+    assertEquals(test.getContent(), "");
+    assertEquals(test.getChildren().size(), 1);
+    XmlElement child = test.getChild(0);
+    assertEquals(child, XmlElement.ofChildren("test", expected));
+  }
+
+  public void test_parseElements_ByteSource_Fn_filterAll() {
+    ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
+    XmlElement test = XmlFile.parseElements(source, name -> name.equals("test") ? 0 : Integer.MAX_VALUE);
+    assertEquals(test.getName(), "base");
+    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
+    assertEquals(test.getContent(), "");
+    assertEquals(test.getChildren().size(), 1);
+    XmlElement child = test.getChild(0);
+    assertEquals(child, XmlElement.ofContent("test", ""));
+  }
+
+  public void test_parseElements_ByteSource_Fn_filterOneLevel() {
+    List<XmlElement> expected = ImmutableList.of(
+        XmlElement.ofContent("leaf1", ""),
+        XmlElement.ofContent("leaf2", ""),
+        XmlElement.ofContent("leaf2", ""),
+        XmlElement.ofContent("obj", ""));
+
+    ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
+    XmlElement test = XmlFile.parseElements(source, name -> name.equals("test") ? 1 : Integer.MAX_VALUE);
+    assertEquals(test.getName(), "base");
+    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
+    assertEquals(test.getContent(), "");
+    assertEquals(test.getChildren().size(), 1);
+    XmlElement child = test.getChild(0);
+    assertEquals(child, XmlElement.ofChildren("test", expected));
+  }
+
+  public void test_parseElements_ByteSource_Fn_mismatchedTags() {
+    ByteSource source = ByteSource.wrap(SAMPLE_MISMATCHED_TAGS.getBytes(StandardCharsets.UTF_8));
+    assertThrowsIllegalArg(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
+  }
+
+  public void test_parseElements_ByteSource_Fn_badEnd() {
+    ByteSource source = ByteSource.wrap(SAMPLE_BAD_END.getBytes(StandardCharsets.UTF_8));
+    assertThrowsIllegalArg(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
+  }
+
+  public void test_parseElements_ByteSource_Fn_ioException() {
+    ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
+    assertThrows(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE), UncheckedIOException.class);
   }
 
   //-------------------------------------------------------------------------
