@@ -2,6 +2,7 @@ sudo: false
 language: java
 jdk:
   - openjdk11
+  - openjdk8
   - oraclejdk8
 cache:
   directories:

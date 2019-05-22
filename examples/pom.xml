@@ -105,7 +105,30 @@
 
   <!-- ==================================================================== -->
   <profiles>
-    <!-- Include OpenJDK jar files on Java 11 -->
+    <!-- Exclude if JDK does not contain JavaFX on Java 8 -->
+    <profile>
+      <id>javafx-missing</id>
+      <activation>
+        <jdk>[1.8,11)</jdk>
+        <file>
+          <missing>${java.home}/lib/ext/jfxrt.jar</missing>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>com/opengamma/strata/examples/gui/*.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- Include OpenJFX jar files on Java 11 -->
     <profile>
       <id>openjfx-dep</id>
       <activation>

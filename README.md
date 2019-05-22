@@ -49,8 +49,17 @@ Simply run this command to compile and install the source code locally:
   mvn install
 ```
 
-Note that Strata is based on Java SE 8.
-Version 8u40 or later is required to compile the code.
+Strata is based on Java SE 8.
+Our continuous integration regularly builds on both Java 8 and Java 11.
+When using Java 8, version 8u40 or later is required due to bugs in earlier versions.
+We do not recommend use of non-LTS releases, such as Java 9, 10 and 12.
+
+The Strata examples project includes a GUI based on JavaFX.
+On Java 8, this will be excluded from compilation if JavaFX is not available in the JDK.
+On Java 11, OpenJFX is included as a jar file from Maven Central, so the GUI is always compiled.
+
+We recommend builds of OpenJDK from providers other than Oracle, notably
+[Amazon Corretto](https://aws.amazon.com/corretto/) and [AdoptOpenJDK](https://adoptopenjdk.net/).
 
 For more information about developing code on Strata
 see the [documentation](https://strata.opengamma.io).
@@ -59,7 +68,8 @@ see the [documentation](https://strata.opengamma.io).
 Status
 ------
 
-Strata is well-maintained, tested, functional, and is being used in production.
+Strata is well-maintained, tested and functional.
+It is used in production as the core of [OpenGamma SaaS Analytics](https://opengamma.com/).
 The API will be maintained with backwards compatibility in mind.
 
 
