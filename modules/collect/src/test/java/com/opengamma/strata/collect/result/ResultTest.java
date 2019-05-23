@@ -11,9 +11,9 @@ import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
@@ -53,6 +53,22 @@ public class ResultTest {
     assertEquals(test.getValueOrElse("blue"), "success");
     assertThrowsIllegalArg(() -> test.getValueOrElse(null));
     assertThrowsIllegalArg(() -> test.getValueOrElseApply(null));
+  }
+
+  public void ifSuccess() {
+    Result<String> test = Result.success("success");
+    test.ifSuccess(value -> assertEquals(value, "success"));
+  }
+
+  public void ifFailure() {
+    Result<String> test = Result.failure(FailureReason.INVALID, "no success");
+    test.ifFailure((value, failure) -> {
+      assertNull(value);
+      assertEquals(
+          failure.getReason(),
+          FailureReason.INVALID);
+      assertEquals(failure.getMessage(), "no success");
+    });
   }
 
   public void success_getFailure() {

@@ -10,7 +10,9 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -583,6 +585,10 @@ public final class Result<T>
     return value != null;
   }
 
+  public void ifSuccess(Consumer<? super T> consumer) {
+    consumer.accept(value);
+  }
+
   /**
    * Indicates if this result represents a failure.
    * <p>
@@ -592,6 +598,10 @@ public final class Result<T>
    */
   public boolean isFailure() {
     return failure != null;
+  }
+
+  public void ifFailure(BiConsumer<? super T, Failure> consumer) {
+    consumer.accept(value, failure);
   }
 
   //-------------------------------------------------------------------------
