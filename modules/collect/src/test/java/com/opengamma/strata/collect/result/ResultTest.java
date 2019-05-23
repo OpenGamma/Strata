@@ -57,7 +57,7 @@ public class ResultTest {
 
   public void ifSuccess() {
     Result<String> test = Result.success("success");
-    test.ifSuccess(value -> assertEquals(value, "success"));
+    test.ifSuccess(value -> assertEquals(value, "success"));;
   }
 
   public void ifFailure() {

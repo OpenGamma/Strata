@@ -585,8 +585,17 @@ public final class Result<T>
     return value != null;
   }
 
+  /**
+   * Executes the given consumer if the result represents a successful call and has a result available.
+   *
+   * This is the opposite of {@link #ifFailure(BiConsumer)}.
+   *
+   * @param consumer the consumer to be decorated
+   */
   public void ifSuccess(Consumer<? super T> consumer) {
-    consumer.accept(value);
+    if (value != null) {
+      consumer.accept(value);
+    }
   }
 
   /**
@@ -600,8 +609,17 @@ public final class Result<T>
     return failure != null;
   }
 
+  /**
+   * Executes the given consumer if the result represents a failure.
+   *
+   * This is the opposite of {@link #ifSuccess(Consumer)}.
+   *
+   * @param consumer the consumer to be decorated
+   */
   public void ifFailure(BiConsumer<? super T, Failure> consumer) {
-    consumer.accept(value, failure);
+    if (failure != null) {
+      consumer.accept(value, failure);
+    }
   }
 
   //-------------------------------------------------------------------------
