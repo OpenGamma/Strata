@@ -70,7 +70,15 @@ public class SyntheticRatesCurveCalibratorTest {
       RatesCalibrationCsvLoader.load(
           ResourceLocator.of(CONFIG_PATH + GROUPS_IN_USDEUR_FILE),
           ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_USDEUR_FILE),
-          ResourceLocator.of(CONFIG_PATH + NODES_IN_USDEUR_FILE)).get(CurveGroupName.of("USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS"));
+          ResourceLocator.of(CONFIG_PATH + NODES_IN_USDEUR_FILE))
+      .get(CurveGroupName.of("USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS"));
+  private static final String NODES_IN_USDEUR_FILE_2 = "USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS-2-nodes.csv";
+  private static final RatesCurveGroupDefinition GROUPS_IN_USDEUR_2 =
+      RatesCalibrationCsvLoader.load(
+          ResourceLocator.of(CONFIG_PATH + GROUPS_IN_USDEUR_FILE),
+          ResourceLocator.of(CONFIG_PATH + SETTINGS_IN_USDEUR_FILE),
+          ResourceLocator.of(CONFIG_PATH + NODES_IN_USDEUR_FILE_2))
+      .get(CurveGroupName.of("USD-EUR-DSCONOIS-L3IRS-DSCFXXCCY33-E3IRS"));
   // Group with synthetic curves, all nodes based on deposit or Fixed v Floating swaps
   private static final String GROUPS_SY_EUR_FILE = "FRTB-EUR-group.csv";
   private static final String SETTINGS_SY_EUR_FILE = "FRTB-EUR-settings.csv";
@@ -211,11 +219,29 @@ public class SyntheticRatesCurveCalibratorTest {
   }
 
   // Check FX rates are transfered in multi-currency cases.
-  public void calibrate_xccy() {
+  public void calibrate_xccy_curves_fx() {
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_USDEUR, MULTICURVE_INPUT_USDEUR_TSEMPTY, REF_DATA);
     double eurUsdInput = MULTICURVE_INPUT_USDEUR_TSEMPTY.fxRate(Currency.EUR, Currency.USD);
     double eurUsdSynthetic = multicurveSyn.fxRate(Currency.EUR, Currency.USD);
     assertEquals(eurUsdInput, eurUsdSynthetic, TOLERANCE_MQ);
+  }
+
+  // XCcy swap in target group
+  public void calibrate_xccy_intarget() {
+    RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_IN_USDEUR_2, MULTICURVE_INPUT_USDEUR_TSEMPTY, REF_DATA);
+    double eurUsdInput = MULTICURVE_INPUT_USDEUR_TSEMPTY.fxRate(Currency.EUR, Currency.USD);
+    double eurUsdSynthetic = multicurveSyn.fxRate(Currency.EUR, Currency.USD);
+    assertEquals(eurUsdInput, eurUsdSynthetic, TOLERANCE_MQ);
+    MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_IN_USDEUR_2, MULTICURVE_INPUT_USDEUR_TSEMPTY, REF_DATA);
+    for (CurveDefinition entry : GROUPS_IN_USDEUR_2.getCurveDefinitions()) {
+      ImmutableList<CurveNode> nodes = entry.getNodes();
+      for (CurveNode node : nodes) {
+        ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
+        double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_USDEUR_TSEMPTY);
+        double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
+        assertEquals(mqIn, mqSy, TOLERANCE_MQ);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------
