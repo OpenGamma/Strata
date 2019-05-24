@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -584,6 +585,17 @@ public final class Result<T>
   }
 
   /**
+   * Executes the given consumer if the result represents a successful call and has a result available.
+   *
+   * @param consumer the consumer to be decorated
+   */
+  public void ifSuccess(Consumer<? super T> consumer) {
+    if (value != null) {
+      consumer.accept(value);
+    }
+  }
+
+  /**
    * Indicates if this result represents a failure.
    * <p>
    * This is the opposite of {@link #isSuccess()}.
@@ -592,6 +604,17 @@ public final class Result<T>
    */
   public boolean isFailure() {
     return failure != null;
+  }
+
+  /**
+   * Executes the given consumer if the result represents a failure.
+   *
+   * @param consumer the consumer to be decorated
+   */
+  public void ifFailure(Consumer<Failure> consumer) {
+    if (failure != null) {
+      consumer.accept(failure);
+    }
   }
 
   //-------------------------------------------------------------------------
