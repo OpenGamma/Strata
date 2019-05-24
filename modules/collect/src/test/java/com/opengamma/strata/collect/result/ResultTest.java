@@ -13,7 +13,6 @@ import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
 
@@ -62,8 +61,7 @@ public class ResultTest {
 
   public void ifFailure() {
     Result<String> test = Result.failure(FailureReason.INVALID, "no success");
-    test.ifFailure((value, failure) -> {
-      assertNull(value);
+    test.ifFailure((failure) -> {
       assertEquals(
           failure.getReason(),
           FailureReason.INVALID);

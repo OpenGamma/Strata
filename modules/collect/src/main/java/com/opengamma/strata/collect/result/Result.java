@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -588,8 +587,6 @@ public final class Result<T>
   /**
    * Executes the given consumer if the result represents a successful call and has a result available.
    *
-   * This is the opposite of {@link #ifFailure(BiConsumer)}.
-   *
    * @param consumer the consumer to be decorated
    */
   public void ifSuccess(Consumer<? super T> consumer) {
@@ -612,13 +609,11 @@ public final class Result<T>
   /**
    * Executes the given consumer if the result represents a failure.
    *
-   * This is the opposite of {@link #ifSuccess(Consumer)}.
-   *
    * @param consumer the consumer to be decorated
    */
-  public void ifFailure(BiConsumer<? super T, Failure> consumer) {
+  public void ifFailure(Consumer<Failure> consumer) {
     if (failure != null) {
-      consumer.accept(value, failure);
+      consumer.accept(failure);
     }
   }
 
