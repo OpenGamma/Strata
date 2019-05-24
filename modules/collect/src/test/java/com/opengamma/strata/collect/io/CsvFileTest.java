@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
@@ -37,7 +38,7 @@ public class CsvFileTest {
   private final String CSV1 = "" +
       "h1,h2\n" +
       "r11,r12\n" +
-      "r21,r22\n" +
+      "r21 ,r22\n" +
       "r31,";
 
   private final String CSV1T = "" +
@@ -64,7 +65,6 @@ public class CsvFileTest {
 
   private final String CSV4B = "" +
       "=\"alpha\",=\"be, \"\"at\"\", one\"\n" +
-      "=\"alpha\"\",\"be\"\"\", =\"\"at\"\", one\"\n" +
       "r21,=\" r22 \"\n";
 
   private final String CSV5 = "" +
@@ -345,9 +345,10 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "alpha");
     assertEquals(csvFile.row(0).field(1), "be, \"at\", one");
-    assertEquals(csvFile.row(1).fieldCount(), 2);
-    assertEquals(csvFile.row(1).field(0), "alpha\",\"be\"");
-    assertEquals(csvFile.row(1).field(1), "\"at\", one");
+    assertEquals(csvFile.row(1).fieldCount(), 3);
+    assertEquals(csvFile.row(1).field(0), "alpha\",be\"\"\"");
+    assertEquals(csvFile.row(1).field(1), "at\"\"");
+    assertEquals(csvFile.row(1).field(2), "one\"");
     assertEquals(csvFile.row(2).fieldCount(), 2);
     assertEquals(csvFile.row(2).field(0), "r21");
     assertEquals(csvFile.row(2).field(1), " r22 ");
@@ -355,23 +356,60 @@ public class CsvFileTest {
 
   public void test_of_quotingWithEquals() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV4B), false);
-    assertEquals(csvFile.rowCount(), 3);
+    assertEquals(csvFile.rowCount(), 2);
     assertEquals(csvFile.row(0).fieldCount(), 2);
     assertEquals(csvFile.row(0).field(0), "alpha");
     assertEquals(csvFile.row(0).field(1), "be, \"at\", one");
     assertEquals(csvFile.row(1).fieldCount(), 2);
-    assertEquals(csvFile.row(1).field(0), "alpha\",\"be\"");
-    assertEquals(csvFile.row(1).field(1), "\"at\", one");
-    assertEquals(csvFile.row(2).fieldCount(), 2);
-    assertEquals(csvFile.row(2).field(0), "r21");
-    assertEquals(csvFile.row(2).field(1), " r22 ");
+    assertEquals(csvFile.row(1).field(0), "r21");
+    assertEquals(csvFile.row(1).field(1), " r22 ");
   }
 
-  public void test_of_quoting_mismatched() {
-    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"alpha"), false), "Mismatched quotes in CSV on line 1");
-    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"pha"), false));
-    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al\"\"pha"), false));
-    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap("\"al,pha"), false));
+  public void test_of_quoting_oddMiddle() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap("a,\"b\"c\"d\",e"), false);
+    assertEquals(csvFile.rowCount(), 1);
+    assertEquals(csvFile.row(0).fieldCount(), 3);
+    assertEquals(csvFile.row(0).field(0), "a");
+    assertEquals(csvFile.row(0).field(1), "bc\"d\"");
+    assertEquals(csvFile.row(0).field(2), "e");
+  }
+
+  public void test_of_quoting_oddEnd() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap("a,\"b\"cd\",e"), false);
+    assertEquals(csvFile.rowCount(), 1);
+    assertEquals(csvFile.row(0).fieldCount(), 3);
+    assertEquals(csvFile.row(0).field(0), "a");
+    assertEquals(csvFile.row(0).field(1), "bcd\"");
+    assertEquals(csvFile.row(0).field(2), "e");
+  }
+
+  public void test_of_quoting_equalsEnd() {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap("a,="), false);
+    assertEquals(csvFile.rowCount(), 1);
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "a");
+    assertEquals(csvFile.row(0).field(1), "=");
+  }
+
+  @DataProvider(name = "mismatched")
+  Object[][] data_mismatched() {
+    return new Object[][] {
+        {"x,\"", ""},
+        {"x,\"a\"\"", "a\""},
+        {"x,\"alpha", "alpha"},
+        {"x,\"al,pha", "al,pha"},
+        {"x,al\"pha", "al\"pha"},
+        {"x,al\"\"pha", "al\"\"pha"},
+    };
+  }
+
+  @Test(dataProvider = "mismatched")
+  public void test_of_quoting_mismatched(String input, String expected) {
+    CsvFile csvFile = CsvFile.of(CharSource.wrap(input), false);
+    assertEquals(csvFile.rowCount(), 1);
+    assertEquals(csvFile.row(0).fieldCount(), 2);
+    assertEquals(csvFile.row(0).field(0), "x");
+    assertEquals(csvFile.row(0).field(1), expected);
   }
 
   public void test_of_quotingTrimmed() {
