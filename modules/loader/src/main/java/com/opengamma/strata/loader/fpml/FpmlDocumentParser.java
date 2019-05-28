@@ -207,8 +207,9 @@ public final class FpmlDocumentParser {
    * This parses the specified byte source to determine if it appears to be FpML.
    * <p>
    * Sometimes, the FpML document is embedded in a non-FpML wrapper.
-   * This method will intelligently find the FpML document at the root or within one or two levels
-   * of wrapper by searching for an element that contains both {@code <trade>} and {@code <party>}.
+   * This method will intelligently find the FpML document at the root, within any children of
+   * the root, or within any grand-children of the root.
+   * The FpML root element is the one that contains both {@code <trade>} and {@code <party>}.
    * 
    * @param source  the source to check
    * @return true if the source appears to be FpML
@@ -234,8 +235,9 @@ public final class FpmlDocumentParser {
    * This parses the specified byte source which must be an XML document.
    * <p>
    * Sometimes, the FpML document is embedded in a non-FpML wrapper.
-   * This method will intelligently find the FpML document at the root or within one or two levels
-   * of wrapper by searching for an element that contains both {@code <trade>} and {@code <party>}.
+   * This method will intelligently find the FpML document at the root, within any children of
+   * the root, or within any grand-children of the root.
+   * The FpML root element is the one that contains both {@code <trade>} and {@code <party>}.
    * 
    * @param source  the source of the FpML XML document
    * @return the parsed trades

@@ -106,9 +106,9 @@ public final class XmlFile {
    * Parses the element names and structure from the specified XML, filtering to reduce memory usage.
    * <p>
    * This parses the specified byte source expecting an XML file format.
-   * The filter function should return the number of levels below the current one
-   * that should be included in the response.
+   * The filter function takes the element name and decides how many child levels should be returned in the response.
    * Always returning {@code Integer.MAX_VALUE} will not filter the children.
+   * For example, a function could check if the name is "trade" and return only the immediate children by returning 1.
    * 
    * @param source  the XML source data
    * @param filterFn  the filter function to use
@@ -119,11 +119,12 @@ public final class XmlFile {
   public static XmlElement parseElements(ByteSource source, ToIntFunction<String> filterFn) {
     ArgChecker.notNull(source, "source");
     ArgChecker.notNull(filterFn, "filterFn");
+    ToIntFunction<String> safeFilterFn = name -> Math.max(filterFn.applyAsInt(name), 0);
     return Unchecked.wrap(() -> {
       try (InputStream in = source.openBufferedStream()) {
         XMLStreamReader xmlReader = xmlInputFactory().createXMLStreamReader(in);
         try {
-          return parseElements(xmlReader, filterFn, Integer.MAX_VALUE);
+          return parseElements(xmlReader, safeFilterFn, Integer.MAX_VALUE);
         } finally {
           xmlReader.close();
         }
