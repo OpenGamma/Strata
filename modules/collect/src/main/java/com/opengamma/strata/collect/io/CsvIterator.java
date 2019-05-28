@@ -88,11 +88,8 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   //------------------------------------------------------------------------
   /**
    * Parses the specified source as a CSV file, using a comma as the separator.
-   * <p>
-   * This method opens the CSV file for reading.
-   * The caller is responsible for closing it by calling {@link #close()}.
    * 
-   * @param source  the CSV file resource
+   * @param source  the source to read as CSV
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @return the CSV file
    * @throws UncheckedIOException if an IO exception occurs
@@ -107,11 +104,8 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
    * <p>
    * This overload allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
-   * <p>
-   * This method opens the CSV file for reading.
-   * The caller is responsible for closing it by calling {@link #close()}.
    * 
-   * @param source  the file resource
+   * @param source  the source to read as CSV
    * @param headerRow  whether the source has a header row, an empty source must still contain the header
    * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
    * @return the CSV file
@@ -128,9 +122,6 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   /**
    * Parses the specified reader as a CSV file, using a comma as the separator.
    * <p>
-   * This factory method allows the separator to be controlled.
-   * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
-   * <p>
    * The caller is responsible for closing the reader, such as by calling {@link #close()}.
    * 
    * @param reader  the file reader
@@ -146,7 +137,7 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
   /**
    * Parses the specified reader as a CSV file where the separator is specified and might not be a comma.
    * <p>
-   * This factory method allows the separator to be controlled.
+   * This overload allows the separator to be controlled.
    * For example, a tab-separated file is very similar to a CSV file, the only difference is the separator.
    * <p>
    * The caller is responsible for closing the reader, such as by calling {@link #close()}.

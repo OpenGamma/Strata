@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.HashMap;
@@ -213,39 +215,60 @@ public final class CsvFile {
 
   // parse a single line
   static ImmutableList<String> parseLine(String line, int lineNumber, char separator) {
-    if (line.length() == 0 || line.startsWith("#") || line.startsWith(";")) {
+    if (line.length() == 0 || line.startsWith("#") || (line.startsWith(";") && separator != ';')) {
       return ImmutableList.of();
     }
     ImmutableList.Builder<String> builder = ImmutableList.builder();
-    int start = 0;
     String terminated = line + separator;
-    int nextSeparator = terminated.indexOf(separator, start);
-    while (nextSeparator >= 0) {
-      String possible = terminated.substring(start, nextSeparator).trim();
-      // handle convention where ="xxx" means xxx
-      if (possible.startsWith("=\"")) {
-        start++;
-        possible = possible.substring(1);
-      }
-      // handle quoting where "xxx""yyy" means xxx"yyy
-      if (possible.startsWith("\"")) {
-        while (true) {
-          if (possible.substring(1).replace("\"\"", "").endsWith("\"")) {
-            possible = possible.substring(1, possible.length() - 1).replace("\"\"", "\"");
-            break;
-          } else {
-            nextSeparator = terminated.indexOf(separator, nextSeparator + 1);
-            if (nextSeparator < 0) {
-              throw new IllegalArgumentException("Mismatched quotes in CSV on line " + lineNumber);
-            }
-            possible = terminated.substring(start, nextSeparator).trim();
-          }
+    // three modes of parsing - base, value and quote
+    // to match other lenient parsers, when quote mode finishes, the mode switches to value with the result combined
+    int pos = 0;
+    int startPos = 0;
+    String value = "";
+    boolean valueMode = false;
+    boolean quoteMode = false;
+    while (pos < terminated.length()) {
+      char ch = terminated.charAt(pos++);
+      if (quoteMode) {
+        // currently in quote mode
+        if (ch == '"' && pos < terminated.length() - 1 && terminated.charAt(pos) == '"') {
+          // two double quotes will become one
+          pos++;
+        } else if (ch == '"') {
+          // end of quoted section
+          value = terminated.substring(startPos, pos - 1).replace("\"\"", "\"");
+          startPos = pos;
+          quoteMode = false;
+        } else if (pos == terminated.length()) {
+          // end of string with quote not terminated properly
+          builder.add(terminated.substring(startPos, pos - 1).replace("\"\"", "\""));
         }
+      } else if (valueMode) {
+        // currently in value mode
+        if (ch == separator) {
+          builder.add(value + terminated.substring(startPos, pos - 1).trim());
+          valueMode = false;
+          value = "";
+        }
+      } else if (ch == separator) {
+        // handle empty value
+        builder.add("");
+      } else if (ch == ' ') {
+        // ignore spaces after separators
+      } else if (ch == '=' && pos < terminated.length() - 1 && terminated.charAt(pos) == '"') {
+        // handle convention where ="xxx" means xxx by simply ignoring the equals
+      } else if (ch == '"') {
+        // quoted mode
+        startPos = pos;
+        quoteMode = true;
+        valueMode = true;
+      } else {
+        // non-quoted mode
+        startPos = pos - 1;
+        valueMode = true;
       }
-      builder.add(possible);
-      start = nextSeparator + 1;
-      nextSeparator = terminated.indexOf(separator, start);
     }
+    // check line has content
     ImmutableList<String> fields = builder.build();
     if (!hasContent(fields)) {
       return ImmutableList.of();
