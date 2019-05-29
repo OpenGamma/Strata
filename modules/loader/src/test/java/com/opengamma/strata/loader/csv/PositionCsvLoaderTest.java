@@ -6,6 +6,7 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.collect.Guavate.casting;
 import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
@@ -257,12 +258,25 @@ public class PositionCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @SuppressWarnings("deprecation")
   public void test_parseLightweight() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<SecurityPosition>> trades = test.parseLightweight(ImmutableList.of(FILE.getCharSource()));
     List<SecurityPosition> filtered = trades.getValue();
-    assertEquals(filtered.size(), 10);
+    assertLightweight(filtered);
+  }
 
+  public void test_parse_lightweightResolver() {
+    PositionCsvLoader test = PositionCsvLoader.of(LightweightPositionCsvInfoResolver.standard());
+    ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(FILE.getCharSource()));
+    List<SecurityPosition> filtered = trades.getValue().stream()
+        .map(casting(SecurityPosition.class))
+        .collect(toImmutableList());
+    assertLightweight(filtered);
+  }
+
+  private void assertLightweight(List<SecurityPosition> filtered) {
+    assertEquals(filtered.size(), 10);
     assertBeanEquals(SECURITY1, filtered.get(0));
     assertBeanEquals(SECURITY2, filtered.get(1));
     assertBeanEquals(SECURITY3, filtered.get(2));

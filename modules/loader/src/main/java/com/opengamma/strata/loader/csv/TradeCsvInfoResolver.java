@@ -31,7 +31,7 @@ public interface TradeCsvInfoResolver {
   /**
    * Obtains an instance that uses the standard set of reference data.
    * 
-   * @return the loader
+   * @return the resolver
    */
   public static TradeCsvInfoResolver standard() {
     return StandardCsvInfoImpl.INSTANCE;
@@ -41,7 +41,7 @@ public interface TradeCsvInfoResolver {
    * Obtains an instance that uses the specified set of reference data.
    * 
    * @param refData  the reference data
-   * @return the loader
+   * @return the resolver
    */
   public static TradeCsvInfoResolver of(ReferenceData refData) {
     return StandardCsvInfoImpl.of(refData);

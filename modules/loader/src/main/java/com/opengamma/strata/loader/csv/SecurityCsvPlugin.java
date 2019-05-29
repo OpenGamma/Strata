@@ -27,10 +27,8 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
-import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.GenericSecurity;
-import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
@@ -97,7 +95,7 @@ final class SecurityCsvPlugin {
         return resolver.parseEtdFuturePosition(row, info);
       }
     } else {
-      return parseNonEtdPosition(row, info, resolver);
+      return resolver.parseNonEtdPosition(row, info);
     }
   }
 
@@ -112,34 +110,8 @@ final class SecurityCsvPlugin {
       }
     } else {
       // simple
-      return parseSecurityPosition(row, info, resolver);
+      return resolver.parseNonEtdSecurityPosition(row, info);
     }
-  }
-
-  // parses the base SecurityPosition
-  static SecurityPosition parseSecurityPosition(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
-    String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
-    String securityIdValue = row.getValue(SECURITY_ID_FIELD);
-    SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
-    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
-    SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
-    return resolver.completePosition(row, position);
-  }
-
-  // parses the additional GenericSecurityPosition information
-  static Position parseNonEtdPosition(CsvRow row, PositionInfo info, PositionCsvInfoResolver resolver) {
-    SecurityPosition base = parseSecurityPosition(row, info, resolver);
-    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE).map(str -> LoaderUtils.parseDouble(str));
-    Optional<Currency> currencyOpt = row.findValue(CURRENCY).map(str -> Currency.of(str));
-    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE).map(str -> LoaderUtils.parseDouble(str));
-    double contractSize = row.findValue(CONTRACT_SIZE).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
-    if (tickSizeOpt.isPresent() && currencyOpt.isPresent() && tickValueOpt.isPresent()) {
-      SecurityPriceInfo priceInfo =
-          SecurityPriceInfo.of(tickSizeOpt.get(), CurrencyAmount.of(currencyOpt.get(), tickValueOpt.get()), contractSize);
-      GenericSecurity sec = GenericSecurity.of(SecurityInfo.of(base.getSecurityId(), priceInfo));
-      return GenericSecurityPosition.ofLongShort(base.getInfo(), sec, base.getLongQuantity(), base.getShortQuantity());
-    }
-    return base;
   }
 
   //-------------------------------------------------------------------------

@@ -23,7 +23,7 @@ public interface SensitivityCsvInfoResolver {
   /**
    * Obtains an instance that uses the standard set of reference data.
    * 
-   * @return the loader
+   * @return the resolver
    */
   public static SensitivityCsvInfoResolver standard() {
     return StandardCsvInfoImpl.INSTANCE;
@@ -33,7 +33,7 @@ public interface SensitivityCsvInfoResolver {
    * Obtains an instance that uses the specified set of reference data.
    * 
    * @param refData  the reference data
-   * @return the loader
+   * @return the resolver
    */
   public static SensitivityCsvInfoResolver of(ReferenceData refData) {
     return StandardCsvInfoImpl.of(refData);
