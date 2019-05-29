@@ -223,22 +223,6 @@ public final class CsvOutput {
   }
 
   /**
-   * Writes multiple {@code CsvRow}s to the underlying.
-   * <p>
-   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
-   *
-   * @param rows  the rows to write
-   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
-   * @throws UncheckedIOException if an IO exception occurs
-   */
-  public void writeRows(Iterable<CsvRow> rows, boolean alwaysQuote) {
-    ArgChecker.notNull(rows, "rows");
-    for (CsvRow row : rows) {
-      writeRow(row, alwaysQuote);
-    }
-  }
-
-  /**
    * Writes a single CSV line to the underlying, only quoting if needed.
    * <p>
    * This can be used as a method reference from a {@code Stream} pipeline from
@@ -272,6 +256,22 @@ public final class CsvOutput {
       writeCell(cell, alwaysQuote);
     }
     writeNewLine();
+  }
+
+  /**
+   * Writes multiple {@code CsvRow}s to the underlying.
+   * <p>
+   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   *
+   * @param rows  the rows to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRows(Iterable<CsvRow> rows, boolean alwaysQuote) {
+    ArgChecker.notNull(rows, "rows");
+    for (CsvRow row : rows) {
+      writeRow(row, alwaysQuote);
+    }
   }
 
   /**
