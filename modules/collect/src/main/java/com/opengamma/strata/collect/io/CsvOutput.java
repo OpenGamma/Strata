@@ -174,6 +174,218 @@ public final class CsvOutput {
     return new CsvOutput(underlying, newLine, separator, true);
   }
 
+  /**
+   * Writes the provided {@code CsvFile} to the underlying, using the system default line separator and using a
+   * comma separator.
+   * <p>
+   * See the standard quoting rules in the class-level documentation.
+   *
+   * @param file  the file whose contents to output
+   * @param underlying  the destination to write to
+   */
+  public static void writeStandard(CsvFile file, Appendable underlying) {
+    writeStandard(file, underlying, NEW_LINE, COMMA);
+  }
+
+  /**
+   * Writes the provided {@code CsvFile} to the underlying, allowing the new line character to be controlled and
+   * using a comma separator.
+   * <p>
+   * See the standard quoting rules in the class-level documentation.
+   *
+   * @param file  the file whose contents to output
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   */
+  public static void writeStandard(CsvFile file, Appendable underlying, String newLine) {
+    writeStandard(file, underlying, newLine, COMMA);
+  }
+
+  /**
+   * Writes the provided {@code CsvFile} to the underlying, allowing the new line character to be controlled,
+   * specifying the separator.
+   * <p>
+   * See the standard quoting rules in the class-level documentation.
+   *
+   * @param file  the file whose contents to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   */
+  public static void writeStandard(CsvFile file, Appendable underlying, String newLine, String separator) {
+    CsvOutput output = new CsvOutput(underlying, newLine, separator, false);
+    output.writeLine(file.headers(), false);
+    output.writeRows(file.rows(), false);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying, using the system default line
+   * separator and using a comma separator.
+   * <p>
+   * See the standard quoting rules in the class-level documentation.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param underlying  the destination to write to
+   */
+  public static void writeStandard(CsvIterator iterator, Appendable underlying) {
+    writeStandard(iterator, underlying, NEW_LINE, COMMA);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying, allowing the new line character to
+   * be controlled and using a comma separator.
+   * <p>
+   * See the standard quoting rules in the class-level documentation.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   */
+  public static void writeStandard(CsvIterator iterator, Appendable underlying, String newLine) {
+    writeStandard(iterator, underlying, newLine, COMMA);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying, allowing the new line character to
+   * be controlled, specifying the separator.
+   * <p>
+   * See the standard quoting rules in the class-level documentation.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   */
+  public static void writeStandard(CsvIterator iterator, Appendable underlying, String newLine, String separator) {
+    CsvOutput output = new CsvOutput(underlying, newLine, separator, false);
+    output.writeLine(iterator.headers(), false);
+    iterator.asStream().forEachOrdered(output::writeRow);
+  }
+
+  /**
+   * Writes the provided {@code CsvFile} to the underlying, using the system default line separator and using a
+   * comma separator.
+   * <p>
+   * This applies the standard quoting rules from the class-level documentation, plus an additional rule.
+   * If an entry starts with an expression character, '=', '@', '+' or '-', the entry
+   * will be quoted and the quote section will be preceeded by equals.
+   * Thus, the string '=Foo' will be written as '="=Foo"'.
+   * This avoids the string being treated as an expression by tools like Excel.
+   * Simple numbers are not quoted.
+   * Thus, the number '-1234' will still be written as '-1234'.
+   *
+   * @param file  the file whose contents to write
+   * @param underlying  the destination to write to
+   */
+  public static void writeSafe(CsvFile file, Appendable underlying) {
+    writeSafe(file, underlying, NEW_LINE, COMMA);
+  }
+
+  /**
+   * Writes the provided {@code CsvFile} to the underlying, allowing the new line character to be controlled and
+   * using a comma separator.
+   * <p>
+   * This applies the standard quoting rules from the class-level documentation, plus an additional rule.
+   * If an entry starts with an expression character, '=', '@', '+' or '-', the entry
+   * will be quoted and the quote section will be preceeded by equals.
+   * Thus, the string '=Foo' will be written as '="=Foo"'.
+   * This avoids the string being treated as an expression by tools like Excel.
+   * Simple numbers are not quoted.
+   * Thus, the number '-1234' will still be written as '-1234'.
+   *
+   * @param file  the file whose contents to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   */
+  public static void writeSafe(CsvFile file, Appendable underlying, String newLine) {
+    writeSafe(file, underlying, newLine, COMMA);
+  }
+
+  /**
+   * Writes the provided {@code CsvFile} to the underlying, allowing the new line character to be controlled,
+   * specifying the separator.
+   * <p>
+   * This applies the standard quoting rules from the class-level documentation, plus an additional rule.
+   * If an entry starts with an expression character, '=', '@', '+' or '-', the entry
+   * will be quoted and the quote section will be preceeded by equals.
+   * Thus, the string '=Foo' will be written as '="=Foo"'.
+   * This avoids the string being treated as an expression by tools like Excel.
+   * Simple numbers are not quoted.
+   * Thus, the number '-1234' will still be written as '-1234'.
+   *
+   * @param file  the file whose contents to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   */
+  public static void writeSafe(CsvFile file, Appendable underlying, String newLine, String separator) {
+    CsvOutput output = new CsvOutput(underlying, newLine, separator, true);
+    output.writeLine(file.headers(), false);
+    output.writeRows(file.rows(), false);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying, using the system default line separator
+   * and using a comma separator.
+   * <p>
+   * This applies the standard quoting rules from the class-level documentation, plus an additional rule.
+   * If an entry starts with an expression character, '=', '@', '+' or '-', the entry
+   * will be quoted and the quote section will be preceeded by equals.
+   * Thus, the string '=Foo' will be written as '="=Foo"'.
+   * This avoids the string being treated as an expression by tools like Excel.
+   * Simple numbers are not quoted.
+   * Thus, the number '-1234' will still be written as '-1234'.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param underlying  the destination to write to
+   */
+  public static void writeSafe(CsvIterator iterator, Appendable underlying) {
+    writeSafe(iterator, underlying, NEW_LINE, COMMA);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying, allowing the new line character to be
+   * controlled and using a comma separator.
+   * <p>
+   * This applies the standard quoting rules from the class-level documentation, plus an additional rule.
+   * If an entry starts with an expression character, '=', '@', '+' or '-', the entry
+   * will be quoted and the quote section will be preceeded by equals.
+   * Thus, the string '=Foo' will be written as '="=Foo"'.
+   * This avoids the string being treated as an expression by tools like Excel.
+   * Simple numbers are not quoted.
+   * Thus, the number '-1234' will still be written as '-1234'.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   */
+  public static void writeSafe(CsvIterator iterator, Appendable underlying, String newLine) {
+    writeSafe(iterator, underlying, newLine, COMMA);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying, allowing the new line character to
+   * be controlled, specifying the separator.
+   * <p>
+   * This applies the standard quoting rules from the class-level documentation, plus an additional rule.
+   * If an entry starts with an expression character, '=', '@', '+' or '-', the entry
+   * will be quoted and the quote section will be preceeded by equals.
+   * Thus, the string '=Foo' will be written as '="=Foo"'.
+   * This avoids the string being treated as an expression by tools like Excel.
+   * Simple numbers are not quoted.
+   * Thus, the number '-1234' will still be written as '-1234'.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param underlying  the destination to write to
+   * @param newLine  the new line string
+   * @param separator  the separator used to separate each field, typically a comma, but a tab is sometimes used
+   */
+  public static void writeSafe(CsvIterator iterator, Appendable underlying, String newLine, String separator) {
+    CsvOutput output = new CsvOutput(underlying, newLine, separator, true);
+    output.writeLine(iterator.headers(), false);
+    iterator.asStream().forEachOrdered(output::writeRow);
+  }
+
   //-------------------------------------------------------------------------
   // creates an instance
   private CsvOutput(Appendable underlying, String newLine, String separator, boolean safeExpressions) {
@@ -223,6 +435,22 @@ public final class CsvOutput {
   }
 
   /**
+   * Writes multiple {@code CsvRow}s to the underlying.
+   * <p>
+   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   *
+   * @param rows  the rows to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRows(Iterable<? extends CsvRow> rows, boolean alwaysQuote) {
+    ArgChecker.notNull(rows, "rows");
+    for (CsvRow row : rows) {
+      writeRow(row, alwaysQuote);
+    }
+  }
+
+  /**
    * Writes a single CSV line to the underlying, only quoting if needed.
    * <p>
    * This can be used as a method reference from a {@code Stream} pipeline from
@@ -236,6 +464,22 @@ public final class CsvOutput {
    */
   public void writeLine(List<String> line) {
     writeLine(line, false);
+  }
+
+  /**
+   * Writes a single {@code CsvRow} to the underlying, only quoting if needed.
+   * <p>
+   * This can be used as a method reference from a {@code Stream} pipeline from
+   * {@link Stream#forEachOrdered(Consumer)}.
+   * <p>
+   * This method writes each field in the specified row to the underlying, followed by
+   * a new line character.
+   *
+   * @param row  the row to write
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRow(CsvRow row) {
+    writeRow(row, false);
   }
 
   /**
@@ -253,6 +497,26 @@ public final class CsvOutput {
   public void writeLine(List<String> line, boolean alwaysQuote) {
     ArgChecker.notNull(line, "line");
     for (String cell : line) {
+      writeCell(cell, alwaysQuote);
+    }
+    writeNewLine();
+  }
+
+  /**
+   * Writes a single {@code CsvRow} to the underlying.
+   * <p>
+   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   * <p>
+   * This method writes each field in the specified row to the underlying, followed by
+   * a new line character.
+   *
+   * @param row  the row to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRow(CsvRow row, boolean alwaysQuote) {
+    ArgChecker.notNull(row, "row");
+    for (String cell : row.fields()) {
       writeCell(cell, alwaysQuote);
     }
     writeNewLine();

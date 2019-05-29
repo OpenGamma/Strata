@@ -9,10 +9,12 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.io.CharSource;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -206,4 +208,36 @@ public class CsvOutputTest {
     assertThrows(UncheckedIOException.class, () -> output.writeNewLine());
   }
 
+  //-------------------------------------------------------------------------
+  public void test_write_csv_file_standard() throws IOException {
+    CsvFile file = CsvFile.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.writeStandard(file, underlying, "\n", ",");
+      assertEquals(underlying.toString(), "a,b,c\n1,\"=2\",3\n");
+    }
+  }
+
+  public void test_write_csv_file_safe() throws IOException {
+    CsvFile file = CsvFile.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.writeSafe(file, underlying, "\n", ",");
+      assertEquals(underlying.toString(), "a,b,c\n1,=\"=2\",3\n");
+    }
+  }
+
+  public void test_write_csv_iterator_standard() throws IOException {
+    CsvIterator iterator = CsvIterator.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.writeStandard(iterator, underlying, "\n", ",");
+      assertEquals(underlying.toString(), "a,b,c\n1,\"=2\",3\n");
+    }
+  }
+
+  public void test_write_csv_iterator_safe() throws IOException {
+    CsvIterator iterator = CsvIterator.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.writeSafe(iterator, underlying, "\n", ",");
+      assertEquals(underlying.toString(), "a,b,c\n1,=\"=2\",3\n");
+    }
+  }
 }
