@@ -9,10 +9,12 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.io.CharSource;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
@@ -206,4 +208,37 @@ public class CsvOutputTest {
     assertThrows(UncheckedIOException.class, () -> output.writeNewLine());
   }
 
+  //-------------------------------------------------------------------------
+  public void test_write_csv_file() throws IOException {
+    CsvFile file = CsvFile.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.standard(underlying, "\n", ",").writeCsvFile(file, false);
+      assertEquals(underlying.toString(), "a,b,c\n1,\"=2\",3\n");
+    }
+  }
+
+  public void test_write_csv_file_always_quote() throws IOException {
+    CsvFile file = CsvFile.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.standard(underlying, "\n", ",").writeCsvFile(file, true);
+      assertEquals(underlying.toString(), "\"a\",\"b\",\"c\"\n\"1\",\"=2\",\"3\"\n");
+    }
+  }
+
+  public void test_write_csv_iterator() throws IOException {
+    CsvIterator iterator = CsvIterator.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.standard(underlying, "\n", ",").writeCsvIterator(iterator, false);
+      assertEquals(underlying.toString(), "a,b,c\n1,\"=2\",3\n");
+    }
+  }
+
+  public void test_write_csv_iterator_always_quote() throws IOException {
+    CsvIterator iterator = CsvIterator.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+    try (StringWriter underlying = new StringWriter()) {
+      CsvOutput.standard(underlying, "\n", ",").writeCsvIterator(iterator, true);
+      assertEquals(underlying.toString(), "\"a\",\"b\",\"c\"\n\"1\",\"=2\",\"3\"\n");
+    }
+  }
 }

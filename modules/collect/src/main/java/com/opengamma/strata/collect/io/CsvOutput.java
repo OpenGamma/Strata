@@ -258,6 +258,82 @@ public final class CsvOutput {
     writeNewLine();
   }
 
+  /**
+   * Writes multiple {@code CsvRow}s to the underlying.
+   * <p>
+   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   *
+   * @param rows  the rows to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRows(Iterable<CsvRow> rows, boolean alwaysQuote) {
+    ArgChecker.notNull(rows, "rows");
+    for (CsvRow row : rows) {
+      writeRow(row, alwaysQuote);
+    }
+  }
+
+  /**
+   * Writes a single {@code CsvRow} to the underlying, only quoting if needed.
+   * <p>
+   * This can be used as a method reference from a {@code Stream} pipeline from
+   * {@link Stream#forEachOrdered(Consumer)}.
+   * <p>
+   * This method writes each field in the specified row to the underlying, followed by
+   * a new line character.
+   *
+   * @param row  the row to write
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRow(CsvRow row) {
+    writeRow(row, false);
+  }
+
+  /**
+   * Writes a single {@code CsvRow} to the underlying.
+   * <p>
+   * The boolean flag controls whether each entry is always quoted or only quoted when necessary.
+   * <p>
+   * This method writes each field in the specified row to the underlying, followed by
+   * a new line character.
+   *
+   * @param row  the row to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeRow(CsvRow row, boolean alwaysQuote) {
+    ArgChecker.notNull(row, "row");
+    for (String cell : row.fields()) {
+      writeCell(cell, alwaysQuote);
+    }
+    writeNewLine();
+  }
+
+  /**
+   * Writes the provided {@code CsvFile} to the underlying.
+   *
+   * @param file  the file whose contents to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeCsvFile(CsvFile file, boolean alwaysQuote) {
+    this.writeLine(file.headers(), alwaysQuote);
+    this.writeRows(file.rows(), alwaysQuote);
+  }
+
+  /**
+   * Writes the output of the provided {@code CsvIterator} to the underlying.
+   *
+   * @param iterator  the iterator whose output to write
+   * @param alwaysQuote  when true, each column will be quoted, when false, quoting is selective
+   * @throws UncheckedIOException if an IO exception occurs
+   */
+  public void writeCsvIterator(CsvIterator iterator, boolean alwaysQuote) {
+    this.writeLine(iterator.headers(), alwaysQuote);
+    iterator.asStream().forEachOrdered(row -> writeRow(row, alwaysQuote));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Writes a single cell to the current line, only quoting if needed.
