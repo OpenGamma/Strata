@@ -135,7 +135,7 @@ import com.opengamma.strata.product.PortfolioItemInfo;
  * <h4>Resolver</h4>
  * The standard resolver will ensure that the sensitivity always has a tenor and
  * implements {@link TenoredParameterMetadata}.
- * The resolver can be adjusted to allow date-only metadata (thereby making the 'Sensitivity Tenor' column optional.
+ * The resolver can be adjusted to allow date-only metadata (thereby making the 'Sensitivity Tenor' column optional).
  * The resolver can manipulate the tenor and/or curve name that is parsed if desired.
  */
 public final class SensitivityCsvLoader {
@@ -283,6 +283,27 @@ public final class SensitivityCsvLoader {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Parses one or more CSV format position files, merging the result to a single sensitivities instance.
+   * <p>
+   * The standard way to write sensitivities files is for each file to contain one sensitivity instance.
+   * The file format can handle multiple instances per file, where each instance has a separate identifier.
+   * Most files will not have the identifier columns, thus the identifier will be the empty string.
+   * This file handles the common case where the identifier is irrelevant by merging the sensitivities
+   * using {@link CurveSensitivities#mergedWith(CurveSensitivities)}
+   * <p>
+   * CSV files sometimes contain a Unicode Byte Order Mark.
+   * Callers are responsible for handling this, such as by using {@link UnicodeBom}.
+   * 
+   * @param charSources  the CSV character sources
+   * @return the loaded sensitivities, parsing errors are captured in the result
+   */
+  public ValueWithFailures<CurveSensitivities> parseAndMerge(Collection<CharSource> charSources) {
+    ValueWithFailures<ListMultimap<String, CurveSensitivities>> parsed = parse(charSources);
+    return parsed.withValue(parsed.getValue().values().stream()
+        .reduce(CurveSensitivities.empty(), CurveSensitivities::mergedWith));
+  }
+
   /**
    * Parses one or more CSV format position files, returning sensitivities.
    * <p>

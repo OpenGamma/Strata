@@ -171,6 +171,8 @@ public final class SensitivityCsvLoaderTest {
     assertSens(csens0, ZERO_RATE_GAMMA, "GBP-LIBOR", GBP, tenors, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1);
     assertSens(csens0, OTHER, "GBP", GBP, tenors, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0);
     assertSens(csens0, OTHER, "GBP-LIBOR", GBP, tenors, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0);
+
+    assertEquals(LOADER.parseAndMerge(ImmutableList.of(source)).getValue(), csens0);
   }
 
   public void test_parse_list_full() {
