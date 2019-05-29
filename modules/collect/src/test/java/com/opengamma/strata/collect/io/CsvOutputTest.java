@@ -209,35 +209,36 @@ public class CsvOutputTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_write_csv_file_standard() throws IOException {
+  public void test_write_csv_file() throws IOException {
     CsvFile file = CsvFile.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
+
     try (StringWriter underlying = new StringWriter()) {
-      CsvOutput.writeStandard(file, underlying, "\n", ",");
+      CsvOutput.standard(underlying, "\n", ",").writeCsvFile(file, false);
       assertEquals(underlying.toString(), "a,b,c\n1,\"=2\",3\n");
     }
   }
 
-  public void test_write_csv_file_safe() throws IOException {
+  public void test_write_csv_file_always_quote() throws IOException {
     CsvFile file = CsvFile.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
     try (StringWriter underlying = new StringWriter()) {
-      CsvOutput.writeSafe(file, underlying, "\n", ",");
-      assertEquals(underlying.toString(), "a,b,c\n1,=\"=2\",3\n");
+      CsvOutput.standard(underlying, "\n", ",").writeCsvFile(file, true);
+      assertEquals(underlying.toString(), "\"a\",\"b\",\"c\"\n\"1\",\"=2\",\"3\"\n");
     }
   }
 
-  public void test_write_csv_iterator_standard() throws IOException {
+  public void test_write_csv_iterator() throws IOException {
     CsvIterator iterator = CsvIterator.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
     try (StringWriter underlying = new StringWriter()) {
-      CsvOutput.writeStandard(iterator, underlying, "\n", ",");
+      CsvOutput.standard(underlying, "\n", ",").writeCsvIterator(iterator, false);
       assertEquals(underlying.toString(), "a,b,c\n1,\"=2\",3\n");
     }
   }
 
-  public void test_write_csv_iterator_safe() throws IOException {
+  public void test_write_csv_iterator_always_quote() throws IOException {
     CsvIterator iterator = CsvIterator.of(CharSource.wrap("a,b,c\n1,=2,3"), true);
     try (StringWriter underlying = new StringWriter()) {
-      CsvOutput.writeSafe(iterator, underlying, "\n", ",");
-      assertEquals(underlying.toString(), "a,b,c\n1,=\"=2\",3\n");
+      CsvOutput.standard(underlying, "\n", ",").writeCsvIterator(iterator, true);
+      assertEquals(underlying.toString(), "\"a\",\"b\",\"c\"\n\"1\",\"=2\",\"3\"\n");
     }
   }
 }
