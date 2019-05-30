@@ -149,7 +149,7 @@ public final class LoaderUtils {
         return false;
       default:
         throw new IllegalArgumentException(
-            "Unknown BuySell value, must be 'True' or 'False' but was '" + str + "'; " +
+            "Unknown Boolean value, must be 'True' or 'False' but was '" + str + "'; " +
                 "parser is case insensitive and also accepts 'T', 'Yes', 'Y', 'F', 'No' and 'N'");
     }
   }
