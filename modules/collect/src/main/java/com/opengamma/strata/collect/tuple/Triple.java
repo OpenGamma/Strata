@@ -8,6 +8,8 @@ package com.opengamma.strata.collect.tuple;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -75,6 +77,56 @@ public final class Triple<A, B, C>
    */
   public static <A, B, C> Triple<A, B, C> of(A first, B second, C third) {
     return new Triple<A, B, C>(first, second, third);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a combiner of triple instances.
+   * <p>
+   * This is useful if you have a stream of {@code Triple<A, B, C>} and would like to call reduce.
+   * <p>
+   * e.g
+   * <pre>{@code tripleList.stream()
+   *     .reduce(Triple.combining(A::combinedWith, B::combinedWith, C::combinedWith))
+   * }</pre>
+   *
+   * @param <A>  the type of the first values
+   * @param <B>  the type of the second values
+   * @param <C>  the type of the third values
+   * @param combinerFirst  the combiner of first values
+   * @param combinerSecond  the combiner of second values
+   * @param combinerThird  the combiner of third values
+   * @return the combiner of triple instances
+   */
+  public static <A, B, C> BinaryOperator<Triple<A, B, C>> combining(
+      BiFunction<? super A, ? super A, ? extends A> combinerFirst,
+      BiFunction<? super B, ? super B, ? extends B> combinerSecond,
+      BiFunction<? super C, ? super C, ? extends C> combinerThird) {
+
+    return (triple1, triple2) -> triple1.combinedWith(triple2, combinerFirst, combinerSecond, combinerThird);
+  }
+
+  /**
+   * Combines this instance with another.
+   *
+   * @param <Q>  the type of the first value in the other instance
+   * @param <R>  the type of the second value in the other instance
+   * @param <S>  the type of the third value in the other instance
+   * @param combinerFirst  the combiner of first values
+   * @param combinerSecond  the combiner of second values
+   * @param combinerThird  the combiner of third values
+   * @return the combined triple instance
+   */
+  public <Q, R, S> Triple<A, B, C> combinedWith(
+      Triple<Q, R, S> other,
+      BiFunction<? super A, ? super Q, ? extends A> combinerFirst,
+      BiFunction<? super B, ? super R, ? extends B> combinerSecond,
+      BiFunction<? super C, ? super S, ? extends C> combinerThird) {
+
+    return Triple.of(
+        combinerFirst.apply(first, other.getFirst()),
+        combinerSecond.apply(second, other.getSecond()),
+        combinerThird.apply(third, other.getThird()));
   }
 
   //-------------------------------------------------------------------------

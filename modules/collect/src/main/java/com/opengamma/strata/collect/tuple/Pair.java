@@ -8,6 +8,8 @@ package com.opengamma.strata.collect.tuple;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -69,6 +71,47 @@ public final class Pair<A, B>
    */
   public static <A, B> Pair<A, B> of(A first, B second) {
     return new Pair<>(first, second);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a combiner of pair instances.
+   * <p>
+   * This is useful if you have a stream of {@code Pair<A, B>} and would like to reduce.
+   * <p>
+   * e.g
+   * <pre>{@code pairList.stream()
+   *     .reduce(Pair.combining(A::combinedWith, B::combinedWith))
+   * }</pre>
+   *
+   * @param <A>  the type of the first values
+   * @param <B>  the type of the second values
+   * @param combinerFirst  the combiner of first values
+   * @param combinerSecond  the combiner of second values
+   * @return the combiner of pair instance
+   */
+  public static <A, B> BinaryOperator<Pair<A, B>> combining(
+      BiFunction<? super A, ? super A, ? extends A> combinerFirst,
+      BiFunction<? super B, ? super B, ? extends B> combinerSecond) {
+
+    return (pair1, pair2) -> pair1.combinedWith(pair2, combinerFirst, combinerSecond);
+  }
+
+  /**
+   * Combines this instance with another.
+   *
+   * @param <C>  the type of the first value in the other instance
+   * @param <D>  the type of the second value in the other instance
+   * @param combinerFirst  the combiner of first values
+   * @param combinerSecond  the combiner of second values
+   * @return the combined pair instance
+   */
+  public <C, D> Pair<A, B> combinedWith(
+      Pair<C, D> other,
+      BiFunction<? super A, ? super C, ? extends A> combinerFirst,
+      BiFunction<? super B, ? super D, ? extends B> combinerSecond) {
+
+    return Pair.of(combinerFirst.apply(first, other.getFirst()), combinerSecond.apply(second, other.getSecond()));
   }
 
   //-------------------------------------------------------------------------

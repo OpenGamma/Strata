@@ -8,6 +8,8 @@ package com.opengamma.strata.collect.tuple;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.stream.Stream;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -65,6 +67,18 @@ public class TripleTest {
   @Test(dataProvider = "factoryNull", expectedExceptions = IllegalArgumentException.class)
   public void test_of_null(Object first, Object second, Object third) {
     Triple.of(first, second, third);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_combining() {
+    Triple<Integer, Integer, String> summed = Stream.of(Triple.of(10, 11, "3"), Triple.of(10, 11, "4"))
+        .reduce(Triple.of(0, 0, ""), Triple.combining(Integer::sum, Integer::sum, String::concat));
+    assertEquals(summed, Triple.of(20, 22, "34"));
+  }
+
+  public void test_combinedWith() {
+    Triple<String, Integer, Double> combined = Triple.of("1", 10, 4d).combinedWith(Triple.of("A", 20, 5d), String::concat, Integer::sum, Double::sum);
+    assertEquals(combined, Triple.of("1A", 30, 9d));
   }
 
   //-------------------------------------------------------------------------

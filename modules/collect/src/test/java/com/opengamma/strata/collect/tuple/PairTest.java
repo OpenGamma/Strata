@@ -8,6 +8,8 @@ package com.opengamma.strata.collect.tuple;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.stream.Stream;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -64,6 +66,18 @@ public class PairTest {
   @Test(dataProvider = "factoryNull", expectedExceptions = IllegalArgumentException.class)
   public void test_of_null(Object first, Object second) {
     Pair.of(first, second);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_combining() {
+    Pair<Integer, Integer> summed = Stream.of(Pair.of(10, 11), Pair.of(10, 11))
+        .reduce(Pair.of(0, 0), Pair.combining(Integer::sum, Integer::sum));
+    assertEquals(summed, Pair.of(20, 22));
+  }
+
+  public void test_combinedWith() {
+    Pair<String, String> combined = Pair.of("1", "2").combinedWith(Pair.of("A", "B"), String::concat, String::concat);
+    assertEquals(combined, Pair.of("1A", "2B"));
   }
 
   //-------------------------------------------------------------------------
