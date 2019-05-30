@@ -240,7 +240,10 @@ public final class XCcyIborIborSwapCurveNode
     FxRate fxRate = marketData.getValue(fxRateId);
     double rate = fxRate.fxRate(template.getCurrencyPair());
     BuySell buySell = quantity > 0 ? BuySell.SELL : BuySell.BUY;
-    return template.createTrade(marketData.getValuationDate(), buySell, Math.abs(quantity), rate, marketQuote, refData);
+    double spreadLegNotional = Math.abs(quantity);
+    double flatLegNotional = spreadLegNotional * rate;
+    return template.createTrade(
+        marketData.getValuationDate(), buySell, spreadLegNotional, flatLegNotional, marketQuote, refData);
   }
 
   @Override
