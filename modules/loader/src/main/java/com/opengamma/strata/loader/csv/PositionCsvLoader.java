@@ -264,7 +264,9 @@ public final class PositionCsvLoader {
    * 
    * @param charSources  the CSV character sources
    * @return the loaded positions, all errors are captured in the result
+   * @deprecated Use {@link LightweightPositionCsvInfoResolver} instead
    */
+  @Deprecated
   public ValueWithFailures<List<SecurityPosition>> parseLightweight(Collection<CharSource> charSources) {
     return parse(charSources, SecurityPosition.class);
   }
@@ -332,9 +334,9 @@ public final class PositionCsvLoader {
             case "SEC":
             case "SECURITY":
               if (posType == SecurityPosition.class || posType == ResolvableSecurityPosition.class) {
-                positions.add(posType.cast(SecurityCsvPlugin.parseSecurityPosition(row, info, resolver)));
+                positions.add(posType.cast(resolver.parseNonEtdSecurityPosition(row, info)));
               } else if (posType == GenericSecurityPosition.class || posType == Position.class) {
-                Position parsed = SecurityCsvPlugin.parseNonEtdPosition(row, info, resolver);
+                Position parsed = resolver.parseNonEtdPosition(row, info);
                 if (posType.isInstance(parsed)) {
                   positions.add(posType.cast(parsed));
                 }

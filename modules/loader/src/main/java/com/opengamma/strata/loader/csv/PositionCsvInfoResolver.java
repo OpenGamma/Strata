@@ -6,25 +6,39 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_CODE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_SIZE;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CURRENCY;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.DEFAULT_OPTION_VERSION_NUMBER;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXCHANGE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_SIZE;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_VALUE;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.UNDERLYING_EXPIRY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.VERSION_FIELD;
+import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
 
 import java.time.YearMonth;
+import java.util.Optional;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.GenericSecurity;
+import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.PositionInfoBuilder;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPosition;
+import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.common.ExchangeId;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.etd.EtdContractCode;
@@ -50,7 +64,7 @@ public interface PositionCsvInfoResolver {
   /**
    * Obtains an instance that uses the standard set of reference data.
    * 
-   * @return the loader
+   * @return the resolver
    */
   public static PositionCsvInfoResolver standard() {
     return StandardCsvInfoImpl.INSTANCE;
@@ -60,7 +74,7 @@ public interface PositionCsvInfoResolver {
    * Obtains an instance that uses the specified set of reference data.
    * 
    * @param refData  the reference data
-   * @return the loader
+   * @return the resolver
    */
   public static PositionCsvInfoResolver of(ReferenceData refData) {
     return StandardCsvInfoImpl.of(refData);
@@ -132,6 +146,52 @@ public interface PositionCsvInfoResolver {
   public default SecurityPosition completePosition(CsvRow row, SecurityPosition position) {
     // do nothing
     return position;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a non-ETD position from the CSV row.
+   * <p>
+   * This parses the basic {@link SecurityPosition} and then tries to parse the
+   * extra details to convert it into a {@link GenericSecurityPosition}.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the position information
+   * @return the parsed position
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  public default Position parseNonEtdPosition(CsvRow row, PositionInfo info) {
+    SecurityPosition base = parseNonEtdSecurityPosition(row, info);
+    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE).map(str -> LoaderUtils.parseDouble(str));
+    Optional<Currency> currencyOpt = row.findValue(CURRENCY).map(str -> Currency.of(str));
+    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE).map(str -> LoaderUtils.parseDouble(str));
+    double contractSize = row.findValue(CONTRACT_SIZE).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
+    if (tickSizeOpt.isPresent() && currencyOpt.isPresent() && tickValueOpt.isPresent()) {
+      SecurityPriceInfo priceInfo =
+          SecurityPriceInfo.of(tickSizeOpt.get(), CurrencyAmount.of(currencyOpt.get(), tickValueOpt.get()), contractSize);
+      GenericSecurity sec = GenericSecurity.of(SecurityInfo.of(base.getSecurityId(), priceInfo));
+      return GenericSecurityPosition.ofLongShort(base.getInfo(), sec, base.getLongQuantity(), base.getShortQuantity());
+    }
+    return base;
+  }
+
+  /**
+   * Parses a non-ETD position from the CSV row.
+   * <p>
+   * This parses the basic {@link SecurityPosition} without using reference data.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the position information
+   * @return the parsed position
+   * @throws IllegalArgumentException if the row cannot be parsed
+   */
+  public default SecurityPosition parseNonEtdSecurityPosition(CsvRow row, PositionInfo info) {
+    String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
+    String securityIdValue = row.getValue(SECURITY_ID_FIELD);
+    SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
+    DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
+    SecurityPosition position = SecurityPosition.ofLongShort(info, securityId, quantity.getFirst(), quantity.getSecond());
+    return completePosition(row, position);
   }
 
   //-------------------------------------------------------------------------
