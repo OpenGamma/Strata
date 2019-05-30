@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -89,18 +90,18 @@ public final class Triple<A, B, C>
    *     .reduce(Triple.combining(A::combinedWith, B::combinedWith, C::combinedWith))
    * }</pre>
    *
-   * @param <Q>  the type of the first values in the other instances
-   * @param <R>  the type of the second values in the other instances
-   * @param <S>  the type of the third values in the other instances
+   * @param <A>  the type of the first values
+   * @param <B>  the type of the second values
+   * @param <C>  the type of the third values
    * @param combinerFirst  the combiner of first values
    * @param combinerSecond  the combiner of second values
    * @param combinerThird  the combiner of third values
    * @return the combiner of triple instances
    */
-  public <Q, R, S> BiFunction<Triple<A, B, C>, Triple<Q, R, S>, Triple<A, B, C>> combining(
-      BiFunction<? super A, ? super Q, ? extends A> combinerFirst,
-      BiFunction<? super B, ? super R, ? extends B> combinerSecond,
-      BiFunction<? super C, ? super S, ? extends C> combinerThird) {
+  public static <A, B, C> BinaryOperator<Triple<A, B, C>> combining(
+      BiFunction<? super A, ? super A, ? extends A> combinerFirst,
+      BiFunction<? super B, ? super B, ? extends B> combinerSecond,
+      BiFunction<? super C, ? super C, ? extends C> combinerThird) {
 
     return (triple1, triple2) -> triple1.combinedWith(triple2, combinerFirst, combinerSecond, combinerThird);
   }

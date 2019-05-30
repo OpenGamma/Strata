@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -83,15 +84,15 @@ public final class Pair<A, B>
    *     .reduce(Pair.combining(A::combinedWith, B::combinedWith))
    * }</pre>
    *
-   * @param <C>  the type of the first values in the other instances
-   * @param <D>  the type of the second values in the other instances
+   * @param <A>  the type of the first values
+   * @param <B>  the type of the second values
    * @param combinerFirst  the combiner of first values
    * @param combinerSecond  the combiner of second values
    * @return the combiner of pair instance
    */
-  public <C, D> BiFunction<Pair<A, B>, Pair<C, D>, Pair<A, B>> combining(
-      BiFunction<? super A, ? super C, ? extends A> combinerFirst,
-      BiFunction<? super B, ? super D, ? extends B> combinerSecond) {
+  public static <A, B> BinaryOperator<Pair<A, B>> combining(
+      BiFunction<? super A, ? super A, ? extends A> combinerFirst,
+      BiFunction<? super B, ? super B, ? extends B> combinerSecond) {
 
     return (pair1, pair2) -> pair1.combinedWith(pair2, combinerFirst, combinerSecond);
   }

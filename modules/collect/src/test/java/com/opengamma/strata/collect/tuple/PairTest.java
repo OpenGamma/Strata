@@ -8,6 +8,8 @@ package com.opengamma.strata.collect.tuple;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+import java.util.stream.Stream;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -25,7 +27,7 @@ public class PairTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
   public static Object[][] data_factory() {
-    return new Object[][] {
+    return new Object[][]{
         {"A", "B"},
         {"A", 200.2d},
     };
@@ -54,7 +56,7 @@ public class PairTest {
 
   @DataProvider(name = "factoryNull")
   public static Object[][] data_factoryNull() {
-    return new Object[][] {
+    return new Object[][]{
         {null, null},
         {null, "B"},
         {"A", null},
@@ -64,6 +66,20 @@ public class PairTest {
   @Test(dataProvider = "factoryNull", expectedExceptions = IllegalArgumentException.class)
   public void test_of_null(Object first, Object second) {
     Pair.of(first, second);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_combining() {
+    Pair<Integer, Integer> summed = Stream.of(Pair.of(10, 11), Pair.of(10, 11))
+        .reduce(Pair.of(0, 0), Pair.combining(Integer::sum, Integer::sum));
+    assertEquals(summed, Pair.of(20, 22));
+  }
+
+  @Test
+  public void test_combinedWith() {
+    Pair<String, String> combined = Pair.of("1", "2").combinedWith(Pair.of("A", "B"), String::concat, String::concat);
+    assertEquals(combined, Pair.of("1A", "2B"));
   }
 
   //-------------------------------------------------------------------------
@@ -87,7 +103,8 @@ public class PairTest {
 
   @Test(expectedExceptions = ClassCastException.class)
   public void test_compareTo_notComparable() {
-    Runnable notComparable = () -> {};
+    Runnable notComparable = () -> {
+    };
     Pair<Runnable, String> test1 = Pair.of(notComparable, "A");
     Pair<Runnable, String> test2 = Pair.of(notComparable, "B");
     test1.compareTo(test2);
