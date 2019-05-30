@@ -102,7 +102,7 @@ public final class Triple<A, B, C>
       BiFunction<? super B, ? super R, ? extends B> combinerSecond,
       BiFunction<? super C, ? super S, ? extends C> combinerThird) {
 
-    return (pair1, pair2) -> pair1.combinedWith(pair2, combinerFirst, combinerSecond, combinerThird);
+    return (triple1, triple2) -> triple1.combinedWith(triple2, combinerFirst, combinerSecond, combinerThird);
   }
 
   /**
