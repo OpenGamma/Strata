@@ -69,14 +69,12 @@ public class PairTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
   public void test_combining() {
     Pair<Integer, Integer> summed = Stream.of(Pair.of(10, 11), Pair.of(10, 11))
         .reduce(Pair.of(0, 0), Pair.combining(Integer::sum, Integer::sum));
     assertEquals(summed, Pair.of(20, 22));
   }
 
-  @Test
   public void test_combinedWith() {
     Pair<String, String> combined = Pair.of("1", "2").combinedWith(Pair.of("A", "B"), String::concat, String::concat);
     assertEquals(combined, Pair.of("1A", "2B"));
