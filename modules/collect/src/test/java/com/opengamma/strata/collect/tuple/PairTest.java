@@ -27,7 +27,7 @@ public class PairTest {
   //-------------------------------------------------------------------------
   @DataProvider(name = "factory")
   public static Object[][] data_factory() {
-    return new Object[][]{
+    return new Object[][] {
         {"A", "B"},
         {"A", 200.2d},
     };
@@ -56,7 +56,7 @@ public class PairTest {
 
   @DataProvider(name = "factoryNull")
   public static Object[][] data_factoryNull() {
-    return new Object[][]{
+    return new Object[][] {
         {null, null},
         {null, "B"},
         {"A", null},
@@ -101,8 +101,7 @@ public class PairTest {
 
   @Test(expectedExceptions = ClassCastException.class)
   public void test_compareTo_notComparable() {
-    Runnable notComparable = () -> {
-    };
+    Runnable notComparable = () -> {};
     Pair<Runnable, String> test1 = Pair.of(notComparable, "A");
     Pair<Runnable, String> test2 = Pair.of(notComparable, "B");
     test1.compareTo(test2);
