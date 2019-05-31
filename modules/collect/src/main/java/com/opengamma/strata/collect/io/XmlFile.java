@@ -42,6 +42,21 @@ import com.opengamma.strata.collect.Unchecked;
  */
 public final class XmlFile {
 
+  // the XML factory
+  // originally recreated each time because of JDK-8028111, but use of Java 8u20 and Java 9+ now widespread
+  private static final XMLInputFactory XML_FACTORY;
+  static {
+    // see https://bugs.openjdk.java.net/browse/JDK-8183519 where JDK deprecated the wrong method
+    // to avoid a warning on 9 this code uses newInstance() even though newFactory() is more correct
+    // there is no difference in behavior between the two methods
+    XMLInputFactory factory = XMLInputFactory.newInstance();
+    factory.setProperty(XMLInputFactory.IS_COALESCING, true);
+    factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+    XML_FACTORY = factory;
+  }
+
   /**
    * The root element.
    */
@@ -90,7 +105,7 @@ public final class XmlFile {
     ArgChecker.notNull(source, "source");
     return Unchecked.wrap(() -> {
       try (InputStream in = source.openBufferedStream()) {
-        XMLStreamReader xmlReader = xmlInputFactory().createXMLStreamReader(in);
+        XMLStreamReader xmlReader = XML_FACTORY.createXMLStreamReader(in);
         try {
           HashMap<String, XmlElement> refs = new HashMap<>();
           XmlElement root = parse(xmlReader, refAttrName, refs);
@@ -122,7 +137,7 @@ public final class XmlFile {
     ToIntFunction<String> safeFilterFn = name -> Math.max(filterFn.applyAsInt(name), 0);
     return Unchecked.wrap(() -> {
       try (InputStream in = source.openBufferedStream()) {
-        XMLStreamReader xmlReader = xmlInputFactory().createXMLStreamReader(in);
+        XMLStreamReader xmlReader = XML_FACTORY.createXMLStreamReader(in);
         try {
           return parseElements(xmlReader, safeFilterFn, Integer.MAX_VALUE);
         } finally {
@@ -243,21 +258,6 @@ public final class XmlFile {
       attrs = builder.build();
     }
     return attrs;
-  }
-
-  //-------------------------------------------------------------------------
-  // creates the XML input factory, recreated each time to avoid JDK-8028111
-  // this also provides some protection against hackers attacking XML
-  private static XMLInputFactory xmlInputFactory() {
-    // see https://bugs.openjdk.java.net/browse/JDK-8183519 where JDK deprecated the wrong method
-    // to avoid a warning on 9 this code uses newInstance() even though newFactory() is more correct
-    // there is no difference in behavior between the two methods
-    XMLInputFactory factory = XMLInputFactory.newInstance();
-    factory.setProperty(XMLInputFactory.IS_COALESCING, true);
-    factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, true);
-    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    return factory;
   }
 
   //-------------------------------------------------------------------------
