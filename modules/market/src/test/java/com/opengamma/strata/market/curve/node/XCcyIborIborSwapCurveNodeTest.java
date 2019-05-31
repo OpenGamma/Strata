@@ -140,7 +140,8 @@ public class XCcyIborIborSwapCurveNodeTest {
     double quantity = -1234.56;
     SwapTrade trade = node.trade(quantity, MARKET_DATA, REF_DATA);
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
-    SwapTrade expected = TEMPLATE.createTrade(VAL_DATE, BUY, -quantity, rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
+    SwapTrade expected = TEMPLATE.createTrade(
+        VAL_DATE, BUY, -quantity, -quantity * rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
     assertEquals(trade, expected);
     assertEquals(node.resolvedTrade(quantity, MARKET_DATA, REF_DATA), trade.resolve(REF_DATA));
   }
