@@ -53,6 +53,7 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -71,6 +72,7 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.io.ByteSource;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -1600,14 +1602,31 @@ public class FpmlDocumentParserTest {
   }
 
   public void notFpml() {
-    String location = "classpath:com/opengamma/strata/loader/fpml/not-fpml.xml";
-    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    String xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" +
+        "<root fpm=\"\" fp=\"\" f=\"\">\r\n" +
+        "</root>";
+    ByteSource resource = CharSource.wrap(xml).asByteSource(StandardCharsets.UTF_8);
     FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any());
     assertFalse(parser.isKnownFormat(resource));
-    assertThrows(
-        () -> parser.parseTrades(resource),
-        FpmlParseException.class,
-        "Unable to find FpML root element.*");
+    assertThrows(() -> parser.parseTrades(resource), FpmlParseException.class, "Unable to find FpML root element.*");
+  }
+
+  public void isKnownFpmlUtf16() {
+    String xml = "<?xml version=\"1.0\" encoding=\"utf-16le\"?>\r\n" +
+        "<root fpml=\"\">\r\n" +
+        "</root>";
+    ByteSource resource = CharSource.wrap(xml).asByteSource(StandardCharsets.UTF_16LE);
+    FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any());
+    assertTrue(parser.isKnownFormat(resource));
+  }
+
+  public void notFpmlUtf16() {
+    String xml = "<?xml version=\"1.0\" encoding=\"utf-16le\"?>\r\n" +
+        "<root fpm=\"\" fp=\"\" f=\"\">\r\n" +
+        "</root>";
+    ByteSource resource = CharSource.wrap(xml).asByteSource(StandardCharsets.UTF_16LE);
+    FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any());
+    assertFalse(parser.isKnownFormat(resource));
   }
 
   public void notFound() {

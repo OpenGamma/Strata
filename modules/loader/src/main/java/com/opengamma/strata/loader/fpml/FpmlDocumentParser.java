@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.fpml;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 
+import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -202,14 +203,14 @@ public final class FpmlDocumentParser {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the source can be parsed as FpML.
+   * Basic check to see if the source can probably be parsed as FpML.
    * <p>
-   * This parses the specified byte source to determine if it appears to be FpML.
+   * This checks the first part of the byte source to see if it appears to be FpML.
+   * This is determined by looking for "fpml" (case insensitive) within the first 2000 characters.
    * <p>
-   * Sometimes, the FpML document is embedded in a non-FpML wrapper.
-   * This method will intelligently find the FpML document at the root, within any children of
-   * the root, or within any grand-children of the root.
-   * The FpML root element is the one that contains both {@code <trade>} and {@code <party>}.
+   * A more thorough check would involve parsing the XML, which is relatively slow.
+   * If you want to perform the more thorough check benchmarking indicates you might
+   * as well just parse the whole document.
    * 
    * @param source  the source to check
    * @return true if the source appears to be FpML
@@ -217,15 +218,25 @@ public final class FpmlDocumentParser {
    */
   public boolean isKnownFormat(ByteSource source) {
     try {
-      XmlElement root = XmlFile.parseElements(
-          source,
-          name -> name.equals("party") || name.equals("trade") ? 0 : Integer.MAX_VALUE);
-      XmlElement actualRoot = findFpmlRoot(root);
-      return actualRoot != null;
-    } catch (UncheckedIOException ex) {
-      throw ex;
-    } catch (RuntimeException ex) {
+      byte[] array = source.slice(0, 2000).read();
+      for (int i = 0; i < array.length - 7; i++) {
+        // the `| 32` converts upper case letters to lower case ones
+        if ((array[i] | 32) == 'f') {
+          // UTF-8
+          if ((array[i + 1] | 32) == 'p' && (array[i + 2] | 32) == 'm' && (array[i + 3] | 32) == 'l') {
+            return true;
+          }
+          // UTF-16
+          if (array[i + 1] == '\000' && (array[i + 2] | 32) == 'p' &&
+              array[i + 3] == '\000' && (array[i + 4] | 32) == 'm' &&
+              array[i + 5] == '\000' && (array[i + 6] | 32) == 'l') {
+            return true;
+          }
+        }
+      }
       return false;
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
     }
   }
 
