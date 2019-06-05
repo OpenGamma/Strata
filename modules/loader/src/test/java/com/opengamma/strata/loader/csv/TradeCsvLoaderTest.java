@@ -34,7 +34,9 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.joda.beans.Bean;
 import org.testng.annotations.Test;
@@ -1633,6 +1635,58 @@ public class TradeCsvLoaderTest {
     FailureItem failure = trades.getFailures().get(0);
     assertEquals(failure.getReason(), FailureReason.PARSING);
     assertEquals(failure.getMessage(), "CSV file trade type 'Foo' is not known at line 2");
+  }
+
+  public void test_load_unknownTypeNotFixedViaResolver() {
+    AtomicReference<String> foundType = new AtomicReference<>();
+    TradeCsvLoader test = TradeCsvLoader.of(new TradeCsvInfoResolver() {
+      @Override
+      public ReferenceData getReferenceData() {
+        return ReferenceData.standard();
+      }
+
+      @Override
+      public Optional<Trade> parseOtherTrade(String typeUpper, CsvRow row, TradeInfo info) {
+        foundType.set(typeUpper);
+        return Optional.empty();
+      }
+    });
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFoo")));
+
+    assertEquals(foundType.get(), "FOO");
+    assertEquals(trades.getFailures().size(), 1);
+    FailureItem failure = trades.getFailures().get(0);
+    assertEquals(failure.getReason(), FailureReason.PARSING);
+    assertEquals(failure.getMessage(), "CSV file trade type 'Foo' is not known at line 2");
+  }
+
+  public void test_load_unknownTypeFixedViaResolver() {
+    Trade trade = new Trade() {
+      @Override
+      public Trade withInfo(TradeInfo info) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public TradeInfo getInfo() {
+        return TradeInfo.empty();
+      }
+    };
+    TradeCsvLoader test = TradeCsvLoader.of(new TradeCsvInfoResolver() {
+      @Override
+      public ReferenceData getReferenceData() {
+        return ReferenceData.standard();
+      }
+
+      @Override
+      public Optional<Trade> parseOtherTrade(String typeUpper, CsvRow row, TradeInfo info) {
+        return Optional.of(trade);
+      }
+    });
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFoo")));
+
+    assertEquals(trades.getFailures().size(), 0);
+    assertEquals(trades.getValue().size(), 1);
   }
 
   public void test_load_invalidFra() {

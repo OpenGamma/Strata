@@ -5,10 +5,15 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
+import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -253,6 +258,142 @@ public interface TradeCsvInfoResolver {
   public default CdsTrade completeTrade(CsvRow row, CdsTrade trade) {
     //do nothing
     return completeTradeCommon(row, trade);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a FRA trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the FRA trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default FraTrade parseFraTrade(CsvRow row, TradeInfo info) {
+    return FraTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses a Security trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the Security trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default SecurityQuantityTrade parseSecurityTrade(CsvRow row, TradeInfo info) {
+    return SecurityCsvPlugin.parseTrade(row, info, this);
+  }
+
+  /**
+   * Parses a Swap trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param variableRows   the CSV rows representing variable notional/rate etc
+   * @param info  the trade info
+   * @return the Swap trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default SwapTrade parseSwapTrade(CsvRow row, List<CsvRow> variableRows, TradeInfo info) {
+    return SwapTradeCsvPlugin.parse(row, variableRows, info, this);
+  }
+
+  /**
+   * Parses a Swaption trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param variableRows   the CSV rows representing variable notional/rate etc
+   * @param info  the trade info
+   * @return the Swaption trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default SwaptionTrade parseSwaptionTrade(CsvRow row, List<CsvRow> variableRows, TradeInfo info) {
+    return SwaptionTradeCsvPlugin.parse(row, variableRows, info, this);
+  }
+
+  /**
+   * Parses a Bullet Payment trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the Bullet Payment trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default BulletPaymentTrade parseBulletPaymentTrade(CsvRow row, TradeInfo info) {
+    return BulletPaymentTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses a Term Deposit trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the Term Deposit trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default TermDepositTrade parseTermDepositTrade(CsvRow row, TradeInfo info) {
+    return TermDepositTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses a FX Single trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the FX Single trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default FxSingleTrade parseFxSingleTrade(CsvRow row, TradeInfo info) {
+    return FxSingleTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses a FX Swap trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the FX Swap trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default FxSwapTrade parseFxSwapTrade(CsvRow row, TradeInfo info) {
+    return FxSwapTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses a FX Vanilla Option trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the FX Vanilla Option trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default FxVanillaOptionTrade parseFxVanillaOptionTrade(CsvRow row, TradeInfo info) {
+    return FxVanillaOptionTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses a CDS trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the CDS trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default CdsTrade parseCdsTrade(CsvRow row, TradeInfo info) {
+    return CdsTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
+   * Parses any other kind of trade from CSV.
+   * 
+   * @param typeUpper  the upper case product type column
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the trade, empty if the product type is not known
+   * @throws RuntimeException if the product type is known but the row contains invalid data
+   */
+  public default Optional<Trade> parseOtherTrade(String typeUpper, CsvRow row, TradeInfo info) {
+    return Optional.empty();
   }
 
 }
