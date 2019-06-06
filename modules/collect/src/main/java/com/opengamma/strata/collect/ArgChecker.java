@@ -1060,7 +1060,7 @@ public final class ArgChecker {
     notNull(obj2, name2);
     if (obj1.compareTo(obj2) >= 0) {
       throw new IllegalArgumentException(
-          Messages.format("Invalid order: Expected '{}' < '{}', but found: '{}' >= '{}", name1, name2, obj1, obj2));
+          Messages.format("Invalid order: Expected '{}' < '{}', but found: '{}' >= '{}'", name1, name2, obj1, obj2));
     }
   }
 
@@ -1081,7 +1081,7 @@ public final class ArgChecker {
     notNull(obj2, name2);
     if (obj1.compareTo(obj2) > 0) {
       throw new IllegalArgumentException(
-          Messages.format("Invalid order: Expected '{}' <= '{}', but found: '{}' > '{}", name1, name2, obj1, obj2));
+          Messages.format("Invalid order: Expected '{}' <= '{}', but found: '{}' > '{}'", name1, name2, obj1, obj2));
     }
   }
 
