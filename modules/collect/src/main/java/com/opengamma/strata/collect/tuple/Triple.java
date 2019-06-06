@@ -48,17 +48,17 @@ public final class Triple<A, B, C>
     implements ImmutableBean, Tuple, Comparable<Triple<A, B, C>>, Serializable {
 
   /**
-   * The first element in this pair.
+   * The first element in this triple.
    */
   @PropertyDefinition(validate = "notNull")
   private final A first;
   /**
-   * The second element in this pair.
+   * The second element in this triple.
    */
   @PropertyDefinition(validate = "notNull")
   private final B second;
   /**
-   * The third element in this pair.
+   * The third element in this triple.
    */
   @PropertyDefinition(validate = "notNull")
   private final C third;
@@ -159,7 +159,7 @@ public final class Triple<A, B, C>
    * <p>
    * The element types must be {@code Comparable}.
    * 
-   * @param other  the other pair
+   * @param other  the other triple
    * @return negative if this is less, zero if equal, positive if greater
    * @throws ClassCastException if either object is not comparable
    */
@@ -173,11 +173,11 @@ public final class Triple<A, B, C>
   }
 
   /**
-   * Gets the pair using a standard string format.
+   * Gets the triple using a standard string format.
    * <p>
    * The standard format is '[$first, $second, $third]'. Spaces around the values are trimmed.
    * 
-   * @return the pair as a string
+   * @return the triple as a string
    */
   @Override
   public String toString() {
@@ -246,7 +246,7 @@ public final class Triple<A, B, C>
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the first element in this pair.
+   * Gets the first element in this triple.
    * @return the value of the property, not null
    */
   public A getFirst() {
@@ -255,7 +255,7 @@ public final class Triple<A, B, C>
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the second element in this pair.
+   * Gets the second element in this triple.
    * @return the value of the property, not null
    */
   public B getSecond() {
@@ -264,7 +264,7 @@ public final class Triple<A, B, C>
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the third element in this pair.
+   * Gets the third element in this triple.
    * @return the value of the property, not null
    */
   public C getThird() {
