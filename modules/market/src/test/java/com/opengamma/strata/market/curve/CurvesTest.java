@@ -201,6 +201,41 @@ public class CurvesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void normalVolatilityByExpiry_string() {
+    CurveMetadata test = Curves.normalVolatilityByExpiry(NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void normalVolatilityByExpiry_curveName() {
+    CurveMetadata test = Curves.normalVolatilityByExpiry(CURVE_NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  public void normalVolatilityByExpiry_curveNameParams() {
+    CurveMetadata test = Curves.normalVolatilityByExpiry(CURVE_NAME, ACT_360, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(ACT_360)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertEquals(test, expected);
+  }
+
+  //-------------------------------------------------------------------------
   public void recoveryRates_string() {
     CurveMetadata test = Curves.recoveryRates(NAME, ACT_360);
     CurveMetadata expected = DefaultCurveMetadata.builder()
