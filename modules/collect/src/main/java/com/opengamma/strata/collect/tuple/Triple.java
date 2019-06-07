@@ -112,6 +112,7 @@ public final class Triple<A, B, C>
    * @param <Q>  the type of the first value in the other instance
    * @param <R>  the type of the second value in the other instance
    * @param <S>  the type of the third value in the other instance
+   * @param other  the other triple
    * @param combinerFirst  the combiner of first values
    * @param combinerSecond  the combiner of second values
    * @param combinerThird  the combiner of third values

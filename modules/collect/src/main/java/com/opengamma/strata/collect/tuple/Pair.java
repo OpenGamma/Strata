@@ -102,6 +102,7 @@ public final class Pair<A, B>
    *
    * @param <C>  the type of the first value in the other instance
    * @param <D>  the type of the second value in the other instance
+   * @param other  the other pair
    * @param combinerFirst  the combiner of first values
    * @param combinerSecond  the combiner of second values
    * @return the combined pair instance
