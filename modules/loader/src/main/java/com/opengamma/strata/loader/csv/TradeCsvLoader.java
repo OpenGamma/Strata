@@ -37,6 +37,7 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
@@ -530,6 +531,12 @@ public final class TradeCsvLoader {
           case "CDS":
             if (tradeType == CdsTrade.class || tradeType == Trade.class) {
               trades.add(tradeType.cast(resolver.parseCdsTrade(row, info)));
+            }
+            break;
+          case "CDSINDEX":
+          case "CDS INDEX":
+            if (tradeType == CdsIndexTrade.class || tradeType == Trade.class) {
+              trades.add(tradeType.cast(resolver.parseCdsIndexTrade(row, info)));
             }
             break;
           default:
