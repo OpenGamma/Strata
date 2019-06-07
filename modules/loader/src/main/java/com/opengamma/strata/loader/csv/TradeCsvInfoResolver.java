@@ -15,6 +15,7 @@ import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
@@ -260,6 +261,23 @@ public interface TradeCsvInfoResolver {
     return completeTradeCommon(row, trade);
   }
 
+  /**
+   * Completes the CDS Index trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default CdsIndexTrade completeTrade(CsvRow row, CdsIndexTrade trade) {
+    //do nothing
+    return completeTradeCommon(row, trade);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a FRA trade from CSV.
@@ -380,7 +398,19 @@ public interface TradeCsvInfoResolver {
    * @throws RuntimeException if the row contains invalid data
    */
   public default CdsTrade parseCdsTrade(CsvRow row, TradeInfo info) {
-    return CdsTradeCsvPlugin.parse(row, info, this);
+    return CdsTradeCsvPlugin.parseCds(row, info, this);
+  }
+
+  /**
+   * Parses a CDS Index trade from CSV.
+   * 
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the CDS trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default CdsIndexTrade parseCdsIndexTrade(CsvRow row, TradeInfo info) {
+    return CdsTradeCsvPlugin.parseCdsIndex(row, info, this);
   }
 
   /**

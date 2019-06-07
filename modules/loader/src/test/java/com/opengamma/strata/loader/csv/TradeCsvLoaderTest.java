@@ -84,6 +84,8 @@ import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.credit.Cds;
+import com.opengamma.strata.product.credit.CdsIndex;
+import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
 import com.opengamma.strata.product.credit.ProtectionStartOfDay;
@@ -1502,13 +1504,58 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_load_cdsIndex() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE);
+
+    List<CdsIndexTrade> filtered = trades.getValue().stream()
+        .flatMap(filtering(CdsIndexTrade.class))
+        .collect(toImmutableList());
+    assertEquals(filtered.size(), 2);
+
+    CdsIndexTrade expected0 = expectedCdsIndex0();
+
+    assertBeanEquals(expected0, filtered.get(0));
+    assertBeanEquals(expected0, filtered.get(1));
+
+    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected0);
+  }
+
+  private CdsIndexTrade expectedCdsIndex0() {
+    StandardId legEnt1 = StandardId.of("OG-Entity", "FOO");
+    StandardId legEnt2 = StandardId.of("OG-Entity", "BAR");
+    CdsIndex cdsIndex = CdsIndex.builder()
+        .buySell(BUY)
+        .currency(GBP)
+        .notional(1_000_000)
+        .fixedRate(0.05)
+        .cdsIndexId(StandardId.of("OG-CDS", "IDX"))
+        .legalEntityIds(legEnt1, legEnt2)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2017, 6, 1))
+            .endDate(date(2022, 6, 1))
+            .frequency(Frequency.P12M)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .stubConvention(StubConvention.SMART_INITIAL)
+            .build())
+        .build();
+    return CdsIndexTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123451"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(cdsIndex)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
   public void test_load_filtered() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertEquals(trades.getValue().size(), 6);
-    assertEquals(trades.getFailures().size(), 17);
+    assertEquals(trades.getFailures().size(), 19);
     assertEquals(trades.getFailures().get(0).getMessage(),
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
