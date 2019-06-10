@@ -45,6 +45,7 @@ Ensure the readme and release notes tags are correctly setup.
 
 1. Add Javadoc to docs website. Build on **Java 11**, delete old Javadoc, copy in new Javadoc:  
 `mvn package -Ddist -DskipTests -DadditionalJOption=--no-module-directories`
+(Note, this needs plugin v3.0.1 and the build does not fully complete but does generate the Javadoc)
 
 1. Add forum post
 
