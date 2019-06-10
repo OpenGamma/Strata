@@ -229,6 +229,13 @@ public class CapletStrippingSetup {
       {Double.NaN, Double.NaN, 0.026632254625197683, 0.02561633184998322,
           0.02508697262418348, 0.023212771122734382, 0.020807499010350925}};
 
+  private static final double[][] CAP_BLACK_ATM_VOLS = new double[][] {
+      {0.98927, 0.8376, 0.7274, 0.5983, 0.5169, 0.4083, 0.3375}};
+  private static final double[][] CAP_NORMAL_ATM_VOLS = new double[][] {
+      {0.8318, 0.8676, 0.845, 0.8226, 0.8064, 0.8093, 0.8319, 0.8608, 0.8948, 0.9334, 0.9759, 1.0215, 1.0693}};
+  private static final double[] CAP_BLACK_ATM_STRIKE = new double[] {0.04};
+  private static final double[] CAP_NORMAL_ATM_STRIKE = new double[] {0.03};
+
   //-------------------------------------------------------------------------
   protected static DoubleMatrix createFullBlackDataMatrix() {
     DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_BLACK_VOLS);
@@ -267,6 +274,21 @@ public class CapletStrippingSetup {
   }
 
   //-------------------------------------------------------------------------
+  protected static DoubleMatrix createAtmBlackDataMatrix() {
+    DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_BLACK_ATM_VOLS);
+    return matrix.transpose();
+  }
+
+  protected static DoubleMatrix createAtmFlatBlackDataMatrix() {
+    DoubleMatrix matrix = DoubleMatrix.filled(1, NUM_BLACK_MATURITIES, 0.5);
+    return matrix.transpose();
+  }
+
+  protected static DoubleArray createBlackAtmStrike() {
+    return DoubleArray.copyOf(CAP_BLACK_ATM_STRIKE);
+  }
+
+  //-------------------------------------------------------------------------
   protected static DoubleMatrix createFullNormalDataMatrix() {
     DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_NORMAL_VOLS);
     return matrix.transpose();
@@ -300,6 +322,16 @@ public class CapletStrippingSetup {
 
   protected static DoubleArray createNormalEquivStrikes() {
     return DoubleArray.copyOf(CAP_BLACK_STRIKES);
+  }
+
+  //-------------------------------------------------------------------------
+  protected static DoubleMatrix createAtmNormalDataMatrix() {
+    DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_NORMAL_ATM_VOLS);
+    return matrix.transpose();
+  }
+
+  protected static DoubleArray createNormalAtmStrike() {
+    return DoubleArray.copyOf(CAP_NORMAL_ATM_STRIKE);
   }
 
   //-------------------------------------------------------------------------
@@ -359,6 +391,31 @@ public class CapletStrippingSetup {
         capBuilder.add(caps[i]);
         volBuilder.add(vols[i]);
       }
+    }
+    return Pair.of(capBuilder.build(), volBuilder.build());
+  }
+
+  //-------------------------------------------------------------------------
+  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsBlackAtmVols(int strikeIndex) {
+    ResolvedIborCapFloorLeg[] caps = CAPS_BLACK[strikeIndex];
+    Builder<ResolvedIborCapFloorLeg> capBuilder = ImmutableList.builder();
+    Builder<Double> volBuilder = ImmutableList.builder();
+    int nVols = CAP_BLACK_ATM_VOLS.length;
+    for (int i = 0; i < nVols; ++i) {
+      capBuilder.add(caps[i]);
+      volBuilder.add(CAP_BLACK_ATM_VOLS[0][i]);
+    }
+    return Pair.of(capBuilder.build(), volBuilder.build());
+  }
+
+  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsNormalAtmVols(int strikeIndex) {
+    ResolvedIborCapFloorLeg[] caps = CAPS_NORMAL[strikeIndex];
+    Builder<ResolvedIborCapFloorLeg> capBuilder = ImmutableList.builder();
+    Builder<Double> volBuilder = ImmutableList.builder();
+    int nVols = CAP_NORMAL_ATM_VOLS.length;
+    for (int i = 0; i < nVols; ++i) {
+      capBuilder.add(caps[i]);
+      volBuilder.add(CAP_NORMAL_ATM_VOLS[0][i]);
     }
     return Pair.of(capBuilder.build(), volBuilder.build());
   }
