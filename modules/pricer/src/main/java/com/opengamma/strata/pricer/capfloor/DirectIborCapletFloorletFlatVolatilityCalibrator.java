@@ -7,7 +7,6 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
-import static com.opengamma.strata.market.ValueType.STRIKE;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -38,16 +37,14 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 /**
  * Caplet volatilities calibration to cap volatilities.
  * <p>
- *  The input volatilities should be parameterized by expiries, and the resulting caplet volatilities are represented 
- *  by {@code BlackIborCapletFloorletExpiryFlatVolatilities} or {@code NormalIborCapletFloorletExpiryFlatVolatilities}.
- * <p>
  * The volatilities of the constituent caplets in the market caps are "model parameters"  
  * and calibrated to the market data under the penalty constraint.
- * The penalty is based on the second-order finite difference differentiation along the expiry dimensions.
+ * The penalty is based on the second-order finite difference differentiation along the expiry dimension.
  * <p>
  * The resultant volatility type is the same as the input volatility type. e.g., 
- * Black caplet volatilities are returned if Black cap volatilities are plugged in, 
- * and normal caplet volatilities are returned otherwise. 
+ * Black caplet volatilities {@code BlackIborCapletFloorletExpiryFlatVolatilities} are returned 
+ * if Black cap volatilities are plugged in, 
+ * and normal caplet volatilities {@code NormalIborCapletFloorletExpiryFlatVolatilities} are returned otherwise. 
  * <p>
  * The calibration is conducted once the cap volatilities are converted to cap prices. 
  * Thus the error values in {@code RawOptionData} are applied in the price space rather than the volatility space.
@@ -110,7 +107,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibrator extends IborCaplet
     this.solver = new NonLinearLeastSquareWithPenalty(new CholeskyDecompositionCommons(), epsilon);
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   @Override
   public IborCapletFloorletVolatilityCalibrationResult calibrate(
       IborCapletFloorletVolatilityDefinition definition,
@@ -187,7 +184,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibrator extends IborCaplet
     return calibrationResult;
   }
 
-//-------------------------------------------------------------------------
+  //-------------------------------------------------------------------------
   private Pair<DoubleArray, DoubleArray> createCapletNodes(
       InterpolatedNodalCurve capVolCurve, DoubleArray capletExpiries) {
 
@@ -270,22 +267,19 @@ public class DirectIborCapletFloorletFlatVolatilityCalibrator extends IborCaplet
     errorList.add(error);
   }
 
-  // function creating volatilities object from surface
+  // function creating volatilities object from curve
   private Function<Curve, IborCapletFloorletVolatilities> flatVolatilitiesFunction(
       IborCapletFloorletVolatilityDefinition definition,
       ZonedDateTime calibrationDateTime,
       RawOptionData capFloorData) {
 
     IborIndex index = definition.getIndex();
-    if (capFloorData.getStrikeType().equals(STRIKE)) {
-      if (capFloorData.getDataType().equals(BLACK_VOLATILITY)) {
-        return blackVolatilitiesFunction(index, calibrationDateTime);
-      } else if (capFloorData.getDataType().equals(NORMAL_VOLATILITY)) {
-        return normalVolatilitiesFunction(index, calibrationDateTime);
-      }
-      throw new IllegalArgumentException("Data type not supported");
+    if (capFloorData.getDataType().equals(BLACK_VOLATILITY)) {
+      return blackVolatilitiesFunction(index, calibrationDateTime);
+    } else if (capFloorData.getDataType().equals(NORMAL_VOLATILITY)) {
+      return normalVolatilitiesFunction(index, calibrationDateTime);
     }
-    throw new IllegalArgumentException("strike type must be ValueType.STRIKE");
+    throw new IllegalArgumentException("Data type not supported");
   }
 
   private Function<Curve, IborCapletFloorletVolatilities> blackVolatilitiesFunction(

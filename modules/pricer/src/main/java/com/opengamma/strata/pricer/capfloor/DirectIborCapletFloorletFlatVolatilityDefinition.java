@@ -67,7 +67,7 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final IborIndex index;
   /**
-   * The day count to measure the time in the expiry dimension.
+   * The day count to measure the time.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final DayCount dayCount;
@@ -94,7 +94,7 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains an instance with zero shift.
+   * Obtains an instance with flat extrapolators.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -121,7 +121,7 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
   }
 
   /**
-   * Obtains an instance with shift curve.
+   * Obtains an instance.
    * 
    * @param name  the name of the volatilities
    * @param index  the Ibor index
@@ -184,7 +184,7 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
    * Computes penalty matrix. 
    * <p>
    * The penalty matrix is based on the second order finite difference differentiation in {@link PenaltyMatrixGenerator}.
-   * The number of node points in each direction must be greater than 2 in order to compute the second order derivative.
+   * The number of node points must be greater than 2 in order to compute the second order derivative.
    * 
    * @param expiries  the expiries
    * @return the penalty matrix
@@ -272,7 +272,7 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the day count to measure the time in the expiry dimension.
+   * Gets the day count to measure the time.
    * @return the value of the property, not null
    */
   @Override
@@ -690,7 +690,7 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
     }
 
     /**
-     * Sets the day count to measure the time in the expiry dimension.
+     * Sets the day count to measure the time.
      * @param dayCount  the new value, not null
      * @return this, for chaining, not null
      */
