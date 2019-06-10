@@ -10,6 +10,8 @@ The release process for Strata is as follows:
 1. Ensure that the Javadoc builds correctly:  
 `mvn package -Ddist -Doss.jars`
 
+1. Update the version in README.md, commit and push
+
 1. Change version of Strata, *{major}.{minor}.{patch}*, e.g. 1.0.0:  
 `mvn versions:set -DgenerateBackupPoms=false -DartifactId=* -DgroupId=com.opengamma.strata`
 
