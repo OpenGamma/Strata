@@ -43,4 +43,9 @@ public final class EtdContractCode
     super(name);
   }
 
+  // resolve after deserialization
+  private Object readResolve() {
+    return of(getName());
+  }
+
 }

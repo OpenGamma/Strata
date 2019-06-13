@@ -18,7 +18,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * An identifier for an ETD product.
  * <p>
- * This identifier is used to obtain a {@link EtdContractSpec} from {@link ReferenceData}.
+ * This identifier is used to obtain an {@link EtdContractSpec} from {@link ReferenceData}.
  * <p>
  * An ETD product identifier uniquely identifies an ETD product within the system.
  * The only restriction placed on the identifier is that it is sufficiently
