@@ -68,7 +68,7 @@ public interface Attributes {
    * @param type  the type to find
    * @return true if a matching attribute is present
    */
-  public default <T> boolean hasAttribute(AttributeType<T> type) {
+  public default <T> boolean containsAttribute(AttributeType<T> type) {
     return findAttribute(type).isPresent();
   }
 
