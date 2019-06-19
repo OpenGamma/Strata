@@ -62,6 +62,17 @@ public interface Attributes {
   }
 
   /**
+   * Determines if an attribute associated with the specified type is present.
+   *
+   * @param <T>  the type of the attribute value
+   * @param type  the type to find
+   * @return true if a matching attribute is present
+   */
+  public default <T> boolean containsAttribute(AttributeType<T> type) {
+    return findAttribute(type).isPresent();
+  }
+
+  /**
    * Finds the attribute associated with the specified type.
    * <p>
    * This method obtains the specified attribute.
