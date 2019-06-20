@@ -5,11 +5,6 @@
  */
 package com.opengamma.strata.collect;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,6 +32,7 @@ import org.joda.beans.test.BeanAssert;
 import org.joda.beans.test.JodaBeanTests;
 import org.joda.convert.StringConvert;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -205,7 +201,7 @@ public class TestHelper {
    * @param base  the object to be tested
    */
   public static void assertSerialization(Object base) {
-    assertNotNull(base);
+    assertNotNull(base, "assertSerialization() called with null Object");
     try {
       try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
         try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
@@ -213,7 +209,7 @@ public class TestHelper {
           oos.close();
           try (ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray())) {
             try (ObjectInputStream ois = new ObjectInputStream(bais)) {
-              assertEquals(ois.readObject(), base);
+              assertEquals(ois.readObject(), base, "Result from roundtrip not equal to base object");
             }
           }
         }
@@ -232,11 +228,12 @@ public class TestHelper {
    * @param base  the object to be tested
    */
   public static <T> void assertJodaConvert(Class<T> cls, Object base) {
-    assertNotNull(base);
+    assertNotNull(base, "assertJodaConvert() called with null Class");
+    assertNotNull(base, "assertJodaConvert() called with null Object");
     StringConvert convert = StringConvert.create();
     String str = convert.convertToString(base);
     T result = convert.convertFromString(cls, str);
-    assertEquals(result, base);
+    assertEquals(result, base, "Result from roundtrip not equal to base object");
   }
 
   //-------------------------------------------------------------------------
@@ -521,14 +518,14 @@ public class TestHelper {
    */
   public static void assertUtilityClass(Class<?> clazz) {
     assertNotNull(clazz, "assertUtilityClass() called with null class");
-    assertTrue(Modifier.isFinal(clazz.getModifiers()), "Utility class must be final");
+    assertEquals(Modifier.isFinal(clazz.getModifiers()), true, "Utility class must be final");
     assertEquals(clazz.getDeclaredConstructors().length, 1, "Utility class must have one constructor");
     Constructor<?> con = clazz.getDeclaredConstructors()[0];
     assertEquals(con.getParameterTypes().length, 0, "Utility class must have zero-arg constructor");
-    assertTrue(Modifier.isPrivate(con.getModifiers()), "Utility class must have private constructor");
+    assertEquals(Modifier.isPrivate(con.getModifiers()), true, "Utility class must have private constructor");
     for (Method method : clazz.getDeclaredMethods()) {
       if (Modifier.isPublic(method.getModifiers())) {
-        assertTrue(Modifier.isStatic(method.getModifiers()), "Utility class public methods must be static");
+        assertEquals(Modifier.isStatic(method.getModifiers()), true, "Utility class public methods must be static");
       }
     }
     // coverage
@@ -553,7 +550,7 @@ public class TestHelper {
       con.setAccessible(true);
       con.newInstance();
     });
-    assertTrue(isPrivate.get(), "No-arg constructor must be private");
+    assertEquals(isPrivate.get(), true, "No-arg constructor must be private");
   }
 
   //-------------------------------------------------------------------------
@@ -619,6 +616,34 @@ public class TestHelper {
    */
   public static void coverBeanEquals(Bean bean1, Bean bean2) {
     JodaBeanTests.coverBeanEquals(bean1, bean2);
+  }
+
+  //-------------------------------------------------------------------------
+  // avoid runtime dependency on either JUnit or TestNG by inlining code and using AssertionError
+  @VisibleForTesting
+  static void assertEquals(Object actual, Object expected, String message) {
+    if (expected == actual ||
+        (expected != null && actual != null && expected.equals(actual) && actual.equals(expected))) {
+      return;
+    }
+    fail((message != null ? message + " " : "") + "expected [" + expected + "] but found [" + actual + ']');
+  }
+
+  @VisibleForTesting
+  static void assertNotNull(Object actual, String message) {
+    if (actual == null) {
+      fail(message);
+    }
+  }
+
+  private static void fail(String message) {
+    throw new AssertionError(message);
+  }
+
+  private static void fail(String message, Throwable cause) {
+    AssertionError ex = new AssertionError(message);
+    ex.initCause(cause);
+    throw ex;
   }
 
 }
