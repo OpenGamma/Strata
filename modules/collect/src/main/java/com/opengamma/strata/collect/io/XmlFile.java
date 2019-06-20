@@ -151,7 +151,7 @@ public final class XmlFile {
   /**
    * Parses the tree from the StAX stream reader, capturing references.
    * <p>
-   * The reader should be created using the factory returned from {@link #xmlInputFactory()}.
+   * The reader should be created using {@link #XML_FACTORY}.
    * <p>
    * This method supports capturing attribute references, such as an id/href pair.
    * Wherever the parser finds an attribute with the specified name, the element is added
