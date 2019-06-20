@@ -55,7 +55,9 @@ public class CurrencyParameterSensitivityTest {
   private static final List<ParameterMetadata> METADATA_BAD = ParameterMetadata.listOfEmpty(1);
   private static final ImmutableList<ParameterMetadata> METADATA_COMBINED =
       ImmutableList.<ParameterMetadata>builder().addAll(METADATA_USD1).addAll(METADATA_USD2).build();
-  private static final List<ParameterSize> PARAM_SPLIT = ImmutableList.of(ParameterSize.of(NAME1, 4), ParameterSize.of(NAME2, 5));
+  private static final ParameterSize PARAM1 = ParameterSize.of(NAME1, 4);
+  private static final ParameterSize PARAM2 = ParameterSize.of(NAME2, 5);
+  private static final List<ParameterSize> PARAM_SPLIT = ImmutableList.of(PARAM1, PARAM2);
 
   //-------------------------------------------------------------------------
   public void test_of_metadata() {
@@ -116,13 +118,46 @@ public class CurrencyParameterSensitivityTest {
     assertEquals(test.getParameterSplit(), Optional.of(PARAM_SPLIT));
   }
 
+  public void test_combine_empty() {
+    CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
+    CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, ImmutableList.of(), USD, DoubleArray.of());
+    CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2);
+    assertEquals(test.getMarketDataName(), NAME_COMBINED);
+    assertEquals(test.getParameterCount(), VECTOR_USD1.size());
+    assertEquals(test.getParameterMetadata(), METADATA_USD1);
+    assertEquals(test.getSensitivity(), VECTOR_USD1);
+    assertEquals(test.getParameterSplit(), Optional.of(ImmutableList.of(PARAM1)));
+  }
+
+  public void test_combine_onlyEmpty() {
+    CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, ImmutableList.of(), USD, DoubleArray.of());
+    CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, ImmutableList.of(), USD, DoubleArray.of());
+    CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2);
+    assertEquals(test.getMarketDataName(), NAME_COMBINED);
+    assertEquals(test.getParameterCount(), 0);
+    assertEquals(test.getParameterMetadata(), ImmutableList.of());
+    assertEquals(test.getSensitivity(), DoubleArray.EMPTY);
+    assertEquals(test.getParameterSplit(), Optional.empty());
+  }
+
   public void test_combine_arraySize0() {
     assertThrowsIllegalArg(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED));
   }
 
   public void test_combine_arraySize1() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
-    assertThrowsIllegalArg(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED, base));
+    CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base);
+    assertEquals(test.getMarketDataName(), NAME_COMBINED);
+    assertEquals(test.getParameterCount(), VECTOR_USD1.size());
+    assertEquals(test.getParameterMetadata(), METADATA_USD1);
+    assertEquals(test.getSensitivity(), VECTOR_USD1);
+    assertEquals(test.getParameterSplit(), Optional.of(ImmutableList.of(PARAM1)));
+  }
+
+  public void test_combine_arraySize1_matchingName() {
+    CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
+    CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME1, base);
+    assertEquals(test, base);
   }
 
   public void test_combine_duplicateNames() {
