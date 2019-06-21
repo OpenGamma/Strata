@@ -129,6 +129,16 @@ public enum PayReceive implements NamedEnum {
 
   //-------------------------------------------------------------------------
   /**
+   * Supplies the opposite of this value.
+   *
+   * @return the opposite value
+   */
+  public PayReceive opposite() {
+    return isPay() ? RECEIVE : PAY;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type

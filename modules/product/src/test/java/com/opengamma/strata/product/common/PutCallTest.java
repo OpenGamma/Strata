@@ -38,6 +38,11 @@ public class PutCallTest {
     assertEquals(PutCall.CALL.isCall(), true);
   }
 
+  public void test_opposite() {
+    assertEquals(PutCall.PUT.opposite(), PutCall.CALL);
+    assertEquals(PutCall.CALL.opposite(), PutCall.PUT);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {

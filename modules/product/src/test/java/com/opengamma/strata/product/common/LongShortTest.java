@@ -43,6 +43,11 @@ public class LongShortTest {
     assertEquals(LongShort.SHORT.sign(), -1);
   }
 
+  public void test_opposite() {
+    assertEquals(LongShort.LONG.opposite(), LongShort.SHORT);
+    assertEquals(LongShort.SHORT.opposite(), LongShort.LONG);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {

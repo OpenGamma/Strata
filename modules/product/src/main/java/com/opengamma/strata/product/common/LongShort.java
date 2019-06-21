@@ -104,6 +104,16 @@ public enum LongShort implements NamedEnum {
 
   //-------------------------------------------------------------------------
   /**
+   * Supplies the opposite of this value.
+   *
+   * @return the opposite value
+   */
+  public LongShort opposite() {
+    return isLong() ? SHORT : LONG;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type
