@@ -79,6 +79,16 @@ public enum PutCall implements NamedEnum {
 
   //-------------------------------------------------------------------------
   /**
+   * Supplies the opposite of this value.
+   *
+   * @return the opposite value
+   */
+  public PutCall opposite() {
+    return isPut() ? CALL : PUT;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns the formatted name of the type.
    * 
    * @return the formatted string representing the type

@@ -76,6 +76,11 @@ public class PayReceiveTest {
     assertEquals(PayReceive.RECEIVE.isReceive(), true);
   }
 
+  public void test_opposite() {
+    assertEquals(PayReceive.PAY.opposite(), PayReceive.RECEIVE);
+    assertEquals(PayReceive.RECEIVE.opposite(), PayReceive.PAY);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {

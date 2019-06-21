@@ -68,6 +68,11 @@ public class BuySellTest {
     assertEquals(BuySell.SELL.isSell(), true);
   }
 
+  public void test_opposite() {
+    assertEquals(BuySell.BUY.opposite(), BuySell.SELL);
+    assertEquals(BuySell.SELL.opposite(), BuySell.BUY);
+  }
+
   //-------------------------------------------------------------------------
   @DataProvider(name = "name")
   public static Object[][] data_name() {
