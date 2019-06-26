@@ -119,10 +119,11 @@ public final class CurrencyAmount
         amountStr != null && amountStr.length() > 4 && amountStr.charAt(3) == ' ',
         "Unable to parse amount, invalid format: {}",
         amountStr);
+    String currencyCode = amountStr.substring(0, 3);
+    String doubleString = amountStr.substring(4);
+    ArgChecker.isTrue(doubleString.indexOf(' ') == -1, "Unable to parse amount, invalid format: {}", amountStr);
     try {
-      Currency cur = Currency.parse(amountStr.substring(0, 3));
-      String doubleString = amountStr.substring(4);
-      ArgChecker.isTrue(doubleString.indexOf(' ') == -1, "Unable to parse amount, invalid format: {}", amountStr);
+      Currency cur = Currency.parse(currencyCode);
       double amount = Double.parseDouble(doubleString);
       return new CurrencyAmount(cur, amount);
     } catch (RuntimeException ex) {
