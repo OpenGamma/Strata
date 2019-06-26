@@ -115,13 +115,16 @@ public final class CurrencyAmount
    */
   @FromString
   public static CurrencyAmount parse(String amountStr) {
-    ArgChecker.isTrue(
-        amountStr != null && amountStr.length() > 4 && amountStr.charAt(3) == ' ',
-        "Unable to parse amount, invalid format: {}",
-        amountStr);
+    if (amountStr == null || amountStr.length() <= 4 || amountStr.charAt(3) == ' ') {
+      throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
+    }
+
     String currencyCode = amountStr.substring(0, 3);
     String doubleString = amountStr.substring(4);
-    ArgChecker.isTrue(doubleString.indexOf(' ') == -1, "Unable to parse amount, invalid format: {}", amountStr);
+    if (doubleString.indexOf(' ') != -1) {
+      throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
+    }
+
     try {
       Currency cur = Currency.parse(currencyCode);
       double amount = Double.parseDouble(doubleString);
