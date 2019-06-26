@@ -50,6 +50,9 @@ public final class CurrencyAmount
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  /** Splitter on single space for parsing from string. */
+  private static final Splitter WHITESPACE_SPLITTER = Splitter.on(' ');
+
   /**
    * The currency.
    * <p>
@@ -118,7 +121,7 @@ public final class CurrencyAmount
   @FromString
   public static CurrencyAmount parse(String amountStr) {
     ArgChecker.notNull(amountStr, "amountStr");
-    List<String> split = Splitter.on(' ').splitToList(amountStr);
+    List<String> split = WHITESPACE_SPLITTER.splitToList(amountStr);
     if (split.size() != 2) {
       throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
     }
