@@ -7,14 +7,12 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 import org.joda.beans.JodaBeanUtils;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
-import com.google.common.base.Splitter;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
@@ -49,9 +47,6 @@ public final class CurrencyAmount
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  /** Splitter on single space for parsing from string. */
-  private static final Splitter WHITESPACE_SPLITTER = Splitter.on(' ');
 
   /**
    * The currency.
