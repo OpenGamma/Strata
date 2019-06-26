@@ -115,7 +115,7 @@ public final class CurrencyAmount
    */
   @FromString
   public static CurrencyAmount parse(String amountStr) {
-    if (amountStr == null || amountStr.length() <= 4 || amountStr.charAt(3) == ' ') {
+    if (amountStr == null || amountStr.length() <= 4 || amountStr.charAt(3) != ' ') {
       throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
     }
 
