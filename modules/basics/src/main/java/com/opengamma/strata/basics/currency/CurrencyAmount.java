@@ -121,13 +121,13 @@ public final class CurrencyAmount
   @FromString
   public static CurrencyAmount parse(String amountStr) {
     ArgChecker.notNull(amountStr, "amountStr");
-    List<String> split = WHITESPACE_SPLITTER.splitToList(amountStr);
-    if (split.size() != 2) {
-      throw new IllegalArgumentException("Unable to parse amount, invalid format: " + amountStr);
-    }
+    ArgChecker.isTrue(
+        amountStr.length() > 4 && amountStr.charAt(3) == ' ',
+        "Unable to parse amount, invalid format: {}",
+        amountStr);
     try {
-      Currency cur = Currency.parse(split.get(0));
-      double amount = Double.parseDouble(split.get(1));
+      Currency cur = Currency.parse(amountStr.substring(0, 3));
+      double amount = Double.parseDouble(amountStr.substring(4));
       return new CurrencyAmount(cur, amount);
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
