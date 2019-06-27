@@ -165,7 +165,8 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
    * @param fxLookup  the lookup used to obtain FX rates
    * @return the rates lookup based on the specified group
    */
-  public static RatesMarketDataLookup of(RatesCurveGroupDefinition curveGroupDefinition,
+  public static RatesMarketDataLookup of(
+      RatesCurveGroupDefinition curveGroupDefinition,
       ObservableSource observableSource,
       FxRateLookup fxLookup) {
 
@@ -173,7 +174,7 @@ public interface RatesMarketDataLookup extends FxRateLookup, CalculationParamete
     Map<Currency, CurveId> discountCurves = new HashMap<>();
     Map<Index, CurveId> forwardCurves = new HashMap<>();
     for (RatesCurveGroupEntry entry : curveGroupDefinition.getEntries()) {
-      CurveId curveId = CurveId.of(groupName, entry.getCurveName());
+      CurveId curveId = CurveId.of(groupName, entry.getCurveName(), observableSource);
       entry.getDiscountCurrencies().forEach(ccy -> discountCurves.put(ccy, curveId));
       entry.getIndices().forEach(idx -> forwardCurves.put(idx, curveId));
     }
