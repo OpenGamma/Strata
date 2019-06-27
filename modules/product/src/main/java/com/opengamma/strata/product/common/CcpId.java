@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2019 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -14,34 +14,34 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.Named;
 
 /**
- * An identifier for an exchange based on the ISO Market Identifier Code (MIC).
+ * An identifier for a Central Counterparty Clearing House (CCP).
  * <p>
- * Identifiers for common exchanges are provided in {@link ExchangeIds}.
+ * Identifiers for common CCPs are provided in {@link CcpIds}.
  */
-public final class ExchangeId implements Named, Serializable {
+public final class CcpId implements Named, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
   /**
-   * The Market Identifier Code (MIC) identifying the exchange.
+   * The code identifying the CCP.
    */
   private final String name;
 
   //-------------------------------------------------------------------------
   /**
-   * Returns an identifier for the exchange.
+   * Obtains an identifier for the CCP.
    *
-   * @param name the Market Identifier Code (MIC) identifying the exchange
-   * @return an identifier for the exchange
+   * @param name the code identifying the CCP
+   * @return an identifier for the CCP
    */
   @FromString
-  public static ExchangeId of(String name) {
-    return new ExchangeId(name);
+  public static CcpId of(String name) {
+    return new CcpId(name);
   }
 
   // restricted constructor
-  private ExchangeId(String name) {
+  private CcpId(String name) {
     this.name = ArgChecker.notBlank(name, "name");
   }
 
@@ -52,9 +52,9 @@ public final class ExchangeId implements Named, Serializable {
 
   //-------------------------------------------------------------------------
   /**
-   * Returns the Market Identifier Code (MIC) identifying the exchange.
+   * Returns the code identifying the CCP.
    *
-   * @return the Market Identifier Code (MIC) identifying the exchange
+   * @return the code identifying the CCP
    */
   @Override
   public String getName() {
@@ -78,7 +78,7 @@ public final class ExchangeId implements Named, Serializable {
     if (obj == null || getClass() != obj.getClass()) {
       return false;
     }
-    ExchangeId that = (ExchangeId) obj;
+    CcpId that = (CcpId) obj;
     return name.equals(that.name);
   }
 
