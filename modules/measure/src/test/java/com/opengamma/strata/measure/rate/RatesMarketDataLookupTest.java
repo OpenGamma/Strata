@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -32,6 +33,7 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.ser.JodaBeanSer;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
@@ -53,10 +55,13 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.ConstantCurve;
 import com.opengamma.strata.market.curve.Curve;
+import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.RatesCurveGroup;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.market.observable.IndexQuoteId;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
 import com.opengamma.strata.pricer.SimpleDiscountFactors;
@@ -142,6 +147,35 @@ public class RatesMarketDataLookupTest {
     assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
     assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
+    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
+    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
+  }
+
+  public void test_of_curveGroupDefinition_and_observableSource() {
+    RatesCurveGroupEntry entry1 = RatesCurveGroupEntry.builder()
+        .curveName(CURVE_ID_DSC.getCurveName())
+        .discountCurrencies(USD)
+        .build();
+
+    RatesCurveGroupEntry entry2 = RatesCurveGroupEntry.builder()
+        .curveName(CURVE_ID_FWD.getCurveName())
+        .indices(USD_LIBOR_3M)
+        .build();
+
+    List<RatesCurveGroupEntry> entries = ImmutableList.of(entry1, entry2);
+    CurveGroupName groupName = CURVE_ID_DSC.getCurveGroupName();
+    RatesCurveGroupDefinition groupDefinition = RatesCurveGroupDefinition.of(groupName, entries, ImmutableList.of());
+
+    // The lookup should contain curve IDs with the non-default ObservableSource
+    CurveId dscId = CurveId.of(CURVE_ID_DSC.getCurveGroupName(), CURVE_ID_DSC.getCurveName(), OBS_SOURCE);
+    CurveId fwdId = CurveId.of(CURVE_ID_FWD.getCurveGroupName(), CURVE_ID_FWD.getCurveName(), OBS_SOURCE);
+
+    RatesMarketDataLookup test = RatesMarketDataLookup.of(groupDefinition, OBS_SOURCE, FxRateLookup.ofRates());
+    assertEquals(test.queryType(), RatesMarketDataLookup.class);
+    assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));
+    assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(dscId));
+    assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(fwdId));
     assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
     assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
   }
@@ -243,7 +277,7 @@ public class RatesMarketDataLookupTest {
     ImmutableMap<Currency, CurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
     DefaultRatesMarketDataLookup test2 =
-        DefaultRatesMarketDataLookup.of(discounts2, forwards2, OBS_SOURCE, FxRateLookup.ofRates(EUR));
+        DefaultRatesMarketDataLookup.of(discounts2, forwards2, ObservableSource.NONE, FxRateLookup.ofRates(EUR));
     coverBeanEquals(test, test2);
 
     // related coverage
