@@ -164,14 +164,13 @@ public class RatesMarketDataLookupTest {
 
     List<RatesCurveGroupEntry> entries = ImmutableList.of(entry1, entry2);
     CurveGroupName groupName = CURVE_ID_DSC.getCurveGroupName();
-    ObservableSource observableSource = ObservableSource.of("foo");
     RatesCurveGroupDefinition groupDefinition = RatesCurveGroupDefinition.of(groupName, entries, ImmutableList.of());
 
     // The lookup should contain curve IDs with the non-default ObservableSource
-    CurveId dscId = CurveId.of(CURVE_ID_DSC.getCurveGroupName(), CURVE_ID_DSC.getCurveName(), observableSource);
-    CurveId fwdId = CurveId.of(CURVE_ID_FWD.getCurveGroupName(), CURVE_ID_FWD.getCurveName(), observableSource);
+    CurveId dscId = CurveId.of(CURVE_ID_DSC.getCurveGroupName(), CURVE_ID_DSC.getCurveName(), OBS_SOURCE);
+    CurveId fwdId = CurveId.of(CURVE_ID_FWD.getCurveGroupName(), CURVE_ID_FWD.getCurveName(), OBS_SOURCE);
 
-    RatesMarketDataLookup test = RatesMarketDataLookup.of(groupDefinition, observableSource, FxRateLookup.ofRates());
+    RatesMarketDataLookup test = RatesMarketDataLookup.of(groupDefinition, OBS_SOURCE, FxRateLookup.ofRates());
     assertEquals(test.queryType(), RatesMarketDataLookup.class);
     assertEquals(test.getDiscountCurrencies(), ImmutableSet.of(USD));
     assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(dscId));
@@ -278,7 +277,7 @@ public class RatesMarketDataLookupTest {
     ImmutableMap<Currency, CurveId> discounts2 = ImmutableMap.of(GBP, CURVE_ID_DSC);
     ImmutableMap<Index, CurveId> forwards2 = ImmutableMap.of(GBP_LIBOR_3M, CURVE_ID_FWD);
     DefaultRatesMarketDataLookup test2 =
-        DefaultRatesMarketDataLookup.of(discounts2, forwards2, OBS_SOURCE, FxRateLookup.ofRates(EUR));
+        DefaultRatesMarketDataLookup.of(discounts2, forwards2, ObservableSource.NONE, FxRateLookup.ofRates(EUR));
     coverBeanEquals(test, test2);
 
     // related coverage
