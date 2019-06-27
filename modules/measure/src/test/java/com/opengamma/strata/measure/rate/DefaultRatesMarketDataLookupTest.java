@@ -3,7 +3,6 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.strata.measure.rate;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
