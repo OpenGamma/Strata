@@ -144,6 +144,9 @@ public final class PositionCsvLoader {
   private static final String TYPE_FIELD = "Strata Position Type";
   private static final String ID_SCHEME_FIELD = "Id Scheme";
   private static final String ID_FIELD = "Id";
+  static final String DESCRIPTION_FIELD = "Description";
+  static final String NAME_FIELD = "Name";
+  static final String CCP_FIELD = "CCP";
 
   /**
    * The resolver, providing additional information.
@@ -397,6 +400,7 @@ public final class PositionCsvLoader {
     PositionInfoBuilder infoBuilder = PositionInfo.builder();
     String scheme = row.findField(ID_SCHEME_FIELD).orElse(DEFAULT_POSITION_SCHEME);
     row.findValue(ID_FIELD).ifPresent(id -> infoBuilder.id(StandardId.of(scheme, id)));
+    resolver.parseStandardAttributes(row, infoBuilder);
     resolver.parsePositionInfo(row, infoBuilder);
     return infoBuilder.build();
   }

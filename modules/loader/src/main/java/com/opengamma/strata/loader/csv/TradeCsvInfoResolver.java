@@ -10,11 +10,13 @@ import java.util.Optional;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
+import com.opengamma.strata.product.common.CcpId;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -60,6 +62,24 @@ public interface TradeCsvInfoResolver {
    * @return the reference data
    */
   public abstract ReferenceData getReferenceData();
+
+  /**
+   * Parses standard attributes into {@code TradeInfo}.
+   * <p>
+   * This parses the standard set of attributes, which are the three constants in {@link AttributeType}.
+   * The column names are 'Description', 'Name' and 'CCP'.
+   * 
+   * @param row  the CSV row to parse
+   * @param builder  the builder to update
+   */
+  public default void parseStandardAttributes(CsvRow row, TradeInfoBuilder builder) {
+    row.findValue(TradeCsvLoader.DESCRIPTION_FIELD)
+        .ifPresent(str -> builder.addAttribute(AttributeType.DESCRIPTION, str));
+    row.findValue(TradeCsvLoader.NAME_FIELD)
+        .ifPresent(str -> builder.addAttribute(AttributeType.NAME, str));
+    row.findValue(TradeCsvLoader.CCP_FIELD)
+        .ifPresent(str -> builder.addAttribute(AttributeType.CCP, CcpId.of(str)));
+  }
 
   /**
    * Parses attributes into {@code TradeInfo}.
