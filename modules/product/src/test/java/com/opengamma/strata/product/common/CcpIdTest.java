@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2019 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -13,13 +13,13 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.testng.annotations.Test;
 
 /**
- * Test {@link ExchangeId}.
+ * Test {@link CcpId}.
  */
 @Test
-public class ExchangeIdTest {
+public class CcpIdTest {
 
   public void test_of() {
-    ExchangeId test = ExchangeId.of("GB");
+    CcpId test = CcpId.of("GB");
     assertThat(test.getName()).isEqualTo("GB");
     assertThat(test).hasToString("GB");
     assertThatIllegalArgumentException().isThrownBy(() -> CcpId.of(""));
@@ -27,9 +27,9 @@ public class ExchangeIdTest {
 
   //-------------------------------------------------------------------------
   public void test_equalsHashCode() {
-    ExchangeId a = ExchangeId.of("ECAG");
-    ExchangeId a2 = ExchangeIds.ECAG;
-    ExchangeId b = ExchangeId.of("XLON");
+    CcpId a = CcpId.of("LCH");
+    CcpId a2 = CcpIds.LCH;
+    CcpId b = CcpId.of("CME");
     assertThat(a)
         .isEqualTo(a)
         .isEqualTo(a2)
@@ -41,11 +41,11 @@ public class ExchangeIdTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    coverPrivateConstructor(ExchangeIds.class);
+    coverPrivateConstructor(CcpIds.class);
   }
 
   public void test_serialization() {
-    ExchangeId test = ExchangeId.of("ECAG");
+    CcpId test = CcpId.of("LCH");
     assertSerialization(test);
   }
 
