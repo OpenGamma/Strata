@@ -74,6 +74,7 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityId;
@@ -82,6 +83,7 @@ import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.common.CcpIds;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
@@ -178,6 +180,7 @@ public class TradeCsvLoaderTest {
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId1"))
+            .addAttribute(AttributeType.CCP, CcpIds.CME)
             .build())
         .product(FxSingle.of(
             CurrencyAmount.of(USD, -3850000),
@@ -191,6 +194,7 @@ public class TradeCsvLoaderTest {
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2016-12-22"))
             .id(StandardId.of("OG", "tradeId2"))
+            .addAttribute(AttributeType.CCP, CcpIds.CME)
             .build())
         .product(FxSingle.of(CurrencyAmount.of(EUR, 1920000), FxRate.of(EUR, CZK, 25.62), LocalDate.parse("2016-12-24")))
         .build();
@@ -306,6 +310,7 @@ public class TradeCsvLoaderTest {
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId11"))
+            .addAttribute(AttributeType.CCP, CcpIds.CME)
             .build())
         .product(FxSwap.of(near1, far1))
         .build();
@@ -317,6 +322,7 @@ public class TradeCsvLoaderTest {
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId12"))
+            .addAttribute(AttributeType.CCP, CcpIds.CME)
             .build())
         .product(FxSwap.of(near2, far2))
         .build();
@@ -369,6 +375,7 @@ public class TradeCsvLoaderTest {
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2016-12-06"))
             .id(StandardId.of("OG", "tradeId31"))
+            .addAttribute(AttributeType.CCP, CcpIds.CME)
             .build())
         .product(FxVanillaOption.builder()
             .longShort(LongShort.LONG)

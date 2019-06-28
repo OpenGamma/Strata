@@ -8,6 +8,7 @@ package com.opengamma.strata.product;
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.TypedString;
+import com.opengamma.strata.product.common.CcpId;
 
 /**
  * The type that provides meaning to an attribute.
@@ -34,6 +35,10 @@ public final class AttributeType<T>
    * Key used to access the name.
    */
   public static final AttributeType<String> NAME = AttributeType.of("name");
+  /**
+   * Key used to access the CCP.
+   */
+  public static final AttributeType<CcpId> CCP = AttributeType.of("ccp");
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -50,7 +55,7 @@ public final class AttributeType<T>
    */
   @FromString
   public static <T> AttributeType<T> of(String name) {
-    return new AttributeType<T>(name);
+    return new AttributeType<>(name);
   }
 
   /**

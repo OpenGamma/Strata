@@ -258,6 +258,9 @@ public final class TradeCsvLoader {
   static final String TYPE_FIELD = "Strata Trade Type";
   static final String ID_SCHEME_FIELD = "Id Scheme";
   static final String ID_FIELD = "Id";
+  static final String DESCRIPTION_FIELD = "Description";
+  static final String NAME_FIELD = "Name";
+  static final String CCP_FIELD = "CCP";
   static final String CPTY_SCHEME_FIELD = "Counterparty Scheme";
   static final String CPTY_FIELD = "Counterparty";
   static final String TRADE_DATE_FIELD = "Trade Date";
@@ -577,6 +580,7 @@ public final class TradeCsvLoader {
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));
     row.findValue(SETTLEMENT_DATE_FIELD).ifPresent(dateStr -> infoBuilder.settlementDate(LoaderUtils.parseDate(dateStr)));
+    resolver.parseStandardAttributes(row, infoBuilder);
     resolver.parseTradeInfo(row, infoBuilder);
     return infoBuilder.build();
   }

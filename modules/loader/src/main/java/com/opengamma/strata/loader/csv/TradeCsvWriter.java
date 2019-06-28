@@ -14,12 +14,14 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_SCHEME_
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_SIZE;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_VALUE;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.CCP_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CPTY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CPTY_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.DESCRIPTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
@@ -28,6 +30,7 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.ID_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.ID_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.INDEX_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.INTERPOLATED_INDEX_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.NAME_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
@@ -55,6 +58,7 @@ import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.loader.csv.SecurityCsvPlugin.GenericSecurityTradeCsvPlugin;
 import com.opengamma.strata.loader.csv.SecurityCsvPlugin.SecurityTradeCsvPlugin;
+import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.GenericSecurityTrade;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
@@ -124,6 +128,9 @@ public final class TradeCsvWriter {
       TYPE_FIELD,
       ID_SCHEME_FIELD,
       ID_FIELD,
+      DESCRIPTION_FIELD,
+      NAME_FIELD,
+      CCP_FIELD,
       CPTY_SCHEME_FIELD,
       CPTY_FIELD,
       TRADE_DATE_FIELD,
@@ -213,6 +220,9 @@ public final class TradeCsvWriter {
       TradeInfo info = trade.getInfo();
       info.getId().ifPresent(id -> csv.writeCell(ID_SCHEME_FIELD, id.getScheme()));
       info.getId().ifPresent(id -> csv.writeCell(ID_FIELD, id.getValue()));
+      info.findAttribute(AttributeType.DESCRIPTION).ifPresent(str -> csv.writeCell(DESCRIPTION_FIELD, str));
+      info.findAttribute(AttributeType.NAME).ifPresent(str -> csv.writeCell(NAME_FIELD, str));
+      info.findAttribute(AttributeType.CCP).ifPresent(str -> csv.writeCell(CCP_FIELD, str));
       info.getCounterparty().ifPresent(cpty -> csv.writeCell(CPTY_SCHEME_FIELD, cpty.getScheme()));
       info.getCounterparty().ifPresent(cpty -> csv.writeCell(CPTY_FIELD, cpty.getValue()));
       info.getTradeDate().ifPresent(date -> csv.writeCell(TRADE_DATE_FIELD, date.toString()));
@@ -238,6 +248,15 @@ public final class TradeCsvWriter {
     if (trades.stream().anyMatch(trade -> trade.getInfo().getId().isPresent())) {
       headers.add(ID_SCHEME_FIELD);
       headers.add(ID_FIELD);
+    }
+    if (trades.stream().anyMatch(trade -> trade.getInfo().findAttribute(AttributeType.DESCRIPTION).isPresent())) {
+      headers.add(DESCRIPTION_FIELD);
+    }
+    if (trades.stream().anyMatch(trade -> trade.getInfo().findAttribute(AttributeType.NAME).isPresent())) {
+      headers.add(NAME_FIELD);
+    }
+    if (trades.stream().anyMatch(trade -> trade.getInfo().findAttribute(AttributeType.CCP).isPresent())) {
+      headers.add(CCP_FIELD);
     }
     if (trades.stream().anyMatch(trade -> trade.getInfo().getCounterparty().isPresent())) {
       headers.add(CPTY_SCHEME_FIELD);
