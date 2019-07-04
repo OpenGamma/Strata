@@ -62,7 +62,6 @@ public final class TenorDateParameterMetadata
    * @return the parameter metadata based on the tenor
    */
   public static TenorDateParameterMetadata of(LocalDate date, Tenor tenor) {
-    ArgChecker.notNull(date, "date");
     ArgChecker.notNull(tenor, "tenor");
     return new TenorDateParameterMetadata(date, tenor, tenor.toString());
   }

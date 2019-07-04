@@ -69,7 +69,6 @@ public final class YearMonthDateParameterMetadata
    * @return the parameter metadata based on the year-month
    */
   public static YearMonthDateParameterMetadata of(LocalDate date, YearMonth yearMonth) {
-    ArgChecker.notNull(date, "date");
     ArgChecker.notNull(yearMonth, "yearMonth");
     return new YearMonthDateParameterMetadata(date, yearMonth, yearMonth.format(FORMATTER));
   }

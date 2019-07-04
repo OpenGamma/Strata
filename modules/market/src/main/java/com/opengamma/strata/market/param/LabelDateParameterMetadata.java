@@ -23,6 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.opengamma.strata.collect.ArgChecker;
+
 /**
  * Parameter metadata based on a date and label.
  */
@@ -52,6 +54,7 @@ public final class LabelDateParameterMetadata
    * @return the parameter metadata based on the date
    */
   public static LabelDateParameterMetadata of(LocalDate date) {
+    ArgChecker.notNull(date, "date");
     return new LabelDateParameterMetadata(date, date.toString());
   }
 
