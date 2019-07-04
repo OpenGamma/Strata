@@ -8,10 +8,12 @@ package com.opengamma.strata.collect.result;
 import static com.opengamma.strata.collect.Guavate.concatToList;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -32,7 +34,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
@@ -158,6 +162,70 @@ public final class ValueWithFailures<T>
     return Collectors.reducing(ValueWithFailures.of(identityValue), combiningValues(operator));
   }
 
+  /**
+   * Returns a collector that can be used to create a combined ValueWithFailure instance from a stream of
+   * ValueWithFailure instances.
+   * <p>
+   * The {@link Collector} returned performs a reduction of its {@link ValueWithFailures} input elements into a list
+   * of elements, hopefully without producing as many intermediary lists.
+   *
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   */
+  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<List<T>>> toValueListWithFailures() {
+    return Collector.of(
+        () -> new StreamBuilder<>(ImmutableList.<T>builder()),
+        StreamBuilder::add,
+        StreamBuilder::combine,
+        StreamBuilder::build);
+  }
+
+  /**
+   * Returns a collector that can be used to create a combined ValueWithFailure instance from a stream of
+   * ValueWithFailure instances.
+   * <p>
+   * The {@link Collector} returned performs a reduction of its {@link ValueWithFailures} input elements into a set
+   * of elements, hopefully without producing as many intermediary sets.
+   *
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   */
+  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<Set<T>>> toValueSetWithFailures() {
+    return Collector.of(
+        () -> new StreamBuilder<>(ImmutableSet.<T>builder()),
+        StreamBuilder::add,
+        StreamBuilder::combine,
+        StreamBuilder::build);
+  }
+
+  // mutable combined instance builder for use in stream collection
+  private static final class StreamBuilder<T, B extends ImmutableCollection.Builder<T>> {
+
+    private final B values;
+    private final ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+
+    private StreamBuilder(B values) {
+      this.values = values;
+    }
+
+    private void add(ValueWithFailures<T> item) {
+      values.add(item.getValue());
+      failures.addAll(item.getFailures());
+    }
+
+    private StreamBuilder<T, B> combine(StreamBuilder<T, B> builder) {
+      values.addAll(builder.values.build());
+      failures.addAll(builder.failures.build());
+      return this;
+    }
+
+    // Cast to the right collection type, can assume the methods in this class are using the correct types
+    private <C extends Collection<T>> ValueWithFailures<C> build() {
+      //noinspection unchecked
+      return (ValueWithFailures<C>) ValueWithFailures.of(values.build(), failures.build());
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if there are any failures.
@@ -177,8 +245,8 @@ public final class ValueWithFailures<T>
    * It is strongly advised to ensure that the function cannot throw an exception.
    * Exceptions from the function are not caught.
    *
-   * @param <R>  the type of the value in the returned result
-   * @param function  the function to transform the value with
+   * @param <R> the type of the value in the returned result
+   * @param function the function to transform the value with
    * @return the transformed instance of value and failures
    */
   public <R> ValueWithFailures<R> map(Function<? super T, ? extends R> function) {
@@ -196,8 +264,8 @@ public final class ValueWithFailures<T>
    * It is strongly advised to ensure that the function cannot throw an exception.
    * Exceptions from the function are not caught.
    *
-   * @param <R>  the type of the value in the returned result
-   * @param function  the function to transform the value with
+   * @param <R> the type of the value in the returned result
+   * @param function the function to transform the value with
    * @return the transformed instance of value and failures
    */
   public <R> ValueWithFailures<R> flatMap(Function<? super T, ValueWithFailures<R>> function) {
@@ -214,11 +282,11 @@ public final class ValueWithFailures<T>
    * <p>
    * It is strongly advised to ensure that the function cannot throw an exception.
    * Exceptions from the function are not caught.
-   * 
-   * @param <U>  the type of the value in the other instance
-   * @param <R>  the type of the value in the returned result
-   * @param other  the other instance
-   * @param combiner  the function that combines the two values
+   *
+   * @param <U> the type of the value in the other instance
+   * @param <R> the type of the value in the returned result
+   * @param other the other instance
+   * @param combiner the function that combines the two values
    * @return the combined instance of value and failures
    */
   public <U, R> ValueWithFailures<R> combinedWith(ValueWithFailures<U> other, BiFunction<T, U, R> combiner) {
@@ -232,9 +300,9 @@ public final class ValueWithFailures<T>
    * Returns a new instance with the specified value, retaining the current failures.
    * <p>
    * This can be useful as an inline alternative to {@link #map(Function)}.
-   * 
-   * @param <R>  the type of the value in the returned result
-   * @param value  the new value
+   *
+   * @param <R> the type of the value in the returned result
+   * @param value the new value
    * @return the combined instance of value and failures
    */
   public <R> ValueWithFailures<R> withValue(R value) {
@@ -245,10 +313,10 @@ public final class ValueWithFailures<T>
    * Returns a new instance with the specified value, combining the failures.
    * <p>
    * This can be useful as an inline alternative to {@link #flatMap(Function)}.
-   * 
-   * @param <R>  the type of the value in the returned result
-   * @param value  the new value
-   * @param additionalFailures  the additional failures
+   *
+   * @param <R> the type of the value in the returned result
+   * @param value the new value
+   * @param additionalFailures the additional failures
    * @return the combined instance of value and failures
    */
   public <R> ValueWithFailures<R> withValue(R value, List<FailureItem> additionalFailures) {
@@ -259,9 +327,9 @@ public final class ValueWithFailures<T>
    * Returns a new instance with the specified value, combining the failures.
    * <p>
    * This can be useful as an inline alternative to {@link #flatMap(Function)}.
-   * 
-   * @param <R>  the type of the value in the returned result
-   * @param valueWithFailures  the new value with failures
+   *
+   * @param <R> the type of the value in the returned result
+   * @param valueWithFailures the new value with failures
    * @return the combined instance of value and failures
    */
   public <R> ValueWithFailures<R> withValue(ValueWithFailures<R> valueWithFailures) {
@@ -272,8 +340,8 @@ public final class ValueWithFailures<T>
 
   /**
    * Returns a new instance with the specified failures, retaining the current value.
-   * 
-   * @param additionalFailures  the additional failures
+   *
+   * @param additionalFailures the additional failures
    * @return the combined instance of value and failures
    */
   public ValueWithFailures<T> withAdditionalFailures(List<FailureItem> additionalFailures) {
