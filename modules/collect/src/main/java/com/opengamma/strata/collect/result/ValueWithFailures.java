@@ -159,13 +159,13 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Returns a collectors that can be used to create a ValueWithFailure instance with a list of success values
-   * from a stream of ValueWithFailures instances.
+   * Returns a collector that can be used to create a {@code ValueWithFailure} instance with a list of success values
+   * from a stream of {@code ValueWithFailure} instances.
    *
-   * @param <T>  they type of the success value in the {@link ValueWithFailures}
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a {@link Collector}
    */
-  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<ImmutableList<T>>> toValueListWithFailures() {
+  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<ImmutableList<T>>> toCombinedValuesAsList() {
     return Collector.of(
         StreamBuilder<T>::new,
         StreamBuilder::addSingle,
@@ -200,10 +200,10 @@ public final class ValueWithFailures<T>
    * <p>
    * Effectively, this converts {@code List<ValueWithFailures<T>>} to {@code ValueWithFailures<List<T>>}.
    *
-   * @param <T>  they type of the success value in the {@link ValueWithFailures}
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a new instance with a list of success values
    */
-  public static <T> ValueWithFailures<ImmutableList<T>> combineAsList(List<? extends ValueWithFailures<? extends T>> items) {
+  public static <T> ValueWithFailures<List<T>> combineValuesAsList(List<? extends ValueWithFailures<? extends T>> items) {
     ImmutableList.Builder<T> values = ImmutableList.builder();
     ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
 

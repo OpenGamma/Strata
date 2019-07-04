@@ -184,7 +184,7 @@ public class ValueWithFailuresTest {
         .collect(toImmutableList());
 
     ValueWithFailures<ImmutableList<Double>> result = listOfValueWithFailures.stream()
-        .collect(ValueWithFailures.toValueListWithFailures());
+        .collect(ValueWithFailures.toCombinedValuesAsList());
 
     assertEquals(result.getValue().size(), 3);
 
@@ -201,7 +201,7 @@ public class ValueWithFailuresTest {
         .map(value -> mockCalc(value))
         .collect(toImmutableList());
 
-    ValueWithFailures<ImmutableList<Double>> result = ValueWithFailures.combineAsList(listOfValueWithFailures);
+    ValueWithFailures<List<Double>> result = ValueWithFailures.combineValuesAsList(listOfValueWithFailures);
 
     assertEquals(result.getValue().size(), 3);
 
