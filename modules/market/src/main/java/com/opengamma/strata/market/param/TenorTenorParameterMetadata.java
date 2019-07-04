@@ -36,12 +36,12 @@ public final class TenorTenorParameterMetadata
   /**
    * The expiry tenor associated with the parameter.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Tenor expiryTenor;
   /**
    * The underlying tenor associated with the parameter.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Tenor underlyingTenor;
   /**
    * The expiry tenor year fraction.
@@ -146,6 +146,8 @@ public final class TenorTenorParameterMetadata
       double expiryYearFraction,
       double underlyingTenorYearFraction,
       String label) {
+    JodaBeanUtils.notNull(expiryTenor, "expiryTenor");
+    JodaBeanUtils.notNull(underlyingTenor, "underlyingTenor");
     JodaBeanUtils.notEmpty(label, "label");
     this.expiryTenor = expiryTenor;
     this.underlyingTenor = underlyingTenor;
@@ -162,7 +164,7 @@ public final class TenorTenorParameterMetadata
   //-----------------------------------------------------------------------
   /**
    * Gets the expiry tenor associated with the parameter.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Tenor getExpiryTenor() {
     return expiryTenor;
@@ -171,7 +173,7 @@ public final class TenorTenorParameterMetadata
   //-----------------------------------------------------------------------
   /**
    * Gets the underlying tenor associated with the parameter.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Tenor getUnderlyingTenor() {
     return underlyingTenor;
