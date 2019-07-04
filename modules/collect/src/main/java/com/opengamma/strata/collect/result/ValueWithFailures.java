@@ -158,6 +158,62 @@ public final class ValueWithFailures<T>
     return Collectors.reducing(ValueWithFailures.of(identityValue), combiningValues(operator));
   }
 
+  /**
+   * Returns a collectors that can be used to create a ValueWithFailure instance with a list of success values
+   * from a stream of ValueWithFailures instances.
+   *
+   * @param <T>  they type of the success value in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   */
+  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<ImmutableList<T>>> toValueListWithFailures() {
+    return Collector.of(
+        StreamBuilder<T>::new,
+        StreamBuilder::addSingle,
+        StreamBuilder::combining,
+        StreamBuilder::build);
+  }
+
+  // Utility class to help combine ValueWithFailures
+  private static final class StreamBuilder<T> {
+
+    private final ImmutableList.Builder<T> values = ImmutableList.builder();
+    private final ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+
+    private void addSingle(ValueWithFailures<T> item) {
+      values.add(item.getValue());
+      failures.addAll(item.getFailures());
+    }
+
+    private StreamBuilder<T> combining(StreamBuilder<T> builder) {
+      values.addAll(builder.values.build());
+      failures.addAll(builder.failures.build());
+      return this;
+    }
+
+    private ValueWithFailures<ImmutableList<T>> build() {
+      return ValueWithFailures.of(values.build(), failures.build());
+    }
+  }
+
+  /**
+   * Converts a list of value with failures to a single value with failures, combining the values into a list.
+   * <p>
+   * Effectively, this converts {@code List<ValueWithFailures<T>>} to {@code ValueWithFailures<List<T>>}.
+   *
+   * @param <T>  they type of the success value in the {@link ValueWithFailures}
+   * @return a new instance with a list of success values
+   */
+  public static <T> ValueWithFailures<ImmutableList<T>> combineAsList(List<? extends ValueWithFailures<? extends T>> items) {
+    ImmutableList.Builder<T> values = ImmutableList.builder();
+    ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+
+    for (ValueWithFailures<? extends T> item : items) {
+      values.add(item.getValue());
+      failures.addAll(item.getFailures());
+    }
+    return ValueWithFailures.of(values.build(), failures.build());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if there are any failures.
@@ -214,7 +270,7 @@ public final class ValueWithFailures<T>
    * <p>
    * It is strongly advised to ensure that the function cannot throw an exception.
    * Exceptions from the function are not caught.
-   * 
+   *
    * @param <U>  the type of the value in the other instance
    * @param <R>  the type of the value in the returned result
    * @param other  the other instance
@@ -232,7 +288,7 @@ public final class ValueWithFailures<T>
    * Returns a new instance with the specified value, retaining the current failures.
    * <p>
    * This can be useful as an inline alternative to {@link #map(Function)}.
-   * 
+   *
    * @param <R>  the type of the value in the returned result
    * @param value  the new value
    * @return the combined instance of value and failures
@@ -245,7 +301,7 @@ public final class ValueWithFailures<T>
    * Returns a new instance with the specified value, combining the failures.
    * <p>
    * This can be useful as an inline alternative to {@link #flatMap(Function)}.
-   * 
+   *
    * @param <R>  the type of the value in the returned result
    * @param value  the new value
    * @param additionalFailures  the additional failures
@@ -259,7 +315,7 @@ public final class ValueWithFailures<T>
    * Returns a new instance with the specified value, combining the failures.
    * <p>
    * This can be useful as an inline alternative to {@link #flatMap(Function)}.
-   * 
+   *
    * @param <R>  the type of the value in the returned result
    * @param valueWithFailures  the new value with failures
    * @return the combined instance of value and failures
@@ -272,7 +328,7 @@ public final class ValueWithFailures<T>
 
   /**
    * Returns a new instance with the specified failures, retaining the current value.
-   * 
+   *
    * @param additionalFailures  the additional failures
    * @return the combined instance of value and failures
    */
