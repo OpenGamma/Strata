@@ -8,7 +8,7 @@ package com.opengamma.strata.market.param;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
- * Parameter metadata that specifies a date.
+ * Parameter metadata that specifies a tenor.
  */
 public interface TenoredParameterMetadata extends ParameterMetadata {
 
