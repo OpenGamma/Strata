@@ -144,11 +144,13 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Returns a collector that can be used to create a ValueWithFailure instance from a stream of ValueWithFailure
-   * instances.
+   * Returns a collector that can be used to create a combined {@code ValueWithFailure}
+   * from a stream of separate instances.
    * <p>
    * The {@link Collector} returned performs a reduction of its {@link ValueWithFailures} input elements under a
    * specified {@link BinaryOperator} using the provided identity.
+   * <p>
+   * This collects a {@code Stream<ValueWithFailures<T>>} to a {@code ValueWithFailures<T>}.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @param identityValue  the identity value
@@ -163,8 +165,10 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Returns a collector that can be used to create a {@code ValueWithFailure} instance with a list of success values
-   * from a stream of {@code ValueWithFailure} instances.
+   * Returns a collector that creates a combined {@code ValueWithFailure} from a stream
+   * of separate instances, combining into an immutable list.
+   * <p>
+   * This collects a {@code Stream<ValueWithFailures<T>>} to a {@code ValueWithFailures<List<T>>}.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a {@link Collector}
@@ -178,8 +182,10 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Returns a collector that can be used to create a {@code ValueWithFailure} instance with a set of success values
-   * from a stream of {@code ValueWithFailure} instances.
+   * Returns a collector that creates a combined {@code ValueWithFailure} from a stream
+   * of separate instances, combining into an immutable set.
+   * <p>
+   * This collects a {@code Stream<ValueWithFailures<T>>} to a {@code ValueWithFailures<Set<T>>}.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a {@link Collector}
@@ -193,11 +199,13 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Converts a list of value with failures to a single value with failures, combining the values into a list.
+   * Combines separate instances of {@code ValueWithFailure} into a single instance,
+   * using a list to collect the values.
    * <p>
-   * Effectively, this converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<List<T>>}.
+   * This converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<List<T>>}.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @param items  the items to combine
    * @return a new instance with a list of success values
    */
   public static <T> ValueWithFailures<List<T>> combineValuesAsList(
@@ -209,11 +217,13 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Converts a list of value with failures to a single value with failures, combining the values into a set.
+   * Combines separate instances of {@code ValueWithFailure} into a single instance,
+   * using a set to collect the values.
    * <p>
-   * Effectively, this converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<Set<T>>}.
+   * This converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<Set<T>>}.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @param items  the items to combine
    * @return a new instance with a set of success values
    */
   public static <T> ValueWithFailures<Set<T>> combineValuesAsSet(
@@ -224,6 +234,7 @@ public final class ValueWithFailures<T>
     return ValueWithFailures.of(values.build(), failures);
   }
 
+  // combines the collection into the specified builder
   private static <T> ImmutableList<FailureItem> combine(
       Iterable<? extends ValueWithFailures<? extends T>> items,
       ImmutableCollection.Builder<T> values) {
@@ -237,6 +248,7 @@ public final class ValueWithFailures<T>
   }
 
   // mutable combined instance builder for use in stream collection
+  // using a single dedicated collector is more efficient than a reduction with multiple calls to combinedWith()
   private static final class StreamBuilder<T, B extends ImmutableCollection.Builder<T>> {
 
     private final B values;
@@ -257,9 +269,9 @@ public final class ValueWithFailures<T>
       return this;
     }
 
-    // Cast to the right collection type, can assume the methods in this class are using the correct types
+    // cast to the right collection type, can assume the methods in this class are using the correct types
+    @SuppressWarnings("unchecked")
     private <C extends Collection<T>> ValueWithFailures<C> build() {
-      //noinspection unchecked
       return (ValueWithFailures<C>) ValueWithFailures.of(values.build(), failures.build());
     }
   }
