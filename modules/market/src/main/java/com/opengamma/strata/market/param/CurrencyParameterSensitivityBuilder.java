@@ -94,6 +94,15 @@ final class CurrencyParameterSensitivityBuilder {
     return this;
   }
 
+  /**
+   * Returns whether this sensitivity builder has any values.
+   *
+   * @return whether the sensitivity is empty
+   */
+  boolean isEmpty() {
+    return sensitivity.isEmpty();
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Builds the sensitivity from the provided data.

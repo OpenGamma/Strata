@@ -173,6 +173,16 @@ public class CurrencyParameterSensitivitiesTest {
     assertEquals(test.getSensitivities().get(0), expected);
   }
 
+  public void test_builder_filterSensitivity_remove() {
+    CurrencyParameterSensitivity entry1 =
+        CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, DoubleArray.of(1, 1, 1, 1));
+    CurrencyParameterSensitivities test = CurrencyParameterSensitivities.builder()
+        .add(entry1)
+        .filterSensitivity(v -> v != 1)
+        .build();
+    assertEquals(test.getSensitivities().size(), 0);
+  }
+
   //-------------------------------------------------------------------------
   public void test_getSensitivity() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_USD);
