@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
@@ -66,6 +67,21 @@ public class GuavateTest {
     Iterable<Double> iterable2 = Arrays.asList(10d, 20d, 30d);
     ImmutableList<Number> test = Guavate.concatToList(iterable1, iterable2);
     assertEquals(test, ImmutableList.of(1, 2, 3, 10d, 20d, 30d));
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_concatToSet() {
+    Iterable<String> iterable1 = Arrays.asList("a", "b", "c");
+    Iterable<String> iterable2 = Arrays.asList("d", "e", "f", "a");
+    Set<String> test = Guavate.concatToSet(iterable1, iterable2);
+    assertEquals(test, ImmutableSet.of("a", "b", "c", "d", "e", "f"));
+  }
+
+  public void test_concatToSet_differentTypes() {
+    Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3, 2);
+    Iterable<Double> iterable2 = Arrays.asList(10d, 20d, 30d);
+    Set<Number> test = Guavate.concatToSet(iterable1, iterable2);
+    assertEquals(test, ImmutableSet.of(1, 2, 3, 10d, 20d, 30d));
   }
 
   //-------------------------------------------------------------------------

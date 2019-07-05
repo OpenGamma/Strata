@@ -70,7 +70,7 @@ public final class Guavate {
    * <p>
    * This is harder than it should be, a method {@code Stream.of(Iterable)}
    * would have been appropriate, but cannot be added now.
-   * 
+   *
    * @param <T>  the type of element in the iterable
    * @param iterables  the iterables to combine
    * @return the list that combines the inputs
@@ -78,6 +78,21 @@ public final class Guavate {
   @SafeVarargs
   public static <T> ImmutableList<T> concatToList(Iterable<? extends T>... iterables) {
     return ImmutableList.copyOf(Iterables.concat(iterables));
+  }
+
+  /**
+   * Concatenates a number of iterables into a single set.
+   * <p>
+   * This is harder than it should be, a method {@code Stream.of(Iterable)}
+   * would have been appropriate, but cannot be added now.
+   *
+   * @param <T>  the type of element in the iterable
+   * @param iterables  the iterables to combine
+   * @return the set that combines the inputs
+   */
+  @SafeVarargs
+  public static <T> ImmutableSet<T> concatToSet(Iterable<? extends T>... iterables) {
+    return ImmutableSet.copyOf(Iterables.concat(iterables));
   }
 
   //-------------------------------------------------------------------------
