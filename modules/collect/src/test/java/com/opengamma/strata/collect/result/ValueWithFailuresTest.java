@@ -179,25 +179,12 @@ public class ValueWithFailuresTest {
     assertEquals(failures.get(2).getMessage(), Messages.format("Error calculating result for input value {}", 7d));
   }
 
-  public void test_toValueListWithFailures() {
-    List<Double> testList = ImmutableList.of(5d, 6d, 7d);
-    ValueWithFailures<List<Double>> result = testList.stream()
-        .map(value -> mockCalc(value))
-        .collect(ValueWithFailures.toValueListWithFailures());
 
-    assertEquals(result.getValue(), ImmutableList.of(5d, 6d, 7d));
-    List<FailureItem> failures = result.getFailures();
-    assertEquals(failures.size(), 3); //One failure item for each element in testList.
-    assertEquals(failures.get(0).getMessage(), Messages.format("Error calculating result for input value {}", 5d));
-    assertEquals(failures.get(1).getMessage(), Messages.format("Error calculating result for input value {}", 6d));
-    assertEquals(failures.get(2).getMessage(), Messages.format("Error calculating result for input value {}", 7d));
-  }
-
-  public void test_toValueSetWithFailures() {
+  public void test_toCombinedValuesAsSet() {
     List<Double> testList = ImmutableList.of(5d, 6d, 7d);
     ValueWithFailures<Set<Double>> result = testList.stream()
         .map(value -> mockCalc(value))
-        .collect(ValueWithFailures.toValueSetWithFailures());
+        .collect(ValueWithFailures.toCombinedValuesAsSet());
 
     assertEquals(result.getValue(), ImmutableSet.of(5d, 6d, 7d));
     List<FailureItem> failures = result.getFailures();
@@ -207,16 +194,16 @@ public class ValueWithFailuresTest {
     assertEquals(failures.get(2).getMessage(), Messages.format("Error calculating result for input value {}", 7d));
   }
 
-  public void test_toValueWithFailuresList() {
+  public void test_toCombinedValuesAsList() {
     List<Double> testList = ImmutableList.of(5d, 6d, 7d);
     ImmutableList<ValueWithFailures<Double>> listOfValueWithFailures = testList.stream()
         .map(value -> mockCalc(value))
         .collect(toImmutableList());
 
-    ValueWithFailures<ImmutableList<Double>> result = listOfValueWithFailures.stream()
+    ValueWithFailures<List<Double>> result = listOfValueWithFailures.stream()
         .collect(ValueWithFailures.toCombinedValuesAsList());
 
-    assertEquals(result.getValue().size(), 3);
+    assertEquals(result.getValue(), ImmutableList.of(5d, 6d, 7d));
 
     List<FailureItem> failures = result.getFailures();
     assertEquals(failures.size(), 3); //One failure item for each element in testList.
@@ -233,7 +220,24 @@ public class ValueWithFailuresTest {
 
     ValueWithFailures<List<Double>> result = ValueWithFailures.combineValuesAsList(listOfValueWithFailures);
 
-    assertEquals(result.getValue().size(), 3);
+    assertEquals(result.getValue(), ImmutableList.of(5d, 6d, 7d));
+
+    List<FailureItem> failures = result.getFailures();
+    assertEquals(failures.size(), 3); //One failure item for each element in testList.
+    assertEquals(failures.get(0).getMessage(), Messages.format("Error calculating result for input value {}", 5d));
+    assertEquals(failures.get(1).getMessage(), Messages.format("Error calculating result for input value {}", 6d));
+    assertEquals(failures.get(2).getMessage(), Messages.format("Error calculating result for input value {}", 7d));
+  }
+
+  public void test_combineAsSet() {
+    List<Double> testList = ImmutableList.of(5d, 6d, 7d);
+    ImmutableList<ValueWithFailures<Double>> listOfValueWithFailures = testList.stream()
+        .map(value -> mockCalc(value))
+        .collect(toImmutableList());
+
+    ValueWithFailures<Set<Double>> result = ValueWithFailures.combineValuesAsSet(listOfValueWithFailures);
+
+    assertEquals(result.getValue(), ImmutableSet.of(5d, 6d, 7d));
 
     List<FailureItem> failures = result.getFailures();
     assertEquals(failures.size(), 3); //One failure item for each element in testList.

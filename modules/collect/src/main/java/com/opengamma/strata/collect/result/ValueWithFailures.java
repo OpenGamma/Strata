@@ -169,7 +169,7 @@ public final class ValueWithFailures<T>
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a {@link Collector}
    */
-  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<List<T>>> toCombinedValuesAsList() {
+  public static <T> Collector<ValueWithFailures<? extends T>, ?, ValueWithFailures<List<T>>> toCombinedValuesAsList() {
     return Collector.of(
         () -> new StreamBuilder<>(ImmutableList.<T>builder()),
         StreamBuilder::add,
@@ -178,13 +178,13 @@ public final class ValueWithFailures<T>
   }
 
   /**
-   * Returns a collector that can be used to create a {@code ValueWithFailure} instance with a list of success values
+   * Returns a collector that can be used to create a {@code ValueWithFailure} instance with a set of success values
    * from a stream of {@code ValueWithFailure} instances.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a {@link Collector}
    */
-  public static <T> Collector<ValueWithFailures<T>, ?, ValueWithFailures<Set<T>>> toCombinedValuesAsSet() {
+  public static <T> Collector<ValueWithFailures<? extends T>, ?, ValueWithFailures<Set<T>>> toCombinedValuesAsSet() {
     return Collector.of(
         () -> new StreamBuilder<>(ImmutableSet.<T>builder()),
         StreamBuilder::add,
@@ -195,20 +195,45 @@ public final class ValueWithFailures<T>
   /**
    * Converts a list of value with failures to a single value with failures, combining the values into a list.
    * <p>
-   * Effectively, this converts {@code List<ValueWithFailures<T>>} to {@code ValueWithFailures<List<T>>}.
+   * Effectively, this converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<List<T>>}.
    *
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a new instance with a list of success values
    */
-  public static <T> ValueWithFailures<List<T>> combineValuesAsList(List<? extends ValueWithFailures<? extends T>> items) {
-    ImmutableList.Builder<T> values = ImmutableList.builder();
-    ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+  public static <T> ValueWithFailures<List<T>> combineValuesAsList(
+      Iterable<? extends ValueWithFailures<? extends T>> items) {
 
+    ImmutableList.Builder<T> values = ImmutableList.builder();
+    ImmutableList<FailureItem> failures = combine(items, values);
+    return ValueWithFailures.of(values.build(), failures);
+  }
+
+  /**
+   * Converts a list of value with failures to a single value with failures, combining the values into a set.
+   * <p>
+   * Effectively, this converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<Set<T>>}.
+   *
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @return a new instance with a set of success values
+   */
+  public static <T> ValueWithFailures<Set<T>> combineValuesAsSet(
+      Iterable<? extends ValueWithFailures<? extends T>> items) {
+
+    ImmutableSet.Builder<T> values = ImmutableSet.builder();
+    ImmutableList<FailureItem> failures = combine(items, values);
+    return ValueWithFailures.of(values.build(), failures);
+  }
+
+  private static <T> ImmutableList<FailureItem> combine(
+      Iterable<? extends ValueWithFailures<? extends T>> items,
+      ImmutableCollection.Builder<T> values) {
+
+    ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
     for (ValueWithFailures<? extends T> item : items) {
       values.add(item.getValue());
       failures.addAll(item.getFailures());
     }
-    return ValueWithFailures.of(values.build(), failures.build());
+    return failures.build();
   }
 
   // mutable combined instance builder for use in stream collection
@@ -221,7 +246,7 @@ public final class ValueWithFailures<T>
       this.values = values;
     }
 
-    private void add(ValueWithFailures<T> item) {
+    private void add(ValueWithFailures<? extends T> item) {
       values.add(item.getValue());
       failures.addAll(item.getFailures());
     }
