@@ -41,7 +41,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
       DirectIborCapletFloorletFlatVolatilityCalibrator.standard();
   private static final BlackIborCapFloorLegPricer LEG_PRICER_BLACK = BlackIborCapFloorLegPricer.DEFAULT;
   private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
-  private static final double TOL = 1.0e-4;
+  private static final double TOL = 2.0e-5;
 
   public void test_recovery_black() {
     double lambdaT = 0.07;
@@ -56,8 +56,8 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
     BlackIborCapletFloorletExpiryFlatVolatilities resVols =
         (BlackIborCapletFloorletExpiryFlatVolatilities) res.getVolatilities();
-    for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
-      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackAtmVols(i);
+    for (int i = 0; i < strikes.size(); ++i) {
+      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackAtmVols(strikes.get(i));
       List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
       List<Double> vols = capsAndVols.getSecond();
       int nCaps = caps.size();
@@ -68,7 +68,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
       }
     }
     assertTrue(res.getChiSquare() > 0d);
@@ -91,7 +91,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
     NormalIborCapletFloorletExpiryFlatVolatilities resVol =
         (NormalIborCapletFloorletExpiryFlatVolatilities) res.getVolatilities();
     for (int i = 0; i < strikes.size(); ++i) {
-      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsNormalAtmVols(i);
+      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsNormalAtmVols(strikes.get(i));
       List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
       List<Double> vols = capsAndVols.getSecond();
       int nCaps = caps.size();

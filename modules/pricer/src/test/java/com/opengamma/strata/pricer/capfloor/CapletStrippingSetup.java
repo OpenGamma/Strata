@@ -396,11 +396,29 @@ public class CapletStrippingSetup {
   }
 
   //-------------------------------------------------------------------------
-  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsBlackAtmVols(int strikeIndex) {
-    ResolvedIborCapFloorLeg[] caps = CAPS_BLACK[strikeIndex];
+  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsBlackAtmVols(double strike) {
+    int nVols = CAP_BLACK_ATM_VOLS[0].length;
+    ResolvedIborCapFloorLeg[] caps = new ResolvedIborCapFloorLeg[nVols];
+    LocalDate startDate = BASE_DATE.plus(USD_LIBOR_3M.getTenor());
+    for (int i = 0; i < NUM_BLACK_MATURITIES; ++i) {
+      caps[i] = IborCapFloorLeg.builder()
+          .calculation(IborRateCalculation.of(USD_LIBOR_3M))
+          .capSchedule(ValueSchedule.of(strike))
+          .notional(ValueSchedule.ALWAYS_1)
+          .paymentSchedule(
+              PeriodicSchedule.of(
+                  startDate,
+                  BASE_DATE.plusYears(CAP_BLACK_END_TIMES[i]),
+                  Frequency.P3M,
+                  BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, USD_LIBOR_3M.getFixingCalendar()),
+                  StubConvention.NONE,
+                  RollConventions.NONE))
+          .payReceive(PayReceive.RECEIVE)
+          .build()
+          .resolve(REF_DATA);
+    }
     Builder<ResolvedIborCapFloorLeg> capBuilder = ImmutableList.builder();
     Builder<Double> volBuilder = ImmutableList.builder();
-    int nVols = CAP_BLACK_ATM_VOLS.length;
     for (int i = 0; i < nVols; ++i) {
       capBuilder.add(caps[i]);
       volBuilder.add(CAP_BLACK_ATM_VOLS[0][i]);
@@ -408,11 +426,29 @@ public class CapletStrippingSetup {
     return Pair.of(capBuilder.build(), volBuilder.build());
   }
 
-  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsNormalAtmVols(int strikeIndex) {
-    ResolvedIborCapFloorLeg[] caps = CAPS_NORMAL[strikeIndex];
+  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsNormalAtmVols(double strike) {
+    int nVols = CAP_NORMAL_ATM_VOLS[0].length;
+    ResolvedIborCapFloorLeg[] caps = new ResolvedIborCapFloorLeg[nVols];
+    LocalDate startDate = BASE_DATE.plus(USD_LIBOR_3M.getTenor());
+    for (int i = 0; i < NUM_NORMAL_MATURITIES; ++i) {
+      caps[i] = IborCapFloorLeg.builder()
+            .calculation(IborRateCalculation.of(USD_LIBOR_3M))
+          .capSchedule(ValueSchedule.of(strike))
+            .notional(ValueSchedule.ALWAYS_1)
+            .paymentSchedule(
+                PeriodicSchedule.of(
+                    startDate,
+                    BASE_DATE.plusYears(CAP_NORMAL_END_TIMES[i]),
+                    Frequency.P3M,
+                    BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, USD_LIBOR_3M.getFixingCalendar()),
+                    StubConvention.NONE,
+                    RollConventions.NONE))
+            .payReceive(PayReceive.RECEIVE)
+            .build()
+            .resolve(REF_DATA);
+    }
     Builder<ResolvedIborCapFloorLeg> capBuilder = ImmutableList.builder();
     Builder<Double> volBuilder = ImmutableList.builder();
-    int nVols = CAP_NORMAL_ATM_VOLS.length;
     for (int i = 0; i < nVols; ++i) {
       capBuilder.add(caps[i]);
       volBuilder.add(CAP_NORMAL_ATM_VOLS[0][i]);
