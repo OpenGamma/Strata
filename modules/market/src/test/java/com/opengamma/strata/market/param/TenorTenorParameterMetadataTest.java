@@ -28,11 +28,11 @@ public class TenorTenorParameterMetadataTest {
 
   //-------------------------------------------------------------------------
   public void test_of_noLabel() {
-    TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(TENOR_10Y, TENOR_20Y, 3650.0d, 7300.0d);
+    TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(TENOR_10Y, TENOR_20Y, 10.0d, 20.0d);
     assertEquals(test.getExpiryTenor(), TENOR_10Y);
-    assertEquals(test.getExpiryYearFraction(), 3650.0d);
+    assertEquals(test.getExpiryYearFraction(), 10.0d);
     assertEquals(test.getUnderlyingTenor(), TENOR_20Y);
-    assertEquals(test.getUnderlyingTenorYearFraction(), 7300.0d);
+    assertEquals(test.getUnderlyingTenorYearFraction(), 20.0d);
 
     assertEquals(test.getIdentifier(), Pair.of(TENOR_10Y, TENOR_20Y));
     assertEquals(test.getLabel(), "[10Y, 20Y]");
@@ -42,13 +42,13 @@ public class TenorTenorParameterMetadataTest {
     TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(
         TENOR_10Y,
         TENOR_20Y,
-        3650.0d,
-        7300.0d,
+        10.0d,
+        20.0d,
         "10Y to 20Y");
     assertEquals(test.getExpiryTenor(), TENOR_10Y);
-    assertEquals(test.getExpiryYearFraction(), 3650.0d);
+    assertEquals(test.getExpiryYearFraction(), 10.0d);
     assertEquals(test.getUnderlyingTenor(), TENOR_20Y);
-    assertEquals(test.getUnderlyingTenorYearFraction(), 7300.0d);
+    assertEquals(test.getUnderlyingTenorYearFraction(), 20.0d);
 
     assertEquals(test.getIdentifier(), Pair.of(TENOR_10Y, TENOR_20Y));
     assertEquals(test.getLabel(), "10Y to 20Y");
@@ -57,15 +57,15 @@ public class TenorTenorParameterMetadataTest {
   public void test_builder_defaultLabel() {
     BeanBuilder<? extends TenorTenorParameterMetadata> builder = TenorTenorParameterMetadata.meta().builder();
     builder.set(TenorTenorParameterMetadata.meta().expiryTenor(), TENOR_10Y);
-    builder.set(TenorTenorParameterMetadata.meta().expiryYearFraction(), 3650.0d);
+    builder.set(TenorTenorParameterMetadata.meta().expiryYearFraction(), 10.0d);
     builder.set(TenorTenorParameterMetadata.meta().underlyingTenor(), TENOR_20Y);
-    builder.set(TenorTenorParameterMetadata.meta().underlyingTenorYearFraction(), 7300.0d);
+    builder.set(TenorTenorParameterMetadata.meta().underlyingTenorYearFraction(), 20.0d);
 
     TenorTenorParameterMetadata test = builder.build();
     assertEquals(test.getExpiryTenor(), TENOR_10Y);
-    assertEquals(test.getExpiryYearFraction(), 3650.0d);
+    assertEquals(test.getExpiryYearFraction(), 10.0d);
     assertEquals(test.getUnderlyingTenor(), TENOR_20Y);
-    assertEquals(test.getUnderlyingTenorYearFraction(), 7300.0d);
+    assertEquals(test.getUnderlyingTenorYearFraction(), 20.0d);
 
     assertEquals(test.getIdentifier(), Pair.of(TENOR_10Y, TENOR_20Y));
     assertEquals(test.getLabel(), "[10Y, 20Y]");
@@ -74,16 +74,16 @@ public class TenorTenorParameterMetadataTest {
   public void test_builder_specifyLabel() {
     BeanBuilder<? extends TenorTenorParameterMetadata> builder = TenorTenorParameterMetadata.meta().builder();
     builder.set(TenorTenorParameterMetadata.meta().expiryTenor(), TENOR_10Y);
-    builder.set(TenorTenorParameterMetadata.meta().expiryYearFraction(), 3650.0d);
+    builder.set(TenorTenorParameterMetadata.meta().expiryYearFraction(), 10.0d);
     builder.set(TenorTenorParameterMetadata.meta().underlyingTenor(), TENOR_20Y);
-    builder.set(TenorTenorParameterMetadata.meta().underlyingTenorYearFraction(), 7300.0d);
+    builder.set(TenorTenorParameterMetadata.meta().underlyingTenorYearFraction(), 20.0d);
     builder.set(TenorTenorParameterMetadata.meta().label(), "10Y to 20Y");
 
     TenorTenorParameterMetadata test = builder.build();
     assertEquals(test.getExpiryTenor(), TENOR_10Y);
-    assertEquals(test.getExpiryYearFraction(), 3650.0d);
+    assertEquals(test.getExpiryYearFraction(), 10.0d);
     assertEquals(test.getUnderlyingTenor(), TENOR_20Y);
-    assertEquals(test.getUnderlyingTenorYearFraction(), 7300.0d);
+    assertEquals(test.getUnderlyingTenorYearFraction(), 20.0d);
 
     assertEquals(test.getIdentifier(), Pair.of(TENOR_10Y, TENOR_20Y));
     assertEquals(test.getLabel(), "10Y to 20Y");
@@ -96,14 +96,14 @@ public class TenorTenorParameterMetadataTest {
 
   //-------------------------------------------------------------------------
   public void coverage() {
-    TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(TENOR_10Y, TENOR_20Y, 3650.0d, 7300.0d);
+    TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(TENOR_10Y, TENOR_20Y, 10.0d, 20.0d);
     coverImmutableBean(test);
-    TenorTenorParameterMetadata test2 = TenorTenorParameterMetadata.of(TENOR_30Y, TENOR_40Y, 10950.0d, 14600.0d);
+    TenorTenorParameterMetadata test2 = TenorTenorParameterMetadata.of(TENOR_30Y, TENOR_40Y, 30.0d, 40.0d);
     coverBeanEquals(test, test2);
   }
 
   public void test_serialization() {
-    TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(TENOR_10Y, TENOR_20Y, 3650.0d, 7300.0d);
+    TenorTenorParameterMetadata test = TenorTenorParameterMetadata.of(TENOR_10Y, TENOR_20Y, 10.0d, 20.0d);
     assertSerialization(test);
   }
 
