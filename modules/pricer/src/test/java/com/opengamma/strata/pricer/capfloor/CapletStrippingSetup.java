@@ -230,11 +230,11 @@ public class CapletStrippingSetup {
           0.02508697262418348, 0.023212771122734382, 0.020807499010350925}};
 
   private static final double[][] CAP_BLACK_ATM_VOLS = new double[][] {
-      {0.98927, 0.8376, 0.7274, 0.5983, 0.5169, 0.4083, 0.3375}};
+      {0.3023, 0.3676, 0.3856, 0.3880, 0.3848, 0.3673, 0.3416}};
   private static final double[][] CAP_NORMAL_ATM_VOLS = new double[][] {
-      {0.8318, 0.8676, 0.845, 0.8226, 0.8064, 0.8093, 0.8319, 0.8608, 0.8948, 0.9334, 0.9759, 1.0215, 1.0693}};
-  private static final double[] CAP_BLACK_ATM_STRIKE = new double[] {0.04};
-  private static final double[] CAP_NORMAL_ATM_STRIKE = new double[] {0.03};
+      {0.00599, 0.00661, 0.00672, 0.00672, 0.0067, 0.00668, 0.00665, 0.00663, 0.00661, 0.00658, 0.00652, 0.00643, 0.00627,}};
+  private static final double[] CAP_BLACK_ATM_STRIKE = new double[] {0.02};
+  private static final double[] CAP_NORMAL_ATM_STRIKE = new double[] {0.02};
 
   //-------------------------------------------------------------------------
   protected static DoubleMatrix createFullBlackDataMatrix() {

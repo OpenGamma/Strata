@@ -41,7 +41,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
       DirectIborCapletFloorletFlatVolatilityCalibrator.standard();
   private static final BlackIborCapFloorLegPricer LEG_PRICER_BLACK = BlackIborCapFloorLegPricer.DEFAULT;
   private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
-  private static final double TOL = 2.0e-5;
+  private static final double TOL = 1.0e-5;
 
   public void test_recovery_black() {
     double lambdaT = 0.07;
