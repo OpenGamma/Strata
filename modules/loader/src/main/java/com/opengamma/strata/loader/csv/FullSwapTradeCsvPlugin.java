@@ -222,16 +222,21 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
   private static FloatingRateIndex parseIndex(CsvRow row, String leg) {
     Optional<String> fixedRateOpt = findValue(row, leg, FIXED_RATE_FIELD);
     Optional<String> indexOpt = findValue(row, leg, INDEX_FIELD);
-    if (fixedRateOpt.isPresent()) {
-      if (indexOpt.isPresent()) {
+    Optional<String> knownAmountOpt = findValue(row, leg, KNOWN_AMOUNT_FIELD);
+
+    if (fixedRateOpt.isPresent() || knownAmountOpt.isPresent()) {
+      if (fixedRateOpt.isPresent() && knownAmountOpt.isPresent()) {
         throw new IllegalArgumentException(
-            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and  '" + leg + INDEX_FIELD + "'");
+            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and  '" + leg + KNOWN_AMOUNT_FIELD + "'");
+      } else if (indexOpt.isPresent()) {
+        throw new IllegalArgumentException(
+            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD + "' and  '" + leg + INDEX_FIELD + "'");
       }
       return null;
     }
     if (!indexOpt.isPresent()) {
       throw new IllegalArgumentException(
-          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or  '" + leg + INDEX_FIELD + "'");
+          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD + "' or  '" + leg + INDEX_FIELD + "'");
     }
     // use FloatingRateName to identify Ibor vs other
     String indexStr = indexOpt.get();
@@ -246,7 +251,11 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
   }
 
   // parses all the legs
-  private static List<SwapLeg> parseLegs(CsvRow row, List<FloatingRateIndex> indices, DayCount defaultFixedLegDayCount) {
+  private static List<SwapLeg> parseLegs(
+      CsvRow row,
+      List<FloatingRateIndex> indices,
+      DayCount defaultFixedLegDayCount) {
+
     List<SwapLeg> legs = new ArrayList<>();
     for (int i = 0; i < indices.size(); i++) {
       String legPrefix = "Leg " + (i + 1) + " ";
@@ -256,7 +265,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
   }
 
   // parse a single leg
-  private static RateCalculationSwapLeg parseLeg(
+  private static SwapLeg parseLeg(
       CsvRow row,
       String leg,
       FloatingRateIndex index,
@@ -266,6 +275,39 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
     PeriodicSchedule accrualSch = parseAccrualSchedule(row, leg);
     PaymentSchedule paymentSch = parsePaymentSchedule(row, leg, accrualSch.getFrequency());
     NotionalSchedule notionalSch = parseNotionalSchedule(row, leg);
+
+    Optional<String> knownAmount = findValue(row, leg, KNOWN_AMOUNT_FIELD);
+    if (knownAmount.isPresent()) {
+      return KnownAmountSwapLeg.builder()
+          .payReceive(payReceive)
+          .accrualSchedule(accrualSch)
+          .paymentSchedule(paymentSch)
+          .currency(notionalSch.getCurrency())
+          .amount(ValueSchedule.of(LoaderUtils.parseDouble(knownAmount.get())))
+          .build();
+    }
+
+    return parseRateCalculationLeg(
+        row,
+        leg,
+        index,
+        defaultFixedLegDayCount,
+        payReceive,
+        accrualSch,
+        paymentSch,
+        notionalSch);
+  }
+
+  private static SwapLeg parseRateCalculationLeg(
+      CsvRow row,
+      String leg,
+      FloatingRateIndex index,
+      DayCount defaultFixedLegDayCount,
+      PayReceive payReceive,
+      PeriodicSchedule accrualSch,
+      PaymentSchedule paymentSch,
+      NotionalSchedule notionalSch) {
+
     RateCalculation calc = parseRateCalculation(
         row,
         leg,
@@ -320,7 +362,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
         .ifPresent(v -> builder.lastRegularEndDate(v));
     parseAdjustableDate(
         row, leg, OVERRIDE_START_DATE_FIELD, OVERRIDE_START_DATE_CNV_FIELD, OVERRIDE_START_DATE_CAL_FIELD)
-            .ifPresent(d -> builder.overrideStartDate(d));
+        .ifPresent(d -> builder.overrideStartDate(d));
     return builder.build();
   }
 
@@ -637,7 +679,12 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
 
   //-------------------------------------------------------------------------
   // inflation rate calculation
-  private static RateCalculation parseInflationRateCalculation(CsvRow row, String leg, PriceIndex priceIndex, Currency currency) {
+  private static RateCalculation parseInflationRateCalculation(
+      CsvRow row,
+      String leg,
+      PriceIndex priceIndex,
+      Currency currency) {
+
     InflationRateCalculation.Builder builder = InflationRateCalculation.builder();
     // basics
     builder.index(priceIndex);
