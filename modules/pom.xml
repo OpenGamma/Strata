@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.7.2</version>
-    <relativePath></relativePath>
+    <version>2.7.3</version>
+    <relativePath />
   </parent>
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-parent</artifactId>
@@ -474,83 +471,17 @@
   </dependencyManagement>
 
   <!-- ==================================================================== -->
-  <distributionManagement>
-    <repository>
-      <id>og-public-release</id>
-      <name>OpenGamma public maven repository</name>
-      <url>${og-public-release.url}</url>
-    </repository>
-  </distributionManagement>
-
-  <!-- ==================================================================== -->
   <profiles>
-    <!-- build source and javadoc jars -->
+    <!-- force correct Java version -->
     <profile>
-      <id>extra-jars</id>
+      <id>forcejavaversion</id>
       <activation>
-        <property>
-          <name>oss.jars</name>
-        </property>
+        <jdk>[9,)</jdk>
       </activation>
+      <properties>
+        <maven.compiler.release>8</maven.compiler.release>
+      </properties>
       <build>
-        <plugins>
-          <!-- generate source jar file when packaging -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-                <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
-                  <archive>
-                    <manifest>
-                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                    </manifest>
-                    <manifestEntries>
-                      <Implementation-Build>${buildNumber}</Implementation-Build>
-                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
-                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
-                    </manifestEntries>
-                  </archive>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- generate javadoc jar file when packaging -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-javadocs</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
-                  <archive>
-                    <manifest>
-                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                    </manifest>
-                    <manifestEntries>
-                      <Implementation-Build>${buildNumber}</Implementation-Build>
-                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
-                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
-                    </manifestEntries>
-                  </archive>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
       </build>
     </profile>
     <!-- apply strict build rules, activated with -Dstrict -->
@@ -622,6 +553,127 @@
                 </goals>
                 <configuration>
                   <stopOnError>true</stopOnError>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- Profile creating dist zip triggered by -Ddist -->
+    <profile>
+      <id>build-dist-javadoc-and-jars</id>
+      <activation>
+        <property>
+          <name>dist</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <!-- generate source jar file when packaging -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- generate javadoc jar file when packaging -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+              <!-- create aggregate javadoc -->
+              <execution>
+                <id>make-javadoc</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>aggregate-no-fork</goal>
+                </goals>
+                <inherited>false</inherited>
+                <configuration>
+                  <windowtitle>OpenGamma Strata</windowtitle>
+                  <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
+                  <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
+                  <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
+                  <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
+                  <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
+                  <!-- If that happens to you, remove the line or upgrade to a later Java 8 version -->
+                  <additionalOptions>
+                    <additionalOption>--allow-script-in-comments</additionalOption>
+                    <additionalOption>-Xdoclint:missing</additionalOption>
+                    <additionalOption>-Xdoclint:reference</additionalOption>
+                  </additionalOptions>
+                  <excludePackageNames>com.opengamma.strata.loader.impl:com.opengamma.strata.math.impl:com.opengamma.strata.pricer.impl:com.opengamma.strata.examples</excludePackageNames>
+                  <groups>
+                    <group>
+                      <title>Measure-level API</title>
+                      <packages>com.opengamma.strata.measure:com.opengamma.strata.measure.*</packages>
+                    </group>
+                    <group>
+                      <title>Pricer-level API</title>
+                      <packages>com.opengamma.strata.pricer:com.opengamma.strata.pricer.*</packages>
+                    </group>
+                    <group>
+                      <title>Market data structures</title>
+                      <packages>com.opengamma.strata.market:com.opengamma.strata.market.*</packages>
+                    </group>
+                    <group>
+                      <title>Product domain model</title>
+                      <packages>com.opengamma.strata.product:com.opengamma.strata.product.*</packages>
+                    </group>
+                    <group>
+                      <title>Supporting toolkit</title>
+                      <packages>com.opengamma.strata.*</packages>
+                    </group>
+                  </groups>
+                  <links>
+                    <link>http://www.joda.org/joda-beans/apidocs</link>
+                    <link>http://www.joda.org/joda-collect/apidocs</link>
+                    <link>https://google.github.io/guava/releases/26.0-jre/api/docs/</link>
+                  </links>
+                  <validateLinks>true</validateLinks>
                 </configuration>
               </execution>
             </executions>

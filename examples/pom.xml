@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.7.2</version>
+    <version>2.7.3</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.strata</groupId>
@@ -196,6 +196,7 @@
               </execution>
             </executions>
           </plugin>
+          <!-- create zip -->
           <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
             <executions>
@@ -210,6 +211,34 @@
                   <descriptors>
                     <descriptor>src/assembly/report-tool-dist.xml</descriptor>
                   </descriptors>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- generate source jar file for main dist.zip -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
                 </configuration>
               </execution>
             </executions>
