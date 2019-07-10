@@ -229,6 +229,13 @@ public class CapletStrippingSetup {
       {Double.NaN, Double.NaN, 0.026632254625197683, 0.02561633184998322,
           0.02508697262418348, 0.023212771122734382, 0.020807499010350925}};
 
+  private static final double[][] CAP_BLACK_ATM_VOLS = new double[][] {
+      {0.3023, 0.3676, 0.3856, 0.3880, 0.3848, 0.3673, 0.3416}};
+  private static final double[][] CAP_NORMAL_ATM_VOLS = new double[][] {
+      {0.00599, 0.00661, 0.00672, 0.00672, 0.0067, 0.00668, 0.00665, 0.00663, 0.00661, 0.00658, 0.00652, 0.00643, 0.00627,}};
+  private static final double[] CAP_BLACK_ATM_STRIKE = new double[] {0.02};
+  private static final double[] CAP_NORMAL_ATM_STRIKE = new double[] {0.02};
+
   //-------------------------------------------------------------------------
   protected static DoubleMatrix createFullBlackDataMatrix() {
     DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_BLACK_VOLS);
@@ -267,6 +274,21 @@ public class CapletStrippingSetup {
   }
 
   //-------------------------------------------------------------------------
+  protected static DoubleMatrix createAtmBlackDataMatrix() {
+    DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_BLACK_ATM_VOLS);
+    return matrix.transpose();
+  }
+
+  protected static DoubleMatrix createAtmFlatBlackDataMatrix() {
+    DoubleMatrix matrix = DoubleMatrix.filled(1, NUM_BLACK_MATURITIES, 0.5);
+    return matrix.transpose();
+  }
+
+  protected static DoubleArray createBlackAtmStrike() {
+    return DoubleArray.copyOf(CAP_BLACK_ATM_STRIKE);
+  }
+
+  //-------------------------------------------------------------------------
   protected static DoubleMatrix createFullNormalDataMatrix() {
     DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_NORMAL_VOLS);
     return matrix.transpose();
@@ -300,6 +322,16 @@ public class CapletStrippingSetup {
 
   protected static DoubleArray createNormalEquivStrikes() {
     return DoubleArray.copyOf(CAP_BLACK_STRIKES);
+  }
+
+  //-------------------------------------------------------------------------
+  protected static DoubleMatrix createAtmNormalDataMatrix() {
+    DoubleMatrix matrix = DoubleMatrix.ofUnsafe(CAP_NORMAL_ATM_VOLS);
+    return matrix.transpose();
+  }
+
+  protected static DoubleArray createNormalAtmStrike() {
+    return DoubleArray.copyOf(CAP_NORMAL_ATM_STRIKE);
   }
 
   //-------------------------------------------------------------------------
@@ -359,6 +391,67 @@ public class CapletStrippingSetup {
         capBuilder.add(caps[i]);
         volBuilder.add(vols[i]);
       }
+    }
+    return Pair.of(capBuilder.build(), volBuilder.build());
+  }
+
+  //-------------------------------------------------------------------------
+  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsBlackAtmVols(double strike) {
+    int nVols = CAP_BLACK_ATM_VOLS[0].length;
+    ResolvedIborCapFloorLeg[] caps = new ResolvedIborCapFloorLeg[nVols];
+    LocalDate startDate = BASE_DATE.plus(USD_LIBOR_3M.getTenor());
+    for (int i = 0; i < NUM_BLACK_MATURITIES; ++i) {
+      caps[i] = IborCapFloorLeg.builder()
+          .calculation(IborRateCalculation.of(USD_LIBOR_3M))
+          .capSchedule(ValueSchedule.of(strike))
+          .notional(ValueSchedule.ALWAYS_1)
+          .paymentSchedule(
+              PeriodicSchedule.of(
+                  startDate,
+                  BASE_DATE.plusYears(CAP_BLACK_END_TIMES[i]),
+                  Frequency.P3M,
+                  BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, USD_LIBOR_3M.getFixingCalendar()),
+                  StubConvention.NONE,
+                  RollConventions.NONE))
+          .payReceive(PayReceive.RECEIVE)
+          .build()
+          .resolve(REF_DATA);
+    }
+    Builder<ResolvedIborCapFloorLeg> capBuilder = ImmutableList.builder();
+    Builder<Double> volBuilder = ImmutableList.builder();
+    for (int i = 0; i < nVols; ++i) {
+      capBuilder.add(caps[i]);
+      volBuilder.add(CAP_BLACK_ATM_VOLS[0][i]);
+    }
+    return Pair.of(capBuilder.build(), volBuilder.build());
+  }
+
+  protected static Pair<List<ResolvedIborCapFloorLeg>, List<Double>> getCapsNormalAtmVols(double strike) {
+    int nVols = CAP_NORMAL_ATM_VOLS[0].length;
+    ResolvedIborCapFloorLeg[] caps = new ResolvedIborCapFloorLeg[nVols];
+    LocalDate startDate = BASE_DATE.plus(USD_LIBOR_3M.getTenor());
+    for (int i = 0; i < NUM_NORMAL_MATURITIES; ++i) {
+      caps[i] = IborCapFloorLeg.builder()
+            .calculation(IborRateCalculation.of(USD_LIBOR_3M))
+          .capSchedule(ValueSchedule.of(strike))
+            .notional(ValueSchedule.ALWAYS_1)
+            .paymentSchedule(
+                PeriodicSchedule.of(
+                    startDate,
+                    BASE_DATE.plusYears(CAP_NORMAL_END_TIMES[i]),
+                    Frequency.P3M,
+                    BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, USD_LIBOR_3M.getFixingCalendar()),
+                    StubConvention.NONE,
+                    RollConventions.NONE))
+            .payReceive(PayReceive.RECEIVE)
+            .build()
+            .resolve(REF_DATA);
+    }
+    Builder<ResolvedIborCapFloorLeg> capBuilder = ImmutableList.builder();
+    Builder<Double> volBuilder = ImmutableList.builder();
+    for (int i = 0; i < nVols; ++i) {
+      capBuilder.add(caps[i]);
+      volBuilder.add(CAP_NORMAL_ATM_VOLS[0][i]);
     }
     return Pair.of(capBuilder.build(), volBuilder.build());
   }

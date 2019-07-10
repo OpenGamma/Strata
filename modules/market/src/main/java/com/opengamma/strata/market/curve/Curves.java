@@ -326,6 +326,69 @@ public final class Curves {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates curve metadata for a curve providing normal volatility by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata normalVolatilityByExpiry(String name, DayCount dayCount) {
+    return normalVolatilityByExpiry(CurveName.of(name), dayCount);
+  }
+
+  /**
+   * Creates curve metadata for a curve providing normal volatility by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata normalVolatilityByExpiry(CurveName name, DayCount dayCount) {
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  /**
+   * Creates curve metadata for a curve providing normal volatility by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   * 
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param parameterMetadata  the parameter metadata
+   * @return the curve metadata
+   */
+  public static CurveMetadata normalVolatilityByExpiry(
+      CurveName name,
+      DayCount dayCount,
+      List<? extends ParameterMetadata> parameterMetadata) {
+
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.NORMAL_VOLATILITY)
+        .dayCount(dayCount)
+        .parameterMetadata(parameterMetadata)
+        .build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates curve metadata for a curve providing recovery rates.
    * <p>
    * The x-values represent year fractions relative to an unspecified base date
