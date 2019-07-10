@@ -230,13 +230,15 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
             "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' and  '" + leg + KNOWN_AMOUNT_FIELD + "'");
       } else if (indexOpt.isPresent()) {
         throw new IllegalArgumentException(
-            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD + "' and  '" + leg + INDEX_FIELD + "'");
+            "Swap leg must not define both '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD +
+                "' and  '" + leg + INDEX_FIELD + "'");
       }
       return null;
     }
     if (!indexOpt.isPresent()) {
       throw new IllegalArgumentException(
-          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD + "' or  '" + leg + INDEX_FIELD + "'");
+          "Swap leg must define either '" + leg + FIXED_RATE_FIELD + "' or '" + leg + KNOWN_AMOUNT_FIELD +
+              "' or  '" + leg + INDEX_FIELD + "'");
     }
     // use FloatingRateName to identify Ibor vs other
     String indexStr = indexOpt.get();
