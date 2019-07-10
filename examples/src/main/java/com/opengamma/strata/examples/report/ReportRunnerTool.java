@@ -155,11 +155,12 @@ public final class ReportRunnerTool implements AutoCloseable {
     Report report = reportRunner.runReport(calculationResults, template);
 
     switch (format) {
-      case ASCII_TABLE:
-        report.writeAsciiTable(System.out);
-        break;
       case CSV:
         report.writeCsv(System.out);
+        break;
+      case ASCII_TABLE:
+      default:
+        report.writeAsciiTable(System.out);
         break;
     }
   }

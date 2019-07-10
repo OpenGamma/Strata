@@ -47,7 +47,7 @@ public final class ResolvedSwaptionTrade
    * <p>
    * This allows additional information to be attached to the trade.
    */
-  @PropertyDefinition(overrideGet = true)
+  @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final TradeInfo info;
   /**
    * The resolved Swaption product.
@@ -113,6 +113,7 @@ public final class ResolvedSwaptionTrade
       TradeInfo info,
       ResolvedSwaption product,
       Payment premium) {
+    JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
     JodaBeanUtils.notNull(premium, "premium");
     this.info = info;
@@ -130,7 +131,7 @@ public final class ResolvedSwaptionTrade
    * Gets the additional trade information, defaulted to an empty instance.
    * <p>
    * This allows additional information to be attached to the trade.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   @Override
   public TradeInfo getInfo() {
@@ -401,10 +402,11 @@ public final class ResolvedSwaptionTrade
      * Sets the additional trade information, defaulted to an empty instance.
      * <p>
      * This allows additional information to be attached to the trade.
-     * @param info  the new value
+     * @param info  the new value, not null
      * @return this, for chaining, not null
      */
     public Builder info(TradeInfo info) {
+      JodaBeanUtils.notNull(info, "info");
       this.info = info;
       return this;
     }

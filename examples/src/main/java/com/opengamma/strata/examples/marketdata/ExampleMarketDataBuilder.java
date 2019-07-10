@@ -36,8 +36,8 @@ import com.opengamma.strata.data.ObservableId;
 import com.opengamma.strata.loader.csv.FixingSeriesCsvLoader;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCurvesCsvLoader;
-import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.CurveId;
+import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 
