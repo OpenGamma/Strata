@@ -756,7 +756,7 @@ public final class ArgChecker {
   /**
    * Checks that the argument is not NaN (i.e it is a number).
    * <p>
-   * Given the input argument, this returns only if it is not NaN, or an actual number.
+   * Given the input argument, this returns only if it is an actual number.
    * For example, in a constructor:
    * <pre>
    *  this.amount = ArgChecker.notNaN(amount, "amount");
