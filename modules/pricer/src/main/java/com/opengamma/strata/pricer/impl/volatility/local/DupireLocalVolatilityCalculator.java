@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.local;
 
+import static com.opengamma.strata.math.MathUtils.pow2;
+
 import java.util.function.Function;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -79,7 +81,8 @@ public class DupireLocalVolatilityCalculator implements LocalVolatilityCalculato
           }
           localVol = Math.sqrt(var);
           localVolSensi = volSensi.multipliedBy(localVol * k * h2 * divK * (1d + 0.5 * k * h2 * divK) / vol / den +
-              0.5 * localVol * Math.pow(k * h1 * divK, 2) / vol / den + (vol + divT * t + rq * t * k * divK) / (localVol * den) -
+              0.5 * localVol * pow2(k * h1 * divK) / vol / den +
+              (vol + divT * t + rq * t * k * divK) / (localVol * den) -
               0.5 * divK2 * localVol * k * k * t / den)
               .plus(divKSensi.multipliedBy((vol * t * rq * k / localVol - localVol * k * h1 * (1d + k * h2 * divK)) / den))
               .plus(divTSensi.multipliedBy(vol * t / (localVol * den)))

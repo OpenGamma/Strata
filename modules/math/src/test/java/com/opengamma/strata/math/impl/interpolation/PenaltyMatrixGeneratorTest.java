@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
+import static com.opengamma.strata.math.MathUtils.pow2;
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -12,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 import com.opengamma.strata.math.impl.util.AssertMatrix;
@@ -254,7 +254,7 @@ public class PenaltyMatrixGeneratorTest {
     double expected = 0.0;
     for (int i = 0; i < n; i++) {
       if (i > 0 && i < (n - 1)) { // we not not use the end points
-        expected += FunctionUtils.square(d2ydx2.get(i));
+        expected += pow2(d2ydx2.get(i));
       }
     }
     double scale = Math.pow(2.0, 4); //((2.0-0.0)^2^2)
@@ -397,12 +397,12 @@ public class PenaltyMatrixGeneratorTest {
 
         //The penalty matrix does not use end points, so don't include them here 
         if (i != 0 & i != (nx - 1)) {
-          dzdxSum += FunctionUtils.square(dzdx.get(index));
-          d2zdx2Sum += FunctionUtils.square(d2zdx2.get(index));
+          dzdxSum += pow2(dzdx.get(index));
+          d2zdx2Sum += pow2(d2zdx2.get(index));
         }
         if (j != 0 & j != (ny - 1)) {
-          dzdySum += FunctionUtils.square(dzdy.get(index));
-          d2zdy2Sum += FunctionUtils.square(d2zdy2.get(index));
+          dzdySum += pow2(dzdy.get(index));
+          d2zdy2Sum += pow2(d2zdy2.get(index));
         }
 
       }

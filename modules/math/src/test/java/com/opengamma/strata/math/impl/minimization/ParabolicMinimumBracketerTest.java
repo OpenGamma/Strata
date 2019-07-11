@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
+import static com.opengamma.strata.math.MathUtils.pow2;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.function.Function;
@@ -12,7 +13,6 @@ import java.util.function.Function;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.math.MathException;
-import com.opengamma.strata.math.impl.FunctionUtils;
 
 /**
  * Test.
@@ -48,7 +48,7 @@ public class ParabolicMinimumBracketerTest extends MinimumBracketerTestCase {
 
     @Override
     public Double apply(final Double x) {
-      return FunctionUtils.square((x - 50) / 50.0);
+      return pow2((x - 50) / 50.0);
     }
   };
 

@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.math.MathUtils;
 
 /**
  * A collection of basic useful maths functions.
@@ -22,13 +23,14 @@ public final class FunctionUtils {
   private FunctionUtils() {
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Returns the square of a number.
    * 
    * @param x  the number to square
    * @return x*x
+   * @deprecated Use {@link MathUtils#pow2(double)}
    */
+  @Deprecated
   public static double square(double x) {
     return x * x;
   }
@@ -38,7 +40,9 @@ public final class FunctionUtils {
    * 
    * @param x  the number to cube
    * @return x*x*x
+   * @deprecated Use {@link MathUtils#pow3(double)}
    */
+  @Deprecated
   public static double cube(double x) {
     return x * x * x;
   }

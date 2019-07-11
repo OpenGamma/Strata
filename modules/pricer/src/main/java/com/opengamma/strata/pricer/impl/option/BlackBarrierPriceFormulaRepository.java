@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import com.google.common.math.DoubleMath;
+import static com.opengamma.strata.math.MathUtils.nearZero;
+
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -66,7 +67,7 @@ public class BlackBarrierPriceFormulaRepository {
     double df2 = Math.exp(-rate * timeToExpiry);
     double sigmaSq = lognormalVol * lognormalVol;
     double sigmaT = lognormalVol * Math.sqrt(timeToExpiry);
-    if (DoubleMath.fuzzyEquals(Math.min(timeToExpiry, sigmaSq), 0d, SMALL)) {
+    if (nearZero(Math.min(timeToExpiry, sigmaSq), SMALL)) {
       if (isKnockIn) {
         return 0d;
       }
@@ -149,7 +150,7 @@ public class BlackBarrierPriceFormulaRepository {
     double df2 = Math.exp(-rate * timeToExpiry);
     double lognormalVolSq = lognormalVol * lognormalVol;
     double lognormalVolT = lognormalVol * Math.sqrt(timeToExpiry);
-    if (DoubleMath.fuzzyEquals(Math.min(timeToExpiry, lognormalVolSq), 0d, SMALL)) {
+    if (nearZero(Math.min(timeToExpiry, lognormalVolSq), SMALL)) {
       if (isKnockIn) {
         return ValueDerivatives.of(0d, DoubleArray.filled(7));
       }

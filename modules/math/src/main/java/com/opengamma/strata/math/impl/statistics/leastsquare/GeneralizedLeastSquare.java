@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
+import static com.opengamma.strata.math.MathUtils.pow2;
 import static org.apache.commons.math3.util.CombinatoricsUtils.binomialCoefficient;
 
 import java.util.List;
@@ -16,7 +17,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.FunctionUtils;
 import com.opengamma.strata.math.impl.linearalgebra.SVDecompositionCommons;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
 import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
@@ -228,7 +228,7 @@ public class GeneralizedLeastSquare {
       for (k = 0; k < m; k++) {
         temp += w.get(k) * f[k][i];
       }
-      chiSq += FunctionUtils.square(y.get(i) - temp) * invSigmaSqr[i];
+      chiSq += pow2(y.get(i) - temp) * invSigmaSqr[i];
     }
 
     return new GeneralizedLeastSquareResults<>(basisFunctions, chiSq, w, covar);
@@ -292,7 +292,7 @@ public class GeneralizedLeastSquare {
       for (k = 0; k < m; k++) {
         temp += w.get(k) * f[k][i];
       }
-      chiSq += FunctionUtils.square(y.get(i) - temp) * invSigmaSqr[i];
+      chiSq += pow2(y.get(i) - temp) * invSigmaSqr[i];
     }
 
     return new GeneralizedLeastSquareResults<>(basisFunctions, chiSq, w, covar);
@@ -305,7 +305,7 @@ public class GeneralizedLeastSquare {
     for (int i = 0; i < m; i++) {
       double sum = 0;
       for (int k = 0; k < n; k++) {
-        sum += FunctionUtils.square(funcMatrix[i][k]) * invSigmaSqr[k];
+        sum += pow2(funcMatrix[i][k]) * invSigmaSqr[k];
       }
       a[i][i] = sum;
       for (int j = i + 1; j < m; j++) {

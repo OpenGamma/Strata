@@ -19,6 +19,7 @@ public class FunctionUtilsTest {
   private static final double EPS = 1e-15;
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testSquare() {
     for (int i = 0; i < 100; i++) {
       final double x = Math.random();
@@ -27,6 +28,7 @@ public class FunctionUtilsTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testCube() {
     for (int i = 0; i < 100; i++) {
       final double x = Math.random();
