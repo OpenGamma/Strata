@@ -754,6 +754,33 @@ public final class ArgChecker {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks that the argument is not NaN (i.e it is a number).
+   * <p>
+   * Given the input argument, this returns only if it is not NaN, or an actual number.
+   * For example, in a constructor:
+   * <pre>
+   *  this.amount = ArgChecker.notNaN(amount, "amount");
+   * </pre>
+   *
+   * @param argument  the argument to check
+   * @param name  the name of the argument to use in the error message, not null
+   * @return the input {@code argument}
+   * @throws IllegalArgumentException if the input is NaN
+   */
+  public static double notNaN(double argument, String name) {
+    if (Double.isNaN(argument)) {
+      throw new IllegalArgumentException(notNaNMsg(name));
+    }
+    return argument;
+  }
+
+  // extracted to aid inlining performance
+  private static String notNaNMsg(String name) {
+    return "Argument '" + name + "' must not be NaN";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Checks that the argument is not negative or zero.
    * <p>
    * Given the input argument, this returns only if it is greater than zero.
