@@ -12,12 +12,12 @@
     <fileSet>
       <includes>
         <include>LICENSE.txt</include>
+        <include>NOTICE.txt</include>
         <include>README.md</include>
-        <include>pom.xml</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>${project.build.directory}/site/apidocs</directory>
+      <directory>modules/${project.build.directory}/site/apidocs</directory>
       <outputDirectory>apidocs</outputDirectory>
       <includes>
         <include>**/*</include>

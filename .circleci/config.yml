@@ -5,7 +5,7 @@ version: 2.1
 executors:
 
 #----------------------------------------------------------------------------
-# vital to set the MaxRAM parameter as cgroups settings are not pased to the JVM
+# vital to set the MaxRAM parameter as cgroups settings are not passed to the JVM
   jdk8:
     docker:
       - image: circleci/openjdk:8u181-jdk
@@ -13,6 +13,191 @@ executors:
     environment:
       JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
       MAVEN_OPTS: -Xmx1g
+
+#----------------------------------------------------------------------------
+  jdk11:
+    docker:
+      - image: circleci/openjdk:11.0.2-jdk
+    working_directory: ~/repo
+    environment:
+      JAVA_TOOL_OPTIONS: -XX:MaxRAM=3572m
+      MAVEN_OPTS: -Xmx1g
+
+
+#############################################################################
+# reusable commands
+commands:
+
+#----------------------------------------------------------------------------
+# all uses of mvn will be passed these command line arguments
+  init_maven:
+    description: "Initializing Maven"
+    steps:
+      - run:
+          name: Initializing Maven
+          command: |
+            mkdir -p ./.mvn
+            echo '-e -B -DtrimStackTrace=false --settings .circleci/maven-settings.xml' > ./.mvn/maven.config
+            mvn --version
+
+#----------------------------------------------------------------------------
+  maven_install:
+    description: "Maven install"
+    steps:
+      - run:
+          name: Maven install (no tests)
+          command: mvn install -T 4 -DskipTests -Dstrict
+
+#----------------------------------------------------------------------------
+  maven_test:
+    description: "Maven test"
+    steps:
+      - run:
+          name: Maven run tests
+          command: mvn test -T 2 -Dcheckstyle.skip=true
+      - store_maven_tests
+
+#----------------------------------------------------------------------------
+  maven_deploy:
+    description: "Maven deploy"
+    steps:
+      - run:
+          name: Maven deploy
+          command: mvn deploy -Ddist -Doss.repo -DskipTests -Dcheckstyle.skip=true
+
+#----------------------------------------------------------------------------
+  maven_release:
+    description: "Maven release"
+    steps:
+      - run:
+          name: Triggering release of new version
+          command: |
+            RELEASE_SHA=$(git rev-parse HEAD)
+            git checkout master
+            MASTER_SHA=$(git rev-parse HEAD)
+            if [[ "$RELEASE_SHA" != "$MASTER_SHA" ]]; then
+              echo "release tag SHA != master HEAD SHA, $RELEASE_SHA $MASTER_SHA"
+              exit 1
+            fi
+            git config --local user.email "cibot@opengamma.com"
+            git config --local user.name "opengammacibot"
+            mvn release:prepare release:clean
+      - run:
+          name: Deleting release tag
+          command: |
+            git tag --delete $CIRCLE_TAG
+            git push --delete origin $CIRCLE_TAG
+          when: always
+
+#----------------------------------------------------------------------------
+  restore_maven_cache:
+    description: "Restoring Maven cache"
+    steps:
+      - restore_cache:
+          name: "Restoring Maven cache"
+          keys:
+            - mvn-repo-v{{ .Environment.CACHE_VERSION }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pom.xml" }}
+            - mvn-repo-v{{ .Environment.CACHE_VERSION }}-{{ .Environment.CIRCLE_JOB }}
+            - mvn-repo-v{{ .Environment.CACHE_VERSION }}-
+      - run:
+          name: Maven take dependencies local
+          command: mvn de.qaware.maven:go-offline-maven-plugin:1.1.0:resolve-dependencies
+
+#----------------------------------------------------------------------------
+  store_maven_cache:
+    description: "Storing Maven cache"
+    steps:
+      - save_cache:
+          name: "Storing Maven cache"
+          key: mvn-repo-v{{ .Environment.CACHE_VERSION }}-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pom.xml" }}
+          paths:
+            - ~/.m2/repository
+
+#----------------------------------------------------------------------------
+# gather the TestSuite.xml files into a single folder and upload them
+  store_maven_tests:
+    description: "Storing Maven test results"
+    steps:
+      - run:
+          name: Gathering test results
+          command: |
+            mkdir -vp ~/test-results/junit/
+            folder_index=1
+            find . -type f -regex ".*/target/surefire-reports/.*Suite.xml" -print0 | while IFS= read -r -d '' path
+            do
+              base=$(basename --suffix=".xml"  "$path")
+              old_name="$base.xml"
+              new_name="$base$folder_index.xml"
+              cp -v "$path" ~/test-results/junit/"$old_name"
+              mv -v ~/test-results/junit/"$old_name" ~/test-results/junit/"$new_name"
+              folder_index=$(( $folder_index +1 ))
+            done
+          when: always
+      - store_test_results:
+          name: "Uploading test results"
+          path: ~/test-results
+          when: always
+      - store_artifacts:
+          name: "Storing test artifacts"
+          path: ~/test-results/junit
+          destination: test-results
+          when: always
+
+#----------------------------------------------------------------------------
+  with_maven:
+    description: "Performs actions with Maven"
+    parameters:
+      actions:
+        type: steps
+    steps:
+      - init_maven
+      - restore_maven_cache
+      - steps: << parameters.actions >>
+      - store_maven_cache
+
+#----------------------------------------------------------------------------
+  find_version:
+    description: "Finding project version"
+    steps:
+      - run:
+          name: Finding project version
+          command: |
+            PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "Found version ${PROJECT_VERSION}"
+            echo "export POM_VERSION=$PROJECT_VERSION" >> $BASH_ENV
+
+#----------------------------------------------------------------------------
+# this works with gpg v2.1 as currently installed on CircleCI
+  setup_gpg:
+    description: "Setup GPG"
+    steps:
+      - run:
+          name: Setup GPG
+          working_directory: ~/repo/.circleci
+          command: |
+            echo $SIGNING_PASSWORD | gpg --batch --passphrase-fd 0 -o codesigning.asc -d codesigning.asc.gpg
+            gpg --batch --import codesigning.asc
+            shred --remove codesigning.asc
+
+#----------------------------------------------------------------------------
+  maven_deploy_snapshot:
+    description: "Deploy snapshot"
+    steps:
+      - run:
+          name: Deploy snapshot
+          command: |
+            if [ "$CIRCLE_BRANCH" == "master" ] && [[ "${POM_VERSION}" =~ "-SNAPSHOT" ]]
+            then
+              mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://opengamma.jfrog.io/opengamma/libs-snapshots-local/"
+            fi
+
+#----------------------------------------------------------------------------
+  maven_github_releases:
+    description: "Deploy files to GitHub Releases"
+    steps:
+      - run:
+          name: Deploy to GitHub releases
+          command: mvn github-release:github-release -N -Dghdeploy
 
 
 #############################################################################
@@ -22,53 +207,78 @@ jobs:
     executor: jdk8
     steps:
       - checkout
+      - with_maven:
+          actions:
+            - maven_install
+            - maven_test
+            - find_version
+            - maven_deploy_snapshot
 
-      - restore_cache:
-          name: "Restoring Maven cache"
-          keys:
-            - mvn-repo-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pom.xml" }}
-            - mvn-repo-v1-{{ .Environment.CIRCLE_JOB }}
-            - mvn-repo-v1-
+  build11:
+    executor: jdk11
+    steps:
+      - checkout
+      - with_maven:
+          actions:
+            - maven_install
+            - maven_test
 
-      - run:
-          name: "Initializing Maven"
-          command: |
-            mkdir -p ./.mvn
-            echo '-e -B -DtrimStackTrace=false -Dsurefire.useSystemClassLoader=false' > ./.mvn/maven.config
-            mvn --version
+#----------------------------------------------------------------------------
+  release:
+    executor: jdk8
+    steps:
+      - checkout
+      - with_maven:
+          actions:
+            - maven_install
+            - maven_test
+            - setup_gpg
+            - maven_deploy
+            - maven_github_releases
 
-      - run:
-          name: "Maven install (no tests)"
-          command: mvn install -T 4 -DskipTests -Dstrict
+#----------------------------------------------------------------------------
+  trigger_release:
+    executor: jdk8
+    steps:
+      - checkout
+      - with_maven:
+          actions:
+            - maven_release
 
-      - run:
-          name: "Maven take dependencies local"
-          command: mvn de.qaware.maven:go-offline-maven-plugin:1.1.0:resolve-dependencies
 
-      - run:
-          name: "Maven run tests"
-          command: mvn test -T 2 -Dcheckstyle.skip=true
+#############################################################################
+# workflow elements
+workflows:
 
-      - run:
-          name: "Gathering test results"
-          command: |
-            mkdir -p ~/test-results/junit/
-            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
-          when: always
+#----------------------------------------------------------------------------
+# main build, runs for branches
+  build:
+    jobs:
+      - build:
+          context: OG-OSS
+      - build11:
+          context: OG-OSS
 
-      - store_test_results:
-          name: "Uploading test results"
-          path: ~/test-results
-          when: always
+#----------------------------------------------------------------------------
+# release based on a tag
+  release:
+    jobs:
+      - release:
+          context: OG-OSS
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
 
-      - store_artifacts:
-          name: "Storing test artifacts"
-          path: ~/test-results/junit
-          destination: test-results
-          when: always
-
-      - save_cache:
-          name: "Storing Maven cache"
-          key: mvn-repo-v1-{{ .Environment.CIRCLE_JOB }}-{{ checksum "pom.xml" }}
-          paths:
-            - ~/.m2/repository
+#----------------------------------------------------------------------------
+# uses mvn release to produce a new version, only for release tag
+  trigger_release:
+    jobs:
+      - trigger_release:
+          context: OG-OSS
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^release.*/

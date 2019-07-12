@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>2.7.2</version>
+    <version>2.7.3</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.strata</groupId>
@@ -52,82 +52,17 @@
   </modules>
 
   <!-- ==================================================================== -->
-  <distributionManagement>
-    <repository>
-      <id>og-public-release</id>
-      <name>OpenGamma public maven repository</name>
-      <url>${og-public-release.url}</url>
-    </repository>
-  </distributionManagement>
-
-  <!-- ==================================================================== -->
   <profiles>
     <!-- Profile creating dist zip triggered by -Ddist -->
     <profile>
       <id>build-dist-zip</id>
       <activation>
-        <property><name>dist</name></property>
+        <property>
+          <name>dist</name>
+        </property>
       </activation>
       <build>
         <plugins>
-          <!-- Create aggregate Javadoc -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>make-javadoc</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>aggregate</goal>
-                </goals>
-                <configuration>
-                  <windowtitle>OpenGamma Strata</windowtitle>
-                  <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>
-                  <header><![CDATA[<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [ ['$','$'], ["\\\\(","\\\\)"] ],processEscapes: true} });</script><script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=default"></script>]]></header>
-                  <bottom><![CDATA[<i>Copyright 2009-Present by OpenGamma Inc. and individual contributors</i><br/><i>Apache v2 licensed</i><br/><i>Additional documentation can be found at <a href="http://strata.opengamma.io">strata.opengamma.io</a>.</i><script type="text/javascript">var _gaq = _gaq || [];_gaq.push(['_setAccount', 'UA-12092825-5']);_gaq.push(['_trackPageview']);(function() {var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })(); </script>]]></bottom>
-                  <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
-                  <!-- but when it is present on earlier JDK 8 builds Javadoc will complain about an unrecognised flag -->
-                  <!-- If that happens to you, remove the line or upgrade to a later Java 8 version -->
-                  <additionalOptions>
-                    <additionalOption>--allow-script-in-comments</additionalOption>
-                    <additionalOption>-Xdoclint:missing</additionalOption>
-                    <additionalOption>-Xdoclint:reference</additionalOption>
-                  </additionalOptions>
-                  <excludePackageNames>com.opengamma.strata.loader.impl:com.opengamma.strata.math.impl:com.opengamma.strata.pricer.impl:com.opengamma.strata.examples</excludePackageNames>
-                  <groups>
-                    <group>
-                      <title>Measure-level API</title>
-                      <packages>com.opengamma.strata.measure:com.opengamma.strata.measure.*</packages>
-                    </group>
-                    <group>
-                      <title>Pricer-level API</title>
-                      <packages>com.opengamma.strata.pricer:com.opengamma.strata.pricer.*</packages>
-                    </group>
-                    <group>
-                      <title>Market data structures</title>
-                      <packages>com.opengamma.strata.market:com.opengamma.strata.market.*</packages>
-                    </group>
-                    <group>
-                      <title>Product domain model</title>
-                      <packages>com.opengamma.strata.product:com.opengamma.strata.product.*</packages>
-                    </group>
-                    <group>
-                      <title>Supporting toolkit</title>
-                      <packages>com.opengamma.strata.*</packages>
-                    </group>
-                  </groups>
-                  <links>
-                    <link>http://www.joda.org/joda-beans/apidocs</link>
-                    <link>http://www.joda.org/joda-collect/apidocs</link>
-                    <link>https://google.github.io/guava/releases/26.0-jre/api/docs/</link>
-                  </links>
-                  <validateLinks>true</validateLinks>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- generate zip -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-assembly-plugin</artifactId>
@@ -154,6 +89,36 @@
         </plugins>
       </build>
     </profile>
+    <!-- deploy to GitHub releases -->
+    <profile>
+      <id>ghdeploy</id>
+      <activation>
+        <property>
+          <name>ghdeploy</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.ragedunicorn.tools.maven</groupId>
+            <artifactId>github-release-maven-plugin</artifactId>
+            <version>1.0.1</version>
+            <configuration>
+              <owner>OpenGamma</owner>
+              <repository>Strata</repository>
+              <server>github</server>
+              <tagName>v${project.version}</tagName>
+              <name>Release v${project.version}</name>
+              <body>See the [release notes](http://strata.opengamma.io/releases/) for more details.</body>
+              <assets>
+                <asset>examples/target/strata-report-tool-${project.version}.zip</asset>
+                <asset>target/strata-dist-${project.version}.zip</asset>
+              </assets>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <!-- ==================================================================== -->
@@ -163,6 +128,7 @@
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
+    <nexus.staging.autoRelease>false</nexus.staging.autoRelease>
   </properties>
 
 </project>
