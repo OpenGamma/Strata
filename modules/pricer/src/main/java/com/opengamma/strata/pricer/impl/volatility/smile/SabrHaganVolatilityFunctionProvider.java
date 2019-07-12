@@ -210,12 +210,12 @@ public final class SabrHaganVolatilityFunctionProvider
       k = cutoff;
     }
     double betaStar = 1 - beta;
-    double rhoStar = 1.0 - rho;
 
+    double rhoRhoNuFactor = (2 - 3 * rho * rho) * nu / 24;
     if (alpha == 0.0) {
       double alphaBar;
       if (DoubleMath.fuzzyEquals(forward, k, ATM_EPS)) { //TODO should this is relative
-        alphaBar = (1 + (2 - 3 * rho * rho) * nu * nu / 24 * timeToExpiry) / Math.pow(forward, betaStar);
+        alphaBar = (1 + rhoRhoNuFactor * nu * timeToExpiry) / Math.pow(forward, betaStar);
       } else {
         //for non-atm options the alpha sensitivity at alpha = 0 is infinite. Returning this will most likely break calibrations,
         // so we return an arbitrary large number
@@ -228,47 +228,53 @@ public final class SabrHaganVolatilityFunctionProvider
     double sfK = Math.pow(forward * k, betaStar / 2);
     double lnrfK = Math.log(forward / k);
     double z = nu / alpha * sfK * lnrfK;
-    double rzxz;
-    double xz = 0;
-    boolean zNearZero = nearZero(z, SMALL_Z);
-    boolean rhoNearZero = nearZero(rhoStar, RHO_EPS);
-    if (zNearZero) {
-      rzxz = 1.0 - 0.5 * z * rho; //small z expansion to z^2 terms
-    } else {
-      if (rhoNearZero) {
-        if (z < 1.0) {
-          xz = -Math.log(1.0d - z);
-          rzxz = z / xz;
-        } else {
-          throw new IllegalArgumentException("can't handle z>=1, rho=1");
-        }
-      } else {
-        double arg;
-        if (z < LARGE_NEG_Z) {
-          arg = (rho * rho - 1) / 2 / z; //get rounding errors due to fine balanced cancellation for very large negative z
-        } else if (z > LARGE_POS_Z) {
-          arg = 2 * (z - rho);
-        } else {
-          arg = (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho);
-        }
-        if (arg <= 0.0) { //Mathematically this cannot be less than zero, but you know what computers are like.
-          rzxz = 0.0;
-        } else {
-          xz = Math.log(arg / (1 - rho));
-          rzxz = z / xz;
-        }
-      }
-    }
+
     // extract calculations that are reused (for performance)
     double betaStarPow2 = betaStar * betaStar;
     double betaStarPow4Div1920 = betaStarPow2 * betaStarPow2 / 1920;
     double lnrfKPow2 = lnrfK * lnrfK;
     double lnrfKPow4 = lnrfKPow2 * lnrfKPow2;
     double sfKMul4 = 4 * sfK;
+    double sfKPow2 = sfK * sfK;
+    double rhoStar = 1 - rho;
+    boolean rhoNearZero = nearZero(rhoStar, RHO_EPS);
+    boolean zNearZero = nearZero(z, SMALL_Z);
 
+    double rzxz;
+    double xz = 0;
+    double zRhoFactorSqrtFactor = rhoStar;
+    double zRhoFactorInvSqrt = 1;
+    if (zNearZero) {
+      rzxz = 1.0 - 0.5 * z * rho; //small z expansion to z^2 terms
+    } else if (rhoNearZero) {
+      if (z < 1.0) {
+        xz = -Math.log(1.0d - z);
+        rzxz = z / xz;
+      } else {
+        throw new IllegalArgumentException("can't handle z>=1, rho=0");
+      }
+    } else {
+      double zRhoFactorSqrt = Math.sqrt(1 - 2 * rho * z + z * z);
+      zRhoFactorSqrtFactor = zRhoFactorSqrt + z - rho;
+      zRhoFactorInvSqrt = 1 / zRhoFactorSqrt;
+      double arg;
+      if (z < LARGE_NEG_Z) {
+        arg = (rho * rho - 1) / 2 / z; //get rounding errors due to fine balanced cancellation for very large negative z
+      } else if (z > LARGE_POS_Z) {
+        arg = 2 * (z - rho);
+      } else {
+        arg = zRhoFactorSqrtFactor;
+      }
+      if (arg <= 0.0) { //Mathematically this cannot be less than zero, but you know what computers are like.
+        rzxz = 0.0;
+      } else {
+        xz = Math.log(arg / (1 - rho));
+        rzxz = z / xz;
+      }
+    }
     double sf1 = sfK * (1 + (betaStarPow2 / 24) * lnrfKPow2 + betaStarPow4Div1920 * lnrfKPow4);
     double sf2 = (1 + (pow2(betaStar * alpha / sfK) / 24 + (rho * beta * nu * alpha) /
-        sfKMul4 + (2 - 3 * rho * rho) * nu * nu / 24) * timeToExpiry);
+        sfKMul4 + rhoRhoNuFactor * nu) * timeToExpiry);
     double volatility = Math.max(MIN_VOL, alpha / sf1 * rzxz * sf2);
 
     // Implementation note: Backward sweep.
@@ -277,62 +283,56 @@ public final class SabrHaganVolatilityFunctionProvider
     double sf1Bar = -alpha / (sf1 * sf1) * rzxz * sf2 * vBar;
     double rzxzBar = alpha / sf1 * sf2 * vBar;
     double zBar;
-    double xzBar = 0.0;
+    double xzBar = 0;
     if (zNearZero) {
       zBar = -rho / 2 * rzxzBar;
-    } else {
-      if (rhoNearZero) {
-        if (z < 1.0) {
-          xzBar = -z / (xz * xz) * rzxzBar;
-          zBar = 1.0d / xz * rzxzBar + 1.0d / (1.0d - z) * xzBar;
-        } else {
-          throw new IllegalArgumentException("can't handle z>=1, rho=1");
-        }
+    } else if (rhoNearZero) {
+      if (z < 1.0) {
+        xzBar = -z / (xz * xz) * rzxzBar;
+        zBar = 1.0d / xz * rzxzBar + 1.0d / (1.0d - z) * xzBar;
       } else {
-        if (z < LARGE_NEG_Z) {
-          zBar = 1 / xz * rzxzBar + xzBar / (xz * xz) * rzxzBar;
-        } else if (z > LARGE_POS_Z) {
-          zBar = 1 / xz * rzxzBar - xzBar / (xz * xz) * rzxzBar;
-        } else {
-          xzBar = -z / (xz * xz) * rzxzBar;
-          zBar = 1 / xz * rzxzBar + 1 / ((Math.sqrt(1 - 2 * rho * z + z * z) + z - rho)) *
-              (0.5 * Math.pow(1 - 2 * rho * z + z * z, -0.5) * (-2 * rho + 2 * z) + 1) * xzBar;
-        }
+        throw new IllegalArgumentException("can't handle z>=1, rho=0");
+      }
+    } else {
+      if (z < LARGE_NEG_Z) {
+        zBar = 1 / xz * rzxzBar + xzBar / (xz * xz) * rzxzBar;
+      } else if (z > LARGE_POS_Z) {
+        zBar = 1 / xz * rzxzBar - xzBar / (xz * xz) * rzxzBar;
+      } else {
+        xzBar = -z / (xz * xz) * rzxzBar;
+        zBar = 1 / xz * rzxzBar + 1 / zRhoFactorSqrtFactor * (0.5 * zRhoFactorInvSqrt * (-2 * rho + 2 * z) + 1) * xzBar;
       }
     }
 
     double lnrfKBar =
-        sfK * ((betaStarPow2 / 12) * lnrfK + betaStarPow4Div1920 * 4 * pow3(lnrfK)) * sf1Bar +
+        sfK * ((betaStarPow2 / 12) * lnrfK + betaStarPow4Div1920 * 4 * lnrfKPow2 * lnrfK) * sf1Bar +
             nu / alpha * sfK * zBar;
     double sfKBar = nu / alpha * lnrfK * zBar + sf1 / sfK * sf1Bar -
-        (pow2(betaStar * alpha) / pow3(sfK) / 12 + (rho * beta * nu * alpha * 0.25) / (sfK * sfK)) *
+        (pow2(betaStar * alpha) / (sfKPow2 * sfK) / 12 + (rho * beta * nu * alpha * 0.25) / sfKPow2) *
             timeToExpiry * sf2Bar;
     double strikeBar = -1 / k * lnrfKBar + betaStar * sfK / (2 * k) * sfKBar;
     double forwardBar = 1 / forward * lnrfKBar + betaStar * sfK / (2 * forward) * sfKBar;
     double nuBar = 1 / alpha * sfK * lnrfK * zBar +
-        ((rho * beta * alpha) / sfKMul4 + (2 - 3 * rho * rho) * nu / 12) * timeToExpiry * sf2Bar;
+        ((rho * beta * alpha) / sfKMul4 + rhoRhoNuFactor * 2) * timeToExpiry * sf2Bar;
 
     double rhoBar;
     if (Math.abs(forward - k) < ATM_EPS) {
       rhoBar = -z / 2 * rzxzBar;
-    } else {
-      if (rhoNearZero) {
-        if (z >= 1) {
-          if (rhoStar == 0.0) {
-            rhoBar = Double.NEGATIVE_INFINITY; //the derivative at rho = 1 is infinite  - this sets it to some arbitrary large number
-          } else {
-            rhoBar = xzBar * (1.0 / rhoStar + (0.5 - z) / (z - 1.0) / (z - 1.0));
-          }
+    } else if (rhoNearZero) {
+      if (z >= 1) {
+        if (rhoStar == 0.0) {
+          rhoBar = Double.NEGATIVE_INFINITY; //the derivative at rho = 1 is infinite  - this sets it to some arbitrary large number
         } else {
-          double zStar = 1 - z;
-          double zDivZStar = z / zStar;
-          rhoBar = (0.5 * pow2(zDivZStar) +
-              0.25 * (z - 4.0) * pow3(zDivZStar) / zStar * rhoStar) * xzBar;
+          rhoBar = xzBar * (1.0 / rhoStar + (0.5 - z) / (z - 1.0) / (z - 1.0));
         }
       } else {
-        rhoBar = (1 / (Math.sqrt(1 - 2 * rho * z + z * z) + z - rho) *
-            (-Math.pow(1 - 2 * rho * z + z * z, -0.5) * z - 1) + 1 / rhoStar) * xzBar;
+        double zStar = 1 - z;
+        double zDivZStar = z / zStar;
+        rhoBar = (0.5 * pow2(zDivZStar) +
+            0.25 * (z - 4.0) * pow3(zDivZStar) / zStar * rhoStar) * xzBar;
       }
+    } else {
+      rhoBar = (1 / zRhoFactorSqrtFactor * (-zRhoFactorInvSqrt * z - 1) + 1 / rhoStar) * xzBar;
     }
     rhoBar += ((beta * nu * alpha) / sfKMul4 - rho * nu * nu * 0.25) * timeToExpiry * sf2Bar;
 
@@ -342,7 +342,7 @@ public final class SabrHaganVolatilityFunctionProvider
         1 / sf1 * rzxz * sf2 * vBar;
     double betaBar = -0.5 * Math.log(forward * k) * sfK * sfKBar - sfK *
         (betaStar / 12 * lnrfKPow2 + pow3(betaStar) / 480 * lnrfKPow4) * sf1Bar +
-        (-betaStar * alphaPow2 / (sfK * sfK * 12) + (rho * nu * alpha) / sfKMul4) * timeToExpiry * sf2Bar;
+        (-betaStar * alphaPow2 / (sfKPow2 * 12) + (rho * nu * alpha) / sfKMul4) * timeToExpiry * sf2Bar;
 
     return ValueDerivatives.of(volatility, DoubleArray.of(forwardBar, strikeBar, alphaBar, betaBar, rhoBar, nuBar));
   }
