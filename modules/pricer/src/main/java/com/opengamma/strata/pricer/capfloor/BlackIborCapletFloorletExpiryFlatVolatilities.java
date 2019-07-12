@@ -90,6 +90,7 @@ public final class BlackIborCapletFloorletExpiryFlatVolatilities
    * <li>The x-value type must be {@link ValueType#YEAR_FRACTION}
    * <li>The y-value type must be {@link ValueType#BLACK_VOLATILITY}
    * <li>The day count must be set in the additional information using {@link CurveInfoType#DAY_COUNT}
+   * </ul>
    * 
    * @param index  the Ibor index for which the data is valid
    * @param valuationDateTime  the valuation date-time
