@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.impl.volatility.local;
 
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static com.opengamma.strata.math.MathUtils.pow2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -292,8 +293,8 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
     double fwd = spot * fwdFactor;
     timeRes[nTotal - 1] = dt;
     spotRes[nTotal - 1] = spot;
-    double var = (dwProb * Math.pow(assetPrice[0] - fwd, 2) + midProb * Math.pow(assetPrice[1] - fwd, 2) +
-        upProb * Math.pow(assetPrice[2] - fwd, 2)) / (fwd * fwd * dt);
+    double var = (dwProb * pow2(assetPrice[0] - fwd) + midProb * pow2(assetPrice[1] - fwd) +
+        upProb * pow2(assetPrice[2] - fwd)) / (fwd * fwd * dt);
     volRes[nTotal - 1] = Math.sqrt(0.5 * (var + volRes[nTotal - 2] * volRes[nTotal - 2]));
     probability.add(0, DoubleMatrix.ofUnsafe(new double[][] {{dwProb, midProb, upProb}}));
     df[0] = discountFactor;
@@ -365,8 +366,8 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculator implements LocalVolat
       double[] varBare = new double[nNodes];
       for (int k = 0; k < nNodes; ++k) {
         double fwd = assetPriceLocal[k] * fwdFactor;
-        varBare[k] = (prob[k][0] * Math.pow(assetPrice[k] - fwd, 2) + prob[k][1] * Math.pow(assetPrice[k + 1] - fwd, 2) +
-            prob[k][2] * Math.pow(assetPrice[k + 2] - fwd, 2)) / (fwd * fwd * dt);
+        varBare[k] = (prob[k][0] * pow2(assetPrice[k] - fwd) + prob[k][1] * pow2(assetPrice[k + 1] - fwd) +
+            prob[k][2] * pow2(assetPrice[k + 2] - fwd)) / (fwd * fwd * dt);
         if (varBare[k] < 0d) {
           throw new IllegalArgumentException("Negative variance");
         }

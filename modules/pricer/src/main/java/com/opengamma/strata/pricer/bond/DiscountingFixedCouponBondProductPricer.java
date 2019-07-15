@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.bond;
 
+import static com.opengamma.strata.math.MathUtils.pow2;
 import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.DE_BONDS;
 import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.GB_BUMP_DMO;
 import static com.opengamma.strata.product.bond.FixedCouponBondYieldConvention.JP_SIMPLE;
@@ -755,7 +756,7 @@ public class DiscountingFixedCouponBondProductPricer {
       double num = 1d + bond.getFixedRate() * maturity;
       double den = 1d + yield * maturity;
       double dirtyPrice = dirtyPriceFromCleanPrice(bond, settlementDate, num / den);
-      return 2d * num * Math.pow(maturity, 2) * Math.pow(den, -3) / dirtyPrice;
+      return 2d * num * pow2(maturity) * Math.pow(den, -3) / dirtyPrice;
     }
     throw new UnsupportedOperationException("The convention " + yieldConv.name() + " is not supported.");
   }
