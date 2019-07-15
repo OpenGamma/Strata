@@ -289,7 +289,6 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
           .build();
     }
 
-    NotionalSchedule notionalSch = parseNotionalSchedule(row, leg);
     return parseRateCalculationLeg(
         row,
         leg,
@@ -297,8 +296,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
         defaultFixedLegDayCount,
         payReceive,
         accrualSch,
-        paymentSch,
-        notionalSch);
+        paymentSch);
   }
 
   // parse a single rate calculation leg
@@ -309,8 +307,9 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
       DayCount defaultFixedLegDayCount,
       PayReceive payReceive,
       PeriodicSchedule accrualSch,
-      PaymentSchedule paymentSch,
-      NotionalSchedule notionalSch) {
+      PaymentSchedule paymentSch) {
+
+    NotionalSchedule notionalSch = parseNotionalSchedule(row, leg);
 
     RateCalculation calc = parseRateCalculation(
         row,

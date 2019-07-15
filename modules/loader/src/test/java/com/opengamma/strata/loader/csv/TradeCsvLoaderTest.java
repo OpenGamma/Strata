@@ -839,25 +839,6 @@ public class TradeCsvLoaderTest {
                 .currency(GBP)
             .build(),
 
-            //ValueSchedule.of(
-            //    0.005,
-            //    ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(0.006)),
-            //RateCalculationSwapLeg.builder()
-            //    .payReceive(PAY)
-            //    .accrualSchedule(PeriodicSchedule.builder()
-            //        .startDate(date(2017, 8, 8))
-            //        .endDate(date(2022, 8, 8))
-            //        .frequency(Frequency.P3M)
-            //        .businessDayAdjustment(BusinessDayAdjustment.of(PRECEDING, GBLO.combinedWith(USNY)))
-            //        .stubConvention(StubConvention.SMART_INITIAL)
-            //        .build())
-            //    .paymentSchedule(PaymentSchedule.builder()
-            //        .paymentFrequency(Frequency.P3M)
-            //        .paymentDateOffset(DaysAdjustment.NONE)
-            //        .build())
-            //    .notionalSchedule(NotionalSchedule.of(GBP, 1_500_000))
-            //    .calculation(FixedRateCalculation.of(0.013, DayCounts.ACT_365F))
-            //    .build(),
             RateCalculationSwapLeg.builder()
                 .payReceive(RECEIVE)
                 .accrualSchedule(PeriodicSchedule.builder()
