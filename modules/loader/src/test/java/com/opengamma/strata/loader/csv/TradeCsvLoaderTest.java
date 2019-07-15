@@ -143,7 +143,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 public class TradeCsvLoaderTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final int NUMBER_SWAPS = 7;
+  private static final int NUMBER_SWAPS = 8;
 
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades.csv");
@@ -577,6 +577,7 @@ public class TradeCsvLoaderTest {
     SwapTrade expected4 = expectedSwap4();
     SwapTrade expected5 = expectedSwap5();
     SwapTrade expected6 = expectedSwap6();
+    SwapTrade expected7 = expectedSwap7();
 
     assertBeanEquals(expected0, filtered.get(0));
     assertBeanEquals(expected1, filtered.get(1));
@@ -585,9 +586,10 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected4, filtered.get(4));
     assertBeanEquals(expected5, filtered.get(5));
     assertBeanEquals(expected6, filtered.get(6));
+    assertBeanEquals(expected7, filtered.get(7));
 
     checkRoundtrip(
-        SwapTrade.class, filtered, expected0, expected1, expected2, expected3, expected4, expected5, expected6);
+        SwapTrade.class, filtered, expected0, expected1, expected2, expected3, expected4, expected5, expected6, expected7);
   }
 
   private SwapTrade expectedSwap0() {
@@ -811,6 +813,71 @@ public class TradeCsvLoaderTest {
     return SwapTrade.builder()
         .info(TradeInfo.builder()
             .id(StandardId.of("OG", "123417"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(expectedSwap)
+        .build();
+  }
+
+  private SwapTrade expectedSwap7() {
+    Swap expectedSwap = Swap.builder()
+        .legs(
+            KnownAmountSwapLeg.builder()
+                .payReceive(PAY)
+                .accrualSchedule(PeriodicSchedule.builder()
+                    .startDate(date(2017, 8, 8))
+                    .endDate(date(2022, 8, 8))
+                    .frequency(Frequency.P3M)
+                    .businessDayAdjustment(BusinessDayAdjustment.of(PRECEDING, GBLO.combinedWith(USNY)))
+                    .stubConvention(StubConvention.SMART_INITIAL)
+                    .build())
+                .paymentSchedule(PaymentSchedule.builder()
+                    .paymentFrequency(Frequency.P3M)
+                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .build())
+                .amount(ValueSchedule.of(2_000_000, ValueStep.of(LocalDate.of(2018, 6, 1), ValueAdjustment.ofReplace(2_500_000))))
+                .currency(GBP)
+            .build(),
+
+            //ValueSchedule.of(
+            //    0.005,
+            //    ValueStep.of(date(2018, 8, 1), ValueAdjustment.ofReplace(0.006)),
+            //RateCalculationSwapLeg.builder()
+            //    .payReceive(PAY)
+            //    .accrualSchedule(PeriodicSchedule.builder()
+            //        .startDate(date(2017, 8, 8))
+            //        .endDate(date(2022, 8, 8))
+            //        .frequency(Frequency.P3M)
+            //        .businessDayAdjustment(BusinessDayAdjustment.of(PRECEDING, GBLO.combinedWith(USNY)))
+            //        .stubConvention(StubConvention.SMART_INITIAL)
+            //        .build())
+            //    .paymentSchedule(PaymentSchedule.builder()
+            //        .paymentFrequency(Frequency.P3M)
+            //        .paymentDateOffset(DaysAdjustment.NONE)
+            //        .build())
+            //    .notionalSchedule(NotionalSchedule.of(GBP, 1_500_000))
+            //    .calculation(FixedRateCalculation.of(0.013, DayCounts.ACT_365F))
+            //    .build(),
+            RateCalculationSwapLeg.builder()
+                .payReceive(RECEIVE)
+                .accrualSchedule(PeriodicSchedule.builder()
+                    .startDate(date(2017, 8, 8))
+                    .endDate(date(2022, 8, 8))
+                    .frequency(Frequency.P6M)
+                    .businessDayAdjustment(BusinessDayAdjustment.NONE)
+                    .stubConvention(StubConvention.SMART_INITIAL)
+                    .build())
+                .paymentSchedule(PaymentSchedule.builder()
+                    .paymentFrequency(Frequency.P6M)
+                    .paymentDateOffset(DaysAdjustment.NONE)
+                    .build())
+                .notionalSchedule(NotionalSchedule.of(GBP, 1_500_000))
+                .calculation(OvernightRateCalculation.of(OvernightIndices.GBP_SONIA))
+                .build())
+        .build();
+    return SwapTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123418"))
             .tradeDate(date(2017, 6, 1))
             .build())
         .product(expectedSwap)
@@ -1272,7 +1339,6 @@ public class TradeCsvLoaderTest {
         .put("Leg 1 Date Calendar", "GBLO")
         .put("Leg 1 Frequency", "12M")
         .put("Leg 1 Currency", "GBP")
-        .put("Leg 1 Notional", "1000000")
         .put("Leg 1 Known Amount", "1100000")
 
         .put("Leg 2 Direction", "Pay")
@@ -1382,7 +1448,7 @@ public class TradeCsvLoaderTest {
     assertEquals(failure.getReason(), FailureReason.PARSING);
     assertEquals(
         failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' and  'Leg 1 Known Amount'");
+        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
   }
 
   public void test_load_swap_knownAmountAndIndex() {
@@ -1424,7 +1490,7 @@ public class TradeCsvLoaderTest {
     assertEquals(failure.getReason(), FailureReason.PARSING);
     assertEquals(
         failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and  'Leg 1 Index'");
+        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
   }
 
   public void test_load_swap_fixedRateAndIndex() {
@@ -1466,7 +1532,7 @@ public class TradeCsvLoaderTest {
     assertEquals(failure.getReason(), FailureReason.PARSING);
     assertEquals(
         failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and  'Leg 1 Index'");
+        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
   }
 
   //-------------------------------------------------------------------------
@@ -1776,7 +1842,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertEquals(trades.getValue().size(), 6);
-    assertEquals(trades.getFailures().size(), 19);
+    assertEquals(trades.getFailures().size(), 20);
     assertEquals(trades.getFailures().get(0).getMessage(),
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
