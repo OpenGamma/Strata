@@ -625,6 +625,42 @@ public class ArgCheckerTest {
     ArgChecker.notEmpty(new double[0], "name");
   }
 
+  //-----------------------------------------------------------------------
+  public void test_double_noDuplicates() {
+    double[] values = {0d, 1d, 10d, 5d};
+    assertEquals(ArgChecker.noDuplicates(values, "name"), values);
+  }
+
+  public void test_double_noDuplicates_NaN() {
+    double[] values = {0d, 1d, 10d, Double.NaN};
+    assertEquals(ArgChecker.noDuplicates(values, "name"), values);
+  }
+
+  public void test_double_noDuplicates_hasDuplicates() {
+    double[] values = {0d, 1d, 10d, 5d, 1d};
+    assertThrowsIllegalArg(() -> ArgChecker.noDuplicates(values, "name"));
+  }
+
+  public void test_double_noDuplicatesSorted() {
+    double[] values = {0d, 1d, 5d, 10d};
+    assertEquals(ArgChecker.noDuplicatesSorted(values, "name"), values);
+  }
+
+  public void test_double_noDuplicatesSorted_Nan() {
+    double[] values = {0d, 1d, 5d, Double.NaN, 10d};
+    assertEquals(ArgChecker.noDuplicatesSorted(values, "name"), values);
+  }
+
+  public void test_double_noDuplicatesSorted_hasDuplicates() {
+    double[] values = {0d, 1d, 5d, 5d, 10d};
+    assertThrowsIllegalArg(() -> ArgChecker.noDuplicatesSorted(values, "name"));
+  }
+
+  public void test_double_noDuplicatesSorted_notSorted() {
+    double[] values = {0d, 1d, 5d, 10d, 4d};
+    assertThrowsIllegalArg(() -> ArgChecker.noDuplicatesSorted(values, "name"));
+  }
+
   //-------------------------------------------------------------------------
   public void test_inOrderNotEqual_true() {
     LocalDate a = LocalDate.of(2011, 7, 2);

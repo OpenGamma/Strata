@@ -6,6 +6,7 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.DoubleArrayMath;
@@ -36,15 +37,10 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       return new PiecewisePolynomialResult(DoubleArray.copyOf(xValues), DoubleMatrix.filled(1, 1, yValues[0]), 1, 1);
     }
 
-    for (int i = 0; i < nDataPts; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
-
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
+    ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
 
     DoubleMatrix coefMatrix = solve(xValuesSrt, yValuesSrt);
 
@@ -85,22 +81,16 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
         ArgChecker.isFalse(Double.isInfinite(yValuesMatrix[j][i]), "yValuesMatrix containing Infinity");
       }
     }
-    for (int k = 0; k < dim; ++k) {
-      for (int i = 0; i < nDataPts; ++i) {
-        for (int j = i + 1; j < nDataPts; ++j) {
-          ArgChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-        }
-      }
-    }
 
-    double[] xValuesSrt = new double[nDataPts];
+    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    int[] sortedPositions = IntStream.range(0, nDataPts).toArray();
+    DoubleArrayMath.sortPairs(xValuesSrt, sortedPositions);
+    ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
+
     DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
-      xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-      double[] yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
-      DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
-
+      double[] yValuesSrt = DoubleArrayMath.reorderedCopy(yValuesMatrix[i], sortedPositions);
       coefMatrix[i] = solve(xValuesSrt, yValuesSrt);
 
       for (int k = 0; k < xValuesSrt.length - 1; ++k) {
@@ -142,15 +132,11 @@ public class LinearInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isFalse(Double.isNaN(yValues[i]), "yData containing NaN");
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
     }
-    for (int i = 0; i < nDataPts; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
 
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
+    ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
 
     DoubleMatrix[] res = solveSensitivity(xValuesSrt, yValuesSrt);
     DoubleMatrix coefMatrix = res[nDataPts - 1];

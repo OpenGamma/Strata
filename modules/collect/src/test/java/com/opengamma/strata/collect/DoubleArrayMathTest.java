@@ -193,6 +193,29 @@ public class DoubleArrayMathTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_sortPairs_doubleint_1() {
+    double[] keys = {3d, 5d, 2d, 4d};
+    int[] values = {6, 10, 4, 8};
+    DoubleArrayMath.sortPairs(keys, values);
+    assertThat(keys).containsExactly(2d, 3d, 4d, 5d);
+    assertThat(values).containsExactly(4, 6, 8, 10);
+  }
+
+  public void test_sortPairs_doubleint_2() {
+    double[] keys = {3d, 2d, 5d, 4d};
+    int[] values = {6, 4, 10, 8};
+    DoubleArrayMath.sortPairs(keys, values);
+    assertThat(keys).containsExactly(2d, 3d, 4d, 5d);
+    assertThat(values).containsExactly(4, 6, 8, 10);
+  }
+
+  public void test_sortPairs_doubleint_sizeDifferent() {
+    double[] keys = {3d, 2d, 5d, 4d};
+    int[] values = {6, 4};
+    assertThrowsIllegalArg(() -> DoubleArrayMath.sortPairs(keys, values));
+  }
+
+  //-------------------------------------------------------------------------
   public void coverage() {
     coverPrivateConstructor(DoubleArrayMath.class);
   }
