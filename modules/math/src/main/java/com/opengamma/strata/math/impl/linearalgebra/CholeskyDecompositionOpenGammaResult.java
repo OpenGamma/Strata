@@ -49,11 +49,6 @@ public class CholeskyDecompositionOpenGammaResult implements CholeskyDecompositi
   }
 
   @Override
-  public DoubleArray solve(DoubleArray b) {
-    return b;
-  }
-
-  @Override
   public double[] solve(double[] b) {
     int dim = b.length;
     ArgChecker.isTrue(dim == _lArray.length, "b array of incorrect size");

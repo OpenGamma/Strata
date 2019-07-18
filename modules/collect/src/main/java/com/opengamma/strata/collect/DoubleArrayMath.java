@@ -35,7 +35,7 @@ public final class DoubleArrayMath {
   //-------------------------------------------------------------------------
   /**
    * Converts a {@code double} array to a {@code Double} array.
-   * 
+   *
    * @param array  the array to convert
    * @return the converted array
    */
@@ -54,7 +54,7 @@ public final class DoubleArrayMath {
    * Converts a {@code Double} array to a {@code double} array.
    * <p>
    * Throws an exception if null is found.
-   * 
+   *
    * @param array  the array to convert
    * @return the converted array
    * @throws NullPointerException if null found
@@ -75,7 +75,7 @@ public final class DoubleArrayMath {
    * Calculates the sum total of all the elements in the array.
    * <p>
    * The input array is not mutated.
-   * 
+   *
    * @param array  the array to sum
    * @return the sum total of all the elements
    */
@@ -92,7 +92,7 @@ public final class DoubleArrayMath {
    * Applies an addition to each element in the array, returning a new array.
    * <p>
    * The result is always a new array. The input array is not mutated.
-   * 
+   *
    * @param array  the input array, not mutated
    * @param valueToAdd  the value to add
    * @return the resulting array
@@ -109,7 +109,7 @@ public final class DoubleArrayMath {
    * Applies a multiplication to each element in the array, returning a new array.
    * <p>
    * The result is always a new array. The input array is not mutated.
-   * 
+   *
    * @param array  the input array, not mutated
    * @param valueToMultiplyBy  the value to multiply by
    * @return the resulting array
@@ -126,7 +126,7 @@ public final class DoubleArrayMath {
    * Applies an operator to each element in the array, returning a new array.
    * <p>
    * The result is always a new array. The input array is not mutated.
-   * 
+   *
    * @param array  the input array, not mutated
    * @param operator  the operator to use
    * @return the resulting array
@@ -144,7 +144,7 @@ public final class DoubleArrayMath {
    * Adds a constant value to each element in the array by mutation.
    * <p>
    * The input array is mutated.
-   * 
+   *
    * @param array  the array to mutate
    * @param valueToAdd  the value to add
    */
@@ -174,7 +174,7 @@ public final class DoubleArrayMath {
    * Multiplies each element in the array by a value by mutation.
    * <p>
    * The input array is mutated.
-   * 
+   *
    * @param array  the array to mutate
    * @param valueToMultiplyBy  the value to multiply by
    */
@@ -204,7 +204,7 @@ public final class DoubleArrayMath {
    * Mutates each element in the array using an operator by mutation.
    * <p>
    * The input array is mutated.
-   * 
+   *
    * @param array  the array to mutate
    * @param operator  the operator to use to perform the mutation
    */
@@ -230,7 +230,7 @@ public final class DoubleArrayMath {
    * </pre>
    * <p>
    * The result is always a new array. The input arrays are not mutated.
-   * 
+   *
    * @param array1  the first array
    * @param array2  the second array
    * @return an array combining the two input arrays using the plus operator
@@ -254,7 +254,7 @@ public final class DoubleArrayMath {
    * </pre>
    * <p>
    * The result is always a new array. The input arrays are not mutated.
-   * 
+   *
    * @param array1  the first array
    * @param array2  the second array
    * @return an array combining the two input arrays using the multiply operator
@@ -270,7 +270,7 @@ public final class DoubleArrayMath {
    * input arrays using the operator. The two input arrays must have the same length.
    * <p>
    * The result is always a new array. The input arrays are not mutated.
-   * 
+   *
    * @param array1  the first array
    * @param array2  the second array
    * @param operator  the operator to use when combining values
@@ -294,7 +294,7 @@ public final class DoubleArrayMath {
    * Where one array is longer than the other, the values from the longer array will be used.
    * <p>
    * The result is always a new array. The input arrays are not mutated.
-   * 
+   *
    * @param array1  the first array
    * @param array2  the second array
    * @param operator  the operator to use when combining values
@@ -329,7 +329,7 @@ public final class DoubleArrayMath {
    * An empty array returns true;
    * <p>
    * The input array is not mutated.
-   * 
+   *
    * @param array  the array to check
    * @param tolerance  the tolerance to use
    * @return true if the array is effectively equal to zero
@@ -349,7 +349,7 @@ public final class DoubleArrayMath {
    * If the arrays differ in length, false is returned.
    * <p>
    * The input arrays are not mutated.
-   * 
+   *
    * @param array1  the first array to check
    * @param array2  the second array to check
    * @param tolerance  the tolerance to use
@@ -420,6 +420,92 @@ public final class DoubleArrayMath {
     values[second] = t;
   }
 
+  /**
+   * Returns a copy of the first array in the order defined by the position values of the second array.
+   * <p>
+   * The two arrays must be the same size.
+   * The order is determined by the array of positions.
+   * The result value at each entry is changed to the value at the position of the positions entry.
+   * It is not checked that the positions array does not contain duplicates.
+   * <p>
+   * The result is a new array. The input arrays are not mutated.
+   * <p>
+   * e.g
+   * <pre>{@code double[] values = { 1d, 5d, 10d };
+   * double[] positions = { 2, 0, 1 };
+   * reorderedCopy(values, positions); // returns [10d, 1d, 5d]
+   * }</pre>
+   *
+   * @param values  the array of values
+   * @param positions  the array of positions
+   * @throws IllegalArgumentException if any of the positions do not correspond to an index in the values
+   */
+  public static double[] reorderedCopy(double[] values, int[] positions) {
+    int len1 = positions.length;
+    if (len1 != values.length) {
+      throw new IllegalArgumentException("Value array cannot be reordered as they differ in length");
+    }
+    double[] result = new double[len1];
+    for (int i = 0; i < len1; i++) {
+      int key = positions[i];
+      ArgChecker.inRange(key, 0, len1, "key must be in range: 0 <= key < length");
+      result[i] = values[key];
+    }
+    return result;
+  }
+
+  /**
+   * Sorts the two arrays, retaining the associated values with the sorted keys.
+   * <p>
+   * The two arrays must be the same size and represent a pair of key to value.
+   * The sort order is determined by the array of keys.
+   * The position of each value is changed to match that of the sorted keys.
+   * <p>
+   * The input arrays are mutated.
+   *
+   * @param keys  the array of keys to sort
+   * @param values  the array of associated values to retain
+   */
+  public static void sortPairs(double[] keys, int[] values) {
+    int len1 = keys.length;
+    if (len1 != values.length) {
+      throw new IllegalArgumentException("Arrays cannot be sorted as they differ in length");
+    }
+    dualArrayQuickSort(keys, values, 0, len1 - 1);
+  }
+
+  private static void dualArrayQuickSort(double[] keys, int[] values, int left, int right) {
+    if (right > left) {
+      int pivot = (left + right) >> 1;
+      int pivotNewIndex = partition(keys, values, left, right, pivot);
+      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
+      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
+    }
+  }
+
+  private static int partition(double[] keys, int[] values, int left, int right, int pivot) {
+    double pivotValue = keys[pivot];
+    swap(keys, values, pivot, right);
+    int storeIndex = left;
+    for (int i = left; i < right; i++) {
+      if (keys[i] <= pivotValue) {
+        swap(keys, values, i, storeIndex);
+        storeIndex++;
+      }
+    }
+    swap(keys, values, storeIndex, right);
+    return storeIndex;
+  }
+
+  private static void swap(double[] keys, int[] values, int first, int second) {
+    double t = keys[first];
+    keys[first] = keys[second];
+    keys[second] = t;
+    int t2 = values[first];
+    values[first] = values[second];
+    values[second] = t2;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sorts the two arrays, retaining the associated values with the sorted keys.
@@ -429,7 +515,7 @@ public final class DoubleArrayMath {
    * The position of each value is changed to match that of the sorted keys.
    * <p>
    * The input arrays are mutated.
-   * 
+   *
    * @param <V>  the type of the values
    * @param keys  the array of keys to sort
    * @param values  the array of associated values to retain
@@ -476,6 +562,10 @@ public final class DoubleArrayMath {
 
   /**
    * Return the array lengths if they are the same, otherwise throws an {@code IllegalArgumentException}.
+   *
+   * @param array1 the first array
+   * @param array2 the second array
+   * @return the length of both arrays
    */
   private static int length(double[] array1, double[] array2) {
     int len1 = array1.length;
