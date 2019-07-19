@@ -26,7 +26,7 @@ public interface DecompositionResult {
   public default DoubleArray solve(DoubleArray input) {
     ArgChecker.notNull(input, "input");
     double[] result = solve(input.toArrayUnsafe());
-    return DoubleArray.ofUnsafe(result);
+    return DoubleArray.copyOf(result);
   }
 
   /**
