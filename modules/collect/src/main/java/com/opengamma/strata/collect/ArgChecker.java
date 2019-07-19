@@ -732,12 +732,10 @@ public final class ArgChecker {
   public static double[] noDuplicatesSorted(double[] argument, String name) {
     notNull(argument, name);
     for (int i = 1; i < argument.length; i++) {
-      if (argument[i] <= argument[i - 1]) {
-        if (argument[i] == argument[i - 1]) {
-          throw new IllegalArgumentException(noDuplicatesArrayMsg(name));
-        } else {
-          throw new IllegalArgumentException(noDuplicatesSortedArrayMsg(name));
-        }
+      if (argument[i] == argument[i - 1]) {
+        throw new IllegalArgumentException(noDuplicatesArrayMsg(name));
+      } else if (argument[i] < argument[i - 1]) {
+        throw new IllegalArgumentException(noDuplicatesSortedArrayMsg(name));
       }
     }
     return argument;
