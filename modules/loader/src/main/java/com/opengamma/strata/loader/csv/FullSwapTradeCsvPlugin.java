@@ -832,6 +832,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
     boolean firstRate = false;
     boolean stubRate = false;
     boolean resetSchedule = false;
+    boolean knownAmount = false;
     boolean variable = false;
     for (SwapTrade trade : trades) {
       legs = Math.max(legs, trade.getProduct().getLegs().size());
@@ -860,6 +861,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
           }
         }
         if (leg instanceof KnownAmountSwapLeg) {
+          knownAmount = true;
           KnownAmountSwapLeg kaLeg = (KnownAmountSwapLeg) leg;
           variable |= !kaLeg.getAmount().getSteps().isEmpty();
         }
@@ -924,7 +926,9 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
       // calculation
       headers.add(prefix + DAY_COUNT_FIELD);
       headers.add(prefix + FIXED_RATE_FIELD);
-      headers.add(prefix + KNOWN_AMOUNT_FIELD);
+      if (knownAmount) {
+        headers.add(prefix + KNOWN_AMOUNT_FIELD);
+      }
       if (fvNotional) {
         headers.add(prefix + FUTURE_VALUE_NOTIONAL_FIELD);
       }
