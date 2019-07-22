@@ -6,10 +6,10 @@
 package com.opengamma.strata.data;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -56,7 +56,7 @@ public class CombinedMarketDataTest {
     assertEquals(test.getValue(ID1), VAL1);
     assertEquals(test.getValue(ID2), VAL2);
     assertEquals(test.getValue(ID3), VAL3);
-    assertThrows(() -> test.getValue(ID5), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID5));
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
     assertEquals(test.findValue(ID3), Optional.of(VAL3));

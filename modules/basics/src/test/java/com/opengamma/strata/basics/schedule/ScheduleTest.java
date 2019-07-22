@@ -11,8 +11,6 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_17;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.Month.AUGUST;
@@ -22,6 +20,8 @@ import static java.time.Month.JUNE;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -73,7 +73,7 @@ public class ScheduleTest {
 
   //-------------------------------------------------------------------------
   public void test_of_size0() {
-    assertThrowsIllegalArg(() -> Schedule.builder().periods(ImmutableList.of()));
+    assertThatIllegalArgumentException().isThrownBy(() -> Schedule.builder().periods(ImmutableList.of()));
   }
 
   public void test_ofTerm() {
@@ -95,7 +95,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P1_STUB));
-    assertThrows(() -> test.getPeriod(1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17));
   }
 
@@ -122,7 +122,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getRegularPeriods(), ImmutableList.of());
-    assertThrows(() -> test.getPeriod(1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17));
   }
 
@@ -149,7 +149,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL));
-    assertThrows(() -> test.getPeriod(1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_17, AUG_17));
   }
 
@@ -177,7 +177,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL));
-    assertThrows(() -> test.getPeriod(2), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17, AUG_17));
   }
 
@@ -205,7 +205,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
-    assertThrows(() -> test.getPeriod(2), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_17, AUG_17, SEP_17));
   }
 
@@ -233,7 +233,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.empty());
     assertEquals(test.getFinalStub(), Optional.of(P4_STUB));
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P3_NORMAL));
-    assertThrows(() -> test.getPeriod(2), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(AUG_17, SEP_17, SEP_30));
   }
 
@@ -262,7 +262,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
     assertEquals(test.getFinalStub(), Optional.empty());
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
-    assertThrows(() -> test.getPeriod(3), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(3));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17, AUG_17, SEP_17));
   }
 
@@ -292,7 +292,7 @@ public class ScheduleTest {
     assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
     assertEquals(test.getFinalStub(), Optional.of(P4_STUB));
     assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
-    assertThrows(() -> test.getPeriod(4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(4));
     assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17, AUG_17, SEP_17, SEP_30));
   }
 
@@ -319,7 +319,7 @@ public class ScheduleTest {
     assertEquals(test.getPeriodEndDate(P2_NORMAL.getStartDate().plusDays(1)), P2_NORMAL.getEndDate());
     assertEquals(test.getPeriodEndDate(P3_NORMAL.getStartDate()), P3_NORMAL.getEndDate());
     assertEquals(test.getPeriodEndDate(P3_NORMAL.getStartDate().plusDays(1)), P3_NORMAL.getEndDate());
-    assertThrowsIllegalArg(() -> test.getPeriodEndDate(P2_NORMAL.getStartDate().minusDays(1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getPeriodEndDate(P2_NORMAL.getStartDate().minusDays(1)));
   }
 
   //-------------------------------------------------------------------------
@@ -558,12 +558,14 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertThrowsIllegalArg(() -> test.mergeRegular(0, true));
-    assertThrowsIllegalArg(() -> test.mergeRegular(0, false));
-    assertThrowsIllegalArg(() -> test.mergeRegular(-1, true));
-    assertThrowsIllegalArg(() -> test.mergeRegular(-1, false));
-    assertThrowsIllegalArg(() -> test.merge(0, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()));
-    assertThrowsIllegalArg(() -> test.merge(-1, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.mergeRegular(0, true));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.mergeRegular(0, false));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.mergeRegular(-1, true));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.mergeRegular(-1, false));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.merge(0, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.merge(-1, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()));
   }
 
   public void test_merge_badDate() {
@@ -572,8 +574,8 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertThrows(() -> test.merge(2, JUL_03, AUG_17), ScheduleException.class);
-    assertThrows(() -> test.merge(2, JUL_17, SEP_30), ScheduleException.class);
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> test.merge(2, JUL_03, AUG_17));
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> test.merge(2, JUL_17, SEP_30));
   }
 
   public void test_merge_badGroupSize() {
@@ -582,12 +584,12 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertThrows(
-        () -> test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()),
-        ScheduleException.class,
-        "Unable to merge schedule, firstRegularStartDate " + P2_NORMAL.getUnadjustedStartDate() +
-            " and lastRegularEndDate " + P6_NORMAL.getUnadjustedEndDate() +
-            " cannot be used to create regular periods of frequency 'P2M'");
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()))
+        .withMessage(
+            "Unable to merge schedule, firstRegularStartDate " + P2_NORMAL.getUnadjustedStartDate() +
+                " and lastRegularEndDate " + P6_NORMAL.getUnadjustedEndDate() +
+                " cannot be used to create regular periods of frequency 'P2M'");
   }
 
   //-------------------------------------------------------------------------

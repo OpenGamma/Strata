@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -117,7 +117,8 @@ public class ImmutableScenarioMarketDataBuilderTest {
 
     ImmutableScenarioMarketDataBuilder builder = ImmutableScenarioMarketData.builder(VAL_DATE)
         .addBox(eurGbpId, MarketDataBox.ofScenarioValues(eurGbpRate1, eurGbpRate2, eurGbpRate3));
-    assertThrowsIllegalArg(() -> builder.addBox(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> builder.addBox(eurUsdId, MarketDataBox.ofScenarioValues(eurUsdRate1, eurUsdRate2)));
   }
 
   //-------------------------------------------------------------------------
@@ -220,7 +221,9 @@ public class ImmutableScenarioMarketDataBuilderTest {
         .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
-    assertThrowsIllegalArg(() -> marketData1.combinedWith(marketData2), ".* same number of scenarios .* 3 and 2");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> marketData1.combinedWith(marketData2))
+        .withMessageMatching(".* same number of scenarios .* 3 and 2");
   }
 
   public void test_combinedWithReceiverHasOneScenario() {

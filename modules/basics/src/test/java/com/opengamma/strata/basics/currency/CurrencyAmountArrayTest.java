@@ -9,12 +9,11 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.List;
 
@@ -60,7 +59,7 @@ public class CurrencyAmountArrayTest {
   public void test_of_CurrencyList_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyAmountArray.of(values));
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmountArray.of(values));
   }
 
   public void test_of_function() {
@@ -80,14 +79,14 @@ public class CurrencyAmountArrayTest {
   public void test_of_function_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyAmountArray.of(3, i -> values.get(i)));
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmountArray.of(3, i -> values.get(i)));
   }
 
   //-------------------------------------------------------------------------
   public void test_plus() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyAmountArray.of(3, i -> values.get(i)));
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmountArray.of(3, i -> values.get(i)));
   }
 
   //-------------------------------------------------------------------------
@@ -116,7 +115,7 @@ public class CurrencyAmountArrayTest {
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, values);
 
     FxRate fxRate = FxRate.of(EUR, USD, 1.61);
-    assertThrows(() -> test.convertedTo(USD, fxRate), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test.convertedTo(USD, fxRate));
   }
   
   public void test_minus_currencyAmount() {

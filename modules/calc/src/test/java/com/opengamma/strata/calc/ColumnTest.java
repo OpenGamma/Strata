@@ -6,9 +6,9 @@
 package com.opengamma.strata.calc;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -49,7 +49,7 @@ public class ColumnTest {
   }
 
   public void test_builder_missingData() {
-    assertThrowsIllegalArg(() -> Column.builder().build());
+    assertThatIllegalArgumentException().isThrownBy(() -> Column.builder().build());
   }
 
   //-------------------------------------------------------------------------

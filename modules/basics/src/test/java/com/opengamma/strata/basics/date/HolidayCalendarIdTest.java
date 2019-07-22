@@ -7,9 +7,9 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -59,7 +59,7 @@ public class HolidayCalendarIdTest {
     assertEquals(HolidayCalendarId.defaultByCurrency(Currency.GBP), HolidayCalendarIds.GBLO);
     assertEquals(HolidayCalendarId.defaultByCurrency(Currency.CZK), HolidayCalendarIds.CZPR);
     assertEquals(HolidayCalendarId.defaultByCurrency(Currency.HKD), HolidayCalendarId.of("HKHK"));
-    assertThrowsIllegalArg(() -> HolidayCalendarId.defaultByCurrency(Currency.XAG));
+    assertThatIllegalArgumentException().isThrownBy(() -> HolidayCalendarId.defaultByCurrency(Currency.XAG));
   }
 
   //-------------------------------------------------------------------------
@@ -69,7 +69,7 @@ public class HolidayCalendarIdTest {
     HolidayCalendar gbCal = HolidayCalendars.SAT_SUN;
     ReferenceData refData = ImmutableReferenceData.of(gb, gbCal);
     assertEquals(gb.resolve(refData), gbCal);
-    assertThrows(() -> eu.resolve(refData), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> eu.resolve(refData));
     assertEquals(refData.getValue(gb), gbCal);
   }
 

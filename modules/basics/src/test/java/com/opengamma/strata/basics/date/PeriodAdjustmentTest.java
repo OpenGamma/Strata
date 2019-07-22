@@ -8,9 +8,9 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.PeriodAdditionConventions.LAST_BUSINESS_DAY;
 import static com.opengamma.strata.basics.date.PeriodAdditionConventions.LAST_DAY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -76,10 +76,10 @@ public class PeriodAdjustmentTest {
 
   public void test_of_invalid_conventionForPeriod() {
     Period period = Period.of(1, 2, 3);
-    assertThrowsIllegalArg(() -> PeriodAdjustment.of(period, LAST_DAY, BDA_NONE));
-    assertThrowsIllegalArg(() -> PeriodAdjustment.of(period, LAST_BUSINESS_DAY, BDA_NONE));
-    assertThrowsIllegalArg(() -> PeriodAdjustment.ofLastDay(period, BDA_NONE));
-    assertThrowsIllegalArg(() -> PeriodAdjustment.ofLastBusinessDay(period, BDA_NONE));
+    assertThatIllegalArgumentException().isThrownBy(() -> PeriodAdjustment.of(period, LAST_DAY, BDA_NONE));
+    assertThatIllegalArgumentException().isThrownBy(() -> PeriodAdjustment.of(period, LAST_BUSINESS_DAY, BDA_NONE));
+    assertThatIllegalArgumentException().isThrownBy(() -> PeriodAdjustment.ofLastDay(period, BDA_NONE));
+    assertThatIllegalArgumentException().isThrownBy(() -> PeriodAdjustment.ofLastBusinessDay(period, BDA_NONE));
   }
 
   //-------------------------------------------------------------------------

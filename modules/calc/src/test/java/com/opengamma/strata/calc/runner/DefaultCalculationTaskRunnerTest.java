@@ -8,9 +8,9 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.calc.ReportingCurrency.NATURAL;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -104,7 +104,7 @@ public class DefaultCalculationTaskRunnerTest {
     CalculationTaskRunner test = CalculationTaskRunner.of(MoreExecutors.newDirectExecutorService());
 
     MarketData marketData = MarketData.empty(VAL_DATE);
-    assertThrowsIllegalArg(() -> test.calculate(tasks, marketData, REF_DATA));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.calculate(tasks, marketData, REF_DATA));
   }
 
   /**

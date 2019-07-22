@@ -5,8 +5,10 @@
  */
 package com.opengamma.strata.collect.array;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -94,16 +96,20 @@ public class IntArrayTest {
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 0), 1, 2, 3);
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 1), 2, 3);
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 3));
-    assertThrows(() -> IntArray.copyOf(new int[] {1, 2, 3}, -1), IndexOutOfBoundsException.class);
-    assertThrows(() -> IntArray.copyOf(new int[] {1, 2, 3}, 4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> IntArray.copyOf(new int[] {1, 2, 3}, -1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> IntArray.copyOf(new int[] {1, 2, 3}, 4));
   }
 
   public void test_copyOf_array_fromToIndex() {
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 0, 3), 1, 2, 3);
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 1, 2), 2);
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 1, 1));
-    assertThrows(() -> IntArray.copyOf(new int[] {1, 2, 3}, -1, 3), IndexOutOfBoundsException.class);
-    assertThrows(() -> IntArray.copyOf(new int[] {1, 2, 3}, 0, 5), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> IntArray.copyOf(new int[] {1, 2, 3}, -1, 3));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> IntArray.copyOf(new int[] {1, 2, 3}, 0, 5));
   }
 
   public void test_filled() {
@@ -121,8 +127,8 @@ public class IntArrayTest {
     IntArray test = IntArray.of(1, 2, 3, 3, 4);
     assertEquals(test.get(0), 1);
     assertEquals(test.get(4), 4);
-    assertThrows(() -> test.get(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.get(5), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(5));
   }
 
   public void test_contains() {
@@ -161,8 +167,8 @@ public class IntArrayTest {
     assertTrue(Arrays.equals(dest2, new int[] {0, 1, 2, 3}));
 
     int[] dest3 = new int[4];
-    assertThrows(() -> test.copyInto(dest3, 2), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.copyInto(dest3, -1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.copyInto(dest3, 2));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.copyInto(dest3, -1));
   }
 
   //-------------------------------------------------------------------------
@@ -172,8 +178,8 @@ public class IntArrayTest {
     assertContent(test.subArray(1), 2, 3);
     assertContent(test.subArray(2), 3);
     assertContent(test.subArray(3));
-    assertThrows(() -> test.subArray(4), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.subArray(-1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(4));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(-1));
   }
 
   public void test_subArray_fromTo() {
@@ -183,8 +189,8 @@ public class IntArrayTest {
     assertContent(test.subArray(2, 3), 3);
     assertContent(test.subArray(3, 3));
     assertContent(test.subArray(1, 2), 2);
-    assertThrows(() -> test.subArray(0, 4), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.subArray(-1, 3), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(0, 4));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(-1, 3));
   }
 
   //-------------------------------------------------------------------------
@@ -206,8 +212,8 @@ public class IntArrayTest {
     assertEquals(list.lastIndexOf(5), -1);
     assertEquals(list.lastIndexOf(ANOTHER_TYPE), -1);
 
-    assertThrows(() -> list.clear(), UnsupportedOperationException.class);
-    assertThrows(() -> list.set(0, 3), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.clear());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.set(0, 3));
   }
 
   public void test_toList_iterator() {
@@ -222,7 +228,7 @@ public class IntArrayTest {
     assertEquals(it.next().intValue(), 3);
     assertEquals(it.hasNext(), false);
 
-    assertThrows(() -> it.remove(), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> it.remove());
   }
 
   public void test_toList_listIterator() {
@@ -233,7 +239,7 @@ public class IntArrayTest {
     assertEquals(lit.previousIndex(), -1);
     assertEquals(lit.hasNext(), true);
     assertEquals(lit.hasPrevious(), false);
-    assertThrows(() -> lit.previous(), NoSuchElementException.class);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.previous());
 
     assertEquals(lit.next().intValue(), 1);
     assertEquals(lit.nextIndex(), 1);
@@ -252,7 +258,7 @@ public class IntArrayTest {
     assertEquals(lit.previousIndex(), 2);
     assertEquals(lit.hasNext(), false);
     assertEquals(lit.hasPrevious(), true);
-    assertThrows(() -> lit.next(), NoSuchElementException.class);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.next());
 
     assertEquals(lit.previous().intValue(), 3);
     assertEquals(lit.nextIndex(), 2);
@@ -260,9 +266,9 @@ public class IntArrayTest {
     assertEquals(lit.hasNext(), true);
     assertEquals(lit.hasPrevious(), true);
 
-    assertThrows(() -> lit.remove(), UnsupportedOperationException.class);
-    assertThrows(() -> lit.set(2), UnsupportedOperationException.class);
-    assertThrows(() -> lit.add(2), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.remove());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.set(2));
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.add(2));
   }
 
   //-------------------------------------------------------------------------
@@ -285,8 +291,8 @@ public class IntArrayTest {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.with(0, 4), 4, 2, 3);
     assertContent(test.with(0, 1), 1, 2, 3);
-    assertThrows(() -> test.with(-1, 2), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.with(3, 2), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(-1, 2));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(3, 2));
   }
 
   //-------------------------------------------------------------------------
@@ -331,42 +337,42 @@ public class IntArrayTest {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
     assertContent(test1.plus(test2), 6, 8, 10);
-    assertThrows(() -> test1.plus(IntArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.plus(IntArray.EMPTY));
   }
 
   public void test_minus_array() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
     assertContent(test1.minus(test2), -4, -4, -4);
-    assertThrows(() -> test1.minus(IntArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.minus(IntArray.EMPTY));
   }
 
   public void test_multipliedBy_array() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
     assertContent(test1.multipliedBy(test2), 5, 12, 21);
-    assertThrows(() -> test1.multipliedBy(IntArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.multipliedBy(IntArray.EMPTY));
   }
 
   public void test_dividedBy_array() {
     IntArray test1 = IntArray.of(10, 20, 30);
     IntArray test2 = IntArray.of(2, 5, 10);
     assertContent(test1.dividedBy(test2), 5, 4, 3);
-    assertThrows(() -> test1.dividedBy(IntArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.dividedBy(IntArray.EMPTY));
   }
 
   public void test_combine() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
     assertContent(test1.combine(test2, (a, b) -> a * b), 5, 12, 21);
-    assertThrows(() -> test1.combine(IntArray.EMPTY, (a, b) -> a * b), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.combine(IntArray.EMPTY, (a, b) -> a * b));
   }
 
   public void test_combineReduce() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
     assertEquals(test1.combineReduce(test2, (r, a, b) -> r + a * b), 5 + 12 + 21);
-    assertThrows(() -> test1.combineReduce(IntArray.EMPTY, (r, a, b) -> r + a * b), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.combineReduce(IntArray.EMPTY, (r, a, b) -> r + a * b));
   }
 
   //-------------------------------------------------------------------------
@@ -380,13 +386,13 @@ public class IntArrayTest {
   public void test_min() {
     assertEquals(IntArray.of(2).min(), 2);
     assertEquals(IntArray.of(2, 1, 3).min(), 1);
-    assertThrows(() -> IntArray.EMPTY.min(), IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> IntArray.EMPTY.min());
   }
 
   public void test_max() {
     assertEquals(IntArray.of(2).max(), 2);
     assertEquals(IntArray.of(2, 1, 3).max(), 3);
-    assertThrows(() -> IntArray.EMPTY.max(), IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> IntArray.EMPTY.max());
   }
 
   public void test_sum() {

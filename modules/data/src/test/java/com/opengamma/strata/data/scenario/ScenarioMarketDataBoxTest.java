@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import java.util.List;
 
@@ -26,7 +27,9 @@ public class ScenarioMarketDataBoxTest {
 
   public void getSingleValue() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
-    assertThrows(box::getSingleValue, IllegalStateException.class, "This box does not contain a single value");
+    assertThatIllegalStateException()
+        .isThrownBy(box::getSingleValue)
+        .withMessage("This box does not contain a single value");
   }
 
   public void getValue() {
@@ -34,8 +37,12 @@ public class ScenarioMarketDataBoxTest {
     assertThat(box.getValue(0)).isEqualTo(27);
     assertThat(box.getValue(1)).isEqualTo(28);
     assertThat(box.getValue(2)).isEqualTo(29);
-    assertThrows(() -> box.getValue(-1), IllegalArgumentException.class, "Expected 0 <= 'scenarioIndex' < 3, but found -1");
-    assertThrows(() -> box.getValue(3), IllegalArgumentException.class, "Expected 0 <= 'scenarioIndex' < 3, but found 3");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> box.getValue(-1))
+        .withMessage("Expected 0 <= 'scenarioIndex' < 3, but found -1");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> box.getValue(3))
+        .withMessage("Expected 0 <= 'scenarioIndex' < 3, but found 3");
   }
 
   public void getScenarioValue() {
@@ -77,7 +84,7 @@ public class ScenarioMarketDataBoxTest {
    */
   public void mapWithIndexWrongNumberOfScenarios() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
-    assertThrows(() -> box.mapWithIndex(4, (v, idx) -> v + idx), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> box.mapWithIndex(4, (v, idx) -> v + idx));
   }
 
   public void combineWithSingleBox() {
@@ -105,10 +112,9 @@ public class ScenarioMarketDataBoxTest {
   public void combineWithScenarioBoxWithWrongNumberOfScenarios() {
     MarketDataBox<Integer> box = MarketDataBox.ofScenarioValues(27, 28, 29);
     MarketDataBox<Integer> otherBox = MarketDataBox.ofScenarioValues(15, 16, 17, 18);
-    assertThrows(
-        () -> box.combineWith(otherBox, (v1, v2) -> v1 + v2),
-        IllegalArgumentException.class,
-        "Scenario values must have the same number of scenarios.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> box.combineWith(otherBox, (v1, v2) -> v1 + v2))
+        .withMessageStartingWith("Scenario values must have the same number of scenarios");
   }
 
   public void getMarketDataType() {

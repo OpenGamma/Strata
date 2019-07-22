@@ -7,8 +7,8 @@ package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.basics.currency.MultiCurrencyAmount.toMultiCurrencyAmount;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -53,7 +53,7 @@ public class MultiCurrencyAmountTest {
   }
 
   public void test_of_CurrencyDouble_null() {
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(null, AMT1));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(null, AMT1));
   }
 
   //-------------------------------------------------------------------------
@@ -66,12 +66,12 @@ public class MultiCurrencyAmountTest {
   }
 
   public void test_of_VarArgs_duplicate() {
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(CA1, CurrencyAmount.of(CCY1, AMT2)));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(CA1, CurrencyAmount.of(CCY1, AMT2)));
   }
 
   public void test_of_VarArgs_null() {
     CurrencyAmount[] array = null;
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(array));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(array));
   }
 
   //-------------------------------------------------------------------------
@@ -82,17 +82,17 @@ public class MultiCurrencyAmountTest {
 
   public void test_of_Iterable_duplicate() {
     Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, CurrencyAmount.of(CCY1, AMT2));
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(iterable));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(iterable));
   }
 
   public void test_of_Iterable_null() {
     Iterable<CurrencyAmount> iterable = null;
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(iterable));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(iterable));
   }
 
   public void test_of_Iterable_containsNull() {
     Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, null, CA2);
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(iterable));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(iterable));
   }
 
   //-------------------------------------------------------------------------
@@ -106,7 +106,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_of_Map_null() {
     Map<Currency, Double> map = null;
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.of(map));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.of(map));
   }
 
   //-------------------------------------------------------------------------
@@ -122,12 +122,12 @@ public class MultiCurrencyAmountTest {
 
   public void test_total_Iterable_null() {
     Iterable<CurrencyAmount> iterable = null;
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.total(iterable));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.total(iterable));
   }
 
   public void test_total_Iterable_containsNull() {
     Iterable<CurrencyAmount> iterable = Arrays.asList(CA1, null, CA2);
-    assertThrowsIllegalArg(() -> MultiCurrencyAmount.total(iterable));
+    assertThatIllegalArgumentException().isThrownBy(() -> MultiCurrencyAmount.total(iterable));
   }
 
   //-------------------------------------------------------------------------
@@ -150,7 +150,7 @@ public class MultiCurrencyAmountTest {
   public void test_collector_null() {
     List<CurrencyAmount> amount = Arrays.asList(
         CurrencyAmount.of(CCY1, 100), null, CurrencyAmount.of(CCY2, 100));
-    assertThrowsIllegalArg(() -> amount.stream().collect(toMultiCurrencyAmount()));
+    assertThatIllegalArgumentException().isThrownBy(() -> amount.stream().collect(toMultiCurrencyAmount()));
   }
 
   //-------------------------------------------------------------------------
@@ -165,13 +165,13 @@ public class MultiCurrencyAmountTest {
     BeanBuilder<? extends MultiCurrencyAmount> test = MultiCurrencyAmount.meta().builder()
         .set(MultiCurrencyAmount.meta().amounts(),
             ImmutableSortedSet.of(CA1, CA2, CurrencyAmount.of(CA1.getCurrency(), AMT3)));
-    assertThrowsIllegalArg(() -> test.build());
+    assertThatIllegalArgumentException().isThrownBy(() -> test.build());
   }
 
   //-------------------------------------------------------------------------
   public void test_contains_null() {
     MultiCurrencyAmount base = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> base.contains(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> base.contains(null));
   }
 
   //-------------------------------------------------------------------------
@@ -193,7 +193,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_plus_CurrencyDouble_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.plus((Currency) null, 1));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.plus((Currency) null, 1));
   }
 
   //-------------------------------------------------------------------------
@@ -217,7 +217,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_plus_CurrencyAmount_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.plus((CurrencyAmount) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.plus((CurrencyAmount) null));
   }
 
   //-------------------------------------------------------------------------
@@ -243,7 +243,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_plus_MultiCurrencyAmount_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.plus((MultiCurrencyAmount) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.plus((MultiCurrencyAmount) null));
   }
 
   //-------------------------------------------------------------------------
@@ -265,7 +265,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_minus_CurrencyDouble_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.minus((Currency) null, 1));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.minus((Currency) null, 1));
   }
 
   //-------------------------------------------------------------------------
@@ -289,7 +289,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_minus_CurrencyAmount_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.minus((CurrencyAmount) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.minus((CurrencyAmount) null));
   }
 
   //-------------------------------------------------------------------------
@@ -315,7 +315,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_minus_MultiCurrencyAmount_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.minus((MultiCurrencyAmount) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.minus((MultiCurrencyAmount) null));
   }
 
   //-------------------------------------------------------------------------
@@ -347,7 +347,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_mapAmounts_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.mapAmounts(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.mapAmounts(null));
   }
 
   //-------------------------------------------------------------------------
@@ -359,7 +359,7 @@ public class MultiCurrencyAmountTest {
 
   public void test_mapCurrencyAmounts_null() {
     MultiCurrencyAmount test = MultiCurrencyAmount.of(CA1, CA2);
-    assertThrowsIllegalArg(() -> test.mapCurrencyAmounts(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.mapCurrencyAmounts(null));
   }
 
   //-------------------------------------------------------------------------
@@ -439,7 +439,7 @@ public class MultiCurrencyAmountTest {
     assertEquals(actual.getCurrencies(), currencies);
     Currency nonExisting = Currency.of("FRZ");
     assertEquals(actual.contains(nonExisting), false);
-    assertThrowsIllegalArg(() -> actual.getAmount(nonExisting));
+    assertThatIllegalArgumentException().isThrownBy(() -> actual.getAmount(nonExisting));
     assertEquals(actual.getAmountOrZero(nonExisting), CurrencyAmount.zero(nonExisting));
   }
 

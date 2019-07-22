@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -73,7 +73,7 @@ public class Business252DayCountTest {
     DayCount test = DayCount.of("Bus/252 EUTA");
     LocalDate date1 = date(2014, 12, 2);
     LocalDate date2 = date(2014, 12, 1);
-    assertThrowsIllegalArg(() -> test.yearFraction(date1, date2));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.yearFraction(date1, date2));
   }
 
   public void test_days() {

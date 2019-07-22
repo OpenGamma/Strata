@@ -13,10 +13,10 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_CHF_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.ImmutableBean;
@@ -73,11 +73,11 @@ public class FxIndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> FxIndex.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> FxIndex.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> FxIndex.of((String) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> FxIndex.of((String) null));
   }
 
   //-------------------------------------------------------------------------

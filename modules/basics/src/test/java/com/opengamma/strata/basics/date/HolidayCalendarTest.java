@@ -13,9 +13,9 @@ import static java.time.DayOfWeek.SUNDAY;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertThrows;
 
 import java.time.LocalDate;
 
@@ -568,7 +568,7 @@ public class HolidayCalendarTest {
 
   public void test_daysBetween_LocalDateLocalDate_endBeforeStart() {
     HolidayCalendar test = new MockHolCal();
-    assertThrows(IllegalArgumentException.class, () -> test.daysBetween(TUE_2014_07_15, MON_2014_07_14));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.daysBetween(TUE_2014_07_15, MON_2014_07_14));
   }
 
   //-------------------------------------------------------------------------
@@ -603,7 +603,7 @@ public class HolidayCalendarTest {
 
   public void test_businessDays_LocalDateLocalDate_endBeforeStart() {
     HolidayCalendar test = new MockHolCal();
-    assertThrows(IllegalArgumentException.class, () -> test.businessDays(TUE_2014_07_15, MON_2014_07_14));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.businessDays(TUE_2014_07_15, MON_2014_07_14));
   }
 
   //-------------------------------------------------------------------------
@@ -637,7 +637,7 @@ public class HolidayCalendarTest {
 
   public void test_holidays_LocalDateLocalDate_endBeforeStart() {
     HolidayCalendar test = new MockHolCal();
-    assertThrows(IllegalArgumentException.class, () -> test.holidays(TUE_2014_07_15, MON_2014_07_14));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.holidays(TUE_2014_07_15, MON_2014_07_14));
   }
 
   //-------------------------------------------------------------------------

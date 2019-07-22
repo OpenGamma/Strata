@@ -6,9 +6,9 @@
 package com.opengamma.strata.calc.marketdata;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -53,7 +53,9 @@ public class BuiltScenarioMarketDataTest {
     assertEquals(test.containsValue(ID), false);
     assertEquals(test.getIds(), ImmutableSet.of());
     assertEquals(test.findValue(ID), Optional.empty());
-    assertThrows(() -> test.getValue(ID), FailureException.class, failureMessage);
+    assertThatExceptionOfType(FailureException.class)
+        .isThrownBy(() -> test.getValue(ID))
+        .withMessage(failureMessage);
   }
 
   public void test_getValue_withUnknownFailure() {
@@ -64,7 +66,7 @@ public class BuiltScenarioMarketDataTest {
     assertEquals(test.containsValue(ID), false);
     assertEquals(test.getIds(), ImmutableSet.of());
     assertEquals(test.findValue(ID), Optional.empty());
-    assertThrows(() -> test.getValue(ID), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID));
   }
 
   //-------------------------------------------------------------------------

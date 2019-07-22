@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.location.Country.GB;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.ImmutableBean;
@@ -86,11 +86,11 @@ public class PriceIndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> PriceIndex.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> PriceIndex.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> PriceIndex.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> PriceIndex.of(null));
   }
 
   public void test_gb_rpi() {

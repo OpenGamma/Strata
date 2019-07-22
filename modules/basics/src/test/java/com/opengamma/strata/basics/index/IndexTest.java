@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.basics.index;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -60,11 +60,11 @@ public class IndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> Index.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> Index.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> Index.of((String) null));
+    assertThatIllegalArgumentException().isThrownBy(() -> Index.of((String) null));
   }
 
   //-------------------------------------------------------------------------

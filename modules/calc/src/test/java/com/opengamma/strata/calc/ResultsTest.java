@@ -6,10 +6,10 @@
 package com.opengamma.strata.calc;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
@@ -38,10 +38,18 @@ public class ResultsTest {
     assertEquals(test.getColumns(), ImmutableList.of());
     assertEquals(test.getRowCount(), 0);
     assertEquals(test.getColumnCount(), 0);
-    assertThrows(() -> test.get(0, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
-    assertThrows(() -> test.get(0, 0, String.class), IllegalArgumentException.class, "Row index must be greater than or.*");
-    assertThrows(() -> test.get(0, NAME_A), IllegalArgumentException.class, "Column name not found.*");
-    assertThrows(() -> test.get(0, NAME_A, String.class), IllegalArgumentException.class, "Column name not found.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(0, 0))
+        .withMessageStartingWith("Row index must be greater than or");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(0, 0, String.class))
+        .withMessageStartingWith("Row index must be greater than or");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(0, NAME_A))
+        .withMessageStartingWith("Column name not found");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(0, NAME_A, String.class))
+        .withMessageStartingWith("Column name not found");
   }
 
   public void nonEmpty() {
@@ -56,14 +64,22 @@ public class ResultsTest {
     assertEquals(test.get(0, NAME_B).getValue(), "2");
     assertEquals(test.get(0, NAME_B, String.class).getValue(), "2");
     assertEquals(test.get(1, 2).getValue(), "6");
-    assertThrows(() -> test.get(-1, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
-    assertThrows(() -> test.get(2, 0), IllegalArgumentException.class, "Row index must be greater than or.*");
-    assertThrows(() -> test.get(0, -1), IllegalArgumentException.class, "Column index must be greater than or.*");
-    assertThrows(() -> test.get(0, 3), IllegalArgumentException.class, "Column index must be greater than or.*");
-    assertThrows(() -> test.get(0, 0, Integer.class), ClassCastException.class,
-        "Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
-    assertThrows(() -> test.get(0, NAME_A, Integer.class), ClassCastException.class,
-        "Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(-1, 0))
+        .withMessageStartingWith("Row index must be greater than or");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(2, 0))
+        .withMessageStartingWith("Row index must be greater than or");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(0, -1))
+        .withMessageStartingWith("Column index must be greater than or");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.get(0, 3))
+        .withMessageStartingWith("Column index must be greater than or");
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.get(0, 0, Integer.class))
+        .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.get(0, NAME_A, Integer.class))
+        .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
   }
 
   /**
@@ -72,9 +88,13 @@ public class ResultsTest {
    */
   public void createInvalid() {
     // Zero columns, non-zero cells
-    assertThrowsIllegalArg(() -> Results.of(ImmutableList.of(), results(1)), "The number of cells.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Results.of(ImmutableList.of(), results(1)))
+        .withMessageStartingWith("The number of cells");
     // More columns than cells
-    assertThrowsIllegalArg(() -> Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results(1)), "The number of cells.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results(1)))
+        .withMessageStartingWith("The number of cells");
   }
 
   @SafeVarargs

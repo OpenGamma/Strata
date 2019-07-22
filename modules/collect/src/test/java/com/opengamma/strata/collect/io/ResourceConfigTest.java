@@ -7,8 +7,8 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.TestHelper.caputureSystemErr;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -43,7 +43,7 @@ public class ResourceConfigTest {
 
   public void test_orderedResources_notFound() throws Exception {
     String captured = caputureSystemErr(
-        () -> assertThrows(IllegalStateException.class, () -> ResourceConfig.orderedResources("NotFound.txt")));
+        () -> assertThatIllegalStateException().isThrownBy(() -> ResourceConfig.orderedResources("NotFound.txt")));
     assertTrue(captured.contains("No resource files found on the classpath"));
   }
 

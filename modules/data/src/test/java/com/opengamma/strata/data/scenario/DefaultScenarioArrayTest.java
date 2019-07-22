@@ -8,11 +8,11 @@ package com.opengamma.strata.data.scenario;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.List;
 
@@ -105,7 +105,7 @@ public class DefaultScenarioArrayTest {
         CurrencyAmount.of(Currency.GBP, 3));
     DefaultScenarioArray<CurrencyAmount> test = DefaultScenarioArray.of(values);
 
-    assertThrows(() -> test.convertedTo(Currency.USD, fxProvider), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test.convertedTo(Currency.USD, fxProvider));
   }
 
   public void wrongNumberOfFxRates() {
@@ -117,10 +117,9 @@ public class DefaultScenarioArrayTest {
         CurrencyAmount.of(Currency.GBP, 2));
     DefaultScenarioArray<CurrencyAmount> test = DefaultScenarioArray.of(values);
 
-    assertThrows(
-        () -> test.convertedTo(Currency.USD, fxProvider),
-        IllegalArgumentException.class,
-        "Expected 2 FX rates but received 3");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.convertedTo(Currency.USD, fxProvider))
+        .withMessage("Expected 2 FX rates but received 3");
   }
 
   //-------------------------------------------------------------------------

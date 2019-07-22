@@ -8,11 +8,11 @@ package com.opengamma.strata.collect;
 import static com.opengamma.strata.collect.Guavate.entry;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.list;
 import static java.util.stream.Collectors.reducing;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.AbstractMap;
 import java.util.Comparator;
@@ -397,7 +397,7 @@ public class MapStreamTest {
 
   //-------------------------------------------------------------------------
   public void toMapDuplicateKeys() {
-    assertThrowsIllegalArg(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
+    assertThatIllegalArgumentException().isThrownBy(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
   }
 
   public void toMapWithMerge() {

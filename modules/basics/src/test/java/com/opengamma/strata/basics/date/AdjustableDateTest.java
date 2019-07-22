@@ -6,8 +6,8 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -61,10 +61,10 @@ public class AdjustableDateTest {
   }
 
   public void test_of_null() {
-    assertThrowsIllegalArg(() -> AdjustableDate.of(null));
-    assertThrowsIllegalArg(() -> AdjustableDate.of(null, BDA_FOLLOW_SAT_SUN));
-    assertThrowsIllegalArg(() -> AdjustableDate.of(FRI_2014_07_11, null));
-    assertThrowsIllegalArg(() -> AdjustableDate.of(null, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> AdjustableDate.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> AdjustableDate.of(null, BDA_FOLLOW_SAT_SUN));
+    assertThatIllegalArgumentException().isThrownBy(() -> AdjustableDate.of(FRI_2014_07_11, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> AdjustableDate.of(null, null));
   }
 
   //-------------------------------------------------------------------------

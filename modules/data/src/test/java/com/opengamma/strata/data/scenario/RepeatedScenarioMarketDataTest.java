@@ -6,10 +6,10 @@
 package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -56,7 +56,7 @@ public class RepeatedScenarioMarketDataTest {
     assertEquals(test.containsValue(ID3), false);
     assertEquals(test.getValue(ID1), MarketDataBox.ofSingleValue(VAL1));
     assertEquals(test.getValue(ID2), MarketDataBox.ofSingleValue(VAL2));
-    assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
     assertEquals(test.findValue(ID1), Optional.of(MarketDataBox.ofSingleValue(VAL1)));
     assertEquals(test.findValue(ID2), Optional.of(MarketDataBox.ofSingleValue(VAL2)));
     assertEquals(test.findValue(ID3), Optional.empty());
@@ -75,8 +75,8 @@ public class RepeatedScenarioMarketDataTest {
     RepeatedScenarioMarketData test = RepeatedScenarioMarketData.of(2, BASE_DATA);
     assertSame(test.scenario(0), BASE_DATA);
     assertSame(test.scenario(1), BASE_DATA);
-    assertThrows(() -> test.scenario(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.scenario(2), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.scenario(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.scenario(2));
   }
 
   //-------------------------------------------------------------------------

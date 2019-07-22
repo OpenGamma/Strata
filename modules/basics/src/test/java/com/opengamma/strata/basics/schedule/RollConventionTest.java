@@ -23,7 +23,6 @@ import static com.opengamma.strata.basics.schedule.RollConventions.SFE;
 import static com.opengamma.strata.basics.schedule.RollConventions.TBILL;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -38,6 +37,7 @@ import static java.time.Month.MARCH;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -75,12 +75,12 @@ public class RollConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(RollConvention type) {
-    assertThrowsIllegalArg(() -> type.adjust(null));
-    assertThrowsIllegalArg(() -> type.matches(null));
-    assertThrowsIllegalArg(() -> type.next(date(2014, JULY, 1), null));
-    assertThrowsIllegalArg(() -> type.next(null, P3M));
-    assertThrowsIllegalArg(() -> type.previous(date(2014, JULY, 1), null));
-    assertThrowsIllegalArg(() -> type.previous(null, P3M));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.adjust(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.matches(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.next(date(2014, JULY, 1), null));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.next(null, P3M));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.previous(date(2014, JULY, 1), null));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.previous(null, P3M));
   }
 
   //-------------------------------------------------------------------------
@@ -394,8 +394,8 @@ public class RollConventionTest {
   }
 
   public void test_ofDayOfMonth_invalid() {
-    assertThrowsIllegalArg(() -> RollConvention.ofDayOfMonth(0));
-    assertThrowsIllegalArg(() -> RollConvention.ofDayOfMonth(32));
+    assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.ofDayOfMonth(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.ofDayOfMonth(32));
   }
 
   public void test_ofDayOfMonth_adjust_Day29() {
@@ -595,11 +595,11 @@ public class RollConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> RollConvention.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> RollConvention.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.of(null));
   }
 
   //-------------------------------------------------------------------------

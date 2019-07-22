@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -103,17 +103,17 @@ public class XmlFileTest {
 
   public void test_of_ByteSource_mismatchedTags() {
     ByteSource source = ByteSource.wrap(SAMPLE_MISMATCHED_TAGS.getBytes(StandardCharsets.UTF_8));
-    assertThrowsIllegalArg(() -> XmlFile.of(source));
+    assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.of(source));
   }
 
   public void test_of_ByteSource_badEnd() {
     ByteSource source = ByteSource.wrap(SAMPLE_BAD_END.getBytes(StandardCharsets.UTF_8));
-    assertThrowsIllegalArg(() -> XmlFile.of(source));
+    assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.of(source));
   }
 
   public void test_of_ByteSource_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
-    assertThrows(() -> XmlFile.of(source), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> XmlFile.of(source));
   }
 
   public void test_of_ByteSource_parsedReferences() {
@@ -131,7 +131,7 @@ public class XmlFileTest {
 
   public void test_of_ByteSource_parsedReferences_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
-    assertThrows(() -> XmlFile.of(source, "key"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> XmlFile.of(source, "key"));
   }
 
   //-------------------------------------------------------------------------
@@ -182,17 +182,18 @@ public class XmlFileTest {
 
   public void test_parseElements_ByteSource_Fn_mismatchedTags() {
     ByteSource source = ByteSource.wrap(SAMPLE_MISMATCHED_TAGS.getBytes(StandardCharsets.UTF_8));
-    assertThrowsIllegalArg(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
   }
 
   public void test_parseElements_ByteSource_Fn_badEnd() {
     ByteSource source = ByteSource.wrap(SAMPLE_BAD_END.getBytes(StandardCharsets.UTF_8));
-    assertThrowsIllegalArg(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
+    assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
   }
 
   public void test_parseElements_ByteSource_Fn_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
-    assertThrows(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
   }
 
   //-------------------------------------------------------------------------

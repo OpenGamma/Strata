@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.Objects;
@@ -91,7 +91,9 @@ public class CombinedScenarioMarketDataTest {
         .addBox(TEST_ID2, MarketDataBox.ofScenarioValues(1.0, 1.1))
         .build();
 
-    assertThrowsIllegalArg(() -> marketData1.combinedWith(marketData2), ".* same number of scenarios .* 3 and 2");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> marketData1.combinedWith(marketData2))
+        .withMessageMatching(".*same number of scenarios .* 3 and 2");
   }
 
   public void test_combinedWithReceiverHasOneScenario() {

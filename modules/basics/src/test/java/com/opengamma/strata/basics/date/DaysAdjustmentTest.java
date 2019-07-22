@@ -8,11 +8,11 @@ package com.opengamma.strata.basics.date;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.THURSDAY;
 import static java.time.DayOfWeek.WEDNESDAY;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -95,7 +95,7 @@ public class DaysAdjustmentTest {
   }
 
   public void test_ofCalendarDays2_null() {
-    assertThrowsIllegalArg(() -> DaysAdjustment.ofCalendarDays(2, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofCalendarDays(2, null));
   }
 
   //-------------------------------------------------------------------------
@@ -123,7 +123,7 @@ public class DaysAdjustmentTest {
   }
 
   public void test_ofBusinessDays2_null() {
-    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(2, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(2, null));
   }
 
   //-------------------------------------------------------------------------
@@ -155,9 +155,9 @@ public class DaysAdjustmentTest {
   }
 
   public void test_ofBusinessDays3_null() {
-    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(3, null, BDA_FOLLOW_SAT_SUN));
-    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(3, SAT_SUN, null));
-    assertThrowsIllegalArg(() -> DaysAdjustment.ofBusinessDays(3, null, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(3, null, BDA_FOLLOW_SAT_SUN));
+    assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(3, SAT_SUN, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(3, null, null));
   }
 
   //-------------------------------------------------------------------------

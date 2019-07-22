@@ -6,8 +6,10 @@
 package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.DoubleArrayMath.EMPTY_DOUBLE_ARRAY;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -96,16 +98,20 @@ public class DoubleArrayTest {
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0), 1d, 2d, 3d);
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1), 2d, 3d);
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 3));
-    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, -1), IndexOutOfBoundsException.class);
-    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, -1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 4));
   }
 
   public void test_copyOf_array_fromToIndex() {
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 3), 1d, 2d, 3d);
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1, 2), 2d);
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1, 1));
-    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, -1, 3), IndexOutOfBoundsException.class);
-    assertThrows(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 5), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, -1, 3));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 5));
   }
 
   public void test_filled() {
@@ -123,8 +129,8 @@ public class DoubleArrayTest {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
     assertEquals(test.get(0), 1d);
     assertEquals(test.get(4), 4d);
-    assertThrows(() -> test.get(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.get(5), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(5));
   }
 
   public void test_contains() {
@@ -163,8 +169,8 @@ public class DoubleArrayTest {
     assertTrue(Arrays.equals(dest2, new double[] {0d, 1d, 2d, 3d}));
 
     double[] dest3 = new double[4];
-    assertThrows(() -> test.copyInto(dest3, 2), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.copyInto(dest3, -1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.copyInto(dest3, 2));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.copyInto(dest3, -1));
   }
 
   //-------------------------------------------------------------------------
@@ -174,8 +180,8 @@ public class DoubleArrayTest {
     assertContent(test.subArray(1), 2d, 3d);
     assertContent(test.subArray(2), 3d);
     assertContent(test.subArray(3));
-    assertThrows(() -> test.subArray(4), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.subArray(-1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(4));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(-1));
   }
 
   public void test_subArray_fromTo() {
@@ -185,8 +191,8 @@ public class DoubleArrayTest {
     assertContent(test.subArray(2, 3), 3d);
     assertContent(test.subArray(3, 3));
     assertContent(test.subArray(1, 2), 2d);
-    assertThrows(() -> test.subArray(0, 4), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.subArray(-1, 3), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(0, 4));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(-1, 3));
   }
 
   //-------------------------------------------------------------------------
@@ -209,8 +215,8 @@ public class DoubleArrayTest {
     assertEquals(list.lastIndexOf(5d), -1);
     assertEquals(list.lastIndexOf(""), -1);
 
-    assertThrows(() -> list.clear(), UnsupportedOperationException.class);
-    assertThrows(() -> list.set(0, 3d), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.clear());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.set(0, 3d));
   }
 
   public void test_toList_iterator() {
@@ -225,7 +231,7 @@ public class DoubleArrayTest {
     assertEquals(it.next(), 3d);
     assertEquals(it.hasNext(), false);
 
-    assertThrows(() -> it.remove(), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> it.remove());
   }
 
   public void test_toList_listIterator() {
@@ -236,7 +242,7 @@ public class DoubleArrayTest {
     assertEquals(lit.previousIndex(), -1);
     assertEquals(lit.hasNext(), true);
     assertEquals(lit.hasPrevious(), false);
-    assertThrows(() -> lit.previous(), NoSuchElementException.class);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.previous());
 
     assertEquals(lit.next(), 1d);
     assertEquals(lit.nextIndex(), 1);
@@ -255,7 +261,7 @@ public class DoubleArrayTest {
     assertEquals(lit.previousIndex(), 2);
     assertEquals(lit.hasNext(), false);
     assertEquals(lit.hasPrevious(), true);
-    assertThrows(() -> lit.next(), NoSuchElementException.class);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.next());
 
     assertEquals(lit.previous(), 3d);
     assertEquals(lit.nextIndex(), 2);
@@ -263,9 +269,9 @@ public class DoubleArrayTest {
     assertEquals(lit.hasNext(), true);
     assertEquals(lit.hasPrevious(), true);
 
-    assertThrows(() -> lit.remove(), UnsupportedOperationException.class);
-    assertThrows(() -> lit.set(2d), UnsupportedOperationException.class);
-    assertThrows(() -> lit.add(2d), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.remove());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.set(2d));
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.add(2d));
   }
 
   //-------------------------------------------------------------------------
@@ -288,8 +294,8 @@ public class DoubleArrayTest {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.with(0, 2.6d), 2.6d, 2d, 3d);
     assertContent(test.with(0, 1d), 1d, 2d, 3d);
-    assertThrows(() -> test.with(-1, 2d), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.with(3, 2d), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(-1, 2d));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(3, 2d));
   }
 
   //-------------------------------------------------------------------------
@@ -334,42 +340,44 @@ public class DoubleArrayTest {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertContent(test1.plus(test2), 1.5d, 2.6d, 3.7d);
-    assertThrows(() -> test1.plus(DoubleArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.plus(DoubleArray.EMPTY));
   }
 
   public void test_minus_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertContent(test1.minus(test2), 0.5d, 1.4d, 2.3d);
-    assertThrows(() -> test1.minus(DoubleArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.minus(DoubleArray.EMPTY));
   }
 
   public void test_multipliedBy_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertContent(test1.multipliedBy(test2), 0.5d, 1.2d, 2.1d);
-    assertThrows(() -> test1.multipliedBy(DoubleArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.multipliedBy(DoubleArray.EMPTY));
   }
 
   public void test_dividedBy_array() {
     DoubleArray test1 = DoubleArray.of(10d, 20d, 30d);
     DoubleArray test2 = DoubleArray.of(2d, 5d, 10d);
     assertContent(test1.dividedBy(test2), 5d, 4d, 3d);
-    assertThrows(() -> test1.dividedBy(DoubleArray.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.dividedBy(DoubleArray.EMPTY));
   }
 
   public void test_combine() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertContent(test1.combine(test2, (a, b) -> a * b), 0.5d, 2d * 0.6d, 3d * 0.7d);
-    assertThrows(() -> test1.combine(DoubleArray.EMPTY, (a, b) -> a * b), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test1.combine(DoubleArray.EMPTY, (a, b) -> a * b));
   }
 
   public void test_combineReduce() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
     assertEquals(test1.combineReduce(test2, (r, a, b) -> r + a * b), 0.5d + 2d * 0.6d + 3d * 0.7d);
-    assertThrows(() -> test1.combineReduce(DoubleArray.EMPTY, (r, a, b) -> r + a * b), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test1.combineReduce(DoubleArray.EMPTY, (r, a, b) -> r + a * b));
   }
 
   //-------------------------------------------------------------------------
@@ -383,13 +391,13 @@ public class DoubleArrayTest {
   public void test_min() {
     assertEquals(DoubleArray.of(2d).min(), 2d);
     assertEquals(DoubleArray.of(2d, 1d, 3d).min(), 1d);
-    assertThrows(() -> DoubleArray.EMPTY.min(), IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> DoubleArray.EMPTY.min());
   }
 
   public void test_max() {
     assertEquals(DoubleArray.of(2d).max(), 2d);
     assertEquals(DoubleArray.of(2d, 1d, 3d).max(), 3d);
-    assertThrows(() -> DoubleArray.EMPTY.max(), IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> DoubleArray.EMPTY.max());
   }
 
   public void test_sum() {

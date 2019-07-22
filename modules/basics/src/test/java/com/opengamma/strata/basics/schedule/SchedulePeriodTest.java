@@ -10,13 +10,13 @@ import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_18;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.Month.AUGUST;
 import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -50,11 +50,11 @@ public class SchedulePeriodTest {
 
   //-------------------------------------------------------------------------
   public void test_of_null() {
-    assertThrowsIllegalArg(() -> SchedulePeriod.of(null, JUL_18, JUL_04, JUL_17));
-    assertThrowsIllegalArg(() -> SchedulePeriod.of(JUL_05, null, JUL_04, JUL_17));
-    assertThrowsIllegalArg(() -> SchedulePeriod.of(JUL_05, JUL_18, null, JUL_17));
-    assertThrowsIllegalArg(() -> SchedulePeriod.of(JUL_05, JUL_18, JUL_04, null));
-    assertThrowsIllegalArg(() -> SchedulePeriod.of(null, null, null, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> SchedulePeriod.of(null, JUL_18, JUL_04, JUL_17));
+    assertThatIllegalArgumentException().isThrownBy(() -> SchedulePeriod.of(JUL_05, null, JUL_04, JUL_17));
+    assertThatIllegalArgumentException().isThrownBy(() -> SchedulePeriod.of(JUL_05, JUL_18, null, JUL_17));
+    assertThatIllegalArgumentException().isThrownBy(() -> SchedulePeriod.of(JUL_05, JUL_18, JUL_04, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> SchedulePeriod.of(null, null, null, null));
   }
 
   public void test_of_all() {
@@ -97,9 +97,9 @@ public class SchedulePeriodTest {
   public void test_yearFraction_null() {
     SchedulePeriod test = SchedulePeriod.of(JUN_16, JUL_18, JUN_16, JUL_17);
     Schedule schedule = Schedule.ofTerm(test);
-    assertThrowsIllegalArg(() -> test.yearFraction(null, schedule));
-    assertThrowsIllegalArg(() -> test.yearFraction(DayCounts.ACT_360, null));
-    assertThrowsIllegalArg(() -> test.yearFraction(null, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.yearFraction(null, schedule));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.yearFraction(DayCounts.ACT_360, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.yearFraction(null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -124,9 +124,9 @@ public class SchedulePeriodTest {
 
   public void test_isRegular_null() {
     SchedulePeriod test = SchedulePeriod.of(JUN_16, JUL_18);
-    assertThrowsIllegalArg(() -> test.isRegular(null, DAY_18));
-    assertThrowsIllegalArg(() -> test.isRegular(P1M, null));
-    assertThrowsIllegalArg(() -> test.isRegular(null, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.isRegular(null, DAY_18));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.isRegular(P1M, null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.isRegular(null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -140,7 +140,7 @@ public class SchedulePeriodTest {
 
   public void test_contains_null() {
     SchedulePeriod test = SchedulePeriod.of(JUN_16, JUL_18);
-    assertThrowsIllegalArg(() -> test.contains(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.contains(null));
   }
 
   //-------------------------------------------------------------------------

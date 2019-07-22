@@ -31,12 +31,12 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_50Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6W;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.time.temporal.ChronoUnit.CENTURIES;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -135,19 +135,19 @@ public class TenorTest {
   }
 
   public void test_of_notZero() {
-    assertThrowsIllegalArg(() -> Tenor.of(Period.ofDays(0)));
-    assertThrowsIllegalArg(() -> Tenor.ofDays(0));
-    assertThrowsIllegalArg(() -> Tenor.ofWeeks(0));
-    assertThrowsIllegalArg(() -> Tenor.ofMonths(0));
-    assertThrowsIllegalArg(() -> Tenor.ofYears(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.of(Period.ofDays(0)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofDays(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofWeeks(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofMonths(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofYears(0));
   }
 
   public void test_of_notNegative() {
-    assertThrowsIllegalArg(() -> Tenor.of(Period.ofDays(-1)));
-    assertThrowsIllegalArg(() -> Tenor.ofDays(-1));
-    assertThrowsIllegalArg(() -> Tenor.ofWeeks(-1));
-    assertThrowsIllegalArg(() -> Tenor.ofMonths(-1));
-    assertThrowsIllegalArg(() -> Tenor.ofYears(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.of(Period.ofDays(-1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofDays(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofWeeks(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofMonths(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofYears(-1));
   }
 
   //-------------------------------------------------------------------------
@@ -274,7 +274,7 @@ public class TenorTest {
     assertEquals(TENOR_3D.get(DAYS), 3);
     assertEquals(LocalDate.of(2014, 6, 30).plus(TENOR_1W), LocalDate.of(2014, 7, 7));
     assertEquals(LocalDate.of(2014, 6, 30).minus(TENOR_1W), LocalDate.of(2014, 6, 23));
-    assertThrows(() -> TENOR_10M.get(CENTURIES), UnsupportedTemporalTypeException.class);
+    assertThatExceptionOfType(UnsupportedTemporalTypeException.class).isThrownBy(() -> TENOR_10M.get(CENTURIES));
   }
 
   //-------------------------------------------------------------------------

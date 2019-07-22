@@ -7,13 +7,12 @@ package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertThrows;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -227,7 +226,7 @@ public class GuavateTest {
   public void test_ensureOnlyOne() {
     assertEquals(Stream.empty().reduce(Guavate.ensureOnlyOne()), Optional.empty());
     assertEquals(Stream.of("a").reduce(Guavate.ensureOnlyOne()), Optional.of("a"));
-    assertThrowsIllegalArg(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
+    assertThatIllegalArgumentException().isThrownBy(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
   }
 
   //-------------------------------------------------------------------------
@@ -237,9 +236,8 @@ public class GuavateTest {
     List<Integer> castList = baseList.stream().map(Guavate.casting(Integer.class)).collect(toList());
     assertEquals(castList, baseList);
     List<Number> baseListMixed = ImmutableList.of(1, 2f, 3);
-    assertThrows(
-        ClassCastException.class,
-        () -> baseListMixed.stream().map(Guavate.casting(Short.class)).collect(toList()));
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> baseListMixed.stream().map(Guavate.casting(Short.class)).collect(toList()));
   }
 
   //-------------------------------------------------------------------------
@@ -496,7 +494,7 @@ public class GuavateTest {
 
     assertEquals(test.isDone(), false);
     latch.countDown();
-    assertThrows(CompletionException.class, () -> test.join());
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> test.join());
     assertEquals(test.isDone(), true);
     assertEquals(test.isCompletedExceptionally(), true);
   }
@@ -569,7 +567,7 @@ public class GuavateTest {
 
     assertEquals(test.isDone(), false);
     latch.countDown();
-    assertThrows(CompletionException.class, () -> test.join());
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> test.join());
     assertEquals(test.isDone(), true);
     assertEquals(test.isCompletedExceptionally(), true);
   }
@@ -643,7 +641,7 @@ public class GuavateTest {
 
     assertEquals(test.isDone(), false);
     latch.countDown();
-    assertThrows(CompletionException.class, () -> test.join());
+    assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> test.join());
     assertEquals(test.isDone(), true);
     assertEquals(test.isCompletedExceptionally(), true);
   }
@@ -711,7 +709,9 @@ public class GuavateTest {
     try {
       CompletableFuture<String> future =
           Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
-      assertThrows(() -> future.join(), CompletionException.class, "java.lang.IllegalStateException: Expected");
+      assertThatExceptionOfType(CompletionException.class)
+          .isThrownBy(() -> future.join())
+          .withMessage("java.lang.IllegalStateException: Expected");
     } finally {
       executor.shutdown();
     }

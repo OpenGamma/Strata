@@ -6,11 +6,12 @@
 package com.opengamma.strata.collect.result;
 
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertSame;
@@ -50,8 +51,8 @@ public class ResultTest {
     assertEquals(test.isFailure(), false);
     assertEquals(test.getValue(), "success");
     assertEquals(test.getValueOrElse("blue"), "success");
-    assertThrowsIllegalArg(() -> test.getValueOrElse(null));
-    assertThrowsIllegalArg(() -> test.getValueOrElseApply(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getValueOrElse(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getValueOrElseApply(null));
   }
 
   public void ifSuccess() {
@@ -71,7 +72,7 @@ public class ResultTest {
 
   public void success_getFailure() {
     Result<String> test = Result.success("success");
-    assertThrows(test::getFailure, IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(test::getFailure);
   }
 
   //-------------------------------------------------------------------------
@@ -153,8 +154,8 @@ public class ResultTest {
     assertEquals(test.getValueOrElse("blue"), "blue");
     assertEquals(test.getValueOrElseApply(f -> "blue"), "blue");
     assertEquals(test.getValueOrElseApply(Failure::getMessage), "failure");
-    assertThrowsIllegalArg(() -> test.getValueOrElse(null));
-    assertThrowsIllegalArg(() -> test.getValueOrElseApply(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getValueOrElse(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getValueOrElseApply(null));
     assertEquals(test.getFailure().getReason(), ERROR);
     assertEquals(test.getFailure().getMessage(), "failure");
     assertEquals(test.getFailure().getItems().size(), 1);
@@ -334,7 +335,7 @@ public class ResultTest {
     });
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
-    assertThrows(test::getValue, IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(test::getValue);
   }
 
   public void wrap_with_success() {
@@ -349,7 +350,7 @@ public class ResultTest {
     Result<String> test = Result.wrap(() -> Result.failure(ERROR, "Something failed"));
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
-    assertThrows(test::getValue, IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(test::getValue);
   }
 
   public void wrap_with_exception() {
@@ -359,7 +360,7 @@ public class ResultTest {
     });
     assertEquals(test.isSuccess(), false);
     assertEquals(test.isFailure(), true);
-    assertThrows(test::getValue, IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(test::getValue);
   }
 
   //-------------------------------------------------------------------------

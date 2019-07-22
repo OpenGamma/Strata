@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import java.util.List;
 
@@ -36,12 +37,14 @@ public class SingleMarketDataBoxTest {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
     assertThat(box.getValue(0)).isEqualTo(27);
     assertThat(box.getValue(Integer.MAX_VALUE)).isEqualTo(27);
-    assertThrows(() -> box.getValue(-1), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> box.getValue(-1));
   }
 
   public void getScenarioValue() {
     MarketDataBox<Integer> box = MarketDataBox.ofSingleValue(27);
-    assertThrows(box::getScenarioValue, IllegalStateException.class, "This box does not contain a scenario value");
+    assertThatIllegalStateException()
+        .isThrownBy(box::getScenarioValue)
+        .withMessage("This box does not contain a scenario value");
   }
 
   public void getScenarioCount() {

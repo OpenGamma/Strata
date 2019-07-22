@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
@@ -90,9 +90,9 @@ public class IniFileTest {
     assertEquals(test.section("name").asMultimap(), ImmutableListMultimap.of("a", "m", "b", "n"));
 
     assertEquals(test.contains("unknown"), false);
-    assertThrowsIllegalArg(() -> test.section("unknown"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.section("unknown"));
     assertEquals(test.section("section").valueList("unknown"), ImmutableList.of());
-    assertThrowsIllegalArg(() -> test.section("section").value("unknown"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.section("section").value("unknown"));
     assertEquals(test.toString(), "{section={c=[x], b=[y], a=[z]}, name={a=[m], b=[n]}}");
   }
 
@@ -103,7 +103,7 @@ public class IniFileTest {
 
     assertEquals(test.section("section"), PropertySet.of(keyValues1));
     assertEquals(test.section("section").contains("a"), true);
-    assertThrowsIllegalArg(() -> test.section("section").value("a"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.section("section").value("a"));
     assertEquals(test.section("section").valueList("a"), ImmutableList.of("x", "y"));
     assertEquals(test.section("section").contains("b"), false);
     assertEquals(test.section("section").keys(), ImmutableSet.of("a"));
@@ -165,9 +165,8 @@ public class IniFileTest {
   }
 
   public void test_of_ioException() {
-    assertThrows(
-        () -> IniFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)),
-        UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(
+        () -> IniFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)));
   }
 
   //-------------------------------------------------------------------------

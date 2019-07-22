@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.collect;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -582,14 +582,14 @@ public class ArgCheckerTest {
     double low = 0d;
     double high = 1d;
     double small = 0.00000000001d;
-    assertThrowsIllegalArg(() -> ArgChecker.inRange(low - small, low, high, "name"));
-    assertThrowsIllegalArg(() -> ArgChecker.inRange(high, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRange(low - small, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRange(high, low, high, "name"));
 
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(low - small, low, high, "name"));
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(high + small, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeInclusive(low - small, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeInclusive(high + small, low, high, "name"));
 
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
   }
 
   public void test_int_inRange() {
@@ -609,14 +609,14 @@ public class ArgCheckerTest {
   public void test_int_inRange_outOfRange() {
     int low = 0;
     int high = 1;
-    assertThrowsIllegalArg(() -> ArgChecker.inRange(low - 1, low, high, "name"));
-    assertThrowsIllegalArg(() -> ArgChecker.inRange(high, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRange(low - 1, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRange(high, low, high, "name"));
 
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(low - 1, low, high, "name"));
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeInclusive(high + 1, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeInclusive(low - 1, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeInclusive(high + 1, low, high, "name"));
 
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
-    assertThrowsIllegalArg(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class,

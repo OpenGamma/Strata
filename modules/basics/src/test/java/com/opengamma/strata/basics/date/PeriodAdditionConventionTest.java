@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.date.PeriodAdditionConventions.LAST_DA
 import static com.opengamma.strata.basics.date.PeriodAdditionConventions.NONE;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.lang.reflect.Field;
@@ -47,10 +47,14 @@ public class PeriodAdditionConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(PeriodAdditionConvention type) {
-    assertThrowsIllegalArg(() -> type.adjust(null, Period.ofMonths(3), HolidayCalendars.NO_HOLIDAYS));
-    assertThrowsIllegalArg(() -> type.adjust(date(2014, 7, 11), null, HolidayCalendars.NO_HOLIDAYS));
-    assertThrowsIllegalArg(() -> type.adjust(date(2014, 7, 11), Period.ofMonths(3), null));
-    assertThrowsIllegalArg(() -> type.adjust(null, null, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.adjust(null, Period.ofMonths(3), HolidayCalendars.NO_HOLIDAYS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.adjust(date(2014, 7, 11), null, HolidayCalendars.NO_HOLIDAYS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.adjust(date(2014, 7, 11), Period.ofMonths(3), null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.adjust(null, null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -109,11 +113,11 @@ public class PeriodAdditionConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> PeriodAdditionConvention.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> PeriodAdditionConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> PeriodAdditionConvention.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> PeriodAdditionConvention.of(null));
   }
 
   //-------------------------------------------------------------------------
