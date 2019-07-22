@@ -448,7 +448,7 @@ public final class DoubleArrayMath {
     double[] result = new double[len1];
     for (int i = 0; i < len1; i++) {
       int key = positions[i];
-      ArgChecker.inRange(key, 0, len1, "key must be in range: 0 <= key < length");
+      ArgChecker.inRange(key, 0, len1, "key");
       result[i] = values[key];
     }
     return result;
