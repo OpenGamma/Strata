@@ -50,7 +50,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
     }
 
-    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    double[] xValuesSrt = xValues.clone();
     double[] yValuesSrt;
 
     if (xValues.length + 2 == yValues.length) {
@@ -177,9 +177,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
     }
 
-    if (DoubleStream.of(xValues).distinct().count() != xValues.length) {
-      throw new IllegalArgumentException("Data should be distinct");
-    }
+    ArgChecker.noDuplicates(xValues, "xValues");
 
     double[] yValuesSrt;
 

@@ -560,13 +560,7 @@ public final class DoubleArrayMath {
     values[second] = t;
   }
 
-  /**
-   * Return the array lengths if they are the same, otherwise throws an {@code IllegalArgumentException}.
-   *
-   * @param array1 the first array
-   * @param array2 the second array
-   * @return the length of both arrays
-   */
+  // return the array lengths if they are the same, otherwise throws an IllegalArgumentException
   private static int length(double[] array1, double[] array2) {
     int len1 = array1.length;
     int len2 = array2.length;
