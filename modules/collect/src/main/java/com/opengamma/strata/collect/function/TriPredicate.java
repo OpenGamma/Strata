@@ -18,11 +18,11 @@ import java.util.Objects;
 public interface TriPredicate<T, U, V> {
 
   /**
-   * Applies this function to the given arguments.
+   * Applies this predicate to the given arguments.
    *
-   * @param t  the first function argument
-   * @param u  the second function argument
-   * @param v  the third function argument
+   * @param t  the first predicate argument
+   * @param u  the second predicate argument
+   * @param v  the third predicate argument
    * @return whether the predicate matches
    */
   public abstract boolean test(T t, U u, V v);

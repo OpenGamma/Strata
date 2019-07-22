@@ -20,9 +20,9 @@ public interface TriConsumer<T, U, V> {
   /**
    * Applies this consumer to the given arguments.
    *
-   * @param t  the first function argument
-   * @param u  the second function argument
-   * @param v  the third function argument
+   * @param t  the first consumer argument
+   * @param u  the second consumer argument
+   * @param v  the third consumer argument
    */
   public abstract void accept(T t, U u, V v);
 
@@ -32,8 +32,8 @@ public interface TriConsumer<T, U, V> {
    * This returns a composed consumer that first calls this consumer and then calls
    * the specified consumer.
    *
-   * @param after  the function to combine with
-   * @return the combined function, "this AND_THEN that"
+   * @param after  the consumer to combine with
+   * @return the combined consumer, "this AND_THEN that"
    */
   public default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
     Objects.requireNonNull(after);
