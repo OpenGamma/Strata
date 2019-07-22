@@ -113,6 +113,22 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void mapToDouble() {
+    double[] expected = new double[]{1d, 2d, 3d, 4d};
+    double[] result = MapStream.of(map)
+        .mapToDouble((k, v) -> (double) v)
+        .toArray();
+    assertThat(expected).isEqualTo(result);
+  }
+
+  public void mapToInt() {
+    int[] expected = new int[]{1, 2, 3, 4};
+    int[] result = MapStream.of(map)
+        .mapToInt((k, v) -> v)
+        .toArray();
+    assertThat(expected).isEqualTo(result);
+  }
+
   public void flatMapKeysToKeys() {
     Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
         .put("one", 1)
