@@ -6,10 +6,11 @@
 package com.opengamma.strata.collect;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.DoubleStream;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.math.DoubleMath;
@@ -704,8 +705,13 @@ public final class ArgChecker {
    */
   public static double[] noDuplicates(double[] argument, String name) {
     notNull(argument, name);
-    if (argument.length > 0 && DoubleStream.of(argument).distinct().count() != argument.length) {
-      throw new IllegalArgumentException(noDuplicatesArrayMsg(name));
+    if (argument.length > 1) {
+      Set<Double> seen = new LinkedHashSet<>();
+      for (double v : argument) {
+        if (!seen.add(v)) {
+          throw new IllegalArgumentException(noDuplicatesArrayMsg(name));
+        }
+      }
     }
     return argument;
   }
@@ -721,7 +727,7 @@ public final class ArgChecker {
    * Given the input argument, this returns only if it is non-null, sorted, and does not contain duplicate values.
    * For example, in a constructor:
    * <pre>
-   *  this.values = ArgChecker.noDuplicates(values, "values");
+   *  this.values = ArgChecker.noDuplicatesSorted(values, "values");
    * </pre>
    *
    * @param argument  the argument to check, null, out of order or duplicate values throws an exception
