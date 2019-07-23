@@ -10,39 +10,41 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link DateSequence}.
  */
-@Test
 public class DateSequenceTest {
 
+  @Test
   public void test_QUARTERLY_IMM() {
     DateSequence test = DateSequences.QUARTERLY_IMM;
-    assertEquals(test.getName(), "Quarterly-IMM");
-    assertEquals(test.toString(), "Quarterly-IMM");
-    assertEquals(test.dateMatching(YearMonth.of(2013, 3)), LocalDate.of(2013, 3, 20));
+    assertThat(test.getName()).isEqualTo("Quarterly-IMM");
+    assertThat(test.toString()).isEqualTo("Quarterly-IMM");
+    assertThat(test.dateMatching(YearMonth.of(2013, 3))).isEqualTo(LocalDate.of(2013, 3, 20));
   }
 
+  @Test
   public void test_QUARTERLY_IMM_of() {
     DateSequence test = DateSequence.of("Quarterly-IMM");
-    assertEquals(test, DateSequences.QUARTERLY_IMM);
+    assertThat(test).isEqualTo(DateSequences.QUARTERLY_IMM);
   }
 
+  @Test
   public void test_QUARTERLY_10TH_of() {
     DateSequence test = DateSequence.of("Quarterly-10th");
-    assertEquals(test, DateSequences.QUARTERLY_10TH);
+    assertThat(test).isEqualTo(DateSequences.QUARTERLY_10TH);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "quarterlyImm")
   public static Object[][] data_quarterlyImm() {
     return new Object[][] {
         {date(2013, 1, 1), date(2013, 3, 20), date(2013, 6, 19), date(2013, 9, 18)},
@@ -53,39 +55,40 @@ public class DateSequenceTest {
     };
   }
 
-  @Test(dataProvider = "quarterlyImm")
+  @ParameterizedTest
+  @MethodSource("data_quarterlyImm")
   public void test_nextOrSameQuarterlyImm(LocalDate base, LocalDate immDate1, LocalDate immDate2, LocalDate immDate3) {
     LocalDate date = base.plusDays(1);
     while (!date.isAfter(immDate1)) {
-      assertEquals(DateSequences.QUARTERLY_IMM.nextOrSame(date), immDate1);
-      assertEquals(DateSequences.QUARTERLY_IMM.nthOrSame(date, 1), immDate1);
-      assertEquals(DateSequences.QUARTERLY_IMM.nthOrSame(date, 2), immDate2);
-      assertEquals(DateSequences.QUARTERLY_IMM.nthOrSame(date, 3), immDate3);
+      assertThat(DateSequences.QUARTERLY_IMM.nextOrSame(date)).isEqualTo(immDate1);
+      assertThat(DateSequences.QUARTERLY_IMM.nthOrSame(date, 1)).isEqualTo(immDate1);
+      assertThat(DateSequences.QUARTERLY_IMM.nthOrSame(date, 2)).isEqualTo(immDate2);
+      assertThat(DateSequences.QUARTERLY_IMM.nthOrSame(date, 3)).isEqualTo(immDate3);
       date = date.plusDays(1);
     }
-    assertEquals(DateSequences.QUARTERLY_IMM.dateMatching(YearMonth.from(date)), immDate1);
+    assertThat(DateSequences.QUARTERLY_IMM.dateMatching(YearMonth.from(date))).isEqualTo(immDate1);
   }
 
-  @Test(dataProvider = "quarterlyImm")
+  @ParameterizedTest
+  @MethodSource("data_quarterlyImm")
   public void test_nextQuarterlyImm(LocalDate base, LocalDate immDate1, LocalDate immDate2, LocalDate immDate3) {
     LocalDate date = base;
     while (!date.isAfter(immDate1)) {
       if (date.equals(immDate1)) {
-        assertEquals(DateSequences.QUARTERLY_IMM.next(date), immDate2);
-        assertEquals(DateSequences.QUARTERLY_IMM.nth(date, 1), immDate2);
-        assertEquals(DateSequences.QUARTERLY_IMM.nth(date, 2), immDate3);
+        assertThat(DateSequences.QUARTERLY_IMM.next(date)).isEqualTo(immDate2);
+        assertThat(DateSequences.QUARTERLY_IMM.nth(date, 1)).isEqualTo(immDate2);
+        assertThat(DateSequences.QUARTERLY_IMM.nth(date, 2)).isEqualTo(immDate3);
       } else {
-        assertEquals(DateSequences.QUARTERLY_IMM.next(date), immDate1);
-        assertEquals(DateSequences.QUARTERLY_IMM.nth(date, 1), immDate1);
-        assertEquals(DateSequences.QUARTERLY_IMM.nth(date, 2), immDate2);
-        assertEquals(DateSequences.QUARTERLY_IMM.nth(date, 3), immDate3);
+        assertThat(DateSequences.QUARTERLY_IMM.next(date)).isEqualTo(immDate1);
+        assertThat(DateSequences.QUARTERLY_IMM.nth(date, 1)).isEqualTo(immDate1);
+        assertThat(DateSequences.QUARTERLY_IMM.nth(date, 2)).isEqualTo(immDate2);
+        assertThat(DateSequences.QUARTERLY_IMM.nth(date, 3)).isEqualTo(immDate3);
       }
       date = date.plusDays(1);
     }
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "monthlyImm")
   public static Object[][] data_monthlyImm() {
     return new Object[][] {
         {date(2014, 12, 17), date(2015, 1, 21), date(2015, 2, 18), date(2015, 3, 18)},
@@ -94,39 +97,40 @@ public class DateSequenceTest {
     };
   }
 
-  @Test(dataProvider = "monthlyImm")
+  @ParameterizedTest
+  @MethodSource("data_monthlyImm")
   public void test_nextOrSameMonthlyImm(LocalDate base, LocalDate immDate1, LocalDate immDate2, LocalDate immDate3) {
     LocalDate date = base.plusDays(1);
     while (!date.isAfter(immDate1)) {
-      assertEquals(DateSequences.MONTHLY_IMM.nextOrSame(date), immDate1);
-      assertEquals(DateSequences.MONTHLY_IMM.nthOrSame(date, 1), immDate1);
-      assertEquals(DateSequences.MONTHLY_IMM.nthOrSame(date, 2), immDate2);
-      assertEquals(DateSequences.MONTHLY_IMM.nthOrSame(date, 3), immDate3);
+      assertThat(DateSequences.MONTHLY_IMM.nextOrSame(date)).isEqualTo(immDate1);
+      assertThat(DateSequences.MONTHLY_IMM.nthOrSame(date, 1)).isEqualTo(immDate1);
+      assertThat(DateSequences.MONTHLY_IMM.nthOrSame(date, 2)).isEqualTo(immDate2);
+      assertThat(DateSequences.MONTHLY_IMM.nthOrSame(date, 3)).isEqualTo(immDate3);
       date = date.plusDays(1);
     }
-    assertEquals(DateSequences.MONTHLY_IMM.dateMatching(YearMonth.from(date)), immDate1);
+    assertThat(DateSequences.MONTHLY_IMM.dateMatching(YearMonth.from(date))).isEqualTo(immDate1);
   }
 
-  @Test(dataProvider = "monthlyImm")
+  @ParameterizedTest
+  @MethodSource("data_monthlyImm")
   public void test_nextMonthlyImm(LocalDate base, LocalDate immDate1, LocalDate immDate2, LocalDate immDate3) {
     LocalDate date = base;
     while (!date.isAfter(immDate1)) {
       if (date.equals(immDate1)) {
-        assertEquals(DateSequences.MONTHLY_IMM.next(date), immDate2);
-        assertEquals(DateSequences.MONTHLY_IMM.nth(date, 1), immDate2);
-        assertEquals(DateSequences.MONTHLY_IMM.nth(date, 2), immDate3);
+        assertThat(DateSequences.MONTHLY_IMM.next(date)).isEqualTo(immDate2);
+        assertThat(DateSequences.MONTHLY_IMM.nth(date, 1)).isEqualTo(immDate2);
+        assertThat(DateSequences.MONTHLY_IMM.nth(date, 2)).isEqualTo(immDate3);
       } else {
-        assertEquals(DateSequences.MONTHLY_IMM.next(date), immDate1);
-        assertEquals(DateSequences.MONTHLY_IMM.nth(date, 1), immDate1);
-        assertEquals(DateSequences.MONTHLY_IMM.nth(date, 2), immDate2);
-        assertEquals(DateSequences.MONTHLY_IMM.nth(date, 3), immDate3);
+        assertThat(DateSequences.MONTHLY_IMM.next(date)).isEqualTo(immDate1);
+        assertThat(DateSequences.MONTHLY_IMM.nth(date, 1)).isEqualTo(immDate1);
+        assertThat(DateSequences.MONTHLY_IMM.nth(date, 2)).isEqualTo(immDate2);
+        assertThat(DateSequences.MONTHLY_IMM.nth(date, 3)).isEqualTo(immDate3);
       }
       date = date.plusDays(1);
     }
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "quarterly10th")
   public static Object[][] data_quarterly10th() {
     return new Object[][] {
         {date(2013, 1, 1), date(2013, 3, 10), date(2013, 6, 10), date(2013, 9, 10)},
@@ -137,79 +141,86 @@ public class DateSequenceTest {
     };
   }
 
-  @Test(dataProvider = "quarterly10th")
+  @ParameterizedTest
+  @MethodSource("data_quarterly10th")
   public void test_nextOrSameQuarterly10th(LocalDate base, LocalDate expect1, LocalDate expect2, LocalDate expect3) {
     LocalDate date = base.plusDays(1);
     while (!date.isAfter(expect1)) {
-      assertEquals(DateSequences.QUARTERLY_10TH.nextOrSame(date), expect1);
-      assertEquals(DateSequences.QUARTERLY_10TH.nthOrSame(date, 1), expect1);
-      assertEquals(DateSequences.QUARTERLY_10TH.nthOrSame(date, 2), expect2);
-      assertEquals(DateSequences.QUARTERLY_10TH.nthOrSame(date, 3), expect3);
+      assertThat(DateSequences.QUARTERLY_10TH.nextOrSame(date)).isEqualTo(expect1);
+      assertThat(DateSequences.QUARTERLY_10TH.nthOrSame(date, 1)).isEqualTo(expect1);
+      assertThat(DateSequences.QUARTERLY_10TH.nthOrSame(date, 2)).isEqualTo(expect2);
+      assertThat(DateSequences.QUARTERLY_10TH.nthOrSame(date, 3)).isEqualTo(expect3);
       date = date.plusDays(1);
     }
-    assertEquals(DateSequences.QUARTERLY_10TH.dateMatching(YearMonth.from(date)), expect1);
+    assertThat(DateSequences.QUARTERLY_10TH.dateMatching(YearMonth.from(date))).isEqualTo(expect1);
   }
 
-  @Test(dataProvider = "quarterly10th")
+  @ParameterizedTest
+  @MethodSource("data_quarterly10th")
   public void test_nextQuarterly10th(LocalDate base, LocalDate expect1, LocalDate expect2, LocalDate expect3) {
     LocalDate date = base;
     while (!date.isAfter(expect1)) {
       if (date.equals(expect1)) {
-        assertEquals(DateSequences.QUARTERLY_10TH.next(date), expect2);
-        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 1), expect2);
-        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 2), expect3);
+        assertThat(DateSequences.QUARTERLY_10TH.next(date)).isEqualTo(expect2);
+        assertThat(DateSequences.QUARTERLY_10TH.nth(date, 1)).isEqualTo(expect2);
+        assertThat(DateSequences.QUARTERLY_10TH.nth(date, 2)).isEqualTo(expect3);
       } else {
-        assertEquals(DateSequences.QUARTERLY_10TH.next(date), expect1);
-        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 1), expect1);
-        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 2), expect2);
-        assertEquals(DateSequences.QUARTERLY_10TH.nth(date, 3), expect3);
+        assertThat(DateSequences.QUARTERLY_10TH.next(date)).isEqualTo(expect1);
+        assertThat(DateSequences.QUARTERLY_10TH.nth(date, 1)).isEqualTo(expect1);
+        assertThat(DateSequences.QUARTERLY_10TH.nth(date, 2)).isEqualTo(expect2);
+        assertThat(DateSequences.QUARTERLY_10TH.nth(date, 3)).isEqualTo(expect3);
       }
       date = date.plusDays(1);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dummy() {
     DummyDateSequence test = new DummyDateSequence();
-    assertEquals(test.next(date(2015, 10, 14)), date(2015, 10, 15));
-    assertEquals(test.next(date(2015, 10, 15)), date(2015, 10, 22));
-    assertEquals(test.next(date(2015, 10, 16)), date(2015, 10, 22));
+    assertThat(test.next(date(2015, 10, 14))).isEqualTo(date(2015, 10, 15));
+    assertThat(test.next(date(2015, 10, 15))).isEqualTo(date(2015, 10, 22));
+    assertThat(test.next(date(2015, 10, 16))).isEqualTo(date(2015, 10, 22));
 
-    assertEquals(test.nextOrSame(date(2015, 10, 14)), date(2015, 10, 15));
-    assertEquals(test.nextOrSame(date(2015, 10, 15)), date(2015, 10, 15));
-    assertEquals(test.nextOrSame(date(2015, 10, 16)), date(2015, 10, 22));
+    assertThat(test.nextOrSame(date(2015, 10, 14))).isEqualTo(date(2015, 10, 15));
+    assertThat(test.nextOrSame(date(2015, 10, 15))).isEqualTo(date(2015, 10, 15));
+    assertThat(test.nextOrSame(date(2015, 10, 16))).isEqualTo(date(2015, 10, 22));
 
-    assertEquals(test.nth(date(2015, 10, 14), 1), date(2015, 10, 15));
-    assertEquals(test.nth(date(2015, 10, 15), 1), date(2015, 10, 22));
-    assertEquals(test.nth(date(2015, 10, 16), 1), date(2015, 10, 22));
-    assertEquals(test.nth(date(2015, 10, 14), 2), date(2015, 10, 22));
-    assertEquals(test.nth(date(2015, 10, 15), 2), date(2015, 10, 29));
-    assertEquals(test.nth(date(2015, 10, 16), 2), date(2015, 10, 29));
+    assertThat(test.nth(date(2015, 10, 14), 1)).isEqualTo(date(2015, 10, 15));
+    assertThat(test.nth(date(2015, 10, 15), 1)).isEqualTo(date(2015, 10, 22));
+    assertThat(test.nth(date(2015, 10, 16), 1)).isEqualTo(date(2015, 10, 22));
+    assertThat(test.nth(date(2015, 10, 14), 2)).isEqualTo(date(2015, 10, 22));
+    assertThat(test.nth(date(2015, 10, 15), 2)).isEqualTo(date(2015, 10, 29));
+    assertThat(test.nth(date(2015, 10, 16), 2)).isEqualTo(date(2015, 10, 29));
 
-    assertEquals(test.nthOrSame(date(2015, 10, 14), 1), date(2015, 10, 15));
-    assertEquals(test.nthOrSame(date(2015, 10, 15), 1), date(2015, 10, 15));
-    assertEquals(test.nthOrSame(date(2015, 10, 16), 1), date(2015, 10, 22));
-    assertEquals(test.nthOrSame(date(2015, 10, 14), 2), date(2015, 10, 22));
-    assertEquals(test.nthOrSame(date(2015, 10, 15), 2), date(2015, 10, 22));
-    assertEquals(test.nthOrSame(date(2015, 10, 16), 2), date(2015, 10, 29));
+    assertThat(test.nthOrSame(date(2015, 10, 14), 1)).isEqualTo(date(2015, 10, 15));
+    assertThat(test.nthOrSame(date(2015, 10, 15), 1)).isEqualTo(date(2015, 10, 15));
+    assertThat(test.nthOrSame(date(2015, 10, 16), 1)).isEqualTo(date(2015, 10, 22));
+    assertThat(test.nthOrSame(date(2015, 10, 14), 2)).isEqualTo(date(2015, 10, 22));
+    assertThat(test.nthOrSame(date(2015, 10, 15), 2)).isEqualTo(date(2015, 10, 22));
+    assertThat(test.nthOrSame(date(2015, 10, 16), 2)).isEqualTo(date(2015, 10, 29));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_extendedEnum() {
-    assertEquals(DateSequence.extendedEnum().lookupAll().get("Quarterly-IMM"), DateSequences.QUARTERLY_IMM);
+    assertThat(DateSequence.extendedEnum().lookupAll().get("Quarterly-IMM")).isEqualTo(DateSequences.QUARTERLY_IMM);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(DateSequences.class);
     coverEnum(StandardDateSequences.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(DateSequences.QUARTERLY_IMM);
     assertSerialization(DateSequences.MONTHLY_IMM);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(DateSequence.class, DateSequences.QUARTERLY_IMM);
     assertJodaConvert(DateSequence.class, DateSequences.MONTHLY_IMM);

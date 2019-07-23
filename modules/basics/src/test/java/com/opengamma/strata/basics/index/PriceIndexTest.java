@@ -12,12 +12,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
@@ -28,28 +29,28 @@ import com.opengamma.strata.basics.schedule.Frequency;
 /**
  * Test {@link PriceIndex}.
  */
-@Test
 public class PriceIndexTest {
 
+  @Test
   public void test_gbpHicp() {
     PriceIndex test = PriceIndex.of("GB-HICP");
-    assertEquals(test.getName(), "GB-HICP");
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getRegion(), GB);
-    assertEquals(test.isActive(), true);
-    assertEquals(test.getPublicationFrequency(), Frequency.P1M);
-    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GB-HICP"));
-    assertEquals(test.toString(), "GB-HICP");
+    assertThat(test.getName()).isEqualTo("GB-HICP");
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getRegion()).isEqualTo(GB);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getPublicationFrequency()).isEqualTo(Frequency.P1M);
+    assertThat(test.getFloatingRateName()).isEqualTo(FloatingRateName.of("GB-HICP"));
+    assertThat(test.toString()).isEqualTo("GB-HICP");
   }
 
+  @Test
   public void test_getFloatingRateName() {
     for (PriceIndex index : PriceIndex.extendedEnum().lookupAll().values()) {
-      assertEquals(index.getFloatingRateName(), FloatingRateName.of(index.getName()));
+      assertThat(index.getFloatingRateName()).isEqualTo(FloatingRateName.of(index.getName()));
     }
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {PriceIndices.GB_HICP, "GB-HICP"},
@@ -64,42 +65,50 @@ public class PriceIndexTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(PriceIndex convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(PriceIndex convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(PriceIndex convention, String name) {
-    assertEquals(PriceIndex.of(name), convention);
+    assertThat(PriceIndex.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(PriceIndex convention, String name) {
     ImmutableMap<String, PriceIndex> map = PriceIndex.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> PriceIndex.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> PriceIndex.of(null));
   }
 
+  @Test
   public void test_gb_rpi() {
-    assertEquals(PriceIndices.GB_RPI.getCurrency(), GBP);
-    assertEquals(PriceIndices.GB_RPI.getDayCount(), DayCounts.ONE_ONE);
-    assertEquals(PriceIndices.GB_RPI.getDefaultFixedLegDayCount(), DayCounts.ONE_ONE);
+    assertThat(PriceIndices.GB_RPI.getCurrency()).isEqualTo(GBP);
+    assertThat(PriceIndices.GB_RPI.getDayCount()).isEqualTo(DayCounts.ONE_ONE);
+    assertThat(PriceIndices.GB_RPI.getDefaultFixedLegDayCount()).isEqualTo(DayCounts.ONE_ONE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(PriceIndices.class);
     coverImmutableBean((ImmutableBean) PriceIndices.US_CPI_U);
@@ -111,10 +120,12 @@ public class PriceIndexTest {
         .build());
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(PriceIndex.class, PriceIndices.US_CPI_U);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(PriceIndices.US_CPI_U);
   }

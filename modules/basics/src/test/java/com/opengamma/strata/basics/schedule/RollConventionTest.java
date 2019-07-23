@@ -37,9 +37,8 @@ import static java.time.Month.MARCH;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -49,8 +48,9 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Locale;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
@@ -59,11 +59,9 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 /**
  * Test {@link RollConvention}.
  */
-@Test
 public class RollConventionTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "types")
   public static Object[][] data_types() {
     RollConvention[] conv = StandardRollConventions.values();
     Object[][] result = new Object[conv.length][];
@@ -73,7 +71,8 @@ public class RollConventionTest {
     return result;
   }
 
-  @Test(dataProvider = "types")
+  @ParameterizedTest
+  @MethodSource("data_types")
   public void test_null(RollConvention type) {
     assertThatIllegalArgumentException().isThrownBy(() -> type.adjust(null));
     assertThatIllegalArgumentException().isThrownBy(() -> type.matches(null));
@@ -84,14 +83,14 @@ public class RollConventionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_noAdjust() {
     LocalDate date = date(2014, AUGUST, 17);
-    assertEquals(NONE.adjust(date), date);
-    assertEquals(NONE.matches(date), true);
+    assertThat(NONE.adjust(date)).isEqualTo(date);
+    assertThat(NONE.matches(date)).isEqualTo(true);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "adjust")
   public static Object[][] data_adjust() {
     return new Object[][] {
         {EOM, date(2014, AUGUST, 1), date(2014, AUGUST, 31)},
@@ -154,13 +153,13 @@ public class RollConventionTest {
     };
   }
 
-  @Test(dataProvider = "adjust")
+  @ParameterizedTest
+  @MethodSource("data_adjust")
   public void test_adjust(RollConvention conv, LocalDate input, LocalDate expected) {
-    assertEquals(conv.adjust(input), expected);
+    assertThat(conv.adjust(input)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "matches")
   public static Object[][] data_matches() {
     return new Object[][] {
         {EOM, date(2014, AUGUST, 1), false},
@@ -187,13 +186,13 @@ public class RollConventionTest {
     };
   }
 
-  @Test(dataProvider = "matches")
+  @ParameterizedTest
+  @MethodSource("data_matches")
   public void test_matches(RollConvention conv, LocalDate input, boolean expected) {
-    assertEquals(conv.matches(input), expected);
+    assertThat(conv.matches(input)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "next")
   public static Object[][] data_next() {
     return new Object[][] {
         {EOM, date(2014, AUGUST, 1), P1M, date(2014, SEPTEMBER, 30)},
@@ -265,13 +264,13 @@ public class RollConventionTest {
     };
   }
 
-  @Test(dataProvider = "next")
+  @ParameterizedTest
+  @MethodSource("data_next")
   public void test_next(RollConvention conv, LocalDate input, Frequency freq, LocalDate expected) {
-    assertEquals(conv.next(input, freq), expected);
+    assertThat(conv.next(input, freq)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "previous")
   public static Object[][] data_previous() {
     return new Object[][] {
         {EOM, date(2014, OCTOBER, 1), P1M, date(2014, SEPTEMBER, 30)},
@@ -338,110 +337,121 @@ public class RollConventionTest {
     };
   }
 
-  @Test(dataProvider = "previous")
+  @ParameterizedTest
+  @MethodSource("data_previous")
   public void test_previous(RollConvention conv, LocalDate input, Frequency freq, LocalDate expected) {
-    assertEquals(conv.previous(input, freq), expected);
+    assertThat(conv.previous(input, freq)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dayOfMonth_constants() {
-    assertEquals(RollConventions.DAY_1.adjust(date(2014, JULY, 30)), date(2014, JULY, 1));
-    assertEquals(RollConventions.DAY_2.adjust(date(2014, JULY, 30)), date(2014, JULY, 2));
-    assertEquals(RollConventions.DAY_3.adjust(date(2014, JULY, 30)), date(2014, JULY, 3));
-    assertEquals(RollConventions.DAY_4.adjust(date(2014, JULY, 30)), date(2014, JULY, 4));
-    assertEquals(RollConventions.DAY_5.adjust(date(2014, JULY, 30)), date(2014, JULY, 5));
-    assertEquals(RollConventions.DAY_6.adjust(date(2014, JULY, 30)), date(2014, JULY, 6));
-    assertEquals(RollConventions.DAY_7.adjust(date(2014, JULY, 30)), date(2014, JULY, 7));
-    assertEquals(RollConventions.DAY_8.adjust(date(2014, JULY, 30)), date(2014, JULY, 8));
-    assertEquals(RollConventions.DAY_9.adjust(date(2014, JULY, 30)), date(2014, JULY, 9));
-    assertEquals(RollConventions.DAY_10.adjust(date(2014, JULY, 30)), date(2014, JULY, 10));
-    assertEquals(RollConventions.DAY_11.adjust(date(2014, JULY, 30)), date(2014, JULY, 11));
-    assertEquals(RollConventions.DAY_12.adjust(date(2014, JULY, 30)), date(2014, JULY, 12));
-    assertEquals(RollConventions.DAY_13.adjust(date(2014, JULY, 30)), date(2014, JULY, 13));
-    assertEquals(RollConventions.DAY_14.adjust(date(2014, JULY, 30)), date(2014, JULY, 14));
-    assertEquals(RollConventions.DAY_15.adjust(date(2014, JULY, 30)), date(2014, JULY, 15));
-    assertEquals(RollConventions.DAY_16.adjust(date(2014, JULY, 30)), date(2014, JULY, 16));
-    assertEquals(RollConventions.DAY_17.adjust(date(2014, JULY, 30)), date(2014, JULY, 17));
-    assertEquals(RollConventions.DAY_18.adjust(date(2014, JULY, 30)), date(2014, JULY, 18));
-    assertEquals(RollConventions.DAY_19.adjust(date(2014, JULY, 30)), date(2014, JULY, 19));
-    assertEquals(RollConventions.DAY_20.adjust(date(2014, JULY, 30)), date(2014, JULY, 20));
-    assertEquals(RollConventions.DAY_21.adjust(date(2014, JULY, 30)), date(2014, JULY, 21));
-    assertEquals(RollConventions.DAY_22.adjust(date(2014, JULY, 30)), date(2014, JULY, 22));
-    assertEquals(RollConventions.DAY_23.adjust(date(2014, JULY, 30)), date(2014, JULY, 23));
-    assertEquals(RollConventions.DAY_24.adjust(date(2014, JULY, 30)), date(2014, JULY, 24));
-    assertEquals(RollConventions.DAY_25.adjust(date(2014, JULY, 30)), date(2014, JULY, 25));
-    assertEquals(RollConventions.DAY_26.adjust(date(2014, JULY, 30)), date(2014, JULY, 26));
-    assertEquals(RollConventions.DAY_27.adjust(date(2014, JULY, 30)), date(2014, JULY, 27));
-    assertEquals(RollConventions.DAY_28.adjust(date(2014, JULY, 30)), date(2014, JULY, 28));
-    assertEquals(RollConventions.DAY_29.adjust(date(2014, JULY, 30)), date(2014, JULY, 29));
-    assertEquals(RollConventions.DAY_30.adjust(date(2014, JULY, 30)), date(2014, JULY, 30));
+    assertThat(RollConventions.DAY_1.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 1));
+    assertThat(RollConventions.DAY_2.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 2));
+    assertThat(RollConventions.DAY_3.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 3));
+    assertThat(RollConventions.DAY_4.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 4));
+    assertThat(RollConventions.DAY_5.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 5));
+    assertThat(RollConventions.DAY_6.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 6));
+    assertThat(RollConventions.DAY_7.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 7));
+    assertThat(RollConventions.DAY_8.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 8));
+    assertThat(RollConventions.DAY_9.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 9));
+    assertThat(RollConventions.DAY_10.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 10));
+    assertThat(RollConventions.DAY_11.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 11));
+    assertThat(RollConventions.DAY_12.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 12));
+    assertThat(RollConventions.DAY_13.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 13));
+    assertThat(RollConventions.DAY_14.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 14));
+    assertThat(RollConventions.DAY_15.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 15));
+    assertThat(RollConventions.DAY_16.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 16));
+    assertThat(RollConventions.DAY_17.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 17));
+    assertThat(RollConventions.DAY_18.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 18));
+    assertThat(RollConventions.DAY_19.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 19));
+    assertThat(RollConventions.DAY_20.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 20));
+    assertThat(RollConventions.DAY_21.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 21));
+    assertThat(RollConventions.DAY_22.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 22));
+    assertThat(RollConventions.DAY_23.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 23));
+    assertThat(RollConventions.DAY_24.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 24));
+    assertThat(RollConventions.DAY_25.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 25));
+    assertThat(RollConventions.DAY_26.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 26));
+    assertThat(RollConventions.DAY_27.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 27));
+    assertThat(RollConventions.DAY_28.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 28));
+    assertThat(RollConventions.DAY_29.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 29));
+    assertThat(RollConventions.DAY_30.adjust(date(2014, JULY, 30))).isEqualTo(date(2014, JULY, 30));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofDayOfMonth() {
     for (int i = 1; i < 30; i++) {
       RollConvention test = RollConvention.ofDayOfMonth(i);
-      assertEquals(test.adjust(date(2014, JULY, 1)), date(2014, JULY, i));
-      assertEquals(test.getName(), "Day" + i);
-      assertEquals(test.toString(), "Day" + i);
-      assertSame(RollConvention.of(test.getName()), test);
-      assertSame(RollConvention.of("DAY" + i), test);
+      assertThat(test.adjust(date(2014, JULY, 1))).isEqualTo(date(2014, JULY, i));
+      assertThat(test.getName()).isEqualTo("Day" + i);
+      assertThat(test.toString()).isEqualTo("Day" + i);
+      assertThat(RollConvention.of(test.getName())).isSameAs(test);
+      assertThat(RollConvention.of("DAY" + i)).isSameAs(test);
     }
   }
 
+  @Test
   public void test_ofDayOfMonth_31() {
-    assertEquals(RollConvention.ofDayOfMonth(31), EOM);
+    assertThat(RollConvention.ofDayOfMonth(31)).isEqualTo(EOM);
   }
 
+  @Test
   public void test_ofDayOfMonth_invalid() {
     assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.ofDayOfMonth(0));
     assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.ofDayOfMonth(32));
   }
 
+  @Test
   public void test_ofDayOfMonth_adjust_Day29() {
-    assertEquals(RollConvention.ofDayOfMonth(29).adjust(date(2014, FEBRUARY, 2)), date(2014, FEBRUARY, 28));
-    assertEquals(RollConvention.ofDayOfMonth(29).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
+    assertThat(RollConvention.ofDayOfMonth(29).adjust(date(2014, FEBRUARY, 2))).isEqualTo(date(2014, FEBRUARY, 28));
+    assertThat(RollConvention.ofDayOfMonth(29).adjust(date(2016, FEBRUARY, 2))).isEqualTo(date(2016, FEBRUARY, 29));
   }
 
+  @Test
   public void test_ofDayOfMonth_adjust_Day30() {
-    assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2014, FEBRUARY, 2)), date(2014, FEBRUARY, 28));
-    assertEquals(RollConvention.ofDayOfMonth(30).adjust(date(2016, FEBRUARY, 2)), date(2016, FEBRUARY, 29));
+    assertThat(RollConvention.ofDayOfMonth(30).adjust(date(2014, FEBRUARY, 2))).isEqualTo(date(2014, FEBRUARY, 28));
+    assertThat(RollConvention.ofDayOfMonth(30).adjust(date(2016, FEBRUARY, 2))).isEqualTo(date(2016, FEBRUARY, 29));
   }
 
+  @Test
   public void test_ofDayOfMonth_matches_Day29() {
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 30)), false);
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 29)), true);
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 30)), false);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 30))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 29))).isEqualTo(true);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2016, JANUARY, 30))).isEqualTo(false);
 
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, FEBRUARY, 28)), false);
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2016, FEBRUARY, 29)), true);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2016, FEBRUARY, 28))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2016, FEBRUARY, 29))).isEqualTo(true);
 
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2015, FEBRUARY, 27)), false);
-    assertEquals(RollConvention.ofDayOfMonth(29).matches(date(2015, FEBRUARY, 28)), true);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2015, FEBRUARY, 27))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfMonth(29).matches(date(2015, FEBRUARY, 28))).isEqualTo(true);
   }
 
+  @Test
   public void test_ofDayOfMonth_matches_Day30() {
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 29)), false);
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 30)), true);
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 31)), false);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 29))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 30))).isEqualTo(true);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2016, JANUARY, 31))).isEqualTo(false);
 
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, FEBRUARY, 28)), false);
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2016, FEBRUARY, 29)), true);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2016, FEBRUARY, 28))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2016, FEBRUARY, 29))).isEqualTo(true);
 
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2015, FEBRUARY, 27)), false);
-    assertEquals(RollConvention.ofDayOfMonth(30).matches(date(2015, FEBRUARY, 28)), true);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2015, FEBRUARY, 27))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfMonth(30).matches(date(2015, FEBRUARY, 28))).isEqualTo(true);
   }
 
+  @Test
   public void test_ofDayOfMonth_next_oneMonth() {
     for (int start = 1; start <= 5; start++) {
       for (int i = 1; i <= 30; i++) {
         RollConvention test = RollConvention.ofDayOfMonth(i);
         LocalDate expected = date(2014, AUGUST, i);
-        assertEquals(test.next(date(2014, JULY, start), P1M), expected);
+        assertThat(test.next(date(2014, JULY, start), P1M)).isEqualTo(expected);
       }
     }
   }
 
+  @Test
   public void test_ofDayOfMonth_next_oneDay() {
     for (int start = 1; start <= 5; start++) {
       for (int i = 1; i <= 30; i++) {
@@ -450,21 +460,23 @@ public class RollConventionTest {
         if (i <= start) {
           expected = expected.plusMonths(1);
         }
-        assertEquals(test.next(date(2014, JULY, start), P1D), expected);
+        assertThat(test.next(date(2014, JULY, start), P1D)).isEqualTo(expected);
       }
     }
   }
 
+  @Test
   public void test_ofDayOfMonth_previous_oneMonth() {
     for (int start = 1; start <= 5; start++) {
       for (int i = 1; i <= 30; i++) {
         RollConvention test = RollConvention.ofDayOfMonth(i);
         LocalDate expected = date(2014, JUNE, i);
-        assertEquals(test.previous(date(2014, JULY, start), P1M), expected);
+        assertThat(test.previous(date(2014, JULY, start), P1M)).isEqualTo(expected);
       }
     }
   }
 
+  @Test
   public void test_ofDayOfMonth_previous_oneDay() {
     for (int start = 1; start <= 5; start++) {
       for (int i = 1; i <= 30; i++) {
@@ -473,88 +485,92 @@ public class RollConventionTest {
         if (i >= start) {
           expected = expected.minusMonths(1);
         }
-        assertEquals(test.previous(date(2014, JULY, start), P1D), expected);
+        assertThat(test.previous(date(2014, JULY, start), P1D)).isEqualTo(expected);
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dayOfWeek_constants() {
-    assertEquals(RollConventions.DAY_MON.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 11));
-    assertEquals(RollConventions.DAY_TUE.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 12));
-    assertEquals(RollConventions.DAY_WED.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 13));
-    assertEquals(RollConventions.DAY_THU.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 14));
-    assertEquals(RollConventions.DAY_FRI.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 15));
-    assertEquals(RollConventions.DAY_SAT.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 16));
-    assertEquals(RollConventions.DAY_SUN.adjust(date(2014, AUGUST, 11)), date(2014, AUGUST, 17));
+    assertThat(RollConventions.DAY_MON.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 11));
+    assertThat(RollConventions.DAY_TUE.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 12));
+    assertThat(RollConventions.DAY_WED.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 13));
+    assertThat(RollConventions.DAY_THU.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 14));
+    assertThat(RollConventions.DAY_FRI.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 15));
+    assertThat(RollConventions.DAY_SAT.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 16));
+    assertThat(RollConventions.DAY_SUN.adjust(date(2014, AUGUST, 11))).isEqualTo(date(2014, AUGUST, 17));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofDayOfWeek() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(test.getName(), "Day" +
-          CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
-      assertEquals(test.toString(), "Day" +
-          CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
-      assertSame(RollConvention.of(test.getName()), test);
-      assertSame(RollConvention.of("DAY" + dow.toString().substring(0, 3)), test);
+      assertThat(test.getName())
+          .isEqualTo("Day" +
+              CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
+      assertThat(test.toString())
+          .isEqualTo("Day" +
+              CaseFormat.UPPER_UNDERSCORE.converterTo(CaseFormat.UPPER_CAMEL).convert(dow.toString()).substring(0, 3));
+      assertThat(RollConvention.of(test.getName())).isSameAs(test);
+      assertThat(RollConvention.of("DAY" + dow.toString().substring(0, 3))).isSameAs(test);
     }
   }
 
+  @Test
   public void test_ofDayOfWeek_adjust() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(
-          test.adjust(date(2014, AUGUST, 14)),
-          date(2014, AUGUST, 14).with(TemporalAdjusters.nextOrSame(dow)));
+      assertThat(test.adjust(date(2014, AUGUST, 14)))
+          .isEqualTo(date(2014, AUGUST, 14).with(TemporalAdjusters.nextOrSame(dow)));
     }
   }
 
+  @Test
   public void test_ofDayOfWeek_matches() {
-    assertEquals(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 1)), false);
-    assertEquals(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 2)), true);
-    assertEquals(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 3)), false);
+    assertThat(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 1))).isEqualTo(false);
+    assertThat(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 2))).isEqualTo(true);
+    assertThat(RollConvention.ofDayOfWeek(TUESDAY).matches(date(2014, SEPTEMBER, 3))).isEqualTo(false);
   }
 
+  @Test
   public void test_ofDayOfWeek_next_oneMonth() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(
-          test.next(date(2014, AUGUST, 14), P1W),
-          date(2014, AUGUST, 21).with(TemporalAdjusters.nextOrSame(dow)));
+      assertThat(test.next(date(2014, AUGUST, 14), P1W))
+          .isEqualTo(date(2014, AUGUST, 21).with(TemporalAdjusters.nextOrSame(dow)));
     }
   }
 
+  @Test
   public void test_ofDayOfWeek_next_oneDay() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(
-          test.next(date(2014, AUGUST, 14), P1D),
-          date(2014, AUGUST, 15).with(TemporalAdjusters.nextOrSame(dow)));
+      assertThat(test.next(date(2014, AUGUST, 14), P1D))
+          .isEqualTo(date(2014, AUGUST, 15).with(TemporalAdjusters.nextOrSame(dow)));
     }
   }
 
+  @Test
   public void test_ofDayOfWeek_previous_oneMonth() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(
-          test.previous(date(2014, AUGUST, 14), P1W),
-          date(2014, AUGUST, 7).with(TemporalAdjusters.previousOrSame(dow)));
+      assertThat(test.previous(date(2014, AUGUST, 14), P1W))
+          .isEqualTo(date(2014, AUGUST, 7).with(TemporalAdjusters.previousOrSame(dow)));
     }
   }
 
+  @Test
   public void test_ofDayOfWeek_previous_oneDay() {
     for (DayOfWeek dow : DayOfWeek.values()) {
       RollConvention test = RollConvention.ofDayOfWeek(dow);
-      assertEquals(
-          test.previous(date(2014, AUGUST, 14), P1D),
-          date(2014, AUGUST, 13).with(TemporalAdjusters.previousOrSame(dow)));
+      assertThat(test.previous(date(2014, AUGUST, 14), P1D))
+          .isEqualTo(date(2014, AUGUST, 13).with(TemporalAdjusters.previousOrSame(dow)));
     }
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {NONE, "None"},
@@ -568,42 +584,48 @@ public class RollConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(RollConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(RollConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(RollConvention convention, String name) {
-    assertEquals(RollConvention.of(name), convention);
+    assertThat(RollConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_lenientLookup_standardNames(RollConvention convention, String name) {
-    assertEquals(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)).get(), convention);
+    assertThat(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)).get()).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(RollConvention convention, String name) {
     ImmutableMap<String, RollConvention> map = RollConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> RollConvention.of(null));
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "lenient")
   public static Object[][] data_lenient() {
     return new Object[][] {
         {"2", DAY_2},
@@ -620,11 +642,13 @@ public class RollConventionTest {
     };
   }
 
-  @Test(dataProvider = "lenient")
+  @ParameterizedTest
+  @MethodSource("data_lenient")
   public void test_lenientLookup_specialNames(String name, RollConvention convention) {
-    assertEquals(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(convention));
+    assertThat(RollConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH))).isEqualTo(Optional.of(convention));
   }
 
+  @Test
   public void test_lenientLookup_constants() throws IllegalAccessException {
     Field[] fields = RollConventions.class.getDeclaredFields();
     for (Field field : fields) {
@@ -635,45 +659,49 @@ public class RollConventionTest {
         String name = field.getName();
         Object value = field.get(null);
         ExtendedEnum<RollConvention> ext = RollConvention.extendedEnum();
-        assertEquals(ext.findLenient(name), Optional.of(value));
-        assertEquals(ext.findLenient(name.toLowerCase(Locale.ENGLISH)), Optional.of(value));
+        assertThat(ext.findLenient(name)).isEqualTo(Optional.of(value));
+        assertThat(ext.findLenient(name.toLowerCase(Locale.ENGLISH))).isEqualTo(Optional.of(value));
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     RollConvention a = RollConventions.EOM;
     RollConvention b = RollConventions.DAY_1;
     RollConvention c = RollConventions.DAY_WED;
 
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
+    assertThat(a.equals(a)).isEqualTo(true);
+    assertThat(a.equals(b)).isEqualTo(false);
+    assertThat(a.equals(c)).isEqualTo(false);
 
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
+    assertThat(b.equals(a)).isEqualTo(false);
+    assertThat(b.equals(b)).isEqualTo(true);
+    assertThat(b.equals(c)).isEqualTo(false);
 
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
+    assertThat(c.equals(a)).isEqualTo(false);
+    assertThat(c.equals(b)).isEqualTo(false);
+    assertThat(c.equals(c)).isEqualTo(true);
 
-    assertEquals(a.hashCode(), a.hashCode());
+    assertThat(a.hashCode()).isEqualTo(a.hashCode());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(RollConventions.class);
     coverEnum(StandardRollConventions.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(EOM);
     assertSerialization(DAY_2);
     assertSerialization(DAY_THU);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(RollConvention.class, NONE);
     assertJodaConvert(RollConvention.class, EOM);

@@ -11,34 +11,35 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link FxIndexObservation}.
  */
-@Test
 public class FxIndexObservationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate FIXING_DATE = date(2016, 2, 22);
   private static final LocalDate MATURITY_DATE = GBP_USD_WM.calculateMaturityFromFixing(FIXING_DATE, REF_DATA);
 
+  @Test
   public void test_of() {
     FxIndexObservation test = FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA);
-    assertEquals(test.getIndex(), GBP_USD_WM);
-    assertEquals(test.getFixingDate(), FIXING_DATE);
-    assertEquals(test.getMaturityDate(), MATURITY_DATE);
-    assertEquals(test.getCurrencyPair(), GBP_USD_WM.getCurrencyPair());
-    assertEquals(test.toString(), "FxIndexObservation[GBP/USD-WM on 2016-02-22]");
+    assertThat(test.getIndex()).isEqualTo(GBP_USD_WM);
+    assertThat(test.getFixingDate()).isEqualTo(FIXING_DATE);
+    assertThat(test.getMaturityDate()).isEqualTo(MATURITY_DATE);
+    assertThat(test.getCurrencyPair()).isEqualTo(GBP_USD_WM.getCurrencyPair());
+    assertThat(test.toString()).isEqualTo("FxIndexObservation[GBP/USD-WM on 2016-02-22]");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxIndexObservation test = FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA);
     coverImmutableBean(test);
@@ -46,6 +47,7 @@ public class FxIndexObservationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxIndexObservation test = FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA);
     assertSerialization(test);

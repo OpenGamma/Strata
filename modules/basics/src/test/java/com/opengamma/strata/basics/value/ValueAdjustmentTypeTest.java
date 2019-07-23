@@ -8,30 +8,30 @@ package com.opengamma.strata.basics.value;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Locale;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link ValueAdjustmentType}.
  */
-@Test
 public class ValueAdjustmentTypeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_adjust() {
-    assertEquals(ValueAdjustmentType.DELTA_AMOUNT.adjust(2d, 3d), 5d, 1e-12);
-    assertEquals(ValueAdjustmentType.DELTA_MULTIPLIER.adjust(2d, 1.5d), 5d, 1e-12);
-    assertEquals(ValueAdjustmentType.MULTIPLIER.adjust(2d, 1.5d), 3d, 1e-12);
-    assertEquals(ValueAdjustmentType.REPLACE.adjust(2d, 1.5d), 1.5d, 1e-12);
+    assertThat(ValueAdjustmentType.DELTA_AMOUNT.adjust(2d, 3d)).isEqualTo(5d);
+    assertThat(ValueAdjustmentType.DELTA_MULTIPLIER.adjust(2d, 1.5d)).isEqualTo(5d);
+    assertThat(ValueAdjustmentType.MULTIPLIER.adjust(2d, 1.5d)).isEqualTo(3d);
+    assertThat(ValueAdjustmentType.REPLACE.adjust(2d, 1.5d)).isEqualTo(1.5d);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {ValueAdjustmentType.DELTA_AMOUNT, "DeltaAmount"},
@@ -41,43 +41,52 @@ public class ValueAdjustmentTypeTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(ValueAdjustmentType convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(ValueAdjustmentType convention, String name) {
-    assertEquals(ValueAdjustmentType.of(name), convention);
+    assertThat(ValueAdjustmentType.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupUpperCase(ValueAdjustmentType convention, String name) {
-    assertEquals(ValueAdjustmentType.of(name.toUpperCase(Locale.ENGLISH)), convention);
+    assertThat(ValueAdjustmentType.of(name.toUpperCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupLowerCase(ValueAdjustmentType convention, String name) {
-    assertEquals(ValueAdjustmentType.of(name.toLowerCase(Locale.ENGLISH)), convention);
+    assertThat(ValueAdjustmentType.of(name.toLowerCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> ValueAdjustmentType.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> ValueAdjustmentType.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(ValueAdjustmentType.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(ValueAdjustmentType.DELTA_AMOUNT);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(ValueAdjustmentType.class, ValueAdjustmentType.DELTA_AMOUNT);
   }

@@ -35,9 +35,9 @@ import static java.time.temporal.ChronoUnit.CENTURIES;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -48,20 +48,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Tests for the tenor class.
  */
-@Test
 public class TenorTest {
 
   private static final Object ANOTHER_TYPE = "";
 
-  @DataProvider(name = "ofPeriod")
   public static Object[][] data_ofPeriod() {
     return new Object[][] {
         {Period.ofDays(1), Period.ofDays(1), "1D"},
@@ -80,13 +79,13 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "ofPeriod")
+  @ParameterizedTest
+  @MethodSource("data_ofPeriod")
   public void test_ofPeriod(Period period, Period stored, String str) {
-    assertEquals(Tenor.of(period).getPeriod(), stored);
-    assertEquals(Tenor.of(period).toString(), str);
+    assertThat(Tenor.of(period).getPeriod()).isEqualTo(stored);
+    assertThat(Tenor.of(period).toString()).isEqualTo(str);
   }
 
-  @DataProvider(name = "ofMonths")
   public static Object[][] data_ofMonths() {
     return new Object[][] {
         {1, Period.ofMonths(1), "1M"},
@@ -98,13 +97,13 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "ofMonths")
+  @ParameterizedTest
+  @MethodSource("data_ofMonths")
   public void test_ofMonths(int months, Period stored, String str) {
-    assertEquals(Tenor.ofMonths(months).getPeriod(), stored);
-    assertEquals(Tenor.ofMonths(months).toString(), str);
+    assertThat(Tenor.ofMonths(months).getPeriod()).isEqualTo(stored);
+    assertThat(Tenor.ofMonths(months).toString()).isEqualTo(str);
   }
 
-  @DataProvider(name = "ofYears")
   public static Object[][] data_ofYears() {
     return new Object[][] {
         {1, Period.ofYears(1), "1Y"},
@@ -113,27 +112,30 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "ofYears")
+  @ParameterizedTest
+  @MethodSource("data_ofYears")
   public void test_ofYears(int years, Period stored, String str) {
-    assertEquals(Tenor.ofYears(years).getPeriod(), stored);
-    assertEquals(Tenor.ofYears(years).toString(), str);
+    assertThat(Tenor.ofYears(years).getPeriod()).isEqualTo(stored);
+    assertThat(Tenor.ofYears(years).toString()).isEqualTo(str);
   }
 
+  @Test
   public void test_of_int() {
-    assertEquals(Tenor.ofDays(1), TENOR_1D);
-    assertEquals(Tenor.ofDays(7), TENOR_1W);
-    assertEquals(Tenor.ofWeeks(2), TENOR_2W);
-    assertEquals(Tenor.ofMonths(1), TENOR_1M);
-    assertEquals(Tenor.ofMonths(15), TENOR_15M);
-    assertEquals(Tenor.ofMonths(18), TENOR_18M);
-    assertEquals(Tenor.ofMonths(21), TENOR_21M);
-    assertEquals(Tenor.ofYears(1), TENOR_1Y);
-    assertEquals(Tenor.ofYears(35), TENOR_35Y);
-    assertEquals(Tenor.ofYears(40), TENOR_40Y);
-    assertEquals(Tenor.ofYears(45), TENOR_45Y);
-    assertEquals(Tenor.ofYears(50), TENOR_50Y);
+    assertThat(Tenor.ofDays(1)).isEqualTo(TENOR_1D);
+    assertThat(Tenor.ofDays(7)).isEqualTo(TENOR_1W);
+    assertThat(Tenor.ofWeeks(2)).isEqualTo(TENOR_2W);
+    assertThat(Tenor.ofMonths(1)).isEqualTo(TENOR_1M);
+    assertThat(Tenor.ofMonths(15)).isEqualTo(TENOR_15M);
+    assertThat(Tenor.ofMonths(18)).isEqualTo(TENOR_18M);
+    assertThat(Tenor.ofMonths(21)).isEqualTo(TENOR_21M);
+    assertThat(Tenor.ofYears(1)).isEqualTo(TENOR_1Y);
+    assertThat(Tenor.ofYears(35)).isEqualTo(TENOR_35Y);
+    assertThat(Tenor.ofYears(40)).isEqualTo(TENOR_40Y);
+    assertThat(Tenor.ofYears(45)).isEqualTo(TENOR_45Y);
+    assertThat(Tenor.ofYears(50)).isEqualTo(TENOR_50Y);
   }
 
+  @Test
   public void test_of_notZero() {
     assertThatIllegalArgumentException().isThrownBy(() -> Tenor.of(Period.ofDays(0)));
     assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofDays(0));
@@ -142,6 +144,7 @@ public class TenorTest {
     assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofYears(0));
   }
 
+  @Test
   public void test_of_notNegative() {
     assertThatIllegalArgumentException().isThrownBy(() -> Tenor.of(Period.ofDays(-1)));
     assertThatIllegalArgumentException().isThrownBy(() -> Tenor.ofDays(-1));
@@ -151,11 +154,11 @@ public class TenorTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parse_String_roundTrip() {
-    assertEquals(Tenor.parse(TENOR_10M.toString()), TENOR_10M);
+    assertThat(Tenor.parse(TENOR_10M.toString())).isEqualTo(TENOR_10M);
   }
 
-  @DataProvider(name = "parseGood")
   public static Object[][] data_parseGood() {
     return new Object[][] {
         {"2D", TENOR_2D},
@@ -168,17 +171,18 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good_noP(String input, Tenor expected) {
-    assertEquals(Tenor.parse(input), expected);
+    assertThat(Tenor.parse(input)).isEqualTo(expected);
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good_withP(String input, Tenor expected) {
-    assertEquals(Tenor.parse("P" + input), expected);
+    assertThat(Tenor.parse("P" + input)).isEqualTo(expected);
   }
 
-  @DataProvider(name = "parseBad")
   public static Object[][] data_parseBad() {
     return new Object[][] {
         {""},
@@ -188,21 +192,22 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "parseBad")
+  @ParameterizedTest
+  @MethodSource("data_parseBad")
   public void test_parse_String_bad(String input) {
     assertThatIllegalArgumentException().isThrownBy(() -> Tenor.parse(input));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getPeriod() {
-    assertEquals(TENOR_3D.getPeriod(), Period.ofDays(3));
-    assertEquals(TENOR_3W.getPeriod(), Period.ofDays(21));
-    assertEquals(TENOR_3M.getPeriod(), Period.ofMonths(3));
-    assertEquals(TENOR_3Y.getPeriod(), Period.ofYears(3));
+    assertThat(TENOR_3D.getPeriod()).isEqualTo(Period.ofDays(3));
+    assertThat(TENOR_3W.getPeriod()).isEqualTo(Period.ofDays(21));
+    assertThat(TENOR_3M.getPeriod()).isEqualTo(Period.ofMonths(3));
+    assertThat(TENOR_3Y.getPeriod()).isEqualTo(Period.ofYears(3));
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "normalized")
   public static Object[][] data_normalized() {
     return new Object[][] {
         {Period.ofDays(1), Period.ofDays(1)},
@@ -220,13 +225,13 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "normalized")
+  @ParameterizedTest
+  @MethodSource("data_normalized")
   public void test_normalized(Period period, Period normalized) {
-    assertEquals(Tenor.of(period).normalized().getPeriod(), normalized);
+    assertThat(Tenor.of(period).normalized().getPeriod()).isEqualTo(normalized);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "based")
   public static Object[][] data_based() {
     return new Object[][] {
         {Tenor.ofDays(1), false, false},
@@ -243,41 +248,45 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "based")
+  @ParameterizedTest
+  @MethodSource("data_based")
   public void test_isWeekBased(Tenor test, boolean weekBased, boolean monthBased) {
-    assertEquals(test.isWeekBased(), weekBased);
+    assertThat(test.isWeekBased()).isEqualTo(weekBased);
   }
 
-  @Test(dataProvider = "based")
+  @ParameterizedTest
+  @MethodSource("data_based")
   public void test_isMonthBased(Tenor test, boolean weekBased, boolean monthBased) {
-    assertEquals(test.isMonthBased(), monthBased);
+    assertThat(test.isMonthBased()).isEqualTo(monthBased);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_addTo() {
-    assertEquals(TENOR_3D.addTo(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 7, 3));
-    assertEquals(TENOR_1W.addTo(
-        OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)),
-        OffsetDateTime.of(2014, 7, 7, 0, 0, 0, 0, ZoneOffset.UTC));
+    assertThat(TENOR_3D.addTo(LocalDate.of(2014, 6, 30))).isEqualTo(LocalDate.of(2014, 7, 3));
+    assertThat(TENOR_1W.addTo(OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)))
+        .isEqualTo(OffsetDateTime.of(2014, 7, 7, 0, 0, 0, 0, ZoneOffset.UTC));
   }
 
+  @Test
   public void test_subtractFrom() {
-    assertEquals(TENOR_3D.subtractFrom(LocalDate.of(2014, 6, 30)), LocalDate.of(2014, 6, 27));
-    assertEquals(TENOR_1W.subtractFrom(
-        OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)),
-        OffsetDateTime.of(2014, 6, 23, 0, 0, 0, 0, ZoneOffset.UTC));
+    assertThat(TENOR_3D.subtractFrom(LocalDate.of(2014, 6, 30))).isEqualTo(LocalDate.of(2014, 6, 27));
+    assertThat(TENOR_1W.subtractFrom(OffsetDateTime.of(2014, 6, 30, 0, 0, 0, 0, ZoneOffset.UTC)))
+        .isEqualTo(OffsetDateTime.of(2014, 6, 23, 0, 0, 0, 0, ZoneOffset.UTC));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_temporalAmount() {
-    assertEquals(TENOR_3D.getUnits(), ImmutableList.of(YEARS, MONTHS, DAYS));
-    assertEquals(TENOR_3D.get(DAYS), 3);
-    assertEquals(LocalDate.of(2014, 6, 30).plus(TENOR_1W), LocalDate.of(2014, 7, 7));
-    assertEquals(LocalDate.of(2014, 6, 30).minus(TENOR_1W), LocalDate.of(2014, 6, 23));
+    assertThat(TENOR_3D.getUnits()).containsExactly(YEARS, MONTHS, DAYS);
+    assertThat(TENOR_3D.get(DAYS)).isEqualTo(3);
+    assertThat(LocalDate.of(2014, 6, 30).plus(TENOR_1W)).isEqualTo(LocalDate.of(2014, 7, 7));
+    assertThat(LocalDate.of(2014, 6, 30).minus(TENOR_1W)).isEqualTo(LocalDate.of(2014, 6, 23));
     assertThatExceptionOfType(UnsupportedTemporalTypeException.class).isThrownBy(() -> TENOR_10M.get(CENTURIES));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compare() {
     List<Tenor> tenors = ImmutableList.of(
         Tenor.ofDays(1),
@@ -314,53 +323,58 @@ public class TenorTest {
     List<Tenor> test = new ArrayList<>(tenors);
     Collections.shuffle(test);
     Collections.sort(test);
-    assertEquals(test, tenors);
+    assertThat(test).isEqualTo(tenors);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals_hashCode() {
     Tenor a1 = TENOR_3D;
     Tenor a2 = Tenor.ofDays(3);
     Tenor b = TENOR_4M;
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(a2), true);
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(a2)).isEqualTo(true);
 
-    assertEquals(a2.equals(a1), true);
-    assertEquals(a2.equals(a2), true);
-    assertEquals(a2.equals(b), false);
+    assertThat(a2.equals(a1)).isEqualTo(true);
+    assertThat(a2.equals(a2)).isEqualTo(true);
+    assertThat(a2.equals(b)).isEqualTo(false);
 
-    assertEquals(b.equals(a1), false);
-    assertEquals(b.equals(a2), false);
-    assertEquals(b.equals(b), true);
+    assertThat(b.equals(a1)).isEqualTo(false);
+    assertThat(b.equals(a2)).isEqualTo(false);
+    assertThat(b.equals(b)).isEqualTo(true);
 
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
+  @Test
   public void test_equals_bad() {
-    assertEquals(TENOR_3D.equals(null), false);
-    assertEquals(TENOR_3D.equals(ANOTHER_TYPE), false);
-    assertEquals(TENOR_3D.equals(new Object()), false);
+    assertThat(TENOR_3D.equals(null)).isEqualTo(false);
+    assertThat(TENOR_3D.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(TENOR_3D.equals(new Object())).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toString() {
-    assertEquals(TENOR_3D.toString(), "3D");
-    assertEquals(TENOR_2W.toString(), "2W");
-    assertEquals(TENOR_4M.toString(), "4M");
-    assertEquals(TENOR_12M.toString(), "12M");
-    assertEquals(TENOR_1Y.toString(), "1Y");
-    assertEquals(TENOR_18M.toString(), "18M");
-    assertEquals(TENOR_4Y.toString(), "4Y");
+    assertThat(TENOR_3D.toString()).isEqualTo("3D");
+    assertThat(TENOR_2W.toString()).isEqualTo("2W");
+    assertThat(TENOR_4M.toString()).isEqualTo("4M");
+    assertThat(TENOR_12M.toString()).isEqualTo("12M");
+    assertThat(TENOR_1Y.toString()).isEqualTo("1Y");
+    assertThat(TENOR_18M.toString()).isEqualTo("18M");
+    assertThat(TENOR_4Y.toString()).isEqualTo("4Y");
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(TENOR_3D);
     assertSerialization(TENOR_4M);
     assertSerialization(TENOR_3Y);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(Tenor.class, TENOR_3D);
     assertJodaConvert(Tenor.class, TENOR_4M);

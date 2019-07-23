@@ -35,23 +35,22 @@ import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
 import static java.time.Month.MARCH;
 import static java.time.Month.OCTOBER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Locale;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link StubConvention}.
  */
-@Test
 public class StubConventionTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "types")
   public static Object[][] data_types() {
     StubConvention[] conv = StubConvention.values();
     Object[][] result = new Object[conv.length][];
@@ -61,7 +60,8 @@ public class StubConventionTest {
     return result;
   }
 
-  @Test(dataProvider = "types")
+  @ParameterizedTest
+  @MethodSource("data_types")
   public void test_null(StubConvention type) {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> type.toRollConvention(null, date(2014, JULY, 1), Frequency.P3M, true));
@@ -72,7 +72,6 @@ public class StubConventionTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "roll")
   public static Object[][] data_roll() {
     return new Object[][] {
         {NONE, date(2014, JANUARY, 14), date(2014, AUGUST, 16), P1M, false, DAY_14},
@@ -157,14 +156,14 @@ public class StubConventionTest {
     };
   }
 
-  @Test(dataProvider = "roll")
+  @ParameterizedTest
+  @MethodSource("data_roll")
   public void test_toRollConvention(
       StubConvention conv, LocalDate start, LocalDate end, Frequency freq, boolean eom, RollConvention expected) {
-    assertEquals(conv.toRollConvention(start, end, freq, eom), expected);
+    assertThat(conv.toRollConvention(start, end, freq, eom)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "implicit")
   public static Object[][] data_implicit() {
     return new Object[][] {
         {NONE, false, false, NONE},
@@ -209,18 +208,18 @@ public class StubConventionTest {
     };
   }
 
-  @Test(dataProvider = "implicit")
+  @ParameterizedTest
+  @MethodSource("data_implicit")
   public void test_toImplicit(
       StubConvention conv, boolean initialStub, boolean finalStub, StubConvention expected) {
     if (expected == null) {
       assertThatIllegalArgumentException().isThrownBy(() -> conv.toImplicit(null, initialStub, finalStub));
     } else {
-      assertEquals(conv.toImplicit(null, initialStub, finalStub), expected);
+      assertThat(conv.toImplicit(null, initialStub, finalStub)).isEqualTo(expected);
     }
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "isStubLong")
   public static Object[][] data_isStubLong() {
     return new Object[][] {
         {NONE, date(2018, 6, 1), date(2018, 6, 8), false},
@@ -242,83 +241,91 @@ public class StubConventionTest {
     };
   }
 
-  @Test(dataProvider = "isStubLong")
+  @ParameterizedTest
+  @MethodSource("data_isStubLong")
   public void test_isStubLong(
       StubConvention conv, LocalDate date1, LocalDate date2, Boolean expected) {
     if (expected == null) {
       assertThatIllegalArgumentException().isThrownBy(() -> conv.isStubLong(date1, date2));
     } else {
-      assertEquals(conv.isStubLong(date1, date2), expected.booleanValue());
+      assertThat(conv.isStubLong(date1, date2)).isEqualTo(expected.booleanValue());
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_NONE() {
-    assertEquals(NONE.isCalculateForwards(), true);
-    assertEquals(NONE.isCalculateBackwards(), false);
-    assertEquals(NONE.isLong(), false);
-    assertEquals(NONE.isShort(), false);
-    assertEquals(NONE.isSmart(), false);
+    assertThat(NONE.isCalculateForwards()).isEqualTo(true);
+    assertThat(NONE.isCalculateBackwards()).isEqualTo(false);
+    assertThat(NONE.isLong()).isEqualTo(false);
+    assertThat(NONE.isShort()).isEqualTo(false);
+    assertThat(NONE.isSmart()).isEqualTo(false);
   }
 
+  @Test
   public void test_SHORT_INITIAL() {
-    assertEquals(SHORT_INITIAL.isCalculateForwards(), false);
-    assertEquals(SHORT_INITIAL.isCalculateBackwards(), true);
-    assertEquals(SHORT_INITIAL.isLong(), false);
-    assertEquals(SHORT_INITIAL.isShort(), true);
-    assertEquals(SHORT_INITIAL.isSmart(), false);
+    assertThat(SHORT_INITIAL.isCalculateForwards()).isEqualTo(false);
+    assertThat(SHORT_INITIAL.isCalculateBackwards()).isEqualTo(true);
+    assertThat(SHORT_INITIAL.isLong()).isEqualTo(false);
+    assertThat(SHORT_INITIAL.isShort()).isEqualTo(true);
+    assertThat(SHORT_INITIAL.isSmart()).isEqualTo(false);
   }
 
+  @Test
   public void test_LONG_INITIAL() {
-    assertEquals(LONG_INITIAL.isCalculateForwards(), false);
-    assertEquals(LONG_INITIAL.isCalculateBackwards(), true);
-    assertEquals(LONG_INITIAL.isLong(), true);
-    assertEquals(LONG_INITIAL.isShort(), false);
-    assertEquals(LONG_INITIAL.isSmart(), false);
+    assertThat(LONG_INITIAL.isCalculateForwards()).isEqualTo(false);
+    assertThat(LONG_INITIAL.isCalculateBackwards()).isEqualTo(true);
+    assertThat(LONG_INITIAL.isLong()).isEqualTo(true);
+    assertThat(LONG_INITIAL.isShort()).isEqualTo(false);
+    assertThat(LONG_INITIAL.isSmart()).isEqualTo(false);
   }
 
+  @Test
   public void test_SMART_INITIAL() {
-    assertEquals(SMART_INITIAL.isCalculateForwards(), false);
-    assertEquals(SMART_INITIAL.isCalculateBackwards(), true);
-    assertEquals(SMART_INITIAL.isLong(), false);
-    assertEquals(SMART_INITIAL.isShort(), false);
-    assertEquals(SMART_INITIAL.isSmart(), true);
+    assertThat(SMART_INITIAL.isCalculateForwards()).isEqualTo(false);
+    assertThat(SMART_INITIAL.isCalculateBackwards()).isEqualTo(true);
+    assertThat(SMART_INITIAL.isLong()).isEqualTo(false);
+    assertThat(SMART_INITIAL.isShort()).isEqualTo(false);
+    assertThat(SMART_INITIAL.isSmart()).isEqualTo(true);
   }
 
+  @Test
   public void test_SHORT_FINAL() {
-    assertEquals(SHORT_FINAL.isCalculateForwards(), true);
-    assertEquals(SHORT_FINAL.isCalculateBackwards(), false);
-    assertEquals(SHORT_FINAL.isLong(), false);
-    assertEquals(SHORT_FINAL.isShort(), true);
-    assertEquals(SHORT_FINAL.isSmart(), false);
+    assertThat(SHORT_FINAL.isCalculateForwards()).isEqualTo(true);
+    assertThat(SHORT_FINAL.isCalculateBackwards()).isEqualTo(false);
+    assertThat(SHORT_FINAL.isLong()).isEqualTo(false);
+    assertThat(SHORT_FINAL.isShort()).isEqualTo(true);
+    assertThat(SHORT_FINAL.isSmart()).isEqualTo(false);
   }
 
+  @Test
   public void test_LONG_FINAL() {
-    assertEquals(LONG_FINAL.isCalculateForwards(), true);
-    assertEquals(LONG_FINAL.isCalculateBackwards(), false);
-    assertEquals(LONG_FINAL.isLong(), true);
-    assertEquals(LONG_FINAL.isShort(), false);
-    assertEquals(LONG_FINAL.isSmart(), false);
+    assertThat(LONG_FINAL.isCalculateForwards()).isEqualTo(true);
+    assertThat(LONG_FINAL.isCalculateBackwards()).isEqualTo(false);
+    assertThat(LONG_FINAL.isLong()).isEqualTo(true);
+    assertThat(LONG_FINAL.isShort()).isEqualTo(false);
+    assertThat(LONG_FINAL.isSmart()).isEqualTo(false);
   }
 
+  @Test
   public void test_SMART_FINAL() {
-    assertEquals(SMART_FINAL.isCalculateForwards(), true);
-    assertEquals(SMART_FINAL.isCalculateBackwards(), false);
-    assertEquals(SMART_FINAL.isLong(), false);
-    assertEquals(SMART_FINAL.isShort(), false);
-    assertEquals(SMART_FINAL.isSmart(), true);
+    assertThat(SMART_FINAL.isCalculateForwards()).isEqualTo(true);
+    assertThat(SMART_FINAL.isCalculateBackwards()).isEqualTo(false);
+    assertThat(SMART_FINAL.isLong()).isEqualTo(false);
+    assertThat(SMART_FINAL.isShort()).isEqualTo(false);
+    assertThat(SMART_FINAL.isSmart()).isEqualTo(true);
   }
 
+  @Test
   public void test_BOTH() {
-    assertEquals(BOTH.isCalculateForwards(), false);
-    assertEquals(BOTH.isCalculateBackwards(), false);
-    assertEquals(BOTH.isLong(), false);
-    assertEquals(BOTH.isShort(), false);
-    assertEquals(BOTH.isSmart(), false);
+    assertThat(BOTH.isCalculateForwards()).isEqualTo(false);
+    assertThat(BOTH.isCalculateBackwards()).isEqualTo(false);
+    assertThat(BOTH.isLong()).isEqualTo(false);
+    assertThat(BOTH.isShort()).isEqualTo(false);
+    assertThat(BOTH.isSmart()).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {NONE, "None"},
@@ -332,44 +339,53 @@ public class StubConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(StubConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(StubConvention convention, String name) {
-    assertEquals(StubConvention.of(name), convention);
+    assertThat(StubConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupUpperCase(StubConvention convention, String name) {
-    assertEquals(StubConvention.of(name.toUpperCase(Locale.ENGLISH)), convention);
+    assertThat(StubConvention.of(name.toUpperCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupLowerCase(StubConvention convention, String name) {
-    assertEquals(StubConvention.of(name.toLowerCase(Locale.ENGLISH)), convention);
+    assertThat(StubConvention.of(name.toLowerCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> StubConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> StubConvention.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(StubConvention.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(NONE);
     assertSerialization(SHORT_FINAL);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(StubConvention.class, NONE);
     assertJodaConvert(StubConvention.class, SHORT_FINAL);

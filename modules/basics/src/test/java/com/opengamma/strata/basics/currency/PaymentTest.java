@@ -11,18 +11,16 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link Payment}.
  */
-@Test
 public class PaymentTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
@@ -32,76 +30,86 @@ public class PaymentTest {
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_3args() {
     Payment test = Payment.of(GBP, 1000, DATE_2015_06_30);
-    assertEquals(test.getValue(), GBP_P1000);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), 1_000, 0d);
-    assertEquals(test.getDate(), DATE_2015_06_30);
+    assertThat(test.getValue()).isEqualTo(GBP_P1000);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(1_000);
+    assertThat(test.getDate()).isEqualTo(DATE_2015_06_30);
   }
 
+  @Test
   public void test_of_2args() {
     Payment test = Payment.of(GBP_P1000, DATE_2015_06_30);
-    assertEquals(test.getValue(), GBP_P1000);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), 1_000, 0d);
-    assertEquals(test.getDate(), DATE_2015_06_30);
+    assertThat(test.getValue()).isEqualTo(GBP_P1000);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(1_000);
+    assertThat(test.getDate()).isEqualTo(DATE_2015_06_30);
   }
 
+  @Test
   public void test_ofPay() {
     Payment test = Payment.ofPay(GBP_P1000, DATE_2015_06_30);
-    assertEquals(test.getValue(), GBP_M1000);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), -1_000, 0d);
-    assertEquals(test.getDate(), DATE_2015_06_30);
+    assertThat(test.getValue()).isEqualTo(GBP_M1000);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(-1_000);
+    assertThat(test.getDate()).isEqualTo(DATE_2015_06_30);
   }
 
+  @Test
   public void test_ofReceive() {
     Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_30);
-    assertEquals(test.getValue(), GBP_P1000);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), 1_000, 0d);
-    assertEquals(test.getDate(), DATE_2015_06_30);
+    assertThat(test.getValue()).isEqualTo(GBP_P1000);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(1_000);
+    assertThat(test.getDate()).isEqualTo(DATE_2015_06_30);
   }
 
+  @Test
   public void test_builder() {
     Payment test = Payment.builder()
         .value(GBP_P1000)
         .date(DATE_2015_06_30)
         .build();
-    assertEquals(test.getValue(), GBP_P1000);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), 1_000, 0d);
-    assertEquals(test.getDate(), DATE_2015_06_30);
+    assertThat(test.getValue()).isEqualTo(GBP_P1000);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(1_000);
+    assertThat(test.getDate()).isEqualTo(DATE_2015_06_30);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_adjustDate() {
     Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_29);
     Payment expected = Payment.of(GBP_P1000, DATE_2015_06_29.plusDays(1));
-    assertEquals(test.adjustDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(1))), expected);
+    assertThat(test.adjustDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(1)))).isEqualTo(expected);
   }
 
+  @Test
   public void test_adjustDate_noChange() {
     Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_29);
-    assertSame(test.adjustDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(1).minusDays(1))), test);
+    assertThat(test.adjustDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(1).minusDays(1)))).isSameAs(test);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_negated() {
     Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_30);
-    assertEquals(test.negated(), Payment.of(GBP_M1000, DATE_2015_06_30));
+    assertThat(test.negated()).isEqualTo(Payment.of(GBP_M1000, DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo_rateProvider() {
     Payment test = Payment.ofReceive(GBP_P1000, DATE_2015_06_30);
     FxRateProvider provider = (ccy1, ccy2) -> 1.6d;
-    assertEquals(test.convertedTo(EUR, provider), Payment.ofReceive(EUR_P1600, DATE_2015_06_30));
-    assertEquals(test.convertedTo(GBP, provider), test);
+    assertThat(test.convertedTo(EUR, provider)).isEqualTo(Payment.ofReceive(EUR_P1600, DATE_2015_06_30));
+    assertThat(test.convertedTo(GBP, provider)).isEqualTo(test);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     Payment test = Payment.of(GBP_P1000, DATE_2015_06_30);
     coverImmutableBean(test);
@@ -109,6 +117,7 @@ public class PaymentTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     Payment test = Payment.of(GBP_P1000, DATE_2015_06_30);
     assertSerialization(test);

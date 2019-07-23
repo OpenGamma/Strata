@@ -6,21 +6,20 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link DateAdjusters}.
  */
-@Test
 public class DateAdjustersTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "nextLeapDay")
   public static Object[][] data_nextLeapDay() {
     return new Object[][] {
         {2000, 1, 1, 2000},
@@ -81,51 +80,56 @@ public class DateAdjustersTest {
     };
   }
 
-  @Test(dataProvider = "nextLeapDay")
+  @ParameterizedTest
+  @MethodSource("data_nextLeapDay")
   public void test_nextLeapDay_LocalDate(int year, int month, int day, int expectedYear) {
     LocalDate date = LocalDate.of(year, month, day);
     LocalDate test = DateAdjusters.nextLeapDay().adjust(date);
-    assertEquals(test.getYear(), expectedYear);
-    assertEquals(test.getMonthValue(), 2);
-    assertEquals(test.getDayOfMonth(), 29);
+    assertThat(test.getYear()).isEqualTo(expectedYear);
+    assertThat(test.getMonthValue()).isEqualTo(2);
+    assertThat(test.getDayOfMonth()).isEqualTo(29);
   }
 
-  @Test(dataProvider = "nextLeapDay")
+  @ParameterizedTest
+  @MethodSource("data_nextLeapDay")
   public void test_nextLeapDay_Temporal(int year, int month, int day, int expectedYear) {
     LocalDate date = LocalDate.of(year, month, day);
     LocalDate test = (LocalDate) DateAdjusters.nextLeapDay().adjustInto(date);
-    assertEquals(test.getYear(), expectedYear);
-    assertEquals(test.getMonthValue(), 2);
-    assertEquals(test.getDayOfMonth(), 29);
+    assertThat(test.getYear()).isEqualTo(expectedYear);
+    assertThat(test.getMonthValue()).isEqualTo(2);
+    assertThat(test.getDayOfMonth()).isEqualTo(29);
   }
 
-  @Test(dataProvider = "nextLeapDay")
+  @ParameterizedTest
+  @MethodSource("data_nextLeapDay")
   public void test_nextOrSameLeapDay_LocalDate(int year, int month, int day, int expectedYear) {
     LocalDate date = LocalDate.of(year, month, day);
     LocalDate test = DateAdjusters.nextOrSameLeapDay().adjust(date);
     if (month == 2 && day == 29) {
-      assertEquals(test, date);
+      assertThat(test).isEqualTo(date);
     } else {
-      assertEquals(test.getYear(), expectedYear);
-      assertEquals(test.getMonthValue(), 2);
-      assertEquals(test.getDayOfMonth(), 29);
+      assertThat(test.getYear()).isEqualTo(expectedYear);
+      assertThat(test.getMonthValue()).isEqualTo(2);
+      assertThat(test.getDayOfMonth()).isEqualTo(29);
     }
   }
 
-  @Test(dataProvider = "nextLeapDay")
+  @ParameterizedTest
+  @MethodSource("data_nextLeapDay")
   public void test_nextOrSameLeapDay_Temporal(int year, int month, int day, int expectedYear) {
     LocalDate date = LocalDate.of(year, month, day);
     LocalDate test = (LocalDate) DateAdjusters.nextOrSameLeapDay().adjustInto(date);
     if (month == 2 && day == 29) {
-      assertEquals(test, date);
+      assertThat(test).isEqualTo(date);
     } else {
-      assertEquals(test.getYear(), expectedYear);
-      assertEquals(test.getMonthValue(), 2);
-      assertEquals(test.getDayOfMonth(), 29);
+      assertThat(test.getYear()).isEqualTo(expectedYear);
+      assertThat(test.getMonthValue()).isEqualTo(2);
+      assertThat(test.getDayOfMonth()).isEqualTo(29);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     assertUtilityClass(DateAdjusters.class);
   }

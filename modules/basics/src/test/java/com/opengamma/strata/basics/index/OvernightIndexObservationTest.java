@@ -11,18 +11,17 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link OvernightIndexObservation}.
  */
-@Test
 public class OvernightIndexObservationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -32,18 +31,20 @@ public class OvernightIndexObservationTest {
   private static final LocalDate MATURITY_DATE = GBP_SONIA.calculateMaturityFromEffective(EFFECTIVE_DATE, REF_DATA);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     OvernightIndexObservation test = OvernightIndexObservation.of(GBP_SONIA, FIXING_DATE, REF_DATA);
-    assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getFixingDate(), FIXING_DATE);
-    assertEquals(test.getPublicationDate(), PUBLICATION_DATE);
-    assertEquals(test.getEffectiveDate(), EFFECTIVE_DATE);
-    assertEquals(test.getMaturityDate(), MATURITY_DATE);
-    assertEquals(test.getCurrency(), GBP_SONIA.getCurrency());
-    assertEquals(test.toString(), "OvernightIndexObservation[GBP-SONIA on 2016-02-22]");
+    assertThat(test.getIndex()).isEqualTo(GBP_SONIA);
+    assertThat(test.getFixingDate()).isEqualTo(FIXING_DATE);
+    assertThat(test.getPublicationDate()).isEqualTo(PUBLICATION_DATE);
+    assertThat(test.getEffectiveDate()).isEqualTo(EFFECTIVE_DATE);
+    assertThat(test.getMaturityDate()).isEqualTo(MATURITY_DATE);
+    assertThat(test.getCurrency()).isEqualTo(GBP_SONIA.getCurrency());
+    assertThat(test.toString()).isEqualTo("OvernightIndexObservation[GBP-SONIA on 2016-02-22]");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     OvernightIndexObservation test = OvernightIndexObservation.of(GBP_SONIA, FIXING_DATE, REF_DATA);
     coverImmutableBean(test);
@@ -51,6 +52,7 @@ public class OvernightIndexObservationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     OvernightIndexObservation test = OvernightIndexObservation.of(GBP_SONIA, FIXING_DATE, REF_DATA);
     assertSerialization(test);

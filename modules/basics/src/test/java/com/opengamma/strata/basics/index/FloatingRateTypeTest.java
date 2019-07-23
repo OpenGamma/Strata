@@ -8,47 +8,49 @@ package com.opengamma.strata.basics.index;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Locale;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link FloatingRateType}.
  */
-@Test
 public class FloatingRateTypeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isIbor() {
-    assertEquals(FloatingRateType.IBOR.isIbor(), true);
-    assertEquals(FloatingRateType.OVERNIGHT_AVERAGED.isIbor(), false);
-    assertEquals(FloatingRateType.OVERNIGHT_COMPOUNDED.isIbor(), false);
-    assertEquals(FloatingRateType.PRICE.isIbor(), false);
-    assertEquals(FloatingRateType.OTHER.isIbor(), false);
+    assertThat(FloatingRateType.IBOR.isIbor()).isEqualTo(true);
+    assertThat(FloatingRateType.OVERNIGHT_AVERAGED.isIbor()).isEqualTo(false);
+    assertThat(FloatingRateType.OVERNIGHT_COMPOUNDED.isIbor()).isEqualTo(false);
+    assertThat(FloatingRateType.PRICE.isIbor()).isEqualTo(false);
+    assertThat(FloatingRateType.OTHER.isIbor()).isEqualTo(false);
   }
 
+  @Test
   public void test_isOvernight() {
-    assertEquals(FloatingRateType.IBOR.isOvernight(), false);
-    assertEquals(FloatingRateType.OVERNIGHT_AVERAGED.isOvernight(), true);
-    assertEquals(FloatingRateType.OVERNIGHT_COMPOUNDED.isOvernight(), true);
-    assertEquals(FloatingRateType.PRICE.isOvernight(), false);
-    assertEquals(FloatingRateType.OTHER.isOvernight(), false);
+    assertThat(FloatingRateType.IBOR.isOvernight()).isEqualTo(false);
+    assertThat(FloatingRateType.OVERNIGHT_AVERAGED.isOvernight()).isEqualTo(true);
+    assertThat(FloatingRateType.OVERNIGHT_COMPOUNDED.isOvernight()).isEqualTo(true);
+    assertThat(FloatingRateType.PRICE.isOvernight()).isEqualTo(false);
+    assertThat(FloatingRateType.OTHER.isOvernight()).isEqualTo(false);
   }
 
+  @Test
   public void test_isPrice() {
-    assertEquals(FloatingRateType.IBOR.isPrice(), false);
-    assertEquals(FloatingRateType.OVERNIGHT_AVERAGED.isPrice(), false);
-    assertEquals(FloatingRateType.OVERNIGHT_COMPOUNDED.isPrice(), false);
-    assertEquals(FloatingRateType.PRICE.isPrice(), true);
-    assertEquals(FloatingRateType.OTHER.isPrice(), false);
+    assertThat(FloatingRateType.IBOR.isPrice()).isEqualTo(false);
+    assertThat(FloatingRateType.OVERNIGHT_AVERAGED.isPrice()).isEqualTo(false);
+    assertThat(FloatingRateType.OVERNIGHT_COMPOUNDED.isPrice()).isEqualTo(false);
+    assertThat(FloatingRateType.PRICE.isPrice()).isEqualTo(true);
+    assertThat(FloatingRateType.OTHER.isPrice()).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FloatingRateType.IBOR, "Ibor"},
@@ -59,43 +61,52 @@ public class FloatingRateTypeTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FloatingRateType convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FloatingRateType convention, String name) {
-    assertEquals(FloatingRateType.of(name), convention);
+    assertThat(FloatingRateType.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupUpperCase(FloatingRateType convention, String name) {
-    assertEquals(FloatingRateType.of(name.toUpperCase(Locale.ENGLISH)), convention);
+    assertThat(FloatingRateType.of(name.toUpperCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupLowerCase(FloatingRateType convention, String name) {
-    assertEquals(FloatingRateType.of(name.toLowerCase(Locale.ENGLISH)), convention);
+    assertThat(FloatingRateType.of(name.toLowerCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateType.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateType.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(FloatingRateType.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(FloatingRateType.IBOR);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(FloatingRateType.class, FloatingRateType.IBOR);
   }

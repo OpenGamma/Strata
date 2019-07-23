@@ -7,20 +7,20 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link AdjustableDate}.
  */
-@Test
 public class AdjustableDateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -36,30 +36,34 @@ public class AdjustableDateTest {
   private static final LocalDate TUE_2014_07_15 = LocalDate.of(2014, 7, 15);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_1arg() {
     AdjustableDate test = AdjustableDate.of(FRI_2014_07_11);
-    assertEquals(test.getUnadjusted(), FRI_2014_07_11);
-    assertEquals(test.getAdjustment(), BDA_NONE);
-    assertEquals(test.toString(), "2014-07-11");
-    assertEquals(test.adjusted(REF_DATA), FRI_2014_07_11);
+    assertThat(test.getUnadjusted()).isEqualTo(FRI_2014_07_11);
+    assertThat(test.getAdjustment()).isEqualTo(BDA_NONE);
+    assertThat(test.toString()).isEqualTo("2014-07-11");
+    assertThat(test.adjusted(REF_DATA)).isEqualTo(FRI_2014_07_11);
   }
 
+  @Test
   public void test_of_2args_withAdjustment() {
     AdjustableDate test = AdjustableDate.of(FRI_2014_07_11, BDA_FOLLOW_SAT_SUN);
-    assertEquals(test.getUnadjusted(), FRI_2014_07_11);
-    assertEquals(test.getAdjustment(), BDA_FOLLOW_SAT_SUN);
-    assertEquals(test.toString(), "2014-07-11 adjusted by Following using calendar Sat/Sun");
-    assertEquals(test.adjusted(REF_DATA), FRI_2014_07_11);
+    assertThat(test.getUnadjusted()).isEqualTo(FRI_2014_07_11);
+    assertThat(test.getAdjustment()).isEqualTo(BDA_FOLLOW_SAT_SUN);
+    assertThat(test.toString()).isEqualTo("2014-07-11 adjusted by Following using calendar Sat/Sun");
+    assertThat(test.adjusted(REF_DATA)).isEqualTo(FRI_2014_07_11);
   }
 
+  @Test
   public void test_of_2args_withNoAdjustment() {
     AdjustableDate test = AdjustableDate.of(FRI_2014_07_11, BDA_NONE);
-    assertEquals(test.getUnadjusted(), FRI_2014_07_11);
-    assertEquals(test.getAdjustment(), BDA_NONE);
-    assertEquals(test.toString(), "2014-07-11");
-    assertEquals(test.adjusted(REF_DATA), FRI_2014_07_11);
+    assertThat(test.getUnadjusted()).isEqualTo(FRI_2014_07_11);
+    assertThat(test.getAdjustment()).isEqualTo(BDA_NONE);
+    assertThat(test.toString()).isEqualTo("2014-07-11");
+    assertThat(test.adjusted(REF_DATA)).isEqualTo(FRI_2014_07_11);
   }
 
+  @Test
   public void test_of_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> AdjustableDate.of(null));
     assertThatIllegalArgumentException().isThrownBy(() -> AdjustableDate.of(null, BDA_FOLLOW_SAT_SUN));
@@ -68,7 +72,6 @@ public class AdjustableDateTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "adjusted")
   public static Object[][] data_adjusted() {
     return new Object[][] {
         {THU_2014_07_10, THU_2014_07_10},
@@ -80,28 +83,32 @@ public class AdjustableDateTest {
     };
   }
 
-  @Test(dataProvider = "adjusted")
+  @ParameterizedTest
+  @MethodSource("data_adjusted")
   public void test_adjusted(LocalDate date, LocalDate expected) {
     AdjustableDate test = AdjustableDate.of(date, BDA_FOLLOW_SAT_SUN);
-    assertEquals(test.adjusted(REF_DATA), expected);
+    assertThat(test.adjusted(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void equals() {
     AdjustableDate a1 = AdjustableDate.of(FRI_2014_07_11, BDA_FOLLOW_SAT_SUN);
     AdjustableDate a2 = AdjustableDate.of(FRI_2014_07_11, BDA_FOLLOW_SAT_SUN);
     AdjustableDate b = AdjustableDate.of(SAT_2014_07_12, BDA_FOLLOW_SAT_SUN);
     AdjustableDate c = AdjustableDate.of(FRI_2014_07_11, BDA_NONE);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(AdjustableDate.of(FRI_2014_07_11, BDA_FOLLOW_SAT_SUN));
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(AdjustableDate.of(FRI_2014_07_11, BDA_FOLLOW_SAT_SUN));
   }

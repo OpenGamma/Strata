@@ -16,12 +16,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -31,13 +32,11 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 /**
  * Test {@link FxIndex}.
  */
-@Test
 public class FxIndexTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FxIndices.EUR_CHF_ECB, "EUR/CHF-ECB"},
@@ -51,57 +50,68 @@ public class FxIndexTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(FxIndex convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FxIndex convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FxIndex convention, String name) {
-    assertEquals(FxIndex.of(name), convention);
+    assertThat(FxIndex.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(FxIndex convention, String name) {
     ImmutableMap<String, FxIndex> map = FxIndex.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxIndex.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxIndex.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ecb_eur_gbp_dates() {
     FxIndex test = FxIndices.EUR_GBP_ECB;
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, EUTA.combinedWith(GBLO)));
-    assertEquals(test.getMaturityDateOffset(), DaysAdjustment.ofBusinessDays(2, EUTA.combinedWith(GBLO)));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 15));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA), date(2014, 10, 13));
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofBusinessDays(-2, EUTA.combinedWith(GBLO)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(DaysAdjustment.ofBusinessDays(2, EUTA.combinedWith(GBLO)));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA)).isEqualTo(date(2014, 10, 15));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA)).isEqualTo(date(2014, 10, 13));
     // weekend
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 16), REF_DATA), date(2014, 10, 20));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 20), REF_DATA), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 17), REF_DATA), date(2014, 10, 21));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 21), REF_DATA), date(2014, 10, 17));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 16), REF_DATA)).isEqualTo(date(2014, 10, 20));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 20), REF_DATA)).isEqualTo(date(2014, 10, 16));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 17), REF_DATA)).isEqualTo(date(2014, 10, 21));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 21), REF_DATA)).isEqualTo(date(2014, 10, 17));
     // input date is Sunday
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19), REF_DATA), date(2014, 10, 22));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 16));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 19), REF_DATA)).isEqualTo(date(2014, 10, 22));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA)).isEqualTo(date(2014, 10, 16));
     // skip maturity over EUR (1st May) and GBP (5th May) holiday
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 4, 30), REF_DATA), date(2014, 5, 6));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 5, 6), REF_DATA), date(2014, 4, 30));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 4, 30), REF_DATA)).isEqualTo(date(2014, 5, 6));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 5, 6), REF_DATA)).isEqualTo(date(2014, 4, 30));
     // resolve
-    assertEquals(test.resolve(REF_DATA).apply(date(2014, 5, 6)), FxIndexObservation.of(test, date(2014, 5, 6), REF_DATA));
+    assertThat(test.resolve(REF_DATA).apply(date(2014, 5, 6)))
+        .isEqualTo(FxIndexObservation.of(test, date(2014, 5, 6), REF_DATA));
   }
 
+  @Test
   public void test_dates() {
     FxIndex test = ImmutableFxIndex.builder()
         .name("Test")
@@ -109,29 +119,32 @@ public class FxIndexTest {
         .fixingCalendar(NO_HOLIDAYS)
         .maturityDateOffset(DaysAdjustment.ofCalendarDays(2))
         .build();
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 15));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA), date(2014, 10, 13));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA)).isEqualTo(date(2014, 10, 15));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 15), REF_DATA)).isEqualTo(date(2014, 10, 13));
     // weekend
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 16), REF_DATA), date(2014, 10, 18));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 18), REF_DATA), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 17), REF_DATA), date(2014, 10, 19));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 17));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 16), REF_DATA)).isEqualTo(date(2014, 10, 18));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 18), REF_DATA)).isEqualTo(date(2014, 10, 16));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 17), REF_DATA)).isEqualTo(date(2014, 10, 19));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA)).isEqualTo(date(2014, 10, 17));
     // input date is Sunday
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 19), REF_DATA), date(2014, 10, 21));
-    assertEquals(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA), date(2014, 10, 17));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 19), REF_DATA)).isEqualTo(date(2014, 10, 21));
+    assertThat(test.calculateFixingFromMaturity(date(2014, 10, 19), REF_DATA)).isEqualTo(date(2014, 10, 17));
   }
 
+  @Test
   public void test_cny() {
     FxIndex test = FxIndex.of("USD/CNY-SAEC-CNY01");
-    assertEquals(test.getName(), "USD/CNY-SAEC-CNY01");
+    assertThat(test.getName()).isEqualTo("USD/CNY-SAEC-CNY01");
   }
 
+  @Test
   public void test_inr() {
     FxIndex test = FxIndex.of("USD/INR-FBIL-INR01");
-    assertEquals(test.getName(), "USD/INR-FBIL-INR01");
+    assertThat(test.getName()).isEqualTo("USD/INR-FBIL-INR01");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     ImmutableFxIndex a = ImmutableFxIndex.builder()
         .name("GBP-EUR")
@@ -140,19 +153,22 @@ public class FxIndexTest {
         .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     ImmutableFxIndex b = a.toBuilder().name("EUR-GBP").build();
-    assertEquals(a.equals(b), false);
+    assertThat(a.equals(b)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(FxIndices.class);
     coverImmutableBean((ImmutableBean) EUR_CHF_ECB);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(FxIndex.class, EUR_CHF_ECB);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(EUR_CHF_ECB);
   }

@@ -9,15 +9,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
@@ -25,7 +25,6 @@ import com.opengamma.strata.basics.date.HolidayCalendarIds;
 /**
  * Test {@link ReferenceData} and {@link ImmutableReferenceData}.
  */
-@Test
 public class ReferenceDataTest {
 
   private static final TestingReferenceDataId ID1 = new TestingReferenceDataId("1");
@@ -64,99 +63,107 @@ public class ReferenceDataTest {
   };
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_standard() {
     ReferenceData test = ReferenceData.standard();
-    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.GBLO), true);
+    assertThat(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.SAT_SUN)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.FRI_SAT)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.THU_FRI)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.GBLO)).isEqualTo(true);
   }
 
+  @Test
   public void test_minimal() {
     ReferenceData test = ReferenceData.minimal();
-    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.GBLO), false);
+    assertThat(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.SAT_SUN)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.FRI_SAT)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.THU_FRI)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.GBLO)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_RD() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     ReferenceData test = ReferenceData.of(dataMap);
 
-    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), true);
-    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), true);
+    assertThat(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.SAT_SUN)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.FRI_SAT)).isEqualTo(true);
+    assertThat(test.containsValue(HolidayCalendarIds.THU_FRI)).isEqualTo(true);
 
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.findValue(ID1), Optional.of(VAL1));
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL1));
 
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.getValue(ID2), VAL2);
-    assertEquals(test.findValue(ID2), Optional.of(VAL2));
+    assertThat(test.containsValue(ID2)).isEqualTo(true);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
 
-    assertEquals(test.containsValue(ID3), false);
+    assertThat(test.containsValue(ID3)).isEqualTo(false);
     assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
-    assertEquals(test.findValue(ID3), Optional.empty());
+    assertThat(test.findValue(ID3)).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_of_IRD() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1, ID2, VAL2);
     ImmutableReferenceData test = ImmutableReferenceData.of(dataMap);
 
-    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), false);
-    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), false);
-    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), false);
-    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), false);
+    assertThat(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS)).isEqualTo(false);
+    assertThat(test.containsValue(HolidayCalendarIds.SAT_SUN)).isEqualTo(false);
+    assertThat(test.containsValue(HolidayCalendarIds.FRI_SAT)).isEqualTo(false);
+    assertThat(test.containsValue(HolidayCalendarIds.THU_FRI)).isEqualTo(false);
 
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.findValue(ID1), Optional.of(VAL1));
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL1));
 
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.getValue(ID2), VAL2);
-    assertEquals(test.findValue(ID2), Optional.of(VAL2));
+    assertThat(test.containsValue(ID2)).isEqualTo(true);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
 
-    assertEquals(test.containsValue(ID3), false);
+    assertThat(test.containsValue(ID3)).isEqualTo(false);
     assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
-    assertEquals(test.findValue(ID3), Optional.empty());
+    assertThat(test.findValue(ID3)).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_of_single() {
     ReferenceData test = ImmutableReferenceData.of(ID1, VAL1);
 
-    assertEquals(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS), false);
-    assertEquals(test.containsValue(HolidayCalendarIds.SAT_SUN), false);
-    assertEquals(test.containsValue(HolidayCalendarIds.FRI_SAT), false);
-    assertEquals(test.containsValue(HolidayCalendarIds.THU_FRI), false);
+    assertThat(test.containsValue(HolidayCalendarIds.NO_HOLIDAYS)).isEqualTo(false);
+    assertThat(test.containsValue(HolidayCalendarIds.SAT_SUN)).isEqualTo(false);
+    assertThat(test.containsValue(HolidayCalendarIds.FRI_SAT)).isEqualTo(false);
+    assertThat(test.containsValue(HolidayCalendarIds.THU_FRI)).isEqualTo(false);
 
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.findValue(ID1), Optional.of(VAL1));
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL1));
 
-    assertEquals(test.containsValue(ID2), false);
+    assertThat(test.containsValue(ID2)).isEqualTo(false);
     assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
-    assertEquals(test.findValue(ID2), Optional.empty());
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_empty() {
     ReferenceData test = ReferenceData.empty();
 
-    assertEquals(test.containsValue(ID1), false);
+    assertThat(test.containsValue(ID1)).isEqualTo(false);
     assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID1));
-    assertEquals(test.findValue(ID1), Optional.empty());
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_of_badType() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, "67");  // not a Number
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> ReferenceData.of(dataMap));
   }
 
+  @Test
   public void test_of_null() {
     Map<ReferenceDataId<?>, Object> dataMap = new HashMap<>();
     dataMap.put(ID1, null);
@@ -164,42 +171,47 @@ public class ReferenceDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_defaultMethods() {
-    assertEquals(REF_DATA1.containsValue(ID1), true);
-    assertEquals(REF_DATA1.containsValue(ID2), false);
+    assertThat(REF_DATA1.containsValue(ID1)).isEqualTo(true);
+    assertThat(REF_DATA1.containsValue(ID2)).isEqualTo(false);
 
-    assertEquals(REF_DATA1.getValue(ID1), VAL1);
+    assertThat(REF_DATA1.getValue(ID1)).isEqualTo(VAL1);
     assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> REF_DATA1.getValue(ID2));
 
-    assertEquals(REF_DATA1.findValue(ID1), Optional.of(VAL1));
-    assertEquals(REF_DATA1.findValue(ID2), Optional.empty());
+    assertThat(REF_DATA1.findValue(ID1)).isEqualTo(Optional.of(VAL1));
+    assertThat(REF_DATA1.findValue(ID2)).isEqualTo(Optional.empty());
 
-    assertEquals(REF_DATA1.queryValueOrNull(ID1), VAL1);
-    assertEquals(REF_DATA1.queryValueOrNull(ID2), null);
+    assertThat(REF_DATA1.queryValueOrNull(ID1)).isEqualTo(VAL1);
+    assertThat(REF_DATA1.queryValueOrNull(ID2)).isEqualTo(null);
 
-    assertEquals(ID1.queryValueOrNull(REF_DATA1), VAL1);
-    assertEquals(ID2.queryValueOrNull(REF_DATA1), null);
+    assertThat(ID1.queryValueOrNull(REF_DATA1)).isEqualTo(VAL1);
+    assertThat(ID2.queryValueOrNull(REF_DATA1)).isEqualTo(null);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith_other_other_noClash() {
     ReferenceData test = REF_DATA1.combinedWith(REF_DATA2);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
   }
 
+  @Test
   public void test_combinedWith_other_other_noClashSame() {
     ReferenceData test = REF_DATA1.combinedWith(REF_DATA12);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
   }
 
+  @Test
   public void test_combinedWith_other_other_clash() {
     ReferenceData combined = REF_DATA1.combinedWith(REF_DATA3);
-    assertEquals(combined.getValue(ID1), VAL1);
+    assertThat(combined.getValue(ID1)).isEqualTo(VAL1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith_IRD_IRD_noClash() {
     Map<ReferenceDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     ImmutableReferenceData test1 = ImmutableReferenceData.of(dataMap1);
@@ -207,10 +219,11 @@ public class ReferenceDataTest {
     ImmutableReferenceData test2 = ImmutableReferenceData.of(dataMap2);
 
     ReferenceData test = test1.combinedWith(test2);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
   }
 
+  @Test
   public void test_combinedWith_IRD_IRD_noClashSame() {
     Map<ReferenceDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     ImmutableReferenceData test1 = ImmutableReferenceData.of(dataMap1);
@@ -218,30 +231,33 @@ public class ReferenceDataTest {
     ImmutableReferenceData test2 = ImmutableReferenceData.of(dataMap2);
 
     ReferenceData test = test1.combinedWith(test2);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
   }
 
+  @Test
   public void test_combinedWith_IRD_IRD_clash() {
     Map<ReferenceDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     ImmutableReferenceData test1 = ImmutableReferenceData.of(dataMap1);
     Map<ReferenceDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
     ImmutableReferenceData test2 = ImmutableReferenceData.of(dataMap2);
     ReferenceData combined = test1.combinedWith(test2);
-    assertEquals(combined.getValue(ID1), VAL1);
+    assertThat(combined.getValue(ID1)).isEqualTo(VAL1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith_IRD_other_noClash() {
     Map<ReferenceDataId<?>, Object> dataMap1 = ImmutableMap.of(ID1, VAL1);
     ImmutableReferenceData test1 = ImmutableReferenceData.of(dataMap1);
 
     ReferenceData test = test1.combinedWith(REF_DATA2);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
     ImmutableReferenceData test = ImmutableReferenceData.of(dataMap);
@@ -253,6 +269,7 @@ public class ReferenceDataTest {
     coverPrivateConstructor(StandardReferenceData.class);
   }
 
+  @Test
   public void test_serialization() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, VAL1);
     ReferenceData test = ImmutableReferenceData.of(dataMap);

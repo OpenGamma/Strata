@@ -9,25 +9,24 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.MonthDay;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@code GlobalHolidayCalendars}.
  */
-@Test
 public class GlobalHolidayCalendarsTest {
 
-  @DataProvider(name = "easter")
   public static Object[][] data_easter() {
     return new Object[][] {
         {15, 4, 1900},
@@ -234,15 +233,15 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "easter")
+  @ParameterizedTest
+  @MethodSource("data_easter")
   public void test_easter(int day, int month, int year) {
-    assertEquals(GlobalHolidayCalendars.easter(year), LocalDate.of(year, month, day));
+    assertThat(GlobalHolidayCalendars.easter(year)).isEqualTo(LocalDate.of(year, month, day));
   }
 
   //-------------------------------------------------------------------------
   private static final HolidayCalendar GBLO = GlobalHolidayCalendars.generateLondon();
 
-  @DataProvider(name = "gblo")
   public static Object[][] data_gblo() {
     return new Object[][] {
         // Whitsun, Last Mon Aug - http://hansard.millbanksystems.com/commons/1964/mar/04/staggered-holidays
@@ -271,13 +270,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "gblo")
+  @ParameterizedTest
+  @MethodSource("data_gblo")
   public void test_gblo(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(GBLO.isHoliday(date), isHoliday, date.toString());
+      assertThat(GBLO.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -285,7 +285,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar FRPA = GlobalHolidayCalendars.generateParis();
 
-  @DataProvider(name = "frpa")
   public static Object[][] data_frpa() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
@@ -315,13 +314,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "frpa")
+  @ParameterizedTest
+  @MethodSource("data_frpa")
   public void test_frpa(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(FRPA.isHoliday(date), isHoliday, date.toString());
+      assertThat(FRPA.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -329,7 +329,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar DEFR = GlobalHolidayCalendars.generateFrankfurt();
 
-  @DataProvider(name = "defr")
   public static Object[][] data_defr() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
@@ -344,13 +343,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "defr")
+  @ParameterizedTest
+  @MethodSource("data_defr")
   public void test_defr(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(DEFR.isHoliday(date), isHoliday, date.toString());
+      assertThat(DEFR.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -358,7 +358,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar CHZU = GlobalHolidayCalendars.generateZurich();
 
-  @DataProvider(name = "chzu")
   public static Object[][] data_chzu() {
     return new Object[][] {
         // dates not shifted if fall on a weekend
@@ -375,13 +374,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "chzu")
+  @ParameterizedTest
+  @MethodSource("data_chzu")
   public void test_chzu(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(CHZU.isHoliday(date), isHoliday, date.toString());
+      assertThat(CHZU.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -389,7 +389,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar EUTA = GlobalHolidayCalendars.generateEuropeanTarget();
 
-  @DataProvider(name = "euta")
   public static Object[][] data_euta() {
     return new Object[][] {
         // 1997 - 1998 (testing phase), Jan 1, christmas day
@@ -410,13 +409,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "euta")
+  @ParameterizedTest
+  @MethodSource("data_euta")
   public void test_euta(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(EUTA.isHoliday(date), isHoliday, date.toString());
+      assertThat(EUTA.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -424,7 +424,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar USGS = GlobalHolidayCalendars.generateUsGovtSecurities();
 
-  @DataProvider(name = "usgs")
   public static Object[][] data_usgs() {
     return new Object[][] {
         // http://www.sifma.org/uploadedfiles/research/statistics/statisticsfiles/misc-us-historical-holiday-market-recommendations-sifma.pdf?n=53384
@@ -471,13 +470,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "usgs")
+  @ParameterizedTest
+  @MethodSource("data_usgs")
   public void test_usgs(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(USGS.isHoliday(date), isHoliday, date.toString());
+      assertThat(USGS.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -485,7 +485,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar USNY = GlobalHolidayCalendars.generateUsNewYork();
 
-  @DataProvider(name = "usny")
   public static Object[][] data_usny() {
     return new Object[][] {
         // http://www.cs.ny.gov/attendance_leave/2012_legal_holidays.cfm
@@ -509,13 +508,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "usny")
+  @ParameterizedTest
+  @MethodSource("data_usny")
   public void test_usny(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(USNY.isHoliday(date), isHoliday, date.toString());
+      assertThat(USNY.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -523,7 +523,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar NYFD = GlobalHolidayCalendars.generateNewYorkFed();
 
-  @DataProvider(name = "nyfd")
   public static Object[][] data_nyfd() {
     return new Object[][] {
         // http://www.ny.frb.org/aboutthefed/holiday_schedule.html
@@ -566,13 +565,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "nyfd")
+  @ParameterizedTest
+  @MethodSource("data_nyfd")
   public void test_nyfd(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(NYFD.isHoliday(date), isHoliday, date.toString());
+      assertThat(NYFD.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -580,7 +580,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar NYSE = GlobalHolidayCalendars.generateNewYorkStockExchange();
 
-  @DataProvider(name = "nyse")
   public static Object[][] data_nyse() {
     return new Object[][] {
         // https://www.nyse.com/markets/hours-calendars
@@ -605,13 +604,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "nyse")
+  @ParameterizedTest
+  @MethodSource("data_nyse")
   public void test_nyse(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(NYSE.isHoliday(date), isHoliday, date.toString());
+      assertThat(NYSE.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -619,7 +619,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar JPTO = GlobalHolidayCalendars.generateTokyo();
 
-  @DataProvider(name = "jpto")
   public static Object[][] data_jpto() {
     return new Object[][] {
         // https://www.boj.or.jp/en/about/outline/holi.htm/
@@ -669,13 +668,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "jpto")
+  @ParameterizedTest
+  @MethodSource("data_jpto")
   public void test_jpto(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(JPTO.isHoliday(date), isHoliday, date.toString());
+      assertThat(JPTO.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -683,7 +683,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar AUSY = GlobalHolidayCalendars.generateSydney();
 
-  @DataProvider(name = "ausy")
   public static Object[][] data_ausy() {
     return new Object[][] {
         {2012, mds(2012, md(1, 1), md(1, 2), md(1, 26), md(4, 6), md(4, 7), md(4, 8), md(4, 9),
@@ -701,13 +700,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "ausy")
+  @ParameterizedTest
+  @MethodSource("data_ausy")
   public void test_ausy(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(AUSY.isHoliday(date), isHoliday, date.toString());
+      assertThat(AUSY.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -715,7 +715,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar BRBD = GlobalHolidayCalendars.generateBrazil();
 
-  @DataProvider(name = "brbd")
   public static Object[][] data_brbd() {
     // http://www.planalto.gov.br/ccivil_03/leis/2002/L10607.htm
     // fixing data
@@ -731,13 +730,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "brbd")
+  @ParameterizedTest
+  @MethodSource("data_brbd")
   public void test_brbd(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(BRBD.isHoliday(date), isHoliday, date.toString());
+      assertThat(BRBD.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -745,7 +745,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar CAMO = GlobalHolidayCalendars.generateMontreal();
 
-  @DataProvider(name = "camo")
   public static Object[][] data_camo() {
     // https://www.bankofcanada.ca/about/contact-information/bank-of-canada-holiday-schedule/
     // also indicate day after new year and boxing day, but no other sources for this
@@ -757,13 +756,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "camo")
+  @ParameterizedTest
+  @MethodSource("data_camo")
   public void test_camo(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(CAMO.isHoliday(date), isHoliday, date.toString());
+      assertThat(CAMO.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -771,7 +771,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar CATO = GlobalHolidayCalendars.generateToronto();
 
-  @DataProvider(name = "cato")
   public static Object[][] data_cato() {
     return new Object[][] {
         {2009, mds(2009, md(1, 1), md(2, 16), md(4, 10),
@@ -793,13 +792,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "cato")
+  @ParameterizedTest
+  @MethodSource("data_cato")
   public void test_cato(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(CATO.isHoliday(date), isHoliday, date.toString());
+      assertThat(CATO.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -807,7 +807,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar CZPR = GlobalHolidayCalendars.generatePrague();
 
-  @DataProvider(name = "czpr")
   public static Object[][] data_czpr() {
     // official data from Czech National Bank
     // https://www.cnb.cz/en/public/media_service/schedules/media_svatky.html
@@ -835,13 +834,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "czpr")
+  @ParameterizedTest
+  @MethodSource("data_czpr")
   public void test_czpr(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(CZPR.isHoliday(date), isHoliday, date.toString());
+      assertThat(CZPR.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -849,7 +849,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar DKCO = GlobalHolidayCalendars.generateCopenhagen();
 
-  @DataProvider(name = "dkco")
   public static Object[][] data_dkco() {
     // official data from Danish Bankers association via web archive
     return new Object[][] {
@@ -864,13 +863,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "dkco")
+  @ParameterizedTest
+  @MethodSource("data_dkco")
   public void test_dkco(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(DKCO.isHoliday(date), isHoliday, date.toString());
+      assertThat(DKCO.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -878,7 +878,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar HUBU = GlobalHolidayCalendars.generateBudapest();
 
-  @DataProvider(name = "hubu")
   public static Object[][] data_hubu() {
     // http://www.mnb.hu/letoltes/bubor2.xls
     // http://holidays.kayaposoft.com/public_holidays.php?year=2013&country=hun&region=#
@@ -902,14 +901,15 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "hubu")
+  @ParameterizedTest
+  @MethodSource("data_hubu")
   public void test_hubu(int year, List<LocalDate> holidays, List<LocalDate> workDays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = (holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY) &&
           !workDays.contains(date);
-      assertEquals(HUBU.isHoliday(date), isHoliday, date.toString());
+      assertThat(HUBU.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -917,7 +917,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar MXMC = GlobalHolidayCalendars.generateMexicoCity();
 
-  @DataProvider(name = "mxmc")
   public static Object[][] data_mxmc() {
     // http://www.banxico.org.mx/SieInternet/consultarDirectorioInternetAction.do?accion=consultarCuadro&idCuadro=CF111&locale=en
     return new Object[][] {
@@ -934,13 +933,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "mxmc")
+  @ParameterizedTest
+  @MethodSource("data_mxmc")
   public void test_mxmc(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(MXMC.isHoliday(date), isHoliday, date.toString());
+      assertThat(MXMC.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -948,7 +948,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar NOOS = GlobalHolidayCalendars.generateOslo();
 
-  @DataProvider(name = "noos")
   public static Object[][] data_noos() {
     // official data from Oslo Bors via web archive
     return new Object[][] {
@@ -971,13 +970,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "noos")
+  @ParameterizedTest
+  @MethodSource("data_noos")
   public void test_noos(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(NOOS.isHoliday(date), isHoliday, date.toString());
+      assertThat(NOOS.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -985,7 +985,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar NZAU = GlobalHolidayCalendars.generateAuckland();
 
-  @DataProvider(name = "nzau")
   public static Object[][] data_nzau() {
     // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
@@ -1001,13 +1000,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "nzau")
+  @ParameterizedTest
+  @MethodSource("data_nzau")
   public void test_nzau(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(NZAU.isHoliday(date), isHoliday, date.toString());
+      assertThat(NZAU.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -1015,7 +1015,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar NZWE = GlobalHolidayCalendars.generateWellington();
 
-  @DataProvider(name = "nzwe")
   public static Object[][] data_nzwe() {
     // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
@@ -1031,13 +1030,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "nzwe")
+  @ParameterizedTest
+  @MethodSource("data_nzwe")
   public void test_nzwe(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(NZWE.isHoliday(date), isHoliday, date.toString());
+      assertThat(NZWE.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -1045,7 +1045,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar NZBD = GlobalHolidayCalendars.generateNewZealand();
 
-  @DataProvider(name = "nzbd")
   public static Object[][] data_nzbd() {
     // https://www.govt.nz/browse/work/public-holidays-and-work/public-holidays-and-anniversary-dates/
     // https://www.employment.govt.nz/leave-and-holidays/public-holidays/public-holidays-and-anniversary-dates/dates-for-previous-years/
@@ -1061,13 +1060,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "nzbd")
+  @ParameterizedTest
+  @MethodSource("data_nzbd")
   public void test_nzbd(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(NZBD.isHoliday(date), isHoliday, date.toString());
+      assertThat(NZBD.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -1075,7 +1075,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar PLWA = GlobalHolidayCalendars.generateWarsaw();
 
-  @DataProvider(name = "plwa")
   public static Object[][] data_plwa() {
     // based on government law data and stock exchange holidays
     return new Object[][] {
@@ -1094,13 +1093,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "plwa")
+  @ParameterizedTest
+  @MethodSource("data_plwa")
   public void test_plwa(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(PLWA.isHoliday(date), isHoliday, date.toString());
+      assertThat(PLWA.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -1108,7 +1108,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar SEST = GlobalHolidayCalendars.generateStockholm();
 
-  @DataProvider(name = "sest")
   public static Object[][] data_sest() {
     // official data from published fixing dates
     return new Object[][] {
@@ -1121,13 +1120,14 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "sest")
+  @ParameterizedTest
+  @MethodSource("data_sest")
   public void test_sest(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(SEST.isHoliday(date), isHoliday, date.toString());
+      assertThat(SEST.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
@@ -1135,7 +1135,6 @@ public class GlobalHolidayCalendarsTest {
   //-------------------------------------------------------------------------
   private static final HolidayCalendar ZAJO = GlobalHolidayCalendars.generateJohannesburg();
 
-  @DataProvider(name = "zajo")
   public static Object[][] data_zajo() {
     // http://www.gov.za/about-sa/public-holidays
     // https://web.archive.org/web/20151230214958/http://www.gov.za/about-sa/public-holidays
@@ -1149,24 +1148,26 @@ public class GlobalHolidayCalendarsTest {
     };
   }
 
-  @Test(dataProvider = "zajo")
+  @ParameterizedTest
+  @MethodSource("data_zajo")
   public void test_zajo(int year, List<LocalDate> holidays) {
     LocalDate date = LocalDate.of(year, 1, 1);
     int len = date.lengthOfYear();
     for (int i = 0; i < len; i++) {
       boolean isHoliday = holidays.contains(date) || date.getDayOfWeek() == SATURDAY || date.getDayOfWeek() == SUNDAY;
-      assertEquals(ZAJO.isHoliday(date), isHoliday, date.toString());
+      assertThat(ZAJO.isHoliday(date)).as(date.toString()).isEqualTo(isHoliday);
       date = date.plusDays(1);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith() {
     HolidayCalendar combined =
         ImmutableHolidayCalendar.combined((ImmutableHolidayCalendar) JPTO, (ImmutableHolidayCalendar) USNY);
     LocalDate date = LocalDate.of(1950, 1, 1);
     while (date.getYear() < 2040) {
-      assertEquals(combined.isHoliday(date), JPTO.isHoliday(date) || USNY.isHoliday(date), "Date: " + date);
+      assertThat(combined.isHoliday(date)).as("Date: " + date).isEqualTo(JPTO.isHoliday(date) || USNY.isHoliday(date));
       date = date.plusDays(1);
     }
   }

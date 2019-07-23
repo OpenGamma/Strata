@@ -28,15 +28,15 @@ import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.temporal.UnsupportedTemporalTypeException;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests for the frequency class.
  */
 public class FrequencyTest {
 
-  @DataProvider(name = "create")
   public static Object[][] data_create() {
     return new Object[][] {
         {Frequency.ofDays(1), Period.ofDays(1), "P1D"},
@@ -70,20 +70,23 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "create")
+  @ParameterizedTest
+  @MethodSource("data_create")
   public void test_of_int(Frequency test, Period period, String toString) {
     assertThat(test.getPeriod()).isEqualTo(period);
     assertThat(test.toString()).isEqualTo(toString);
     assertThat(test.isTerm()).isFalse();
   }
 
-  @Test(dataProvider = "create")
+  @ParameterizedTest
+  @MethodSource("data_create")
   public void test_of_Period(Frequency test, Period period, String toString) {
     assertThat(Frequency.of(period)).isEqualTo(test);
     assertThat(Frequency.of(period).getPeriod()).isEqualTo(period);
   }
 
-  @Test(dataProvider = "create")
+  @ParameterizedTest
+  @MethodSource("data_create")
   public void test_parse(Frequency test, Period period, String toString) {
     assertThat(Frequency.parse(toString)).isEqualTo(test);
     assertThat(Frequency.parse(toString).getPeriod()).isEqualTo(period);
@@ -144,7 +147,6 @@ public class FrequencyTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "ofMonths")
   public static Object[][] data_ofMonths() {
     return new Object[][] {
         {1, Period.ofMonths(1), "P1M"},
@@ -159,13 +161,13 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "ofMonths")
+  @ParameterizedTest
+  @MethodSource("data_ofMonths")
   public void test_ofMonths(int months, Period normalized, String str) {
     assertThat(Frequency.ofMonths(months).getPeriod()).isEqualTo(normalized);
     assertThat(Frequency.ofMonths(months).toString()).isEqualTo(str);
   }
 
-  @DataProvider(name = "ofYears")
   public static Object[][] data_ofYears() {
     return new Object[][] {
         {1, Period.ofYears(1), "P1Y"},
@@ -174,14 +176,14 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "ofYears")
+  @ParameterizedTest
+  @MethodSource("data_ofYears")
   public void test_ofYears(int years, Period normalized, String str) {
     assertThat(Frequency.ofYears(years).getPeriod()).isEqualTo(normalized);
     assertThat(Frequency.ofYears(years).toString()).isEqualTo(str);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "normalized")
   public static Object[][] data_normalized() {
     return new Object[][] {
         {Period.ofDays(1), Period.ofDays(1)},
@@ -199,13 +201,13 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "normalized")
+  @ParameterizedTest
+  @MethodSource("data_normalized")
   public void test_normalized(Period period, Period normalized) {
     assertThat(Frequency.of(period).normalized().getPeriod()).isEqualTo(normalized);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "based")
   public static Object[][] data_based() {
     return new Object[][] {
         {Frequency.ofDays(1), false, false, false},
@@ -224,23 +226,25 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "based")
+  @ParameterizedTest
+  @MethodSource("data_based")
   public void test_isWeekBased(Frequency test, boolean weekBased, boolean monthBased, boolean annual) {
     assertThat(test.isWeekBased()).isEqualTo(weekBased);
   }
 
-  @Test(dataProvider = "based")
+  @ParameterizedTest
+  @MethodSource("data_based")
   public void test_isMonthBased(Frequency test, boolean weekBased, boolean monthBased, boolean annual) {
     assertThat(test.isMonthBased()).isEqualTo(monthBased);
   }
 
-  @Test(dataProvider = "based")
+  @ParameterizedTest
+  @MethodSource("data_based")
   public void test_isAnnual(Frequency test, boolean weekBased, boolean monthBased, boolean annual) {
     assertThat(test.isAnnual()).isEqualTo(annual);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "events")
   public static Object[][] data_events() {
     return new Object[][] {
         {Frequency.P1D, 364},
@@ -260,7 +264,8 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "events")
+  @ParameterizedTest
+  @MethodSource("data_events")
   public void test_eventsPerYear(Frequency test, int expected) {
     assertThat(test.eventsPerYear()).isEqualTo(expected);
   }
@@ -275,7 +280,8 @@ public class FrequencyTest {
     assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear());
   }
 
-  @Test(dataProvider = "events")
+  @ParameterizedTest
+  @MethodSource("data_events")
   public void test_eventsPerYearEstimate(Frequency test, int expected) {
     assertThat(test.eventsPerYearEstimate()).isEqualTo(expected, within(1e-8));
   }
@@ -295,7 +301,6 @@ public class FrequencyTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "exactDivide")
   public static Object[][] data_exactDivide() {
     return new Object[][] {
         {Frequency.P1D, Frequency.P1D, 1},
@@ -326,12 +331,14 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "exactDivide")
+  @ParameterizedTest
+  @MethodSource("data_exactDivide")
   public void test_exactDivide(Frequency test, Frequency other, int expected) {
     assertThat(test.exactDivide(other)).isEqualTo(expected);
   }
 
-  @Test(dataProvider = "exactDivide")
+  @ParameterizedTest
+  @MethodSource("data_exactDivide")
   public void test_exactDivide_reverse(Frequency test, Frequency other, int expected) {
     if (!test.equals(other)) {
       assertThatIllegalArgumentException().isThrownBy(() -> other.exactDivide(test));
@@ -355,7 +362,6 @@ public class FrequencyTest {
     assertThat(Frequency.parse(P6M.toString())).isEqualTo(P6M);
   }
 
-  @DataProvider(name = "parseGood")
   public static Object[][] data_parseGood() {
     return new Object[][] {
         {"1D", Frequency.ofDays(1)},
@@ -369,12 +375,14 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good_noP(String input, Frequency expected) {
     assertThat(Frequency.parse(input)).isEqualTo(expected);
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good_withP(String input, Frequency expected) {
     assertThat(Frequency.parse("P" + input)).isEqualTo(expected);
   }
@@ -385,7 +393,6 @@ public class FrequencyTest {
     assertThat(Frequency.parse("TERM")).isEqualTo(Frequency.TERM);
   }
 
-  @DataProvider(name = "parseBad")
   public static Object[][] data_parseBad() {
     return new Object[][] {
         {""},
@@ -397,7 +404,8 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "parseBad")
+  @ParameterizedTest
+  @MethodSource("data_parseBad")
   public void test_parse_String_bad(String input) {
     assertThatIllegalArgumentException().isThrownBy(() -> Frequency.parse(input));
   }
