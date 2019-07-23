@@ -6,9 +6,9 @@
 package com.opengamma.strata.basics.value;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -40,10 +40,14 @@ public class ValueStepTest {
   }
 
   public void test_builder_invalid() {
-    assertThrowsIllegalArg(() -> ValueStep.builder().value(DELTA_MINUS_2000).build());
-    assertThrowsIllegalArg(() -> ValueStep.builder().date(date(2014, 6, 30)).periodIndex(1).value(DELTA_MINUS_2000).build());
-    assertThrowsIllegalArg(() -> ValueStep.builder().periodIndex(0).value(DELTA_MINUS_2000).build());
-    assertThrowsIllegalArg(() -> ValueStep.builder().periodIndex(-1).value(DELTA_MINUS_2000).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueStep.builder().value(DELTA_MINUS_2000).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueStep.builder().date(date(2014, 6, 30)).periodIndex(1).value(DELTA_MINUS_2000).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueStep.builder().periodIndex(0).value(DELTA_MINUS_2000).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueStep.builder().periodIndex(-1).value(DELTA_MINUS_2000).build());
   }
 
   //-------------------------------------------------------------------------

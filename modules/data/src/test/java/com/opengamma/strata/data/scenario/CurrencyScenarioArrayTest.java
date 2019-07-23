@@ -8,12 +8,11 @@ package com.opengamma.strata.data.scenario;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.List;
 
@@ -60,7 +59,7 @@ public class CurrencyScenarioArrayTest {
   public void create_fromList_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyScenarioArray.of(values));
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyScenarioArray.of(values));
   }
 
   public void create_fromFunction() {
@@ -80,7 +79,7 @@ public class CurrencyScenarioArrayTest {
   public void create_fromFunction_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
-    assertThrowsIllegalArg(() -> CurrencyScenarioArray.of(3, i -> values.get(i)));
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyScenarioArray.of(3, i -> values.get(i)));
   }
 
   //-------------------------------------------------------------------------
@@ -121,7 +120,7 @@ public class CurrencyScenarioArrayTest {
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
     CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
 
-    assertThrows(() -> test.convertedTo(USD, fxProvider), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test.convertedTo(USD, fxProvider));
   }
 
   /**
@@ -133,10 +132,9 @@ public class CurrencyScenarioArrayTest {
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
     CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
 
-    assertThrows(
-        () -> test.convertedTo(USD, fxProvider),
-        IllegalArgumentException.class,
-        "Expected 3 FX rates but received 2");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.convertedTo(USD, fxProvider))
+        .withMessage("Expected 3 FX rates but received 2");
   }
   
   /**

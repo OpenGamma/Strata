@@ -10,11 +10,11 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -54,14 +54,12 @@ public class MarketDataFxRateProviderTest {
   }
 
   public void missingCurrencies() {
-    assertThrows(
-        () -> provider().fxRate(EUR, GBP),
-        MarketDataNotFoundException.class,
-        "No FX rate market data for EUR/GBP using source 'Vendor'");
-    assertThrows(
-        () -> provider2().fxRate(JPY, GBP),
-        MarketDataNotFoundException.class,
-        "No FX rate market data for JPY/GBP");
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> provider().fxRate(EUR, GBP))
+        .withMessage("No FX rate market data for EUR/GBP using source 'Vendor'");
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> provider2().fxRate(JPY, GBP))
+        .withMessage("No FX rate market data for JPY/GBP");
   }
 
   public void cross_specified() {
@@ -72,7 +70,8 @@ public class MarketDataFxRateProviderTest {
     FxRateProvider fx = MarketDataFxRateProvider.of(marketData, ObservableSource.NONE, CHF);
     assertEquals(fx.fxRate(GBP, EUR), GBP_CHF / EUR_CHF, 1.0E-10);
     assertEquals(fx.fxRate(EUR, GBP), EUR_CHF / GBP_CHF, 1.0E-10);
-    assertThrows(() -> fx.fxRate(EUR, USD), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> fx.fxRate(EUR, USD));
   }
 
   public void cross_base() {

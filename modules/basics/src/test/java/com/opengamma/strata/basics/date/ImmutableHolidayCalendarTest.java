@@ -6,14 +6,14 @@
 package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsRuntime;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.DayOfWeek.FRIDAY;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
 import static java.time.DayOfWeek.THURSDAY;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -100,18 +100,25 @@ public class ImmutableHolidayCalendarTest {
   //-------------------------------------------------------------------------
   public void test_of_IterableDayOfWeekDayOfWeek_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY));
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, null, SATURDAY, SUNDAY));
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null, SUNDAY));
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, null));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(null, holidays, SATURDAY, SUNDAY));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(TEST_ID, null, SATURDAY, SUNDAY));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null, SUNDAY));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, null));
   }
 
   public void test_of_IterableIterable_null() {
     Iterable<LocalDate> holidays = Arrays.asList(MON_2014_07_14, FRI_2014_07_18);
     Iterable<DayOfWeek> weekendDays = Arrays.asList(THURSDAY, FRIDAY);
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays));
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, null, weekendDays));
-    assertThrowsRuntime(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(null, holidays, weekendDays));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(TEST_ID, null, weekendDays));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> ImmutableHolidayCalendar.of(TEST_ID, holidays, null));
   }
 
   //-------------------------------------------------------------------------
@@ -463,8 +470,8 @@ public class ImmutableHolidayCalendarTest {
     ImmutableHolidayCalendar test = ImmutableHolidayCalendar.of(TEST_ID, holidays, SATURDAY, SUNDAY);
     assertEquals(test.isBusinessDay(LocalDate.of(2013, 12, 31)), true);
     assertEquals(test.isBusinessDay(LocalDate.of(2015, 1, 1)), true);
-    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> test.isBusinessDay(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.isBusinessDay(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.isBusinessDay(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -550,8 +557,8 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_shift_range() {
     assertEquals(HOLCAL_MON_WED.shift(date(2010, 1, 1), 1), date(2010, 1, 4));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(LocalDate.MIN, 1));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.shift(LocalDate.MAX.minusDays(1), 1));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.shift(LocalDate.MIN, 1));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.shift(LocalDate.MAX.minusDays(1), 1));
   }
 
   @Test(dataProvider = "shift")
@@ -596,8 +603,8 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_next_range() {
     assertEquals(HOLCAL_MON_WED.next(date(2010, 1, 1)), date(2010, 1, 4));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.next(LocalDate.MAX.minusDays(1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.next(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.next(LocalDate.MAX.minusDays(1)));
   }
 
   //-------------------------------------------------------------------------
@@ -638,8 +645,8 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_nextOrSame_range() {
     assertEquals(HOLCAL_MON_WED.nextOrSame(date(2010, 1, 1)), date(2010, 1, 1));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.nextOrSame(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -679,8 +686,8 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_previous_range() {
     assertEquals(HOLCAL_MON_WED.previous(date(2010, 1, 1)), date(2009, 12, 31));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(LocalDate.MIN.plusDays(1)));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previous(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.previous(LocalDate.MIN.plusDays(1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.previous(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -722,8 +729,8 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_previousOrSame_range() {
     assertEquals(HOLCAL_MON_WED.previousOrSame(date(2010, 1, 1)), date(2010, 1, 1));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.previousOrSame(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -768,8 +775,8 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_nextSameOrLastInMonth_range() {
     assertEquals(HOLCAL_MON_WED.nextSameOrLastInMonth(date(2010, 1, 1)), date(2010, 1, 1));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_MON_WED.nextSameOrLastInMonth(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------
@@ -815,14 +822,14 @@ public class ImmutableHolidayCalendarTest {
 
   public void test_lastBusinessDayOfMonth_range() {
     assertEquals(HOLCAL_END_MONTH.lastBusinessDayOfMonth(date(2010, 1, 1)), date(2010, 1, 29));
-    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_END_MONTH.lastBusinessDayOfMonth(LocalDate.MAX));
   }
 
   public void test_isLastBusinessDayOfMonth_range() {
     assertEquals(HOLCAL_END_MONTH.isLastBusinessDayOfMonth(date(2010, 1, 1)), false);
-    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MIN));
-    assertThrowsIllegalArg(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MAX));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MIN));
+    assertThatIllegalArgumentException().isThrownBy(() -> HOLCAL_END_MONTH.isLastBusinessDayOfMonth(LocalDate.MAX));
   }
 
   //-------------------------------------------------------------------------

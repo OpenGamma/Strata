@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 
 import java.io.File;
@@ -74,9 +74,8 @@ public class PropertiesFileTest {
   }
 
   public void test_of_ioException() {
-    assertThrows(
-        () -> PropertiesFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)),
-        UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(
+        () -> PropertiesFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)));
   }
 
   public void test_of_set() {

@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.data.scenario;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.offset;
-import static org.testng.Assert.assertThrows;
 
 import org.testng.annotations.Test;
 
@@ -31,7 +31,7 @@ public class FxRateScenarioArrayTest {
     assertThat(rates.get(0)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.07));
     assertThat(rates.get(1)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.08));
     assertThat(rates.get(2)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.09));
-    assertThrows(ArrayIndexOutOfBoundsException.class, () -> rates.get(3));
+    assertThatExceptionOfType(ArrayIndexOutOfBoundsException.class).isThrownBy(() -> rates.get(3));
   }
 
   public void fxRate() {
@@ -47,14 +47,14 @@ public class FxRateScenarioArrayTest {
   }
 
   public void identicalCurrenciesHaveRateOfOne() {
-    assertThrowsIllegalArg(
-        () -> FxRateScenarioArray.of(Currency.EUR, Currency.EUR, DoubleArray.of(1.07, 1.08, 1.09)),
-        "Conversion rate between identical currencies must be one");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateScenarioArray.of(Currency.EUR, Currency.EUR, DoubleArray.of(1.07, 1.08, 1.09)))
+        .withMessage("Conversion rate between identical currencies must be one");
   }
 
   public void unknownCurrencyPair() {
     FxRateScenarioArray rates = FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1.07, 1.08, 1.09));
-    assertThrowsIllegalArg(() -> rates.fxRate(Currency.AED, Currency.ARS, 0));
+    assertThatIllegalArgumentException().isThrownBy(() -> rates.fxRate(Currency.AED, Currency.ARS, 0));
   }
 
   public void convert() {
@@ -79,7 +79,8 @@ public class FxRateScenarioArrayTest {
 
   public void convert_unknown() {
     FxRateScenarioArray eurGbp = FxRateScenarioArray.of(Currency.EUR, Currency.GBP, DoubleArray.of(0.76, 0.75));
-    assertThrowsIllegalArg(() -> eurGbp.convert(DoubleArray.of(1.07, 1.08), Currency.EUR, Currency.USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> eurGbp.convert(DoubleArray.of(1.07, 1.08), Currency.EUR, Currency.USD));
   }
 
   public void crossRates() {
@@ -103,24 +104,29 @@ public class FxRateScenarioArrayTest {
 
   public void crossRatesInvalidInputs() {
     // Argument has both currencies the same
-    assertThrowsIllegalArg(() -> FxRateScenarioArray.of(Currency.GBP, Currency.USD, DoubleArray.of(1))
-        .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.EUR, DoubleArray.of(1))));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateScenarioArray.of(Currency.GBP, Currency.USD, DoubleArray.of(1))
+            .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.EUR, DoubleArray.of(1))));
 
     // Receiver has both currencies the same
-    assertThrowsIllegalArg(() -> FxRateScenarioArray.of(Currency.GBP, Currency.GBP, DoubleArray.of(1))
-        .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1))));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateScenarioArray.of(Currency.GBP, Currency.GBP, DoubleArray.of(1))
+            .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1))));
 
     // No currency in common
-    assertThrowsIllegalArg(() -> FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))
-        .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1))));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))
+            .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.USD, DoubleArray.of(1))));
 
     // Both pairs the same
-    assertThrowsIllegalArg(() -> FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))
-        .crossRates(FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))
+            .crossRates(FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))));
 
     // Different length arrays
-    assertThrowsIllegalArg(() -> FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))
-        .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.CHF, DoubleArray.of(1, 2))));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateScenarioArray.of(Currency.GBP, Currency.CHF, DoubleArray.of(1))
+            .crossRates(FxRateScenarioArray.of(Currency.EUR, Currency.CHF, DoubleArray.of(1, 2))));
   }
 
   //-------------------------------------------------------------------------

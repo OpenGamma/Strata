@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.calc.marketdata;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -107,8 +107,9 @@ public class ScenarioDefinitionTest {
   public void nonUniqueNames() {
     List<PerturbationMapping<Object>> mappings2 = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     List<String> names2 = ImmutableList.of("foo", "foo");
-    String msg2 = "Scenario names must be unique but duplicates were found: foo";
-    assertThrows(() -> ScenarioDefinition.ofMappings(mappings2, names2), IllegalArgumentException.class, msg2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ScenarioDefinition.ofMappings(mappings2, names2))
+        .withMessage("Scenario names must be unique but duplicates were found: foo");
   }
 
   //-------------------------------------------------------------------------

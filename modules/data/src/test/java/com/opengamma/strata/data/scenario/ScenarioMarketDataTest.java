@@ -6,11 +6,12 @@
 package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -60,7 +61,7 @@ public class ScenarioMarketDataTest {
     assertThat(test.containsValue(ID1)).isTrue();
     assertThat(test.containsValue(ID2)).isFalse();
     assertThat(test.getValue(ID1)).isEqualTo(BOX1);
-    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertThat(test.findValue(ID1)).hasValue(BOX1);
     assertThat(test.findValue(ID2)).isEmpty();
     assertThat(test.getIds()).isEqualTo(ImmutableSet.of(ID1));
@@ -75,7 +76,7 @@ public class ScenarioMarketDataTest {
     assertThat(test.containsValue(ID1)).isTrue();
     assertThat(test.containsValue(ID2)).isFalse();
     assertThat(test.getValue(ID1)).isEqualTo(MarketDataBox.empty());
-    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertThat(test.findValue(ID1)).hasValue(MarketDataBox.empty());
     assertThat(test.findValue(ID2)).isEmpty();
     assertThat(test.getIds()).isEqualTo(ImmutableSet.of(ID1));
@@ -94,8 +95,8 @@ public class ScenarioMarketDataTest {
     assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.empty());
     assertThat(test.containsValue(ID1)).isFalse();
     assertThat(test.containsValue(ID2)).isFalse();
-    assertThrows(() -> test.getValue(ID1), MarketDataNotFoundException.class);
-    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID1));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertThat(test.findValue(ID1)).isEmpty();
     assertThat(test.findValue(ID2)).isEmpty();
     assertThat(test.getIds()).isEqualTo(ImmutableSet.of());
@@ -107,19 +108,20 @@ public class ScenarioMarketDataTest {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = new HashMap<>();
     dataMap.put(ID1, null);
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
-    assertThrows(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap));
   }
 
   public void of_badType() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.ofScenarioValues("", ""));
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
-    assertThrows(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap), ClassCastException.class);
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap));
   }
 
   public void of_badScenarios() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.ofScenarioValues(VAL1));
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
-    assertThrows(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap));
   }
 
   //-------------------------------------------------------------------------
@@ -166,7 +168,7 @@ public class ScenarioMarketDataTest {
     assertThat(test.containsValue(ID1)).isTrue();
     assertThat(test.containsValue(ID2)).isFalse();
     assertThat(test.getValue(ID1)).isEqualTo(BOX1);
-    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertThat(test.findValue(ID1)).hasValue(BOX1);
     assertThat(test.findValue(ID2)).isEmpty();
   }

@@ -29,12 +29,11 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsRuntime;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.lang.reflect.Field;
@@ -77,18 +76,18 @@ public class DayCountTest {
 
   @Test(dataProvider = "types")
   public void test_null(DayCount type) {
-    assertThrowsRuntime(() -> type.yearFraction(null, JAN_01));
-    assertThrowsRuntime(() -> type.yearFraction(JAN_01, null));
-    assertThrowsRuntime(() -> type.yearFraction(null, null));
-    assertThrowsRuntime(() -> type.days(null, JAN_01));
-    assertThrowsRuntime(() -> type.days(JAN_01, null));
-    assertThrowsRuntime(() -> type.days(null, null));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> type.yearFraction(null, JAN_01));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> type.yearFraction(JAN_01, null));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> type.yearFraction(null, null));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> type.days(null, JAN_01));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> type.days(JAN_01, null));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> type.days(null, null));
   }
 
   @Test(dataProvider = "types")
   public void test_wrongOrder(DayCount type) {
-    assertThrowsIllegalArg(() -> type.yearFraction(JAN_02, JAN_01));
-    assertThrowsIllegalArg(() -> type.days(JAN_02, JAN_01));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.yearFraction(JAN_02, JAN_01));
+    assertThatIllegalArgumentException().isThrownBy(() -> type.days(JAN_02, JAN_01));
   }
 
   @Test(dataProvider = "types")
@@ -1065,11 +1064,11 @@ public class DayCountTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> DayCount.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> DayCount.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsRuntime(() -> DayCount.of(null));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> DayCount.of(null));
   }
 
   //-------------------------------------------------------------------------
@@ -1220,10 +1219,10 @@ public class DayCountTest {
   public void test_scheduleInfo() {
     ScheduleInfo test = new ScheduleInfo() {};
     assertEquals(test.isEndOfMonthConvention(), true);
-    assertThrows(() -> test.getStartDate(), UnsupportedOperationException.class);
-    assertThrows(() -> test.getEndDate(), UnsupportedOperationException.class);
-    assertThrows(() -> test.getFrequency(), UnsupportedOperationException.class);
-    assertThrows(() -> test.getPeriodEndDate(JAN_01), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getStartDate());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getEndDate());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getFrequency());
+    assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> test.getPeriodEndDate(JAN_01));
   }
 
   //-------------------------------------------------------------------------

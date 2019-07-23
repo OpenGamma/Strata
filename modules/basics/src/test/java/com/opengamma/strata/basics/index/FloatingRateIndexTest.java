@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.basics.index;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -26,8 +26,8 @@ public class FloatingRateIndexTest {
     assertEquals(FloatingRateIndex.parse("GBP-LIBOR-3M"), IborIndices.GBP_LIBOR_3M);
     assertEquals(FloatingRateIndex.parse("GBP-SONIA"), OvernightIndices.GBP_SONIA);
     assertEquals(FloatingRateIndex.parse("GB-RPI"), PriceIndices.GB_RPI);
-    assertThrowsIllegalArg(() -> FloatingRateIndex.parse(null));
-    assertThrowsIllegalArg(() -> FloatingRateIndex.parse("NotAnIndex"));
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse("NotAnIndex"));
   }
 
   public void test_parse_withTenor() {
@@ -36,8 +36,8 @@ public class FloatingRateIndexTest {
     assertEquals(FloatingRateIndex.parse("GBP-LIBOR-3M", Tenor.TENOR_6M), IborIndices.GBP_LIBOR_3M);
     assertEquals(FloatingRateIndex.parse("GBP-SONIA", Tenor.TENOR_6M), OvernightIndices.GBP_SONIA);
     assertEquals(FloatingRateIndex.parse("GB-RPI", Tenor.TENOR_6M), PriceIndices.GB_RPI);
-    assertThrowsIllegalArg(() -> FloatingRateIndex.parse(null, Tenor.TENOR_6M));
-    assertThrowsIllegalArg(() -> FloatingRateIndex.parse("NotAnIndex", Tenor.TENOR_6M));
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse(null, Tenor.TENOR_6M));
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.parse("NotAnIndex", Tenor.TENOR_6M));
   }
 
   public void test_tryParse_noTenor() {

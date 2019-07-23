@@ -25,7 +25,6 @@ import static com.opengamma.strata.basics.schedule.StubConvention.SMART_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.Month.APRIL;
@@ -36,6 +35,7 @@ import static java.time.Month.JULY;
 import static java.time.Month.JUNE;
 import static java.time.Month.MARCH;
 import static java.time.Month.OCTOBER;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -63,9 +63,12 @@ public class StubConventionTest {
 
   @Test(dataProvider = "types")
   public void test_null(StubConvention type) {
-    assertThrowsIllegalArg(() -> type.toRollConvention(null, date(2014, JULY, 1), Frequency.P3M, true));
-    assertThrowsIllegalArg(() -> type.toRollConvention(date(2014, JULY, 1), null, Frequency.P3M, true));
-    assertThrowsIllegalArg(() -> type.toRollConvention(date(2014, JULY, 1), date(2014, OCTOBER, 1), null, true));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.toRollConvention(null, date(2014, JULY, 1), Frequency.P3M, true));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.toRollConvention(date(2014, JULY, 1), null, Frequency.P3M, true));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> type.toRollConvention(date(2014, JULY, 1), date(2014, OCTOBER, 1), null, true));
   }
 
   //-------------------------------------------------------------------------
@@ -210,7 +213,7 @@ public class StubConventionTest {
   public void test_toImplicit(
       StubConvention conv, boolean initialStub, boolean finalStub, StubConvention expected) {
     if (expected == null) {
-      assertThrowsIllegalArg(() -> conv.toImplicit(null, initialStub, finalStub));
+      assertThatIllegalArgumentException().isThrownBy(() -> conv.toImplicit(null, initialStub, finalStub));
     } else {
       assertEquals(conv.toImplicit(null, initialStub, finalStub), expected);
     }
@@ -243,7 +246,7 @@ public class StubConventionTest {
   public void test_isStubLong(
       StubConvention conv, LocalDate date1, LocalDate date2, Boolean expected) {
     if (expected == null) {
-      assertThrowsIllegalArg(() -> conv.isStubLong(date1, date2));
+      assertThatIllegalArgumentException().isThrownBy(() -> conv.isStubLong(date1, date2));
     } else {
       assertEquals(conv.isStubLong(date1, date2), expected.booleanValue());
     }
@@ -350,11 +353,11 @@ public class StubConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> StubConvention.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> StubConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> StubConvention.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> StubConvention.of(null));
   }
 
   //-------------------------------------------------------------------------

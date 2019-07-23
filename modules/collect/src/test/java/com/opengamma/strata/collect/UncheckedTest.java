@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.collect;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.fail;
@@ -91,14 +91,14 @@ public class UncheckedTest {
     Runnable a = Unchecked.runnable(() -> {
       throw new IOException();
     });
-    assertThrows(() -> a.run(), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.run());
   }
 
   public void test_runnable_fail2() {
     Runnable a = Unchecked.runnable(() -> {
       throw new Exception();
     });
-    assertThrows(() -> a.run(), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.run());
   }
 
   //-------------------------------------------------------------------------
@@ -111,14 +111,14 @@ public class UncheckedTest {
     Function<String, String> a = Unchecked.function((t) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.apply("A"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.apply("A"));
   }
 
   public void test_function_fail2() {
     Function<String, String> a = Unchecked.function((t) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.apply("A"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.apply("A"));
   }
 
   //-------------------------------------------------------------------------
@@ -131,14 +131,14 @@ public class UncheckedTest {
     BiFunction<String, String, String> a = Unchecked.biFunction((t, u) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.apply("A", "B"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.apply("A", "B"));
   }
 
   public void test_biFunction_fail2() {
     BiFunction<String, String, String> a = Unchecked.biFunction((t, u) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.apply("A", "B"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.apply("A", "B"));
   }
 
   //-------------------------------------------------------------------------
@@ -151,14 +151,14 @@ public class UncheckedTest {
     UnaryOperator<String> a = Unchecked.unaryOperator((t) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.apply("A"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.apply("A"));
   }
 
   public void test_unaryOperator_fail2() {
     UnaryOperator<String> a = Unchecked.unaryOperator((t) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.apply("A"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.apply("A"));
   }
 
   //-------------------------------------------------------------------------
@@ -171,14 +171,14 @@ public class UncheckedTest {
     BinaryOperator<String> a = Unchecked.binaryOperator((t, u) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.apply("A", "B"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.apply("A", "B"));
   }
 
   public void test_binaryOperator_fail2() {
     BinaryOperator<String> a = Unchecked.binaryOperator((t, u) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.apply("A", "B"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.apply("A", "B"));
   }
 
   //-------------------------------------------------------------------------
@@ -191,14 +191,14 @@ public class UncheckedTest {
     Predicate<String> a = Unchecked.predicate((t) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.test("A"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.test("A"));
   }
 
   public void test_predicate_fail2() {
     Predicate<String> a = Unchecked.predicate((t) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.test("A"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.test("A"));
   }
 
   //-------------------------------------------------------------------------
@@ -211,14 +211,14 @@ public class UncheckedTest {
     BiPredicate<String, String> a = Unchecked.biPredicate((t, u) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.test("A", "B"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.test("A", "B"));
   }
 
   public void test_biPredicate_fail2() {
     BiPredicate<String, String> a = Unchecked.biPredicate((t, u) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.test("A", "B"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.test("A", "B"));
   }
 
   //-------------------------------------------------------------------------
@@ -231,14 +231,14 @@ public class UncheckedTest {
     Consumer<String> a = Unchecked.consumer((t) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.accept("A"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.accept("A"));
   }
 
   public void test_consumer_fail2() {
     Consumer<String> a = Unchecked.consumer((t) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.accept("A"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.accept("A"));
   }
 
   //-------------------------------------------------------------------------
@@ -251,14 +251,14 @@ public class UncheckedTest {
     BiConsumer<String, String> a = Unchecked.biConsumer((t, u) -> {
       throw new IOException();
     });
-    assertThrows(() -> a.accept("A", "B"), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.accept("A", "B"));
   }
 
   public void test_biConsumer_fail2() {
     BiConsumer<String, String> a = Unchecked.biConsumer((t, u) -> {
       throw new Exception();
     });
-    assertThrows(() -> a.accept("A", "B"), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.accept("A", "B"));
   }
 
   //-------------------------------------------------------------------------
@@ -271,14 +271,14 @@ public class UncheckedTest {
     Supplier<String> a = Unchecked.supplier(() -> {
       throw new IOException();
     });
-    assertThrows(() -> a.get(), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> a.get());
   }
 
   public void test_supplier_fail2() {
     Supplier<String> a = Unchecked.supplier(() -> {
       throw new Exception();
     });
-    assertThrows(() -> a.get(), RuntimeException.class);
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> a.get());
   }
 
   //-------------------------------------------------------------------------

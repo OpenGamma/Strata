@@ -6,9 +6,9 @@
 package com.opengamma.strata.calc.marketdata;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 import java.util.Map;
 import java.util.Objects;
@@ -292,10 +292,11 @@ public class DefaultMarketDataFactoryTest {
         builder);
 
     BuiltScenarioMarketData suppliedData = BuiltScenarioMarketData.builder(date(2011, 3, 8)).build();
-    assertThrows(
-        () -> factory.createMultiScenario(requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA, ScenarioDefinition.empty()),
-        IllegalStateException.class,
-        "No market data function available for market data ID of type.*");
+    assertThatIllegalStateException()
+        .isThrownBy(
+            () -> factory.createMultiScenario(
+                requirements, MARKET_DATA_CONFIG, suppliedData, REF_DATA, ScenarioDefinition.empty()))
+        .withMessageStartingWith("No market data function available for market data ID of type");
   }
 
   /**
@@ -764,15 +765,14 @@ public class DefaultMarketDataFactoryTest {
         new StringAppender("", "", ""));
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(ImmutableList.of(mapping));
 
-    assertThrows(
-        () -> factory.createMultiScenario(
-            requirements,
-            MARKET_DATA_CONFIG,
-            suppliedData,
-            REF_DATA, scenarioDefinition),
-        IllegalStateException.class,
-        "No market data function available for market data ID of type.*");
-
+    assertThatIllegalStateException()
+        .isThrownBy(
+            () -> factory.createMultiScenario(
+                requirements,
+                MARKET_DATA_CONFIG,
+                suppliedData,
+                REF_DATA, scenarioDefinition))
+        .withMessageStartingWith("No market data function available for market data ID of type");
   }
 
   /**

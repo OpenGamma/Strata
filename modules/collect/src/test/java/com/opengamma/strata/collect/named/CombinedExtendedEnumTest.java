@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.collect.named;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
 
 import java.util.Optional;
 
@@ -23,7 +23,7 @@ public class CombinedExtendedEnumTest {
     assertEquals(UberNamed.of("More"), MoreSampleNameds.MORE);
     CombinedExtendedEnum<UberNamed> combined = CombinedExtendedEnum.of(UberNamed.class);
     assertEquals(combined.find("Rubbish"), Optional.empty());
-    assertThrows(IllegalArgumentException.class, () -> combined.lookup("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> combined.lookup("Rubbish"));
     assertEquals(combined.toString(), "CombinedExtendedEnum[UberNamed]");
   }
 

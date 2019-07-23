@@ -6,10 +6,11 @@
 package com.opengamma.strata.basics;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.HashMap;
@@ -100,7 +101,7 @@ public class ReferenceDataTest {
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
 
     assertEquals(test.containsValue(ID3), false);
-    assertThrows(() -> test.getValue(ID3), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
     assertEquals(test.findValue(ID3), Optional.empty());
   }
 
@@ -122,7 +123,7 @@ public class ReferenceDataTest {
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
 
     assertEquals(test.containsValue(ID3), false);
-    assertThrows(() -> test.getValue(ID3), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
     assertEquals(test.findValue(ID3), Optional.empty());
   }
 
@@ -139,7 +140,7 @@ public class ReferenceDataTest {
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
 
     assertEquals(test.containsValue(ID2), false);
-    assertThrows(() -> test.getValue(ID2), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertEquals(test.findValue(ID2), Optional.empty());
   }
 
@@ -147,19 +148,19 @@ public class ReferenceDataTest {
     ReferenceData test = ReferenceData.empty();
 
     assertEquals(test.containsValue(ID1), false);
-    assertThrows(() -> test.getValue(ID1), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID1));
     assertEquals(test.findValue(ID1), Optional.empty());
   }
 
   public void test_of_badType() {
     Map<ReferenceDataId<?>, Object> dataMap = ImmutableMap.of(ID1, "67");  // not a Number
-    assertThrows(() -> ReferenceData.of(dataMap), ClassCastException.class);
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> ReferenceData.of(dataMap));
   }
 
   public void test_of_null() {
     Map<ReferenceDataId<?>, Object> dataMap = new HashMap<>();
     dataMap.put(ID1, null);
-    assertThrows(() -> ReferenceData.of(dataMap), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> ReferenceData.of(dataMap));
   }
 
   //-------------------------------------------------------------------------
@@ -168,7 +169,7 @@ public class ReferenceDataTest {
     assertEquals(REF_DATA1.containsValue(ID2), false);
 
     assertEquals(REF_DATA1.getValue(ID1), VAL1);
-    assertThrows(() -> REF_DATA1.getValue(ID2), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> REF_DATA1.getValue(ID2));
 
     assertEquals(REF_DATA1.findValue(ID1), Optional.of(VAL1));
     assertEquals(REF_DATA1.findValue(ID2), Optional.empty());

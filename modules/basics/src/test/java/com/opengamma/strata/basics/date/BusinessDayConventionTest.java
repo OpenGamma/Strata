@@ -14,11 +14,11 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.NO_ADJUST;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.SUNDAY;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.lang.reflect.Field;
@@ -212,11 +212,11 @@ public class BusinessDayConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> BusinessDayConvention.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> BusinessDayConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> BusinessDayConvention.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> BusinessDayConvention.of(null));
   }
 
   //-------------------------------------------------------------------------

@@ -6,9 +6,9 @@
 package com.opengamma.strata.basics.value;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -39,8 +39,10 @@ public class ValueStepSequenceTest {
   }
 
   public void test_of_invalid() {
-    assertThrowsIllegalArg(() -> ValueStepSequence.of(date(2016, 4, 20), date(2016, 4, 19), Frequency.P3M, ADJ));
-    assertThrowsIllegalArg(() -> ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ADJ_BAD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueStepSequence.of(date(2016, 4, 20), date(2016, 4, 19), Frequency.P3M, ADJ));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ADJ_BAD));
   }
 
   //-------------------------------------------------------------------------
@@ -58,7 +60,8 @@ public class ValueStepSequenceTest {
   public void test_resolve_invalid() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P12M, ADJ);
     ValueStep baseStep = ValueStep.of(date(2016, 1, 20), ValueAdjustment.ofReplace(500d));
-    assertThrowsIllegalArg(() -> test.resolve(ImmutableList.of(baseStep), RollConventions.NONE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.resolve(ImmutableList.of(baseStep), RollConventions.NONE));
   }
 
   //-------------------------------------------------------------------------

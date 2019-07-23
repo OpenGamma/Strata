@@ -13,12 +13,12 @@ import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.time.temporal.ChronoUnit.CENTURIES;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.YEARS;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -103,39 +103,43 @@ public class FrequencyTest {
   }
 
   public void test_of_notZero() {
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofDays(0)));
-    assertThrowsIllegalArg(() -> Frequency.ofDays(0));
-    assertThrowsIllegalArg(() -> Frequency.ofWeeks(0));
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(0));
-    assertThrowsIllegalArg(() -> Frequency.ofYears(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofDays(0)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofDays(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofWeeks(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofMonths(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofYears(0));
   }
 
   public void test_of_notNegative() {
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofDays(-1)));
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofMonths(-1)));
-    assertThrowsIllegalArg(() -> Frequency.of(Period.of(0, -1, -1)));
-    assertThrowsIllegalArg(() -> Frequency.of(Period.of(0, -1, 1)));
-    assertThrowsIllegalArg(() -> Frequency.of(Period.of(0, 1, -1)));
-    assertThrowsIllegalArg(() -> Frequency.ofDays(-1));
-    assertThrowsIllegalArg(() -> Frequency.ofWeeks(-1));
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(-1));
-    assertThrowsIllegalArg(() -> Frequency.ofYears(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofDays(-1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofMonths(-1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.of(0, -1, -1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.of(0, -1, 1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.of(0, 1, -1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofDays(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofWeeks(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofMonths(-1));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofYears(-1));
   }
 
   public void test_of_tooBig() {
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofMonths(12001)));
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofMonths(Integer.MAX_VALUE)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofMonths(12001)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofMonths(Integer.MAX_VALUE)));
 
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(1001)));
-    assertThrowsIllegalArg(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofYears(1001)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.ofYears(Integer.MAX_VALUE)));
 
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(12001), "Months must not exceed 12,000");
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(Integer.MAX_VALUE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Frequency.ofMonths(12001))
+        .withMessage("Months must not exceed 12,000");
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofMonths(Integer.MAX_VALUE));
 
-    assertThrowsIllegalArg(() -> Frequency.ofYears(1001), "Years must not exceed 1,000");
-    assertThrowsIllegalArg(() -> Frequency.ofYears(Integer.MAX_VALUE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Frequency.ofYears(1001))
+        .withMessage("Years must not exceed 1,000");
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofYears(Integer.MAX_VALUE));
 
-    assertThrowsIllegalArg(() -> Frequency.of(Period.of(10000, 0, 1)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.of(10000, 0, 1)));
   }
 
   //-------------------------------------------------------------------------
@@ -261,12 +265,12 @@ public class FrequencyTest {
   }
 
   public void test_eventsPerYear_bad() {
-    assertThrowsIllegalArg(() -> Frequency.ofDays(3).eventsPerYear());
-    assertThrowsIllegalArg(() -> Frequency.ofWeeks(3).eventsPerYear());
-    assertThrowsIllegalArg(() -> Frequency.ofWeeks(104).eventsPerYear());
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(5).eventsPerYear());
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(24).eventsPerYear());
-    assertThrowsIllegalArg(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear());
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofDays(3).eventsPerYear());
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofWeeks(3).eventsPerYear());
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofWeeks(104).eventsPerYear());
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofMonths(5).eventsPerYear());
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofMonths(24).eventsPerYear());
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.of(Period.of(2, 2, 2)).eventsPerYear());
   }
 
   @Test(dataProvider = "events")
@@ -327,18 +331,18 @@ public class FrequencyTest {
   @Test(dataProvider = "exactDivide")
   public void test_exactDivide_reverse(Frequency test, Frequency other, int expected) {
     if (!test.equals(other)) {
-      assertThrowsIllegalArg(() -> other.exactDivide(test));
+      assertThatIllegalArgumentException().isThrownBy(() -> other.exactDivide(test));
     }
   }
 
   public void test_exactDivide_bad() {
-    assertThrowsIllegalArg(() -> Frequency.ofDays(5).exactDivide(Frequency.ofDays(2)));
-    assertThrowsIllegalArg(() -> Frequency.ofMonths(5).exactDivide(Frequency.ofMonths(2)));
-    assertThrowsIllegalArg(() -> Frequency.P1M.exactDivide(Frequency.P1W));
-    assertThrowsIllegalArg(() -> Frequency.P1W.exactDivide(Frequency.P1M));
-    assertThrowsIllegalArg(() -> Frequency.TERM.exactDivide(Frequency.P1W));
-    assertThrowsIllegalArg(() -> Frequency.P12M.exactDivide(Frequency.TERM));
-    assertThrowsIllegalArg(() -> Frequency.ofYears(1).exactDivide(Frequency.P1W));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofDays(5).exactDivide(Frequency.ofDays(2)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofMonths(5).exactDivide(Frequency.ofMonths(2)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.P1M.exactDivide(Frequency.P1W));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.P1W.exactDivide(Frequency.P1M));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.TERM.exactDivide(Frequency.P1W));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.P12M.exactDivide(Frequency.TERM));
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.ofYears(1).exactDivide(Frequency.P1W));
   }
 
   //-------------------------------------------------------------------------
@@ -413,7 +417,7 @@ public class FrequencyTest {
     assertEquals(P3M.get(MONTHS), 3);
     assertEquals(LocalDate.of(2014, 6, 30).plus(P1W), LocalDate.of(2014, 7, 7));
     assertEquals(LocalDate.of(2014, 6, 30).minus(P1W), LocalDate.of(2014, 6, 23));
-    assertThrows(() -> P3M.get(CENTURIES), UnsupportedTemporalTypeException.class);
+    assertThatExceptionOfType(UnsupportedTemporalTypeException.class).isThrownBy(() -> P3M.get(CENTURIES));
   }
 
   //-------------------------------------------------------------------------

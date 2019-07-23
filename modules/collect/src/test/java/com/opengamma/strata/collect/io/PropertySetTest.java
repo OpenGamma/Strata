@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
@@ -33,7 +33,7 @@ public class PropertySetTest {
     assertEquals(test.isEmpty(), true);
     assertEquals(test.contains("unknown"), false);
     assertEquals(test.valueList("unknown"), ImmutableList.of());
-    assertThrowsIllegalArg(() -> test.value("unknown"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
     assertEquals(test.toString(), "{}");
   }
 
@@ -54,7 +54,7 @@ public class PropertySetTest {
     assertEquals(test.asMultimap(), ImmutableListMultimap.of("a", "x", "b", "y"));
     assertEquals(test.valueList("unknown"), ImmutableSet.of());
 
-    assertThrowsIllegalArg(() -> test.value("unknown"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
     assertEquals(test.toString(), "{a=[x], b=[y]}");
   }
 
@@ -64,7 +64,7 @@ public class PropertySetTest {
 
     assertEquals(test.isEmpty(), false);
     assertEquals(test.contains("a"), true);
-    assertThrowsIllegalArg(() -> test.value("a"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.value("a"));
     assertEquals(test.valueList("a"), ImmutableList.of("x", "y"));
     assertEquals(test.contains("b"), true);
     assertEquals(test.value("b"), "z");
@@ -74,8 +74,8 @@ public class PropertySetTest {
     assertEquals(test.asMultimap(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
     assertEquals(test.valueList("unknown"), ImmutableSet.of());
 
-    assertThrowsIllegalArg(() -> test.asMap());
-    assertThrowsIllegalArg(() -> test.value("unknown"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.asMap());
+    assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
     assertEquals(test.toString(), "{a=[x, y], b=[z]}");
   }
 

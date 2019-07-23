@@ -53,10 +53,10 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_5M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalTime;
@@ -659,11 +659,11 @@ public class IborIndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> IborIndex.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> IborIndex.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> IborIndex.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> IborIndex.of(null));
   }
 
   //-------------------------------------------------------------------------

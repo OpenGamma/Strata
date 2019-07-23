@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.calc.runner;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -33,7 +33,7 @@ public class CalculationResultTest {
     assertEquals(test.getColumnIndex(), 2);
     assertEquals(test.getResult(), RESULT);
     assertEquals(test.getResult(String.class), RESULT);
-    assertThrows(() -> test.getResult(Integer.class), ClassCastException.class);
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.getResult(Integer.class));
   }
 
   public void of_failure() {

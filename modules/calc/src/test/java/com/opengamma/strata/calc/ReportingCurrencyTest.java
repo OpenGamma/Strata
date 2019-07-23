@@ -7,10 +7,10 @@ package com.opengamma.strata.calc;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -28,7 +28,7 @@ public class ReportingCurrencyTest {
     assertEquals(test.isNatural(), true);
     assertEquals(test.isNone(), false);
     assertEquals(test.toString(), "Natural");
-    assertThrows(() -> test.getCurrency(), IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> test.getCurrency());
   }
 
   public void test_NONE() {
@@ -38,7 +38,7 @@ public class ReportingCurrencyTest {
     assertEquals(test.isNatural(), false);
     assertEquals(test.isNone(), true);
     assertEquals(test.toString(), "None");
-    assertThrows(() -> test.getCurrency(), IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> test.getCurrency());
   }
 
   public void test_of_specific() {

@@ -18,10 +18,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.FxMatrix.entriesToFxMatrix;
 import static com.opengamma.strata.basics.currency.FxMatrix.pairsToFxMatrix;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.util.LinkedHashMap;
@@ -52,7 +52,7 @@ public class FxMatrixTest {
   public void emptyMatrixCannotDoConversion() {
     FxMatrix matrix = FxMatrix.builder().build();
     assertThat(matrix.getCurrencies()).isEmpty();
-    assertThrowsIllegalArg(() -> matrix.fxRate(USD, EUR));
+    assertThatIllegalArgumentException().isThrownBy(() -> matrix.fxRate(USD, EUR));
   }
 
   public void singleRateMatrixByOfCurrencyPairFactory() {
@@ -93,7 +93,7 @@ public class FxMatrixTest {
         .addRate(GBP, USD, 1.6)
         .build();
     assertThat(matrix.getCurrencies()).containsOnly(GBP, USD);
-    assertThrowsIllegalArg(() -> matrix.fxRate(USD, EUR));
+    assertThatIllegalArgumentException().isThrownBy(() -> matrix.fxRate(USD, EUR));
   }
 
   public void matrixCalculatesCrossRates() {
@@ -116,12 +116,12 @@ public class FxMatrixTest {
   }
 
   public void cannotAddEntryWithNoCommonCurrencyAndBuild() {
-    assertThrows(
-        () -> FxMatrix.builder()
-            .addRate(GBP, USD, 1.6)
-            .addRate(CHF, AUD, 1.6)
-            .build(),
-        IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(
+            () -> FxMatrix.builder()
+                .addRate(GBP, USD, 1.6)
+                .addRate(CHF, AUD, 1.6)
+                .build());
   }
 
   public void canAddEntryWithNoCommonCurrencyIfSuppliedBySubsequentEntries() {
@@ -269,9 +269,7 @@ public class FxMatrixTest {
     rates.put(CurrencyPair.of(EUR, USD), 1.4);
     rates.put(CurrencyPair.of(JPY, CAD), 0.01); // Neither currency linked to one of the others
 
-    assertThrows(
-        () -> FxMatrix.builder().addRates(rates).build(),
-        IllegalStateException.class);
+    assertThatIllegalStateException().isThrownBy(() -> FxMatrix.builder().addRates(rates).build());
   }
 
   public void addMultipleRates() {
@@ -475,7 +473,7 @@ public class FxMatrixTest {
         .addRate(SEK, AUD, 0.16)
         .build();
 
-    assertThrowsIllegalArg(() -> matrix1.merge(matrix2));
+    assertThatIllegalArgumentException().isThrownBy(() -> matrix1.merge(matrix2));
   }
 
   public void mergeIgnoresDuplicateCurrencies() {

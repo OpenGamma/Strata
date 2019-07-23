@@ -7,8 +7,8 @@ package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Locale;
@@ -80,11 +80,11 @@ public class FloatingRateTypeTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> FloatingRateType.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateType.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> FloatingRateType.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateType.of(null));
   }
 
   //-------------------------------------------------------------------------

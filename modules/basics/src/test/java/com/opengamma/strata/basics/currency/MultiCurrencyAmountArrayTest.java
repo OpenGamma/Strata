@@ -10,12 +10,12 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.currency.MultiCurrencyAmountArray.toMultiCurrencyAmountArray;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
 import java.io.ByteArrayInputStream;
@@ -75,7 +75,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(raggedArray.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(0, 21, 0));
     assertThat(raggedArray.getValues(Currency.USD)).isEqualTo(DoubleArray.of(0, 32, 0));
     assertThat(raggedArray.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(4, 43, 44));
-    assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
+    assertThatIllegalArgumentException().isThrownBy(() -> raggedArray.getValues(Currency.AUD));
   }
 
   public void test_empty_amounts() {
@@ -136,13 +136,13 @@ public class MultiCurrencyAmountArrayTest {
 
     assertThat(array.size()).isEqualTo(3);
     assertThat(array).isEqualTo(expected);
-
-    assertThrowsIllegalArg(
-        () -> MultiCurrencyAmountArray.of(
-            ImmutableMap.of(
-                Currency.GBP, DoubleArray.of(20, 21),
-                Currency.EUR, DoubleArray.of(40, 43, 44))),
-        "Arrays must have the same size.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(
+            () -> MultiCurrencyAmountArray.of(
+                ImmutableMap.of(
+                    Currency.GBP, DoubleArray.of(20, 21),
+                    Currency.EUR, DoubleArray.of(40, 43, 44))))
+        .withMessageStartingWith("Arrays must have the same size");
 
     MultiCurrencyAmountArray empty = MultiCurrencyAmountArray.of(ImmutableMap.of());
     assertThat(empty.size()).isEqualTo(0);
@@ -162,8 +162,8 @@ public class MultiCurrencyAmountArrayTest {
         CurrencyAmount.of(Currency.USD, 33),
         CurrencyAmount.of(Currency.EUR, 44));
     assertThat(VALUES_ARRAY.get(2)).isEqualTo(expected);
-    assertThrows(() -> VALUES_ARRAY.get(3), IndexOutOfBoundsException.class);
-    assertThrows(() -> VALUES_ARRAY.get(-1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> VALUES_ARRAY.get(3));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> VALUES_ARRAY.get(-1));
   }
 
   public void test_stream() {
@@ -307,7 +307,7 @@ public class MultiCurrencyAmountArrayTest {
             Currency.EUR, DoubleArray.of(140, 143, 144),
             Currency.CHF, DoubleArray.of(250, 254, 256)));
 
-    assertThrowsIllegalArg(() -> array1.plus(array2));
+    assertThatIllegalArgumentException().isThrownBy(() -> array1.plus(array2));
   }
 
   public void test_minusArray() {
@@ -364,7 +364,7 @@ public class MultiCurrencyAmountArrayTest {
             Currency.EUR, DoubleArray.of(140, 143, 144),
             Currency.CHF, DoubleArray.of(250, 254, 256)));
 
-    assertThrowsIllegalArg(() -> array1.minus(array2));
+    assertThatIllegalArgumentException().isThrownBy(() -> array1.minus(array2));
   }
 
   public void collector() {
@@ -406,7 +406,7 @@ public class MultiCurrencyAmountArrayTest {
         CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
         CurrencyAmountArray.of(GBP, DoubleArray.of(1, 2)));
 
-    assertThrowsIllegalArg(() -> arrays.stream().collect(toMultiCurrencyAmountArray()));
+    assertThatIllegalArgumentException().isThrownBy(() -> arrays.stream().collect(toMultiCurrencyAmountArray()));
   }
 
   //--------------------------------------------------------------------------------------------------

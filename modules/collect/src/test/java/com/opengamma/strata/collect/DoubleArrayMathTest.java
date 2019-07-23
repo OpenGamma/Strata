@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.collect;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
@@ -91,12 +91,14 @@ public class DoubleArrayMathTest {
 
   public void test_mutateByAddition_byArray_sizeDifferent() {
     double[] testArray = ARRAY_1_2.clone();
-    assertThrowsIllegalArg(() -> DoubleArrayMath.mutateByAddition(testArray, new double[] {2d}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DoubleArrayMath.mutateByAddition(testArray, new double[] {2d}));
   }
 
   public void test_mutateByMultiplication_byArray_sizeDifferent() {
     double[] testArray = ARRAY_1_2.clone();
-    assertThrowsIllegalArg(() -> DoubleArrayMath.mutateByMultiplication(testArray, new double[] {4d}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DoubleArrayMath.mutateByMultiplication(testArray, new double[] {4d}));
   }
 
   public void test_mutate() {
@@ -109,18 +111,18 @@ public class DoubleArrayMathTest {
   //-------------------------------------------------------------------------
   public void test_combineByAddition() {
     assertThat(DoubleArrayMath.combineByAddition(ARRAY_1_2, ARRAY_3_4)).contains(4d, 6d);
-    assertThrowsIllegalArg(() -> DoubleArrayMath.combineByAddition(ARRAY_1_2, ARRAY_3));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleArrayMath.combineByAddition(ARRAY_1_2, ARRAY_3));
   }
 
   public void test_combineByMultiplication() {
     assertThat(DoubleArrayMath.combineByMultiplication(ARRAY_1_2, ARRAY_3_4)).contains(3d, 8d);
-    assertThrowsIllegalArg(() -> DoubleArrayMath.combineByMultiplication(ARRAY_1_2, ARRAY_3));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleArrayMath.combineByMultiplication(ARRAY_1_2, ARRAY_3));
   }
 
   public void test_combine() {
     DoubleBinaryOperator operator = (a, b) -> a / b;
     assertThat(DoubleArrayMath.combine(ARRAY_1_2, ARRAY_3_4, operator)).contains(1d / 3d, 2d / 4d);
-    assertThrowsIllegalArg(() -> DoubleArrayMath.combine(ARRAY_1_2, ARRAY_3, operator));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleArrayMath.combine(ARRAY_1_2, ARRAY_3, operator));
   }
 
   public void test_combineLenient() {
@@ -166,7 +168,7 @@ public class DoubleArrayMathTest {
   public void test_sortPairs_doubledouble_sizeDifferent() {
     double[] keys = {3d, 2d, 5d, 4d};
     double[] values = {6d, 4d};
-    assertThrowsIllegalArg(() -> DoubleArrayMath.sortPairs(keys, values));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleArrayMath.sortPairs(keys, values));
   }
 
   //-------------------------------------------------------------------------
@@ -189,7 +191,7 @@ public class DoubleArrayMathTest {
   public void test_sortPairs_doubleObject_sizeDifferent() {
     double[] keys = {3d, 2d, 5d, 4d};
     Integer[] values = {6, 4};
-    assertThrowsIllegalArg(() -> DoubleArrayMath.sortPairs(keys, values));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleArrayMath.sortPairs(keys, values));
   }
 
   //-------------------------------------------------------------------------

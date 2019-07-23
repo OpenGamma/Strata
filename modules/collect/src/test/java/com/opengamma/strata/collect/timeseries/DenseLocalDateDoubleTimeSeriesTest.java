@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.collect.timeseries;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.INCLUDE_WEEKENDS;
 import static com.opengamma.strata.collect.timeseries.DenseLocalDateDoubleTimeSeries.DenseTimeSeriesCalculation.SKIP_WEEKENDS;
 import static com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries.empty;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotEquals;
 
@@ -171,23 +171,23 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   }
 
   public void test_NaN_is_not_allowed() {
-    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.of(DATE_2015_01_02, Double.NaN));
-    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().put(DATE_2015_01_02, Double.NaN));
-    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.of(DATE_2015_01_02, Double.NaN));
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.builder().put(DATE_2015_01_02, Double.NaN));
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(
         ImmutableMap.of(DATE_2015_01_02, Double.NaN)));
-    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().put(
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.builder().put(
         LocalDateDoublePoint.of(DATE_2015_01_02, Double.NaN)));
-    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(
         ImmutableList.of(DATE_2015_01_02), ImmutableList.of(Double.NaN)));
-    assertThrowsIllegalArg(() -> LocalDateDoubleTimeSeries.builder().putAll(
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(
         ImmutableList.of(LocalDateDoublePoint.of(DATE_2015_01_02, Double.NaN))));
 
     LocalDateDoubleTimeSeries s1 = LocalDateDoubleTimeSeries.of(DATE_2015_01_02, 1d);
     LocalDateDoubleTimeSeries s2 = LocalDateDoubleTimeSeries.of(DATE_2015_01_02, 2d);
 
-    assertThrowsIllegalArg(() -> s1.intersection(s2, (d1, d2) -> Double.NaN));
+    assertThatIllegalArgumentException().isThrownBy(() -> s1.intersection(s2, (d1, d2) -> Double.NaN));
 
-    assertThrowsIllegalArg(() -> s1.mapValues(d -> Double.NaN));
+    assertThatIllegalArgumentException().isThrownBy(() -> s1.mapValues(d -> Double.NaN));
   }
 
   //-------------------------------------------------------------------------
@@ -319,10 +319,10 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   public void test_earliestLatest_whenEmpty() {
     LocalDateDoubleTimeSeries test = empty();
-    assertThrows(test::getEarliestDate, NoSuchElementException.class);
-    assertThrows(test::getEarliestValue, NoSuchElementException.class);
-    assertThrows(test::getLatestDate, NoSuchElementException.class);
-    assertThrows(test::getLatestValue, NoSuchElementException.class);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(test::getEarliestDate);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(test::getEarliestValue);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(test::getLatestDate);
+    assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(test::getLatestValue);
   }
 
   public void test_earliest_with_subseries() {
@@ -733,7 +733,7 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   public void test_mapDates_notAscending() {
     List<Double> values = values(1, 2, 4, 5, 8);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2015_1_WEEK, values).build();
-    assertThrowsIllegalArg(() -> base.mapDates(date -> date(2016, 1, 6)));
+    assertThatIllegalArgumentException().isThrownBy(() -> base.mapDates(date -> date(2016, 1, 6)));
   }
 
   //-------------------------------------------------------------------------

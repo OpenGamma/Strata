@@ -7,8 +7,8 @@ package com.opengamma.strata.collect.result;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Locale;
@@ -60,11 +60,11 @@ public class FailureReasonTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> FailureReason.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> FailureReason.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> FailureReason.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> FailureReason.of(null));
   }
 
   //-------------------------------------------------------------------------

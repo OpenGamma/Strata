@@ -34,10 +34,10 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.ZAJO;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -360,11 +360,11 @@ public class OvernightIndexTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> OvernightIndex.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> OvernightIndex.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> OvernightIndex.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> OvernightIndex.of(null));
   }
 
   //-------------------------------------------------------------------------

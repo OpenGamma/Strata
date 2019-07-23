@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -69,9 +69,8 @@ public class CsvIteratorTest {
 
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
-    assertThrows(
-        () -> CsvIterator.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8), false),
-        UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(
+        () -> CsvIterator.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8), false));
   }
 
   public void test_of_empty_no_header() {
@@ -80,15 +79,15 @@ public class CsvIteratorTest {
       assertEquals(csvFile.containsHeader("a"), false);
       assertEquals(csvFile.hasNext(), false);
       assertEquals(csvFile.hasNext(), false);
-      assertThrows(() -> csvFile.peek(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.remove(), UnsupportedOperationException.class);
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> csvFile.remove());
     }
   }
 
   public void test_of_empty_with_header() {
-    assertThrowsIllegalArg(() -> CsvIterator.of(CharSource.wrap(""), true));
+    assertThatIllegalArgumentException().isThrownBy(() -> CsvIterator.of(CharSource.wrap(""), true));
   }
 
   public void test_of_simple_no_header() {
@@ -117,11 +116,11 @@ public class CsvIteratorTest {
       assertEquals(row2.field(0), "r21");
       assertEquals(row2.field(1), "r22");
       assertEquals(csvFile.hasNext(), false);
-      assertThrows(() -> csvFile.peek(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.peek(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.remove(), UnsupportedOperationException.class);
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> csvFile.remove());
     }
   }
 
@@ -146,9 +145,9 @@ public class CsvIteratorTest {
       assertEquals(row2.field(0), "r21");
       assertEquals(row2.field(1), "r22");
       assertEquals(csvFile.hasNext(), false);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.remove(), UnsupportedOperationException.class);
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> csvFile.remove());
     }
   }
 
@@ -178,11 +177,11 @@ public class CsvIteratorTest {
       assertEquals(row1.field(0), "r21");
       assertEquals(row1.field(1), "r22");
       assertEquals(csvFile.hasNext(), false);
-      assertThrows(() -> csvFile.peek(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.peek(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.next(), NoSuchElementException.class);
-      assertThrows(() -> csvFile.remove(), UnsupportedOperationException.class);
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
+      assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> csvFile.remove());
     }
   }
 

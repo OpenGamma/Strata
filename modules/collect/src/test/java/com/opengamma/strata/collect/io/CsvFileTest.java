@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
 
@@ -83,9 +83,8 @@ public class CsvFileTest {
 
   //-------------------------------------------------------------------------
   public void test_of_ioException() {
-    assertThrows(
-        () -> CsvFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8), false),
-        UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> CsvFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8), false));
   }
 
   public void test_of_empty_no_header() {
@@ -97,7 +96,7 @@ public class CsvFileTest {
   }
 
   public void test_of_empty_with_header() {
-    assertThrowsIllegalArg(() -> CsvFile.of(CharSource.wrap(""), true));
+    assertThatIllegalArgumentException().isThrownBy(() -> CsvFile.of(CharSource.wrap(""), true));
   }
 
   public void test_of_simple_no_header() {
@@ -181,14 +180,14 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).getField("h2"), "r12");
     assertEquals(csvFile.row(1).getField("h1"), "r21");
     assertEquals(csvFile.row(1).getField("h2"), "r22");
-    assertThrowsIllegalArg(() -> csvFile.row(0).getField("zzz"));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(0).getField("zzz"));
 
     assertEquals(csvFile.row(0).getValue("h1"), "r11");
     assertEquals(csvFile.row(0).getValue("h2"), "r12");
     assertEquals(csvFile.row(1).getValue("h1"), "r21");
     assertEquals(csvFile.row(1).getValue("h2"), "r22");
-    assertThrowsIllegalArg(() -> csvFile.row(0).getValue("zzz"));
-    assertThrowsIllegalArg(() -> csvFile.row(2).getValue("h2"));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(0).getValue("zzz"));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(2).getValue("h2"));
 
     assertEquals(csvFile.row(0).findField("h1"), Optional.of("r11"));
     assertEquals(csvFile.row(0).findField("h2"), Optional.of("r12"));
@@ -205,12 +204,12 @@ public class CsvFileTest {
 
     assertEquals(csvFile.row(0).getField(Pattern.compile("h[13]")), "r11");
     assertEquals(csvFile.row(0).getField(Pattern.compile("h[24]")), "r12");
-    assertThrowsIllegalArg(() -> csvFile.row(0).getField(Pattern.compile("zzz")));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(0).getField(Pattern.compile("zzz")));
 
     assertEquals(csvFile.row(0).getValue(Pattern.compile("h[13]")), "r11");
     assertEquals(csvFile.row(0).getValue(Pattern.compile("h[24]")), "r12");
-    assertThrowsIllegalArg(() -> csvFile.row(0).getValue(Pattern.compile("zzz")));
-    assertThrowsIllegalArg(() -> csvFile.row(2).getValue(Pattern.compile("h2")));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(0).getValue(Pattern.compile("zzz")));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(2).getValue(Pattern.compile("h2")));
 
     assertEquals(csvFile.row(0).findField(Pattern.compile("h[13]")), Optional.of("r11"));
     assertEquals(csvFile.row(0).findField(Pattern.compile("h[24]")), Optional.of("r12"));
@@ -254,7 +253,7 @@ public class CsvFileTest {
     assertEquals(csvFile.row(0).field(0), "r11");
     assertEquals(csvFile.row(0).field(1), "");
     assertEquals(csvFile.row(0).field(2), "");
-    assertThrows(() -> csvFile.row(0).field(4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> csvFile.row(0).field(4));
 
     assertEquals(csvFile.row(1).getField("a"), "r21");
     assertEquals(csvFile.row(1).getField("b"), "r22");
@@ -295,13 +294,13 @@ public class CsvFileTest {
   public void test_of_simple_no_header_access_by_field() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), false);
     assertEquals(csvFile.row(0).findField("h1"), Optional.empty());
-    assertThrowsIllegalArg(() -> csvFile.row(0).getField("h1"));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(0).getField("h1"));
   }
 
   public void test_of_simple_with_header_access_by_invalid_field() {
     CsvFile csvFile = CsvFile.of(CharSource.wrap(CSV1), true);
     assertEquals(csvFile.row(0).findField("h3"), Optional.empty());
-    assertThrowsIllegalArg(() -> csvFile.row(0).getField("h3"));
+    assertThatIllegalArgumentException().isThrownBy(() -> csvFile.row(0).getField("h3"));
   }
 
   public void test_of_blank_row() {
@@ -462,7 +461,7 @@ public class CsvFileTest {
   public void test_of_lists_sizeMismatch() {
     List<String> headers = Arrays.asList("1", "2");
     List<List<String>> rows = Arrays.asList(Arrays.asList("a", "x"), Arrays.asList("b"));
-    assertThrowsIllegalArg(() -> CsvFile.of(headers, rows));
+    assertThatIllegalArgumentException().isThrownBy(() -> CsvFile.of(headers, rows));
   }
 
   //-------------------------------------------------------------------------

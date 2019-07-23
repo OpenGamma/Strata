@@ -9,13 +9,13 @@ import static com.opengamma.strata.basics.currency.Currency.CAD;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray.toMultiCurrencyScenarioArray;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(raggedArray.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(0, 21, 0));
     assertThat(raggedArray.getValues(Currency.USD)).isEqualTo(DoubleArray.of(0, 32, 0));
     assertThat(raggedArray.getValues(Currency.EUR)).isEqualTo(DoubleArray.of(4, 43, 44));
-    assertThrowsIllegalArg(() -> raggedArray.getValues(Currency.AUD));
+    assertThatIllegalArgumentException().isThrownBy(() -> raggedArray.getValues(Currency.AUD));
   }
 
   public void emptyAmounts() {
@@ -107,12 +107,13 @@ public class MultiCurrencyScenarioArrayTest {
 
     assertThat(array).isEqualTo(VALUES_ARRAY);
 
-    assertThrowsIllegalArg(
-        () -> MultiCurrencyScenarioArray.of(
-            ImmutableMap.of(
-                Currency.GBP, DoubleArray.of(20, 21),
-                Currency.EUR, DoubleArray.of(40, 43, 44))),
-        "Arrays must have the same size.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(
+            () -> MultiCurrencyScenarioArray.of(
+                ImmutableMap.of(
+                    Currency.GBP, DoubleArray.of(20, 21),
+                    Currency.EUR, DoubleArray.of(40, 43, 44))))
+        .withMessageStartingWith("Arrays must have the same size");
   }
 
   public void getAllAmountsUnsafe() {
@@ -129,8 +130,8 @@ public class MultiCurrencyScenarioArrayTest {
         CurrencyAmount.of(Currency.USD, 33),
         CurrencyAmount.of(Currency.EUR, 44));
     assertThat(VALUES_ARRAY.get(2)).isEqualTo(expected);
-    assertThrows(() -> VALUES_ARRAY.get(3), IndexOutOfBoundsException.class);
-    assertThrows(() -> VALUES_ARRAY.get(-1), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> VALUES_ARRAY.get(3));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> VALUES_ARRAY.get(-1));
   }
 
   public void stream() {
@@ -246,7 +247,7 @@ public class MultiCurrencyScenarioArrayTest {
         CurrencyScenarioArray.of(USD, DoubleArray.of(10, 20, 30)),
         CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2)));
 
-    assertThrowsIllegalArg(() -> arrays.stream().collect(toMultiCurrencyScenarioArray()));
+    assertThatIllegalArgumentException().isThrownBy(() -> arrays.stream().collect(toMultiCurrencyScenarioArray()));
   }
 
   public void coverage() {

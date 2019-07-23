@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
@@ -68,9 +68,9 @@ public class ArrayByteSourceTest {
 
   public void test_copyOf_fromTo_bad() {
     byte[] bytes = {1, 2, 3};
-    assertThrows(IndexOutOfBoundsException.class, () -> ArrayByteSource.copyOf(bytes, -1, 2));
-    assertThrows(IndexOutOfBoundsException.class, () -> ArrayByteSource.copyOf(bytes, 0, 4));
-    assertThrows(IndexOutOfBoundsException.class, () -> ArrayByteSource.copyOf(bytes, 4, 5));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> ArrayByteSource.copyOf(bytes, -1, 2));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> ArrayByteSource.copyOf(bytes, 0, 4));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> ArrayByteSource.copyOf(bytes, 4, 5));
   }
 
   public void test_ofUnsafe() {
@@ -120,7 +120,7 @@ public class ArrayByteSourceTest {
     CheckedSupplier<InputStream> supplier = () -> {
       throw new IOException();
     };
-    assertThrows(UncheckedIOException.class, () -> ArrayByteSource.from(supplier));
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> ArrayByteSource.from(supplier));
   }
 
   public void test_from_SupplierExceptionOnRead() {
@@ -132,7 +132,7 @@ public class ArrayByteSourceTest {
         }
       };
     };
-    assertThrows(UncheckedIOException.class, () -> ArrayByteSource.from(supplier));
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> ArrayByteSource.from(supplier));
   }
 
   //-------------------------------------------------------------------------

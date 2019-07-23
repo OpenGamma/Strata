@@ -6,9 +6,9 @@
 package com.opengamma.strata.basics;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
@@ -44,7 +44,7 @@ public class CombinedReferenceDataTest {
     assertEquals(test.getValue(ID1), VAL1);
     assertEquals(test.getValue(ID2), VAL2);
     assertEquals(test.getValue(ID3), VAL3);
-    assertThrows(() -> test.getValue(ID4), ReferenceDataNotFoundException.class);
+    assertThatExceptionOfType(ReferenceDataNotFoundException.class).isThrownBy(() -> test.getValue(ID4));
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
     assertEquals(test.findValue(ID3), Optional.of(VAL3));

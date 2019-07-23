@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.collect.array;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -39,7 +39,7 @@ public class DoubleMatrixTest {
     assertMatrix(DoubleMatrix.of(0, 1));
     assertMatrix(DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
     assertMatrix(DoubleMatrix.of(6, 1, 1d, 2d, 3d, 4d, 5d, 6d), 1d, 2d, 3d, 4d, 5d, 6d);
-    assertThrowsIllegalArg(() -> DoubleMatrix.of(1, 2, 1d));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleMatrix.of(1, 2, 1d));
   }
 
   //-------------------------------------------------------------------------
@@ -71,7 +71,7 @@ public class DoubleMatrixTest {
     AtomicInteger counter = new AtomicInteger(2);
     assertMatrix(DoubleMatrix.ofArrayObjects(1, 2,
         i -> DoubleArray.of(counter.getAndIncrement(), counter.getAndIncrement())), 2d, 3d);
-    assertThrowsIllegalArg(() -> DoubleMatrix.ofArrayObjects(1, 2, i -> DoubleArray.EMPTY));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleMatrix.ofArrayObjects(1, 2, i -> DoubleArray.EMPTY));
   }
 
   public void test_ofArrays() {
@@ -87,7 +87,7 @@ public class DoubleMatrixTest {
     AtomicInteger counter = new AtomicInteger(2);
     assertMatrix(DoubleMatrix.ofArrays(1, 2,
         i -> new double[] {counter.getAndIncrement(), counter.getAndIncrement()}), 2d, 3d);
-    assertThrowsIllegalArg(() -> DoubleMatrix.ofArrays(1, 2, i -> new double[0]));
+    assertThatIllegalArgumentException().isThrownBy(() -> DoubleMatrix.ofArrays(1, 2, i -> new double[0]));
   }
 
   public void test_ofUnsafe() {
@@ -150,8 +150,8 @@ public class DoubleMatrixTest {
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.get(0, 0), 1d);
     assertEquals(test.get(2, 1), 6d);
-    assertThrows(() -> test.get(-1, 0), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.get(0, 4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(-1, 0));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(0, 4));
   }
 
   public void test_row() {
@@ -160,8 +160,8 @@ public class DoubleMatrixTest {
     assertEquals(test.row(0), DoubleArray.of(1d, 2d));
     assertEquals(test.row(1), DoubleArray.of(3d, 4d));
     assertEquals(test.row(2), DoubleArray.of(5d, 6d));
-    assertThrows(() -> test.row(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.row(4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.row(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.row(4));
   }
 
   public void test_rowArray() {
@@ -170,8 +170,8 @@ public class DoubleMatrixTest {
     assertEquals(test.rowArray(0), new double[] {1d, 2d});
     assertEquals(test.rowArray(1), new double[] {3d, 4d});
     assertEquals(test.rowArray(2), new double[] {5d, 6d});
-    assertThrows(() -> test.rowArray(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.rowArray(4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.rowArray(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.rowArray(4));
   }
 
   public void test_column() {
@@ -179,8 +179,8 @@ public class DoubleMatrixTest {
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.column(0), DoubleArray.of(1d, 3d, 5d));
     assertEquals(test.column(1), DoubleArray.of(2d, 4d, 6d));
-    assertThrows(() -> test.column(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.column(4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.column(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.column(4));
   }
 
   public void test_columnArray() {
@@ -188,8 +188,8 @@ public class DoubleMatrixTest {
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertEquals(test.columnArray(0), new double[] {1d, 3d, 5d});
     assertEquals(test.columnArray(1), new double[] {2d, 4d, 6d});
-    assertThrows(() -> test.columnArray(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.columnArray(4), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.columnArray(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.columnArray(4));
   }
 
   //-------------------------------------------------------------------------
@@ -207,10 +207,10 @@ public class DoubleMatrixTest {
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test.with(0, 0, 2.6d), 2.6d, 2d, 3d, 4d, 5d, 6d);
     assertMatrix(test.with(0, 0, 1d), 1d, 2d, 3d, 4d, 5d, 6d);
-    assertThrows(() -> test.with(-1, 0, 2d), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.with(3, 0, 2d), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.with(0, -1, 2d), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.with(0, 3, 2d), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(-1, 0, 2d));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(3, 0, 2d));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(0, -1, 2d));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.with(0, 3, 2d));
   }
 
   //-------------------------------------------------------------------------
@@ -238,21 +238,21 @@ public class DoubleMatrixTest {
     DoubleMatrix test1 = DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
     DoubleMatrix test2 = DoubleMatrix.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
     assertMatrix(test1.plus(test2), 1.5d, 2.6d, 3.7d, 4.5d, 5.6d, 6.7d);
-    assertThrows(() -> test1.plus(DoubleMatrix.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.plus(DoubleMatrix.EMPTY));
   }
 
   public void test_minus() {
     DoubleMatrix test1 = DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
     DoubleMatrix test2 = DoubleMatrix.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
     assertMatrix(test1.minus(test2), 0.5d, 1.4d, 2.3d, 3.5d, 4.4d, 5.3d);
-    assertThrows(() -> test1.minus(DoubleMatrix.EMPTY), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.minus(DoubleMatrix.EMPTY));
   }
 
   public void test_combine() {
     DoubleMatrix test1 = DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
     DoubleMatrix test2 = DoubleMatrix.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
     assertMatrix(test1.combine(test2, (a, b) -> a * b), 0.5d, 2d * 0.6d, 3d * 0.7d, 4d * 0.5d, 5d * 0.6d, 6d * 0.7d);
-    assertThrows(() -> test1.combine(DoubleMatrix.EMPTY, (a, b) -> a * b), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.combine(DoubleMatrix.EMPTY, (a, b) -> a * b));
   }
 
   //-------------------------------------------------------------------------

@@ -5,8 +5,9 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -14,10 +15,10 @@ import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 
-import com.google.common.io.CharSource;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.CharSource;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 
 /**
@@ -140,7 +141,7 @@ public class CsvOutputTest {
     assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP);
     csv.writeNewLine();
     assertEquals(buf.toString(), "h1,h2,h3" + LINE_SEP + "A,,c" + LINE_SEP);
-    assertThrows(IllegalArgumentException.class, () -> csv.writeCell("H1", "x"));
+    assertThatIllegalArgumentException().isThrownBy(() -> csv.writeCell("H1", "x"));
   }
 
   public void test_withHeaders_writeCells() {
@@ -204,8 +205,8 @@ public class CsvOutputTest {
     };
 
     CsvOutput output = CsvOutput.standard(throwingAppendable, "\n");
-    assertThrows(UncheckedIOException.class, () -> output.writeCell("a"));
-    assertThrows(UncheckedIOException.class, () -> output.writeNewLine());
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> output.writeCell("a"));
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> output.writeNewLine());
   }
 
   //-------------------------------------------------------------------------

@@ -6,11 +6,11 @@
 package com.opengamma.strata.data;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -59,7 +59,7 @@ public class MarketDataTest {
     assertEquals(test.findValue(ID2), Optional.of(VAL2));
 
     assertEquals(test.containsValue(ID3), false);
-    assertThrows(() -> test.getValue(ID3), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
     assertEquals(test.findValue(ID3), Optional.empty());
 
     assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
@@ -81,7 +81,7 @@ public class MarketDataTest {
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
 
     assertEquals(test.containsValue(ID2), false);
-    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertEquals(test.findValue(ID2), Optional.empty());
 
     assertEquals(test.getIds(), ImmutableSet.of(ID1));
@@ -92,13 +92,13 @@ public class MarketDataTest {
 
   public void test_of_badType() {
     Map<MarketDataId<?>, Object> dataMap = ImmutableMap.of(ID1, 123d);
-    assertThrows(() -> MarketData.of(VAL_DATE, dataMap), ClassCastException.class);
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> MarketData.of(VAL_DATE, dataMap));
   }
 
   public void test_of_null() {
     Map<MarketDataId<?>, Object> dataMap = new HashMap<>();
     dataMap.put(ID1, null);
-    assertThrowsIllegalArg(() -> MarketData.of(VAL_DATE, dataMap));
+    assertThatIllegalArgumentException().isThrownBy(() -> MarketData.of(VAL_DATE, dataMap));
   }
 
   public void empty() {
@@ -126,7 +126,8 @@ public class MarketDataTest {
   }
 
   public void test_builder_badType() {
-    assertThrows(() -> ImmutableMarketData.builder(VAL_DATE).addValueUnsafe(ID1, 123d), ClassCastException.class);
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> ImmutableMarketData.builder(VAL_DATE).addValueUnsafe(ID1, 123d));
   }
 
   //-------------------------------------------------------------------------
@@ -168,7 +169,7 @@ public class MarketDataTest {
     assertEquals(test.containsValue(ID1), true);
     assertEquals(test.containsValue(ID2), false);
     assertEquals(test.getValue(ID1), VAL1);
-    assertThrows(() -> test.getValue(ID2), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID2));
     assertEquals(test.findValue(ID1), Optional.of(VAL1));
     assertEquals(test.findValue(ID2), Optional.empty());
   }
@@ -213,7 +214,7 @@ public class MarketDataTest {
     MarketData test1 = MarketData.of(VAL_DATE, dataMap1);
     Map<MarketDataId<?>, Object> dataMap2 = ImmutableMap.of(ID1, VAL3);
     MarketData test2 = MarketData.of(VAL_DATE.plusDays(1), dataMap2);
-    assertThrowsIllegalArg(() -> test1.combinedWith(test2));
+    assertThatIllegalArgumentException().isThrownBy(() -> test1.combinedWith(test2));
   }
 
   /**

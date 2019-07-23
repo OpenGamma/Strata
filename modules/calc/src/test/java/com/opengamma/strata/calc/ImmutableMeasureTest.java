@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.calc;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.testng.annotations.Test;
 
@@ -16,11 +16,17 @@ public class ImmutableMeasureTest {
    * Tests that measure names are validated
    */
   public void namePattern() {
-    assertThrows(() -> ImmutableMeasure.of(null), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableMeasure.of(""), IllegalArgumentException.class);
-    assertThrows(() -> ImmutableMeasure.of("Foo Bar"), IllegalArgumentException.class, ".*must only contain the characters.*");
-    assertThrows(() -> ImmutableMeasure.of("Foo_Bar"), IllegalArgumentException.class, ".*must only contain the characters.*");
-    assertThrows(() -> ImmutableMeasure.of("FooBar!"), IllegalArgumentException.class, ".*must only contain the characters.*");
+    assertThatIllegalArgumentException().isThrownBy(() -> ImmutableMeasure.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> ImmutableMeasure.of(""));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableMeasure.of("Foo Bar"))
+        .withMessageMatching(".*must only contain the characters.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableMeasure.of("Foo_Bar"))
+        .withMessageMatching(".*must only contain the characters.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableMeasure.of("FooBar!"))
+        .withMessageMatching(".*must only contain the characters.*");
 
     // These should execute without throwing an exception
     ImmutableMeasure.of("FooBar");

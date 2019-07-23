@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.calc;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsRuntime;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -30,11 +30,11 @@ public class MeasureTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> Measure.of("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> Measure.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsRuntime(() -> Measure.of(null));
+    assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> Measure.of(null));
   }
 
   //-------------------------------------------------------------------------

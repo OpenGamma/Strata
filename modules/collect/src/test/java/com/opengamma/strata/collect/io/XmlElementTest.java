@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -43,9 +43,9 @@ public class XmlElementTest {
     assertEquals(test.hasContent(), false);
     assertEquals(test.getContent(), "");
     assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
-    assertThrowsIllegalArg(() -> test.getAttribute("notFound"));
-    assertThrows(() -> test.getChild(0), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> test.getChild("notFound"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getAttribute("notFound"));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getChild(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("notFound"));
     assertEquals(test.findChild("notFound"), Optional.empty());
     assertEquals(test.getChildren("notFound"), ImmutableList.of());
     assertEquals(test.toString(), "<test></test>");
@@ -82,9 +82,9 @@ public class XmlElementTest {
     assertEquals(test.getChild(1), LEAF2A);
     assertEquals(test.getChild(2), LEAF2B);
     assertEquals(test.getChild("leaf1"), LEAF1);
-    assertThrowsIllegalArg(() -> test.getChild("leaf2"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("leaf2"));
     assertEquals(test.findChild("leaf1"), Optional.of(LEAF1));
-    assertThrowsIllegalArg(() -> test.findChild("leaf2"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.findChild("leaf2"));
     assertEquals(test.getChildren("leaf1"), ImmutableList.of(LEAF1));
     assertEquals(test.getChildren("leaf2"), ImmutableList.of(LEAF2A, LEAF2B));
   }
@@ -97,9 +97,9 @@ public class XmlElementTest {
     assertEquals(test.hasContent(), true);
     assertEquals(test.getContent(), "hello");
     assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
-    assertThrowsIllegalArg(() -> test.getAttribute("notFound"));
-    assertThrows(() -> test.getChild(0), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> test.getChild("notFound"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getAttribute("notFound"));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getChild(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("notFound"));
     assertEquals(test.findChild("notFound"), Optional.empty());
     assertEquals(test.getChildren("notFound"), ImmutableList.of());
     assertEquals(test.toString(), "<test>hello</test>");
@@ -112,9 +112,9 @@ public class XmlElementTest {
     assertEquals(test.hasContent(), false);
     assertEquals(test.getContent(), "");
     assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
-    assertThrowsIllegalArg(() -> test.getAttribute("notFound"));
-    assertThrows(() -> test.getChild(0), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> test.getChild("notFound"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getAttribute("notFound"));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getChild(0));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("notFound"));
     assertEquals(test.findChild("notFound"), Optional.empty());
     assertEquals(test.getChildren("notFound"), ImmutableList.of());
     assertEquals(test.toString(), "<test></test>");
