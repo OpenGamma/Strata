@@ -50,7 +50,7 @@ public class CubicSplineInterpolator extends PiecewisePolynomialInterpolator {
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yData containing Infinity");
     }
 
-    double[] xValuesSrt = xValues.clone();
+    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt;
 
     if (xValues.length + 2 == yValues.length) {
