@@ -49,6 +49,7 @@ import static java.time.Month.MAY;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
@@ -888,7 +889,7 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_none_badStub() {
     // Jun 4th to Sep 17th requires a stub, but NONE specified
     PeriodicSchedule defn = PeriodicSchedule.builder()
@@ -901,10 +902,10 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_none_stubDate() {
     // Jun 17th to Sep 17th is correct for NONE stub convention, but firstRegularStartDate specified
     PeriodicSchedule defn = PeriodicSchedule.builder()
@@ -917,10 +918,10 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(JUL_17)
         .lastRegularEndDate(null)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_both_badStub() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUN_17)
@@ -932,10 +933,10 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(JUN_17)
         .lastRegularEndDate(SEP_17)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_backwards_badStub() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUN_17)
@@ -947,10 +948,10 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_forwards_badStub() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUN_17)
@@ -962,11 +963,11 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_termFrequency_badInitialStub() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUN_04)
@@ -978,10 +979,10 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(JUN_17)
         .lastRegularEndDate(null)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
-  @Test(expectedExceptions = ScheduleException.class)
+  @Test
   public void test_termFrequency_badFinalStub() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUN_04)
@@ -993,7 +994,7 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(SEP_04)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> defn.createUnadjustedDates());
   }
 
   //-------------------------------------------------------------------------
@@ -1012,7 +1013,7 @@ public class PeriodicScheduleTest {
     assertEquals(test, list(date(2015, 5, 29), date(2015, 5, 31)));
   }
 
-  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test
   public void test_emptyWhenAdjusted_term_createAdjustedDates() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2015, 5, 29))
@@ -1024,10 +1025,12 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createAdjustedDates(REF_DATA);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> defn.createAdjustedDates(REF_DATA))
+        .withMessageMatching(".*duplicate adjusted dates.*");
   }
 
-  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test
   public void test_emptyWhenAdjusted_term_createSchedule() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2015, 5, 29))
@@ -1039,7 +1042,9 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule(REF_DATA);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> defn.createSchedule(REF_DATA))
+        .withMessageMatching(".*duplicate adjusted dates.*");
   }
 
   public void test_emptyWhenAdjusted_twoPeriods_createUnadjustedDates() {
@@ -1057,7 +1062,7 @@ public class PeriodicScheduleTest {
     assertEquals(test, list(date(2015, 5, 27), date(2015, 5, 29), date(2015, 5, 31)));
   }
 
-  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test
   public void test_emptyWhenAdjusted_twoPeriods_createAdjustedDates() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2015, 5, 27))
@@ -1069,10 +1074,12 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createAdjustedDates(REF_DATA);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> defn.createAdjustedDates(REF_DATA))
+        .withMessageMatching(".*duplicate adjusted dates.*");
   }
 
-  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate adjusted dates.*")
+  @Test
   public void test_emptyWhenAdjusted_twoPeriods_createSchedule() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2015, 5, 27))
@@ -1084,12 +1091,12 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule(REF_DATA);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> defn.createSchedule(REF_DATA))
+        .withMessageMatching(".*duplicate adjusted dates.*");
   }
 
-  @Test(
-      expectedExceptions = ScheduleException.class,
-      expectedExceptionsMessageRegExp = "Schedule calculation resulted in invalid period")
+  @Test
   public void test_brokenWhenAdjusted_twoPeriods_createSchedule() {
     // generate unadjusted dates that are sorted (Wed, then Fri, then Sun)
     // use weird BusinessDayConvention to move Sunday back to Thursday
@@ -1114,10 +1121,12 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createSchedule(REF_DATA);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> defn.createSchedule(REF_DATA))
+        .withMessage("Schedule calculation resulted in invalid period");
   }
 
-  @Test(expectedExceptions = ScheduleException.class, expectedExceptionsMessageRegExp = ".*duplicate unadjusted dates.*")
+  @Test
   public void test_emptyWhenAdjusted_badRoll_createUnadjustedDates() {
     RollConvention roll = new RollConvention() {
       private boolean seen;
@@ -1152,7 +1161,9 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(null)
         .lastRegularEndDate(null)
         .build();
-    defn.createUnadjustedDates();
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> defn.createUnadjustedDates())
+        .withMessageMatching(".*duplicate unadjusted dates.*");
   }
 
   //-------------------------------------------------------------------------

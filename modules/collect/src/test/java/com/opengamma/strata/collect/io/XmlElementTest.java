@@ -7,15 +7,15 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 /**
  * Test {@link XmlElement}.
  */
-@Test
 public class XmlElementTest {
 
   private static final Map<String, String> ATTR_MAP_EMPTY = ImmutableMap.of();
@@ -36,91 +35,97 @@ public class XmlElementTest {
   private static final List<XmlElement> CHILD_LIST_MULTI = ImmutableList.of(LEAF1, LEAF2A, LEAF2B);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofChildren_empty() {
     XmlElement test = XmlElement.ofChildren("test", CHILD_LIST_EMPTY);
-    assertEquals(test.getName(), "test");
-    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(test.hasContent(), false);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
+    assertThat(test.getName()).isEqualTo("test");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(test.hasContent()).isEqualTo(false);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren()).isEqualTo(CHILD_LIST_EMPTY);
     assertThatIllegalArgumentException().isThrownBy(() -> test.getAttribute("notFound"));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getChild(0));
     assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("notFound"));
-    assertEquals(test.findChild("notFound"), Optional.empty());
-    assertEquals(test.getChildren("notFound"), ImmutableList.of());
-    assertEquals(test.toString(), "<test></test>");
+    assertThat(test.findChild("notFound")).isEqualTo(Optional.empty());
+    assertThat(test.getChildren("notFound")).isEqualTo(ImmutableList.of());
+    assertThat(test.toString()).isEqualTo("<test></test>");
   }
 
+  @Test
   public void test_ofChildren_one() {
     XmlElement test = XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_ONE);
-    assertEquals(test.getName(), "test");
-    assertEquals(test.getAttributes(), ATTR_MAP);
-    assertEquals(test.hasContent(), false);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren(), CHILD_LIST_ONE);
-    assertEquals(test.getAttribute("key"), "value");
-    assertEquals(test.findAttribute("key"), Optional.of("value"));
-    assertEquals(test.findAttribute("none"), Optional.empty());
-    assertEquals(test.getChild(0), LEAF1);
-    assertEquals(test.getChild("leaf1"), LEAF1);
-    assertEquals(test.findChild("leaf1"), Optional.of(LEAF1));
-    assertEquals(test.getChildren("leaf1"), ImmutableList.of(LEAF1));
-    assertEquals(test.toString(), "<test key=\"value\" og=\"strata\">" +
+    assertThat(test.getName()).isEqualTo("test");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP);
+    assertThat(test.hasContent()).isEqualTo(false);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren()).isEqualTo(CHILD_LIST_ONE);
+    assertThat(test.getAttribute("key")).isEqualTo("value");
+    assertThat(test.findAttribute("key")).isEqualTo(Optional.of("value"));
+    assertThat(test.findAttribute("none")).isEqualTo(Optional.empty());
+    assertThat(test.getChild(0)).isEqualTo(LEAF1);
+    assertThat(test.getChild("leaf1")).isEqualTo(LEAF1);
+    assertThat(test.findChild("leaf1")).isEqualTo(Optional.of(LEAF1));
+    assertThat(test.getChildren("leaf1")).isEqualTo(ImmutableList.of(LEAF1));
+    assertThat(test.toString()).isEqualTo("<test key=\"value\" og=\"strata\">" +
         System.lineSeparator() + " <leaf1 ... />" + System.lineSeparator() + "</test>");
   }
 
+  @Test
   public void test_ofChildren_multi() {
     XmlElement test = XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI);
-    assertEquals(test.getName(), "test");
-    assertEquals(test.getAttributes(), ATTR_MAP);
-    assertEquals(test.getAttribute("key"), "value");
-    assertEquals(test.hasContent(), false);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren(), CHILD_LIST_MULTI);
-    assertEquals(test.getAttribute("key"), "value");
-    assertEquals(test.getChild(0), LEAF1);
-    assertEquals(test.getChild(1), LEAF2A);
-    assertEquals(test.getChild(2), LEAF2B);
-    assertEquals(test.getChild("leaf1"), LEAF1);
+    assertThat(test.getName()).isEqualTo("test");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP);
+    assertThat(test.getAttribute("key")).isEqualTo("value");
+    assertThat(test.hasContent()).isEqualTo(false);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren()).isEqualTo(CHILD_LIST_MULTI);
+    assertThat(test.getAttribute("key")).isEqualTo("value");
+    assertThat(test.getChild(0)).isEqualTo(LEAF1);
+    assertThat(test.getChild(1)).isEqualTo(LEAF2A);
+    assertThat(test.getChild(2)).isEqualTo(LEAF2B);
+    assertThat(test.getChild("leaf1")).isEqualTo(LEAF1);
     assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("leaf2"));
-    assertEquals(test.findChild("leaf1"), Optional.of(LEAF1));
+    assertThat(test.findChild("leaf1")).isEqualTo(Optional.of(LEAF1));
     assertThatIllegalArgumentException().isThrownBy(() -> test.findChild("leaf2"));
-    assertEquals(test.getChildren("leaf1"), ImmutableList.of(LEAF1));
-    assertEquals(test.getChildren("leaf2"), ImmutableList.of(LEAF2A, LEAF2B));
+    assertThat(test.getChildren("leaf1")).isEqualTo(ImmutableList.of(LEAF1));
+    assertThat(test.getChildren("leaf2")).isEqualTo(ImmutableList.of(LEAF2A, LEAF2B));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofContent() {
     XmlElement test = XmlElement.ofContent("test", ATTR_MAP_EMPTY, "hello");
-    assertEquals(test.getName(), "test");
-    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(test.hasContent(), true);
-    assertEquals(test.getContent(), "hello");
-    assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
+    assertThat(test.getName()).isEqualTo("test");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(test.hasContent()).isEqualTo(true);
+    assertThat(test.getContent()).isEqualTo("hello");
+    assertThat(test.getChildren()).isEqualTo(CHILD_LIST_EMPTY);
     assertThatIllegalArgumentException().isThrownBy(() -> test.getAttribute("notFound"));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getChild(0));
     assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("notFound"));
-    assertEquals(test.findChild("notFound"), Optional.empty());
-    assertEquals(test.getChildren("notFound"), ImmutableList.of());
-    assertEquals(test.toString(), "<test>hello</test>");
+    assertThat(test.findChild("notFound")).isEqualTo(Optional.empty());
+    assertThat(test.getChildren("notFound")).isEqualTo(ImmutableList.of());
+    assertThat(test.toString()).isEqualTo("<test>hello</test>");
   }
 
+  @Test
   public void test_ofContent_empty() {
     XmlElement test = XmlElement.ofContent("test", "");
-    assertEquals(test.getName(), "test");
-    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(test.hasContent(), false);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren(), CHILD_LIST_EMPTY);
+    assertThat(test.getName()).isEqualTo("test");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(test.hasContent()).isEqualTo(false);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren()).isEqualTo(CHILD_LIST_EMPTY);
     assertThatIllegalArgumentException().isThrownBy(() -> test.getAttribute("notFound"));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getChild(0));
     assertThatIllegalArgumentException().isThrownBy(() -> test.getChild("notFound"));
-    assertEquals(test.findChild("notFound"), Optional.empty());
-    assertEquals(test.getChildren("notFound"), ImmutableList.of());
-    assertEquals(test.toString(), "<test></test>");
+    assertThat(test.findChild("notFound")).isEqualTo(Optional.empty());
+    assertThat(test.getChildren("notFound")).isEqualTo(ImmutableList.of());
+    assertThat(test.toString()).isEqualTo("<test></test>");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     XmlElement test = XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI);
     coverImmutableBean(test);

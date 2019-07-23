@@ -5,27 +5,28 @@
  */
 package com.opengamma.strata.collect.function;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test ObjLongFunction.
  */
-@Test
 public class ObjLongFunctionTest {
 
+  @Test
   public void test_andThen() {
     ObjLongFunction<Integer, String> fn1 = (a, b) -> a + "=" + b;
     ObjLongFunction<Integer, String> fn2 = fn1.andThen(str -> "[" + str + "]");
-    assertEquals(fn1.apply(2, 3L), "2=3");
-    assertEquals(fn2.apply(2, 3L), "[2=3]");
+    assertThat(fn1.apply(2, 3L)).isEqualTo("2=3");
+    assertThat(fn2.apply(2, 3L)).isEqualTo("[2=3]");
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test
   public void test_andThen_null() {
     ObjLongFunction<Integer, String> fn1 = (a, b) -> a + "=" + b;
-    fn1.andThen(null);
+    assertThatNullPointerException().isThrownBy(() -> fn1.andThen(null));
   }
 
 }

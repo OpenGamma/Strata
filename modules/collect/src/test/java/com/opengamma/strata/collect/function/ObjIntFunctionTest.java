@@ -5,27 +5,28 @@
  */
 package com.opengamma.strata.collect.function;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test ObjIntFunction.
  */
-@Test
 public class ObjIntFunctionTest {
 
+  @Test
   public void test_andThen() {
     ObjIntFunction<Integer, String> fn1 = (a, b) -> a + "=" + b;
     ObjIntFunction<Integer, String> fn2 = fn1.andThen(str -> "[" + str + "]");
-    assertEquals(fn1.apply(2, 3), "2=3");
-    assertEquals(fn2.apply(2, 3), "[2=3]");
+    assertThat(fn1.apply(2, 3)).isEqualTo("2=3");
+    assertThat(fn2.apply(2, 3)).isEqualTo("[2=3]");
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test
   public void test_andThen_null() {
     ObjIntFunction<Integer, String> fn1 = (a, b) -> a + "=" + b;
-    fn1.andThen(null);
+    assertThatNullPointerException().isThrownBy(() -> fn1.andThen(null));
   }
 
 }

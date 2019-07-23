@@ -6,10 +6,9 @@
 package com.opengamma.strata.collect.io;
 
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.StringReader;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
@@ -28,7 +27,6 @@ import com.google.common.io.Files;
 /**
  * Test {@link CsvIterator}.
  */
-@Test
 public class CsvIteratorTest {
 
   private final String CSV1 = "" +
@@ -68,17 +66,19 @@ public class CsvIteratorTest {
       "3,zzz";
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_ioException() {
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(
         () -> CsvIterator.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8), false));
   }
 
+  @Test
   public void test_of_empty_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(""), false)) {
-      assertEquals(csvFile.headers().size(), 0);
-      assertEquals(csvFile.containsHeader("a"), false);
-      assertEquals(csvFile.hasNext(), false);
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(csvFile.headers().size()).isEqualTo(0);
+      assertThat(csvFile.containsHeader("a")).isEqualTo(false);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
@@ -86,36 +86,38 @@ public class CsvIteratorTest {
     }
   }
 
+  @Test
   public void test_of_empty_with_header() {
     assertThatIllegalArgumentException().isThrownBy(() -> CsvIterator.of(CharSource.wrap(""), true));
   }
 
+  @Test
   public void test_of_simple_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), false)) {
-      assertEquals(csvFile.headers().size(), 0);
-      assertEquals(csvFile.hasNext(), true);
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(csvFile.headers().size()).isEqualTo(0);
+      assertThat(csvFile.hasNext()).isEqualTo(true);
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow peeked = csvFile.peek();
       CsvRow row0 = csvFile.next();
-      assertEquals(row0, peeked);
-      assertEquals(row0.headers().size(), 0);
-      assertEquals(row0.lineNumber(), 1);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "h1");
-      assertEquals(row0.field(1), "h2");
+      assertThat(row0).isEqualTo(peeked);
+      assertThat(row0.headers().size()).isEqualTo(0);
+      assertThat(row0.lineNumber()).isEqualTo(1);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("h1");
+      assertThat(row0.field(1)).isEqualTo("h2");
       CsvRow row1 = csvFile.next();
-      assertEquals(row1.headers().size(), 0);
-      assertEquals(row1.lineNumber(), 2);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r11");
-      assertEquals(row1.field(1), "r12");
+      assertThat(row1.headers().size()).isEqualTo(0);
+      assertThat(row1.lineNumber()).isEqualTo(2);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r11");
+      assertThat(row1.field(1)).isEqualTo("r12");
       CsvRow row2 = csvFile.next();
-      assertEquals(row2.headers().size(), 0);
-      assertEquals(row2.lineNumber(), 3);
-      assertEquals(row2.fieldCount(), 2);
-      assertEquals(row2.field(0), "r21");
-      assertEquals(row2.field(1), "r22");
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(row2.headers().size()).isEqualTo(0);
+      assertThat(row2.lineNumber()).isEqualTo(3);
+      assertThat(row2.fieldCount()).isEqualTo(2);
+      assertThat(row2.field(0)).isEqualTo("r21");
+      assertThat(row2.field(1)).isEqualTo("r22");
+      assertThat(csvFile.hasNext()).isEqualTo(false);
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
@@ -124,59 +126,61 @@ public class CsvIteratorTest {
     }
   }
 
+  @Test
   public void test_of_simple_no_header_tabs() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1T), false, '\t')) {
-      assertEquals(csvFile.headers().size(), 0);
+      assertThat(csvFile.headers().size()).isEqualTo(0);
       CsvRow row0 = csvFile.next();
-      assertEquals(row0.headers().size(), 0);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "h1");
-      assertEquals(row0.field(1), "h2");
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(row0.headers().size()).isEqualTo(0);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("h1");
+      assertThat(row0.field(1)).isEqualTo("h2");
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow row1 = csvFile.next();
-      assertEquals(row1.headers().size(), 0);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r11");
-      assertEquals(row1.field(1), "r12");
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(row1.headers().size()).isEqualTo(0);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r11");
+      assertThat(row1.field(1)).isEqualTo("r12");
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow row2 = csvFile.next();
-      assertEquals(row2.headers().size(), 0);
-      assertEquals(row2.fieldCount(), 2);
-      assertEquals(row2.field(0), "r21");
-      assertEquals(row2.field(1), "r22");
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(row2.headers().size()).isEqualTo(0);
+      assertThat(row2.fieldCount()).isEqualTo(2);
+      assertThat(row2.field(0)).isEqualTo("r21");
+      assertThat(row2.field(1)).isEqualTo("r22");
+      assertThat(csvFile.hasNext()).isEqualTo(false);
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
       assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> csvFile.remove());
     }
   }
 
+  @Test
   public void test_of_simple_with_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), true)) {
       ImmutableList<String> headers = csvFile.headers();
-      assertEquals(headers.size(), 2);
-      assertEquals(csvFile.containsHeader("h1"), true);
-      assertEquals(csvFile.containsHeader("h2"), true);
-      assertEquals(csvFile.containsHeader("a"), false);
-      assertEquals(csvFile.containsHeader(Pattern.compile("h.")), true);
-      assertEquals(csvFile.containsHeader(Pattern.compile("a")), false);
-      assertEquals(headers.get(0), "h1");
-      assertEquals(headers.get(1), "h2");
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(csvFile.containsHeader("h1")).isEqualTo(true);
+      assertThat(csvFile.containsHeader("h2")).isEqualTo(true);
+      assertThat(csvFile.containsHeader("a")).isEqualTo(false);
+      assertThat(csvFile.containsHeader(Pattern.compile("h."))).isEqualTo(true);
+      assertThat(csvFile.containsHeader(Pattern.compile("a"))).isEqualTo(false);
+      assertThat(headers.get(0)).isEqualTo("h1");
+      assertThat(headers.get(1)).isEqualTo("h2");
       CsvRow peeked = csvFile.peek();
       CsvRow row0 = csvFile.next();
-      assertEquals(row0, peeked);
-      assertEquals(row0.headers(), headers);
-      assertEquals(row0.lineNumber(), 2);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r11");
-      assertEquals(row0.field(1), "r12");
+      assertThat(row0).isEqualTo(peeked);
+      assertThat(row0.headers()).isEqualTo(headers);
+      assertThat(row0.lineNumber()).isEqualTo(2);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r11");
+      assertThat(row0.field(1)).isEqualTo("r12");
       CsvRow row1 = csvFile.next();
-      assertEquals(row1.headers(), headers);
-      assertEquals(row1.lineNumber(), 3);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r21");
-      assertEquals(row1.field(1), "r22");
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(row1.headers()).isEqualTo(headers);
+      assertThat(row1.lineNumber()).isEqualTo(3);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r21");
+      assertThat(row1.field(1)).isEqualTo("r22");
+      assertThat(csvFile.hasNext()).isEqualTo(false);
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.peek());
       assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> csvFile.next());
@@ -185,210 +189,222 @@ public class CsvIteratorTest {
     }
   }
 
+  @Test
   public void test_of_comment_blank_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV2), false)) {
-      assertEquals(csvFile.headers().size(), 0);
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(csvFile.headers().size()).isEqualTo(0);
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow row0 = csvFile.next();
-      assertEquals(row0.lineNumber(), 1);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "h1");
-      assertEquals(row0.field(1), "h2");
+      assertThat(row0.lineNumber()).isEqualTo(1);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("h1");
+      assertThat(row0.field(1)).isEqualTo("h2");
       CsvRow row1 = csvFile.next();
-      assertEquals(row1.lineNumber(), 5);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r21");
-      assertEquals(row1.field(1), "r22");
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(row1.lineNumber()).isEqualTo(5);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r21");
+      assertThat(row1.field(1)).isEqualTo("r22");
+      assertThat(csvFile.hasNext()).isEqualTo(false);
     }
   }
 
+  @Test
   public void test_of_comment_blank_with_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV2), true)) {
       ImmutableList<String> headers = csvFile.headers();
-      assertEquals(headers.size(), 2);
-      assertEquals(headers.get(0), "h1");
-      assertEquals(headers.get(1), "h2");
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(headers.get(0)).isEqualTo("h1");
+      assertThat(headers.get(1)).isEqualTo("h2");
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow row0 = csvFile.next();
-      assertEquals(row0.lineNumber(), 5);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r21");
-      assertEquals(row0.field(1), "r22");
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(row0.lineNumber()).isEqualTo(5);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r21");
+      assertThat(row0.field(1)).isEqualTo("r22");
+      assertThat(csvFile.hasNext()).isEqualTo(false);
     }
   }
 
+  @Test
   public void test_of_blank_row() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV3), false)) {
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow row0 = csvFile.next();
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r11");
-      assertEquals(row0.field(1), "r12");
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r11");
+      assertThat(row0.field(1)).isEqualTo("r12");
       CsvRow row1 = csvFile.next();
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r21");
-      assertEquals(row1.field(1), "r22");
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r21");
+      assertThat(row1.field(1)).isEqualTo("r22");
+      assertThat(csvFile.hasNext()).isEqualTo(false);
     }
   }
 
+  @Test
   public void test_of_headerComment() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV4), true)) {
-      assertEquals(csvFile.hasNext(), true);
+      assertThat(csvFile.hasNext()).isEqualTo(true);
       CsvRow row0 = csvFile.next();
-      assertEquals(row0.lineNumber(), 3);
-      assertEquals(csvFile.headers().size(), 2);
-      assertEquals(csvFile.headers().get(0), "h1");
-      assertEquals(csvFile.headers().get(1), "h2");
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r1");
-      assertEquals(row0.field(1), "r2");
+      assertThat(row0.lineNumber()).isEqualTo(3);
+      assertThat(csvFile.headers().size()).isEqualTo(2);
+      assertThat(csvFile.headers().get(0)).isEqualTo("h1");
+      assertThat(csvFile.headers().get(1)).isEqualTo("h2");
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r1");
+      assertThat(row0.field(1)).isEqualTo("r2");
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_empty_no_header_reader() {
     try (CsvIterator csvFile = CsvIterator.of(new StringReader(""), false, ',')) {
-      assertEquals(csvFile.headers().size(), 0);
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(csvFile.headers().size()).isEqualTo(0);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_nextBatch1() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), true)) {
       ImmutableList<String> headers = csvFile.headers();
-      assertEquals(headers.size(), 2);
-      assertEquals(headers.get(0), "h1");
-      assertEquals(headers.get(1), "h2");
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(headers.get(0)).isEqualTo("h1");
+      assertThat(headers.get(1)).isEqualTo("h2");
       List<CsvRow> a = csvFile.nextBatch(0);
-      assertEquals(a.size(), 0);
+      assertThat(a.size()).isEqualTo(0);
       List<CsvRow> b = csvFile.nextBatch(1);
-      assertEquals(b.size(), 1);
+      assertThat(b.size()).isEqualTo(1);
       CsvRow row0 = b.get(0);
-      assertEquals(row0.headers(), headers);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r11");
-      assertEquals(row0.field(1), "r12");
+      assertThat(row0.headers()).isEqualTo(headers);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r11");
+      assertThat(row0.field(1)).isEqualTo("r12");
       List<CsvRow> c = csvFile.nextBatch(2);
-      assertEquals(c.size(), 1);
+      assertThat(c.size()).isEqualTo(1);
       CsvRow row1 = c.get(0);
-      assertEquals(row1.headers(), headers);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r21");
-      assertEquals(row1.field(1), "r22");
+      assertThat(row1.headers()).isEqualTo(headers);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r21");
+      assertThat(row1.field(1)).isEqualTo("r22");
       List<CsvRow> d = csvFile.nextBatch(2);
-      assertEquals(d.size(), 0);
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(d.size()).isEqualTo(0);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
     }
   }
 
+  @Test
   public void test_nextBatch2() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), true)) {
       ImmutableList<String> headers = csvFile.headers();
-      assertEquals(headers.size(), 2);
-      assertEquals(headers.get(0), "h1");
-      assertEquals(headers.get(1), "h2");
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(headers.get(0)).isEqualTo("h1");
+      assertThat(headers.get(1)).isEqualTo("h2");
       List<CsvRow> a = csvFile.nextBatch(3);
-      assertEquals(a.size(), 2);
+      assertThat(a.size()).isEqualTo(2);
       CsvRow row0 = a.get(0);
-      assertEquals(row0.headers(), headers);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r11");
-      assertEquals(row0.field(1), "r12");
+      assertThat(row0.headers()).isEqualTo(headers);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r11");
+      assertThat(row0.field(1)).isEqualTo("r12");
       CsvRow row1 = a.get(1);
-      assertEquals(row1.headers(), headers);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r21");
-      assertEquals(row1.field(1), "r22");
+      assertThat(row1.headers()).isEqualTo(headers);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r21");
+      assertThat(row1.field(1)).isEqualTo("r22");
       List<CsvRow> d = csvFile.nextBatch(2);
-      assertEquals(d.size(), 0);
-      assertEquals(csvFile.hasNext(), false);
-      assertEquals(csvFile.hasNext(), false);
+      assertThat(d.size()).isEqualTo(0);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void nextBatch_predicate() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV5GROUPED), true)) {
       ImmutableList<String> headers = csvFile.headers();
-      assertEquals(headers.size(), 2);
-      assertEquals(headers.get(0), "id");
-      assertEquals(headers.get(1), "value");
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(headers.get(0)).isEqualTo("id");
+      assertThat(headers.get(1)).isEqualTo("value");
       int batches = 0;
       int total = 0;
       while (csvFile.hasNext()) {
         CsvRow first = csvFile.peek();
         String id = first.getValue("id");
         List<CsvRow> batch = csvFile.nextBatch(row -> row.getValue("id").equals(id));
-        assertEquals(batch.stream().map(row -> row.getValue("id")).distinct().count(), 1);
+        assertThat(batch.stream().map(row -> row.getValue("id")).distinct().count()).isEqualTo(1);
         batches++;
         total += batch.size();
       }
-      assertEquals(batches, 3);
-      assertEquals(total, 6);
+      assertThat(batches).isEqualTo(3);
+      assertThat(total).isEqualTo(6);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_asStream_empty_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(""), false)) {
-      assertEquals(csvFile.asStream().collect(toList()).size(), 0);
+      assertThat(csvFile.asStream().collect(toList()).size()).isEqualTo(0);
     }
   }
 
+  @Test
   public void test_asStream_simple_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), false)) {
-      assertEquals(csvFile.headers().size(), 0);
+      assertThat(csvFile.headers().size()).isEqualTo(0);
       List<CsvRow> rows = csvFile.asStream().collect(toList());
-      assertEquals(csvFile.hasNext(), false);
-      assertEquals(rows.size(), 3);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
+      assertThat(rows.size()).isEqualTo(3);
       CsvRow row0 = rows.get(0);
-      assertEquals(row0.headers().size(), 0);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "h1");
-      assertEquals(row0.field(1), "h2");
+      assertThat(row0.headers().size()).isEqualTo(0);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("h1");
+      assertThat(row0.field(1)).isEqualTo("h2");
       CsvRow row1 = rows.get(1);
-      assertEquals(row1.headers().size(), 0);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r11");
-      assertEquals(row1.field(1), "r12");
+      assertThat(row1.headers().size()).isEqualTo(0);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r11");
+      assertThat(row1.field(1)).isEqualTo("r12");
       CsvRow row2 = rows.get(2);
-      assertEquals(row2.headers().size(), 0);
-      assertEquals(row2.fieldCount(), 2);
-      assertEquals(row2.field(0), "r21");
-      assertEquals(row2.field(1), "r22");
+      assertThat(row2.headers().size()).isEqualTo(0);
+      assertThat(row2.fieldCount()).isEqualTo(2);
+      assertThat(row2.field(0)).isEqualTo("r21");
+      assertThat(row2.field(1)).isEqualTo("r22");
     }
   }
 
+  @Test
   public void test_asStream_simple_with_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), true)) {
       ImmutableList<String> headers = csvFile.headers();
-      assertEquals(headers.size(), 2);
-      assertEquals(headers.get(0), "h1");
-      assertEquals(headers.get(1), "h2");
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(headers.get(0)).isEqualTo("h1");
+      assertThat(headers.get(1)).isEqualTo("h2");
       List<CsvRow> rows = csvFile.asStream().collect(toList());
-      assertEquals(csvFile.hasNext(), false);
-      assertEquals(rows.size(), 2);
+      assertThat(csvFile.hasNext()).isEqualTo(false);
+      assertThat(rows.size()).isEqualTo(2);
       CsvRow row0 = rows.get(0);
-      assertEquals(row0.headers(), headers);
-      assertEquals(row0.fieldCount(), 2);
-      assertEquals(row0.field(0), "r11");
-      assertEquals(row0.field(1), "r12");
+      assertThat(row0.headers()).isEqualTo(headers);
+      assertThat(row0.fieldCount()).isEqualTo(2);
+      assertThat(row0.field(0)).isEqualTo("r11");
+      assertThat(row0.field(1)).isEqualTo("r12");
       CsvRow row1 = rows.get(1);
-      assertEquals(row1.headers(), headers);
-      assertEquals(row1.fieldCount(), 2);
-      assertEquals(row1.field(0), "r21");
-      assertEquals(row1.field(1), "r22");
+      assertThat(row1.headers()).isEqualTo(headers);
+      assertThat(row1.fieldCount()).isEqualTo(2);
+      assertThat(row1.field(0)).isEqualTo("r21");
+      assertThat(row1.field(1)).isEqualTo("r22");
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toString() {
     try (CsvIterator test = CsvIterator.of(CharSource.wrap(CSV1), true)) {
-      assertNotNull(test.toString());
+      assertThat(test.toString()).isNotNull();
     }
   }
 

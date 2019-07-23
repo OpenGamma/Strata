@@ -9,10 +9,9 @@ import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -33,7 +32,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -50,61 +49,68 @@ import com.opengamma.strata.collect.tuple.Pair;
 /**
  * Test Guavate.
  */
-@Test
 public class GuavateTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_concatToList() {
     Iterable<String> iterable1 = Arrays.asList("a", "b", "c");
     Iterable<String> iterable2 = Arrays.asList("d", "e", "f");
     List<String> test = Guavate.concatToList(iterable1, iterable2);
-    assertEquals(test, ImmutableList.of("a", "b", "c", "d", "e", "f"));
+    assertThat(test).isEqualTo(ImmutableList.of("a", "b", "c", "d", "e", "f"));
   }
 
+  @Test
   public void test_concatToList_differentTypes() {
     Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3);
     Iterable<Double> iterable2 = Arrays.asList(10d, 20d, 30d);
     ImmutableList<Number> test = Guavate.concatToList(iterable1, iterable2);
-    assertEquals(test, ImmutableList.of(1, 2, 3, 10d, 20d, 30d));
+    assertThat(test).isEqualTo(ImmutableList.of(1, 2, 3, 10d, 20d, 30d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_concatToSet() {
     Iterable<String> iterable1 = Arrays.asList("a", "b", "c");
     Iterable<String> iterable2 = Arrays.asList("d", "e", "f", "a");
     Set<String> test = Guavate.concatToSet(iterable1, iterable2);
-    assertEquals(test, ImmutableSet.of("a", "b", "c", "d", "e", "f"));
+    assertThat(test).isEqualTo(ImmutableSet.of("a", "b", "c", "d", "e", "f"));
   }
 
+  @Test
   public void test_concatToSet_differentTypes() {
     Iterable<Integer> iterable1 = Arrays.asList(1, 2, 3, 2);
     Iterable<Double> iterable2 = Arrays.asList(10d, 20d, 30d);
     Set<Number> test = Guavate.concatToSet(iterable1, iterable2);
-    assertEquals(test, ImmutableSet.of(1, 2, 3, 10d, 20d, 30d));
+    assertThat(test).isEqualTo(ImmutableSet.of(1, 2, 3, 10d, 20d, 30d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combineMap() {
     Map<String, String> map1 = ImmutableMap.of("a", "one", "b", "two");
     Map<String, String> map2 = ImmutableMap.of("c", "three", "d", "four");
     Map<String, String> test = Guavate.combineMaps(map1, map2);
-    assertEquals(test, ImmutableMap.of("a", "one", "b", "two", "c", "three", "d", "four"));
+    assertThat(test).isEqualTo(ImmutableMap.of("a", "one", "b", "two", "c", "three", "d", "four"));
   }
 
+  @Test
   public void test_combineMap_differentTypes() {
     Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
     Map<String, Double> map2 = ImmutableMap.of("c", 3d, "d", 4d);
     Map<String, Number> test = Guavate.combineMaps(map1, map2);
-    assertEquals(test, ImmutableMap.of("a", 1, "b", 2, "c", 3d, "d", 4d));
+    assertThat(test).isEqualTo(ImmutableMap.of("a", 1, "b", 2, "c", 3d, "d", 4d));
   }
 
+  @Test
   public void test_combineMap_merge() {
     Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
     Map<String, Integer> map2 = ImmutableMap.of("a", 5, "c", 3);
     Map<String, Integer> test = Guavate.combineMaps(map1, map2, Integer::sum);
-    assertEquals(test, ImmutableMap.of("a", 6, "b", 2, "c", 3));
+    assertThat(test).isEqualTo(ImmutableMap.of("a", 6, "b", 2, "c", 3));
   }
 
+  @Test
   public void test_combineMap_mergeDifferentTypes() {
     Map<String, Integer> map1 = ImmutableMap.of("a", 1, "b", 2);
     Map<String, Double> map2 = ImmutableMap.of("a", 5d, "c", 3d);
@@ -112,301 +118,340 @@ public class GuavateTest {
         map1,
         map2,
         (a, b) -> Double.sum(a.doubleValue(), b.doubleValue()));
-    assertEquals(test, ImmutableMap.of("a", 6d, "b", 2, "c", 3d));
+    assertThat(test).isEqualTo(ImmutableMap.of("a", 6d, "b", 2, "c", 3d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_firstNonEmpty_supplierMatch1() {
     Optional<Number> test = Guavate.firstNonEmpty(
         () -> Optional.of(Integer.valueOf(1)),
         () -> Optional.of(Double.valueOf(2d)));
-    assertEquals(test, Optional.of(Integer.valueOf(1)));
+    assertThat(test).isEqualTo(Optional.of(Integer.valueOf(1)));
   }
 
+  @Test
   public void test_firstNonEmpty_supplierMatch2() {
     Optional<Number> test = Guavate.firstNonEmpty(
         () -> Optional.empty(),
         () -> Optional.of(Double.valueOf(2d)));
-    assertEquals(test, Optional.of(Double.valueOf(2d)));
+    assertThat(test).isEqualTo(Optional.of(Double.valueOf(2d)));
   }
 
+  @Test
   public void test_firstNonEmpty_supplierMatchNone() {
     Optional<Number> test = Guavate.firstNonEmpty(
         () -> Optional.empty(),
         () -> Optional.empty());
-    assertEquals(test, Optional.empty());
+    assertThat(test).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_firstNonEmpty_optionalMatch1() {
     Optional<Number> test = Guavate.firstNonEmpty(Optional.of(Integer.valueOf(1)), Optional.of(Double.valueOf(2d)));
-    assertEquals(test, Optional.of(Integer.valueOf(1)));
+    assertThat(test).isEqualTo(Optional.of(Integer.valueOf(1)));
   }
 
+  @Test
   public void test_firstNonEmpty_optionalMatch2() {
     Optional<Number> test = Guavate.firstNonEmpty(Optional.empty(), Optional.of(Double.valueOf(2d)));
-    assertEquals(test, Optional.of(Double.valueOf(2d)));
+    assertThat(test).isEqualTo(Optional.of(Double.valueOf(2d)));
   }
 
+  @Test
   public void test_firstNonEmpty_optionalMatchNone() {
     Optional<Number> test = Guavate.firstNonEmpty(Optional.empty(), Optional.empty());
-    assertEquals(test, Optional.empty());
+    assertThat(test).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_stream_Iterable() {
     Iterable<String> iterable = Arrays.asList("a", "b", "c");
     List<String> test = Guavate.stream(iterable)
         .collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of("a", "b", "c"));
+    assertThat(test).isEqualTo(ImmutableList.of("a", "b", "c"));
   }
 
+  @Test
   public void test_stream_Optional() {
     Optional<String> optional = Optional.of("foo");
     List<String> test1 = Guavate.stream(optional).collect(Collectors.toList());
-    assertEquals(test1, ImmutableList.of("foo"));
+    assertThat(test1).isEqualTo(ImmutableList.of("foo"));
 
     Optional<String> empty = Optional.empty();
     List<String> test2 = Guavate.stream(empty).collect(Collectors.toList());
-    assertEquals(test2, ImmutableList.of());
+    assertThat(test2).isEqualTo(ImmutableList.of());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zipWithIndex() {
     Stream<String> base = Stream.of("a", "b", "c");
     List<ObjIntPair<String>> test = Guavate.zipWithIndex(base).collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of(ObjIntPair.of("a", 0), ObjIntPair.of("b", 1), ObjIntPair.of("c", 2)));
+    assertThat(test).isEqualTo(ImmutableList.of(ObjIntPair.of("a", 0), ObjIntPair.of("b", 1), ObjIntPair.of("c", 2)));
   }
 
+  @Test
   public void test_zipWithIndex_empty() {
     Stream<String> base = Stream.of();
     List<ObjIntPair<String>> test = Guavate.zipWithIndex(base).collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of());
+    assertThat(test).isEqualTo(ImmutableList.of());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zip() {
     Stream<String> base1 = Stream.of("a", "b", "c");
     Stream<Integer> base2 = Stream.of(1, 2, 3);
     List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2), Pair.of("c", 3)));
+    assertThat(test).isEqualTo(ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2), Pair.of("c", 3)));
   }
 
+  @Test
   public void test_zip_firstLonger() {
     Stream<String> base1 = Stream.of("a", "b", "c");
     Stream<Integer> base2 = Stream.of(1, 2);
     List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
+    assertThat(test).isEqualTo(ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
   }
 
+  @Test
   public void test_zip_secondLonger() {
     Stream<String> base1 = Stream.of("a", "b");
     Stream<Integer> base2 = Stream.of(1, 2, 3);
     List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
+    assertThat(test).isEqualTo(ImmutableList.of(Pair.of("a", 1), Pair.of("b", 2)));
   }
 
+  @Test
   public void test_zip_empty() {
     Stream<String> base1 = Stream.of();
     Stream<Integer> base2 = Stream.of();
     List<Pair<String, Integer>> test = Guavate.zip(base1, base2).collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of());
+    assertThat(test).isEqualTo(ImmutableList.of());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_not_Predicate() {
     List<String> data = Arrays.asList("a", "", "c");
     List<String> test = data.stream()
         .filter(Guavate.not(String::isEmpty))
         .collect(Collectors.toList());
-    assertEquals(test, ImmutableList.of("a", "c"));
+    assertThat(test).isEqualTo(ImmutableList.of("a", "c"));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ensureOnlyOne() {
-    assertEquals(Stream.empty().reduce(Guavate.ensureOnlyOne()), Optional.empty());
-    assertEquals(Stream.of("a").reduce(Guavate.ensureOnlyOne()), Optional.of("a"));
+    assertThat(Stream.empty().reduce(Guavate.ensureOnlyOne())).isEqualTo(Optional.empty());
+    assertThat(Stream.of("a").reduce(Guavate.ensureOnlyOne())).isEqualTo(Optional.of("a"));
     assertThatIllegalArgumentException().isThrownBy(() -> Stream.of("a", "b").reduce(Guavate.ensureOnlyOne()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_casting() {
-    assertEquals(Stream.empty().map(Guavate.casting(Integer.class)).collect(toList()), ImmutableList.of());
+    assertThat(Stream.empty().map(Guavate.casting(Integer.class)).collect(toList())).isEqualTo(ImmutableList.of());
     List<Number> baseList = Arrays.asList(1, 2, 3);
     List<Integer> castList = baseList.stream().map(Guavate.casting(Integer.class)).collect(toList());
-    assertEquals(castList, baseList);
+    assertThat(castList).isEqualTo(baseList);
     List<Number> baseListMixed = ImmutableList.of(1, 2f, 3);
     assertThatExceptionOfType(ClassCastException.class)
         .isThrownBy(() -> baseListMixed.stream().map(Guavate.casting(Short.class)).collect(toList()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtering() {
     List<Number> list = ImmutableList.of(1, 2d, 3f, 4, (short) 5, 6L, 7);
-    assertEquals(Stream.empty().flatMap(Guavate.filtering(Integer.class)).collect(toList()), ImmutableList.of());
-    assertEquals(list.stream().flatMap(Guavate.filtering(Integer.class)).collect(toList()), ImmutableList.of(1, 4, 7));
-    assertEquals(list.stream().flatMap(Guavate.filtering(Double.class)).collect(toList()), ImmutableList.of(2d));
+    assertThat(Stream.empty().flatMap(Guavate.filtering(Integer.class)).collect(toList())).isEqualTo(ImmutableList.of());
+    assertThat(list.stream().flatMap(Guavate.filtering(Integer.class)).collect(toList())).isEqualTo(ImmutableList.of(1, 4, 7));
+    assertThat(list.stream().flatMap(Guavate.filtering(Double.class)).collect(toList())).isEqualTo(ImmutableList.of(2d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filteringOptional() {
     List<Optional<String>> list = ImmutableList.of(Optional.of("A"), Optional.empty(), Optional.of("C"));
-    assertEquals(list.stream().flatMap(Guavate.filteringOptional()).collect(toList()), ImmutableList.of("A", "C"));
+    assertThat(list.stream().flatMap(Guavate.filteringOptional()).collect(toList())).isEqualTo(ImmutableList.of("A", "C"));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toImmutableList() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableList<String> test = list.stream()
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableList());
-    assertEquals(test, ImmutableList.of("a", "b", "c", "a"));
+    assertThat(test).isEqualTo(ImmutableList.of("a", "b", "c", "a"));
   }
 
+  @Test
   public void test_splittingBySize() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableList<ImmutableList<String>> test = list.stream()
         .collect(Guavate.splittingBySize(4));
-    assertEquals(test, ImmutableList.of(ImmutableList.of("a", "ab", "b", "bb"), ImmutableList.of("c", "a")));
+    assertThat(test).isEqualTo(ImmutableList.of(ImmutableList.of("a", "ab", "b", "bb"), ImmutableList.of("c", "a")));
   }
 
+  @Test
   public void test_toImmutableSet() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableSet<String> test = list.stream()
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableSet());
-    assertEquals(test, ImmutableSet.of("a", "b", "c"));
+    assertThat(test).isEqualTo(ImmutableSet.of("a", "b", "c"));
   }
 
+  @Test
   public void test_toImmutableSortedSet() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableSortedSet<String> test = list.stream()
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableSortedSet());
-    assertEquals(test, ImmutableSortedSet.of("a", "b", "c"));
+    assertThat(test).isEqualTo(ImmutableSortedSet.of("a", "b", "c"));
   }
 
+  @Test
   public void test_toImmutableSortedSet_comparator() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableSortedSet<String> test = list.stream()
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableSortedSet(Ordering.natural().reverse()));
-    assertEquals(test, ImmutableSortedSet.reverseOrder().add("a").add("b").add("c").build());
+    assertThat(test).isEqualTo(ImmutableSortedSet.reverseOrder().add("a").add("b").add("c").build());
   }
 
+  @Test
   public void test_toImmutableMultiset() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableMultiset<String> test = list.stream()
         .filter(s -> s.length() == 1)
         .collect(Guavate.toImmutableMultiset());
-    assertEquals(test, ImmutableMultiset.of("a", "a", "b", "c"));
+    assertThat(test).isEqualTo(ImmutableMultiset.of("a", "a", "b", "c"));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toImmutableMap_key() {
     List<String> list = Arrays.asList("a", "ab", "bob");
     ImmutableMap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableMap(s -> s.length()));
-    assertEquals(test, ImmutableMap.builder().put(1, "a").put(2, "ab").put(3, "bob").build());
+    assertThat(test).isEqualTo(ImmutableMap.builder().put(1, "a").put(2, "ab").put(3, "bob").build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_toImmutableMap_key_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
-    list.stream().collect(Guavate.toImmutableMap(s -> s.length()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> list.stream().collect(Guavate.toImmutableMap(s -> s.length())));
   }
 
+  @Test
   public void test_toImmutableMap_mergeFn() {
     List<String> list = Arrays.asList("b", "a", "b", "b", "c", "a");
     Map<String, Integer> result = list.stream()
         .collect(Guavate.toImmutableMap(s -> s, s -> 1, (s1, s2) -> s1 + s2));
     Map<String, Integer> expected = ImmutableMap.of("a", 2, "b", 3, "c", 1);
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
     Iterator<String> iterator = result.keySet().iterator();
-    assertEquals(iterator.next(), "b");
-    assertEquals(iterator.next(), "a");
-    assertEquals(iterator.next(), "c");
+    assertThat(iterator.next()).isEqualTo("b");
+    assertThat(iterator.next()).isEqualTo("a");
+    assertThat(iterator.next()).isEqualTo("c");
   }
 
+  @Test
   public void test_toImmutableMap_keyValue() {
     List<String> list = Arrays.asList("a", "ab", "bob");
     ImmutableMap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableMap(s -> s.length(), s -> "!" + s));
-    assertEquals(test, ImmutableMap.builder().put(1, "!a").put(2, "!ab").put(3, "!bob").build());
+    assertThat(test).isEqualTo(ImmutableMap.builder().put(1, "!a").put(2, "!ab").put(3, "!bob").build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_toImmutableMap_keyValue_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
-    list.stream().collect(Guavate.toImmutableMap(s -> s.length(), s -> "!" + s));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> list.stream().collect(Guavate.toImmutableMap(s -> s.length(), s -> "!" + s)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toImmutableSortedMap_key() {
     List<String> list = Arrays.asList("bob", "a", "ab");
     ImmutableSortedMap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableSortedMap(s -> s.length()));
-    assertEquals(test, ImmutableSortedMap.naturalOrder().put(1, "a").put(2, "ab").put(3, "bob").build());
+    assertThat(test).isEqualTo(ImmutableSortedMap.naturalOrder().put(1, "a").put(2, "ab").put(3, "bob").build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_toImmutableSortedMap_key_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
-    list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length())));
   }
 
+  @Test
   public void test_toImmutableSortedMap_keyValue() {
     List<String> list = Arrays.asList("bob", "a", "ab");
     ImmutableSortedMap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s));
-    assertEquals(test, ImmutableSortedMap.naturalOrder().put(1, "!a").put(2, "!ab").put(3, "!bob").build());
+    assertThat(test).isEqualTo(ImmutableSortedMap.naturalOrder().put(1, "!a").put(2, "!ab").put(3, "!bob").build());
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_toImmutableSortedMap_keyValue_duplicateKeys() {
     List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
-    list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toImmutableListMultimap_key() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableListMultimap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableListMultimap(s -> s.length()));
     ImmutableListMultimap<Object, Object> expected = ImmutableListMultimap.builder()
         .put(1, "a").put(2, "ab").put(1, "b").put(2, "bb").put(1, "c").put(1, "a").build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_toImmutableListMultimap_keyValue() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableListMultimap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableListMultimap(s -> s.length(), s -> "!" + s));
     ImmutableListMultimap<Object, Object> expected = ImmutableListMultimap.builder()
         .put(1, "!a").put(2, "!ab").put(1, "!b").put(2, "!bb").put(1, "!c").put(1, "!a").build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toImmutableSetMultimap_key() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableSetMultimap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableSetMultimap(s -> s.length()));
     ImmutableSetMultimap<Object, Object> expected = ImmutableSetMultimap.builder()
         .put(1, "a").put(2, "ab").put(1, "b").put(2, "bb").put(1, "c").put(1, "a").build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_toImmutableSetMultimap_keyValue() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
     ImmutableSetMultimap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableSetMultimap(s -> s.length(), s -> "!" + s));
     ImmutableSetMultimap<Object, Object> expected = ImmutableSetMultimap.builder()
         .put(1, "!a").put(2, "!ab").put(1, "!b").put(2, "!bb").put(1, "!c").build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapEntriesToImmutableMap() {
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5);
     Map<String, Integer> expected = ImmutableMap.of("a", 1, "c", 3, "e", 5);
@@ -415,9 +460,10 @@ public class GuavateTest {
             .stream()
             .filter(e -> e.getValue() % 2 == 1)
             .collect(entriesToImmutableMap());
-    assertEquals(output, expected);
+    assertThat(output).isEqualTo(expected);
   }
 
+  @Test
   public void test_mapEntriesToImmutableMap_mergeFn() {
     Map<Integer, String> input = ImmutableMap.of(1, "a", 2, "b", 3, "c", 4, "d", 5, "e");
     Map<Integer, String> expected = ImmutableMap.of(0, "bd", 1, "ace");
@@ -428,9 +474,10 @@ public class GuavateTest {
             .map(e -> Guavate.entry(e.getKey() % 2, e.getValue()))
             .collect(entriesToImmutableMap(String::concat));
 
-    assertEquals(output, expected);
+    assertThat(output).isEqualTo(expected);
   }
 
+  @Test
   public void test_pairsToImmutableMap() {
     Map<String, Integer> input = ImmutableMap.of("a", 1, "b", 2, "c", 3, "d", 4);
     Map<String, Double> expected = ImmutableMap.of("A", 1.0, "B", 4.0, "C", 9.0, "D", 16.0);
@@ -440,17 +487,19 @@ public class GuavateTest {
             .stream()
             .map(e -> Pair.of(e.getKey().toUpperCase(Locale.ENGLISH), Math.pow(e.getValue(), 2)))
             .collect(pairsToImmutableMap());
-    assertEquals(output, expected);
+    assertThat(output).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_entry() {
     Map.Entry<String, Integer> test = Guavate.entry("A", 1);
-    assertEquals(test.getKey(), "A");
-    assertEquals(test.getValue(), (Integer) 1);
+    assertThat(test.getKey()).isEqualTo("A");
+    assertThat(test.getValue()).isEqualTo((Integer) 1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combineFuturesAsList() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");
@@ -467,15 +516,16 @@ public class GuavateTest {
 
     CompletableFuture<List<String>> test = Guavate.combineFuturesAsList(input);
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     List<String> combined = test.join();
-    assertEquals(test.isDone(), true);
-    assertEquals(combined.size(), 2);
-    assertEquals(combined.get(0), "A");
-    assertEquals(combined.get(1), "B");
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(combined.size()).isEqualTo(2);
+    assertThat(combined.get(0)).isEqualTo("A");
+    assertThat(combined.get(1)).isEqualTo("B");
   }
 
+  @Test
   public void test_combineFuturesAsList_exception() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");
@@ -492,13 +542,14 @@ public class GuavateTest {
 
     CompletableFuture<List<String>> test = Guavate.combineFuturesAsList(input);
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> test.join());
-    assertEquals(test.isDone(), true);
-    assertEquals(test.isCompletedExceptionally(), true);
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(test.isCompletedExceptionally()).isEqualTo(true);
   }
 
+  @Test
   public void test_toCombinedFuture() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");
@@ -515,15 +566,16 @@ public class GuavateTest {
 
     CompletableFuture<List<String>> test = input.stream().collect(Guavate.toCombinedFuture());
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     List<String> combined = test.join();
-    assertEquals(test.isDone(), true);
-    assertEquals(combined.size(), 2);
-    assertEquals(combined.get(0), "A");
-    assertEquals(combined.get(1), "B");
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(combined.size()).isEqualTo(2);
+    assertThat(combined.get(0)).isEqualTo("A");
+    assertThat(combined.get(1)).isEqualTo("B");
   }
 
+  @Test
   public void test_combineFuturesAsList_Void() {
     CompletableFuture<Void> future1 = new CompletableFuture<>();
     future1.complete(null);
@@ -540,15 +592,16 @@ public class GuavateTest {
 
     CompletableFuture<List<Void>> test = Guavate.combineFuturesAsList(input);
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     List<Void> combined = test.join();
-    assertEquals(test.isDone(), true);
-    assertEquals(combined.size(), 2);
-    assertNull(combined.get(0));
-    assertNull(combined.get(1));
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(combined.size()).isEqualTo(2);
+    assertThat(combined.get(0)).isNull();
+    assertThat(combined.get(1)).isNull();
   }
 
+  @Test
   public void test_combineFuturesAsList_Void_exception() {
     CompletableFuture<Void> future1 = new CompletableFuture<>();
     future1.complete(null);
@@ -565,13 +618,14 @@ public class GuavateTest {
 
     CompletableFuture<List<Void>> test = Guavate.combineFuturesAsList(input);
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> test.join());
-    assertEquals(test.isDone(), true);
-    assertEquals(test.isCompletedExceptionally(), true);
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(test.isCompletedExceptionally()).isEqualTo(true);
   }
 
+  @Test
   public void test_toCombinedFuture_Void() {
     CompletableFuture<Void> future1 = new CompletableFuture<>();
     future1.complete(null);
@@ -588,16 +642,17 @@ public class GuavateTest {
 
     CompletableFuture<List<Void>> test = input.stream().collect(Guavate.toCombinedFuture());
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     List<Void> combined = test.join();
-    assertEquals(test.isDone(), true);
-    assertEquals(combined.size(), 2);
-    assertNull(combined.get(0));
-    assertNull(combined.get(1));
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(combined.size()).isEqualTo(2);
+    assertThat(combined.get(0)).isNull();
+    assertThat(combined.get(1)).isNull();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combineFuturesAsMap() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");
@@ -614,15 +669,16 @@ public class GuavateTest {
 
     CompletableFuture<Map<String, String>> test = Guavate.combineFuturesAsMap(input);
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     Map<String, String> combined = test.join();
-    assertEquals(test.isDone(), true);
-    assertEquals(combined.size(), 2);
-    assertEquals(combined.get("a"), "A");
-    assertEquals(combined.get("b"), "B");
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(combined.size()).isEqualTo(2);
+    assertThat(combined.get("a")).isEqualTo("A");
+    assertThat(combined.get("b")).isEqualTo("B");
   }
 
+  @Test
   public void test_combineFuturesAsMap_exception() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");
@@ -639,13 +695,14 @@ public class GuavateTest {
 
     CompletableFuture<Map<String, String>> test = Guavate.combineFuturesAsMap(input);
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     assertThatExceptionOfType(CompletionException.class).isThrownBy(() -> test.join());
-    assertEquals(test.isDone(), true);
-    assertEquals(test.isCompletedExceptionally(), true);
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(test.isCompletedExceptionally()).isEqualTo(true);
   }
 
+  @Test
   public void test_toCombinedFutureMap() {
     CompletableFuture<String> future1 = new CompletableFuture<>();
     future1.complete("A");
@@ -662,16 +719,17 @@ public class GuavateTest {
 
     CompletableFuture<Map<String, String>> test = input.entrySet().stream().collect(Guavate.toCombinedFutureMap());
 
-    assertEquals(test.isDone(), false);
+    assertThat(test.isDone()).isEqualTo(false);
     latch.countDown();
     Map<String, String> combined = test.join();
-    assertEquals(test.isDone(), true);
-    assertEquals(combined.size(), 2);
-    assertEquals(combined.get("a"), "A");
-    assertEquals(combined.get("b"), "B");
+    assertThat(test.isDone()).isEqualTo(true);
+    assertThat(combined.size()).isEqualTo(2);
+    assertThat(combined.get("a")).isEqualTo("A");
+    assertThat(combined.get("b")).isEqualTo("B");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_poll() {
     AtomicInteger counter = new AtomicInteger();
     Supplier<String> pollingFn = () -> {
@@ -689,9 +747,10 @@ public class GuavateTest {
 
     CompletableFuture<String> future =
         Guavate.poll(executor, Duration.ofMillis(100), Duration.ofMillis(100), pollingFn);
-    assertEquals(future.join(), "Yes");
+    assertThat(future.join()).isEqualTo("Yes");
   }
 
+  @Test
   public void test_poll_exception() {
     AtomicInteger counter = new AtomicInteger();
     Supplier<String> pollingFn = () -> {
@@ -721,24 +780,28 @@ public class GuavateTest {
   private static void doNothing() {
   }
 
+  @Test
   public void test_namedThreadFactory() {
     ThreadFactory threadFactory = Guavate.namedThreadFactory().build();
-    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "GuavateTest-0");
+    assertThat(threadFactory.newThread(() -> doNothing()).getName()).isEqualTo("GuavateTest-0");
   }
 
+  @Test
   public void test_namedThreadFactory_prefix() {
     ThreadFactory threadFactory = Guavate.namedThreadFactory("ThreadMaker").build();
-    assertEquals(threadFactory.newThread(() -> doNothing()).getName(), "ThreadMaker-0");
+    assertThat(threadFactory.newThread(() -> doNothing()).getName()).isEqualTo("ThreadMaker-0");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_callerClass() {
-    assertEquals(Guavate.callerClass(0), Guavate.CallerClassSecurityManager.class);
-    assertEquals(Guavate.callerClass(1), Guavate.class);
-    assertEquals(Guavate.callerClass(2), GuavateTest.class);
+    assertThat(Guavate.callerClass(0)).isEqualTo(Guavate.CallerClassSecurityManager.class);
+    assertThat(Guavate.callerClass(1)).isEqualTo(Guavate.class);
+    assertThat(Guavate.callerClass(2)).isEqualTo(GuavateTest.class);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_validUtilityClass() {
     assertUtilityClass(Guavate.class);
   }

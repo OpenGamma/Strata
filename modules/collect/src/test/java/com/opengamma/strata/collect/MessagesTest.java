@@ -6,13 +6,14 @@
 package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Objects;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -20,10 +21,8 @@ import com.opengamma.strata.collect.tuple.Pair;
 /**
  * Test Messages.
  */
-@Test
 public class MessagesTest {
 
-  @DataProvider(name = "formatMessageSingle")
   public static Object[][] data_formatMessageSingle() {
     return new Object[][] {
         // null template
@@ -46,28 +45,32 @@ public class MessagesTest {
     };
   }
 
-  @Test(dataProvider = "formatMessageSingle")
+  @ParameterizedTest
+  @MethodSource("data_formatMessageSingle")
   public void test_formatMessageSingle(String template, Object arg, String expMain, String expExcess) {
-    assertEquals(Messages.format(template, arg), expMain + expExcess);
+    assertThat(Messages.format(template, arg)).isEqualTo(expMain + expExcess);
   }
 
-  @Test(dataProvider = "formatMessageSingle")
+  @ParameterizedTest
+  @MethodSource("data_formatMessageSingle")
   public void test_formatMessageSingle_prefix(String template, Object arg, String expMain, String expExcess) {
-    assertEquals(Messages.format("::" + Objects.toString(template, ""), arg), "::" + expMain + expExcess);
+    assertThat(Messages.format("::" + Objects.toString(template, ""), arg)).isEqualTo("::" + expMain + expExcess);
   }
 
-  @Test(dataProvider = "formatMessageSingle")
+  @ParameterizedTest
+  @MethodSource("data_formatMessageSingle")
   public void test_formatMessageSingle_suffix(String template, Object arg, String expMain, String expExcess) {
-    assertEquals(Messages.format(Objects.toString(template, "") + "@@", arg), expMain + "@@" + expExcess);
+    assertThat(Messages.format(Objects.toString(template, "") + "@@", arg)).isEqualTo(expMain + "@@" + expExcess);
   }
 
-  @Test(dataProvider = "formatMessageSingle")
+  @ParameterizedTest
+  @MethodSource("data_formatMessageSingle")
   public void test_formatMessageSingle_prefixSuffix(String template, Object arg, String expMain, String expExcess) {
-    assertEquals(Messages.format("::" + Objects.toString(template, "") + "@@", arg), "::" + expMain + "@@" + expExcess);
+    assertThat(Messages.format("::" + Objects.toString(template, "") + "@@", arg))
+        .isEqualTo("::" + expMain + "@@" + expExcess);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "formatMessage")
   public static Object[][] data_formatMessage() {
     return new Object[][] {
         // null template
@@ -118,29 +121,31 @@ public class MessagesTest {
     };
   }
 
-  @Test(dataProvider = "formatMessage")
+  @ParameterizedTest
+  @MethodSource("data_formatMessage")
   public void test_formatMessage(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(Messages.format(template, args), expMain + expExcess);
+    assertThat(Messages.format(template, args)).isEqualTo(expMain + expExcess);
   }
 
-  @Test(dataProvider = "formatMessage")
+  @ParameterizedTest
+  @MethodSource("data_formatMessage")
   public void test_formatMessage_prefix(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(Messages.format("::" + Objects.toString(template, ""), args), "::" + expMain + expExcess);
+    assertThat(Messages.format("::" + Objects.toString(template, ""), args)).isEqualTo("::" + expMain + expExcess);
   }
 
-  @Test(dataProvider = "formatMessage")
+  @ParameterizedTest
+  @MethodSource("data_formatMessage")
   public void test_formatMessage_suffix(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(Messages.format(Objects.toString(template, "") + "@@", args), expMain + "@@" + expExcess);
+    assertThat(Messages.format(Objects.toString(template, "") + "@@", args)).isEqualTo(expMain + "@@" + expExcess);
   }
 
-  @Test(dataProvider = "formatMessage")
+  @ParameterizedTest
+  @MethodSource("data_formatMessage")
   public void test_formatMessage_prefixSuffix(String template, Object[] args, String expMain, String expExcess) {
-    assertEquals(
-        Messages.format("::" + Objects.toString(template, "") + "@@", args),
-        "::" + expMain + "@@" + expExcess);
+    assertThat(Messages.format("::" + Objects.toString(template, "") + "@@", args))
+        .isEqualTo("::" + expMain + "@@" + expExcess);
   }
 
-  @DataProvider(name = "formatMessageWithAttributes")
   public static Object[][] data_formatMessageWithAttributes() {
     return new Object[][] {
         // null template
@@ -169,16 +174,18 @@ public class MessagesTest {
     };
   }
 
-  @Test(dataProvider = "formatMessageWithAttributes")
+  @ParameterizedTest
+  @MethodSource("data_formatMessageWithAttributes")
   public void test_formatMessageWithAttributes(
       String template,
       Object[] args,
       Pair<String, Map<String, String>> expectedOutput) {
 
-    assertEquals(Messages.formatWithAttributes(template, args), expectedOutput);
+    assertThat(Messages.formatWithAttributes(template, args)).isEqualTo(expectedOutput);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_validUtilityClass() {
     assertUtilityClass(Messages.class);
   }

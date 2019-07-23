@@ -11,8 +11,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotEquals;
+import static org.assertj.core.api.Assertions.within;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -24,19 +23,20 @@ import java.util.NoSuchElementException;
 import java.util.OptionalDouble;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.assertj.core.data.Offset;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
- * Test LocalDateDoubleTimeSeries.
+ * Test {@link LocalDateDoubleTimeSeries}.
  */
-@Test
 public class SparseLocalDateDoubleTimeSeriesTest {
 
   private static final LocalDate DATE_2015_06_01 = date(2015, 6, 1);
@@ -56,61 +56,66 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   private static final ImmutableList<LocalDate> DATES_2010_12 = dates(
       DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01);
   private static final ImmutableList<Double> VALUES_10_12 = values(10, 11, 12);
-  private static final double TOLERANCE = 0.00001d;
+  private static final Offset<Double> TOLERANCE = within(0.00001d);
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_emptySeries() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.empty();
-    assertEquals(test.isEmpty(), true);
-    assertEquals(test.size(), 0);
-    assertEquals(test.containsDate(DATE_2010_01_01), false);
-    assertEquals(test.containsDate(DATE_2011_01_01), false);
-    assertEquals(test.containsDate(DATE_2012_01_01), false);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.empty());
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.empty());
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.empty());
-    assertEquals(test, LocalDateDoubleTimeSeries.builder().putAll(dates(), values()).build());
-    assertEquals(test.dates().count(), 0);
-    assertEquals(test.values().count(), 0);
+    assertThat(test.isEmpty()).isEqualTo(true);
+    assertThat(test.size()).isEqualTo(0);
+    assertThat(test.containsDate(DATE_2010_01_01)).isEqualTo(false);
+    assertThat(test.containsDate(DATE_2011_01_01)).isEqualTo(false);
+    assertThat(test.containsDate(DATE_2012_01_01)).isEqualTo(false);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test).isEqualTo(LocalDateDoubleTimeSeries.builder().putAll(dates(), values()).build());
+    assertThat(test.dates().count()).isEqualTo(0);
+    assertThat(test.values().count()).isEqualTo(0);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_singleton() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.of(DATE_2011_01_01, 2d);
-    assertEquals(test.isEmpty(), false);
-    assertEquals(test.size(), 1);
-    assertEquals(test.containsDate(DATE_2010_01_01), false);
-    assertEquals(test.containsDate(DATE_2011_01_01), true);
-    assertEquals(test.containsDate(DATE_2012_01_01), false);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.empty());
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.of(2d));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.empty());
-    assertEquals(test.dates().toArray(), new Object[] {DATE_2011_01_01});
-    assertEquals(test.values().toArray(), new double[] {2d});
+    assertThat(test.isEmpty()).isEqualTo(false);
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.containsDate(DATE_2010_01_01)).isEqualTo(false);
+    assertThat(test.containsDate(DATE_2011_01_01)).isEqualTo(true);
+    assertThat(test.containsDate(DATE_2012_01_01)).isEqualTo(false);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(2d));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.dates().toArray()).isEqualTo(new Object[] {DATE_2011_01_01});
+    assertThat(test.values().toArray()).isEqualTo(new double[] {2d});
   }
 
+  @Test
   public void test_of_singleton_nullDateDisallowed() {
     assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.of(null, 1d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_collectionCollection() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
     Collection<Double> values = values(2d, 3d);
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(dates, values).build();
-    assertEquals(test.isEmpty(), false);
-    assertEquals(test.size(), 2);
-    assertEquals(test.containsDate(DATE_2010_01_01), false);
-    assertEquals(test.containsDate(DATE_2011_01_01), true);
-    assertEquals(test.containsDate(DATE_2012_01_01), true);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.empty());
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.of(2d));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(3d));
-    assertEquals(test.dates().toArray(), new Object[] {DATE_2011_01_01, DATE_2012_01_01});
-    assertEquals(test.values().toArray(), new double[] {2d, 3d});
+    assertThat(test.isEmpty()).isEqualTo(false);
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.containsDate(DATE_2010_01_01)).isEqualTo(false);
+    assertThat(test.containsDate(DATE_2011_01_01)).isEqualTo(true);
+    assertThat(test.containsDate(DATE_2012_01_01)).isEqualTo(true);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(2d));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(3d));
+    assertThat(test.dates().toArray()).isEqualTo(new Object[] {DATE_2011_01_01, DATE_2012_01_01});
+    assertThat(test.values().toArray()).isEqualTo(new double[] {2d, 3d});
   }
 
+  @Test
   public void test_of_collectionCollection_dateCollectionNull() {
     Collection<Double> values = values(2d, 3d);
     assertThatIllegalArgumentException()
@@ -119,12 +124,14 @@ public class SparseLocalDateDoubleTimeSeriesTest {
             .build());
   }
 
+  @Test
   public void test_of_collectionCollection_valueCollectionNull() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, (Collection<Double>) null).build());
   }
 
+  @Test
   public void test_of_collectionCollection_dateCollectionWithNull() {
     Collection<LocalDate> dates = Arrays.asList(DATE_2011_01_01, null);
     Collection<Double> values = values(2d, 3d);
@@ -132,6 +139,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
         .isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, values).build());
   }
 
+  @Test
   public void test_of_collectionCollection_valueCollectionWithNull() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01, DATE_2012_01_01);
     Collection<Double> values = Arrays.asList(2d, null);
@@ -139,6 +147,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
         .isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, values).build());
   }
 
+  @Test
   public void test_of_collectionCollection_collectionsOfDifferentSize() {
     Collection<LocalDate> dates = dates(DATE_2011_01_01);
     Collection<Double> values = values(2d, 3d);
@@ -146,6 +155,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
         .isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(dates, values).build());
   }
 
+  @Test
   public void test_of_collectionCollection_sparse_differentSize() {
     List<LocalDate> dates = ImmutableList.of(DATE_2011_01_01, DATE_2011_06_01);
     List<Double> values = ImmutableList.of(1d);
@@ -153,28 +163,31 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_map() {
     Map<LocalDate, Double> map = new HashMap<>();
     map.put(DATE_2011_01_01, 2d);
     map.put(DATE_2012_01_01, 3d);
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(map).build();
-    assertEquals(test.isEmpty(), false);
-    assertEquals(test.size(), 2);
-    assertEquals(test.containsDate(DATE_2010_01_01), false);
-    assertEquals(test.containsDate(DATE_2011_01_01), true);
-    assertEquals(test.containsDate(DATE_2012_01_01), true);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.empty());
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.of(2d));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(3d));
-    assertEquals(test.dates().toArray(), new Object[] {DATE_2011_01_01, DATE_2012_01_01});
-    assertEquals(test.values().toArray(), new double[] {2d, 3d});
+    assertThat(test.isEmpty()).isEqualTo(false);
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.containsDate(DATE_2010_01_01)).isEqualTo(false);
+    assertThat(test.containsDate(DATE_2011_01_01)).isEqualTo(true);
+    assertThat(test.containsDate(DATE_2012_01_01)).isEqualTo(true);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(2d));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(3d));
+    assertThat(test.dates().toArray()).isEqualTo(new Object[] {DATE_2011_01_01, DATE_2012_01_01});
+    assertThat(test.values().toArray()).isEqualTo(new double[] {2d, 3d});
   }
 
+  @Test
   public void test_of_map_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll((Map<LocalDate, Double>) null).build());
   }
 
+  @Test
   public void test_of_map_dateNull() {
     Map<LocalDate, Double> map = new HashMap<>();
     map.put(DATE_2011_01_01, 2d);
@@ -182,6 +195,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoubleTimeSeries.builder().putAll(map).build());
   }
 
+  @Test
   public void test_of_map_valueNull() {
     Map<LocalDate, Double> map = new HashMap<>();
     map.put(DATE_2011_01_01, 2d);
@@ -190,23 +204,25 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_collection() {
     Collection<LocalDateDoublePoint> points = Arrays.asList(
         LocalDateDoublePoint.of(DATE_2011_01_01, 2d),
         LocalDateDoublePoint.of(DATE_2012_01_01, 3d));
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(points.stream()).build();
-    assertEquals(test.isEmpty(), false);
-    assertEquals(test.size(), 2);
-    assertEquals(test.containsDate(DATE_2010_01_01), false);
-    assertEquals(test.containsDate(DATE_2011_01_01), true);
-    assertEquals(test.containsDate(DATE_2012_01_01), true);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.empty());
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.of(2d));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(3d));
-    assertEquals(test.dates().toArray(), new Object[] {DATE_2011_01_01, DATE_2012_01_01});
-    assertEquals(test.values().toArray(), new double[] {2d, 3d});
+    assertThat(test.isEmpty()).isEqualTo(false);
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.containsDate(DATE_2010_01_01)).isEqualTo(false);
+    assertThat(test.containsDate(DATE_2011_01_01)).isEqualTo(true);
+    assertThat(test.containsDate(DATE_2012_01_01)).isEqualTo(true);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.empty());
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(2d));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(3d));
+    assertThat(test.dates().toArray()).isEqualTo(new Object[] {DATE_2011_01_01, DATE_2012_01_01});
+    assertThat(test.values().toArray()).isEqualTo(new double[] {2d, 3d});
   }
 
+  @Test
   public void test_of_collection_collectionNull() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LocalDateDoubleTimeSeries.builder()
@@ -214,6 +230,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
             .build());
   }
 
+  @Test
   public void test_of_collection_collectionWithNull() {
     Collection<LocalDateDoublePoint> points = Arrays.asList(
         LocalDateDoublePoint.of(DATE_2011_01_01, 2d), null);
@@ -222,6 +239,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_immutableViaBeanBuilder() {
     LocalDate[] dates = {DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01};
     double[] values = {6, 5, 4};
@@ -231,41 +249,48 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries test = builder.build();
     dates[0] = DATE_2012_01_01;
     values[0] = -1;
-    LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
-    assertEquals(points[0], LocalDateDoublePoint.of(DATE_2010_01_01, 6d));
-    assertEquals(points[1], LocalDateDoublePoint.of(DATE_2011_01_01, 5d));
-    assertEquals(points[2], LocalDateDoublePoint.of(DATE_2012_01_01, 4d));
+    assertThat(test.stream())
+        .containsExactly(
+            LocalDateDoublePoint.of(DATE_2010_01_01, 6d),
+            LocalDateDoublePoint.of(DATE_2011_01_01, 5d),
+            LocalDateDoublePoint.of(DATE_2012_01_01, 4d));
   }
 
+  @Test
   public void test_immutableDatesViaBeanGet() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
     LocalDate[] array = (LocalDate[]) ((Bean) test).property("dates").get();
     array[0] = DATE_2012_01_01;
-    LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
-    assertEquals(points[0], LocalDateDoublePoint.of(DATE_2010_01_01, 10d));
-    assertEquals(points[1], LocalDateDoublePoint.of(DATE_2011_01_01, 11d));
-    assertEquals(points[2], LocalDateDoublePoint.of(DATE_2012_01_01, 12d));
+    assertThat(test.stream())
+        .containsExactly(
+            LocalDateDoublePoint.of(DATE_2010_01_01, 10d),
+            LocalDateDoublePoint.of(DATE_2011_01_01, 11d),
+            LocalDateDoublePoint.of(DATE_2012_01_01, 12d));
   }
 
+  @Test
   public void test_immutableValuesViaBeanGet() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
     double[] array = (double[]) ((Bean) test).property("values").get();
     array[0] = -1;
-    LocalDateDoublePoint[] points = test.stream().toArray(LocalDateDoublePoint[]::new);
-    assertEquals(points[0], LocalDateDoublePoint.of(DATE_2010_01_01, 10d));
-    assertEquals(points[1], LocalDateDoublePoint.of(DATE_2011_01_01, 11d));
-    assertEquals(points[2], LocalDateDoublePoint.of(DATE_2012_01_01, 12d));
+    assertThat(test.stream())
+        .containsExactly(
+            LocalDateDoublePoint.of(DATE_2010_01_01, 10d),
+            LocalDateDoublePoint.of(DATE_2011_01_01, 11d),
+            LocalDateDoublePoint.of(DATE_2012_01_01, 12d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_earliestLatest() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
-    assertEquals(test.getEarliestDate(), DATE_2010_01_01);
-    assertEquals(test.getEarliestValue(), 10d, TOLERANCE);
-    assertEquals(test.getLatestDate(), DATE_2012_01_01);
-    assertEquals(test.getLatestValue(), 12d, TOLERANCE);
+    assertThat(test.getEarliestDate()).isEqualTo(DATE_2010_01_01);
+    assertThat(test.getEarliestValue()).isEqualTo(10d, TOLERANCE);
+    assertThat(test.getLatestDate()).isEqualTo(DATE_2012_01_01);
+    assertThat(test.getLatestValue()).isEqualTo(12d, TOLERANCE);
   }
 
+  @Test
   public void test_earliestLatest_whenEmpty() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.empty();
     assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> test.getEarliestDate());
@@ -275,7 +300,6 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "subSeries")
   public static Object[][] data_subSeries() {
     return new Object[][] {
         // start = end -> empty
@@ -295,33 +319,35 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     };
   }
 
-  @Test(dataProvider = "subSeries")
+  @ParameterizedTest
+  @MethodSource("data_subSeries")
   public void test_subSeries(LocalDate start, LocalDate end, int[] expected) {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     LocalDateDoubleTimeSeries test = base.subSeries(start, end);
-    assertEquals(test.size(), expected.length);
+    assertThat(test.size()).isEqualTo(expected.length);
     for (int i = 0; i < DATES_2010_14.size(); i++) {
       if (Arrays.binarySearch(expected, i) >= 0) {
-        assertEquals(test.get(DATES_2010_14.get(i)), OptionalDouble.of(VALUES_10_14.get(i)));
+        assertThat(test.get(DATES_2010_14.get(i))).isEqualTo(OptionalDouble.of(VALUES_10_14.get(i)));
       } else {
-        assertEquals(test.get(DATES_2010_14.get(i)), OptionalDouble.empty());
+        assertThat(test.get(DATES_2010_14.get(i))).isEqualTo(OptionalDouble.empty());
       }
     }
   }
 
-  @Test(dataProvider = "subSeries")
+  @ParameterizedTest
+  @MethodSource("data_subSeries")
   public void test_subSeries_emptySeries(LocalDate start, LocalDate end, int[] expected) {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.empty().subSeries(start, end);
-    assertEquals(test.size(), 0);
+    assertThat(test.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_subSeries_startAfterEnd() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     assertThatIllegalArgumentException().isThrownBy(() -> base.subSeries(date(2011, 1, 2), DATE_2011_01_01));
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "headSeries")
   public static Object[][] data_headSeries() {
     return new Object[][] {
         {0, new int[] {}},
@@ -334,33 +360,35 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     };
   }
 
-  @Test(dataProvider = "headSeries")
+  @ParameterizedTest
+  @MethodSource("data_headSeries")
   public void test_headSeries(int count, int[] expected) {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     LocalDateDoubleTimeSeries test = base.headSeries(count);
-    assertEquals(test.size(), expected.length);
+    assertThat(test.size()).isEqualTo(expected.length);
     for (int i = 0; i < DATES_2010_14.size(); i++) {
       if (Arrays.binarySearch(expected, i) >= 0) {
-        assertEquals(test.get(DATES_2010_14.get(i)), OptionalDouble.of(VALUES_10_14.get(i)));
+        assertThat(test.get(DATES_2010_14.get(i))).isEqualTo(OptionalDouble.of(VALUES_10_14.get(i)));
       } else {
-        assertEquals(test.get(DATES_2010_14.get(i)), OptionalDouble.empty());
+        assertThat(test.get(DATES_2010_14.get(i))).isEqualTo(OptionalDouble.empty());
       }
     }
   }
 
-  @Test(dataProvider = "headSeries")
+  @ParameterizedTest
+  @MethodSource("data_headSeries")
   public void test_headSeries_emptySeries(int count, int[] expected) {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.empty().headSeries(count);
-    assertEquals(test.size(), 0);
+    assertThat(test.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_headSeries_negative() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     assertThatIllegalArgumentException().isThrownBy(() -> base.headSeries(-1));
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "tailSeries")
   public static Object[][] data_tailSeries() {
     return new Object[][] {
         {0, new int[] {}},
@@ -373,86 +401,93 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     };
   }
 
-  @Test(dataProvider = "tailSeries")
+  @ParameterizedTest
+  @MethodSource("data_tailSeries")
   public void test_tailSeries(int count, int[] expected) {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     LocalDateDoubleTimeSeries test = base.tailSeries(count);
-    assertEquals(test.size(), expected.length);
+    assertThat(test.size()).isEqualTo(expected.length);
     for (int i = 0; i < DATES_2010_14.size(); i++) {
       if (Arrays.binarySearch(expected, i) >= 0) {
-        assertEquals(test.get(DATES_2010_14.get(i)), OptionalDouble.of(VALUES_10_14.get(i)));
+        assertThat(test.get(DATES_2010_14.get(i))).isEqualTo(OptionalDouble.of(VALUES_10_14.get(i)));
       } else {
-        assertEquals(test.get(DATES_2010_14.get(i)), OptionalDouble.empty());
+        assertThat(test.get(DATES_2010_14.get(i))).isEqualTo(OptionalDouble.empty());
       }
     }
   }
 
-  @Test(dataProvider = "tailSeries")
+  @ParameterizedTest
+  @MethodSource("data_tailSeries")
   public void test_tailSeries_emptySeries(int count, int[] expected) {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.empty().tailSeries(count);
-    assertEquals(test.size(), 0);
+    assertThat(test.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_tailSeries_negative() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     assertThatIllegalArgumentException().isThrownBy(() -> base.tailSeries(-1));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_stream() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
-    Object[] test = base.stream().toArray();
-    assertEquals(test[0], LocalDateDoublePoint.of(DATE_2010_01_01, 10));
-    assertEquals(test[1], LocalDateDoublePoint.of(DATE_2011_01_01, 11));
-    assertEquals(test[2], LocalDateDoublePoint.of(DATE_2012_01_01, 12));
+    assertThat(base.stream())
+        .containsExactly(
+            LocalDateDoublePoint.of(DATE_2010_01_01, 10d),
+            LocalDateDoublePoint.of(DATE_2011_01_01, 11d),
+            LocalDateDoublePoint.of(DATE_2012_01_01, 12d));
   }
 
+  @Test
   public void test_stream_withCollector() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
     LocalDateDoubleTimeSeries test = base.stream()
         .map(point -> point.withValue(1.5d))
         .collect(LocalDateDoubleTimeSeries.collector());
-    assertEquals(test.size(), 3);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(1.5));
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.of(1.5));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(1.5));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.of(1.5));
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(1.5));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(1.5));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dateStream() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
-    LocalDate[] test = base.dates().toArray(LocalDate[]::new);
-    assertEquals(test[0], DATE_2010_01_01);
-    assertEquals(test[1], DATE_2011_01_01);
-    assertEquals(test[2], DATE_2012_01_01);
+    assertThat(base.dates())
+        .containsExactly(DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01);
   }
 
+  @Test
   public void test_valueStream() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, VALUES_10_12).build();
-    double[] test = base.values().toArray();
-    assertEquals(test[0], 10, TOLERANCE);
-    assertEquals(test[1], 11, TOLERANCE);
-    assertEquals(test[2], 12, TOLERANCE);
+    assertThat(base.values())
+        .containsExactly(10d, 11d, 12d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forEach() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     AtomicInteger counter = new AtomicInteger();
     base.forEach((date, value) -> counter.addAndGet((int) value));
-    assertEquals(counter.get(), 10 + 11 + 12 + 13 + 14);
+    assertThat(counter.get()).isEqualTo(10 + 11 + 12 + 13 + 14);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combineWith_intersectionWithNoMatchingElements() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     List<LocalDate> dates2 = dates(DATE_2010_06_01, DATE_2011_06_01, DATE_2012_06_01, DATE_2013_06_01, DATE_2014_06_01);
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_10_14).build();
 
     LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
-    assertEquals(test, LocalDateDoubleTimeSeries.empty());
+    assertThat(test).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
 
+  @Test
   public void test_combineWith_intersectionWithSomeMatchingElements() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     List<LocalDate> dates2 = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
@@ -460,12 +495,13 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
     LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
-    assertEquals(test.size(), 3);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(11.0));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(13.2));
-    assertEquals(test.get(DATE_2014_01_01), OptionalDouble.of(15.4));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.of(11.0));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(13.2));
+    assertThat(test.get(DATE_2014_01_01)).isEqualTo(OptionalDouble.of(15.4));
   }
 
+  @Test
   public void test_combineWith_intersectionWithSomeMatchingElements2() {
     List<LocalDate> dates1 = dates(DATE_2010_01_01, DATE_2011_01_01, DATE_2012_01_01, DATE_2014_01_01, DATE_2015_06_01);
     List<Double> values1 = values(10, 11, 12, 13, 14);
@@ -475,12 +511,13 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
     LocalDateDoubleTimeSeries test = series1.intersection(series2, Double::sum);
-    assertEquals(test.size(), 3);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(11.0));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(13.2));
-    assertEquals(test.get(DATE_2014_01_01), OptionalDouble.of(14.4));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.of(11.0));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(13.2));
+    assertThat(test.get(DATE_2014_01_01)).isEqualTo(OptionalDouble.of(14.4));
   }
 
+  @Test
   public void test_combineWith_intersectionWithAllMatchingElements() {
     List<LocalDate> dates1 = DATES_2010_14;
     List<Double> values1 = values(10, 11, 12, 13, 14);
@@ -490,40 +527,44 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.builder().putAll(dates2, values2).build();
 
     LocalDateDoubleTimeSeries combined = series1.intersection(series2, Double::sum);
-    assertEquals(combined.size(), 5);
-    assertEquals(combined.getEarliestDate(), DATE_2010_01_01);
-    assertEquals(combined.getLatestDate(), DATE_2014_01_01);
-    assertEquals(combined.get(DATE_2010_01_01), OptionalDouble.of(11.0));
-    assertEquals(combined.get(DATE_2011_01_01), OptionalDouble.of(12.1));
-    assertEquals(combined.get(DATE_2012_01_01), OptionalDouble.of(13.2));
-    assertEquals(combined.get(DATE_2013_01_01), OptionalDouble.of(14.3));
-    assertEquals(combined.get(DATE_2014_01_01), OptionalDouble.of(15.4));
+    assertThat(combined.size()).isEqualTo(5);
+    assertThat(combined.getEarliestDate()).isEqualTo(DATE_2010_01_01);
+    assertThat(combined.getLatestDate()).isEqualTo(DATE_2014_01_01);
+    assertThat(combined.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.of(11.0));
+    assertThat(combined.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(12.1));
+    assertThat(combined.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(13.2));
+    assertThat(combined.get(DATE_2013_01_01)).isEqualTo(OptionalDouble.of(14.3));
+    assertThat(combined.get(DATE_2014_01_01)).isEqualTo(OptionalDouble.of(15.4));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapValues_addConstantToSeries() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     LocalDateDoubleTimeSeries test = base.mapValues(d -> d + 5);
     List<Double> expectedValues = values(15, 16, 17, 18, 19);
-    assertEquals(test, LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
+    assertThat(test).isEqualTo(LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
   }
 
+  @Test
   public void test_mapValues_multiplySeries() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
 
     LocalDateDoubleTimeSeries test = base.mapValues(d -> d * 5);
     List<Double> expectedValues = values(50, 55, 60, 65, 70);
-    assertEquals(test, LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
+    assertThat(test).isEqualTo(LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
   }
 
+  @Test
   public void test_mapValues_invertSeries() {
     List<Double> values = values(1, 2, 4, 5, 8);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, values).build();
     LocalDateDoubleTimeSeries test = base.mapValues(d -> 1 / d);
     List<Double> expectedValues = values(1, 0.5, 0.25, 0.2, 0.125);
-    assertEquals(test, LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
+    assertThat(test).isEqualTo(LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, expectedValues).build());
   }
 
+  @Test
   public void test_mapDates() {
     List<Double> values = values(1, 2, 4, 5, 8);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, values).build();
@@ -532,9 +573,10 @@ public class SparseLocalDateDoubleTimeSeriesTest {
         ImmutableList.of(DATE_2011_01_01, DATE_2012_01_01, DATE_2013_01_01, DATE_2014_01_01, LocalDate.of(2015, 1, 1));
     LocalDateDoubleTimeSeries expected =
         LocalDateDoubleTimeSeries.builder().putAll(expectedDates, base.values().boxed().collect(toList())).build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_mapDates_notAscending() {
     List<Double> values = values(1, 2, 4);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_12, values).build();
@@ -542,59 +584,66 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filter_byDate() {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
     LocalDateDoubleTimeSeries test = base.filter((ld, v) -> ld.getMonthValue() != 6);
-    assertEquals(test.size(), 3);
-    assertEquals(test.get(DATE_2010_01_01), OptionalDouble.of(10d));
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(12d));
-    assertEquals(test.get(DATE_2014_01_01), OptionalDouble.of(14d));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.get(DATE_2010_01_01)).isEqualTo(OptionalDouble.of(10d));
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(12d));
+    assertThat(test.get(DATE_2014_01_01)).isEqualTo(OptionalDouble.of(14d));
   }
 
+  @Test
   public void test_filter_byValue() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder().putAll(DATES_2010_14, VALUES_10_14).build();
     LocalDateDoubleTimeSeries test = base.filter((ld, v) -> v % 2 == 1);
-    assertEquals(test.size(), 2);
-    assertEquals(test.get(DATE_2011_01_01), OptionalDouble.of(11d));
-    assertEquals(test.get(DATE_2013_01_01), OptionalDouble.of(13d));
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.get(DATE_2011_01_01)).isEqualTo(OptionalDouble.of(11d));
+    assertThat(test.get(DATE_2013_01_01)).isEqualTo(OptionalDouble.of(13d));
   }
 
+  @Test
   public void test_filter_byDateAndValue() {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
 
     LocalDateDoubleTimeSeries test = series.filter((ld, v) -> ld.getYear() >= 2012 && v % 2 == 0);
-    assertEquals(test.size(), 2);
-    assertEquals(test.get(DATE_2012_01_01), OptionalDouble.of(12d));
-    assertEquals(test.get(DATE_2014_01_01), OptionalDouble.of(14d));
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.get(DATE_2012_01_01)).isEqualTo(OptionalDouble.of(12d));
+    assertThat(test.get(DATE_2014_01_01)).isEqualTo(OptionalDouble.of(14d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals_similarSeriesAreEqual() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
     LocalDateDoubleTimeSeries series2 =
         LocalDateDoubleTimeSeries.builder().putAll(dates(DATE_2014_01_01), values(1d)).build();
-    assertEquals(series1.size(), 1);
-    assertEquals(series1, series2);
-    assertEquals(series1, series1);
-    assertEquals(series1.hashCode(), series1.hashCode());
+    assertThat(series1.size()).isEqualTo(1);
+    assertThat(series1).isEqualTo(series2);
+    assertThat(series1).isEqualTo(series1);
+    assertThat(series1.hashCode()).isEqualTo(series1.hashCode());
   }
 
+  @Test
   public void test_equals_notEqual() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
     LocalDateDoubleTimeSeries series2 = LocalDateDoubleTimeSeries.of(DATE_2013_06_01, 1d);
     LocalDateDoubleTimeSeries series3 = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 3d);
-    assertNotEquals(series1, series2);
-    assertNotEquals(series1, series3);
+    assertThat(series1).isNotEqualTo(series2);
+    assertThat(series1).isNotEqualTo(series3);
   }
 
+  @Test
   public void test_equals_bad() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.of(DATE_2014_01_01, 1d);
-    assertEquals(test.equals(ANOTHER_TYPE), false);
-    assertEquals(test.equals(null), false);
+    assertThat(test.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(test.equals(null)).isEqualTo(false);
   }
 
+  @Test
   public void partition() {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
@@ -616,6 +665,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
     assertThat(odd.get(DATE_2013_06_01)).hasValue(13);
   }
 
+  @Test
   public void partitionByValue() {
     List<LocalDate> dates = dates(DATE_2010_01_01, DATE_2011_06_01, DATE_2012_01_01, DATE_2013_06_01, DATE_2014_01_01);
     LocalDateDoubleTimeSeries series = LocalDateDoubleTimeSeries.builder().putAll(dates, VALUES_10_14).build();
@@ -638,6 +688,7 @@ public class SparseLocalDateDoubleTimeSeriesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     List<LocalDate> dates = ImmutableList.of(DATE_2011_01_01, DATE_2011_06_01);
     List<Double> values = ImmutableList.of(1d, 2d);

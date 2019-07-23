@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -36,83 +36,98 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.SetMultimap;
 import com.opengamma.strata.collect.tuple.Pair;
 
-@Test
+/**
+ * Test {@link MapStream}.
+ */
 public class MapStreamTest {
 
   private final Map<String, Integer> map = ImmutableMap.of("one", 1, "two", 2, "three", 3, "four", 4);
 
   //-------------------------------------------------------------------------
+  @Test
   public void keys() {
     List<String> result = MapStream.of(map).keys().collect(toImmutableList());
     assertThat(result).isEqualTo(ImmutableList.of("one", "two", "three", "four"));
   }
 
+  @Test
   public void values() {
     List<Integer> result = MapStream.of(map).values().collect(toImmutableList());
     assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void filter() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
     Map<String, Integer> result = MapStream.of(map).filter((k, v) -> k.equals("one") || v == 2).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void filterKeys() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
     Map<String, Integer> result = MapStream.of(map).filterKeys(k -> k.length() == 3).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void filterKeys_byClass() {
     Map<Number, Number> map = ImmutableMap.of(1, 11, 2d, 22d, 3, 33d);
     Map<Integer, Number> result = MapStream.of(map).filterKeys(Integer.class).toMap();
     assertThat(result).isEqualTo(ImmutableMap.of(1, 11, 3, 33d));
   }
 
+  @Test
   public void filterValues() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
     Map<String, Integer> result = MapStream.of(map).filterValues(v -> v < 3).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void filterValues_byClass() {
     Map<Number, Number> map = ImmutableMap.of(1, 11, 2d, 22, 3, 33d);
     Map<Number, Integer> result = MapStream.of(map).filterValues(Integer.class).toMap();
     assertThat(result).isEqualTo(ImmutableMap.of(1, 11, 2d, 22));
   }
 
+  @Test
   public void mapKeysToKeys() {
     Map<String, Integer> expected = ImmutableMap.of("ONE", 1, "TWO", 2, "THREE", 3, "FOUR", 4);
     Map<String, Integer> result = MapStream.of(map).mapKeys(k -> k.toUpperCase(Locale.ENGLISH)).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void mapKeysAndValuesToKeys() {
     Map<String, Integer> expected = ImmutableMap.of("one1", 1, "two2", 2, "three3", 3, "four4", 4);
     Map<String, Integer> result = MapStream.of(map).mapKeys((k, v) -> k + v).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void mapValuesToValues() {
     Map<String, Integer> expected = ImmutableMap.of("one", 2, "two", 4, "three", 6, "four", 8);
     Map<String, Integer> result = MapStream.of(map).mapValues(v -> v * 2).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void mapKeysAndValuesToValues() {
     Map<String, String> expected = ImmutableMap.of("one", "one1", "two", "two2", "three", "three3", "four", "four4");
     Map<String, String> result = MapStream.of(map).mapValues((k, v) -> k + v).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void map() {
     List<String> expected = ImmutableList.of("one1", "two2", "three3", "four4");
     List<String> result = MapStream.of(map).map((k, v) -> k + v).collect(toList());
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void mapToDouble() {
     double[] expected = new double[]{1d, 2d, 3d, 4d};
     double[] result = MapStream.of(map)
@@ -121,6 +136,7 @@ public class MapStreamTest {
     assertThat(expected).isEqualTo(result);
   }
 
+  @Test
   public void mapToInt() {
     int[] expected = new int[]{1, 2, 3, 4};
     int[] result = MapStream.of(map)
@@ -129,6 +145,7 @@ public class MapStreamTest {
     assertThat(expected).isEqualTo(result);
   }
 
+  @Test
   public void flatMapKeysToKeys() {
     Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
         .put("one", 1)
@@ -148,6 +165,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void flatMapKeysAndValuesToKeys() {
     Map<String, Integer> expected = ImmutableMap.<String, Integer>builder()
         .put("one", 1)
@@ -167,6 +185,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void flatMapValuesToValues() {
     List<Pair<String, Integer>> expected = ImmutableList.of(
         Pair.of("one", 1),
@@ -186,6 +205,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void flatMapKeysAndValuesToValues() {
     List<Pair<String, String>> expected = ImmutableList.of(
         Pair.of("one", "one"),
@@ -205,6 +225,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void flatMap() {
     Map<String, String> expected = ImmutableMap.<String, String>builder()
         .put("one", "1")
@@ -224,6 +245,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void flatMapToDouble() {
     double[] expected = new double[]{1d, 1d, 2d, 4d, 3d, 9d, 4d, 16d};
 
@@ -234,6 +256,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void flatMapToInt() {
     int[] expected = new int[]{1, 1, 2, 4, 3, 9, 4, 16};
 
@@ -245,6 +268,7 @@ public class MapStreamTest {
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void sortedKeys() {
     List<Map.Entry<String, Integer>> expected =
         ImmutableList.of(entry("four", 4), entry("one", 1), entry("three", 3), entry("two", 2));
@@ -256,6 +280,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void sortedKeys_comparator() {
     List<Map.Entry<String, Integer>> expected =
         ImmutableList.of(entry("two", 2), entry("three", 3), entry("one", 1), entry("four", 4));
@@ -267,6 +292,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void sortedValues() {
     ImmutableMap<String, Integer> invertedValuesMap = ImmutableMap.of(
         "one", 4,
@@ -282,6 +308,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void sortedValues_comparator() {
     List<Map.Entry<String, Integer>> expected =
         ImmutableList.of(entry("four", 4), entry("three", 3), entry("two", 2), entry("one", 1));
@@ -294,39 +321,46 @@ public class MapStreamTest {
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void minKeys() {
     Map.Entry<String, Integer> result = MapStream.of(map).minKeys(Comparator.naturalOrder()).get();
     assertThat(result).isEqualTo(entry("four", 4));
   }
 
+  @Test
   public void minValues() {
     Map.Entry<String, Integer> result = MapStream.of(map).minValues(Comparator.naturalOrder()).get();
     assertThat(result).isEqualTo(entry("one", 1));
   }
 
+  @Test
   public void maxKeys() {
     Map.Entry<String, Integer> result = MapStream.of(map).maxKeys(Comparator.naturalOrder()).get();
     assertThat(result).isEqualTo(entry("two", 2));
   }
 
+  @Test
   public void maxValues() {
     Map.Entry<String, Integer> result = MapStream.of(map).maxValues(Comparator.naturalOrder()).get();
     assertThat(result).isEqualTo(entry("four", 4));
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void anyMatch() {
     assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 10)).isTrue();
     assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 8)).isTrue();
     assertThat(MapStream.of(map).anyMatch((key, value) -> key.length() + value < 4)).isFalse();
   }
 
+  @Test
   public void allMatch() {
     assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 10)).isTrue();
     assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 8)).isFalse();
     assertThat(MapStream.of(map).allMatch((key, value) -> key.length() + value < 4)).isFalse();
   }
 
+  @Test
   public void noneMatch() {
     assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 10)).isFalse();
     assertThat(MapStream.of(map).noneMatch((key, value) -> key.length() + value < 8)).isFalse();
@@ -334,6 +368,7 @@ public class MapStreamTest {
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void forEach() {
     HashMap<Object, Object> mutableMap = new HashMap<>();
     MapStream.of(map).forEach((k, v) -> mutableMap.put(k, v));
@@ -341,12 +376,14 @@ public class MapStreamTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void ofMultimap() {
     ImmutableMultimap<String, Integer> input = ImmutableMultimap.of("one", 1, "two", 2, "one", 3);
     assertThat(MapStream.of(input)).containsExactlyInAnyOrder(entry("one", 1), entry("two", 2), entry("one", 3));
     assertThat(MapStream.of(input).toMap(Integer::sum)).containsOnly(entry("one", 4), entry("two", 2));
   }
 
+  @Test
   public void ofCollection() {
     List<String> letters = ImmutableList.of("a", "b", "c");
     Map<String, String> expected = ImmutableMap.of("A", "a", "B", "b", "C", "c");
@@ -354,6 +391,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void ofCollection_2arg() {
     List<String> letters = ImmutableList.of("a", "b", "c");
     Map<String, String> expected = ImmutableMap.of("A", "aa", "B", "bb", "C", "cc");
@@ -362,6 +400,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void ofStream() {
     Stream<String> letters = Stream.of("a", "b", "c");
     Map<String, String> expected = ImmutableMap.of("A", "a", "B", "b", "C", "c");
@@ -369,6 +408,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void ofStream_2arg() {
     Stream<String> letters = Stream.of("a", "b", "c");
     Map<String, String> expected = ImmutableMap.of("A", "aa", "B", "bb", "C", "cc");
@@ -378,6 +418,7 @@ public class MapStreamTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void zip() {
     Stream<Integer> numbers = Stream.of(0, 1, 2);
     Stream<String> letters = Stream.of("a", "b", "c");
@@ -386,6 +427,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void zip_longerFirst() {
     Stream<Integer> numbers = Stream.of(0, 1, 2, 3);
     Stream<String> letters = Stream.of("a", "b", "c");
@@ -394,6 +436,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void zip_longerSecond() {
     Stream<Integer> numbers = Stream.of(0, 1, 2);
     Stream<String> letters = Stream.of("a", "b", "c", "d");
@@ -402,6 +445,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void zipWithIndex() {
     Stream<String> letters = Stream.of("a", "b", "c");
     Map<Integer, String> expected = ImmutableMap.of(0, "a", 1, "b", 2, "c");
@@ -409,6 +453,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void concat() {
     ImmutableMap<String, Integer> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
     ImmutableMap<String, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
@@ -416,6 +461,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(map);
   }
 
+  @Test
   public void concatGeneric() {
     ImmutableMap<String, Object> map1 = ImmutableMap.of("one", 1, "two", 2, "three", 3);
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
@@ -423,6 +469,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(map);
   }
 
+  @Test
   public void concatNumberValues() {
     ImmutableMap<String, Double> map1 = ImmutableMap.of("one", 1D, "two", 2D, "three", 3D);
     ImmutableMap<Object, Integer> map2 = ImmutableMap.of("three", 7, "four", 4);
@@ -432,10 +479,12 @@ public class MapStreamTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void toMapDuplicateKeys() {
     assertThatIllegalArgumentException().isThrownBy(() -> MapStream.of(map).mapKeys(k -> "key").toMap());
   }
 
+  @Test
   public void toMapWithMerge() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     Map<String, Integer> expected = ImmutableMap.of("a", 3, "b", 30, "c", 1);
@@ -444,6 +493,7 @@ public class MapStreamTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void toMapGrouping() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     Map<String, List<Integer>> expected = ImmutableMap.of("a", list(1, 2), "b", list(10, 20), "c", list(1));
@@ -451,6 +501,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void toMapGroupingWithCollector() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     Map<String, Integer> expected = ImmutableMap.of("a", 3, "b", 30, "c", 1);
@@ -460,6 +511,7 @@ public class MapStreamTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void toListMultimap() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
     ListMultimap<String, Integer> expected = ImmutableListMultimap.of("a", 1, "a", 2, "b", 10, "b", 20, "c", 1);
@@ -467,6 +519,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void toSetMultimap() {
     Map<String, Integer> map = ImmutableMap.<String, Integer>builder()
         .put("a", 1)
@@ -481,6 +534,7 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void coverage() {
     MapStream.empty()
         .filter(e -> false)

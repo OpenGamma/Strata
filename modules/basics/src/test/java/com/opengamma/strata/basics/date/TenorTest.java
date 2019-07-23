@@ -188,9 +188,9 @@ public class TenorTest {
     };
   }
 
-  @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "parseBad")
   public void test_parse_String_bad(String input) {
-    Tenor.parse(input);
+    assertThatIllegalArgumentException().isThrownBy(() -> Tenor.parse(input));
   }
 
   //-------------------------------------------------------------------------

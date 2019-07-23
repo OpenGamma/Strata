@@ -57,32 +57,32 @@ public class ScenarioDefinitionTest {
    * are the wrong number. The mappings all have 2 perturbations which should mean 2 scenarios, but
    * there are 3 scenario names.
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void ofMappingsWrongNumberOfScenarioNames() {
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     List<String> scenarioNames = ImmutableList.of("foo", "bar", "baz");
-    ScenarioDefinition.ofMappings(mappings, scenarioNames);
+    assertThatIllegalArgumentException().isThrownBy(() -> ScenarioDefinition.ofMappings(mappings, scenarioNames));
   }
 
   /**
    * Tests that a scenario definition won't be built if the mappings don't have the same number of scenarios
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void ofMappingsDifferentNumberOfScenarios() {
     PerturbationMapping<Object> mappingC = PerturbationMapping.of(FILTER_C, new TestPerturbation(27));
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
-    ScenarioDefinition.ofMappings(mappings);
+    assertThatIllegalArgumentException().isThrownBy(() -> ScenarioDefinition.ofMappings(mappings));
   }
 
   /**
    * Tests that a scenario definition won't be built if the mappings don't have the same number of scenarios
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void ofMappingsWithNamesDifferentNumberOfScenarios() {
     PerturbationMapping<Object> mappingC = PerturbationMapping.of(FILTER_C, new TestPerturbation(27));
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, mappingC);
     List<String> scenarioNames = ImmutableList.of("foo", "bar");
-    ScenarioDefinition.ofMappings(mappings, scenarioNames);
+    assertThatIllegalArgumentException().isThrownBy(() -> ScenarioDefinition.ofMappings(mappings, scenarioNames));
   }
 
   public void repeatItems() {

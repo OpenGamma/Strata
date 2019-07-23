@@ -7,14 +7,12 @@ package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.DoubleArrayMath.EMPTY_DOUBLE_ARRAY;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.within;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -22,24 +20,26 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.DoubleStream;
 
-import org.testng.annotations.Test;
+import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@link DoubleArray}.
  */
-@Test
 public class DoubleArrayTest {
 
   private static final Object ANOTHER_TYPE = "";
 
-  private static final double DELTA = 1e-14;
+  private static final Offset<Double> DELTA = within(1e-14);
 
+  @Test
   public void test_EMPTY() {
     assertContent(DoubleArray.EMPTY);
   }
 
+  @Test
   public void test_of() {
     assertContent(DoubleArray.of());
     assertContent(DoubleArray.of(1d), 1d);
@@ -53,6 +53,7 @@ public class DoubleArrayTest {
     assertContent(DoubleArray.of(1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d, 9d), 1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d, 9d);
   }
 
+  @Test
   public void test_of_lambda() {
     assertContent(DoubleArray.of(0, i -> {
       throw new AssertionError();
@@ -62,11 +63,13 @@ public class DoubleArrayTest {
     assertContent(DoubleArray.of(2, i -> counter.getAndIncrement()), 3d, 4d);
   }
 
+  @Test
   public void test_of_stream() {
     assertContent(DoubleArray.of(DoubleStream.empty()));
     assertContent(DoubleArray.of(DoubleStream.of(1d, 2d, 3d)), 1d, 2d, 3d);
   }
 
+  @Test
   public void test_ofUnsafe() {
     double[] base = {1d, 2d, 3d};
     DoubleArray test = DoubleArray.ofUnsafe(base);
@@ -78,11 +81,13 @@ public class DoubleArrayTest {
     assertContent(DoubleArray.ofUnsafe(EMPTY_DOUBLE_ARRAY));
   }
 
+  @Test
   public void test_copyOf_List() {
     assertContent(DoubleArray.copyOf(ImmutableList.of(1d, 2d, 3d)), 1d, 2d, 3d);
     assertContent(DoubleArray.copyOf(ImmutableList.of()));
   }
 
+  @Test
   public void test_copyOf_array() {
     double[] base = new double[] {1d, 2d, 3d};
     DoubleArray test = DoubleArray.copyOf(base);
@@ -94,6 +99,7 @@ public class DoubleArrayTest {
     assertContent(DoubleArray.copyOf(EMPTY_DOUBLE_ARRAY));
   }
 
+  @Test
   public void test_copyOf_array_fromIndex() {
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0), 1d, 2d, 3d);
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1), 2d, 3d);
@@ -104,6 +110,7 @@ public class DoubleArrayTest {
         .isThrownBy(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 4));
   }
 
+  @Test
   public void test_copyOf_array_fromToIndex() {
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 3), 1d, 2d, 3d);
     assertContent(DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 1, 2), 2d);
@@ -114,59 +121,66 @@ public class DoubleArrayTest {
         .isThrownBy(() -> DoubleArray.copyOf(new double[] {1d, 2d, 3d}, 0, 5));
   }
 
+  @Test
   public void test_filled() {
     assertContent(DoubleArray.filled(0));
     assertContent(DoubleArray.filled(3), 0d, 0d, 0d);
   }
 
+  @Test
   public void test_filled_withValue() {
     assertContent(DoubleArray.filled(0, 1.5));
     assertContent(DoubleArray.filled(3, 1.5), 1.5, 1.5, 1.5);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_get() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
-    assertEquals(test.get(0), 1d);
-    assertEquals(test.get(4), 4d);
+    assertThat(test.get(0)).isEqualTo(1d);
+    assertThat(test.get(4)).isEqualTo(4d);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(5));
   }
 
+  @Test
   public void test_contains() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
-    assertEquals(test.contains(1d), true);
-    assertEquals(test.contains(3d), true);
-    assertEquals(test.contains(5d), false);
-    assertEquals(DoubleArray.EMPTY.contains(5d), false);
+    assertThat(test.contains(1d)).isEqualTo(true);
+    assertThat(test.contains(3d)).isEqualTo(true);
+    assertThat(test.contains(5d)).isEqualTo(false);
+    assertThat(DoubleArray.EMPTY.contains(5d)).isEqualTo(false);
   }
 
+  @Test
   public void test_indexOf() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
-    assertEquals(test.indexOf(2d), 1);
-    assertEquals(test.indexOf(3d), 2);
-    assertEquals(test.indexOf(5d), -1);
-    assertEquals(DoubleArray.EMPTY.indexOf(5d), -1);
+    assertThat(test.indexOf(2d)).isEqualTo(1);
+    assertThat(test.indexOf(3d)).isEqualTo(2);
+    assertThat(test.indexOf(5d)).isEqualTo(-1);
+    assertThat(DoubleArray.EMPTY.indexOf(5d)).isEqualTo(-1);
   }
 
+  @Test
   public void test_lastIndexOf() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d, 3d, 4d);
-    assertEquals(test.lastIndexOf(2d), 1);
-    assertEquals(test.lastIndexOf(3d), 3);
-    assertEquals(test.lastIndexOf(5d), -1);
-    assertEquals(DoubleArray.EMPTY.lastIndexOf(5d), -1);
+    assertThat(test.lastIndexOf(2d)).isEqualTo(1);
+    assertThat(test.lastIndexOf(3d)).isEqualTo(3);
+    assertThat(test.lastIndexOf(5d)).isEqualTo(-1);
+    assertThat(DoubleArray.EMPTY.lastIndexOf(5d)).isEqualTo(-1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_copyInto() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] dest = new double[4];
     test.copyInto(dest, 0);
-    assertTrue(Arrays.equals(dest, new double[] {1d, 2d, 3d, 0d}));
+    assertThat(dest).containsExactly(1d, 2d, 3d, 0d);
 
     double[] dest2 = new double[4];
     test.copyInto(dest2, 1);
-    assertTrue(Arrays.equals(dest2, new double[] {0d, 1d, 2d, 3d}));
+    assertThat(dest2).containsExactly(0d, 1d, 2d, 3d);
 
     double[] dest3 = new double[4];
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.copyInto(dest3, 2));
@@ -174,6 +188,7 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_subArray_from() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.subArray(0), 1d, 2d, 3d);
@@ -184,6 +199,7 @@ public class DoubleArrayTest {
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(-1));
   }
 
+  @Test
   public void test_subArray_fromTo() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.subArray(0, 3), 1d, 2d, 3d);
@@ -197,77 +213,80 @@ public class DoubleArrayTest {
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unlikely-arg-type")
+  @Test
   public void test_toList() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
     assertContent(DoubleArray.copyOf(list), 1d, 2d, 3d);
-    assertEquals(list.size(), 3);
-    assertEquals(list.isEmpty(), false);
-    assertEquals(list.get(0), 1d);
-    assertEquals(list.get(2), 3d);
-    assertEquals(list.contains(2d), true);
-    assertEquals(list.contains(5d), false);
-    assertEquals(list.contains(""), false);
-    assertEquals(list.indexOf(2d), 1);
-    assertEquals(list.indexOf(5d), -1);
-    assertEquals(list.indexOf(""), -1);
-    assertEquals(list.lastIndexOf(3d), 2);
-    assertEquals(list.lastIndexOf(5d), -1);
-    assertEquals(list.lastIndexOf(""), -1);
+    assertThat(list.size()).isEqualTo(3);
+    assertThat(list.isEmpty()).isEqualTo(false);
+    assertThat(list.get(0)).isEqualTo(1d);
+    assertThat(list.get(2)).isEqualTo(3d);
+    assertThat(list.contains(2d)).isEqualTo(true);
+    assertThat(list.contains(5d)).isEqualTo(false);
+    assertThat(list.contains("")).isEqualTo(false);
+    assertThat(list.indexOf(2d)).isEqualTo(1);
+    assertThat(list.indexOf(5d)).isEqualTo(-1);
+    assertThat(list.indexOf("")).isEqualTo(-1);
+    assertThat(list.lastIndexOf(3d)).isEqualTo(2);
+    assertThat(list.lastIndexOf(5d)).isEqualTo(-1);
+    assertThat(list.lastIndexOf("")).isEqualTo(-1);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.clear());
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.set(0, 3d));
   }
 
+  @Test
   public void test_toList_iterator() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
     Iterator<Double> it = list.iterator();
-    assertEquals(it.hasNext(), true);
-    assertEquals(it.next(), 1d);
-    assertEquals(it.hasNext(), true);
-    assertEquals(it.next(), 2d);
-    assertEquals(it.hasNext(), true);
-    assertEquals(it.next(), 3d);
-    assertEquals(it.hasNext(), false);
+    assertThat(it.hasNext()).isEqualTo(true);
+    assertThat(it.next()).isEqualTo(1d);
+    assertThat(it.hasNext()).isEqualTo(true);
+    assertThat(it.next()).isEqualTo(2d);
+    assertThat(it.hasNext()).isEqualTo(true);
+    assertThat(it.next()).isEqualTo(3d);
+    assertThat(it.hasNext()).isEqualTo(false);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> it.remove());
   }
 
+  @Test
   public void test_toList_listIterator() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     List<Double> list = test.toList();
     ListIterator<Double> lit = list.listIterator();
-    assertEquals(lit.nextIndex(), 0);
-    assertEquals(lit.previousIndex(), -1);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), false);
+    assertThat(lit.nextIndex()).isEqualTo(0);
+    assertThat(lit.previousIndex()).isEqualTo(-1);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(false);
     assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.previous());
 
-    assertEquals(lit.next(), 1d);
-    assertEquals(lit.nextIndex(), 1);
-    assertEquals(lit.previousIndex(), 0);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.next()).isEqualTo(1d);
+    assertThat(lit.nextIndex()).isEqualTo(1);
+    assertThat(lit.previousIndex()).isEqualTo(0);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
 
-    assertEquals(lit.next(), 2d);
-    assertEquals(lit.nextIndex(), 2);
-    assertEquals(lit.previousIndex(), 1);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.next()).isEqualTo(2d);
+    assertThat(lit.nextIndex()).isEqualTo(2);
+    assertThat(lit.previousIndex()).isEqualTo(1);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
 
-    assertEquals(lit.next(), 3d);
-    assertEquals(lit.nextIndex(), 3);
-    assertEquals(lit.previousIndex(), 2);
-    assertEquals(lit.hasNext(), false);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.next()).isEqualTo(3d);
+    assertThat(lit.nextIndex()).isEqualTo(3);
+    assertThat(lit.previousIndex()).isEqualTo(2);
+    assertThat(lit.hasNext()).isEqualTo(false);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
     assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.next());
 
-    assertEquals(lit.previous(), 3d);
-    assertEquals(lit.nextIndex(), 2);
-    assertEquals(lit.previousIndex(), 1);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.previous()).isEqualTo(3d);
+    assertThat(lit.nextIndex()).isEqualTo(2);
+    assertThat(lit.previousIndex()).isEqualTo(1);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.remove());
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.set(2d));
@@ -275,21 +294,24 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_stream() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] streamed = test.stream().toArray();
-    assertTrue(Arrays.equals(streamed, new double[] {1d, 2d, 3d}));
+    assertThat(streamed).containsExactly(1d, 2d, 3d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forEach() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     double[] extracted = new double[3];
     test.forEach((i, v) -> extracted[i] = v);
-    assertTrue(Arrays.equals(extracted, new double[] {1d, 2d, 3d}));
+    assertThat(extracted).containsExactly(1d, 2d, 3d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_with() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.with(0, 2.6d), 2.6d, 2d, 3d);
@@ -299,6 +321,7 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.plus(5), 6d, 7d, 8d);
@@ -306,6 +329,7 @@ public class DoubleArrayTest {
     assertContent(test.plus(-5), -4d, -3d, -2d);
   }
 
+  @Test
   public void test_minus() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.minus(5), -4d, -3d, -2d);
@@ -313,29 +337,34 @@ public class DoubleArrayTest {
     assertContent(test.minus(-5), 6d, 7d, 8d);
   }
 
+  @Test
   public void test_multipliedBy() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.multipliedBy(5), 5d, 10d, 15d);
     assertContent(test.multipliedBy(1), 1d, 2d, 3d);
   }
 
+  @Test
   public void test_dividedBy() {
     DoubleArray test = DoubleArray.of(10d, 20d, 30d);
     assertContent(test.dividedBy(5), 2d, 4d, 6d);
     assertContent(test.dividedBy(1), 10d, 20d, 30d);
   }
 
+  @Test
   public void test_map() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.map(v -> 1 / v), 1d, 1d / 2d, 1d / 3d);
   }
 
+  @Test
   public void test_mapWithIndex() {
     DoubleArray test = DoubleArray.of(1d, 2d, 3d);
     assertContent(test.mapWithIndex((i, v) -> i * v), 0d, 2d, 6d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
@@ -343,6 +372,7 @@ public class DoubleArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.plus(DoubleArray.EMPTY));
   }
 
+  @Test
   public void test_minus_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
@@ -350,6 +380,7 @@ public class DoubleArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.minus(DoubleArray.EMPTY));
   }
 
+  @Test
   public void test_multipliedBy_array() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
@@ -357,6 +388,7 @@ public class DoubleArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.multipliedBy(DoubleArray.EMPTY));
   }
 
+  @Test
   public void test_dividedBy_array() {
     DoubleArray test1 = DoubleArray.of(10d, 20d, 30d);
     DoubleArray test2 = DoubleArray.of(2d, 5d, 10d);
@@ -364,6 +396,7 @@ public class DoubleArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.dividedBy(DoubleArray.EMPTY));
   }
 
+  @Test
   public void test_combine() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
@@ -372,15 +405,17 @@ public class DoubleArrayTest {
         .isThrownBy(() -> test1.combine(DoubleArray.EMPTY, (a, b) -> a * b));
   }
 
+  @Test
   public void test_combineReduce() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
-    assertEquals(test1.combineReduce(test2, (r, a, b) -> r + a * b), 0.5d + 2d * 0.6d + 3d * 0.7d);
+    assertThat(test1.combineReduce(test2, (r, a, b) -> r + a * b)).isEqualTo(0.5d + 2d * 0.6d + 3d * 0.7d);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test1.combineReduce(DoubleArray.EMPTY, (r, a, b) -> r + a * b));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_sorted() {
     assertContent(DoubleArray.of().sorted());
     assertContent(DoubleArray.of(2d).sorted(), 2d);
@@ -388,33 +423,38 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_min() {
-    assertEquals(DoubleArray.of(2d).min(), 2d);
-    assertEquals(DoubleArray.of(2d, 1d, 3d).min(), 1d);
+    assertThat(DoubleArray.of(2d).min()).isEqualTo(2d);
+    assertThat(DoubleArray.of(2d, 1d, 3d).min()).isEqualTo(1d);
     assertThatIllegalStateException().isThrownBy(() -> DoubleArray.EMPTY.min());
   }
 
+  @Test
   public void test_max() {
-    assertEquals(DoubleArray.of(2d).max(), 2d);
-    assertEquals(DoubleArray.of(2d, 1d, 3d).max(), 3d);
+    assertThat(DoubleArray.of(2d).max()).isEqualTo(2d);
+    assertThat(DoubleArray.of(2d, 1d, 3d).max()).isEqualTo(3d);
     assertThatIllegalStateException().isThrownBy(() -> DoubleArray.EMPTY.max());
   }
 
+  @Test
   public void test_sum() {
-    assertEquals(DoubleArray.EMPTY.sum(), 0d);
-    assertEquals(DoubleArray.of(2d).sum(), 2d);
-    assertEquals(DoubleArray.of(2d, 1d, 3d).sum(), 6d);
+    assertThat(DoubleArray.EMPTY.sum()).isEqualTo(0d);
+    assertThat(DoubleArray.of(2d).sum()).isEqualTo(2d);
+    assertThat(DoubleArray.of(2d, 1d, 3d).sum()).isEqualTo(6d);
   }
 
+  @Test
   public void test_reduce() {
-    assertEquals(DoubleArray.EMPTY.reduce(2d, (r, v) -> {
+    assertThat(DoubleArray.EMPTY.reduce(2d, (r, v) -> {
       throw new AssertionError();
-    }), 2d);
-    assertEquals(DoubleArray.of(2d).reduce(1d, (r, v) -> r * v), 2d);
-    assertEquals(DoubleArray.of(2d, 1d, 3d).reduce(1d, (r, v) -> r * v), 6d);
+    })).isEqualTo(2d);
+    assertThat(DoubleArray.of(2d).reduce(1d, (r, v) -> r * v)).isEqualTo(2d);
+    assertThat(DoubleArray.of(2d, 1d, 3d).reduce(1d, (r, v) -> r * v)).isEqualTo(6d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_concat_varargs() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     assertContent(test1.concat(0.5d, 0.6d, 0.7d), 1d, 2d, 3d, 0.5d, 0.6d, 0.7d);
@@ -423,6 +463,7 @@ public class DoubleArrayTest {
     assertContent(DoubleArray.EMPTY.concat(new double[] {1d, 2d, 3d}), 1d, 2d, 3d);
   }
 
+  @Test
   public void test_concat_object() {
     DoubleArray test1 = DoubleArray.of(1d, 2d, 3d);
     DoubleArray test2 = DoubleArray.of(0.5d, 0.6d, 0.7d);
@@ -432,46 +473,51 @@ public class DoubleArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalWithTolerance() {
     DoubleArray a1 = DoubleArray.of(1d, 2d);
     DoubleArray a2 = DoubleArray.of(1d, 2.02d);
     DoubleArray a3 = DoubleArray.of(1d, 2.009d);
     DoubleArray b = DoubleArray.of(1d, 2d, 3d);
-    assertEquals(a1.equalWithTolerance(a2, 0.01d), false);
-    assertEquals(a1.equalWithTolerance(a3, 0.01d), true);
-    assertEquals(a1.equalWithTolerance(b, 0.01d), false);
+    assertThat(a1.equalWithTolerance(a2, 0.01d)).isFalse();
+    assertThat(a1.equalWithTolerance(a3, 0.01d)).isTrue();
+    assertThat(a1.equalWithTolerance(b, 0.01d)).isFalse();
   }
 
+  @Test
   public void test_equalZeroWithTolerance() {
     DoubleArray a1 = DoubleArray.of(0d, 0d);
     DoubleArray a2 = DoubleArray.of(0d, 0.02d);
     DoubleArray a3 = DoubleArray.of(0d, 0.009d);
     DoubleArray b = DoubleArray.of(1d, 2d, 3d);
-    assertEquals(a1.equalZeroWithTolerance(0.01d), true);
-    assertEquals(a2.equalZeroWithTolerance(0.01d), false);
-    assertEquals(a3.equalZeroWithTolerance(0.01d), true);
-    assertEquals(b.equalZeroWithTolerance(0.01d), false);
+    assertThat(a1.equalZeroWithTolerance(0.01d)).isEqualTo(true);
+    assertThat(a2.equalZeroWithTolerance(0.01d)).isEqualTo(false);
+    assertThat(a3.equalZeroWithTolerance(0.01d)).isEqualTo(true);
+    assertThat(b.equalZeroWithTolerance(0.01d)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     DoubleArray a1 = DoubleArray.of(1d, 2d);
     DoubleArray a2 = DoubleArray.of(1d, 2d);
     DoubleArray b = DoubleArray.of(1d, 2d, 3d);
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(ANOTHER_TYPE), false);
-    assertEquals(a1.equals(null), false);
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(a1.equals(null)).isEqualTo(false);
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
+  @Test
   public void test_toString() {
     DoubleArray test = DoubleArray.of(1d, 2d);
-    assertEquals(test.toString(), "[1.0, 2.0]");
+    assertThat(test.toString()).isEqualTo("[1.0, 2.0]");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(DoubleArray.of(1d, 2d, 3d));
     DoubleArray.of(1d, 2d, 3d).metaBean().metaProperty("array").metaBean();
@@ -482,22 +528,24 @@ public class DoubleArrayTest {
   //-------------------------------------------------------------------------
   private void assertContent(DoubleArray array, double... expected) {
     if (expected.length == 0) {
-      assertSame(array, DoubleArray.EMPTY);
-      assertEquals(array.isEmpty(), true);
+      assertThat(array).isSameAs(DoubleArray.EMPTY);
+      assertThat(array.isEmpty()).isEqualTo(true);
     } else {
-      assertEquals(array.size(), expected.length);
+      assertThat(array.size()).isEqualTo(expected.length);
       assertArray(array.toArray(), expected);
       assertArray(array.toArrayUnsafe(), expected);
-      assertEquals(array.dimensions(), 1);
-      assertEquals(array.isEmpty(), false);
+      assertThat(array.dimensions()).isEqualTo(1);
+      assertThat(array.isEmpty()).isEqualTo(false);
     }
   }
 
   private void assertArray(double[] array, double[] expected) {
-    assertEquals(array.length, expected.length);
+    assertThat(array.length).isEqualTo(expected.length);
 
     for (int i = 0; i < array.length; i++) {
-      assertEquals(array[i], expected[i], DELTA, "Unexpected value at index " + i + ",");
+      assertThat(array[i])
+          .withFailMessage("Unexpected value at index " + i + ",")
+          .isEqualTo(expected[i], DELTA);
     }
   }
 }

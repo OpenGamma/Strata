@@ -7,14 +7,13 @@ package com.opengamma.strata.collect.io;
 
 import static com.opengamma.strata.collect.TestHelper.caputureSystemErr;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -24,73 +23,84 @@ import com.google.common.collect.Multimap;
 /**
  * Test {@link ResourceConfig}.
  */
-@Test
 public class ResourceConfigTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_orderedResources() throws Exception {
     List<ResourceLocator> list = ResourceConfig.orderedResources("TestFile.txt");
-    assertEquals(list.size(), 1);
+    assertThat(list.size()).isEqualTo(1);
     ResourceLocator test = list.get(0);
-    assertEquals(test.getLocator().startsWith("classpath"), true);
-    assertEquals(test.getLocator().endsWith("com/opengamma/strata/config/base/TestFile.txt"), true);
-    assertEquals(test.getByteSource().read()[0], 'H');
-    assertEquals(test.getCharSource().readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.getCharSource(StandardCharsets.UTF_8).readLines(), ImmutableList.of("HelloWorld"));
-    assertEquals(test.toString().startsWith("classpath"), true);
-    assertEquals(test.toString().endsWith("com/opengamma/strata/config/base/TestFile.txt"), true);
+    assertThat(test.getLocator())
+        .startsWith("classpath:")
+        .endsWith("com/opengamma/strata/config/base/TestFile.txt");
+    assertThat(test.getByteSource().read()[0]).isEqualTo((byte) 'H');
+    assertThat(test.getCharSource().readLines()).isEqualTo(ImmutableList.of("HelloWorld"));
+    assertThat(test.getCharSource(StandardCharsets.UTF_8).readLines()).isEqualTo(ImmutableList.of("HelloWorld"));
+    assertThat(test.toString()).isEqualTo(test.getLocator());
   }
 
+  @Test
   public void test_orderedResources_notFound() throws Exception {
     String captured = caputureSystemErr(
         () -> assertThatIllegalStateException().isThrownBy(() -> ResourceConfig.orderedResources("NotFound.txt")));
-    assertTrue(captured.contains("No resource files found on the classpath"));
+    assertThat(captured).contains("No resource files found on the classpath");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofChained_chainNextFileTrue() {
     IniFile test = ResourceConfig.combinedIniFile("TestChain1.ini");
     Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "z", "b", "y");
     Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
-    assertEquals(
-        test.asMap(),
-        ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
+    assertThat(test.asMap())
+        .hasSize(2)
+        .containsEntry("one", PropertySet.of(keyValues1))
+        .containsEntry("two", PropertySet.of(keyValues2));
   }
 
+  @Test
   public void test_ofChained_chainNextFileFalse() {
     IniFile test = ResourceConfig.combinedIniFile("TestChain2.ini");
     Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "z");
     Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
-    assertEquals(
-        test.asMap(),
-        ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
+    assertThat(test.asMap())
+        .hasSize(2)
+        .containsEntry("one", PropertySet.of(keyValues1))
+        .containsEntry("two", PropertySet.of(keyValues2));
   }
 
+  @Test
   public void test_ofChained_chainToNowhere() {
     IniFile test = ResourceConfig.combinedIniFile("TestChain3.ini");
     Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "x", "b", "y");
-    assertEquals(test.asMap(), ImmutableMap.of("one", PropertySet.of(keyValues1)));
+    assertThat(test.asMap()).isEqualTo(ImmutableMap.of("one", PropertySet.of(keyValues1)));
   }
 
+  @Test
   public void test_ofChained_autoChain() {
     IniFile test = ResourceConfig.combinedIniFile("TestChain4.ini");
     Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "z", "b", "y");
     Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n");
-    assertEquals(
-        test.asMap(),
-        ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
+    assertThat(test.asMap())
+        .hasSize(2)
+        .containsEntry("one", PropertySet.of(keyValues1))
+        .containsEntry("two", PropertySet.of(keyValues2));
   }
 
+  @Test
   public void test_ofChained_chainRemoveSections() {
     IniFile test = ResourceConfig.combinedIniFile("TestChain5.ini");
     Multimap<String, String> keyValues1 = ImmutableListMultimap.of("a", "a");
     Multimap<String, String> keyValues2 = ImmutableListMultimap.of("m", "n", "o", "z");
-    assertEquals(
-        test.asMap(),
-        ImmutableMap.of("one", PropertySet.of(keyValues1), "two", PropertySet.of(keyValues2)));
+    assertThat(test.asMap())
+        .hasSize(2)
+        .containsEntry("one", PropertySet.of(keyValues1))
+        .containsEntry("two", PropertySet.of(keyValues2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(ResourceConfig.class);
   }

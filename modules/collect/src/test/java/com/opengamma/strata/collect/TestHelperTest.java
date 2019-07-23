@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.collect;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tes {@link TestHelper}.
@@ -32,7 +32,7 @@ public class TestHelperTest {
       TestHelper.assertEquals("abc", "def", "Oops");
       fail("Should fail");
     } catch (AssertionError ex) {
-      assertEquals(ex.getMessage(), "Oops expected [def] but found [abc]");
+      assertThat(ex.getMessage()).isEqualTo("Oops expected [def] but found [abc]");
     }
   }
 
@@ -42,7 +42,7 @@ public class TestHelperTest {
       TestHelper.assertEquals("abc", null, null);
       fail("Should fail");
     } catch (AssertionError ex) {
-      assertEquals(ex.getMessage(), "expected [null] but found [abc]");
+      assertThat(ex.getMessage()).isEqualTo("expected [null] but found [abc]");
     }
   }
 
@@ -52,7 +52,7 @@ public class TestHelperTest {
       TestHelper.assertEquals(null, "abc", null);
       fail("Should fail");
     } catch (AssertionError ex) {
-      assertEquals(ex.getMessage(), "expected [abc] but found [null]");
+      assertThat(ex.getMessage()).isEqualTo("expected [abc] but found [null]");
     }
   }
 
@@ -67,7 +67,7 @@ public class TestHelperTest {
       TestHelper.assertNotNull(null, "Oops");
       fail("Should fail");
     } catch (AssertionError ex) {
-      assertEquals(ex.getMessage(), "Oops");
+      assertThat(ex.getMessage()).isEqualTo("Oops");
     }
   }
 

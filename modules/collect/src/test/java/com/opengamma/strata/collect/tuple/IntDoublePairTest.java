@@ -7,26 +7,30 @@ package com.opengamma.strata.collect.tuple;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-import com.google.common.collect.ImmutableList;
+import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
 import com.opengamma.strata.collect.TestHelper;
 
 /**
- * Test.
+ * Test {@link IntDoublePair}.
  */
-@Test
 public class IntDoublePairTest {
 
-  private static final double TOLERANCE = 0.00001d;
+  private static final Offset<Double> TOLERANCE = within(0.00001d);
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "factory")
   public static Object[][] data_factory() {
     return new Object[][] {
         {1, 2.5d},
@@ -36,44 +40,47 @@ public class IntDoublePairTest {
     };
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_of_getters(int first, double second) {
     IntDoublePair test = IntDoublePair.of(first, second);
-    assertEquals(test.getFirst(), first);
-    assertEquals(test.getSecond(), second, TOLERANCE);
+    assertThat(test.getFirst()).isEqualTo(first);
+    assertThat(test.getSecond()).isEqualTo(second, TOLERANCE);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_ofPair(int first, double second) {
     Pair<Integer, Double> pair = Pair.of(first, second);
     IntDoublePair test = IntDoublePair.ofPair(pair);
-    assertEquals(test.getFirst(), first);
-    assertEquals(test.getSecond(), second, TOLERANCE);
+    assertThat(test.getFirst()).isEqualTo(first);
+    assertThat(test.getSecond()).isEqualTo(second, TOLERANCE);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_sizeElements(int first, double second) {
     IntDoublePair test = IntDoublePair.of(first, second);
-    assertEquals(test.size(), 2);
-    assertEquals(test.elements(), ImmutableList.of(first, second));
+    assertThat(test.elements()).containsExactly(first, second);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_toString(int first, double second) {
     IntDoublePair test = IntDoublePair.of(first, second);
     String str = "[" + first + ", " + second + "]";
-    assertEquals(test.toString(), str);
-    assertEquals(IntDoublePair.parse(str), test);
+    assertThat(test).hasToString(str);
+    assertThat(IntDoublePair.parse(str)).isEqualTo(test);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_toPair(int first, double second) {
     IntDoublePair test = IntDoublePair.of(first, second);
-    assertEquals(test.toPair(), Pair.of(first, second));
+    assertThat(test.toPair()).isEqualTo(Pair.of(first, second));
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "parseGood")
   public static Object[][] data_parseGood() {
     return new Object[][] {
         {"[1, 2.5]", 1, 2.5d},
@@ -85,14 +92,14 @@ public class IntDoublePairTest {
     };
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_good(String text, int first, double second) {
     IntDoublePair test = IntDoublePair.parse(text);
-    assertEquals(test.getFirst(), first, TOLERANCE);
-    assertEquals(test.getSecond(), second, TOLERANCE);
+    assertThat(test.getFirst()).isEqualTo(first);
+    assertThat(test.getSecond()).isEqualTo(second, TOLERANCE);
   }
 
-  @DataProvider(name = "parseBad")
   public static Object[][] data_parseBad() {
     return new Object[][] {
         {null},
@@ -106,31 +113,31 @@ public class IntDoublePairTest {
     };
   }
 
-  @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
+  @ParameterizedTest
+  @MethodSource("data_parseBad")
   public void test_parse_bad(String text) {
-    IntDoublePair.parse(text);
+    assertThatIllegalArgumentException().isThrownBy(() -> IntDoublePair.parse(text));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareTo() {
     IntDoublePair p12 = IntDoublePair.of(1, 2d);
     IntDoublePair p13 = IntDoublePair.of(1, 3d);
     IntDoublePair p21 = IntDoublePair.of(2, 1d);
 
-    assertTrue(p12.compareTo(p12) == 0);
-    assertTrue(p12.compareTo(p13) < 0);
-    assertTrue(p12.compareTo(p21) < 0);
-
-    assertTrue(p13.compareTo(p12) > 0);
-    assertTrue(p13.compareTo(p13) == 0);
-    assertTrue(p13.compareTo(p21) < 0);
-
-    assertTrue(p21.compareTo(p12) > 0);
-    assertTrue(p21.compareTo(p13) > 0);
-    assertTrue(p21.compareTo(p21) == 0);
+    List<IntDoublePair> list = new ArrayList<>();
+    list.add(p12);
+    list.add(p13);
+    list.add(p21);
+    list.sort(Comparator.naturalOrder());
+    assertThat(list).containsExactly(p12, p13, p21);
+    list.sort(Comparator.reverseOrder());
+    assertThat(list).containsExactly(p21, p13, p12);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     IntDoublePair a = IntDoublePair.of(1, 2.0d);
     IntDoublePair a2 = IntDoublePair.of(1, 2.0d);
@@ -138,51 +145,48 @@ public class IntDoublePairTest {
     IntDoublePair c = IntDoublePair.of(2, 2.0d);
     IntDoublePair d = IntDoublePair.of(2, 3.0d);
 
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
-    assertEquals(a.equals(a2), true);
+    assertThat(a)
+        .isEqualTo(a)
+        .isEqualTo(a2)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d)
+        .isNotEqualTo(null)
+        .isNotEqualTo(ANOTHER_TYPE)
+        .isNotEqualTo(Pair.of(Integer.valueOf(1), Double.valueOf(1.7d)))
+        .hasSameHashCodeAs(a2);
 
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertThat(b)
+        .isNotEqualTo(a)
+        .isEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d);
 
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertThat(c)
+        .isNotEqualTo(a)
+        .isEqualTo(c)
+        .isNotEqualTo(b)
+        .isNotEqualTo(d);
 
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertThat(d)
+        .isNotEqualTo(a)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isEqualTo(d);
   }
 
-  public void test_equals_bad() {
-    IntDoublePair a = IntDoublePair.of(1, 1.7d);
-    assertEquals(a.equals(null), false);
-    assertEquals(a.equals(ANOTHER_TYPE), false);
-    Object unrelatdPair = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
-    assertEquals(a.equals(unrelatdPair), false);
-  }
-
-  public void test_hashCode() {
-    IntDoublePair a1 = IntDoublePair.of(1, 1.7d);
-    IntDoublePair a2 = IntDoublePair.of(1, 1.7d);
-    assertEquals(a1.hashCode(), a2.hashCode());
-  }
-
+  @Test
   public void coverage() {
     IntDoublePair test = IntDoublePair.of(1, 1.7d);
     TestHelper.coverImmutableBean(test);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(IntDoublePair.of(1, 1.7d));
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(IntDoublePair.class, IntDoublePair.of(1, 1.7d));
   }

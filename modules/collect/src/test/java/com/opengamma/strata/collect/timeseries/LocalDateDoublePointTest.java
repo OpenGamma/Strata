@@ -5,112 +5,123 @@
  */
 package com.opengamma.strata.collect.timeseries;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.within;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-import org.testng.annotations.Test;
+import org.assertj.core.data.Offset;
+import org.junit.jupiter.api.Test;
 
 /**
- * Test LocalDateDoublePoint.
+ * Test {@link LocalDateDoublePoint}
  */
-@Test
 public class LocalDateDoublePointTest {
 
   private static final LocalDate DATE_2012_06_29 = LocalDate.of(2012, 6, 29);
   private static final LocalDate DATE_2012_06_30 = LocalDate.of(2012, 6, 30);
   private static final LocalDate DATE_2012_07_01 = LocalDate.of(2012, 7, 1);
-  private static final double TOLERANCE = 0.00001d;
+  private static final Offset<Double> TOLERANCE = within(0.00001d);
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     LocalDateDoublePoint test = LocalDateDoublePoint.of(DATE_2012_06_30, 1d);
-    assertEquals(test.getDate(), DATE_2012_06_30);
-    assertEquals(test.getValue(), 1d, TOLERANCE);
+    assertThat(test.getDate()).isEqualTo(DATE_2012_06_30);
+    assertThat(test.getValue()).isEqualTo(1d, TOLERANCE);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_of_nullDate() {
-    LocalDateDoublePoint.of(null, 1d);
+    assertThatIllegalArgumentException().isThrownBy(() -> LocalDateDoublePoint.of(null, 1d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withDate() {
     LocalDateDoublePoint base = LocalDateDoublePoint.of(DATE_2012_06_30, 1d);
     LocalDateDoublePoint test = base.withDate(DATE_2012_06_29);
-    assertEquals(test.getDate(), DATE_2012_06_29);
-    assertEquals(test.getValue(), 1d, TOLERANCE);
+    assertThat(test.getDate()).isEqualTo(DATE_2012_06_29);
+    assertThat(test.getValue()).isEqualTo(1d, TOLERANCE);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_withDate_nullDate() {
     LocalDateDoublePoint base = LocalDateDoublePoint.of(DATE_2012_06_30, 1d);
-    base.withDate(null);
+    assertThatIllegalArgumentException().isThrownBy(() -> base.withDate(null));
   }
 
+  @Test
   public void test_withValue() {
     LocalDateDoublePoint base = LocalDateDoublePoint.of(DATE_2012_06_30, 1d);
     LocalDateDoublePoint test = base.withValue(2d);
-    assertEquals(test.getDate(), DATE_2012_06_30);
-    assertEquals(test.getValue(), 2d, TOLERANCE);
+    assertThat(test.getDate()).isEqualTo(DATE_2012_06_30);
+    assertThat(test.getValue()).isEqualTo(2d, TOLERANCE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareTo() {
     LocalDateDoublePoint a = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
     LocalDateDoublePoint b = LocalDateDoublePoint.of(DATE_2012_06_30, 1d);
     LocalDateDoublePoint c = LocalDateDoublePoint.of(DATE_2012_07_01, 1d);
 
-    assertTrue(a.compareTo(a) == 0);
-    assertTrue(a.compareTo(b) < 0);
-    assertTrue(a.compareTo(c) < 0);
-    assertTrue(b.compareTo(a) > 0);
-    assertTrue(b.compareTo(b) == 0);
-    assertTrue(b.compareTo(c) < 0);
-    assertTrue(c.compareTo(a) > 0);
-    assertTrue(c.compareTo(b) > 0);
-    assertTrue(c.compareTo(c) == 0);
+    List<LocalDateDoublePoint> list = new ArrayList<>();
+    list.add(a);
+    list.add(b);
+    list.add(c);
+    list.sort(Comparator.naturalOrder());
+    assertThat(list).containsExactly(a, b, c);
+    list.sort(Comparator.reverseOrder());
+    assertThat(list).containsExactly(c, b, a);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode_differentDates() {
     LocalDateDoublePoint a1 = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
     LocalDateDoublePoint a2 = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
     LocalDateDoublePoint b = LocalDateDoublePoint.of(DATE_2012_06_30, 1d);
     LocalDateDoublePoint c = LocalDateDoublePoint.of(DATE_2012_07_01, 1d);
 
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
-    assertEquals(a1.hashCode(), a1.hashCode());
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
+    assertThat(a1.hashCode()).isEqualTo(a1.hashCode());
   }
 
+  @Test
   public void test_equalsHashCode_differentValues() {
     LocalDateDoublePoint a1 = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
     LocalDateDoublePoint a2 = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
     LocalDateDoublePoint b = LocalDateDoublePoint.of(DATE_2012_06_29, 2d);
     LocalDateDoublePoint c = LocalDateDoublePoint.of(DATE_2012_06_29, 3d);
 
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
-    assertEquals(a1.hashCode(), a1.hashCode());
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
+    assertThat(a1.hashCode()).isEqualTo(a1.hashCode());
   }
 
+  @Test
   public void test_equalsBad() {
     LocalDateDoublePoint a = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
-    assertEquals(a.equals(ANOTHER_TYPE), false);
-    assertEquals(a.equals(null), false);
+    assertThat(a.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(a.equals(null)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toString() {
     LocalDateDoublePoint test = LocalDateDoublePoint.of(DATE_2012_06_29, 1d);
-    assertEquals(test.toString(), "(2012-06-29=1.0)");
+    assertThat(test.toString()).isEqualTo("(2012-06-29=1.0)");
   }
 
 }

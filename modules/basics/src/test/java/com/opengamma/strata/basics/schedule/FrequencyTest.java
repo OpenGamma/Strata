@@ -391,9 +391,9 @@ public class FrequencyTest {
     };
   }
 
-  @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "parseBad")
   public void test_parse_String_bad(String input) {
-    Frequency.parse(input);
+    assertThatIllegalArgumentException().isThrownBy(() -> Frequency.parse(input));
   }
 
   //-------------------------------------------------------------------------

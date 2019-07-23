@@ -131,9 +131,9 @@ public class FxRateTest {
     };
   }
 
-  @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "parseBad")
   public void test_parse_String_bad(String input) {
-    FxRate.parse(input);
+    assertThatIllegalArgumentException().isThrownBy(() -> FxRate.parse(input));
   }
 
   //-------------------------------------------------------------------------

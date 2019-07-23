@@ -105,9 +105,9 @@ public class CurrencyPairTest {
     };
   }
 
-  @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "parseBad")
   public void test_parse_String_bad(String input) {
-    CurrencyPair.parse(input);
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyPair.parse(input));
   }
 
   //-------------------------------------------------------------------------

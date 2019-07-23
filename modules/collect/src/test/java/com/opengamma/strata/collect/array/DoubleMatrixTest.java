@@ -6,33 +6,33 @@
 package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link DoubleMatrix}.
  */
-@Test
 public class DoubleMatrixTest {
 
   private static final Object ANOTHER_TYPE = "";
 
+  @Test
   public void test_EMPTY() {
     assertMatrix(DoubleMatrix.EMPTY);
   }
 
+  @Test
   public void test_of() {
     assertMatrix(DoubleMatrix.of());
   }
 
+  @Test
   public void test_of_values() {
     assertMatrix(DoubleMatrix.of(0, 0));
     assertMatrix(DoubleMatrix.of(1, 0));
@@ -43,6 +43,7 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_intintlambda() {
     assertMatrix(DoubleMatrix.of(0, 0, (i, j) -> {
       throw new AssertionError();
@@ -58,6 +59,7 @@ public class DoubleMatrixTest {
     assertMatrix(DoubleMatrix.of(2, 2, (i, j) -> (i + 1) * (j + 1)), 1d, 2d, 2d, 4d);
   }
 
+  @Test
   public void test_ofArrayObjects() {
     assertMatrix(DoubleMatrix.ofArrayObjects(0, 0, i -> {
       throw new AssertionError();
@@ -74,6 +76,7 @@ public class DoubleMatrixTest {
     assertThatIllegalArgumentException().isThrownBy(() -> DoubleMatrix.ofArrayObjects(1, 2, i -> DoubleArray.EMPTY));
   }
 
+  @Test
   public void test_ofArrays() {
     assertMatrix(DoubleMatrix.ofArrays(0, 0, i -> {
       throw new AssertionError();
@@ -90,6 +93,7 @@ public class DoubleMatrixTest {
     assertThatIllegalArgumentException().isThrownBy(() -> DoubleMatrix.ofArrays(1, 2, i -> new double[0]));
   }
 
+  @Test
   public void test_ofUnsafe() {
     double[][] base = {{1d, 2d}, {3d, 4d}};
     DoubleMatrix test = DoubleMatrix.ofUnsafe(base);
@@ -103,6 +107,7 @@ public class DoubleMatrixTest {
     assertMatrix(DoubleMatrix.ofUnsafe(new double[2][0]));
   }
 
+  @Test
   public void test_copyOf_array() {
     double[][] base = {{1d, 2d}, {3d, 4d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
@@ -117,6 +122,7 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filled() {
     assertMatrix(DoubleMatrix.filled(0, 0));
     assertMatrix(DoubleMatrix.filled(0, 2));
@@ -124,6 +130,7 @@ public class DoubleMatrixTest {
     assertMatrix(DoubleMatrix.filled(3, 2), 0d, 0d, 0d, 0d, 0d, 0d);
   }
 
+  @Test
   public void test_filled_withValue() {
     assertMatrix(DoubleMatrix.filled(0, 0, 7d));
     assertMatrix(DoubleMatrix.filled(0, 2, 7d));
@@ -132,76 +139,85 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_identity() {
     assertMatrix(DoubleMatrix.identity(0));
     assertMatrix(DoubleMatrix.identity(2), 1d, 0d, 0d, 1d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_diagonal() {
     assertMatrix(DoubleMatrix.diagonal(DoubleArray.EMPTY));
     assertMatrix(DoubleMatrix.diagonal(DoubleArray.of(2d, 3d, 4d)), 2d, 0d, 0d, 0d, 3d, 0d, 0d, 0d, 4d);
-    assertEquals(DoubleMatrix.diagonal(DoubleArray.of(1d, 1d, 1d)), DoubleMatrix.identity(3));
+    assertThat(DoubleMatrix.diagonal(DoubleArray.of(1d, 1d, 1d))).isEqualTo(DoubleMatrix.identity(3));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_get() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
-    assertEquals(test.get(0, 0), 1d);
-    assertEquals(test.get(2, 1), 6d);
+    assertThat(test.get(0, 0)).isEqualTo(1d);
+    assertThat(test.get(2, 1)).isEqualTo(6d);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(-1, 0));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(0, 4));
   }
 
+  @Test
   public void test_row() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
-    assertEquals(test.row(0), DoubleArray.of(1d, 2d));
-    assertEquals(test.row(1), DoubleArray.of(3d, 4d));
-    assertEquals(test.row(2), DoubleArray.of(5d, 6d));
+    assertThat(test.row(0)).isEqualTo(DoubleArray.of(1d, 2d));
+    assertThat(test.row(1)).isEqualTo(DoubleArray.of(3d, 4d));
+    assertThat(test.row(2)).isEqualTo(DoubleArray.of(5d, 6d));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.row(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.row(4));
   }
 
+  @Test
   public void test_rowArray() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
-    assertEquals(test.rowArray(0), new double[] {1d, 2d});
-    assertEquals(test.rowArray(1), new double[] {3d, 4d});
-    assertEquals(test.rowArray(2), new double[] {5d, 6d});
+    assertThat(test.rowArray(0)).isEqualTo(new double[] {1d, 2d});
+    assertThat(test.rowArray(1)).isEqualTo(new double[] {3d, 4d});
+    assertThat(test.rowArray(2)).isEqualTo(new double[] {5d, 6d});
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.rowArray(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.rowArray(4));
   }
 
+  @Test
   public void test_column() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
-    assertEquals(test.column(0), DoubleArray.of(1d, 3d, 5d));
-    assertEquals(test.column(1), DoubleArray.of(2d, 4d, 6d));
+    assertThat(test.column(0)).isEqualTo(DoubleArray.of(1d, 3d, 5d));
+    assertThat(test.column(1)).isEqualTo(DoubleArray.of(2d, 4d, 6d));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.column(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.column(4));
   }
 
+  @Test
   public void test_columnArray() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
-    assertEquals(test.columnArray(0), new double[] {1d, 3d, 5d});
-    assertEquals(test.columnArray(1), new double[] {2d, 4d, 6d});
+    assertThat(test.columnArray(0)).isEqualTo(new double[] {1d, 3d, 5d});
+    assertThat(test.columnArray(1)).isEqualTo(new double[] {2d, 4d, 6d});
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.columnArray(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.columnArray(4));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forEach() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     double[] extracted = new double[6];
     test.forEach((i, j, v) -> extracted[i * 2 + j] = v);
-    assertTrue(Arrays.equals(extracted, new double[] {1d, 2d, 3d, 4d, 5d, 6d}));
+    assertThat(extracted).containsExactly(1d, 2d, 3d, 4d, 5d, 6d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_with() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
@@ -214,6 +230,7 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
@@ -221,12 +238,14 @@ public class DoubleMatrixTest {
     assertMatrix(test.multipliedBy(1), 1d, 2d, 3d, 4d, 5d, 6d);
   }
 
+  @Test
   public void test_map() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
     assertMatrix(test.map(v -> 1 / v), 1d, 1d / 2d, 1d / 3d, 1d / 4d, 1d / 5d, 1d / 6d);
   }
 
+  @Test
   public void test_mapWithIndex() {
     double[][] base = {{1d, 2d}, {3d, 4d}, {5d, 6d}};
     DoubleMatrix test = DoubleMatrix.copyOf(base);
@@ -234,6 +253,7 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus() {
     DoubleMatrix test1 = DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
     DoubleMatrix test2 = DoubleMatrix.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
@@ -241,6 +261,7 @@ public class DoubleMatrixTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.plus(DoubleMatrix.EMPTY));
   }
 
+  @Test
   public void test_minus() {
     DoubleMatrix test1 = DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
     DoubleMatrix test2 = DoubleMatrix.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
@@ -248,6 +269,7 @@ public class DoubleMatrixTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.minus(DoubleMatrix.EMPTY));
   }
 
+  @Test
   public void test_combine() {
     DoubleMatrix test1 = DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d);
     DoubleMatrix test2 = DoubleMatrix.of(2, 3, 0.5d, 0.6d, 0.7d, 0.5d, 0.6d, 0.7d);
@@ -256,29 +278,32 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_total() {
-    assertEquals(DoubleMatrix.EMPTY.total(), 0d);
-    assertEquals(DoubleMatrix.copyOf(new double[][] {{1d, 2d}, {3d, 4d}, {5d, 6d}}).total(), 21d);
+    assertThat(DoubleMatrix.EMPTY.total()).isEqualTo(0d);
+    assertThat(DoubleMatrix.copyOf(new double[][] {{1d, 2d}, {3d, 4d}, {5d, 6d}}).total()).isEqualTo(21d);
   }
 
+  @Test
   public void test_reduce() {
-    assertEquals(DoubleMatrix.EMPTY.reduce(2d, (r, v) -> {
+    assertThat(DoubleMatrix.EMPTY.reduce(2d, (r, v) -> {
       throw new AssertionError();
-    }), 2d);
-    assertEquals(DoubleMatrix.copyOf(new double[][] {{2d}}).reduce(1d, (r, v) -> r * v), 2d);
-    assertEquals(DoubleMatrix.copyOf(new double[][] {{2d, 3d}}).reduce(1d, (r, v) -> r * v), 6d);
+    })).isEqualTo(2d);
+    assertThat(DoubleMatrix.copyOf(new double[][] {{2d}}).reduce(1d, (r, v) -> r * v)).isEqualTo(2d);
+    assertThat(DoubleMatrix.copyOf(new double[][] {{2d, 3d}}).reduce(1d, (r, v) -> r * v)).isEqualTo(6d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void testTransposeMatrix() {
     DoubleMatrix m0 = DoubleMatrix.EMPTY;
-    assertEquals(m0.transpose(), DoubleMatrix.EMPTY);
+    assertThat(m0.transpose()).isEqualTo(DoubleMatrix.EMPTY);
 
     DoubleMatrix m1 = DoubleMatrix.copyOf(new double[][] {
         {1, 2, 3},
         {4, 5, 6},
         {7, 8, 9}});
-    assertEquals(m1.transpose(), DoubleMatrix.copyOf(new double[][] {
+    assertThat(m1.transpose()).isEqualTo(DoubleMatrix.copyOf(new double[][] {
         {1, 4, 7},
         {2, 5, 8},
         {3, 6, 9}}));
@@ -287,7 +312,7 @@ public class DoubleMatrixTest {
         {1, 2, 3, 4, 5, 6},
         {7, 8, 9, 10, 11, 12},
         {13, 14, 15, 16, 17, 18}});
-    assertEquals(m2.transpose(), DoubleMatrix.copyOf(new double[][] {
+    assertThat(m2.transpose()).isEqualTo(DoubleMatrix.copyOf(new double[][] {
         {1, 7, 13},
         {2, 8, 14},
         {3, 9, 15},
@@ -297,52 +322,55 @@ public class DoubleMatrixTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     DoubleMatrix a1 = DoubleMatrix.copyOf(new double[][] {{2d, 3d}});
     DoubleMatrix a2 = DoubleMatrix.copyOf(new double[][] {{2d, 3d}});
     DoubleMatrix b = DoubleMatrix.copyOf(new double[][] {{3d, 3d}});
     DoubleMatrix c = DoubleMatrix.copyOf(new double[][] {{2d, 3d}, {4d, 5d}});
     DoubleMatrix d = DoubleMatrix.copyOf(new double[][] {{2d}});
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
-    assertEquals(a1.equals(d), false);
-    assertEquals(a1.equals(ANOTHER_TYPE), false);
-    assertEquals(a1.equals(null), false);
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
+    assertThat(a1.equals(d)).isEqualTo(false);
+    assertThat(a1.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(a1.equals(null)).isEqualTo(false);
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
+  @Test
   public void test_toString() {
     DoubleMatrix test = DoubleMatrix.copyOf(new double[][] {{1d, 2d}, {3d, 4d}, {5d, 6d}});
-    assertEquals(test.toString(), "1.0 2.0\n3.0 4.0\n5.0 6.0\n");
+    assertThat(test.toString()).isEqualTo("1.0 2.0\n3.0 4.0\n5.0 6.0\n");
   }
 
   //-------------------------------------------------------------------------
   private void assertMatrix(DoubleMatrix matrix, double... expected) {
     if (expected.length == 0) {
-      assertSame(matrix, DoubleMatrix.EMPTY);
-      assertEquals(matrix.isEmpty(), true);
+      assertThat(matrix).isSameAs(DoubleMatrix.EMPTY);
+      assertThat(matrix.isEmpty()).isEqualTo(true);
     } else {
-      assertEquals(matrix.size(), expected.length);
+      assertThat(matrix.size()).isEqualTo(expected.length);
       int rowCount = matrix.rowCount();
       int colCount = matrix.columnCount();
       double[][] array = matrix.toArrayUnsafe();
       double[][] array2 = matrix.toArray();
-      assertTrue(Arrays.deepEquals(array, array2));
+      assertThat(Arrays.deepEquals(array, array2)).isTrue();
       for (int i = 0; i < rowCount; i++) {
         for (int j = 0; j < colCount; j++) {
-          assertEquals(matrix.get(i, j), expected[i * colCount + j]);
-          assertEquals(array[i][j], expected[i * colCount + j]);
+          assertThat(matrix.get(i, j)).isEqualTo(expected[i * colCount + j]);
+          assertThat(array[i][j]).isEqualTo(expected[i * colCount + j]);
         }
       }
-      assertEquals(matrix.dimensions(), 2);
-      assertEquals(matrix.isEmpty(), false);
-      assertEquals(matrix.isSquare(), matrix.rowCount() == matrix.columnCount());
+      assertThat(matrix.dimensions()).isEqualTo(2);
+      assertThat(matrix.isEmpty()).isEqualTo(false);
+      assertThat(matrix.isSquare()).isEqualTo(matrix.rowCount() == matrix.columnCount());
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(DoubleMatrix.EMPTY);
     coverImmutableBean(DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d));
