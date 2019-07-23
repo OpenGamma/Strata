@@ -28,7 +28,9 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleBiFunction;
 import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntBiFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collector;
@@ -468,6 +470,28 @@ public final class MapStream<K, V>
    */
   public <R> Stream<R> flatMap(BiFunction<? super K, ? super V, Stream<R>> mapper) {
     return underlying.flatMap(e -> mapper.apply(e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Transforms the entries in the stream to doubles by applying a mapper function to each key and value to produce
+   * a stream of doubles, and then flattening the resulting stream of streams.
+   *
+   * @param mapper  a mapper function whose return values are included in the new stream
+   * @return a stream containing the double values returned from the mapper function
+   */
+  public DoubleStream flatMapToDouble(BiFunction<? super K, ? super V, ? extends DoubleStream> mapper) {
+    return underlying.flatMapToDouble(e -> mapper.apply(e.getKey(), e.getValue()));
+  }
+
+  /**
+   * Transforms the entries in the stream to integers by applying a mapper function to each key and value to produce
+   * a stream of integers, and then flattening the resulting stream of streams.
+   *
+   * @param mapper  a mapper function whose return values are included in the new stream
+   * @return a stream containing the integer values returned from the mapper function
+   */
+  public IntStream flatMapToInt(BiFunction<? super K, ? super V, ? extends IntStream> mapper) {
+    return underlying.flatMapToInt(e -> mapper.apply(e.getKey(), e.getValue()));
   }
 
   //-----------------------------------------------------------------------

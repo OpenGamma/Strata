@@ -224,6 +224,26 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  public void flatMapToDouble() {
+    double[] expected = new double[]{1d, 1d, 2d, 4d, 3d, 9d, 4d, 16d};
+
+    double[] result = MapStream.of(map)
+        .flatMapToDouble((k, v) -> DoubleStream.of(v, v * v))
+        .toArray();
+
+    assertThat(result).isEqualTo(expected);
+  }
+
+  public void flatMapToInt() {
+    int[] expected = new int[]{1, 1, 2, 4, 3, 9, 4, 16};
+
+    int[] result = MapStream.of(map)
+        .flatMapToInt((k, v) -> IntStream.of(v, v * v))
+        .toArray();
+
+    assertThat(result).isEqualTo(expected);
+  }
+
   //-----------------------------------------------------------------------
   public void sortedKeys() {
     List<Map.Entry<String, Integer>> expected =
