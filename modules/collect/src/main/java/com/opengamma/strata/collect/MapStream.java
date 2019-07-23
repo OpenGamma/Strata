@@ -377,21 +377,21 @@ public final class MapStream<K, V>
   /**
    * Transforms the entries in the stream to doubles by applying a mapper function to each key and value.
    *
-   * @param mapper a mapper function whose return values are doubles included in the new stream
+   * @param mapper  a mapper function whose return values are included in the new stream
    * @return a stream containing the double values returned from the mapper function
    */
-  public DoubleStream mapToDouble(BiFunction<? super K, ? super V, Double> mapper) {
-    return underlying.mapToDouble(e -> mapper.apply(e.getKey(), e.getValue()));
+  public DoubleStream mapToDouble(ToDoubleBiFunction<? super K, ? super V> mapper) {
+    return underlying.mapToDouble(e -> mapper.applyAsDouble(e.getKey(), e.getValue()));
   }
 
   /**
    * Transforms the entries in the stream to integers by applying a mapper function to each key and value.
    *
-   * @param mapper a mapper function whose return values are integers included in the new stream
+   * @param mapper  a mapper function whose return values are included in the new stream
    * @return a stream containing the integer values returned from the mapper function
    */
-  public IntStream mapToInt(BiFunction<? super K, ? super V, Integer> mapper) {
-    return underlying.mapToInt(e -> mapper.apply(e.getKey(), e.getValue()));
+  public IntStream mapToInt(ToIntBiFunction<? super K, ? super V> mapper) {
+    return underlying.mapToInt(e -> mapper.applyAsInt(e.getKey(), e.getValue()));
   }
 
   //-------------------------------------------------------------------------
