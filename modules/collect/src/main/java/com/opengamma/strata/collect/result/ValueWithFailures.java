@@ -212,7 +212,7 @@ public final class ValueWithFailures<T>
    * @return a {@link Collector}
    * @throws IllegalArgumentException if the same key is encountered in multiple maps
    */
-  public static <K, V> Collector<ValueWithFailures<? extends Map<? extends K, ? extends V>>, ?, ValueWithFailures<Map<K, V>>>
+  public static <K, V> Collector<Map.Entry<? extends K, ? extends ValueWithFailures<? extends V>>, ?, ValueWithFailures<Map<K, V>>>
     toCombinedValuesAsMap() {
 
     return Collector.of(
@@ -226,7 +226,7 @@ public final class ValueWithFailures<T>
    * Returns a collector that creates a combined {@code ValueWithFailure} from a stream
    * of separate instances, combining into an immutable map.
    * <p>
-   *   This merges values for duplicate keys using the supplied merge function.
+   * This merges values for duplicate keys using the supplied merge function.
    * <p>
    * This collects a {@code Stream<ValueWithFailures<Map<K, V>>>} to a {@code ValueWithFailures<Map<K, V>>}.
    *
@@ -234,7 +234,7 @@ public final class ValueWithFailures<T>
    * @param <V>  the type of the values in the success maps in the {@link ValueWithFailures}
    * @return a {@link Collector}
    */
-  public static <K, V> Collector<ValueWithFailures<? extends Map<? extends K, ? extends V>>, ?, ValueWithFailures<Map<K, V>>>
+  public static <K, V> Collector<Map.Entry<? extends K, ? extends ValueWithFailures<? extends V>>, ?, ValueWithFailures<Map<K, V>>>
     toCombinedValuesAsMap(BiFunction<? super V, ? super V, ? extends V> mergeFn) {
 
     ArgChecker.notNull(mergeFn, "mergeFn");
@@ -294,13 +294,13 @@ public final class ValueWithFailures<T>
    * @throws IllegalArgumentException if the same key is encountered in multiple maps
    */
   public static <K, V> ValueWithFailures<Map<K, V>> combineValuesAsMap(
-      Iterable<? extends ValueWithFailures<? extends Map<? extends K, ? extends V>>> items) {
+      Map<? extends K, ValueWithFailures<? extends V>> items) {
 
     ImmutableMap.Builder<K, V> values = ImmutableMap.builder();
     ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
-    for (ValueWithFailures<? extends Map<? extends K, ? extends V>> item : items) {
-      values.putAll(item.getValue());
-      failures.addAll(item.getFailures());
+    for (Map.Entry<? extends K, ValueWithFailures<? extends V>> item : items.entrySet()) {
+      values.put(item.getKey(), item.getValue().getValue());
+      failures.addAll(item.getValue().getFailures());
     }
     return ValueWithFailures.of(values.build(), failures.build());
   }
@@ -308,6 +308,8 @@ public final class ValueWithFailures<T>
   /**
    * Combines separate instances of {@code ValueWithFailure} into a single instance,
    * using a map to collect the values.
+   * <p>
+   * This merges values for duplicate keys using the supplied merge function.
    * <p>
    * This converts {@code Iterable<ValueWithFailures<Map<K, V>>>} to {@code ValueWithFailures<Map<K, V>>}.
    *
@@ -318,17 +320,15 @@ public final class ValueWithFailures<T>
    * @return a new instance with a set of success values
    */
   public static <K, V> ValueWithFailures<Map<K, V>> combineValuesAsMap(
-      Iterable<? extends ValueWithFailures<? extends Map<? extends K, ? extends V>>> items,
+      Map<? extends K, ValueWithFailures<? extends V>> items,
       BiFunction<? super V, ? super V, ? extends V> mergeFn) {
 
     // ImmutableMap does not provide merge semantics
     Map<K, V> values = new HashMap<>();
     ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
-    for (ValueWithFailures<? extends Map<? extends K, ? extends V>> item : items) {
-      for (Map.Entry<? extends K, ? extends V> entry : item.getValue().entrySet()) {
-        values.merge(entry.getKey(), entry.getValue(), mergeFn);
-      }
-      failures.addAll(item.getFailures());
+    for (Map.Entry<? extends K, ? extends ValueWithFailures<? extends V>> item : items.entrySet()) {
+      values.merge(item.getKey(), item.getValue().getValue(), mergeFn);
+      failures.addAll(item.getValue().getFailures());
     }
     return ValueWithFailures.of(ImmutableMap.copyOf(values), failures.build());
   }
@@ -386,39 +386,34 @@ public final class ValueWithFailures<T>
       this.mergeFn = mergeFn;
     }
 
-    private void add(ValueWithFailures<? extends Map<? extends K, ? extends V>> item) {
-      addMapEntries(item.getValue().entrySet());
-      failures.addAll(item.getFailures());
-    }
-
-    private void addMapEntries(Set<? extends Map.Entry<? extends K, ? extends V>> entrySet) {
-      if (mergeFn != null) {
-        for (Map.Entry<? extends K, ? extends V> entry : entrySet) {
-          values.merge(entry.getKey(), entry.getValue(), mergeFn);
-        }
-      } else {
-        for (Map.Entry<? extends K, ? extends V> entry : entrySet) {
-          K key = entry.getKey();
-          V value = entry.getValue();
-          values.merge(key, value, (a, b) -> duplicateEntryException(key, a, b));
-        }
-      }
-    }
-
-    private V duplicateEntryException(K key, V a, V b) {
-      throw new IllegalArgumentException(
-          Messages.format("Multiple entries found for key {}: {} and {}", key, a, b));
+    private void add(Map.Entry<? extends K, ? extends ValueWithFailures<? extends V>> item) {
+      addEntry(item.getKey(), item.getValue().getValue());
+      failures.addAll(item.getValue().getFailures());
     }
 
     private StreamMapBuilder<K, V> combine(StreamMapBuilder<K, V> builder) {
-      addMapEntries(builder.values.entrySet());
+      for (Map.Entry<K, V> entry : builder.values.entrySet()) {
+        addEntry(entry.getKey(), entry.getValue());
+      }
       failures.addAll(builder.failures.build());
       return this;
     }
 
-    // cast to the right collection type, can assume the methods in this class are using the correct types
     private ValueWithFailures<Map<K, V>> build() {
       return ValueWithFailures.of(values, failures.build());
+    }
+
+    private void addEntry(K key, V value) {
+      if (mergeFn != null) {
+        values.merge(key, value, mergeFn);
+      } else {
+        values.merge(key, value, (a, b) -> duplicateEntryException(key, a, b));
+      }
+    }
+
+    private static <K, V> V duplicateEntryException(K key, V a, V b) {
+      throw new IllegalArgumentException(
+          Messages.format("Multiple entries found for key {}: {} and {}", key, a, b));
     }
   }
 
