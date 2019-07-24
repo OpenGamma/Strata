@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.concatToList;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -36,8 +37,10 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 
 /**
  * A value with associated failures.
@@ -199,6 +202,50 @@ public final class ValueWithFailures<T>
   }
 
   /**
+   * Returns a collector that creates a combined {@code ValueWithFailure} from a stream
+   * of separate instances, combining into an immutable map.
+   * <p>
+   * This collects a {@code Stream<ValueWithFailures<Map<K, V>>>} to a {@code ValueWithFailures<Map<K, V>>}.
+   *
+   * @param <K>  the type of the keys in the success maps in the {@link ValueWithFailures}
+   * @param <V>  the type of the values in the success maps in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   * @throws IllegalArgumentException if the same key is encountered in multiple maps
+   */
+  public static <K, V> Collector<ValueWithFailures<? extends Map<? extends K, ? extends V>>, ?, ValueWithFailures<Map<K, V>>>
+    toCombinedValuesAsMap() {
+
+    return Collector.of(
+        () -> new StreamMapBuilder<K, V>(null),
+        StreamMapBuilder::add,
+        StreamMapBuilder::combine,
+        StreamMapBuilder::build);
+  }
+
+  /**
+   * Returns a collector that creates a combined {@code ValueWithFailure} from a stream
+   * of separate instances, combining into an immutable map.
+   * <p>
+   *   This merges values for duplicate keys using the supplied merge function.
+   * <p>
+   * This collects a {@code Stream<ValueWithFailures<Map<K, V>>>} to a {@code ValueWithFailures<Map<K, V>>}.
+   *
+   * @param <K>  the type of the keys in the success maps in the {@link ValueWithFailures}
+   * @param <V>  the type of the values in the success maps in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   */
+  public static <K, V> Collector<ValueWithFailures<? extends Map<? extends K, ? extends V>>, ?, ValueWithFailures<Map<K, V>>>
+    toCombinedValuesAsMap(BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    ArgChecker.notNull(mergeFn, "mergeFn");
+    return Collector.of(
+        () -> new StreamMapBuilder<K, V>(mergeFn),
+        StreamMapBuilder::add,
+        StreamMapBuilder::combine,
+        StreamMapBuilder::build);
+  }
+
+  /**
    * Combines separate instances of {@code ValueWithFailure} into a single instance,
    * using a list to collect the values.
    * <p>
@@ -232,6 +279,58 @@ public final class ValueWithFailures<T>
     ImmutableSet.Builder<T> values = ImmutableSet.builder();
     ImmutableList<FailureItem> failures = combine(items, values);
     return ValueWithFailures.of(values.build(), failures);
+  }
+
+  /**
+   * Combines separate instances of {@code ValueWithFailure} into a single instance,
+   * using a set to collect the values.
+   * <p>
+   * This converts {@code Iterable<ValueWithFailures<T>>} to {@code ValueWithFailures<Set<T>>}.
+   *
+   * @param <K>  the type of the keys in the success maps in the {@link ValueWithFailures}
+   * @param <V>  the type of the values in the success maps in the {@link ValueWithFailures}
+   * @param items  the items to combine
+   * @return a new instance with a set of success values
+   * @throws IllegalArgumentException if the same key is encountered in multiple maps
+   */
+  public static <K, V> ValueWithFailures<Map<K, V>> combineValuesAsMap(
+      Iterable<? extends ValueWithFailures<? extends Map<? extends K, ? extends V>>> items) {
+
+    ImmutableMap.Builder<K, V> values = ImmutableMap.builder();
+    ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+    for (ValueWithFailures<? extends Map<? extends K, ? extends V>> item : items) {
+      values.putAll(item.getValue());
+      failures.addAll(item.getFailures());
+    }
+    return ValueWithFailures.of(values.build(), failures.build());
+  }
+
+  /**
+   * Combines separate instances of {@code ValueWithFailure} into a single instance,
+   * using a map to collect the values.
+   * <p>
+   * This converts {@code Iterable<ValueWithFailures<Map<K, V>>>} to {@code ValueWithFailures<Map<K, V>>}.
+   *
+   * @param <K>  the type of the keys in the success maps in the {@link ValueWithFailures}
+   * @param <V>  the type of the values in the success maps in the {@link ValueWithFailures}
+   * @param items  the items to combine
+   * @param mergeFn  the merge function if maps contain duplicate key
+   * @return a new instance with a set of success values
+   */
+  public static <K, V> ValueWithFailures<Map<K, V>> combineValuesAsMap(
+      Iterable<? extends ValueWithFailures<? extends Map<? extends K, ? extends V>>> items,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    // ImmutableMap does not provide merge semantics
+    Map<K, V> values = new HashMap<>();
+    ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+    for (ValueWithFailures<? extends Map<? extends K, ? extends V>> item : items) {
+      for (Map.Entry<? extends K, ? extends V> entry : item.getValue().entrySet()) {
+        values.merge(entry.getKey(), entry.getValue(), mergeFn);
+      }
+      failures.addAll(item.getFailures());
+    }
+    return ValueWithFailures.of(ImmutableMap.copyOf(values), failures.build());
   }
 
   // combines the collection into the specified builder
@@ -273,6 +372,53 @@ public final class ValueWithFailures<T>
     @SuppressWarnings("unchecked")
     private <C extends Collection<T>> ValueWithFailures<C> build() {
       return (ValueWithFailures<C>) ValueWithFailures.of(values.build(), failures.build());
+    }
+  }
+
+  // mutable combined instance builder for use in stream map collection
+  private static final class StreamMapBuilder<K, V> {
+
+    private final Map<K, V> values = new HashMap<>();
+    private final ImmutableList.Builder<FailureItem> failures = ImmutableList.builder();
+    private final BiFunction<? super V, ? super V, ? extends V> mergeFn;
+
+    private StreamMapBuilder(BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+      this.mergeFn = mergeFn;
+    }
+
+    private void add(ValueWithFailures<? extends Map<? extends K, ? extends V>> item) {
+      addMapEntries(item.getValue().entrySet());
+      failures.addAll(item.getFailures());
+    }
+
+    private void addMapEntries(Set<? extends Map.Entry<? extends K, ? extends V>> entrySet) {
+      if (mergeFn != null) {
+        for (Map.Entry<? extends K, ? extends V> entry : entrySet) {
+          values.merge(entry.getKey(), entry.getValue(), mergeFn);
+        }
+      } else {
+        for (Map.Entry<? extends K, ? extends V> entry : entrySet) {
+          K key = entry.getKey();
+          V value = entry.getValue();
+          values.merge(key, value, (a, b) -> duplicateEntryException(key, a, b));
+        }
+      }
+    }
+
+    private V duplicateEntryException(K key, V a, V b) {
+      throw new IllegalArgumentException(
+          Messages.format("Multiple entries found for key {}: {} and {}", key, a, b));
+    }
+
+    private StreamMapBuilder<K, V> combine(StreamMapBuilder<K, V> builder) {
+      addMapEntries(builder.values.entrySet());
+      failures.addAll(builder.failures.build());
+      return this;
+    }
+
+    // cast to the right collection type, can assume the methods in this class are using the correct types
+    private ValueWithFailures<Map<K, V>> build() {
+      return ValueWithFailures.of(values, failures.build());
     }
   }
 
