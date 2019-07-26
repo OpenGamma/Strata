@@ -54,7 +54,7 @@ import com.opengamma.strata.collect.function.CheckedSupplier;
  * This implementation allows {@link IOException} to be avoided in many cases,
  * and to be able to create and retrieve the internal array unsafely.
  */
-public final class ArrayByteSource extends ByteSource implements ImmutableBean, Serializable {
+public final class ArrayByteSource extends BeanByteSource implements ImmutableBean, Serializable {
 
   /**
    * An empty source.
@@ -240,6 +240,7 @@ public final class ArrayByteSource extends ByteSource implements ImmutableBean, 
    * 
    * @return the UTF-8 string
    */
+  @Override
   public String readUtf8() {
     return new String(array, StandardCharsets.UTF_8);
   }
@@ -249,6 +250,7 @@ public final class ArrayByteSource extends ByteSource implements ImmutableBean, 
    * 
    * @return the UTF-8 string
    */
+  @Override
   public String readUtf8UsingBom() {
     return UnicodeBom.toString(array);
   }
@@ -258,6 +260,7 @@ public final class ArrayByteSource extends ByteSource implements ImmutableBean, 
    * 
    * @return the equivalent {@code CharSource}
    */
+  @Override
   public CharSource asCharSourceUtf8UsingBom() {
     return CharSource.wrap(readUtf8UsingBom());
   }
