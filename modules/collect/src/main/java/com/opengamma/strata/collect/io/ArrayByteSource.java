@@ -11,14 +11,32 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.io.UncheckedIOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.MetaBean;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyStyle;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.BasicMetaBean;
+import org.joda.beans.impl.BasicMetaProperty;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
 import com.google.common.io.BaseEncoding;
@@ -26,6 +44,7 @@ import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteSource;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.CharSource;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Unchecked;
 import com.opengamma.strata.collect.function.CheckedSupplier;
 
@@ -35,12 +54,20 @@ import com.opengamma.strata.collect.function.CheckedSupplier;
  * This implementation allows {@link IOException} to be avoided in many cases,
  * and to be able to create and retrieve the internal array unsafely.
  */
-public final class ArrayByteSource extends ByteSource {
+public final class ArrayByteSource extends ByteSource implements ImmutableBean, Serializable {
 
   /**
    * An empty source.
    */
   public static final ArrayByteSource EMPTY = new ArrayByteSource(new byte[0]);
+
+  /**
+   * Serialization version.
+   */
+  private static final long serialVersionUID = 1L;
+  static {
+    MetaBean.register(Meta.META);
+  }
 
   /**
    * The byte array.
@@ -188,6 +215,13 @@ public final class ArrayByteSource extends ByteSource {
     this.array = array;
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public MetaBean metaBean() {
+    return Meta.META;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the underlying array.
    * <p>
@@ -379,6 +413,107 @@ public final class ArrayByteSource extends ByteSource {
   @Override
   public String toString() {
     return "ArrayByteSource[" + size() + " bytes]";
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Meta bean.
+   */
+  static final class Meta extends BasicMetaBean {
+
+    private static final MetaBean META = new Meta();
+    private static final MetaProperty<byte[]> ARRAY = new BasicMetaProperty<byte[]>("array") {
+
+      @Override
+      public MetaBean metaBean() {
+        return META;
+      }
+
+      @Override
+      public Class<?> declaringType() {
+        return ArrayByteSource.class;
+      }
+
+      @Override
+      public Class<byte[]> propertyType() {
+        return byte[].class;
+      }
+
+      @Override
+      public Type propertyGenericType() {
+        return byte[].class;
+      }
+
+      @Override
+      public PropertyStyle style() {
+        return PropertyStyle.IMMUTABLE;
+      }
+
+      @Override
+      public List<Annotation> annotations() {
+        return ImmutableList.of();
+      }
+
+      @Override
+      public byte[] get(Bean bean) {
+        return ((ArrayByteSource) bean).read();
+      }
+
+      @Override
+      public void set(Bean bean, Object value) {
+        throw new UnsupportedOperationException("Property cannot be written: " + name());
+      }
+    };
+    private static final ImmutableMap<String, MetaProperty<?>> MAP = ImmutableMap.of("array", ARRAY);
+
+    private Meta() {
+    }
+
+    @Override
+    public boolean isBuildable() {
+      return true;
+    }
+
+    @Override
+    public BeanBuilder<ArrayByteSource> builder() {
+      return new BasicImmutableBeanBuilder<ArrayByteSource>(this) {
+        private byte[] array = new byte[0];
+
+        @Override
+        public Object get(String propertyName) {
+          if (propertyName.equals(ARRAY.name())) {
+            return array;  // not cloned for performance
+          } else {
+            throw new NoSuchElementException("Unknown property: " + propertyName);
+          }
+        }
+
+        @Override
+        public BeanBuilder<ArrayByteSource> set(String propertyName, Object value) {
+          if (propertyName.equals(ARRAY.name())) {
+            this.array = ((byte[]) ArgChecker.notNull(value, "value"));  // not cloned for performance
+          } else {
+            throw new NoSuchElementException("Unknown property: " + propertyName);
+          }
+          return this;
+        }
+
+        @Override
+        public ArrayByteSource build() {
+          return ArrayByteSource.ofUnsafe(array);
+        }
+      };
+    }
+
+    @Override
+    public Class<? extends Bean> beanType() {
+      return ArrayByteSource.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return MAP;
+    }
   }
 
 }
