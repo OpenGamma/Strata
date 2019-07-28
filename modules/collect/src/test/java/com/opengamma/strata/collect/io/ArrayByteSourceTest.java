@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -14,6 +15,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
+import org.joda.beans.ser.JodaBeanSer;
 
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
@@ -249,6 +251,26 @@ public class ArrayByteSourceTest {
     assertThat(test.toHexString()).isEqualTo(hex);
     ArrayByteSource roundtrip = ArrayByteSource.fromHex(hex);
     assertThat(roundtrip).isEqualTo(test);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void coverage() {
+    byte[] bytes = new byte[] {65, 66, 67, 99};
+    ArrayByteSource test = ArrayByteSource.copyOf(bytes);
+    coverImmutableBean(test);
+    test.metaBean().metaProperty("array").metaBean();
+    test.metaBean().metaProperty("array").propertyGenericType();
+    test.metaBean().metaProperty("array").annotations();
+  }
+
+  @Test
+  public void testSerialize() {
+    byte[] bytes = new byte[] {65, 66, 67, 99};
+    ArrayByteSource test = ArrayByteSource.copyOf(bytes);
+    String json = JodaBeanSer.PRETTY.jsonWriter().write(test);
+    ArrayByteSource roundTrip = JodaBeanSer.PRETTY.jsonReader().read(json, ArrayByteSource.class);
+    assertThat(roundTrip).isEqualTo(test);
   }
 
 }
