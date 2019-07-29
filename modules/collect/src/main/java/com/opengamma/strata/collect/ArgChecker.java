@@ -754,7 +754,7 @@ public final class ArgChecker {
 
   //-------------------------------------------------------------------------
   /**
-   * Checks that the argument is not NaN (i.e it is a number).
+   * Checks that the argument is a number and not NaN.
    * <p>
    * Given the input argument, this returns only if it is an actual number.
    * For example, in a constructor:
