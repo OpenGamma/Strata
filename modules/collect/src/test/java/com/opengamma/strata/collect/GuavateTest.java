@@ -370,6 +370,13 @@ public class GuavateTest {
     list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s));
   }
 
+  public void test_toImmutableSortedMap_keyValue_duplicateKeys_merge() {
+    List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
+    ImmutableSortedMap<Integer, String> test = list.stream()
+        .collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s, String::concat));
+    assertEquals(test, ImmutableSortedMap.naturalOrder().put(1, "!a!c!b!a").put(2, "!ab!bb").build());
+  }
+
   //-------------------------------------------------------------------------
   public void test_toImmutableListMultimap_key() {
     List<String> list = Arrays.asList("a", "ab", "b", "bb", "c", "a");
