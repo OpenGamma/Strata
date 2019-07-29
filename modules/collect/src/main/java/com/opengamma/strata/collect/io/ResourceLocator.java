@@ -18,8 +18,6 @@ import org.joda.convert.ToString;
 
 import com.google.common.io.ByteSource;
 import com.google.common.io.CharSource;
-import com.google.common.io.Files;
-import com.google.common.io.Resources;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 
@@ -51,7 +49,7 @@ public final class ResourceLocator {
   /**
    * The source.
    */
-  private final ByteSource source;
+  private final BeanByteSource source;
 
   //-------------------------------------------------------------------------
   /**
@@ -101,7 +99,7 @@ public final class ResourceLocator {
     String filename = file.toString();
     // convert Windows separators to unix
     filename = (File.separatorChar == '\\' ? filename.replace('\\', '/') : filename);
-    return new ResourceLocator(FILE_URL_PREFIX + filename, Files.asByteSource(file));
+    return new ResourceLocator(FILE_URL_PREFIX + filename, FileByteSource.of(file));
   }
 
   /**
@@ -135,7 +133,7 @@ public final class ResourceLocator {
   public static ResourceLocator ofUrl(URL url) {
     ArgChecker.notNull(url, "url");
     String filename = url.toString();
-    return new ResourceLocator(URL_PREFIX + filename, Resources.asByteSource(url));
+    return new ResourceLocator(URL_PREFIX + filename, UriByteSource.of(url));
   }
 
   /**
@@ -190,7 +188,7 @@ public final class ResourceLocator {
   public static ResourceLocator ofClasspathUrl(URL url) {
     ArgChecker.notNull(url, "url");
     String locator = CLASSPATH_URL_PREFIX + url.toString();
-    return new ResourceLocator(locator, Resources.asByteSource(url));
+    return new ResourceLocator(locator, UriByteSource.of(url));
   }
 
   /**
@@ -209,7 +207,7 @@ public final class ResourceLocator {
    * @param locator  the locator
    * @param source  the byte source
    */
-  private ResourceLocator(String locator, ByteSource source) {
+  private ResourceLocator(String locator, BeanByteSource source) {
     super();
     this.locator = locator;
     this.source = source;
@@ -235,7 +233,7 @@ public final class ResourceLocator {
    * 
    * @return the byte source
    */
-  public ByteSource getByteSource() {
+  public BeanByteSource getByteSource() {
     return source;
   }
 

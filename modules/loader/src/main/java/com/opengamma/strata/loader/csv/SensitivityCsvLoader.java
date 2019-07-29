@@ -277,7 +277,7 @@ public final class SensitivityCsvLoader {
    */
   public ValueWithFailures<ListMultimap<String, CurveSensitivities>> load(Collection<ResourceLocator> resources) {
     Collection<CharSource> charSources = resources.stream()
-        .map(r -> UnicodeBom.toCharSource(r.getByteSource()))
+        .map(r -> r.getByteSource().asCharSourceUtf8UsingBom())
         .collect(toList());
     return parse(charSources);
   }
