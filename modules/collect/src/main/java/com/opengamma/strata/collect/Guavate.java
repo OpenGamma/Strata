@@ -740,7 +740,7 @@ public final class Guavate {
         TreeMap<K, V>::new,
         (map, val) -> map.merge(keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
         (m1, m2) -> mergeMaps(m1, m2, mergeFn),
-        map -> ImmutableSortedMap.copyOf(map),
+        map -> ImmutableSortedMap.copyOfSorted(map),
         Collector.Characteristics.UNORDERED);
   }
 
