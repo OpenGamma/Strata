@@ -964,12 +964,12 @@ public final class Guavate {
    * @param mergeFn  function applied to the existing and new values if the map contains the key
    * @param <K>  the key type
    * @param <V>  the value type
-   * @param <M>  the type of the map
+   * @param <M>  the type of the first map
    * @return {@code map1} with the values from {@code map2} inserted
    */
   private static <K, V, M extends Map<K, V>> M mergeMaps(
       M map1,
-      M map2,
+      Map<K, V> map2,
       BiFunction<? super V, ? super V, ? extends V> mergeFn) {
 
     for (Map.Entry<K, V> entry : map2.entrySet()) {
