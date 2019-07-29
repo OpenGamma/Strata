@@ -6,39 +6,40 @@
 package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link ScenarioPerturbation}.
  */
-@Test
 public class ScenarioPerturbationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
+  @Test
   public void test_none() {
     ScenarioPerturbation<Double> test = ScenarioPerturbation.none();
-    assertEquals(test.getScenarioCount(), 1);
+    assertThat(test.getScenarioCount()).isEqualTo(1);
     MarketDataBox<Double> box1 = MarketDataBox.ofScenarioValues(1d, 2d, 3d);
-    assertEquals(test.applyTo(box1, REF_DATA), box1);
+    assertThat(test.applyTo(box1, REF_DATA)).isEqualTo(box1);
     MarketDataBox<Double> box2 = MarketDataBox.ofSingleValue(1d);
-    assertEquals(test.applyTo(box2, REF_DATA), box2);
+    assertThat(test.applyTo(box2, REF_DATA)).isEqualTo(box2);
   }
 
 //  public void test_generics() {
 //    // Number perturbation should be able to alter a Double box, returning a Number box
 //    ScenarioPerturbation<Number> test = ScenarioPerturbation.none();
-//    assertEquals(test.getScenarioCount(), 1);
+//    assertThat(test.getScenarioCount()).isEqualTo(1);
 //    MarketDataBox<Double> box = MarketDataBox.ofScenarioValues(1d, 2d, 3d);
 //    MarketDataBox<Number> perturbed = test.applyTo(box);
-//    assertEquals(perturbed, box);
+//    assertThat(perturbed).isEqualTo(box);
 //  }
 
+  @Test
   public void coverage() {
     ScenarioPerturbation<Double> test = ScenarioPerturbation.none();
     coverImmutableBean((ImmutableBean) test);

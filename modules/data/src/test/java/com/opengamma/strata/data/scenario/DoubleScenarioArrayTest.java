@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -20,9 +20,9 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link DoubleScenarioArray}.
  */
-@Test
 public class DoubleScenarioArrayTest {
 
+  @Test
   public void create() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     DoubleScenarioArray test = DoubleScenarioArray.of(values);
@@ -34,6 +34,7 @@ public class DoubleScenarioArrayTest {
     assertThat(test.stream().collect(toList())).containsExactly(1d, 2d, 3d);
   }
 
+  @Test
   public void create_fromList() {
     List<Double> values = ImmutableList.of(1d, 2d, 3d);
     DoubleScenarioArray test = DoubleScenarioArray.of(values);
@@ -45,6 +46,7 @@ public class DoubleScenarioArrayTest {
     assertThat(test.stream().collect(toList())).containsExactly(1d, 2d, 3d);
   }
 
+  @Test
   public void create_fromFunction() {
     List<Double> values = ImmutableList.of(1d, 2d, 3d);
     DoubleScenarioArray test = DoubleScenarioArray.of(3, i -> values.get(i));
@@ -57,6 +59,7 @@ public class DoubleScenarioArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     DoubleScenarioArray test = DoubleScenarioArray.of(values);

@@ -9,14 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -29,7 +29,6 @@ import com.opengamma.strata.data.TestingObservableId;
 /**
  * Test {@link ExtendedScenarioMarketData}.
  */
-@Test
 public class ExtendedScenarioMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
@@ -47,48 +46,51 @@ public class ExtendedScenarioMarketDataTest {
   private static final ImmutableScenarioMarketData BASE_DATA = baseData();
 
   //-------------------------------------------------------------------------
+  @Test
   public void of_addition() {
     ExtendedScenarioMarketData<String> test = ExtendedScenarioMarketData.of(ID3, VAL3, BASE_DATA);
-    assertEquals(test.getId(), ID3);
-    assertEquals(test.getValue(), VAL3);
-    assertEquals(test.getValuationDate(), MarketDataBox.ofSingleValue(VAL_DATE));
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.containsValue(ID3), true);
-    assertEquals(test.containsValue(ID4), false);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
-    assertEquals(test.getValue(ID3), VAL3);
+    assertThat(test.getId()).isEqualTo(ID3);
+    assertThat(test.getValue()).isEqualTo(VAL3);
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.containsValue(ID2)).isEqualTo(true);
+    assertThat(test.containsValue(ID3)).isEqualTo(true);
+    assertThat(test.containsValue(ID4)).isEqualTo(false);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
+    assertThat(test.getValue(ID3)).isEqualTo(VAL3);
     assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID4));
-    assertEquals(test.findValue(ID1), Optional.of(VAL1));
-    assertEquals(test.findValue(ID2), Optional.of(VAL2));
-    assertEquals(test.findValue(ID3), Optional.of(VAL3));
-    assertEquals(test.findValue(ID4), Optional.empty());
-    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2, ID3));
-    assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
-    assertEquals(test.findIds(ID3.getMarketDataName()), ImmutableSet.of(ID3));
-    assertEquals(test.getTimeSeries(ID4), TIME_SERIES);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL1));
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
+    assertThat(test.findValue(ID3)).isEqualTo(Optional.of(VAL3));
+    assertThat(test.findValue(ID4)).isEqualTo(Optional.empty());
+    assertThat(test.getIds()).containsExactly(ID1, ID2, ID3);
+    assertThat(test.findIds(ID1.getMarketDataName())).isEqualTo(ImmutableSet.of(ID1));
+    assertThat(test.findIds(ID3.getMarketDataName())).isEqualTo(ImmutableSet.of(ID3));
+    assertThat(test.getTimeSeries(ID4)).isEqualTo(TIME_SERIES);
   }
 
+  @Test
   public void of_override() {
     ExtendedScenarioMarketData<String> test = ExtendedScenarioMarketData.of(ID1, VAL3, BASE_DATA);
-    assertEquals(test.getId(), ID1);
-    assertEquals(test.getValue(), VAL3);
-    assertEquals(test.getValuationDate(), MarketDataBox.ofSingleValue(VAL_DATE));
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.containsValue(ID3), false);
-    assertEquals(test.getValue(ID1), VAL3);
-    assertEquals(test.getValue(ID2), VAL2);
+    assertThat(test.getId()).isEqualTo(ID1);
+    assertThat(test.getValue()).isEqualTo(VAL3);
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.containsValue(ID2)).isEqualTo(true);
+    assertThat(test.containsValue(ID3)).isEqualTo(false);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL3);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
     assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
-    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
-    assertEquals(test.findValue(ID1), Optional.of(VAL3));
-    assertEquals(test.findValue(ID2), Optional.of(VAL2));
-    assertEquals(test.findValue(ID3), Optional.empty());
-    assertEquals(test.getTimeSeries(ID4), TIME_SERIES);
+    assertThat(test.getIds()).containsExactly(ID1, ID2);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL3));
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
+    assertThat(test.findValue(ID3)).isEqualTo(Optional.empty());
+    assertThat(test.getTimeSeries(ID4)).isEqualTo(TIME_SERIES);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ExtendedScenarioMarketData<String> test = ExtendedScenarioMarketData.of(ID1, VAL1, BASE_DATA);
     coverImmutableBean(test);
@@ -99,6 +101,7 @@ public class ExtendedScenarioMarketDataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void serialization() {
     ExtendedScenarioMarketData<String> test = ExtendedScenarioMarketData.of(ID1, VAL3, BASE_DATA);
     assertSerialization(test);

@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -36,7 +36,6 @@ import com.opengamma.strata.data.ObservableId;
 /**
  * Test {@link ScenarioMarketData} and {@link ImmutableScenarioMarketData}.
  */
-@Test
 public class ScenarioMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
@@ -53,6 +52,7 @@ public class ScenarioMarketDataTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, BOX1);
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
@@ -69,6 +69,7 @@ public class ScenarioMarketDataTest {
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
 
+  @Test
   public void test_of_noScenarios() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.empty());
     ScenarioMarketData test = ScenarioMarketData.of(0, VAL_DATE, dataMap, ImmutableMap.of());
@@ -84,12 +85,14 @@ public class ScenarioMarketDataTest {
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
 
+  @Test
   public void test_of_repeated() {
     ScenarioMarketData test = ScenarioMarketData.of(1, MarketData.of(VAL_DATE, ImmutableMap.of(ID1, VAL1)));
     assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
     assertThat(test.getValue(ID1)).isEqualTo(MarketDataBox.ofSingleValue(VAL1));
   }
 
+  @Test
   public void test_empty() {
     ScenarioMarketData test = ScenarioMarketData.empty();
     assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.empty());
@@ -104,6 +107,7 @@ public class ScenarioMarketDataTest {
     assertThat(test.getTimeSeries(ID2)).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
 
+  @Test
   public void of_null() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = new HashMap<>();
     dataMap.put(ID1, null);
@@ -111,6 +115,7 @@ public class ScenarioMarketDataTest {
     assertThatIllegalArgumentException().isThrownBy(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap));
   }
 
+  @Test
   public void of_badType() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.ofScenarioValues("", ""));
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
@@ -118,6 +123,7 @@ public class ScenarioMarketDataTest {
         .isThrownBy(() -> ScenarioMarketData.of(2, VAL_DATE, dataMap, tsMap));
   }
 
+  @Test
   public void of_badScenarios() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, MarketDataBox.ofScenarioValues(VAL1));
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
@@ -125,6 +131,7 @@ public class ScenarioMarketDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_defaultMethods() {
     ScenarioMarketData test = new ScenarioMarketData() {
 
@@ -174,6 +181,7 @@ public class ScenarioMarketDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_scenarios() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, BOX1);
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
@@ -189,6 +197,7 @@ public class ScenarioMarketDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     Map<MarketDataId<?>, MarketDataBox<?>> dataMap = ImmutableMap.of(ID1, BOX1);
     Map<ObservableId, LocalDateDoubleTimeSeries> tsMap = ImmutableMap.of(ID1, TIME_SERIES);
@@ -201,6 +210,7 @@ public class ScenarioMarketDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void getScenarioValueFromSingleValue() {
     MarketDataBox<Double> box = MarketDataBox.ofSingleValue(9d);
     TestMarketData marketData = new TestMarketData(box);
@@ -209,6 +219,7 @@ public class ScenarioMarketDataTest {
     assertThat(array.values).isEqualTo(DoubleArray.of(9, 9, 9));
   }
 
+  @Test
   public void getScenarioValueFromRequestedScenarioValue() {
     MarketDataBox<Double> box = MarketDataBox.ofScenarioValue(new TestDoubleArray(DoubleArray.of(9d, 9d, 9d)));
     TestMarketData marketData = new TestMarketData(box);
@@ -217,6 +228,7 @@ public class ScenarioMarketDataTest {
     assertThat(array.values).isEqualTo(DoubleArray.of(9, 9, 9));
   }
 
+  @Test
   public void getScenarioValueFromOtherScenarioValue() {
     MarketDataBox<Double> box = MarketDataBox.ofScenarioValues(9d, 9d, 9d);
     TestMarketData marketData = new TestMarketData(box);

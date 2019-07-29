@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -26,9 +26,9 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link CurrencyScenarioArray}.
  */
-@Test
 public class CurrencyScenarioArrayTest {
 
+  @Test
   public void create() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
@@ -42,6 +42,7 @@ public class CurrencyScenarioArrayTest {
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
   }
 
+  @Test
   public void create_fromList() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
@@ -56,12 +57,14 @@ public class CurrencyScenarioArrayTest {
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
   }
 
+  @Test
   public void create_fromList_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyScenarioArray.of(values));
   }
 
+  @Test
   public void create_fromFunction() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
@@ -76,6 +79,7 @@ public class CurrencyScenarioArrayTest {
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
   }
 
+  @Test
   public void create_fromFunction_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
@@ -86,6 +90,7 @@ public class CurrencyScenarioArrayTest {
   /**
    * Test that values are converted to the reporting currency using the rates in the market data.
    */
+  @Test
   public void convert() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
@@ -101,6 +106,7 @@ public class CurrencyScenarioArrayTest {
   /**
    * Test that no conversion is done and no rates are used if the values are already in the reporting currency.
    */
+  @Test
   public void noConversionNecessary() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
@@ -114,6 +120,7 @@ public class CurrencyScenarioArrayTest {
   /**
    * Test the expected exception is thrown when there are no FX rates available to convert the values.
    */
+  @Test
   public void missingFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     FxRateScenarioArray rates = FxRateScenarioArray.of(EUR, USD, DoubleArray.of(1.61, 1.62, 1.63));
@@ -126,6 +133,7 @@ public class CurrencyScenarioArrayTest {
   /**
    * Test the expected exception is thrown if there are not the same number of rates as there are values.
    */
+  @Test
   public void wrongNumberOfFxRates() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62));
@@ -140,6 +148,7 @@ public class CurrencyScenarioArrayTest {
   /**
    * Test the plus() methods work as expected.
    */
+  @Test
   public void plus() {
     CurrencyScenarioArray currencyScenarioArray = CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2, 3));
   
@@ -155,6 +164,7 @@ public class CurrencyScenarioArrayTest {
   /**
    * Test the minus() methods work as expected.
    */
+  @Test
   public void minus() {
     CurrencyScenarioArray currencyScenarioArray = CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2, 3));
     
@@ -168,6 +178,7 @@ public class CurrencyScenarioArrayTest {
   }
   
 
+  @Test
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyScenarioArray test = CurrencyScenarioArray.of(GBP, values);
