@@ -5,8 +5,7 @@
  */
 package com.opengamma.strata.collect;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -16,21 +15,21 @@ import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link NumberFormatter}.
  */
-@Test
 public class NumberFormatterTest {
 
   private static final String NAN = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getNaN();
   private static final String INF = DecimalFormatSymbols.getInstance(Locale.ENGLISH).getInfinity();
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "standard")
-  Object[][] data_standard() {
+  public static Object[][] data_standard() {
     return new Object[][] {
         {true, 0, 0, 123, "123", 123d},
         {true, 0, 0, 12345.678, "12,346", 12346d},
@@ -59,31 +58,33 @@ public class NumberFormatterTest {
     };
   }
 
-  @Test(dataProvider = "standard")
+  @ParameterizedTest
+  @MethodSource("data_standard")
   public void test_of_3arg(boolean grouping, int minDp, int maxDp, double value, String expected, double parsed) {
     String text = NumberFormatter.of(grouping, minDp, maxDp).format(value);
-    assertEquals(text, expected);
+    assertThat(text).isEqualTo(expected);
   }
 
-  @Test(dataProvider = "standard")
+  @ParameterizedTest
+  @MethodSource("data_standard")
   public void test_of_2arg(boolean grouping, int minDp, int maxDp, double value, String expected, double parsed) {
     if (minDp == maxDp) {
       String text = NumberFormatter.of(grouping, minDp).format(value);
-      assertEquals(text, expected);
+      assertThat(text).isEqualTo(expected);
     }
   }
 
-  @Test(dataProvider = "standard")
+  @ParameterizedTest
+  @MethodSource("data_standard")
   public void test_parse(boolean grouping, int minDp, int maxDp, double value, String expected, double parsed) {
     NumberFormatter formatter = NumberFormatter.of(grouping, minDp, maxDp);
     String text = formatter.format(value);
     double actual = formatter.parse(text);
-    assertEquals(actual, parsed, 0d);
+    assertThat(actual).isEqualTo(parsed);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "percentage")
-  Object[][] data_percentage() {
+  public static Object[][] data_percentage() {
     return new Object[][] {
         {true, 0, 0, 1.23, "123%"},
         {true, 0, 0, 123.45678, "12,346%"},
@@ -104,15 +105,15 @@ public class NumberFormatterTest {
     };
   }
 
-  @Test(dataProvider = "percentage")
+  @ParameterizedTest
+  @MethodSource("data_percentage")
   public void test_ofPercentage(boolean grouping, int minDp, int maxDp, double value, String expected) {
     String text = NumberFormatter.ofPercentage(grouping, minDp, maxDp).format(value);
-    assertEquals(text, expected);
+    assertThat(text).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "patterns")
-  Object[][] data_patterns() {
+  public static Object[][] data_patterns() {
     return new Object[][] {
         {"0", 12345.678, "12346"},
         {"00", 12345.678, "12346"},
@@ -128,22 +129,25 @@ public class NumberFormatterTest {
     };
   }
 
-  @Test(dataProvider = "patterns")
+  @ParameterizedTest
+  @MethodSource("data_patterns")
   public void test_ofPattern(String pattern, double value, String expected) {
     String java = new DecimalFormat(pattern, DecimalFormatSymbols.getInstance(Locale.ENGLISH)).format(value);
     String strata = NumberFormatter.ofPattern(pattern, Locale.ENGLISH).format(value);
-    assertEquals(strata, java);
-    assertEquals(strata, expected);
+    assertThat(strata).isEqualTo(java);
+    assertThat(strata).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofLocalizedNumber() {
     String text = NumberFormatter.ofLocalizedNumber(Locale.ENGLISH).format(12345.678);
-    assertEquals(text, "12,345.678");
+    assertThat(text).isEqualTo("12,345.678");
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Test
+  @Disabled
   public void test_javaBroken() throws Exception {
     // uncomment system out to see how broken it is
     // very specific format instance needed
@@ -173,11 +177,12 @@ public class NumberFormatterTest {
     latch.countDown();
     Thread.sleep(1000);
     System.out.println("Broken: " + broken.get());
-    assertTrue(broken.get() > 0);
+    assertThat(broken.get() > 0).isTrue();
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Test
+  @Disabled
   public void test_performance() throws Exception {
     ThreadLocal<DecimalFormat> thread =
         ThreadLocal.withInitial(() -> new DecimalFormat("#,##0.###", new DecimalFormatSymbols(Locale.ENGLISH)));

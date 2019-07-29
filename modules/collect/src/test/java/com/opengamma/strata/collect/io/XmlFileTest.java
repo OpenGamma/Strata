@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.io.File;
 import java.io.UncheckedIOException;
@@ -16,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -26,7 +25,6 @@ import com.google.common.io.Files;
 /**
  * Test {@link XmlFile}.
  */
-@Test
 public class XmlFileTest {
 
   private static final String SAMPLE = "" +
@@ -69,72 +67,80 @@ public class XmlFileTest {
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_ByteSource() {
     ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
     XmlFile test = XmlFile.of(source);
     XmlElement root = test.getRoot();
-    assertEquals(root.getName(), "base");
-    assertEquals(root.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(root.getContent(), "");
-    assertEquals(root.getChildren().size(), 1);
+    assertThat(root.getName()).isEqualTo("base");
+    assertThat(root.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(root.getContent()).isEqualTo("");
+    assertThat(root.getChildren().size()).isEqualTo(1);
     XmlElement child = root.getChild(0);
-    assertEquals(child, XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI));
-    assertEquals(test.getReferences(), ImmutableMap.of());
+    assertThat(child).isEqualTo(XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI));
+    assertThat(test.getReferences()).isEqualTo(ImmutableMap.of());
   }
 
+  @Test
   public void test_of_ByteSource_namespace() {
     ByteSource source = ByteSource.wrap(SAMPLE_NAMESPACE.getBytes(StandardCharsets.UTF_8));
     XmlFile test = XmlFile.of(source);
     XmlElement root = test.getRoot();
-    assertEquals(root.getName(), "base");
-    assertEquals(root.getAttributes(), ImmutableMap.of());
-    assertEquals(root.getContent(), "");
-    assertEquals(root.getChildren().size(), 2);
+    assertThat(root.getName()).isEqualTo("base");
+    assertThat(root.getAttributes()).isEqualTo(ImmutableMap.of());
+    assertThat(root.getContent()).isEqualTo("");
+    assertThat(root.getChildren().size()).isEqualTo(2);
     XmlElement child1 = root.getChild(0);
-    assertEquals(child1.getName(), "p");
-    assertEquals(child1.getContent(), "Some text");
-    assertEquals(child1.getAttributes(), ImmutableMap.of());
+    assertThat(child1.getName()).isEqualTo("p");
+    assertThat(child1.getContent()).isEqualTo("Some text");
+    assertThat(child1.getAttributes()).isEqualTo(ImmutableMap.of());
     XmlElement child2 = root.getChild(1);
-    assertEquals(child2.getName(), "leaf1");
-    assertEquals(child2.getContent(), "leaf");
-    assertEquals(child2.getAttributes(), ImmutableMap.of("foo", "bla", "og", "strata"));
-    assertEquals(test.getReferences(), ImmutableMap.of());
+    assertThat(child2.getName()).isEqualTo("leaf1");
+    assertThat(child2.getContent()).isEqualTo("leaf");
+    assertThat(child2.getAttributes()).isEqualTo(ImmutableMap.of("foo", "bla", "og", "strata"));
+    assertThat(test.getReferences()).isEqualTo(ImmutableMap.of());
   }
 
+  @Test
   public void test_of_ByteSource_mismatchedTags() {
     ByteSource source = ByteSource.wrap(SAMPLE_MISMATCHED_TAGS.getBytes(StandardCharsets.UTF_8));
     assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.of(source));
   }
 
+  @Test
   public void test_of_ByteSource_badEnd() {
     ByteSource source = ByteSource.wrap(SAMPLE_BAD_END.getBytes(StandardCharsets.UTF_8));
     assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.of(source));
   }
 
+  @Test
   public void test_of_ByteSource_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> XmlFile.of(source));
   }
 
+  @Test
   public void test_of_ByteSource_parsedReferences() {
     ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
     XmlFile test = XmlFile.of(source, "key");
     XmlElement root = test.getRoot();
-    assertEquals(root.getName(), "base");
-    assertEquals(root.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(root.getContent(), "");
-    assertEquals(root.getChildren().size(), 1);
+    assertThat(root.getName()).isEqualTo("base");
+    assertThat(root.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(root.getContent()).isEqualTo("");
+    assertThat(root.getChildren().size()).isEqualTo(1);
     XmlElement child = root.getChild(0);
-    assertEquals(child, XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI));
-    assertEquals(test.getReferences(), ImmutableMap.of("value", root.getChild(0)));
+    assertThat(child).isEqualTo(XmlElement.ofChildren("test", ATTR_MAP, CHILD_LIST_MULTI));
+    assertThat(test.getReferences()).isEqualTo(ImmutableMap.of("value", root.getChild(0)));
   }
 
+  @Test
   public void test_of_ByteSource_parsedReferences_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> XmlFile.of(source, "key"));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parseElements_ByteSource_Fn_noFilter() {
     List<XmlElement> expected = ImmutableList.of(
         XmlElement.ofContent("leaf1", ""),
@@ -144,25 +150,27 @@ public class XmlFileTest {
 
     ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
     XmlElement test = XmlFile.parseElements(source, name -> Integer.MAX_VALUE);
-    assertEquals(test.getName(), "base");
-    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren().size(), 1);
+    assertThat(test.getName()).isEqualTo("base");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren().size()).isEqualTo(1);
     XmlElement child = test.getChild(0);
-    assertEquals(child, XmlElement.ofChildren("test", expected));
+    assertThat(child).isEqualTo(XmlElement.ofChildren("test", expected));
   }
 
+  @Test
   public void test_parseElements_ByteSource_Fn_filterAll() {
     ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
     XmlElement test = XmlFile.parseElements(source, name -> name.equals("test") ? 0 : Integer.MAX_VALUE);
-    assertEquals(test.getName(), "base");
-    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren().size(), 1);
+    assertThat(test.getName()).isEqualTo("base");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren().size()).isEqualTo(1);
     XmlElement child = test.getChild(0);
-    assertEquals(child, XmlElement.ofContent("test", ""));
+    assertThat(child).isEqualTo(XmlElement.ofContent("test", ""));
   }
 
+  @Test
   public void test_parseElements_ByteSource_Fn_filterOneLevel() {
     List<XmlElement> expected = ImmutableList.of(
         XmlElement.ofContent("leaf1", ""),
@@ -172,24 +180,27 @@ public class XmlFileTest {
 
     ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
     XmlElement test = XmlFile.parseElements(source, name -> name.equals("test") ? 1 : Integer.MAX_VALUE);
-    assertEquals(test.getName(), "base");
-    assertEquals(test.getAttributes(), ATTR_MAP_EMPTY);
-    assertEquals(test.getContent(), "");
-    assertEquals(test.getChildren().size(), 1);
+    assertThat(test.getName()).isEqualTo("base");
+    assertThat(test.getAttributes()).isEqualTo(ATTR_MAP_EMPTY);
+    assertThat(test.getContent()).isEqualTo("");
+    assertThat(test.getChildren().size()).isEqualTo(1);
     XmlElement child = test.getChild(0);
-    assertEquals(child, XmlElement.ofChildren("test", expected));
+    assertThat(child).isEqualTo(XmlElement.ofChildren("test", expected));
   }
 
+  @Test
   public void test_parseElements_ByteSource_Fn_mismatchedTags() {
     ByteSource source = ByteSource.wrap(SAMPLE_MISMATCHED_TAGS.getBytes(StandardCharsets.UTF_8));
     assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
   }
 
+  @Test
   public void test_parseElements_ByteSource_Fn_badEnd() {
     ByteSource source = ByteSource.wrap(SAMPLE_BAD_END.getBytes(StandardCharsets.UTF_8));
     assertThatIllegalArgumentException().isThrownBy(() -> XmlFile.parseElements(source, name -> Integer.MAX_VALUE));
   }
 
+  @Test
   public void test_parseElements_ByteSource_Fn_ioException() {
     ByteSource source = Files.asByteSource(new File("/oh-dear-no-such-file"));
     assertThatExceptionOfType(UncheckedIOException.class)
@@ -197,16 +208,18 @@ public class XmlFileTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCodeToString() {
     ByteSource source = ByteSource.wrap(SAMPLE.getBytes(StandardCharsets.UTF_8));
     XmlFile test = XmlFile.of(source);
     XmlFile test2 = XmlFile.of(source);
-    assertFalse(test.equals(null));
-    assertFalse(test.equals(ANOTHER_TYPE));
-    assertEquals(test, test);
-    assertEquals(test, test2);
-    assertEquals(test.hashCode(), test2.hashCode());
-    assertEquals(test.toString(), test2.toString());
+    assertThat(test)
+        .isEqualTo(test)
+        .isEqualTo(test2)
+        .isNotEqualTo(null)
+        .isNotEqualTo(ANOTHER_TYPE)
+        .hasSameHashCodeAs(test2);
+    assertThat(test.toString()).isEqualTo(test2.toString());
   }
 
 }

@@ -6,8 +6,8 @@
 package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.regex.Pattern;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSortedMap;
@@ -27,557 +27,690 @@ import com.google.common.collect.ImmutableSortedMap;
 /**
  * Test ArgChecker.
  */
-@Test
 public class ArgCheckerTest {
 
+  @Test
   public void test_isTrue_simple_ok() {
     ArgChecker.isTrue(true);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_isTrue_simple_false() {
-    ArgChecker.isTrue(false);
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.isTrue(false));
   }
 
+  @Test
   public void test_isTrue_ok() {
     ArgChecker.isTrue(true, "Message");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message")
+  @Test
   public void test_isTrue_false() {
-    ArgChecker.isTrue(false, "Message");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.isTrue(false, "Message"))
+        .withMessage("Message");
   }
 
+  @Test
   public void test_isTrue_ok_args() {
     ArgChecker.isTrue(true, "Message {} {} {}", "A", 2, 3d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A 2 3.0")
+  @Test
   public void test_isTrue_false_args() {
-    ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3d);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.isTrue(false, "Message {} {} {}", "A", 2, 3d))
+        .withMessage("Message A 2 3.0");
+
+    ;
   }
 
+  @Test
   public void test_isTrue_ok_longArg() {
     ArgChecker.isTrue(true, "Message {}", 3L);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message 3")
+  @Test
   public void test_isTrue_false_longArg() {
-    ArgChecker.isTrue(false, "Message {}", 3L);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.isTrue(false, "Message {}", 3L))
+        .withMessage("Message 3");
   }
 
+  @Test
   public void test_isTrue_ok_doubleArg() {
     ArgChecker.isTrue(true, "Message {}", 3d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message 3.0")
+  @Test
   public void test_isTrue_false_doubleArg() {
-    ArgChecker.isTrue(false, "Message {}", 3d);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.isTrue(false, "Message {}", 3d))
+        .withMessage("Message 3.0");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isFalse_ok() {
     ArgChecker.isFalse(false, "Message");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message")
+  @Test
   public void test_isFalse_true() {
-    ArgChecker.isFalse(true, "Message");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.isFalse(true, "Message"))
+        .withMessage("Message");
   }
 
+  @Test
   public void test_isFalse_ok_args() {
     ArgChecker.isFalse(false, "Message {} {} {}", "A", 2., 3, true);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = "Message A 2 3.0")
+  @Test
   public void test_isFalse_ok_args_true() {
-    ArgChecker.isFalse(true, "Message {} {} {}", "A", 2, 3.);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.isFalse(true, "Message {} {} {}", "A", 2, 3.))
+        .withMessage("Message A 2 3.0");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notNull_ok() {
-    assertEquals(ArgChecker.notNull("OG", "name"), "OG");
-    assertEquals(ArgChecker.notNull(1, "name"), Integer.valueOf(1));
+    assertThat(ArgChecker.notNull("OG", "name")).isEqualTo("OG");
+    assertThat(ArgChecker.notNull(1, "name")).isEqualTo(Integer.valueOf(1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_notNull_null() {
-    ArgChecker.notNull(null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNull(null, "name"))
+        .withMessageMatching(".*'name'.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notNullItem_noText_ok() {
-    assertEquals(ArgChecker.notNullItem("OG"), "OG");
-    assertEquals(ArgChecker.notNullItem(1), Integer.valueOf(1));
+    assertThat(ArgChecker.notNullItem("OG")).isEqualTo("OG");
+    assertThat(ArgChecker.notNullItem(1)).isEqualTo(Integer.valueOf(1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_notNullItem_noText_null() {
-    ArgChecker.notNullItem(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNullItem(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_matches_String_ok() {
-    assertEquals(ArgChecker.matches(Pattern.compile("[A-Z]+"), "OG", "name"), "OG");
+    assertThat(ArgChecker.matches(Pattern.compile("[A-Z]+"), "OG", "name")).isEqualTo("OG");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'pattern'.*")
+  @Test
   public void test_matches_String_nullPattern() {
-    ArgChecker.matches(null, "", "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(null, "", "name"))
+        .withMessageMatching(".*'pattern'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_matches_String_nullString() {
-    ArgChecker.matches(Pattern.compile("[A-Z]+"), null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(Pattern.compile("[A-Z]+"), null, "name"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_matches_String_empty() {
-    ArgChecker.matches(Pattern.compile("[A-Z]+"), "", "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(Pattern.compile("[A-Z]+"), "", "name"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
+  @Test
   public void test_matches_String_noMatch() {
-    ArgChecker.matches(Pattern.compile("[A-Z]+"), "123", "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(Pattern.compile("[A-Z]+"), "123", "name"))
+        .withMessageMatching(".*'name'.*'123'.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_matches_CharMatcher_String_ok() {
-    assertEquals(ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "OG", "name", "[A-Z]+"), "OG");
+    assertThat(ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "OG", "name", "[A-Z]+"))
+        .isEqualTo("OG");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_matches_CharMatcher_String_tooShort() {
-    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "", "name", "[A-Z]+");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "", "name", "[A-Z]+"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_matches_CharMatcher_String_tooLong() {
-    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "abc", "name", "[A-Z]+");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, "abc", "name", "[A-Z]+"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'pattern'.*")
+  @Test
   public void test_matches_CharMatcher_String_nullMatcher() {
-    ArgChecker.matches(null, 1, Integer.MAX_VALUE, "", "name", "[A-Z]+");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(null, 1, Integer.MAX_VALUE, "", "name", "[A-Z]+"))
+        .withMessageMatching(".*'pattern'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_matches_CharMatcher_String_nullString() {
-    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, null, "name", "[A-Z]+");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, 2, null, "name", "[A-Z]+"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*'123'.*")
+  @Test
   public void test_matches_CharMatcher_String_noMatch() {
-    ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "123", "name", "[A-Z]+");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.matches(CharMatcher.inRange('A', 'Z'), 1, Integer.MAX_VALUE, "123", "name", "[A-Z]+"))
+        .withMessageMatching(".*'name'.*'123'.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notBlank_String_ok() {
-    assertEquals(ArgChecker.notBlank("OG", "name"), "OG");
+    assertThat(ArgChecker.notBlank("OG", "name")).isEqualTo("OG");
   }
 
+  @Test
   public void test_notBlank_String_ok_notTrimmed() {
-    assertEquals(ArgChecker.notBlank(" OG ", "name"), " OG ");
+    assertThat(ArgChecker.notBlank(" OG ", "name")).isEqualTo(" OG ");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_notBlank_String_null() {
-    ArgChecker.notBlank(null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notBlank(null, "name"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_notBlank_String_empty() {
-    ArgChecker.notBlank("", "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notBlank("", "name"))
+        .withMessageMatching(".*'name'.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*")
+  @Test
   public void test_notBlank_String_spaces() {
-    ArgChecker.notBlank("  ", "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notBlank("  ", "name"))
+        .withMessageMatching(".*'name'.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_String_ok() {
-    assertEquals(ArgChecker.notEmpty("OG", "name"), "OG");
-    assertEquals(ArgChecker.notEmpty(" ", "name"), " ");
+    assertThat(ArgChecker.notEmpty("OG", "name")).isEqualTo("OG");
+    assertThat(ArgChecker.notEmpty(" ", "name")).isEqualTo(" ");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_String_null() {
-    ArgChecker.notEmpty((String) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((String) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*empty.*")
+  @Test
   public void test_notEmpty_String_empty() {
-    ArgChecker.notEmpty("", "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty("", "name"))
+        .withMessageMatching(".*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_Array_ok() {
     Object[] expected = new Object[] {"Element"};
     Object[] result = ArgChecker.notEmpty(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_Array_null() {
-    ArgChecker.notEmpty((Object[]) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Object[]) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_Array_empty() {
-    ArgChecker.notEmpty(new Object[] {}, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(new Object[] {}, "name"))
+        .withMessageMatching(".*array.*'name'.*empty.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_2DArray_null() {
-    ArgChecker.notEmpty((Object[][]) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Object[][]) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_2DArray_empty() {
-    ArgChecker.notEmpty(new Object[0][0], "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(new Object[0][0], "name"))
+        .withMessageMatching(".*array.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_intArray_ok() {
     int[] expected = new int[] {6};
     int[] result = ArgChecker.notEmpty(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_intArray_null() {
-    ArgChecker.notEmpty((int[]) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((int[]) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_intArray_empty() {
-    ArgChecker.notEmpty(new int[0], "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(new int[0], "name"))
+        .withMessageMatching(".*array.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_longArray_ok() {
     long[] expected = new long[] {6L};
     long[] result = ArgChecker.notEmpty(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_longArray_null() {
-    ArgChecker.notEmpty((long[]) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((long[]) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_longArray_empty() {
-    ArgChecker.notEmpty(new long[0], "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(new long[0], "name"))
+        .withMessageMatching(".*array.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_doubleArray_ok() {
     double[] expected = new double[] {6.0d};
     double[] result = ArgChecker.notEmpty(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_doubleArray_null() {
-    ArgChecker.notEmpty((double[]) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((double[]) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_doubleArray_empty() {
-    ArgChecker.notEmpty(new double[0], "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(new double[0], "name"))
+        .withMessageMatching(".*array.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_Iterable_ok() {
     Iterable<String> expected = Arrays.asList("Element");
     Iterable<String> result = ArgChecker.notEmpty((Iterable<String>) expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_Iterable_null() {
-    ArgChecker.notEmpty((Iterable<?>) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Iterable<?>) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*iterable.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_Iterable_empty() {
-    ArgChecker.notEmpty((Iterable<?>) Collections.emptyList(), "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Iterable<?>) Collections.emptyList(), "name"))
+        .withMessageMatching(".*iterable.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_Collection_ok() {
     List<String> expected = Arrays.asList("Element");
     List<String> result = ArgChecker.notEmpty(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_Collection_null() {
-    ArgChecker.notEmpty((Collection<?>) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Collection<?>) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*collection.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_Collection_empty() {
-    ArgChecker.notEmpty(Collections.emptyList(), "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(Collections.emptyList(), "name"))
+        .withMessageMatching(".*collection.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notEmpty_Map_ok() {
     SortedMap<String, String> expected = ImmutableSortedMap.of("Element", "Element");
     SortedMap<String, String> result = ArgChecker.notEmpty(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_notEmpty_Map_null() {
-    ArgChecker.notEmpty((Map<?, ?>) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty((Map<?, ?>) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*map.*'name'.*empty.*")
+  @Test
   public void test_notEmpty_Map_empty() {
-    ArgChecker.notEmpty(Collections.emptyMap(), "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(Collections.emptyMap(), "name"))
+        .withMessageMatching(".*map.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_noNulls_Array_ok() {
     String[] expected = new String[] {"Element"};
     String[] result = ArgChecker.noNulls(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void test_noNulls_Array_ok_empty() {
     Object[] array = new Object[] {};
     ArgChecker.noNulls(array, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_noNulls_Array_null() {
-    ArgChecker.noNulls((Object[]) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls((Object[]) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*null.*")
+  @Test
   public void test_noNulls_Array_nullElement() {
-    ArgChecker.noNulls(new Object[] {null}, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls(new Object[] {null}, "name"))
+        .withMessageMatching(".*array.*'name'.*null.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_noNulls_Iterable_ok() {
     List<String> expected = Arrays.asList("Element");
     List<String> result = ArgChecker.noNulls(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void test_noNulls_Iterable_ok_empty() {
     Iterable<?> coll = Arrays.asList();
     ArgChecker.noNulls(coll, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_noNulls_Iterable_null() {
-    ArgChecker.noNulls((Iterable<?>) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls((Iterable<?>) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*iterable.*'name'.*null.*")
+  @Test
   public void test_noNulls_Iterable_nullElement() {
-    ArgChecker.noNulls(Arrays.asList((Object) null), "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls(Arrays.asList((Object) null), "name"))
+        .withMessageMatching(".*iterable.*'name'.*null.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_noNulls_Map_ok() {
     ImmutableSortedMap<String, String> expected = ImmutableSortedMap.of("A", "B");
     ImmutableSortedMap<String, String> result = ArgChecker.noNulls(expected, "name");
-    assertEquals(result, expected);
+    assertThat(result).isEqualTo(expected);
   }
 
+  @Test
   public void test_noNulls_Map_ok_empty() {
     Map<Object, Object> map = new HashMap<>();
     ArgChecker.noNulls(map, "name");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*'name'.*null.*")
+  @Test
   public void test_noNulls_Map_null() {
-    ArgChecker.noNulls((Map<Object, Object>) null, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls((Map<Object, Object>) null, "name"))
+        .withMessageMatching(".*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*map.*'name'.*null.*")
+  @Test
   public void test_noNulls_Map_nullKey() {
     Map<Object, Object> map = new HashMap<>();
     map.put("A", "B");
     map.put(null, "Z");
-    ArgChecker.noNulls(map, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls(map, "name"))
+        .withMessageMatching(".*map.*'name'.*null.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*map.*'name'.*null.*")
+  @Test
   public void test_noNulls_Map_nullValue() {
     Map<Object, Object> map = new HashMap<>();
     map.put("A", "B");
     map.put("Z", null);
-    ArgChecker.noNulls(map, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.noNulls(map, "name"))
+        .withMessageMatching(".*map.*'name'.*null.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notNegative_int_ok() {
-    assertEquals(ArgChecker.notNegative(0, "name"), 0);
-    assertEquals(ArgChecker.notNegative(1, "name"), 1);
+    assertThat(ArgChecker.notNegative(0, "name")).isEqualTo(0);
+    assertThat(ArgChecker.notNegative(1, "name")).isEqualTo(1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
+  @Test
   public void test_notNegative_int_negative() {
-    ArgChecker.notNegative(-1, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegative(-1, "name"))
+        .withMessageMatching(".*'name'.*negative.*");
+    ;
   }
 
+  @Test
   public void test_notNegative_long_ok() {
-    assertEquals(ArgChecker.notNegative(0L, "name"), 0L);
-    assertEquals(ArgChecker.notNegative(1L, "name"), 1L);
+    assertThat(ArgChecker.notNegative(0L, "name")).isEqualTo(0L);
+    assertThat(ArgChecker.notNegative(1L, "name")).isEqualTo(1L);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
+  @Test
   public void test_notNegative_long_negative() {
-    ArgChecker.notNegative(-1L, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegative(-1L, "name"))
+        .withMessageMatching(".*'name'.*negative.*");
   }
 
+  @Test
   public void test_notNegative_double_ok() {
-    assertEquals(ArgChecker.notNegative(0d, "name"), 0d, 0.0001d);
-    assertEquals(ArgChecker.notNegative(1d, "name"), 1d, 0.0001d);
+    assertThat(ArgChecker.notNegative(0d, "name")).isEqualTo(0d);
+    assertThat(ArgChecker.notNegative(1d, "name")).isEqualTo(1d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*")
+  @Test
   public void test_notNegative_double_negative() {
-    ArgChecker.notNegative(-1.0d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegative(-1d, "name"))
+        .withMessageMatching(".*'name'.*negative.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notNegativeOrZero_int_ok() {
-    assertEquals(ArgChecker.notNegativeOrZero(1, "name"), 1);
+    assertThat(ArgChecker.notNegativeOrZero(1, "name")).isEqualTo(1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test
   public void test_notNegativeOrZero_int_zero() {
-    ArgChecker.notNegativeOrZero(0, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(0, "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test
   public void test_notNegativeOrZero_int_negative() {
-    ArgChecker.notNegativeOrZero(-1, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(-1, "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
+  @Test
   public void test_notNegativeOrZero_long_ok() {
-    assertEquals(ArgChecker.notNegativeOrZero(1L, "name"), 1);
+    assertThat(ArgChecker.notNegativeOrZero(1L, "name")).isEqualTo(1);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test
   public void test_notNegativeOrZero_long_zero() {
-    ArgChecker.notNegativeOrZero(0L, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(0L, "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test
   public void test_notNegativeOrZero_long_negative() {
-    ArgChecker.notNegativeOrZero(-1L, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(-1L, "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
+  @Test
   public void test_notNegativeOrZero_double_ok() {
-    assertEquals(ArgChecker.notNegativeOrZero(1d, "name"), 1d, 0.0001d);
+    assertThat(ArgChecker.notNegativeOrZero(1d, "name")).isEqualTo(1d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test
   public void test_notNegativeOrZero_double_zero() {
-    ArgChecker.notNegativeOrZero(0.0d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(0d, "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*negative.*zero.*")
+  @Test
   public void test_notNegativeOrZero_double_negative() {
-    ArgChecker.notNegativeOrZero(-1.0d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(-1d, "name"))
+        .withMessageMatching(".*'name'.*negative.*zero.*");
   }
 
+  @Test
   public void test_notNegativeOrZero_double_eps_ok() {
-    assertEquals(ArgChecker.notNegativeOrZero(1d, 0.0001d, "name"), 1d, 0.0001d);
-    assertEquals(ArgChecker.notNegativeOrZero(0.1d, 0.0001d, "name"), 0.1d, 0.0001d);
+    assertThat(ArgChecker.notNegativeOrZero(1d, 0.0001d, "name")).isEqualTo(1d);
+    assertThat(ArgChecker.notNegativeOrZero(0.1d, 0.0001d, "name")).isEqualTo(0.1d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
+  @Test
   public void test_notNegativeOrZero_double_eps_zero() {
-    ArgChecker.notNegativeOrZero(0.0000001d, 0.0001d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(0.0000001d, 0.0001d, "name"))
+        .withMessageMatching(".*'name'.*zero.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*greater.*zero.*")
+  @Test
   public void test_notNegativeOrZero_double_eps_negative() {
-    ArgChecker.notNegativeOrZero(-1.0d, 0.0001d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNegativeOrZero(-1.0d, 0.0001d, "name"))
+        .withMessageMatching(".*'name'.*greater.*zero.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notZero_double_ok() {
-    assertEquals(ArgChecker.notZero(1d, "name"), 1d, 0.0001d);
+    assertThat(ArgChecker.notZero(1d, "name")).isEqualTo(1d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
+  @Test
   public void test_notZero_double_zero() {
-    ArgChecker.notZero(0d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notZero(0d, "name"))
+        .withMessageMatching(".*'name'.*zero.*");
   }
 
+  @Test
   public void test_notZero_double_negative() {
     ArgChecker.notZero(-1d, "name");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_notZero_double_tolerance_ok() {
-    assertEquals(ArgChecker.notZero(1d, 0.1d, "name"), 1d, 0.0001d);
+    assertThat(ArgChecker.notZero(1d, 0.1d, "name")).isEqualTo(1d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*'name'.*zero.*")
+  @Test
   public void test_notZero_double_tolerance_zero() {
-    ArgChecker.notZero(0d, 0.1d, "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notZero(0d, 0.1d, "name"))
+        .withMessageMatching(".*'name'.*zero.*");
   }
 
+  @Test
   public void test_notZero_double_tolerance_negative() {
     ArgChecker.notZero(-1d, 0.1d, "name");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_double_inRange() {
     double low = 0d;
     double mid = 0.5d;
     double high = 1d;
     double small = 0.00000000001d;
-    assertEquals(ArgChecker.inRange(mid, low, high, "name"), mid);
-    assertEquals(ArgChecker.inRange(low, low, high, "name"), low);
-    assertEquals(ArgChecker.inRange(high - small, low, high, "name"), high - small);
+    assertThat(ArgChecker.inRange(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRange(low, low, high, "name")).isEqualTo(low);
+    assertThat(ArgChecker.inRange(high - small, low, high, "name")).isEqualTo(high - small);
 
-    assertEquals(ArgChecker.inRangeInclusive(mid, low, high, "name"), mid);
-    assertEquals(ArgChecker.inRangeInclusive(low, low, high, "name"), low);
-    assertEquals(ArgChecker.inRangeInclusive(high, low, high, "name"), high);
+    assertThat(ArgChecker.inRangeInclusive(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeInclusive(low, low, high, "name")).isEqualTo(low);
+    assertThat(ArgChecker.inRangeInclusive(high, low, high, "name")).isEqualTo(high);
 
-    assertEquals(ArgChecker.inRangeExclusive(mid, low, high, "name"), mid);
-    assertEquals(ArgChecker.inRangeExclusive(small, low, high, "name"), small);
-    assertEquals(ArgChecker.inRangeExclusive(high - small, low, high, "name"), high - small);
+    assertThat(ArgChecker.inRangeExclusive(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeExclusive(small, low, high, "name")).isEqualTo(small);
+    assertThat(ArgChecker.inRangeExclusive(high - small, low, high, "name")).isEqualTo(high - small);
   }
 
+  @Test
   public void test_double_inRange_outOfRange() {
     double low = 0d;
     double high = 1d;
@@ -592,20 +725,22 @@ public class ArgCheckerTest {
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
   }
 
+  @Test
   public void test_int_inRange() {
     int low = 0;
     int mid = 1;
     int high = 2;
-    assertEquals(ArgChecker.inRange(mid, low, high, "name"), mid);
-    assertEquals(ArgChecker.inRange(low, low, high, "name"), low);
+    assertThat(ArgChecker.inRange(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRange(low, low, high, "name")).isEqualTo(low);
 
-    assertEquals(ArgChecker.inRangeInclusive(mid, low, high, "name"), mid);
-    assertEquals(ArgChecker.inRangeInclusive(low, low, high, "name"), low);
-    assertEquals(ArgChecker.inRangeInclusive(high, low, high, "name"), high);
+    assertThat(ArgChecker.inRangeInclusive(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeInclusive(low, low, high, "name")).isEqualTo(low);
+    assertThat(ArgChecker.inRangeInclusive(high, low, high, "name")).isEqualTo(high);
 
-    assertEquals(ArgChecker.inRangeExclusive(mid, low, high, "name"), mid);
+    assertThat(ArgChecker.inRangeExclusive(mid, low, high, "name")).isEqualTo(mid);
   }
 
+  @Test
   public void test_int_inRange_outOfRange() {
     int low = 0;
     int high = 1;
@@ -619,33 +754,40 @@ public class ArgCheckerTest {
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = ".*array.*'name'.*empty.*")
+  @Test
   public void testNotEmptyLongArray() {
-    ArgChecker.notEmpty(new double[0], "name");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notEmpty(new double[0], "name"))
+        .withMessageMatching(".*array.*'name'.*empty.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_inOrderNotEqual_true() {
     LocalDate a = LocalDate.of(2011, 7, 2);
     LocalDate b = LocalDate.of(2011, 7, 3);
     ArgChecker.inOrderNotEqual(a, b, "a", "b");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*a.* [<] .*b.*")
+  @Test
   public void test_inOrderNotEqual_false_invalidOrder() {
     LocalDate a = LocalDate.of(2011, 7, 2);
     LocalDate b = LocalDate.of(2011, 7, 3);
-    ArgChecker.inOrderNotEqual(b, a, "a", "b");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.inOrderNotEqual(b, a, "a", "b"))
+        .withMessageMatching(".*a.* [<] .*b.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*a.* [<] .*b.*")
+  @Test
   public void test_inOrderNotEqual_false_equal() {
     LocalDate a = LocalDate.of(2011, 7, 3);
-    ArgChecker.inOrderNotEqual(a, a, "a", "b");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.inOrderNotEqual(a, a, "a", "b"))
+        .withMessageMatching(".*a.* [<] .*b.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_inOrderOrEqual_true() {
     LocalDate a = LocalDate.of(2011, 7, 2);
     LocalDate b = LocalDate.of(2011, 7, 3);
@@ -654,14 +796,17 @@ public class ArgCheckerTest {
     ArgChecker.inOrderOrEqual(b, b, "a", "b");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*a.* [<][=] .*b.*")
+  @Test
   public void test_inOrderOrEqual_false() {
     LocalDate a = LocalDate.of(2011, 7, 3);
     LocalDate b = LocalDate.of(2011, 7, 2);
-    ArgChecker.inOrderOrEqual(a, b, "a", "b");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.inOrderOrEqual(a, b, "a", "b"))
+        .withMessageMatching(".*a.* [<][=] .*b.*");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_validUtilityClass() {
     assertUtilityClass(ArgChecker.class);
   }

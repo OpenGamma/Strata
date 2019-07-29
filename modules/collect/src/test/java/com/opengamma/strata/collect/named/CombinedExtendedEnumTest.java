@@ -5,26 +5,24 @@
  */
 package com.opengamma.strata.collect.named;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import java.util.Optional;
-
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link CombinedExtendedEnum}.
  */
-@Test
 public class CombinedExtendedEnumTest {
 
+  @Test
   public void test_lookup() {
-    assertEquals(UberNamed.of("Standard"), SampleNameds.STANDARD);
-    assertEquals(UberNamed.of("More"), MoreSampleNameds.MORE);
+    assertThat(UberNamed.of("Standard")).isEqualTo(SampleNameds.STANDARD);
+    assertThat(UberNamed.of("More")).isEqualTo(MoreSampleNameds.MORE);
     CombinedExtendedEnum<UberNamed> combined = CombinedExtendedEnum.of(UberNamed.class);
-    assertEquals(combined.find("Rubbish"), Optional.empty());
+    assertThat(combined.find("Rubbish")).isEmpty();
     assertThatIllegalArgumentException().isThrownBy(() -> combined.lookup("Rubbish"));
-    assertEquals(combined.toString(), "CombinedExtendedEnum[UberNamed]");
+    assertThat(combined.toString()).isEqualTo("CombinedExtendedEnum[UberNamed]");
   }
 
 }

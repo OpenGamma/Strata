@@ -5,27 +5,29 @@
  */
 package com.opengamma.strata.collect.tuple;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.TestHelper;
 
 /**
- * Test.
+ * Test {@link Pair}.
  */
-@Test
 public class PairTest {
 
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "factory")
   public static Object[][] data_factory() {
     return new Object[][] {
         {"A", "B"},
@@ -33,28 +35,29 @@ public class PairTest {
     };
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_of_getters(Object first, Object second) {
     Pair<Object, Object> test = Pair.of(first, second);
-    assertEquals(test.getFirst(), first);
-    assertEquals(test.getSecond(), second);
+    assertThat(test.getFirst()).isEqualTo(first);
+    assertThat(test.getSecond()).isEqualTo(second);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_sizeElements(Object first, Object second) {
     Pair<Object, Object> test = Pair.of(first, second);
-    assertEquals(test.size(), 2);
-    assertEquals(test.elements(), ImmutableList.of(first, second));
+    assertThat(test.elements()).containsExactly(first, second);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_toString(Object first, Object second) {
     Pair<Object, Object> test = Pair.of(first, second);
     String str = "[" + first + ", " + second + "]";
-    assertEquals(test.toString(), str);
+    assertThat(test).hasToString(str);
   }
 
-  @DataProvider(name = "factoryNull")
   public static Object[][] data_factoryNull() {
     return new Object[][] {
         {null, null},
@@ -63,51 +66,53 @@ public class PairTest {
     };
   }
 
-  @Test(dataProvider = "factoryNull", expectedExceptions = IllegalArgumentException.class)
+  @ParameterizedTest
+  @MethodSource("data_factoryNull")
   public void test_of_null(Object first, Object second) {
-    Pair.of(first, second);
+    assertThatIllegalArgumentException().isThrownBy(() -> Pair.of(first, second));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combining() {
     Pair<Integer, Integer> summed = Stream.of(Pair.of(10, 11), Pair.of(10, 11))
         .reduce(Pair.of(0, 0), Pair.combining(Integer::sum, Integer::sum));
-    assertEquals(summed, Pair.of(20, 22));
+    assertThat(summed).isEqualTo(Pair.of(20, 22));
   }
 
+  @Test
   public void test_combinedWith() {
     Pair<String, String> combined = Pair.of("1", "2").combinedWith(Pair.of("A", "B"), String::concat, String::concat);
-    assertEquals(combined, Pair.of("1A", "2B"));
+    assertThat(combined).isEqualTo(Pair.of("1A", "2B"));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareTo() {
     Pair<String, String> ab = Pair.of("A", "B");
     Pair<String, String> ad = Pair.of("A", "D");
     Pair<String, String> ba = Pair.of("B", "A");
 
-    assertTrue(ab.compareTo(ab) == 0);
-    assertTrue(ab.compareTo(ad) < 0);
-    assertTrue(ab.compareTo(ba) < 0);
-
-    assertTrue(ad.compareTo(ab) > 0);
-    assertTrue(ad.compareTo(ad) == 0);
-    assertTrue(ad.compareTo(ba) < 0);
-
-    assertTrue(ba.compareTo(ab) > 0);
-    assertTrue(ba.compareTo(ad) > 0);
-    assertTrue(ba.compareTo(ba) == 0);
+    List<Pair<String, String>> list = new ArrayList<>();
+    list.add(ab);
+    list.add(ad);
+    list.add(ba);
+    list.sort(Comparator.naturalOrder());
+    assertThat(list).containsExactly(ab, ad, ba);
+    list.sort(Comparator.reverseOrder());
+    assertThat(list).containsExactly(ba, ad, ab);
   }
 
-  @Test(expectedExceptions = ClassCastException.class)
+  @Test
   public void test_compareTo_notComparable() {
     Runnable notComparable = () -> {};
     Pair<Runnable, String> test1 = Pair.of(notComparable, "A");
     Pair<Runnable, String> test2 = Pair.of(notComparable, "B");
-    test1.compareTo(test2);
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test1.compareTo(test2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     Pair<Integer, String> a = Pair.of(1, "Hello");
     Pair<Integer, String> a2 = Pair.of(1, "Hello");
@@ -115,44 +120,42 @@ public class PairTest {
     Pair<Integer, String> c = Pair.of(2, "Hello");
     Pair<Integer, String> d = Pair.of(2, "Goodbye");
 
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
-    assertEquals(a.equals(a2), true);
+    assertThat(a)
+        .isEqualTo(a)
+        .isEqualTo(a2)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d)
+        .isNotEqualTo(null)
+        .isNotEqualTo(ANOTHER_TYPE)
+        .hasSameHashCodeAs(a2);
 
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
+    assertThat(b)
+        .isNotEqualTo(a)
+        .isEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d);
 
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
+    assertThat(c)
+        .isNotEqualTo(a)
+        .isEqualTo(c)
+        .isNotEqualTo(b)
+        .isNotEqualTo(d);
 
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
+    assertThat(d)
+        .isNotEqualTo(a)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isEqualTo(d);
   }
 
-  public void test_equals_bad() {
-    Pair<Integer, String> a = Pair.of(1, "Hello");
-    assertEquals(a.equals(null), false);
-    assertEquals(a.equals(ANOTHER_TYPE), false);
-  }
-
-  public void test_hashCode() {
-    Pair<Integer, String> a = Pair.of(1, "Hello");
-    assertEquals(a.hashCode(), a.hashCode());
-  }
-
+  @Test
   public void test_toString() {
     Pair<String, String> test = Pair.of("A", "B");
-    assertEquals("[A, B]", test.toString());
+    assertThat(test).hasToString("[A, B]");
   }
 
+  @Test
   public void coverage() {
     Pair<String, String> test = Pair.of("A", "B");
     TestHelper.coverImmutableBean(test);

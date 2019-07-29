@@ -6,14 +6,11 @@
 package com.opengamma.strata.collect.array;
 
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertTrue;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -21,23 +18,24 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@link IntArray}.
  */
-@Test
 public class IntArrayTest {
 
   private static final int[] EMPTY_INT_ARRAY = new int[0];
   private static final Object ANOTHER_TYPE = "";
 
+  @Test
   public void test_EMPTY() {
     assertContent(IntArray.EMPTY);
   }
 
+  @Test
   public void test_of() {
     assertContent(IntArray.of());
     assertContent(IntArray.of(1), 1);
@@ -51,6 +49,7 @@ public class IntArrayTest {
     assertContent(IntArray.of(1, 2, 3, 4, 5, 6, 7, 8, 9), 1, 2, 3, 4, 5, 6, 7, 8, 9);
   }
 
+  @Test
   public void test_of_lambda() {
     assertContent(IntArray.of(0, i -> {
       throw new AssertionError();
@@ -60,11 +59,13 @@ public class IntArrayTest {
     assertContent(IntArray.of(2, i -> counter.getAndIncrement()), 3, 4);
   }
 
+  @Test
   public void test_of_stream() {
     assertContent(IntArray.of(IntStream.empty()));
     assertContent(IntArray.of(IntStream.of(1, 2, 3)), 1, 2, 3);
   }
 
+  @Test
   public void test_ofUnsafe() {
     int[] base = {1, 2, 3};
     IntArray test = IntArray.ofUnsafe(base);
@@ -76,11 +77,13 @@ public class IntArrayTest {
     assertContent(IntArray.ofUnsafe(EMPTY_INT_ARRAY));
   }
 
+  @Test
   public void test_copyOf_List() {
     assertContent(IntArray.copyOf(ImmutableList.of(1, 2, 3)), 1, 2, 3);
     assertContent(IntArray.copyOf(ImmutableList.of()));
   }
 
+  @Test
   public void test_copyOf_array() {
     int[] base = new int[] {1, 2, 3};
     IntArray test = IntArray.copyOf(base);
@@ -92,6 +95,7 @@ public class IntArrayTest {
     assertContent(IntArray.copyOf(EMPTY_INT_ARRAY));
   }
 
+  @Test
   public void test_copyOf_array_fromIndex() {
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 0), 1, 2, 3);
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 1), 2, 3);
@@ -102,6 +106,7 @@ public class IntArrayTest {
         .isThrownBy(() -> IntArray.copyOf(new int[] {1, 2, 3}, 4));
   }
 
+  @Test
   public void test_copyOf_array_fromToIndex() {
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 0, 3), 1, 2, 3);
     assertContent(IntArray.copyOf(new int[] {1, 2, 3}, 1, 2), 2);
@@ -112,59 +117,66 @@ public class IntArrayTest {
         .isThrownBy(() -> IntArray.copyOf(new int[] {1, 2, 3}, 0, 5));
   }
 
+  @Test
   public void test_filled() {
     assertContent(IntArray.filled(0));
     assertContent(IntArray.filled(3), 0, 0, 0);
   }
 
+  @Test
   public void test_filled_withValue() {
     assertContent(IntArray.filled(0, 1));
     assertContent(IntArray.filled(3, 1), 1, 1, 1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_get() {
     IntArray test = IntArray.of(1, 2, 3, 3, 4);
-    assertEquals(test.get(0), 1);
-    assertEquals(test.get(4), 4);
+    assertThat(test.get(0)).isEqualTo(1);
+    assertThat(test.get(4)).isEqualTo(4);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.get(5));
   }
 
+  @Test
   public void test_contains() {
     IntArray test = IntArray.of(1, 2, 3, 3, 4);
-    assertEquals(test.contains(1), true);
-    assertEquals(test.contains(3), true);
-    assertEquals(test.contains(5), false);
-    assertEquals(IntArray.EMPTY.contains(5), false);
+    assertThat(test.contains(1)).isEqualTo(true);
+    assertThat(test.contains(3)).isEqualTo(true);
+    assertThat(test.contains(5)).isEqualTo(false);
+    assertThat(IntArray.EMPTY.contains(5)).isEqualTo(false);
   }
 
+  @Test
   public void test_indexOf() {
     IntArray test = IntArray.of(1, 2, 3, 3, 4);
-    assertEquals(test.indexOf(2), 1);
-    assertEquals(test.indexOf(3), 2);
-    assertEquals(test.indexOf(5), -1);
-    assertEquals(IntArray.EMPTY.indexOf(5), -1);
+    assertThat(test.indexOf(2)).isEqualTo(1);
+    assertThat(test.indexOf(3)).isEqualTo(2);
+    assertThat(test.indexOf(5)).isEqualTo(-1);
+    assertThat(IntArray.EMPTY.indexOf(5)).isEqualTo(-1);
   }
 
+  @Test
   public void test_lastIndexOf() {
     IntArray test = IntArray.of(1, 2, 3, 3, 4);
-    assertEquals(test.lastIndexOf(2), 1);
-    assertEquals(test.lastIndexOf(3), 3);
-    assertEquals(test.lastIndexOf(5), -1);
-    assertEquals(IntArray.EMPTY.lastIndexOf(5), -1);
+    assertThat(test.lastIndexOf(2)).isEqualTo(1);
+    assertThat(test.lastIndexOf(3)).isEqualTo(3);
+    assertThat(test.lastIndexOf(5)).isEqualTo(-1);
+    assertThat(IntArray.EMPTY.lastIndexOf(5)).isEqualTo(-1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_copyInto() {
     IntArray test = IntArray.of(1, 2, 3);
     int[] dest = new int[4];
     test.copyInto(dest, 0);
-    assertTrue(Arrays.equals(dest, new int[] {1, 2, 3, 0}));
+    assertThat(dest).containsExactly(1, 2, 3, 0);
 
     int[] dest2 = new int[4];
     test.copyInto(dest2, 1);
-    assertTrue(Arrays.equals(dest2, new int[] {0, 1, 2, 3}));
+    assertThat(dest2).containsExactly(0, 1, 2, 3);
 
     int[] dest3 = new int[4];
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.copyInto(dest3, 2));
@@ -172,6 +184,7 @@ public class IntArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_subArray_from() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.subArray(0), 1, 2, 3);
@@ -182,6 +195,7 @@ public class IntArrayTest {
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.subArray(-1));
   }
 
+  @Test
   public void test_subArray_fromTo() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.subArray(0, 3), 1, 2, 3);
@@ -194,77 +208,80 @@ public class IntArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toList() {
     IntArray test = IntArray.of(1, 2, 3);
     List<Integer> list = test.toList();
     assertContent(IntArray.copyOf(list), 1, 2, 3);
-    assertEquals(list.size(), 3);
-    assertEquals(list.isEmpty(), false);
-    assertEquals(list.get(0).intValue(), 1);
-    assertEquals(list.get(2).intValue(), 3);
-    assertEquals(list.contains(2), true);
-    assertEquals(list.contains(5), false);
-    assertEquals(list.contains(ANOTHER_TYPE), false);
-    assertEquals(list.indexOf(2), 1);
-    assertEquals(list.indexOf(5), -1);
-    assertEquals(list.indexOf(ANOTHER_TYPE), -1);
-    assertEquals(list.lastIndexOf(3), 2);
-    assertEquals(list.lastIndexOf(5), -1);
-    assertEquals(list.lastIndexOf(ANOTHER_TYPE), -1);
+    assertThat(list.size()).isEqualTo(3);
+    assertThat(list.isEmpty()).isEqualTo(false);
+    assertThat(list.get(0).intValue()).isEqualTo(1);
+    assertThat(list.get(2).intValue()).isEqualTo(3);
+    assertThat(list.contains(2)).isEqualTo(true);
+    assertThat(list.contains(5)).isEqualTo(false);
+    assertThat(list.contains(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(list.indexOf(2)).isEqualTo(1);
+    assertThat(list.indexOf(5)).isEqualTo(-1);
+    assertThat(list.indexOf(ANOTHER_TYPE)).isEqualTo(-1);
+    assertThat(list.lastIndexOf(3)).isEqualTo(2);
+    assertThat(list.lastIndexOf(5)).isEqualTo(-1);
+    assertThat(list.lastIndexOf(ANOTHER_TYPE)).isEqualTo(-1);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.clear());
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> list.set(0, 3));
   }
 
+  @Test
   public void test_toList_iterator() {
     IntArray test = IntArray.of(1, 2, 3);
     List<Integer> list = test.toList();
     Iterator<Integer> it = list.iterator();
-    assertEquals(it.hasNext(), true);
-    assertEquals(it.next().intValue(), 1);
-    assertEquals(it.hasNext(), true);
-    assertEquals(it.next().intValue(), 2);
-    assertEquals(it.hasNext(), true);
-    assertEquals(it.next().intValue(), 3);
-    assertEquals(it.hasNext(), false);
+    assertThat(it.hasNext()).isEqualTo(true);
+    assertThat(it.next().intValue()).isEqualTo(1);
+    assertThat(it.hasNext()).isEqualTo(true);
+    assertThat(it.next().intValue()).isEqualTo(2);
+    assertThat(it.hasNext()).isEqualTo(true);
+    assertThat(it.next().intValue()).isEqualTo(3);
+    assertThat(it.hasNext()).isEqualTo(false);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> it.remove());
   }
 
+  @Test
   public void test_toList_listIterator() {
     IntArray test = IntArray.of(1, 2, 3);
     List<Integer> list = test.toList();
     ListIterator<Integer> lit = list.listIterator();
-    assertEquals(lit.nextIndex(), 0);
-    assertEquals(lit.previousIndex(), -1);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), false);
+    assertThat(lit.nextIndex()).isEqualTo(0);
+    assertThat(lit.previousIndex()).isEqualTo(-1);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(false);
     assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.previous());
 
-    assertEquals(lit.next().intValue(), 1);
-    assertEquals(lit.nextIndex(), 1);
-    assertEquals(lit.previousIndex(), 0);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.next().intValue()).isEqualTo(1);
+    assertThat(lit.nextIndex()).isEqualTo(1);
+    assertThat(lit.previousIndex()).isEqualTo(0);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
 
-    assertEquals(lit.next().intValue(), 2);
-    assertEquals(lit.nextIndex(), 2);
-    assertEquals(lit.previousIndex(), 1);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.next().intValue()).isEqualTo(2);
+    assertThat(lit.nextIndex()).isEqualTo(2);
+    assertThat(lit.previousIndex()).isEqualTo(1);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
 
-    assertEquals(lit.next().intValue(), 3);
-    assertEquals(lit.nextIndex(), 3);
-    assertEquals(lit.previousIndex(), 2);
-    assertEquals(lit.hasNext(), false);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.next().intValue()).isEqualTo(3);
+    assertThat(lit.nextIndex()).isEqualTo(3);
+    assertThat(lit.previousIndex()).isEqualTo(2);
+    assertThat(lit.hasNext()).isEqualTo(false);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
     assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(() -> lit.next());
 
-    assertEquals(lit.previous().intValue(), 3);
-    assertEquals(lit.nextIndex(), 2);
-    assertEquals(lit.previousIndex(), 1);
-    assertEquals(lit.hasNext(), true);
-    assertEquals(lit.hasPrevious(), true);
+    assertThat(lit.previous().intValue()).isEqualTo(3);
+    assertThat(lit.nextIndex()).isEqualTo(2);
+    assertThat(lit.previousIndex()).isEqualTo(1);
+    assertThat(lit.hasNext()).isEqualTo(true);
+    assertThat(lit.hasPrevious()).isEqualTo(true);
 
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.remove());
     assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> lit.set(2));
@@ -272,21 +289,24 @@ public class IntArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_stream() {
     IntArray test = IntArray.of(1, 2, 3);
     int[] streamed = test.stream().toArray();
-    assertTrue(Arrays.equals(streamed, new int[] {1, 2, 3}));
+    assertThat(streamed).containsExactly(1, 2, 3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forEach() {
     IntArray test = IntArray.of(1, 2, 3);
     int[] extracted = new int[3];
     test.forEach((i, v) -> extracted[i] = v);
-    assertTrue(Arrays.equals(extracted, new int[] {1, 2, 3}));
+    assertThat(extracted).containsExactly(1, 2, 3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_with() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.with(0, 4), 4, 2, 3);
@@ -296,6 +316,7 @@ public class IntArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.plus(5), 6, 7, 8);
@@ -303,6 +324,7 @@ public class IntArrayTest {
     assertContent(test.plus(-5), -4, -3, -2);
   }
 
+  @Test
   public void test_minus() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.minus(5), -4, -3, -2);
@@ -310,29 +332,34 @@ public class IntArrayTest {
     assertContent(test.minus(-5), 6, 7, 8);
   }
 
+  @Test
   public void test_multipliedBy() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.multipliedBy(5), 5, 10, 15);
     assertContent(test.multipliedBy(1), 1, 2, 3);
   }
 
+  @Test
   public void test_dividedBy() {
     IntArray test = IntArray.of(10, 20, 30);
     assertContent(test.dividedBy(5), 2, 4, 6);
     assertContent(test.dividedBy(1), 10, 20, 30);
   }
 
+  @Test
   public void test_map() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.map(v -> 1 / v), 1, 1 / 2, 1 / 3);
   }
 
+  @Test
   public void test_mapWithIndex() {
     IntArray test = IntArray.of(1, 2, 3);
     assertContent(test.mapWithIndex((i, v) -> i * v), 0, 2, 6);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus_array() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
@@ -340,6 +367,7 @@ public class IntArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.plus(IntArray.EMPTY));
   }
 
+  @Test
   public void test_minus_array() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
@@ -347,6 +375,7 @@ public class IntArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.minus(IntArray.EMPTY));
   }
 
+  @Test
   public void test_multipliedBy_array() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
@@ -354,6 +383,7 @@ public class IntArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.multipliedBy(IntArray.EMPTY));
   }
 
+  @Test
   public void test_dividedBy_array() {
     IntArray test1 = IntArray.of(10, 20, 30);
     IntArray test2 = IntArray.of(2, 5, 10);
@@ -361,6 +391,7 @@ public class IntArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.dividedBy(IntArray.EMPTY));
   }
 
+  @Test
   public void test_combine() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
@@ -368,14 +399,16 @@ public class IntArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test1.combine(IntArray.EMPTY, (a, b) -> a * b));
   }
 
+  @Test
   public void test_combineReduce() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
-    assertEquals(test1.combineReduce(test2, (r, a, b) -> r + a * b), 5 + 12 + 21);
+    assertThat(test1.combineReduce(test2, (r, a, b) -> r + a * b)).isEqualTo(5 + 12 + 21);
     assertThatIllegalArgumentException().isThrownBy(() -> test1.combineReduce(IntArray.EMPTY, (r, a, b) -> r + a * b));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_sorted() {
     assertContent(IntArray.of().sorted());
     assertContent(IntArray.of(2).sorted(), 2);
@@ -383,33 +416,38 @@ public class IntArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_min() {
-    assertEquals(IntArray.of(2).min(), 2);
-    assertEquals(IntArray.of(2, 1, 3).min(), 1);
+    assertThat(IntArray.of(2).min()).isEqualTo(2);
+    assertThat(IntArray.of(2, 1, 3).min()).isEqualTo(1);
     assertThatIllegalStateException().isThrownBy(() -> IntArray.EMPTY.min());
   }
 
+  @Test
   public void test_max() {
-    assertEquals(IntArray.of(2).max(), 2);
-    assertEquals(IntArray.of(2, 1, 3).max(), 3);
+    assertThat(IntArray.of(2).max()).isEqualTo(2);
+    assertThat(IntArray.of(2, 1, 3).max()).isEqualTo(3);
     assertThatIllegalStateException().isThrownBy(() -> IntArray.EMPTY.max());
   }
 
+  @Test
   public void test_sum() {
-    assertEquals(IntArray.EMPTY.sum(), 0);
-    assertEquals(IntArray.of(2).sum(), 2);
-    assertEquals(IntArray.of(2, 1, 3).sum(), 6);
+    assertThat(IntArray.EMPTY.sum()).isEqualTo(0);
+    assertThat(IntArray.of(2).sum()).isEqualTo(2);
+    assertThat(IntArray.of(2, 1, 3).sum()).isEqualTo(6);
   }
 
+  @Test
   public void test_reduce() {
-    assertEquals(IntArray.EMPTY.reduce(2, (r, v) -> {
+    assertThat(IntArray.EMPTY.reduce(2, (r, v) -> {
       throw new AssertionError();
-    }), 2);
-    assertEquals(IntArray.of(2).reduce(1, (r, v) -> r * v), 2);
-    assertEquals(IntArray.of(2, 1, 3).reduce(1, (r, v) -> r * v), 6);
+    })).isEqualTo(2);
+    assertThat(IntArray.of(2).reduce(1, (r, v) -> r * v)).isEqualTo(2);
+    assertThat(IntArray.of(2, 1, 3).reduce(1, (r, v) -> r * v)).isEqualTo(6);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_concat_varargs() {
     IntArray test1 = IntArray.of(1, 2, 3);
     assertContent(test1.concat(5, 6, 7), 1, 2, 3, 5, 6, 7);
@@ -418,6 +456,7 @@ public class IntArrayTest {
     assertContent(IntArray.EMPTY.concat(new int[] {1, 2, 3}), 1, 2, 3);
   }
 
+  @Test
   public void test_concat_object() {
     IntArray test1 = IntArray.of(1, 2, 3);
     IntArray test2 = IntArray.of(5, 6, 7);
@@ -427,24 +466,27 @@ public class IntArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     IntArray a1 = IntArray.of(1, 2);
     IntArray a2 = IntArray.of(1, 2);
     IntArray b = IntArray.of(1, 2, 3);
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(ANOTHER_TYPE), false);
-    assertEquals(a1.equals(null), false);
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(a1.equals(null)).isEqualTo(false);
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
+  @Test
   public void test_toString() {
     IntArray test = IntArray.of(1, 2);
-    assertEquals(test.toString(), "[1, 2]");
+    assertThat(test.toString()).isEqualTo("[1, 2]");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(IntArray.of(1, 2, 3));
     IntArray.of(1, 2, 3).metaBean().metaProperty("array").metaBean();
@@ -455,22 +497,24 @@ public class IntArrayTest {
   //-------------------------------------------------------------------------
   private void assertContent(IntArray array, int... expected) {
     if (expected.length == 0) {
-      assertSame(array, IntArray.EMPTY);
-      assertEquals(array.isEmpty(), true);
+      assertThat(array).isSameAs(IntArray.EMPTY);
+      assertThat(array.isEmpty()).isEqualTo(true);
     } else {
-      assertEquals(array.size(), expected.length);
+      assertThat(array.size()).isEqualTo(expected.length);
       assertArray(array.toArray(), expected);
       assertArray(array.toArrayUnsafe(), expected);
-      assertEquals(array.dimensions(), 1);
-      assertEquals(array.isEmpty(), false);
+      assertThat(array.dimensions()).isEqualTo(1);
+      assertThat(array.isEmpty()).isEqualTo(false);
     }
   }
 
   private void assertArray(int[] array, int[] expected) {
-    assertEquals(array.length, expected.length);
+    assertThat(array.length).isEqualTo(expected.length);
 
     for (int i = 0; i < array.length; i++) {
-      assertEquals(array[i], expected[i], "Unexpected value at index " + i + ",");
+      assertThat(array[i])
+          .withFailMessage("Unexpected value at index " + i + ",")
+          .isEqualTo(expected[i]);
     }
   }
 }

@@ -8,6 +8,7 @@ package com.opengamma.strata.basics;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -31,19 +32,19 @@ public class StandardIdTest {
     assertEquals(test.toString(), "scheme:/+foo~value");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_factory_String_String_nullScheme() {
-    StandardId.of(null, "value");
+    assertThatIllegalArgumentException().isThrownBy(() -> StandardId.of(null, "value"));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_factory_String_String_nullValue() {
-    StandardId.of("Scheme", null);
+    assertThatIllegalArgumentException().isThrownBy(() -> StandardId.of("Scheme", null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_factory_String_String_emptyValue() {
-    StandardId.of("Scheme", "");
+    assertThatIllegalArgumentException().isThrownBy(() -> StandardId.of("Scheme", ""));
   }
 
   @DataProvider(name = "factoryValid")
@@ -73,9 +74,9 @@ public class StandardIdTest {
     };
   }
 
-  @Test(dataProvider = "factoryInvalid", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "factoryInvalid")
   public void test_factory_String_String_invalid(String scheme, String value) {
-    StandardId.of(scheme, value);
+    assertThatIllegalArgumentException().isThrownBy(() -> StandardId.of(scheme, value));
   }
 
   //-------------------------------------------------------------------------
@@ -125,9 +126,9 @@ public class StandardIdTest {
     };
   }
 
-  @Test(dataProvider = "parseInvalidFormat", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "parseInvalidFormat")
   public void test_parse_invalidFormat(String text) {
-    StandardId.parse(text);
+    assertThatIllegalArgumentException().isThrownBy(() -> StandardId.parse(text));
   }
 
   //-------------------------------------------------------------------------

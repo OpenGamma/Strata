@@ -5,27 +5,29 @@
  */
 package com.opengamma.strata.collect.tuple;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Stream;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.TestHelper;
 
 /**
- * Test.
+ * Test {@link Triple}.
  */
-@Test
 public class TripleTest {
 
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "factory")
   public static Object[][] data_factory() {
     return new Object[][] {
         {"A", "B", "C"},
@@ -33,28 +35,30 @@ public class TripleTest {
     };
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_of_getters(Object first, Object second, Object third) {
     Triple<Object, Object, Object> test = Triple.of(first, second, third);
-    assertEquals(test.getFirst(), first);
-    assertEquals(test.getSecond(), second);
+    assertThat(test.getFirst()).isEqualTo(first);
+    assertThat(test.getSecond()).isEqualTo(second);
+    assertThat(test.getThird()).isEqualTo(third);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_sizeElements(Object first, Object second, Object third) {
     Triple<Object, Object, Object> test = Triple.of(first, second, third);
-    assertEquals(test.size(), 3);
-    assertEquals(test.elements(), ImmutableList.of(first, second, third));
+    assertThat(test.elements()).containsExactly(first, second, third);
   }
 
-  @Test(dataProvider = "factory")
+  @ParameterizedTest
+  @MethodSource("data_factory")
   public void test_toString(Object first, Object second, Object third) {
     Triple<Object, Object, Object> test = Triple.of(first, second, third);
     String str = "[" + first + ", " + second + ", " + third + "]";
-    assertEquals(test.toString(), str);
+    assertThat(test).hasToString(str);
   }
 
-  @DataProvider(name = "factoryNull")
   public static Object[][] data_factoryNull() {
     return new Object[][] {
         {null, null, null},
@@ -64,57 +68,55 @@ public class TripleTest {
     };
   }
 
-  @Test(dataProvider = "factoryNull", expectedExceptions = IllegalArgumentException.class)
+  @ParameterizedTest
+  @MethodSource("data_factoryNull")
   public void test_of_null(Object first, Object second, Object third) {
-    Triple.of(first, second, third);
+    assertThatIllegalArgumentException().isThrownBy(() -> Triple.of(first, second, third));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combining() {
     Triple<Integer, Integer, String> summed = Stream.of(Triple.of(10, 11, "3"), Triple.of(10, 11, "4"))
         .reduce(Triple.of(0, 0, ""), Triple.combining(Integer::sum, Integer::sum, String::concat));
-    assertEquals(summed, Triple.of(20, 22, "34"));
+    assertThat(summed).isEqualTo(Triple.of(20, 22, "34"));
   }
 
+  @Test
   public void test_combinedWith() {
     Triple<String, Integer, Double> combined = Triple.of("1", 10, 4d).combinedWith(Triple.of("A", 20, 5d), String::concat, Integer::sum, Double::sum);
-    assertEquals(combined, Triple.of("1A", 30, 9d));
+    assertThat(combined).isEqualTo(Triple.of("1A", 30, 9d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareTo() {
     Triple<String, String, String> abc = Triple.of("A", "B", "C");
     Triple<String, String, String> adc = Triple.of("A", "D", "C");
     Triple<String, String, String> bac = Triple.of("B", "A", "C");
     Triple<String, String, String> bad = Triple.of("B", "A", "D");
 
-    assertTrue(abc.compareTo(abc) == 0);
-    assertTrue(abc.compareTo(adc) < 0);
-    assertTrue(abc.compareTo(bac) < 0);
-
-    assertTrue(adc.compareTo(abc) > 0);
-    assertTrue(adc.compareTo(adc) == 0);
-    assertTrue(adc.compareTo(bac) < 0);
-
-    assertTrue(bac.compareTo(abc) > 0);
-    assertTrue(bac.compareTo(adc) > 0);
-    assertTrue(bac.compareTo(bac) == 0);
-
-    assertTrue(bad.compareTo(abc) > 0);
-    assertTrue(bad.compareTo(adc) > 0);
-    assertTrue(bad.compareTo(bac) > 0);
-    assertTrue(bad.compareTo(bad) == 0);
+    List<Triple<String, String, String>> list = new ArrayList<>();
+    list.add(abc);
+    list.add(adc);
+    list.add(bac);
+    list.add(bad);
+    list.sort(Comparator.naturalOrder());
+    assertThat(list).containsExactly(abc, adc, bac, bad);
+    list.sort(Comparator.reverseOrder());
+    assertThat(list).containsExactly(bad, bac, adc, abc);
   }
 
-  @Test(expectedExceptions = ClassCastException.class)
+  @Test
   public void test_compareTo_notComparable() {
     Runnable notComparable = () -> {};
     Triple<Integer, Runnable, String> test1 = Triple.of(1, notComparable, "A");
     Triple<Integer, Runnable, String> test2 = Triple.of(2, notComparable, "B");
-    test1.compareTo(test2);
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test1.compareTo(test2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     Triple<Integer, String, String> a = Triple.of(1, "Hello", "Triple");
     Triple<Integer, String, String> a2 = Triple.of(1, "Hello", "Triple");
@@ -123,54 +125,54 @@ public class TripleTest {
     Triple<Integer, String, String> d = Triple.of(2, "Goodbye", "Triple");
     Triple<Integer, String, String> e = Triple.of(2, "Goodbye", "Other");
 
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
-    assertEquals(a.equals(e), false);
-    assertEquals(a.equals(a2), true);
+    assertThat(a)
+        .isEqualTo(a)
+        .isEqualTo(a2)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d)
+        .isNotEqualTo(e)
+        .isNotEqualTo(null)
+        .isNotEqualTo(ANOTHER_TYPE)
+        .isNotEqualTo(Pair.of(Integer.valueOf(1), Double.valueOf(1.7d)))
+        .hasSameHashCodeAs(a2);
 
-    assertEquals(b.equals(a), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
-    assertEquals(b.equals(d), false);
-    assertEquals(b.equals(e), false);
+    assertThat(b)
+        .isNotEqualTo(a)
+        .isEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d)
+        .isNotEqualTo(e);
 
-    assertEquals(c.equals(a), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
-    assertEquals(c.equals(d), false);
-    assertEquals(c.equals(e), false);
+    assertThat(c)
+        .isNotEqualTo(a)
+        .isEqualTo(c)
+        .isNotEqualTo(b)
+        .isNotEqualTo(d)
+        .isNotEqualTo(e);
 
-    assertEquals(d.equals(a), false);
-    assertEquals(d.equals(b), false);
-    assertEquals(d.equals(c), false);
-    assertEquals(d.equals(d), true);
-    assertEquals(d.equals(e), false);
+    assertThat(d)
+        .isNotEqualTo(a)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isEqualTo(d)
+        .isNotEqualTo(e);
 
-    assertEquals(e.equals(a), false);
-    assertEquals(e.equals(b), false);
-    assertEquals(e.equals(c), false);
-    assertEquals(e.equals(d), false);
-    assertEquals(e.equals(e), true);
+    assertThat(e)
+        .isNotEqualTo(a)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo(d)
+        .isEqualTo(e);
   }
 
-  public void test_equals_bad() {
-    Triple<Integer, String, String> a = Triple.of(1, "Hello", "Triple");
-    assertEquals(a.equals(null), false);
-    assertEquals(a.equals(ANOTHER_TYPE), false);
-  }
-
-  public void test_hashCode() {
-    Triple<Integer, String, String> a = Triple.of(1, "Hello", "Triple");
-    assertEquals(a.hashCode(), a.hashCode());
-  }
-
+  @Test
   public void test_toString() {
     Triple<String, String, String> test = Triple.of("A", "B", "C");
-    assertEquals("[A, B, C]", test.toString());
+    assertThat(test).hasToString("[A, B, C]");
   }
 
+  @Test
   public void coverage() {
     Triple<String, String, String> test = Triple.of("A", "B", "C");
     TestHelper.coverImmutableBean(test);

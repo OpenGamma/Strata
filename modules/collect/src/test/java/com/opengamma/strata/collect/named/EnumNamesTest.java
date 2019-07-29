@@ -5,58 +5,63 @@
  */
 package com.opengamma.strata.collect.named;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link EnumNames}.
  */
-@Test
 public class EnumNamesTest {
 
+  @Test
   public void test_format() {
     EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
-    assertEquals(test.format(MockEnum.ONE), "One");
-    assertEquals(test.format(MockEnum.TWENTY_ONE), "TwentyOne");
-    assertEquals(test.format(MockEnum.FooBar), "Foobar");
-    assertEquals(test.format(MockEnum.WOO_BAR_WAA), "WooBarWaa");
+    assertThat(test.format(MockEnum.ONE)).isEqualTo("One");
+    assertThat(test.format(MockEnum.TWENTY_ONE)).isEqualTo("TwentyOne");
+    assertThat(test.format(MockEnum.FooBar)).isEqualTo("Foobar");
+    assertThat(test.format(MockEnum.WOO_BAR_WAA)).isEqualTo("WooBarWaa");
   }
 
+  @Test
   public void test_parse_one() {
     EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
-    assertEquals(test.parse("One"), MockEnum.ONE);
-    assertEquals(test.parse("ONE"), MockEnum.ONE);
-    assertEquals(test.parse("one"), MockEnum.ONE);
+    assertThat(test.parse("One")).isEqualTo(MockEnum.ONE);
+    assertThat(test.parse("ONE")).isEqualTo(MockEnum.ONE);
+    assertThat(test.parse("one")).isEqualTo(MockEnum.ONE);
   }
 
+  @Test
   public void test_parse_twentyOne() {
     EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
-    assertEquals(test.parse("TwentyOne"), MockEnum.TWENTY_ONE);
-    assertEquals(test.parse("TWENTYONE"), MockEnum.TWENTY_ONE);
-    assertEquals(test.parse("twentyone"), MockEnum.TWENTY_ONE);
-    assertEquals(test.parse("TWENTY_ONE"), MockEnum.TWENTY_ONE);
-    assertEquals(test.parse("twenty_one"), MockEnum.TWENTY_ONE);
+    assertThat(test.parse("TwentyOne")).isEqualTo(MockEnum.TWENTY_ONE);
+    assertThat(test.parse("TWENTYONE")).isEqualTo(MockEnum.TWENTY_ONE);
+    assertThat(test.parse("twentyone")).isEqualTo(MockEnum.TWENTY_ONE);
+    assertThat(test.parse("TWENTY_ONE")).isEqualTo(MockEnum.TWENTY_ONE);
+    assertThat(test.parse("twenty_one")).isEqualTo(MockEnum.TWENTY_ONE);
   }
 
+  @Test
   public void test_parse_fooBar() {
     EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
-    assertEquals(test.parse("Foobar"), MockEnum.FooBar);
-    assertEquals(test.parse("FOOBAR"), MockEnum.FooBar);
-    assertEquals(test.parse("foobar"), MockEnum.FooBar);
-    assertEquals(test.parse("FooBar"), MockEnum.FooBar);
+    assertThat(test.parse("Foobar")).isEqualTo(MockEnum.FooBar);
+    assertThat(test.parse("FOOBAR")).isEqualTo(MockEnum.FooBar);
+    assertThat(test.parse("foobar")).isEqualTo(MockEnum.FooBar);
+    assertThat(test.parse("FooBar")).isEqualTo(MockEnum.FooBar);
   }
 
+  @Test
   public void test_parse_wooBarWaa() {
     EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
-    assertEquals(test.parse("WooBarWaa"), MockEnum.WOO_BAR_WAA);
-    assertEquals(test.parse("WOOBARWAA"), MockEnum.WOO_BAR_WAA);
-    assertEquals(test.parse("woobarwaa"), MockEnum.WOO_BAR_WAA);
-    assertEquals(test.parse("WOO_BAR_WAA"), MockEnum.WOO_BAR_WAA);
-    assertEquals(test.parse("woo_bar_waa"), MockEnum.WOO_BAR_WAA);
+    assertThat(test.parse("WooBarWaa")).isEqualTo(MockEnum.WOO_BAR_WAA);
+    assertThat(test.parse("WOOBARWAA")).isEqualTo(MockEnum.WOO_BAR_WAA);
+    assertThat(test.parse("woobarwaa")).isEqualTo(MockEnum.WOO_BAR_WAA);
+    assertThat(test.parse("WOO_BAR_WAA")).isEqualTo(MockEnum.WOO_BAR_WAA);
+    assertThat(test.parse("woo_bar_waa")).isEqualTo(MockEnum.WOO_BAR_WAA);
   }
 
+  @Test
   public void test_parse_invalid() {
     EnumNames<MockEnum> test = EnumNames.of(MockEnum.class);
     assertThatThrownBy(() -> test.parse("unknown"))

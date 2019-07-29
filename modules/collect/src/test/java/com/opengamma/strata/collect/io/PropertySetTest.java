@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -22,113 +22,122 @@ import com.google.common.collect.Multimap;
 /**
  * Test {@link PropertySet}.
  */
-@Test
 public class PropertySetTest {
 
   private static final Object ANOTHER_TYPE = "";
 
+  @Test
   public void test_empty() {
     PropertySet test = PropertySet.empty();
 
-    assertEquals(test.isEmpty(), true);
-    assertEquals(test.contains("unknown"), false);
-    assertEquals(test.valueList("unknown"), ImmutableList.of());
+    assertThat(test.isEmpty()).isEqualTo(true);
+    assertThat(test.contains("unknown")).isEqualTo(false);
+    assertThat(test.valueList("unknown")).isEqualTo(ImmutableList.of());
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
-    assertEquals(test.toString(), "{}");
+    assertThat(test.toString()).isEqualTo("{}");
   }
 
+  @Test
   public void test_of_map() {
     Map<String, String> keyValues = ImmutableMap.of("a", "x", "b", "y");
     PropertySet test = PropertySet.of(keyValues);
 
-    assertEquals(test.isEmpty(), false);
-    assertEquals(test.contains("a"), true);
-    assertEquals(test.value("a"), "x");
-    assertEquals(test.valueList("a"), ImmutableList.of("x"));
-    assertEquals(test.contains("b"), true);
-    assertEquals(test.value("b"), "y");
-    assertEquals(test.valueList("b"), ImmutableList.of("y"));
-    assertEquals(test.contains("c"), false);
-    assertEquals(test.keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.asMap(), ImmutableMap.of("a", "x", "b", "y"));
-    assertEquals(test.asMultimap(), ImmutableListMultimap.of("a", "x", "b", "y"));
-    assertEquals(test.valueList("unknown"), ImmutableSet.of());
+    assertThat(test.isEmpty()).isEqualTo(false);
+    assertThat(test.contains("a")).isEqualTo(true);
+    assertThat(test.value("a")).isEqualTo("x");
+    assertThat(test.valueList("a")).isEqualTo(ImmutableList.of("x"));
+    assertThat(test.contains("b")).isEqualTo(true);
+    assertThat(test.value("b")).isEqualTo("y");
+    assertThat(test.valueList("b")).isEqualTo(ImmutableList.of("y"));
+    assertThat(test.contains("c")).isEqualTo(false);
+    assertThat(test.keys()).isEqualTo(ImmutableSet.of("a", "b"));
+    assertThat(test.asMap()).isEqualTo(ImmutableMap.of("a", "x", "b", "y"));
+    assertThat(test.asMultimap()).isEqualTo(ImmutableListMultimap.of("a", "x", "b", "y"));
+    assertThat(test.valueList("unknown")).isEqualTo(ImmutableList.of());
 
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
-    assertEquals(test.toString(), "{a=[x], b=[y]}");
+    assertThat(test.toString()).isEqualTo("{a=[x], b=[y]}");
   }
 
+  @Test
   public void test_of_multimap() {
     Multimap<String, String> keyValues = ImmutableMultimap.of("a", "x", "a", "y", "b", "z");
     PropertySet test = PropertySet.of(keyValues);
 
-    assertEquals(test.isEmpty(), false);
-    assertEquals(test.contains("a"), true);
+    assertThat(test.isEmpty()).isEqualTo(false);
+    assertThat(test.contains("a")).isEqualTo(true);
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("a"));
-    assertEquals(test.valueList("a"), ImmutableList.of("x", "y"));
-    assertEquals(test.contains("b"), true);
-    assertEquals(test.value("b"), "z");
-    assertEquals(test.valueList("b"), ImmutableList.of("z"));
-    assertEquals(test.contains("c"), false);
-    assertEquals(test.keys(), ImmutableSet.of("a", "b"));
-    assertEquals(test.asMultimap(), ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
-    assertEquals(test.valueList("unknown"), ImmutableSet.of());
+    assertThat(test.valueList("a")).isEqualTo(ImmutableList.of("x", "y"));
+    assertThat(test.contains("b")).isEqualTo(true);
+    assertThat(test.value("b")).isEqualTo("z");
+    assertThat(test.valueList("b")).isEqualTo(ImmutableList.of("z"));
+    assertThat(test.contains("c")).isEqualTo(false);
+    assertThat(test.keys()).isEqualTo(ImmutableSet.of("a", "b"));
+    assertThat(test.asMultimap()).isEqualTo(ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
+    assertThat(test.valueList("unknown")).isEqualTo(ImmutableList.of());
 
     assertThatIllegalArgumentException().isThrownBy(() -> test.asMap());
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
-    assertEquals(test.toString(), "{a=[x, y], b=[z]}");
+    assertThat(test.toString()).isEqualTo("{a=[x, y], b=[z]}");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "c", "z"));
     PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "bb", "d", "dd"));
     PropertySet expected = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "c", "z", "b", "bb", "d", "dd"));
-    assertEquals(base.combinedWith(other), expected);
+    assertThat(base.combinedWith(other)).isEqualTo(expected);
   }
 
+  @Test
   public void test_combinedWith_emptyBase() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(base.combinedWith(PropertySet.empty()), base);
+    assertThat(base.combinedWith(PropertySet.empty())).isEqualTo(base);
   }
 
+  @Test
   public void test_combinedWith_emptyOther() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(PropertySet.empty().combinedWith(base), base);
+    assertThat(PropertySet.empty().combinedWith(base)).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_overrideWith() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
     PropertySet other = PropertySet.of(ImmutableListMultimap.of("a", "aa", "c", "cc", "d", "dd", "e", "ee"));
     PropertySet expected =
         PropertySet.of(ImmutableListMultimap.of("a", "aa", "b", "y", "c", "cc", "d", "dd", "e", "ee"));
-    assertEquals(base.overrideWith(other), expected);
+    assertThat(base.overrideWith(other)).isEqualTo(expected);
   }
 
+  @Test
   public void test_overrideWith_emptyBase() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(base.overrideWith(PropertySet.empty()), base);
+    assertThat(base.overrideWith(PropertySet.empty())).isEqualTo(base);
   }
 
+  @Test
   public void test_overrideWith_emptyOther() {
     PropertySet base = PropertySet.of(ImmutableListMultimap.of("a", "x", "a", "y", "b", "y", "c", "z"));
-    assertEquals(PropertySet.empty().overrideWith(base), base);
+    assertThat(PropertySet.empty().overrideWith(base)).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     Map<String, String> keyValues = ImmutableMap.of("a", "x", "b", "y");
     PropertySet a1 = PropertySet.of(keyValues);
     PropertySet a2 = PropertySet.of(keyValues);
     PropertySet b = PropertySet.of(ImmutableMap.of("a", "x", "b", "z"));
 
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(null), false);
-    assertEquals(a1.equals(ANOTHER_TYPE), false);
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(null)).isEqualTo(false);
+    assertThat(a1.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
 }

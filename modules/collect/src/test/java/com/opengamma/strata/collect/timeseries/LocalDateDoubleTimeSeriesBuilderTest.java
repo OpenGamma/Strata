@@ -5,86 +5,92 @@
  */
 package com.opengamma.strata.collect.timeseries;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.OptionalDouble;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.primitives.Doubles;
 
 /**
- * Test LocalDateDoubleTimeSeriesBuilder.
+ * Test {@link LocalDateDoubleTimeSeriesBuilder}.
  */
-@Test
 public class LocalDateDoubleTimeSeriesBuilderTest {
 
   @Test
   public void test_buildEmptySeries() {
-    assertEquals(LocalDateDoubleTimeSeries.builder().build(), LocalDateDoubleTimeSeries.empty());
+    assertThat(LocalDateDoubleTimeSeries.builder().build()).isEqualTo(LocalDateDoubleTimeSeries.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_get() {
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder()
         .put(date(2014, 1, 1), 14)
         .put(date(2012, 1, 1), 12)
         .put(date(2013, 1, 1), 13);
 
-    assertEquals(test.get(date(2012, 1, 1)), OptionalDouble.of(12d));
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(13d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(14d));
-    assertEquals(test.get(date(2015, 1, 1)), OptionalDouble.empty());
+    assertThat(test.get(date(2012, 1, 1))).hasValue(12d);
+    assertThat(test.get(date(2013, 1, 1))).hasValue(13d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(14d);
+    assertThat(test.get(date(2015, 1, 1))).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_merge_dateValue() {
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.put(date(2013, 1, 1), 2d);
     test.merge(date(2013, 1, 1), 3d, Double::sum);
 
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(5d));
+    assertThat(test.get(date(2013, 1, 1))).hasValue(5d);
   }
 
+  @Test
   public void test_merge_point() {
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.put(date(2013, 1, 1), 2d);
     test.merge(LocalDateDoublePoint.of(date(2013, 1, 1), 3d), Double::sum);
 
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(5d));
+    assertThat(test.get(date(2013, 1, 1))).hasValue(5d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_putAll_collections() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.putAll(dates, values);
 
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(2d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(3d));
+    assertThat(test.get(date(2013, 1, 1))).hasValue(2d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(3d);
   }
 
+  @Test
   public void test_putAll_collection_array() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     double[] values = new double[] {2d, 3d};
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
     test.putAll(dates, values);
 
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(2d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(3d));
+    assertThat(test.get(date(2013, 1, 1))).hasValue(2d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(3d);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_putAll_collectionsMismatch() {
     LocalDateDoubleTimeSeriesBuilder test = LocalDateDoubleTimeSeries.builder();
-    test.putAll(Arrays.asList(date(2014, 1, 1)), Doubles.asList(2d, 3d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.putAll(Arrays.asList(date(2014, 1, 1)), Doubles.asList(2d, 3d)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_putAll_stream() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
@@ -95,11 +101,12 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
     test.put(date(2013, 1, 1), 1d);
     test.putAll(base.stream());
 
-    assertEquals(test.get(date(2012, 1, 1)), OptionalDouble.of(0d));
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(2d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(3d));
+    assertThat(test.get(date(2012, 1, 1))).hasValue(0d);
+    assertThat(test.get(date(2013, 1, 1))).hasValue(2d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(3d);
   }
 
+  @Test
   public void test_putAll_toBuilder() {
     Collection<LocalDate> dates = Arrays.asList(date(2013, 1, 1), date(2014, 1, 1));
     Collection<Double> values = Doubles.asList(2d, 3d);
@@ -110,12 +117,13 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
     test.put(date(2013, 1, 1), 1d);
     test.putAll(base.toBuilder());
 
-    assertEquals(test.get(date(2012, 1, 1)), OptionalDouble.of(0d));
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(2d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(3d));
+    assertThat(test.get(date(2012, 1, 1))).hasValue(0d);
+    assertThat(test.get(date(2013, 1, 1))).hasValue(2d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(3d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_seriesGetsSorted() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder()
         .put(date(2014, 1, 1), 14)
@@ -123,24 +131,26 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
         .put(date(2013, 1, 1), 13)
         .build();
 
-    assertEquals(test.size(), 3);
-    assertEquals(test.getEarliestDate(), date(2012, 1, 1));
-    assertEquals(test.getLatestDate(), date(2014, 1, 1));
-    assertEquals(test.get(date(2012, 1, 1)), OptionalDouble.of(12d));
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(13d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(14d));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getEarliestDate()).isEqualTo(date(2012, 1, 1));
+    assertThat(test.getLatestDate()).isEqualTo(date(2014, 1, 1));
+    assertThat(test.get(date(2012, 1, 1))).hasValue(12d);
+    assertThat(test.get(date(2013, 1, 1))).hasValue(13d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(14d);
   }
 
+  @Test
   public void test_duplicatesGetOverwritten() {
     LocalDateDoubleTimeSeries test = LocalDateDoubleTimeSeries.builder()
         .put(date(2014, 1, 1), 12)
         .put(date(2014, 1, 1), 14)
         .build();
 
-    assertEquals(test.size(), 1);
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(14d));
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(14d);
   }
 
+  @Test
   public void test_useBuilderToAlterSeries() {
     LocalDateDoubleTimeSeries base = LocalDateDoubleTimeSeries.builder()
         .put(date(2014, 1, 1), 14)
@@ -152,17 +162,18 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
         .put(date(2011, 1, 1), 21)
         .build();
 
-    assertEquals(test.size(), 4);
-    assertEquals(test.getEarliestDate(), date(2011, 1, 1));
-    assertEquals(test.getLatestDate(), date(2014, 1, 1));
+    assertThat(test.size()).isEqualTo(4);
+    assertThat(test.getEarliestDate()).isEqualTo(date(2011, 1, 1));
+    assertThat(test.getLatestDate()).isEqualTo(date(2014, 1, 1));
     // new value
-    assertEquals(test.get(date(2011, 1, 1)), OptionalDouble.of(21d));
-    assertEquals(test.get(date(2012, 1, 1)), OptionalDouble.of(12d));
+    assertThat(test.get(date(2011, 1, 1))).hasValue(21d);
+    assertThat(test.get(date(2012, 1, 1))).hasValue(12d);
     // updated value
-    assertEquals(test.get(date(2013, 1, 1)), OptionalDouble.of(23d));
-    assertEquals(test.get(date(2014, 1, 1)), OptionalDouble.of(14d));
+    assertThat(test.get(date(2013, 1, 1))).hasValue(23d);
+    assertThat(test.get(date(2014, 1, 1))).hasValue(14d);
   }
 
+  @Test
   public void densityChoosesImplementation() {
     LocalDateDoubleTimeSeries series1 = LocalDateDoubleTimeSeries.builder()
         .put(date(2015, 1, 5), 14) // Monday
@@ -170,7 +181,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
         .put(date(2015, 1, 19), 13)
         .build();
 
-    assertEquals(series1.getClass(), SparseLocalDateDoubleTimeSeries.class);
+    assertThat(series1.getClass()).isEqualTo(SparseLocalDateDoubleTimeSeries.class);
 
     // Now add in a week's worth of data
     LocalDateDoubleTimeSeries series2 = series1.toBuilder()
@@ -181,21 +192,21 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
         .build();
 
     // Not yet enough as we have 7/11 populated (i.e. below 70%)
-    assertEquals(series2.getClass(), SparseLocalDateDoubleTimeSeries.class);
+    assertThat(series2.getClass()).isEqualTo(SparseLocalDateDoubleTimeSeries.class);
 
     // Add in 1 more days giving 8/11 populated
     LocalDateDoubleTimeSeries series3 = series2.toBuilder()
         .put(date(2015, 1, 13), 11)
         .build();
 
-    assertEquals(series3.getClass(), DenseLocalDateDoubleTimeSeries.class);
+    assertThat(series3.getClass()).isEqualTo(DenseLocalDateDoubleTimeSeries.class);
 
     // Now add in a weekend date, which means we have 9/15
     LocalDateDoubleTimeSeries series4 = series3.toBuilder()
         .put(date(2015, 1, 10), 12) // Saturday
         .build();
 
-    assertEquals(series4.getClass(), SparseLocalDateDoubleTimeSeries.class);
+    assertThat(series4.getClass()).isEqualTo(SparseLocalDateDoubleTimeSeries.class);
 
     // Add in 2 new dates giving 11/15
     LocalDateDoubleTimeSeries series5 = series4.toBuilder()
@@ -203,7 +214,7 @@ public class LocalDateDoubleTimeSeriesBuilderTest {
         .put(date(2015, 1, 15), 10)
         .build();
 
-    assertEquals(series5.getClass(), DenseLocalDateDoubleTimeSeries.class);
+    assertThat(series5.getClass()).isEqualTo(DenseLocalDateDoubleTimeSeries.class);
   }
 
   //-------------------------------------------------------------------------

@@ -5,34 +5,33 @@
  */
 package com.opengamma.strata.collect.result;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
 /**
  * Test {@link FailureItem}.
  */
-@Test
 public class FailureItemTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_reasonMessage() {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {} {} failure", "big", "bad");
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my big bad failure");
-    assertFalse(test.getCauseType().isPresent());
-    assertFalse(test.getStackTrace().contains(".FailureItem.of("));
-    assertFalse(test.getStackTrace().contains(".Failure.of("));
-    assertTrue(test.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"));
-    assertTrue(test.getStackTrace().contains(".test_of_reasonMessage("));
-    assertEquals(test.toString(), "INVALID: my big bad failure");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getCauseType()).isEmpty();
+    assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
+    assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
+    assertThat(test.getStackTrace()).startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure");
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessage(");
+    assertThat(test.toString()).isEqualTo("INVALID: my big bad failure");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_reasonMessageShortStackTrace() {
     FailureItem test = FailureItem.meta().builder()
         .set("reason", FailureReason.INVALID)
@@ -40,110 +39,120 @@ public class FailureItemTest {
         .set("stackTrace", "Short stack trace")
         .set("causeType", IllegalArgumentException.class)
         .build();
-    assertEquals(test.toString(), "INVALID: my issue: Short stack trace");
+    assertThat(test.toString()).isEqualTo("INVALID: my issue: Short stack trace");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_reasonException() {
     IllegalArgumentException ex = new IllegalArgumentException("exmsg");
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex);
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "exmsg");
-    assertTrue(test.getCauseType().isPresent());
-    assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
-    assertTrue(test.getStackTrace().contains(".test_of_reasonException("));
-    assertEquals(test.toString(), "INVALID: exmsg: java.lang.IllegalArgumentException");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("exmsg");
+    assertThat(test.getCauseType()).isPresent();
+    assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
+    assertThat(test.getStackTrace()).contains(".test_of_reasonException(");
+    assertThat(test.toString()).isEqualTo("INVALID: exmsg: java.lang.IllegalArgumentException");
   }
 
+  @Test
   public void test_of_reasonError() {
     NoClassDefFoundError ex = new NoClassDefFoundError("exmsg");
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex);
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "exmsg");
-    assertEquals(test.getCauseType().isPresent(), true);
-    assertEquals(test.getCauseType().get(), NoClassDefFoundError.class);
-    assertEquals(test.getStackTrace().contains(".test_of_reasonError("), true);
-    assertEquals(test.toString(), "INVALID: exmsg: java.lang.NoClassDefFoundError");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("exmsg");
+    assertThat(test.getCauseType().isPresent()).isEqualTo(true);
+    assertThat(test.getCauseType()).hasValue(NoClassDefFoundError.class);
+    assertThat(test.getStackTrace()).contains(".test_of_reasonError(");
+    assertThat(test.toString()).isEqualTo("INVALID: exmsg: java.lang.NoClassDefFoundError");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_reasonMessageException() {
     IllegalArgumentException ex = new IllegalArgumentException("exmsg");
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "my failure");
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my failure");
-    assertTrue(test.getCauseType().isPresent());
-    assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
-    assertTrue(test.getStackTrace().contains(".test_of_reasonMessageException("));
-    assertEquals(test.toString(), "INVALID: my failure: java.lang.IllegalArgumentException: exmsg");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("my failure");
+    assertThat(test.getCauseType()).isPresent();
+    assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageException(");
+    assertThat(test.toString()).isEqualTo("INVALID: my failure: java.lang.IllegalArgumentException: exmsg");
   }
 
+  @Test
   public void test_of_reasonMessageExceptionNestedException() {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("exmsg", innerEx);
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "my {} {} failure", "big", "bad");
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my big bad failure");
-    assertTrue(test.getCauseType().isPresent());
-    assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
-    assertTrue(test.getStackTrace().contains(".test_of_reasonMessageExceptionNestedException("));
-    assertEquals(test.toString(), "INVALID: my big bad failure: java.lang.IllegalArgumentException: exmsg");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getCauseType()).isPresent();
+    assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageExceptionNestedException(");
+    assertThat(test.toString()).isEqualTo("INVALID: my big bad failure: java.lang.IllegalArgumentException: exmsg");
   }
 
+  @Test
   public void test_of_reasonMessageExceptionNestedExceptionWithAttributes() {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("exmsg", innerEx);
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "a {foo} {bar} failure", "big", "bad");
-    assertEquals(test.getAttributes(),
-        ImmutableMap.of("foo", "big", "bar", "bad", FailureItem.EXCEPTION_MESSAGE_ATTRIBUTE, "exmsg"));
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "a big bad failure");
-    assertTrue(test.getCauseType().isPresent());
-    assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
-    assertTrue(test.getStackTrace().contains(".test_of_reasonMessageExceptionNestedExceptionWithAttributes("));
-    assertEquals(test.toString(), "INVALID: a big bad failure: java.lang.IllegalArgumentException: exmsg");
+    assertThat(test.getAttributes())
+        .containsEntry("foo", "big")
+        .containsEntry("bar", "bad")
+        .containsEntry(FailureItem.EXCEPTION_MESSAGE_ATTRIBUTE, "exmsg");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("a big bad failure");
+    assertThat(test.getCauseType()).isPresent();
+    assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageExceptionNestedExceptionWithAttributes(");
+    assertThat(test.toString()).isEqualTo("INVALID: a big bad failure: java.lang.IllegalArgumentException: exmsg");
   }
 
+  @Test
   public void test_of_reasonMessageWithAttributes() {
     IllegalArgumentException innerEx = new IllegalArgumentException("inner");
     IllegalArgumentException ex = new IllegalArgumentException("exmsg", innerEx);
     FailureItem test = FailureItem.of(FailureReason.INVALID, ex, "failure: {exceptionMessage}", "error");
-    assertEquals(test.getAttributes(),
-        ImmutableMap.of(FailureItem.EXCEPTION_MESSAGE_ATTRIBUTE, "error"));
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "failure: error");
-    assertTrue(test.getCauseType().isPresent());
-    assertEquals(test.getCauseType().get(), IllegalArgumentException.class);
-    assertTrue(test.getStackTrace().contains(".test_of_reasonMessageWithAttributes("));
-    assertEquals(test.toString(), "INVALID: failure: error: java.lang.IllegalArgumentException: exmsg");
+    assertThat(test.getAttributes())
+        .containsEntry(FailureItem.EXCEPTION_MESSAGE_ATTRIBUTE, "error");
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("failure: error");
+    assertThat(test.getCauseType()).isPresent();
+    assertThat(test.getCauseType()).hasValue(IllegalArgumentException.class);
+    assertThat(test.getStackTrace()).contains(".test_of_reasonMessageWithAttributes(");
+    assertThat(test.toString()).isEqualTo("INVALID: failure: error: java.lang.IllegalArgumentException: exmsg");
   }
 
+  @Test
   public void test_withAttribute() {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {one} {two} failure", "big", "bad");
     test = test.withAttribute("foo", "bar");
-    assertEquals(test.getAttributes(), ImmutableMap.of("one", "big", "two", "bad", "foo", "bar"));
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my big bad failure");
-    assertFalse(test.getCauseType().isPresent());
-    assertFalse(test.getStackTrace().contains(".FailureItem.of("));
-    assertFalse(test.getStackTrace().contains(".Failure.of("));
-    assertTrue(test.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"));
-    assertTrue(test.getStackTrace().contains(".test_withAttribute("));
-    assertEquals(test.toString(), "INVALID: my big bad failure");
+    assertThat(test.getAttributes()).isEqualTo(ImmutableMap.of("one", "big", "two", "bad", "foo", "bar"));
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getCauseType()).isEmpty();
+    assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
+    assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
+    assertThat(test.getStackTrace()).startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure");
+    assertThat(test.getStackTrace()).contains(".test_withAttribute(");
+    assertThat(test.toString()).isEqualTo("INVALID: my big bad failure");
   }
 
+  @Test
   public void test_withAttributes() {
     FailureItem test = FailureItem.of(FailureReason.INVALID, "my {one} {two} failure", "big", "bad");
     test = test.withAttributes(ImmutableMap.of("foo", "bar", "two", "good"));
-    assertEquals(test.getAttributes(), ImmutableMap.of("one", "big", "two", "good", "foo", "bar"));
-    assertEquals(test.getReason(), FailureReason.INVALID);
-    assertEquals(test.getMessage(), "my big bad failure");
-    assertFalse(test.getCauseType().isPresent());
-    assertFalse(test.getStackTrace().contains(".FailureItem.of("));
-    assertFalse(test.getStackTrace().contains(".Failure.of("));
-    assertTrue(test.getStackTrace().startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure"));
-    assertTrue(test.getStackTrace().contains(".test_withAttributes("));
-    assertEquals(test.toString(), "INVALID: my big bad failure");
+    assertThat(test.getAttributes()).isEqualTo(ImmutableMap.of("one", "big", "two", "good", "foo", "bar"));
+    assertThat(test.getReason()).isEqualTo(FailureReason.INVALID);
+    assertThat(test.getMessage()).isEqualTo("my big bad failure");
+    assertThat(test.getCauseType()).isEmpty();
+    assertThat(test.getStackTrace()).doesNotContain(".FailureItem.of(");
+    assertThat(test.getStackTrace()).doesNotContain(".Failure.of(");
+    assertThat(test.getStackTrace()).startsWith("com.opengamma.strata.collect.result.FailureItem: my big bad failure");
+    assertThat(test.getStackTrace()).contains(".test_withAttributes(");
+    assertThat(test.toString()).isEqualTo("INVALID: my big bad failure");
   }
 
 }

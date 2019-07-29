@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -56,10 +57,11 @@ public class MoneyTest {
     assertEquals(Money.of(Currency.RON, 260.31), MONEY_100_AUD.convertedTo(CCY_RON, BigDecimal.valueOf(2.6d)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "FX rate must be 1 when no conversion required")
+  @Test
   public void testConvertedToWithExplicitRateForSameCurrency() throws Exception {
-    assertEquals(Money.of(Currency.RON, 200.23), MONEY_200_RON.convertedTo(CCY_RON, BigDecimal.valueOf(1.1)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> MONEY_200_RON.convertedTo(CCY_RON, BigDecimal.valueOf(1.1)))
+        .withMessage("FX rate must be 1 when no conversion required");
   }
 
   @Test
@@ -100,16 +102,18 @@ public class MoneyTest {
     assertEquals(Money.parse("RON 200.2345"), MONEY_200_RON);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Unable to parse amount: 200.23 RON")
+  @Test
   public void testParseWrongFormat() throws Exception {
-    Money.parse("200.23 RON");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Money.parse("200.23 RON"))
+        .withMessage("Unable to parse amount: 200.23 RON");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Unable to parse amount, invalid format: [$]100")
+  @Test
   public void testParseWrongElementsNumber() throws Exception {
-    Money.parse("$100");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Money.parse("$100"))
+        .withMessageMatching("Unable to parse amount, invalid format: [$]100");
   }
 
 }

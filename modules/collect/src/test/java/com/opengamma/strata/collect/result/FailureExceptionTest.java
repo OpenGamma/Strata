@@ -5,20 +5,20 @@
  */
 package com.opengamma.strata.collect.result;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link FailureException}.
  */
-@Test
 public class FailureExceptionTest {
 
+  @Test
   public void test_constructor_failure() {
     Failure failure = Failure.of(FailureReason.UNSUPPORTED, "Test");
     FailureException test = new FailureException(failure);
-    assertEquals(test.getFailure(), failure);
+    assertThat(test.getFailure()).isEqualTo(failure);
   }
 
 }

@@ -7,6 +7,8 @@ package com.opengamma.strata.basics.location;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertTrue;
@@ -114,9 +116,9 @@ public class CountryTest {
     };
   }
 
-  @Test(dataProvider = "ofBad", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "ofBad")
   public void test_of_String_bad(String input) {
-    Country.of(input);
+    assertThatIllegalArgumentException().isThrownBy(() -> Country.of(input));
   }
 
   //-----------------------------------------------------------------------
@@ -150,9 +152,9 @@ public class CountryTest {
     };
   }
 
-  @Test(dataProvider = "parseBad", expectedExceptions = IllegalArgumentException.class)
+  @Test(dataProvider = "parseBad")
   public void test_parse_String_bad(String input) {
-    Country.parse(input);
+    assertThatIllegalArgumentException().isThrownBy(() -> Country.parse(input));
   }
 
   //-----------------------------------------------------------------------
@@ -174,9 +176,9 @@ public class CountryTest {
     assertTrue(c.compareTo(b) > 0);
   }
 
-  @Test(expectedExceptions = NullPointerException.class)
+  @Test
   public void test_compareTo_null() {
-    Country.EU.compareTo(null);
+    assertThatNullPointerException().isThrownBy(() -> Country.EU.compareTo(null));
   }
 
   //-----------------------------------------------------------------------
