@@ -576,6 +576,19 @@ public class ArgCheckerTest {
         .withMessageMatching(".*'name'.*negative.*");
   }
 
+  @Test
+  public void test_notNaN_double_ok() {
+    assertThat(ArgChecker.notNaN(0d, "name")).isEqualTo(0d);
+    assertThat(ArgChecker.notNaN(1d, "name")).isEqualTo(1d);
+  }
+
+  @Test
+  public void test_notNaN_double_NaN() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ArgChecker.notNaN(Double.NaN, "name"))
+        .withMessageMatching(".*'name'.*NaN.*");
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_notNegativeOrZero_int_ok() {
