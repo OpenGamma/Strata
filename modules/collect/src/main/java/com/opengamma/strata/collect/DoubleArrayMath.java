@@ -420,6 +420,92 @@ public final class DoubleArrayMath {
     values[second] = t;
   }
 
+  /**
+   * Returns a copy of the first array in the order defined by the position values of the second array.
+   * <p>
+   * The two arrays must be the same size.
+   * The order is determined by the array of positions.
+   * The result value at each entry is changed to the value at the position of the positions entry.
+   * It is not checked that the positions array does not contain duplicates.
+   * <p>
+   * The result is a new array. The input arrays are not mutated.
+   * <p>
+   * e.g
+   * <pre>{@code double[] values = { 1d, 5d, 10d };
+   * double[] positions = { 2, 0, 1 };
+   * reorderedCopy(values, positions); // returns [10d, 1d, 5d]
+   * }</pre>
+   *
+   * @param values  the array of values
+   * @param positions  the array of positions
+   * @throws IllegalArgumentException if any of the positions do not correspond to an index in the values
+   */
+  public static double[] reorderedCopy(double[] values, int[] positions) {
+    int len1 = positions.length;
+    if (len1 != values.length) {
+      throw new IllegalArgumentException("Value array cannot be reordered as they differ in length");
+    }
+    double[] result = new double[len1];
+    for (int i = 0; i < len1; i++) {
+      int key = positions[i];
+      ArgChecker.inRange(key, 0, len1, "key");
+      result[i] = values[key];
+    }
+    return result;
+  }
+
+  /**
+   * Sorts the two arrays, retaining the associated values with the sorted keys.
+   * <p>
+   * The two arrays must be the same size and represent a pair of key to value.
+   * The sort order is determined by the array of keys.
+   * The position of each value is changed to match that of the sorted keys.
+   * <p>
+   * The input arrays are mutated.
+   *
+   * @param keys  the array of keys to sort
+   * @param values  the array of associated values to retain
+   */
+  public static void sortPairs(double[] keys, int[] values) {
+    int len1 = keys.length;
+    if (len1 != values.length) {
+      throw new IllegalArgumentException("Arrays cannot be sorted as they differ in length");
+    }
+    dualArrayQuickSort(keys, values, 0, len1 - 1);
+  }
+
+  private static void dualArrayQuickSort(double[] keys, int[] values, int left, int right) {
+    if (right > left) {
+      int pivot = (left + right) >> 1;
+      int pivotNewIndex = partition(keys, values, left, right, pivot);
+      dualArrayQuickSort(keys, values, left, pivotNewIndex - 1);
+      dualArrayQuickSort(keys, values, pivotNewIndex + 1, right);
+    }
+  }
+
+  private static int partition(double[] keys, int[] values, int left, int right, int pivot) {
+    double pivotValue = keys[pivot];
+    swap(keys, values, pivot, right);
+    int storeIndex = left;
+    for (int i = left; i < right; i++) {
+      if (keys[i] <= pivotValue) {
+        swap(keys, values, i, storeIndex);
+        storeIndex++;
+      }
+    }
+    swap(keys, values, storeIndex, right);
+    return storeIndex;
+  }
+
+  private static void swap(double[] keys, int[] values, int first, int second) {
+    double t = keys[first];
+    keys[first] = keys[second];
+    keys[second] = t;
+    int t2 = values[first];
+    values[first] = values[second];
+    values[second] = t2;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Sorts the two arrays, retaining the associated values with the sorted keys.
@@ -474,9 +560,7 @@ public final class DoubleArrayMath {
     values[second] = t;
   }
 
-  /**
-   * Return the array lengths if they are the same, otherwise throws an {@code IllegalArgumentException}.
-   */
+  // return the array lengths if they are the same, otherwise throws an IllegalArgumentException
   private static int length(double[] array1, double[] array2) {
     int len1 = array1.length;
     int len2 = array2.length;

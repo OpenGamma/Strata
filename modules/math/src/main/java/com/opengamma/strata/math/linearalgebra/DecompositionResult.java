@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.math.linearalgebra;
 
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
@@ -22,7 +23,11 @@ public interface DecompositionResult {
    * @param input  the vector to calculate with
    * @return the vector x
    */
-  public abstract DoubleArray solve(DoubleArray input);
+  public default DoubleArray solve(DoubleArray input) {
+    ArgChecker.notNull(input, "input");
+    double[] result = solve(input.toArray());
+    return DoubleArray.copyOf(result);
+  }
 
   /**
    * Solves $\mathbf{A}x = b$ where $\mathbf{A}$ is a (decomposed) matrix and $b$ is a vector.

@@ -6,6 +6,7 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
@@ -58,20 +59,17 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
     }
 
-    for (int i = 0; i < nDataPts - 1; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
 
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-    double[] yValuesSrt = new double[nDataPts];
+    double[] yValuesSrt;
     if (nDataPts == yValuesLen) {
       yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     } else {
       yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
     }
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
+
+    ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
 
     final double[] intervals = _solver.intervalsCalculator(xValuesSrt);
     final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
@@ -116,24 +114,23 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
         ArgChecker.isFalse(Double.isInfinite(yValuesMatrix[j][i]), "yValuesMatrix containing Infinity");
       }
     }
-    for (int i = 0; i < nDataPts; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
 
-    double[] xValuesSrt = new double[nDataPts];
+    double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
+    int[] sortedPositions = IntStream.range(0, nDataPts).toArray();
+    DoubleArrayMath.sortPairs(xValuesSrt, sortedPositions);
+    ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
+
     DoubleMatrix[] coefMatrix = new DoubleMatrix[dim];
 
     for (int i = 0; i < dim; ++i) {
-      xValuesSrt = Arrays.copyOf(xValues, nDataPts);
-      double[] yValuesSrt = new double[nDataPts];
+      double[] yValuesSrt;
       if (nDataPts == yValuesLen) {
-        yValuesSrt = Arrays.copyOf(yValuesMatrix[i], nDataPts);
+        yValuesSrt = DoubleArrayMath.reorderedCopy(yValuesMatrix[i], sortedPositions);
       } else {
-        yValuesSrt = Arrays.copyOfRange(yValuesMatrix[i], 1, nDataPts + 1);
+        yValuesSrt = DoubleArrayMath.reorderedCopy(
+            Arrays.copyOfRange(yValuesMatrix[i], 1, nDataPts + 1),
+            sortedPositions);
       }
-      DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
 
       final double[] intervals = _solver.intervalsCalculator(xValuesSrt);
       final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
@@ -187,13 +184,9 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
     }
 
-    for (int i = 0; i < nDataPts - 1; ++i) {
-      for (int j = i + 1; j < nDataPts; ++j) {
-        ArgChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
-      }
-    }
+    ArgChecker.noDuplicates(xValues, "xValues");
 
-    double[] yValuesSrt = new double[nDataPts];
+    double[] yValuesSrt;
     if (nDataPts == yValuesLen) {
       yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     } else {

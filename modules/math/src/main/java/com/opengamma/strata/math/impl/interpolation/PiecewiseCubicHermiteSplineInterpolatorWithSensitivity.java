@@ -44,9 +44,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivity extends Piec
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt = Arrays.copyOf(yValues, nDataPts);
     DoubleArrayMath.sortPairs(xValuesSrt, yValuesSrt);
-    for (int i = 1; i < nDataPts; ++i) {
-      ArgChecker.isFalse(xValuesSrt[i - 1] == xValuesSrt[i], "xValues should be distinct");
-    }
+    ArgChecker.noDuplicatesSorted(xValuesSrt, "xValues");
 
     DoubleMatrix[] temp = solve(xValuesSrt, yValuesSrt);
     // check the matrices
