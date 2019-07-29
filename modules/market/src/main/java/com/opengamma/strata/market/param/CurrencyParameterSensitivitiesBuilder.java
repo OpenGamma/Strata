@@ -7,6 +7,7 @@ package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -122,13 +123,19 @@ public final class CurrencyParameterSensitivitiesBuilder {
    * Filters the sensitivity values.
    * <p>
    * For example, this could be used to remove sensitivities near to zero.
+   * <p>
+   * If the filter removes all the values for a market data name, the name will not be present in the result.
    * 
    * @param predicate  the predicate to test the value, return true to retain the value
    * @return this, for chaining
    */
   public CurrencyParameterSensitivitiesBuilder filterSensitivity(DoublePredicate predicate) {
-    for (CurrencyParameterSensitivityBuilder builder : data.values()) {
+    for (Iterator<CurrencyParameterSensitivityBuilder> it = data.values().iterator(); it.hasNext();) {
+      CurrencyParameterSensitivityBuilder builder = it.next();
       builder.filterSensitivity(predicate);
+      if (builder.isEmpty()) {
+        it.remove();
+      }
     }
     return this;
   }
