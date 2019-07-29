@@ -123,6 +123,8 @@ public final class CurrencyParameterSensitivitiesBuilder {
    * Filters the sensitivity values.
    * <p>
    * For example, this could be used to remove sensitivities near to zero.
+   * <p>
+   * If the filter removes all the values for a market data name, the name will not be present in the result.
    * 
    * @param predicate  the predicate to test the value, return true to retain the value
    * @return this, for chaining
