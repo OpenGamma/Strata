@@ -1,0 +1,11 @@
+# Configuration for ogbot
+# Individual tasks can be disabled, section names are:
+# autoApproveByBot, autoApproveByAssign, prTitle, mergeStatus, commands
+all:
+  enabled: false
+
+autoApproveByAssign:
+  enabled: true
+
+commands:
+  enabled: true
