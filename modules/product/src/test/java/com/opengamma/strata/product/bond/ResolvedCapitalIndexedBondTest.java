@@ -13,13 +13,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -123,7 +123,8 @@ public class ResolvedCapitalIndexedBondTest {
         .rateComputation(PERIODIC[2].getRateComputation())
         .realCoupon(COUPON)
         .build();
-    assertThrowsIllegalArg(() -> ResolvedCapitalIndexedBond.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedCapitalIndexedBond.builder()
         .dayCount(ACT_ACT_ISDA)
         .legalEntityId(LEGAL_ENTITY)
         .nominalPayment(NOMINAL)

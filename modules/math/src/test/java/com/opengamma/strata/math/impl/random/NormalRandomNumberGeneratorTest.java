@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.random;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.List;
@@ -36,11 +36,16 @@ public class NormalRandomNumberGeneratorTest {
   }
 
   public void test_invalid() {
-    assertThrowsIllegalArg(() -> new NormalRandomNumberGenerator(0, -1));
-    assertThrowsIllegalArg(() -> new NormalRandomNumberGenerator(0, -1, new MersenneTwister64()));
-    assertThrowsIllegalArg(() -> new NormalRandomNumberGenerator(0, 1, null));
-    assertThrowsIllegalArg(() -> GENERATOR.getVectors(-1, 4));
-    assertThrowsIllegalArg(() -> GENERATOR.getVectors(1, -5));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new NormalRandomNumberGenerator(0, -1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new NormalRandomNumberGenerator(0, -1, new MersenneTwister64()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new NormalRandomNumberGenerator(0, 1, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> GENERATOR.getVectors(-1, 4));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> GENERATOR.getVectors(1, -5));
   }
 
 }

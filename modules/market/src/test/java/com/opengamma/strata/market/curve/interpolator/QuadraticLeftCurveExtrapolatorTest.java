@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -141,9 +141,12 @@ public class QuadraticLeftCurveExtrapolatorTest {
   public void test_noRight() {
     BoundCurveInterpolator bci =
         CurveInterpolators.LINEAR.bind(X_DATA, Y_DATA, QL_EXTRAPOLATOR, QL_EXTRAPOLATOR);
-    assertThrowsIllegalArg(() -> bci.interpolate(10d));
-    assertThrowsIllegalArg(() -> bci.firstDerivative(10d));
-    assertThrowsIllegalArg(() -> bci.parameterSensitivity(10d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bci.interpolate(10d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bci.firstDerivative(10d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bci.parameterSensitivity(10d));
   }
 
   //-------------------------------------------------------------------------

@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.param;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertThrows;
 
@@ -124,7 +124,8 @@ public class CurrencyParameterSensitivitiesTest {
 
   public void test_of_list_normalizeNotPossible() {
     ImmutableList<CurrencyParameterSensitivity> list = ImmutableList.of(ENTRY_USD, ENTRY_USD_SMALL);
-    assertThrowsIllegalArg(() -> CurrencyParameterSensitivities.of(list));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurrencyParameterSensitivities.of(list));
   }
 
   //-------------------------------------------------------------------------
@@ -187,9 +188,12 @@ public class CurrencyParameterSensitivitiesTest {
   public void test_getSensitivity() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_USD);
     assertEquals(test.getSensitivity(NAME1, USD), ENTRY_USD);
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME1, EUR));
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME0, USD));
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME0, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME1, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME0, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME0, EUR));
   }
 
   public void test_findSensitivity() {
@@ -212,7 +216,8 @@ public class CurrencyParameterSensitivitiesTest {
   }
 
   public void test_combinedWith_one_sizeMismatch() {
-    assertThrowsIllegalArg(() -> SENSI_1.combinedWith(ENTRY_USD_SMALL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SENSI_1.combinedWith(ENTRY_USD_SMALL));
   }
 
   public void test_combinedWith_other() {

@@ -12,7 +12,7 @@ import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -120,11 +120,16 @@ public class ImmutableRatesProviderCombineTest {
     ImmutableRatesProvider test_pi = ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexCurve(GB_RPI, GBPRI_CURVE)
         .build();
-    assertThrowsIllegalArg(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_dsc, test_dsc));
-    assertThrowsIllegalArg(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_ts, test_ts));
-    assertThrowsIllegalArg(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_ibor, test_ibor));
-    assertThrowsIllegalArg(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_on, test_on));
-    assertThrowsIllegalArg(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_pi, test_pi));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_dsc, test_dsc));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_ts, test_ts));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_ibor, test_ibor));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_on, test_on));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_pi, test_pi));
   }
 
 }

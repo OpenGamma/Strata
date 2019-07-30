@@ -6,12 +6,12 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -35,7 +35,8 @@ public class CurveNodeDateTest {
     assertEquals(test.isEnd(), true);
     assertEquals(test.isLastFixing(), false);
     assertEquals(test.getType(), CurveNodeDateType.END);
-    assertThrowsWithCause(() -> test.getDate(), IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(() -> test.getDate());
   }
 
   public void test_LAST_FIXING() {
@@ -44,7 +45,8 @@ public class CurveNodeDateTest {
     assertEquals(test.isEnd(), false);
     assertEquals(test.isLastFixing(), true);
     assertEquals(test.getType(), CurveNodeDateType.LAST_FIXING);
-    assertThrowsWithCause(() -> test.getDate(), IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(() -> test.getDate());
   }
 
   public void test_of() {
@@ -69,16 +71,18 @@ public class CurveNodeDateTest {
   }
 
   public void test_builder_incorrect_no_fixed_date() {
-    assertThrowsIllegalArg(() -> CurveNodeDate.meta().builder()
-        .set(CurveNodeDate.meta().type(), CurveNodeDateType.FIXED)
-        .build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveNodeDate.meta().builder()
+            .set(CurveNodeDate.meta().type(), CurveNodeDateType.FIXED)
+            .build());
   }
 
   public void test_builder_incorrect_fixed_date() {
-    assertThrowsIllegalArg(() -> CurveNodeDate.meta().builder()
-        .set(CurveNodeDate.meta().type(), CurveNodeDateType.LAST_FIXING)
-        .set(CurveNodeDate.meta().date(), DATE1)
-        .build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveNodeDate.meta().builder()
+            .set(CurveNodeDate.meta().type(), CurveNodeDateType.LAST_FIXING)
+            .set(CurveNodeDate.meta().date(), DATE1)
+            .build());
   }
 
   //-------------------------------------------------------------------------

@@ -11,7 +11,6 @@ import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -19,6 +18,7 @@ import static com.opengamma.strata.product.swap.NegativeRateMethod.ALLOW_NEGATIV
 import static com.opengamma.strata.product.swap.NegativeRateMethod.NOT_NEGATIVE;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.AVERAGED;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDED;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -95,7 +95,8 @@ public class OvernightRateCalculationTest {
   }
 
   public void test_builder_noIndex() {
-    assertThrowsIllegalArg(() -> OvernightRateCalculation.builder().build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightRateCalculation.builder().build());
   }
 
   //-------------------------------------------------------------------------

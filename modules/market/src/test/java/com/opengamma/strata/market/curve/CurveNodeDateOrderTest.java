@@ -6,9 +6,9 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -32,7 +32,8 @@ public class CurveNodeDateOrderTest {
   }
 
   public void test_of_invalid() {
-    assertThrowsIllegalArg(() -> CurveNodeDateOrder.of(0, CurveNodeClashAction.DROP_THIS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveNodeDateOrder.of(0, CurveNodeClashAction.DROP_THIS));
   }
 
   //-------------------------------------------------------------------------

@@ -6,10 +6,10 @@
 package com.opengamma.strata.market.surface;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -85,7 +85,8 @@ public class DeformedSurfaceTest {
   }
 
   public void test_withParameter() {
-    assertThrowsIllegalArg(() -> DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION).withParameter(1, 1.2d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION).withParameter(1, 1.2d));
   }
 
   //-------------------------------------------------------------------------

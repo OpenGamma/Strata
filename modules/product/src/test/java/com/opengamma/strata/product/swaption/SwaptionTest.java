@@ -9,11 +9,11 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -82,7 +82,8 @@ public class SwaptionTest {
   }
 
   public void test_builder_expiryAfterStart() {
-    assertThrowsIllegalArg(() -> Swaption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Swaption.builder()
         .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 17), ADJUSTMENT))
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
@@ -93,7 +94,8 @@ public class SwaptionTest {
   }
 
   public void test_builder_invalidSwapOis() {
-    assertThrowsIllegalArg(() -> Swaption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Swaption.builder()
         .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
@@ -104,7 +106,8 @@ public class SwaptionTest {
   }
 
   public void test_builder_invalidSwapBasis() {
-    assertThrowsIllegalArg(() -> Swaption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Swaption.builder()
         .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)
@@ -115,7 +118,8 @@ public class SwaptionTest {
   }
 
   public void test_builder_invalidSwapXCcy() {
-    assertThrowsIllegalArg(() -> Swaption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Swaption.builder()
         .expiryDate(ADJUSTABLE_EXPIRY_DATE)
         .expiryTime(EXPIRY_TIME)
         .expiryZone(ZONE)

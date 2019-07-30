@@ -8,12 +8,11 @@ package com.opengamma.strata.market.curve.node;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -114,7 +113,8 @@ public class FixedOvernightSwapCurveNodeTest {
   public void test_trade_noMarketData() {
     FixedOvernightSwapCurveNode node = FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     MarketData marketData = MarketData.empty(VAL_DATE);
-    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {
@@ -149,7 +149,8 @@ public class FixedOvernightSwapCurveNodeTest {
   public void test_metadata_last_fixing() {
     FixedOvernightSwapCurveNode node =
         FixedOvernightSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL).withDate(CurveNodeDate.LAST_FIXING);
-    assertThrowsWithCause(() -> node.metadata(VAL_DATE, REF_DATA), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> node.metadata(VAL_DATE, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

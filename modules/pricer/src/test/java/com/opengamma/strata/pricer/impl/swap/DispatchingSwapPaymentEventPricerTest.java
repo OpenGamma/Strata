@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.swap;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -59,7 +59,8 @@ public class DispatchingSwapPaymentEventPricerTest {
   public void test_presentValue_unknownType() {
     SwapPaymentEvent mockPaymentEvent = mock(SwapPaymentEvent.class);
     DispatchingSwapPaymentEventPricer test = DispatchingSwapPaymentEventPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValue(mockPaymentEvent, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.presentValue(mockPaymentEvent, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -88,21 +89,24 @@ public class DispatchingSwapPaymentEventPricerTest {
   public void test_forecastValue_unknownType() {
     SwapPaymentEvent mockPaymentEvent = mock(SwapPaymentEvent.class);
     DispatchingSwapPaymentEventPricer test = DispatchingSwapPaymentEventPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.forecastValue(mockPaymentEvent, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.forecastValue(mockPaymentEvent, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity_unknownType() {
     SwapPaymentEvent mockPaymentEvent = mock(SwapPaymentEvent.class);
     DispatchingSwapPaymentEventPricer test = DispatchingSwapPaymentEventPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValueSensitivity(mockPaymentEvent, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.presentValueSensitivity(mockPaymentEvent, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity_unknownType() {
     SwapPaymentEvent mockPaymentEvent = mock(SwapPaymentEvent.class);
     DispatchingSwapPaymentEventPricer test = DispatchingSwapPaymentEventPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.forecastValueSensitivity(mockPaymentEvent, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.forecastValueSensitivity(mockPaymentEvent, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -131,7 +135,8 @@ public class DispatchingSwapPaymentEventPricerTest {
   public void test_currencyExposure_unknownType() {
     SwapPaymentEvent mockPaymentEvent = mock(SwapPaymentEvent.class);
     DispatchingSwapPaymentEventPricer test = DispatchingSwapPaymentEventPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.currencyExposure(mockPaymentEvent, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.currencyExposure(mockPaymentEvent, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -160,6 +165,7 @@ public class DispatchingSwapPaymentEventPricerTest {
   public void test_currentCash_unknownType() {
     SwapPaymentEvent mockPaymentEvent = mock(SwapPaymentEvent.class);
     DispatchingSwapPaymentEventPricer test = DispatchingSwapPaymentEventPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.currentCash(mockPaymentEvent, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.currentCash(mockPaymentEvent, MOCK_PROV));
   }
 }

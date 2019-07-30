@@ -7,8 +7,8 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -41,11 +41,13 @@ public class CurveNodeClashActionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> CurveNodeClashAction.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveNodeClashAction.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> CurveNodeClashAction.of(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveNodeClashAction.of(null));
   }
 
   //-------------------------------------------------------------------------

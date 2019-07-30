@@ -7,11 +7,11 @@ package com.opengamma.strata.product.cms;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -44,9 +44,11 @@ public class ResolvedCmsLegTest {
 
   public void test_builder_multiCurrencyIndex() {
     CmsPeriod period3 = CmsPeriodTest.sut2();
-    assertThrowsIllegalArg(() -> ResolvedCmsLeg.builder().payReceive(RECEIVE).cmsPeriods(PERIOD_1, period3).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedCmsLeg.builder().payReceive(RECEIVE).cmsPeriods(PERIOD_1, period3).build());
     CmsPeriod period4 = CmsPeriodTest.sutCoupon();
-    assertThrowsIllegalArg(() -> ResolvedCmsLeg.builder().payReceive(RECEIVE).cmsPeriods(PERIOD_1, period4).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedCmsLeg.builder().payReceive(RECEIVE).cmsPeriods(PERIOD_1, period4).build());
   }
 
   //-------------------------------------------------------------------------

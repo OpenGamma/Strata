@@ -12,10 +12,10 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -103,7 +103,8 @@ public class OvernightFutureTradeTest {
   }
 
   public void test_builder_badPrice() {
-    assertThrowsIllegalArg(() -> OvernightFutureTrade.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightFutureTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT)
         .quantity(QUANTITY)

@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer.cms;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.swap.SwapIndices.EUR_EURIBOR_1100_5Y;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -200,9 +200,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValue_afterFix_noTimeSeries() {
-    assertThrowsIllegalArg(() -> PRICER.presentValue(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValue(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValue(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValue(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValue(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValue(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
   
   public void test_presentValue_cap_floor_parity() { 
@@ -333,9 +336,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivity_afterFix_noTimeSeries() {
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityRates(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityRates(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityRates(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityRates(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityRates(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityRates(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
 
   public void test_presentValueSensitivity_afterPayment() {
@@ -390,11 +396,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivitySabrParameter_afterFix_noTimeSeries() {
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityModelParamsSabr(COUPON, RATES_PROVIDER_NO_TS,
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityModelParamsSabr(COUPON, RATES_PROVIDER_NO_TS,
         VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityModelParamsSabr(CAPLET, RATES_PROVIDER_NO_TS,
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityModelParamsSabr(CAPLET, RATES_PROVIDER_NO_TS,
         VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityModelParamsSabr(FLOORLET, RATES_PROVIDER_NO_TS,
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityModelParamsSabr(FLOORLET, RATES_PROVIDER_NO_TS,
         VOLATILITIES_NO_TS));
   }
 
@@ -441,7 +450,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_adjusted_rate_error() {
-    assertThrowsIllegalArg(() -> PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
   }
 
   //-------------------------------------------------------------------------
@@ -528,9 +538,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivityStrike_afterFix_noTimeSeries() {
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityStrike(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityStrike(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
 
   public void test_presentValueSensitivityStrike_afterPayment() {
@@ -541,7 +554,8 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   }
 
   public void test_presentValueSensitivityStrike_coupon() {
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityStrike(COUPON, RATES_PROVIDER, VOLATILITIES));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityStrike(COUPON, RATES_PROVIDER, VOLATILITIES));
   }
 
   //-------------------------------------------------------------------------

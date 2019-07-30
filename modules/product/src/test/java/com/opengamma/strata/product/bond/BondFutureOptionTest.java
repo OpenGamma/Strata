@@ -6,12 +6,12 @@
 package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -61,7 +61,8 @@ public class BondFutureOptionTest {
   }
 
   public void test_builder_expiryNotAfterTradeDate() {
-    assertThrowsIllegalArg(() -> BondFutureOption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFutureOption.builder()
         .putCall(CALL)
         .expiryDate(FUTURE.getLastTradeDate())
         .expiryTime(EXPIRY_TIME)

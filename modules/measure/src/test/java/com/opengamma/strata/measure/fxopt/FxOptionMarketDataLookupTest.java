@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -56,7 +56,8 @@ public class FxOptionMarketDataLookupTest {
     assertEquals(test.queryType(), FxOptionMarketDataLookup.class);
     assertEquals(test.getVolatilityCurrencyPairs(), ImmutableSet.of(EUR_USD));
     assertEquals(test.getVolatilityIds(EUR_USD), ImmutableSet.of(VOL_ID1));
-    assertThrowsIllegalArg(() -> test.getVolatilityIds(GBP_USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(GBP_USD));
 
     assertEquals(
         test.requirements(EUR_USD),
@@ -64,7 +65,8 @@ public class FxOptionMarketDataLookupTest {
     assertEquals(
         test.requirements(ImmutableSet.of(EUR_USD)),
         FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
   }
 
   public void test_of_map() {
@@ -73,7 +75,8 @@ public class FxOptionMarketDataLookupTest {
     assertEquals(test.queryType(), FxOptionMarketDataLookup.class);
     assertEquals(test.getVolatilityCurrencyPairs(), ImmutableSet.of(EUR_USD, GBP_USD));
     assertEquals(test.getVolatilityIds(EUR_USD), ImmutableSet.of(VOL_ID1));
-    assertThrowsIllegalArg(() -> test.getVolatilityIds(EUR_GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(EUR_GBP));
 
     assertEquals(
         test.requirements(EUR_USD),
@@ -81,10 +84,12 @@ public class FxOptionMarketDataLookupTest {
     assertEquals(
         test.requirements(ImmutableSet.of(EUR_USD)),
         FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
 
     assertEquals(test.volatilities(EUR_USD, MOCK_MARKET_DATA), MOCK_VOLS);
-    assertThrowsIllegalArg(() -> test.volatilities(EUR_GBP, MOCK_MARKET_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.volatilities(EUR_GBP, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------

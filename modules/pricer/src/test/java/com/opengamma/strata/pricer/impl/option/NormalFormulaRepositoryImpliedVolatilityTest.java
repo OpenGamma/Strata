@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -60,9 +60,11 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
   public void intrinsic_price() {
     NormalFunctionData data = NormalFunctionData.of(1.0, 1.0, 0.01);
     EuropeanVanillaOption option1 = EuropeanVanillaOption.of(0.5, 1.0, PutCall.CALL);
-    assertThrowsIllegalArg(() -> impliedVolatility(data, option1, 1e-6));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> impliedVolatility(data, option1, 1e-6));
     EuropeanVanillaOption option2 = EuropeanVanillaOption.of(1.5, 1.0, PutCall.PUT);
-    assertThrowsIllegalArg(() -> impliedVolatility(data, option2, 1e-6));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> impliedVolatility(data, option2, 1e-6));
   }
 
   private double impliedVolatility(

@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -62,7 +62,8 @@ public class ResolvedFxSingleTest {
   }
 
   public void test_of_payments_sameCurrency() {
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000));
   }
 
   //-------------------------------------------------------------------------
@@ -94,14 +95,19 @@ public class ResolvedFxSingleTest {
   }
 
   public void test_of_amounts_positiveNegative() {
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.of(GBP_M1000, USD_M1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.of(CurrencyAmount.zero(GBP), USD_M1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.of(GBP_M1000, USD_M1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.of(CurrencyAmount.zero(GBP), USD_M1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
   }
 
   public void test_of_sameCurrency() {
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
@@ -133,7 +139,8 @@ public class ResolvedFxSingleTest {
   }
 
   public void test_of_rate_wrongCurrency() {
-    assertThrowsIllegalArg(() -> FxSingle.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
@@ -158,21 +165,24 @@ public class ResolvedFxSingleTest {
   }
 
   public void test_builder_bothPositive() {
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.meta().builder()
         .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
         .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_P1600)
         .build());
   }
 
   public void test_builder_bothNegative() {
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.meta().builder()
         .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_M1000)
         .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
         .build());
   }
 
   public void test_builder_sameCurrency() {
-    assertThrowsIllegalArg(() -> ResolvedFxSingle.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSingle.meta().builder()
         .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
         .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_GBP_M1000)
         .build());

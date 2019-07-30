@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -110,7 +110,7 @@ public class ExampleMarketDataBuilderTest {
   }
 
   public void test_ofResource_directory_notFound() {
-    assertThrowsIllegalArg(() -> ExampleMarketDataBuilder.ofResource("bad-dir"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ExampleMarketDataBuilder.ofResource("bad-dir"));
   }
 
   public void test_ofResource_directory_with_spaces() {

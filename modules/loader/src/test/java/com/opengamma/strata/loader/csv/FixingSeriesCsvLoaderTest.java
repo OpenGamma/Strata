@@ -5,9 +5,8 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -86,21 +85,19 @@ public class FixingSeriesCsvLoaderTest {
   }
 
   public void test_priceIndex_invalidDate() {
-    assertThrowsIllegalArg(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE_INVALID));
+    assertThatIllegalArgumentException().isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_PRICE_INVALID));
   }
 
   public void test_single_series_multiple_files() {
-    assertThrows(
-        () -> FixingSeriesCsvLoader.load(FIXING_SERIES_1, FIXING_SERIES_1),
-        IllegalArgumentException.class,
-        "Multiple entries with same key: .*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_1, FIXING_SERIES_1))
+        .withMessageStartingWith("Multiple entries with same key: ");
   }
 
   public void test_invalidDate() {
-    assertThrows(
-        () -> FixingSeriesCsvLoader.load(FIXING_SERIES_INVALID_DATE),
-        IllegalArgumentException.class,
-        "Error processing resource as CSV file: .*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixingSeriesCsvLoader.load(FIXING_SERIES_INVALID_DATE))
+        .withMessageStartingWith("Error processing resource as CSV file: ");
   }
 
   //-------------------------------------------------------------------------

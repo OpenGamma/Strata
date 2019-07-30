@@ -8,10 +8,10 @@ package com.opengamma.strata.product.rate;
 import static com.opengamma.strata.basics.index.OvernightIndices.BRL_CDI;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -39,9 +39,11 @@ public class OvernightCompoundedAnnualRateComputationTest {
   }
 
   public void test_of_badDateOrder() {
-    assertThrowsIllegalArg(() -> OvernightCompoundedAnnualRateComputation.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightCompoundedAnnualRateComputation.of(
         BRL_CDI, date(2016, 2, 24), date(2016, 2, 24), REF_DATA));
-    assertThrowsIllegalArg(() -> OvernightCompoundedAnnualRateComputation.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightCompoundedAnnualRateComputation.of(
         BRL_CDI, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
   }
 

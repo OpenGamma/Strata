@@ -15,11 +15,11 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -145,13 +145,15 @@ public class DsfSecurityTest {
     Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(PAY).get());
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     Swap swap3 = Swap.of(knownAmountLeg, SWAP.getLeg(PAY).get());
-    assertThrowsIllegalArg(() -> DsfSecurity.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DsfSecurity.builder()
         .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap1)
         .build());
-    assertThrowsIllegalArg(() -> DsfSecurity.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DsfSecurity.builder()
         .info(INFO)
         .notional(NOTIONAL)
         .lastTradeDate(LAST_TRADE_DATE)

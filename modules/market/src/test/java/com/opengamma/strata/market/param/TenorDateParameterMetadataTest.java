@@ -8,10 +8,10 @@ package com.opengamma.strata.market.param;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_12M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -70,7 +70,7 @@ public class TenorDateParameterMetadataTest {
   public void test_builder_incomplete() {
     BeanBuilder<? extends TenorDateParameterMetadata> builder = TenorDateParameterMetadata.meta().builder();
     builder.set(TenorDateParameterMetadata.meta().date(), DATE);
-    assertThrowsIllegalArg(() -> builder.build());
+    assertThatIllegalArgumentException().isThrownBy(() -> builder.build());
   }
 
   //-------------------------------------------------------------------------

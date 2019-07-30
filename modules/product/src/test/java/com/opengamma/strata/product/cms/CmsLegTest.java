@@ -12,11 +12,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -177,14 +177,16 @@ public class CmsLegTest {
 
   public void test_builder_fail() {
     // index is null
-    assertThrowsIllegalArg(() -> CmsLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CmsLeg.builder()
         .capSchedule(CAP)
         .notional(NOTIONAL)
         .payReceive(RECEIVE)
         .paymentSchedule(SCHEDULE_EUR)
         .build());
     // floorSchedule and capSchedule are present
-    assertThrowsIllegalArg(() -> CmsLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CmsLeg.builder()
         .capSchedule(CAP)
         .floorSchedule(FLOOR)
         .index(INDEX)
@@ -193,7 +195,8 @@ public class CmsLegTest {
         .paymentSchedule(SCHEDULE_EUR)
         .build());
     // stub is on
-    assertThrowsIllegalArg(() -> CmsLeg
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CmsLeg
         .builder()
         .index(INDEX)
         .notional(NOTIONAL)

@@ -13,7 +13,6 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -21,6 +20,7 @@ import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -144,7 +144,8 @@ public class RatePeriodSwapLegTest {
   }
 
   public void test_builder_invalidMixedCurrency() {
-    assertThrowsIllegalArg(() -> RatePeriodSwapLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP3)

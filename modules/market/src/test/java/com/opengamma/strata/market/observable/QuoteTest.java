@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.observable;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -28,7 +28,7 @@ public class QuoteTest {
   }
 
   public void test_of_nullQuoteId() throws Exception {
-    assertThrowsIllegalArg(() -> Quote.of(null, 1.2345));
+    assertThatIllegalArgumentException().isThrownBy(() -> Quote.of(null, 1.2345));
   }
 
   public void coverage() {

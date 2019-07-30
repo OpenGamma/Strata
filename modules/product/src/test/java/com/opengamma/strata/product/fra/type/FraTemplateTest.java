@@ -9,11 +9,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -65,8 +65,10 @@ public class FraTemplateTest {
   }
 
   public void test_builder_insufficientInfo() {
-    assertThrowsIllegalArg(() -> FraTemplate.builder().convention(FRA_GBP_LIBOR_3M).build());
-    assertThrowsIllegalArg(() -> FraTemplate.builder().periodToStart(Period.ofMonths(2)).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraTemplate.builder().convention(FRA_GBP_LIBOR_3M).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraTemplate.builder().periodToStart(Period.ofMonths(2)).build());
   }
 
   //-------------------------------------------------------------------------

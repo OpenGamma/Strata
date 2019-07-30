@@ -19,12 +19,12 @@ import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.StubConvention.LONG_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.AVERAGED;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDED;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -113,7 +113,8 @@ public class OvernightRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> OvernightRateSwapLegConvention.builder().build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightRateSwapLegConvention.builder().build());
   }
 
   public void test_builderAllSpecified() {

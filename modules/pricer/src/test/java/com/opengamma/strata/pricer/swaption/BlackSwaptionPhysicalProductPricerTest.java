@@ -7,11 +7,11 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -165,8 +165,8 @@ public class BlackSwaptionPhysicalProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD,
-        BLACK_VOLS_USD_STD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_SWAPTION_BLACK.presentValue(SWAPTION_LONG_REC_CASH, MULTI_USD, BLACK_VOLS_USD_STD));
   }
 
   //-------------------------------------------------------------------------
@@ -180,8 +180,8 @@ public class BlackSwaptionPhysicalProductPricerTest {
   }
 
   public void test_implied_volatility_after_expiry() {
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION_BLACK.impliedVolatility(SWAPTION_PAST, MULTI_USD,
-        BLACK_VOLS_USD_STD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_SWAPTION_BLACK.impliedVolatility(SWAPTION_PAST, MULTI_USD, BLACK_VOLS_USD_STD));
   }
 
   //-------------------------------------------------------------------------

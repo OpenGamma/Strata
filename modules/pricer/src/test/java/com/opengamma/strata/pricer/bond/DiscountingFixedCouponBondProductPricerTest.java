@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -774,8 +774,9 @@ public class DiscountingFixedCouponBondProductPricerTest {
   }
 
   public void macaulayDurationFromYieldYieldJP() {
-    assertThrows(() -> PRICER.macaulayDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP),
-        UnsupportedOperationException.class, "The convention JP_SIMPLE is not supported.");
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> PRICER.macaulayDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP))
+        .withMessage("The convention JP_SIMPLE is not supported.");
   }
 
   public void zSpreadFromCurvesAndPV_acrossExDivDate() {

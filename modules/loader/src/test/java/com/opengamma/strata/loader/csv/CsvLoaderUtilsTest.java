@@ -7,7 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -40,7 +40,7 @@ public class CsvLoaderUtilsTest {
     assertEquals(CsvLoaderUtils.parseEtdSettlementType("E"), EtdSettlementType.PHYSICAL);
     assertEquals(CsvLoaderUtils.parseEtdSettlementType("PHYSICAL"), EtdSettlementType.PHYSICAL);
     assertEquals(CsvLoaderUtils.parseEtdSettlementType("e"), EtdSettlementType.PHYSICAL);
-    assertThrowsIllegalArg(() -> CsvLoaderUtils.parseEtdSettlementType(""));
+    assertThatIllegalArgumentException().isThrownBy(() -> CsvLoaderUtils.parseEtdSettlementType(""));
   }
 
   public void test_parseEtdOptionType() {
@@ -50,7 +50,7 @@ public class CsvLoaderUtilsTest {
     assertEquals(CsvLoaderUtils.parseEtdOptionType("E"), EtdOptionType.EUROPEAN);
     assertEquals(CsvLoaderUtils.parseEtdOptionType("EUROPEAN"), EtdOptionType.EUROPEAN);
     assertEquals(CsvLoaderUtils.parseEtdOptionType("e"), EtdOptionType.EUROPEAN);
-    assertThrowsIllegalArg(() -> CsvLoaderUtils.parseEtdOptionType(""));
+    assertThatIllegalArgumentException().isThrownBy(() -> CsvLoaderUtils.parseEtdOptionType(""));
   }
 
   //-------------------------------------------------------------------------
@@ -141,7 +141,7 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThrowsIllegalArg(() -> CsvLoaderUtils.parseCurrencyAmount(row, "CCY", "AMX"));
+    assertThatIllegalArgumentException().isThrownBy(() -> CsvLoaderUtils.parseCurrencyAmount(row, "CCY", "AMX"));
   }
 
   //-------------------------------------------------------------------------
@@ -157,7 +157,8 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT", "DIR");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4", "Pay");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThrowsIllegalArg(() -> CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCX", "AMT", "DIR"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCX", "AMT", "DIR"));
   }
 
   //-------------------------------------------------------------------------

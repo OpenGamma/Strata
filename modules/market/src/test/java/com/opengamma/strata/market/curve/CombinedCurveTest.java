@@ -12,7 +12,6 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_3Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_5Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_7Y;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.ValueType.YEAR_FRACTION;
@@ -20,6 +19,7 @@ import static com.opengamma.strata.market.ValueType.ZERO_RATE;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_CUBIC_SPLINE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -258,14 +258,16 @@ public class CombinedCurveTest {
         .yValueType(ZERO_RATE)
         .dayCount(ACT_365F)
         .build();
-    assertThrowsIllegalArg(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata1));
     CurveMetadata combinedMetadata2 = DefaultCurveMetadata.builder()
         .curveName("CombinedCurve")
         .xValueType(ValueType.UNKNOWN)
         .yValueType(ZERO_RATE)
         .dayCount(ACT_365F)
         .build();
-    assertThrowsIllegalArg(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
   }
 
   public void test_yValueType() {
@@ -291,14 +293,16 @@ public class CombinedCurveTest {
         .yValueType(ZERO_RATE)
         .dayCount(ACT_365F)
         .build();
-    assertThrowsIllegalArg(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata1));
     CurveMetadata combinedMetadata2 = DefaultCurveMetadata.builder()
         .curveName("CombinedCurve")
         .xValueType(YEAR_FRACTION)
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .dayCount(ACT_365F)
         .build();
-    assertThrowsIllegalArg(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
   }
 
   public void test_dayCount() {
@@ -324,14 +328,16 @@ public class CombinedCurveTest {
         .yValueType(ZERO_RATE)
         .dayCount(DayCounts.ACT_360)
         .build();
-    assertThrowsIllegalArg(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata1));
     CurveMetadata combinedMetadata2 = DefaultCurveMetadata.builder()
         .curveName("CombinedCurve")
         .xValueType(YEAR_FRACTION)
         .yValueType(ZERO_RATE)
         .dayCount(ACT_365F)
         .build();
-    assertThrowsIllegalArg(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
   }
 
   //-------------------------------------------------------------------------
@@ -352,7 +358,8 @@ public class CombinedCurveTest {
         COMBINED_CURVE.withUnderlyingCurve(1, newCurve),
         CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
     assertEquals(COMBINED_CURVE.split(), ImmutableList.of(BASE_CURVE, SPREAD_CURVE));
-    assertThrowsIllegalArg(() -> COMBINED_CURVE.withUnderlyingCurve(2, newCurve));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMBINED_CURVE.withUnderlyingCurve(2, newCurve));
   }
 
   //-------------------------------------------------------------------------

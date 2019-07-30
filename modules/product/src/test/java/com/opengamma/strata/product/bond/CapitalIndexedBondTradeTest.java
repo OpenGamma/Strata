@@ -8,11 +8,11 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -127,7 +127,8 @@ public class CapitalIndexedBondTradeTest {
 
   public void test_resolve_invalid() {
     CapitalIndexedBondTrade test = sut().toBuilder().info(TRADE_INFO_EARLY).build();
-    assertThrowsIllegalArg(() -> test.resolve(REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.resolve(REF_DATA));
   }
 
   public void test_resolve_noTradeOrSettlementDate() {
@@ -137,7 +138,8 @@ public class CapitalIndexedBondTradeTest {
         .quantity(QUANTITY)
         .price(PRICE)
         .build();
-    assertThrows(() -> test.resolve(REF_DATA), IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(() -> test.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------

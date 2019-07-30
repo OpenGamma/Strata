@@ -7,8 +7,8 @@ package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Locale;
@@ -59,11 +59,13 @@ public class CapitalIndexedBondYieldConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> CapitalIndexedBondYieldConvention.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondYieldConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> CapitalIndexedBondYieldConvention.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondYieldConvention.of(null));
   }
 
   //-------------------------------------------------------------------------

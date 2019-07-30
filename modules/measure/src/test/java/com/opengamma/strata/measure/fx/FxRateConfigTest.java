@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.measure.fx;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.Map;
 
@@ -39,8 +39,12 @@ public class FxRateConfigTest {
   public void nonConventionPair() {
     Map<CurrencyPair, QuoteId> ratesMap = ImmutableMap.of(CurrencyPair.of(Currency.USD, Currency.EUR), QUOTE_KEY);
     String regex = "Currency pairs must be quoted using market conventions but USD/EUR is not";
-    assertThrowsIllegalArg(() -> FxRateConfig.builder().observableRates(ratesMap).build(), regex);
-    assertThrowsIllegalArg(() -> FxRateConfig.of(ratesMap), regex);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateConfig.builder().observableRates(ratesMap).build())
+        .withMessageMatching(regex);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRateConfig.of(ratesMap))
+        .withMessageMatching(regex);
   }
 
   private static FxRateConfig config() {

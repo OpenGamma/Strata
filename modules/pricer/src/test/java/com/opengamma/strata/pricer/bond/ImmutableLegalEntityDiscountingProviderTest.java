@@ -8,10 +8,10 @@ package com.opengamma.strata.pricer.bond;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -79,7 +79,8 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
     assertEquals(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP),
         RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_SECURITY));
-    assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(ID_ISSUER, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.repoCurveDiscountFactors(ID_ISSUER, GBP));
     assertEquals(test.getValuationDate(), DATE);
   }
 
@@ -114,28 +115,32 @@ public class ImmutableLegalEntityDiscountingProviderTest {
 
   public void test_builder_fail() {
     // no relevant map for repo curve
-    assertThrowsIllegalArg(() -> ImmutableLegalEntityDiscountingProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_ISSUER, GBP), DSC_FACTORS_REPO))
         .repoCurveGroups(ImmutableMap.of(ID_ISSUER, RepoGroup.of("ISSUER2 BND 5Y")))
         .build());
     // no relevant map for issuer curve
-    assertThrowsIllegalArg(() -> ImmutableLegalEntityDiscountingProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, LegalEntityGroup.of("ISSUER2")))
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_ISSUER, GBP), DSC_FACTORS_REPO))
         .repoCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_REPO_ISSUER))
         .build());
     // issuer curve and valuation date are missing
-    assertThrowsIllegalArg(() -> ImmutableLegalEntityDiscountingProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
         .repoCurveSecurityGroups(ImmutableMap.of(ID_SECURITY, GROUP_REPO_SECURITY))
         .build());
     // issuer curve date is different from valuation date
     DiscountFactors dscFactorIssuer = ZeroRateDiscountFactors.of(GBP, date(2015, 6, 14), CURVE_ISSUER);
-    assertThrowsIllegalArg(() -> ImmutableLegalEntityDiscountingProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), dscFactorIssuer))
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_SECURITY, GBP), DSC_FACTORS_REPO))
@@ -144,7 +149,8 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         .build());
     // repo curve rate is different from valuation date
     DiscountFactors dscFactorRepo = ZeroRateDiscountFactors.of(GBP, date(2015, 6, 14), CURVE_REPO);
-    assertThrowsIllegalArg(() -> ImmutableLegalEntityDiscountingProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_SECURITY, GBP), dscFactorRepo))
@@ -167,13 +173,19 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         .repoCurveSecurityGroups(ImmutableMap.of(ID_SECURITY, GROUP_REPO_SECURITY))
         .valuationDate(DATE)
         .build();
-    assertThrowsIllegalArg(() -> test.issuerCurveDiscountFactors(ID_ISSUER, USD));
-    assertThrowsIllegalArg(() -> test.issuerCurveDiscountFactors(LegalEntityId.of("OG-Ticker", "foo"), GBP));
-    assertThrowsIllegalArg(() -> test.issuerCurveDiscountFactors(issuerId, GBP));
-    assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, USD));
-    assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.issuerCurveDiscountFactors(ID_ISSUER, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.issuerCurveDiscountFactors(LegalEntityId.of("OG-Ticker", "foo"), GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.issuerCurveDiscountFactors(issuerId, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.repoCurveDiscountFactors(
         SecurityId.of("OG-Ticker", "foo-bond"), LegalEntityId.of("OG-Ticker", "foo"), GBP));
-    assertThrowsIllegalArg(() -> test.repoCurveDiscountFactors(securityId, issuerId, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.repoCurveDiscountFactors(securityId, issuerId, GBP));
   }
 
   public void test_curveParameterSensitivity() {

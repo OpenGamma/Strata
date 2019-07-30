@@ -6,10 +6,10 @@
 package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -43,7 +43,8 @@ public class SwapIndexTest {
   private static ZoneId FRANKFURT = ZoneId.of("Europe/Berlin");  // Frankfurt not defined in TZDB
 
   public void test_notFound() {
-    assertThrowsIllegalArg(() -> SwapIndex.of("foo"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SwapIndex.of("foo"));
   }
 
   public void test_swapIndicies() {

@@ -7,8 +7,8 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -42,11 +42,11 @@ public class CompoundingMethodTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> CompoundingMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> CompoundingMethod.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> CompoundingMethod.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> CompoundingMethod.of(null));
   }
 
   //-------------------------------------------------------------------------

@@ -11,11 +11,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -122,7 +122,8 @@ public class IborCapFloorLegTest {
 
   public void test_builder_fail() {
     // cap and floor present 
-    assertThrowsIllegalArg(() -> IborCapFloorLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
         .capSchedule(CAP)
         .floorSchedule(FLOOR)
@@ -131,7 +132,8 @@ public class IborCapFloorLegTest {
         .payReceive(RECEIVE)
         .build());
     // cap and floor missing
-    assertThrowsIllegalArg(() -> IborCapFloorLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
         .notional(NOTIONAL)
         .paymentSchedule(PeriodicSchedule.builder()
@@ -143,7 +145,8 @@ public class IborCapFloorLegTest {
         .payReceive(RECEIVE)
         .build());
     // stub type
-    assertThrowsIllegalArg(() -> IborCapFloorLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
         .capSchedule(CAP)
         .currency(GBP)

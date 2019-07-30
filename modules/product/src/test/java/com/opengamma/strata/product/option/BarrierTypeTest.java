@@ -7,8 +7,8 @@ package com.opengamma.strata.product.option;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -46,11 +46,13 @@ public class BarrierTypeTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> BarrierType.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BarrierType.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> BarrierType.of(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BarrierType.of(null));
   }
 
   //-------------------------------------------------------------------------

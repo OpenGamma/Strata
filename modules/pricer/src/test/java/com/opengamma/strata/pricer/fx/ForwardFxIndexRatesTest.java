@@ -11,10 +11,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -113,8 +113,10 @@ public class ForwardFxIndexRatesTest {
   }
 
   public void test_of_nonMatchingCurrency() {
-    assertThrowsIllegalArg(() -> ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES_USD_GBP, SERIES));
-    assertThrowsIllegalArg(() -> ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES_EUR_GBP, SERIES));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES_USD_GBP, SERIES));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES_EUR_GBP, SERIES));
   }
 
   //-------------------------------------------------------------------------
@@ -126,12 +128,14 @@ public class ForwardFxIndexRatesTest {
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_EMPTY);
-    assertThrowsIllegalArg(() -> test.rate(OBS_BEFORE, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(OBS_BEFORE, GBP));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_MINIMAL);
-    assertThrowsIllegalArg(() -> test.rate(OBS_BEFORE, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(OBS_BEFORE, GBP));
   }
 
   public void test_rate_onValuation_fixing() {
@@ -162,7 +166,8 @@ public class ForwardFxIndexRatesTest {
 
   public void test_rate_nonMatchingCurrency() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertThrowsIllegalArg(() -> test.rate(OBS_EUR_VAL, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(OBS_EUR_VAL, EUR));
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +191,8 @@ public class ForwardFxIndexRatesTest {
 
   public void test_ratePointSensitivity_nonMatchingCurrency() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertThrowsIllegalArg(() -> test.ratePointSensitivity(OBS_EUR_VAL, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.ratePointSensitivity(OBS_EUR_VAL, EUR));
   }
 
   //-------------------------------------------------------------------------

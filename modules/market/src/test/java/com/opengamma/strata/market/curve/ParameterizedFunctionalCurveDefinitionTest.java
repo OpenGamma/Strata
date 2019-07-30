@@ -7,13 +7,13 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_OTHER;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.EXCEPTION;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -202,7 +202,9 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertThrowsIllegalArg(() -> test.filtered(VAL_DATE, REF_DATA), "Curve node dates clash.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.filtered(VAL_DATE, REF_DATA))
+        .withMessageStartingWith("Curve node dates clash");
   }
 
   //-------------------------------------------------------------------------
@@ -314,7 +316,9 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertThrowsIllegalArg(() -> test.filtered(VAL_DATE, REF_DATA), "Curve node dates clash.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.filtered(VAL_DATE, REF_DATA))
+        .withMessageStartingWith("Curve node dates clash");
   }
 
   //-------------------------------------------------------------------------

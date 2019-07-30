@@ -8,10 +8,10 @@ package com.opengamma.strata.product.deposit.type;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -51,7 +51,8 @@ public class IborFixingDepositTemplateTest {
   }
 
   public void test_build_negativePeriod() {
-    assertThrowsIllegalArg(() -> IborFixingDepositTemplate.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborFixingDepositTemplate.builder()
         .convention(CONVENTION)
         .depositPeriod(Period.ofMonths(-3))
         .build());

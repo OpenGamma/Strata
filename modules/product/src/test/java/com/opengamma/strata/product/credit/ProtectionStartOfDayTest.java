@@ -7,8 +7,8 @@ package com.opengamma.strata.product.credit;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -40,11 +40,13 @@ public class ProtectionStartOfDayTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> ProtectionStartOfDay.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ProtectionStartOfDay.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> ProtectionStartOfDay.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ProtectionStartOfDay.of(null));
   }
 
   //-------------------------------------------------------------------------

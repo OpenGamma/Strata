@@ -7,8 +7,8 @@ package com.opengamma.strata.product.etd;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -40,11 +40,13 @@ public class EtdOptionTypeTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> EtdOptionType.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdOptionType.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> EtdOptionType.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdOptionType.of(null));
   }
 
   public void test_getCode() {

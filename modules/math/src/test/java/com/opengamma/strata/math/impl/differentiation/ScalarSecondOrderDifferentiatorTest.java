@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.function.Function;
@@ -40,11 +40,13 @@ public class ScalarSecondOrderDifferentiatorTest {
   private static final double EPS = 1.0e-4;
 
   public void testNullDifferenceType() {
-    assertThrowsIllegalArg(() -> new ScalarFirstOrderDifferentiator(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ScalarFirstOrderDifferentiator(null));
   }
 
   public void testNullFunction() {
-    assertThrowsIllegalArg(() -> CALC.differentiate((Function<Double, Double>) null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALC.differentiate((Function<Double, Double>) null));
   }
 
   public void testDomainOut() {
@@ -54,7 +56,8 @@ public class ScalarSecondOrderDifferentiatorTest {
         return x >= 0d && x <= 1.0e-8;
       }
     };
-    assertThrowsIllegalArg(() -> CALC.differentiate(F, domain).apply(1.0e-9));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALC.differentiate(F, domain).apply(1.0e-9));
   }
 
   public void analyticTest() {

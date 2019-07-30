@@ -11,9 +11,9 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -69,7 +69,8 @@ public class ResolvedFxNdfTest {
 
   public void test_builder_wrongCurrency() {
     CurrencyAmount currencyNotional = CurrencyAmount.of(EUR, NOTIONAL);
-    assertThrowsIllegalArg(() -> ResolvedFxNdf.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxNdf.builder()
         .agreedFxRate(FX_RATE)
         .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)
@@ -79,7 +80,8 @@ public class ResolvedFxNdfTest {
 
   public void test_builder_wrongRate() {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
-    assertThrowsIllegalArg(() -> ResolvedFxNdf.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxNdf.builder()
         .agreedFxRate(fxRate)
         .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
         .paymentDate(PAYMENT_DATE)

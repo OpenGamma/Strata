@@ -6,10 +6,10 @@
 package com.opengamma.strata.product.index;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -54,7 +54,8 @@ public class IborFutureTradeTest {
   }
 
   public void test_builder_badPrice() {
-    assertThrowsIllegalArg(() -> sut().toBuilder().price(2.1).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> sut().toBuilder().price(2.1).build());
   }
 
   //-------------------------------------------------------------------------

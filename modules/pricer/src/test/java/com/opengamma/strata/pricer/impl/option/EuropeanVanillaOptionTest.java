@@ -6,11 +6,11 @@
 package com.opengamma.strata.pricer.impl.option;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -26,7 +26,8 @@ public class EuropeanVanillaOptionTest {
   private static final double TIME = 0.5;
 
   public void testNegativeTime() {
-    assertThrowsIllegalArg(() -> EuropeanVanillaOption.of(STRIKE, -TIME, CALL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EuropeanVanillaOption.of(STRIKE, -TIME, CALL));
   }
 
   public void test_of() {

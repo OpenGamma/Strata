@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -135,7 +135,8 @@ public class SabrIborCapletFloorletVolatilityBootstrapperTest extends CapletStri
             SabrHaganVolatilityFunctionProvider.DEFAULT);
     RawOptionData data = RawOptionData.of(createBlackMaturities(), createBlackStrikes(), ValueType.STRIKE,
         createFullBlackDataMatrixInvalid(), ValueType.BLACK_VOLATILITY);
-    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
   }
 
   public void test_recovery_black_shift() {

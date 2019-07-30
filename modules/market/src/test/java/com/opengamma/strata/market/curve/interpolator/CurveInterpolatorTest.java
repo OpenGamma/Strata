@@ -7,7 +7,6 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
@@ -20,6 +19,7 @@ import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_NATURAL_SPLINE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.SQUARE_LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertNotNull;
@@ -79,11 +79,13 @@ public class CurveInterpolatorTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> CurveInterpolator.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveInterpolator.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> CurveInterpolator.of(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveInterpolator.of(null));
   }
 
   //-------------------------------------------------------------------------

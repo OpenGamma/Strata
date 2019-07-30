@@ -7,10 +7,10 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.testng.annotations.Test;
 
@@ -50,10 +50,12 @@ public class ConstantNodalCurveTest {
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
     assertThat(test.getParameterCount()).isEqualTo(SIZE);
     assertThat(test.getParameter(0)).isEqualTo(YVALUE);
-    assertThrowsIllegalArg(() -> test.getParameter(1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getParameter(1));
     assertThat(test.getParameterMetadata(0)).isSameAs(METADATA_ENTRIES.getParameterMetadata().get().get(0));
     assertThat(test.withParameter(0, 2d)).isEqualTo(ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, 2d));
-    assertThrowsIllegalArg(() -> test.withParameter(1, 2d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.withParameter(1, 2d));
     assertThat(test.withPerturbation((i, v, m) -> v - 2d)).isEqualTo(
         ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE_BUMPED));
     assertThat(test.getMetadata()).isEqualTo(METADATA_ENTRIES);
@@ -81,7 +83,8 @@ public class ConstantNodalCurveTest {
 
   public void test_withNode_invalid() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
-    assertThrowsIllegalArg(() -> test.withNode(1, 2, ParameterMetadata.empty()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.withNode(1, 2, ParameterMetadata.empty()));
   }
 
   //-------------------------------------------------------------------------
@@ -107,7 +110,8 @@ public class ConstantNodalCurveTest {
 
   public void test_withMetadata_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    assertThrowsIllegalArg(() -> base.withMetadata(METADATA_ENTRIES2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withMetadata(METADATA_ENTRIES2));
   }
 
   //-------------------------------------------------------------------------
@@ -123,8 +127,10 @@ public class ConstantNodalCurveTest {
 
   public void test_withValues_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------
@@ -140,8 +146,10 @@ public class ConstantNodalCurveTest {
 
   public void test_withValuesXy_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.of(4d), DoubleArray.of(6d, 0d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withValues(DoubleArray.of(4d), DoubleArray.of(6d, 0d)));
   }
 
   //-------------------------------------------------------------------------

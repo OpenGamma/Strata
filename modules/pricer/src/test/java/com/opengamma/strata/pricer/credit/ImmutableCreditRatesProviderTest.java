@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -93,15 +93,20 @@ public class ImmutableCreditRatesProviderTest {
     assertEquals(test.recoveryRates(LEGAL_ENTITY_ABC), RR_ABC);
     assertEquals(test.recoveryRates(LEGAL_ENTITY_DEF), RR_DEF);
     StandardId entity = StandardId.of("OG", "NONE");
-    assertThrowsIllegalArg(() -> test.discountFactors(EUR));
-    assertThrowsIllegalArg(() -> test.survivalProbabilities(LEGAL_ENTITY_DEF, USD));
-    assertThrowsIllegalArg(() -> test.survivalProbabilities(entity, USD));
-    assertThrowsIllegalArg(() -> test.recoveryRates(entity));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.discountFactors(EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.survivalProbabilities(LEGAL_ENTITY_DEF, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.survivalProbabilities(entity, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.recoveryRates(entity));
   }
 
   public void test_valuationDateMismatch() {
     ConstantRecoveryRates rr_wrong = ConstantRecoveryRates.of(LEGAL_ENTITY_ABC, VALUATION.plusWeeks(1), RECOVERY_RATE_ABC);
-    assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
@@ -112,7 +117,8 @@ public class ImmutableCreditRatesProviderTest {
         .build());
     IsdaCreditDiscountFactors crd_wrong =
         IsdaCreditDiscountFactors.of(JPY, VALUATION.plusWeeks(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
-    assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
@@ -123,7 +129,8 @@ public class ImmutableCreditRatesProviderTest {
         .build());
     IsdaCreditDiscountFactors dsc_wrong =
         IsdaCreditDiscountFactors.of(USD, VALUATION.plusWeeks(1), NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
-    assertThrowsIllegalArg(() -> ImmutableCreditRatesProvider.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),

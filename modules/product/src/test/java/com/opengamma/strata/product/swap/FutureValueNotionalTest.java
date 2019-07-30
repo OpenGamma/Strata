@@ -6,9 +6,9 @@
 package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -60,7 +60,8 @@ public class FutureValueNotionalTest {
   }
 
   public void test_exceptions() {
-    assertThrowsIllegalArg(() -> FutureValueNotional.of(VALUE, null, NUM_DAYS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FutureValueNotional.of(VALUE, null, NUM_DAYS));
   }
 
   public void test_auto() {

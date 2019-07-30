@@ -8,10 +8,10 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -174,7 +174,8 @@ public class FixedRateCalculationTest {
         .frequency(Frequency.P1M)
         .rollConvention(RollConventions.DAY_5)
         .build();
-    assertThrowsIllegalArg(() -> test.createAccrualPeriods(schedule, schedule, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.createAccrualPeriods(schedule, schedule, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

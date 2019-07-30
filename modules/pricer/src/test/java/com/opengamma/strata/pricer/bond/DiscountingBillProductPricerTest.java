@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -196,11 +196,13 @@ public class DiscountingBillProductPricerTest {
   }
   
   public void price_settle_date_after_maturity_error() {
-    assertThrows(() -> PRICER.priceFromCurves(BILL, PROVIDER, MATURITY_DATE), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.priceFromCurves(BILL, PROVIDER, MATURITY_DATE));
   }
   
   public void price_settle_date_before_valuation_error() {
-    assertThrows(() -> PRICER.priceFromCurves(BILL, PROVIDER, VAL_DATE.minusDays(1)), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.priceFromCurves(BILL, PROVIDER, VAL_DATE.minusDays(1)));
   }
 
   public void priceFromCurves_zspread() {
@@ -214,15 +216,15 @@ public class DiscountingBillProductPricerTest {
   }
   
   public void price_zspread_settle_date_after_maturity_error() {
-    assertThrows(
-        () -> PRICER.priceFromCurvesWithZSpread(BILL, PROVIDER, MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0),
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.priceFromCurvesWithZSpread(
+            BILL, PROVIDER, MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
   
   public void price_zspread_settle_date_before_valuation_error() {
-    assertThrows(
-        () -> PRICER.priceFromCurvesWithZSpread(BILL, PROVIDER, VAL_DATE.minusDays(1), Z_SPREAD, CompoundedRateType.CONTINUOUS, 0), 
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.priceFromCurvesWithZSpread(
+            BILL, PROVIDER, VAL_DATE.minusDays(1), Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
   
   //-------------------------------------------------------------------------
@@ -237,11 +239,13 @@ public class DiscountingBillProductPricerTest {
   }
   
   public void yield_settle_date_after_maturity_error() {
-    assertThrows(() -> PRICER.yieldFromCurves(BILL, PROVIDER, MATURITY_DATE), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.yieldFromCurves(BILL, PROVIDER, MATURITY_DATE));
   }
   
   public void yield_settle_date_before_valuation_error() {
-    assertThrows(() -> PRICER.yieldFromCurves(BILL, PROVIDER, VAL_DATE.minusDays(1)), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.yieldFromCurves(BILL, PROVIDER, VAL_DATE.minusDays(1)));
   }
   
   public void yieldFromCurves_zspread() {
@@ -255,15 +259,15 @@ public class DiscountingBillProductPricerTest {
   }
   
   public void yield_zspread_settle_date_after_maturity_error() {
-    assertThrows(
-        () -> PRICER.yieldFromCurvesWithZSpread(BILL, PROVIDER, MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0), 
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.yieldFromCurvesWithZSpread(
+            BILL, PROVIDER, MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
   
   public void yield_zspread_settle_date_before_valuation_error() {
-    assertThrows(
-        () -> PRICER.yieldFromCurvesWithZSpread(BILL, PROVIDER, VAL_DATE.minusDays(1), Z_SPREAD, CompoundedRateType.CONTINUOUS, 0), 
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.yieldFromCurvesWithZSpread(
+            BILL, PROVIDER, VAL_DATE.minusDays(1), Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
 
 }

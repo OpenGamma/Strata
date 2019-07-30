@@ -12,10 +12,10 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -94,29 +94,35 @@ public class IborInterpolatedRateComputationTest {
   }
 
   public void test_of_sameIndex() {
-    assertThrowsIllegalArg(
+    assertThatIllegalArgumentException()
+        .isThrownBy(
         () -> IborInterpolatedRateComputation.of(GBP_LIBOR_1M, GBP_LIBOR_1M, FIXING_DATE, REF_DATA));
   }
 
   public void test_builder_indexOrder() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborInterpolatedRateComputation.meta().builder()
         .set(IborInterpolatedRateComputation.meta().shortObservation(), GBP_LIBOR_3M_OBS)
         .set(IborInterpolatedRateComputation.meta().longObservation(), GBP_LIBOR_1M_OBS)
         .build());
-    assertThrowsIllegalArg(() -> IborInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborInterpolatedRateComputation.meta().builder()
         .set(IborInterpolatedRateComputation.meta().shortObservation(), EUR_EURIBOR_2W_OBS)
         .set(IborInterpolatedRateComputation.meta().longObservation(), EUR_EURIBOR_1W_OBS)
         .build());
-    assertThrowsIllegalArg(() -> IborInterpolatedRateComputation.of(EUR_EURIBOR_2W_OBS, EUR_EURIBOR_1W_OBS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborInterpolatedRateComputation.of(EUR_EURIBOR_2W_OBS, EUR_EURIBOR_1W_OBS));
   }
 
   public void test_of_differentCurrencies() {
-    assertThrowsIllegalArg(
+    assertThatIllegalArgumentException()
+        .isThrownBy(
         () -> IborInterpolatedRateComputation.of(EUR_EURIBOR_2W, GBP_LIBOR_1M, FIXING_DATE, REF_DATA));
   }
 
   public void test_of_differentFixingDates() {
-    assertThrowsIllegalArg(() -> IborInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborInterpolatedRateComputation.meta().builder()
         .set(IborInterpolatedRateComputation.meta().shortObservation(), GBP_LIBOR_1M_OBS)
         .set(IborInterpolatedRateComputation.meta().longObservation(), GBP_LIBOR_3M_OBS2)
         .build());

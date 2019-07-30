@@ -9,14 +9,14 @@ import static com.opengamma.strata.basics.index.PriceIndices.CH_CPI;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.JP_CPI_EXF;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -121,15 +121,18 @@ public class InflationRateCalculationTest {
   }
 
   public void test_builder_missing_index() {
-    assertThrowsIllegalArg(() -> InflationRateCalculation.builder().build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationRateCalculation.builder().build());
   }
 
   public void test_builder_badLag() {
-    assertThrowsIllegalArg(() -> InflationRateCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ZERO)
         .build());
-    assertThrowsIllegalArg(() -> InflationRateCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(-1))
         .build());
@@ -327,7 +330,8 @@ public class InflationRateCalculationTest {
         .lag(Period.ofMonths(3))
         .indexCalculationMethod(INTERPOLATED)
         .build();
-    assertThrows(() -> test.createRateComputation(DATE_2015_04_05), IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(() -> test.createRateComputation(DATE_2015_04_05));
   }
 
   //-------------------------------------------------------------------------

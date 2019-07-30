@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_USD_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -66,7 +66,8 @@ public class FxResetCalculationTest {
   }
 
   public void test_invalidCurrency() {
-    assertThrowsIllegalArg(() -> FxResetCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxResetCalculation.builder()
         .index(EUR_USD_ECB)
         .referenceCurrency(GBP)
         .fixingDateOffset(MINUS_TWO_DAYS)

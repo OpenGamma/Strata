@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.index;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -82,7 +82,8 @@ public class DiscountingIborFutureTradePricerTest {
 
   public void test_reference_price_val_date_not_null() {
     double settlementPrice = 0.995;
-    assertThrowsIllegalArg(() -> PRICER_TRADE.referencePrice(FUTURE_TRADE, null, settlementPrice));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_TRADE.referencePrice(FUTURE_TRADE, null, settlementPrice));
   }
 
   //-------------------------------------------------------------------------

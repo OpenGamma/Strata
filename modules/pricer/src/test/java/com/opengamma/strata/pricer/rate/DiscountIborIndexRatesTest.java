@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -119,12 +119,14 @@ public class DiscountIborIndexRatesTest {
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES_EMPTY);
-    assertThrowsIllegalArg(() -> test.rate(GBP_LIBOR_3M_BEFORE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(GBP_LIBOR_3M_BEFORE));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     DiscountIborIndexRates test = DiscountIborIndexRates.of(GBP_LIBOR_3M, DFCURVE, SERIES_MINIMAL);
-    assertThrowsIllegalArg(() -> test.rate(GBP_LIBOR_3M_BEFORE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(GBP_LIBOR_3M_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {

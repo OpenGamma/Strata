@@ -8,12 +8,12 @@ package com.opengamma.strata.pricer;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -113,11 +113,16 @@ public class ZeroRatePeriodicDiscountFactorsTest {
         .build();
     InterpolatedNodalCurve curveNegativeNb = InterpolatedNodalCurve.of(
         metaNegativeNb, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
-    assertThrowsIllegalArg(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notYearFraction));
-    assertThrowsIllegalArg(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notZeroRate));
-    assertThrowsIllegalArg(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notDayCount));
-    assertThrowsIllegalArg(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notCompoundPerYear));
-    assertThrowsIllegalArg(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, curveNegativeNb));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notYearFraction));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notZeroRate));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notDayCount));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, notCompoundPerYear));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, curveNegativeNb));
   }
 
   //-------------------------------------------------------------------------

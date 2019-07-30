@@ -7,11 +7,12 @@ package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -97,10 +98,13 @@ public class CdsIsdaCreditCurveNodeTest {
   }
 
   public void test_build_fail_noRate() {
-    assertThrows(
-        () -> CdsIsdaCreditCurveNode.builder().template(TEMPLATE).observableId(QUOTE_ID).legalEntityId(LEGAL_ENTITY)
-            .quoteConvention(CdsQuoteConvention.QUOTED_SPREAD).build(),
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CdsIsdaCreditCurveNode.builder()
+            .template(TEMPLATE)
+            .observableId(QUOTE_ID)
+            .legalEntityId(LEGAL_ENTITY)
+            .quoteConvention(CdsQuoteConvention.QUOTED_SPREAD)
+            .build());
   }
 
   //-------------------------------------------------------------------------
@@ -124,7 +128,8 @@ public class CdsIsdaCreditCurveNodeTest {
   public void test_trade_noMarketData() {
     CdsIsdaCreditCurveNode node = CdsIsdaCreditCurveNode.ofParSpread(TEMPLATE, QUOTE_ID, LEGAL_ENTITY);
     MarketData marketData = MarketData.empty(VAL_DATE);
-    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

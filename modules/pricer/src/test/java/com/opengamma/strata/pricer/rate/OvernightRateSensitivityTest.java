@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -77,7 +77,8 @@ public class OvernightRateSensitivityTest {
   }
 
   public void test_badDateOrder() {
-    assertThrowsIllegalArg(() -> OvernightRateSensitivity.ofPeriod(GBP_SONIA_OBSERVATION, DATE, GBP, 32d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightRateSensitivity.ofPeriod(GBP_SONIA_OBSERVATION, DATE, GBP, 32d));
   }
 
   //-------------------------------------------------------------------------

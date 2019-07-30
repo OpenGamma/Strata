@@ -8,12 +8,11 @@ package com.opengamma.strata.market.curve.node;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsWithCause;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -108,7 +107,8 @@ public class FxSwapCurveNodeTest {
   }
 
   public void test_builder_noTemplate() {
-    assertThrowsIllegalArg(() -> FxSwapCurveNode.builder().label(LABEL).farForwardPointsId(QUOTE_ID_PTS).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSwapCurveNode.builder().label(LABEL).farForwardPointsId(QUOTE_ID_PTS).build());
   }
 
   public void test_of() {
@@ -146,7 +146,8 @@ public class FxSwapCurveNodeTest {
   public void test_trade_noMarketData() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     MarketData marketData = MarketData.empty(VAL_DATE);
-    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {
@@ -176,7 +177,8 @@ public class FxSwapCurveNodeTest {
 
   public void test_metadata_last_fixing() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS).withDate(CurveNodeDate.LAST_FIXING);
-    assertThrowsWithCause(() -> node.metadata(VAL_DATE, REF_DATA), UnsupportedOperationException.class);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> node.metadata(VAL_DATE, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

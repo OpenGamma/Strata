@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.measure.rate;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -95,7 +95,8 @@ public class RatesCurveInputsMarketDataFunctionTest {
     RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
     RatesCurveInputsId curveInputsId =
         RatesCurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
-    assertThrowsIllegalArg(() -> marketDataFunction.requirements(curveInputsId, MarketDataConfig.empty()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> marketDataFunction.requirements(curveInputsId, MarketDataConfig.empty()));
   }
 
   /**
@@ -173,10 +174,9 @@ public class RatesCurveInputsMarketDataFunctionTest {
     RatesCurveInputsId curveInputsId =
         RatesCurveInputsId.of(CurveGroupName.of("curve group"), CurveName.of("curve"), ObservableSource.NONE);
     ScenarioMarketData emptyData = ScenarioMarketData.empty();
-    assertThrows(
-        () -> marketDataFunction.build(curveInputsId, MarketDataConfig.empty(), emptyData, REF_DATA),
-        IllegalArgumentException.class,
-        "No configuration found for type .*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> marketDataFunction.build(curveInputsId, MarketDataConfig.empty(), emptyData, REF_DATA))
+        .withMessageStartingWith("No configuration found for type ");
   }
 
   /**
@@ -190,10 +190,9 @@ public class RatesCurveInputsMarketDataFunctionTest {
     MarketDataConfig marketDataConfig = MarketDataConfig.builder().add(groupDefn.getName(), groupDefn).build();
     ScenarioMarketData emptyData = ScenarioMarketData.empty();
 
-    assertThrows(
-        () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
-        IllegalArgumentException.class,
-        "No curve named .*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA))
+        .withMessageStartingWith("No curve named ");
   }
 
   /**
@@ -226,9 +225,8 @@ public class RatesCurveInputsMarketDataFunctionTest {
     RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
     RatesCurveInputsId curveInputsId = RatesCurveInputsId.of(groupDefn.getName(), curve.getName(), ObservableSource.NONE);
 
-    assertThrows(
-        () -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA),
-        MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> marketDataFunction.build(curveInputsId, marketDataConfig, emptyData, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

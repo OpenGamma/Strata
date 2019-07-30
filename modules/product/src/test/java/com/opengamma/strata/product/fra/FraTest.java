@@ -18,7 +18,6 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -26,6 +25,7 @@ import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalTime;
@@ -155,7 +155,8 @@ public class FraTest {
   }
 
   public void test_builder_datesInOrder() {
-    assertThrowsIllegalArg(() -> Fra.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_1M)
         .startDate(date(2015, 6, 15))
@@ -166,7 +167,8 @@ public class FraTest {
   }
 
   public void test_builder_noIndex() {
-    assertThrowsIllegalArg(() -> Fra.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_1M)
         .startDate(date(2015, 6, 15))
@@ -176,7 +178,8 @@ public class FraTest {
   }
 
   public void test_builder_noDates() {
-    assertThrowsIllegalArg(() -> Fra.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Fra.builder()
         .buySell(BUY)
         .notional(NOTIONAL_1M)
         .endDate(date(2015, 9, 15))

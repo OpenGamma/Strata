@@ -7,12 +7,12 @@ package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -122,7 +122,8 @@ public class FixedInflationSwapCurveNodeTest {
     FixedInflationSwapCurveNode node = FixedInflationSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     MarketData marketData = MarketData.empty(valuationDate);
-    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {
@@ -142,7 +143,8 @@ public class FixedInflationSwapCurveNodeTest {
   public void test_initialGuess_wrongType() {
     FixedInflationSwapCurveNode node = FixedInflationSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).build();
-    assertThrowsIllegalArg(() -> node.initialGuess(marketData, ValueType.BLACK_VOLATILITY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> node.initialGuess(marketData, ValueType.BLACK_VOLATILITY));
   }
 
   public void test_metadata_end() {

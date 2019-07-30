@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -61,10 +61,12 @@ public class IborFutureConventionTest {
   }
 
   public void test_builder_incomplete() {
-    assertThrowsIllegalArg(() -> ImmutableIborFutureConvention.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableIborFutureConvention.builder()
         .index(USD_LIBOR_3M)
         .build());
-    assertThrowsIllegalArg(() -> ImmutableIborFutureConvention.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableIborFutureConvention.builder()
         .dateSequence(QUARTERLY_IMM)
         .build());
   }
@@ -118,11 +120,13 @@ public class IborFutureConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> IborFutureConvention.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborFutureConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> IborFutureConvention.of((String) null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborFutureConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------

@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -205,9 +205,12 @@ public class ProductLinearCurveInterpolatorTest {
     DoubleArray yValues = DoubleArray.of(1.0, 13.2, 1.5);
     double keyDw = 1.0e-12;
     BoundCurveInterpolator bound = INTERP.bind(xValues, yValues);
-    assertThrowsIllegalArg(() -> bound.interpolate(keyDw));
-    assertThrowsIllegalArg(() -> bound.firstDerivative(keyDw));
-    assertThrowsIllegalArg(() -> bound.parameterSensitivity(keyDw));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bound.interpolate(keyDw));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bound.firstDerivative(keyDw));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bound.parameterSensitivity(keyDw));
   }
 
   public void getterTest() {

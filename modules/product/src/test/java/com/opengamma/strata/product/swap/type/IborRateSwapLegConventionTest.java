@@ -17,12 +17,12 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.StubConvention.LONG_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.swap.FixingRelativeTo.PERIOD_END;
 import static com.opengamma.strata.product.swap.FixingRelativeTo.PERIOD_START;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -94,7 +94,8 @@ public class IborRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> IborRateSwapLegConvention.builder().build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateSwapLegConvention.builder().build());
   }
 
   public void test_builderAllSpecified() {

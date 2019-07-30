@@ -11,9 +11,9 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -77,7 +77,8 @@ public class FixedCouponBondTest {
   }
 
   public void test_builder_fail() {
-    assertThrowsIllegalArg(() -> FixedCouponBond.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedCouponBond.builder()
         .securityId(SECURITY_ID)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)
@@ -89,7 +90,8 @@ public class FixedCouponBondTest {
         .yieldConvention(YIELD_CONVENTION)
         .exCouponPeriod(DaysAdjustment.ofBusinessDays(EX_COUPON_DAYS, EUTA, BUSINESS_ADJUST))
         .build());
-    assertThrowsIllegalArg(() -> FixedCouponBond.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedCouponBond.builder()
         .securityId(SECURITY_ID)
         .dayCount(DAY_COUNT)
         .fixedRate(FIXED_RATE)

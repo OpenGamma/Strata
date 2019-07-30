@@ -8,9 +8,9 @@ package com.opengamma.strata.measure.rate;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.Guavate.casting;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
@@ -355,8 +355,10 @@ public class RatesCurveGroupMarketDataFunctionTest {
         .addValue(RatesCurveInputsId.of(curveGroupName, curveName2, ObservableSource.NONE), badCurveInputs)
         .build();
     String msg = "Multiple unequal values found for identifier .*\\. Values: .* and .*";
-    assertThrowsIllegalArg(
-        () -> fn.buildCurveGroup(groupDefinition, CALIBRATOR, badMarketData, REF_DATA, ObservableSource.NONE), msg);
+    assertThatIllegalArgumentException()
+        .isThrownBy(
+            () -> fn.buildCurveGroup(groupDefinition, CALIBRATOR, badMarketData, REF_DATA, ObservableSource.NONE))
+        .withMessageMatching(msg);
   }
 
   //-----------------------------------------------------------------------------------------------------------

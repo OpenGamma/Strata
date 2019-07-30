@@ -7,9 +7,9 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -47,7 +47,8 @@ public class FixedRateStubCalculationTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_invalid_fixedAndKnown() {
-    assertThrowsIllegalArg(() -> FixedRateStubCalculation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedRateStubCalculation.meta().builder()
         .set(FixedRateStubCalculation.meta().fixedRate(), 0.025d)
         .set(FixedRateStubCalculation.meta().knownAmount(), GBP_P1000)
         .build());

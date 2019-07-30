@@ -7,10 +7,10 @@ package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -68,15 +68,18 @@ public class KnownAmountBondPaymentPeriodTest {
   }
 
   public void test_builder_invalid() {
-    assertThrowsIllegalArg(() -> KnownAmountBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountBondPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .endDate(DATE_2014_10_01)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountBondPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_10_01)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountBondPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_10_01)
         .endDate(DATE_2014_10_01)

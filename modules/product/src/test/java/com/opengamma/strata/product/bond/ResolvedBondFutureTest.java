@@ -7,10 +7,10 @@ package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -46,7 +46,8 @@ public class ResolvedBondFutureTest {
   public void test_builder_fail() {
     ResolvedBondFuture base = sut();
     // wrong size
-    assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedBondFuture.builder()
         .securityId(base.getSecurityId())
         .deliveryBasket(base.getDeliveryBasket().subList(0, 1))
         .conversionFactors(base.getConversionFactors())
@@ -55,7 +56,8 @@ public class ResolvedBondFutureTest {
         .lastTradeDate(base.getLastTradeDate())
         .build());
     // first notice date missing
-    assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedBondFuture.builder()
         .securityId(base.getSecurityId())
         .deliveryBasket(base.getDeliveryBasket())
         .conversionFactors(base.getConversionFactors())
@@ -63,7 +65,8 @@ public class ResolvedBondFutureTest {
         .lastTradeDate(base.getLastTradeDate())
         .build());
     // last notice date missing
-    assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedBondFuture.builder()
         .securityId(base.getSecurityId())
         .deliveryBasket(base.getDeliveryBasket())
         .conversionFactors(base.getConversionFactors())
@@ -71,7 +74,8 @@ public class ResolvedBondFutureTest {
         .lastTradeDate(base.getLastTradeDate())
         .build());
     // basket list empty
-    assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedBondFuture.builder()
         .securityId(base.getSecurityId())
         .firstNoticeDate(base.getFirstNoticeDate())
         .lastNoticeDate(base.getLastNoticeDate())
@@ -80,7 +84,8 @@ public class ResolvedBondFutureTest {
     // notional mismatch
     ResolvedFixedCouponBond bond0 = base.getDeliveryBasket().get(0);
     ResolvedFixedCouponBond bond1 = bond0.toBuilder().nominalPayment(Payment.of(USD, 100, date(2016, 6, 30))).build();
-    assertThrowsIllegalArg(() -> ResolvedBondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedBondFuture.builder()
         .securityId(base.getSecurityId())
         .deliveryBasket(bond0, bond1)
         .conversionFactors(1d, 2d)

@@ -6,7 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -151,7 +151,8 @@ public class SabrSwaptionPhysicalProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void validate_physical_settlement() {
-    assertThrowsIllegalArg(() -> SWAPTION_PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, VOLS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SWAPTION_PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, VOLS));
   }
 
   //-------------------------------------------------------------------------
@@ -290,9 +291,11 @@ public class SabrSwaptionPhysicalProductPricerTest {
   }
 
   public void test_impliedVolatility_afterMaturity() {
-    assertThrowsIllegalArg(() -> SWAPTION_PRICER.impliedVolatility(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SWAPTION_PRICER.impliedVolatility(
         SWAPTION_REC_LONG, RATE_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY));
-    assertThrowsIllegalArg(() -> SWAPTION_PRICER.impliedVolatility(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SWAPTION_PRICER.impliedVolatility(
         SWAPTION_PAY_SHORT, RATE_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY));
   }
 

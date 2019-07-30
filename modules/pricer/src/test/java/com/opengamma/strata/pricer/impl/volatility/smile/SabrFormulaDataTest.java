@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -54,32 +54,38 @@ public class SabrFormulaDataTest {
   //-------------------------------------------------------------------------
   @Test
   public void testNegativeBETA() {
-    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, -BETA, RHO, NU));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrFormulaData.of(ALPHA, -BETA, RHO, NU));
   }
 
   @Test
   public void testNegativeNu() {
-    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, BETA, RHO, -NU));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrFormulaData.of(ALPHA, BETA, RHO, -NU));
   }
 
   @Test
   public void testLowRho() {
-    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, BETA, RHO - 10, NU));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrFormulaData.of(ALPHA, BETA, RHO - 10, NU));
   }
 
   @Test
   public void testHighRho() {
-    assertThrowsIllegalArg(() -> SabrFormulaData.of(ALPHA, BETA, RHO + 10, NU));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrFormulaData.of(ALPHA, BETA, RHO + 10, NU));
   }
 
   @Test
   public void testWrongIndex() {
-    assertThrowsIllegalArg(() -> DATA.isAllowed(-1, ALPHA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DATA.isAllowed(-1, ALPHA));
   }
 
   @Test
   public void testWrongParameterLength() {
-    assertThrowsIllegalArg(() -> SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU, 0.1}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU, 0.1}));
   }
 
   //-------------------------------------------------------------------------

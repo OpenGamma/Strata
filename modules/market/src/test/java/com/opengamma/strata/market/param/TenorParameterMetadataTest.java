@@ -8,9 +8,9 @@ package com.opengamma.strata.market.param;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_12M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.BeanBuilder;
@@ -58,7 +58,8 @@ public class TenorParameterMetadataTest {
 
   public void test_builder_incomplete() {
     BeanBuilder<? extends TenorParameterMetadata> builder = TenorParameterMetadata.meta().builder();
-    assertThrowsIllegalArg(() -> builder.build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> builder.build());
   }
 
   //-------------------------------------------------------------------------

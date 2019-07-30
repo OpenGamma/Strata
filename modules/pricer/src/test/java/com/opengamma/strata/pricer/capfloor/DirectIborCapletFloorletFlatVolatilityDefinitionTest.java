@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
@@ -20,6 +19,7 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.Period;
@@ -97,8 +97,10 @@ public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE);
     assertEquals(base.createCurveMetadata(SAMPLE_BLACK), Curves.blackVolatilityByExpiry(NAME.getName(), ACT_ACT_ISDA));
     assertEquals(base.createCurveMetadata(SAMPLE_NORMAL), Curves.normalVolatilityByExpiry(NAME.getName(), ACT_ACT_ISDA));
-    assertThrowsIllegalArg(() -> base.createCurveMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
-    assertThrowsIllegalArg(() -> base.createMetadata(SAMPLE_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.createCurveMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.createMetadata(SAMPLE_NORMAL));
   }
 
   public void test_computePenaltyMatrix() {
@@ -110,7 +112,8 @@ public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
         expiries1.toArray(), 2).multipliedBy(LAMBDA_EXPIRY);
     assertEquals(computed, expected);
     DoubleArray expiries2 = DoubleArray.of(2d);
-    assertThrowsIllegalArg(() -> base.computePenaltyMatrix(expiries2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.computePenaltyMatrix(expiries2));
   }
 
   //-------------------------------------------------------------------------

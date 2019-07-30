@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.calc;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -49,11 +49,13 @@ public class TargetTypeCalculationParameterTest {
   }
 
   public void of_empty() {
-    assertThrowsIllegalArg(() -> TargetTypeCalculationParameter.of(ImmutableMap.of(), PARAM3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TargetTypeCalculationParameter.of(ImmutableMap.of(), PARAM3));
   }
 
   public void of_badType() {
-    assertThrowsIllegalArg(() -> TargetTypeCalculationParameter.of(ImmutableMap.of(TestTarget.class, PARAM_OTHER), PARAM3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TargetTypeCalculationParameter.of(ImmutableMap.of(TestTarget.class, PARAM_OTHER), PARAM3));
   }
 
   //-------------------------------------------------------------------------

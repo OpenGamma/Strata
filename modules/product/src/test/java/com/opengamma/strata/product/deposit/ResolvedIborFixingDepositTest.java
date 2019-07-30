@@ -10,9 +10,9 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -58,7 +58,8 @@ public class ResolvedIborFixingDepositTest {
   }
 
   public void test_builder_wrongDates() {
-    assertThrowsIllegalArg(() -> ResolvedIborFixingDeposit.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedIborFixingDeposit.builder()
         .currency(GBP)
         .notional(NOTIONAL)
         .startDate(LocalDate.of(2015, 8, 20))

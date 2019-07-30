@@ -10,12 +10,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.STRIKE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -101,7 +101,8 @@ public class DirectIborCapletFloorletVolatilityDefinitionTest {
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, LAMBDA_STRIKE, INTERPOLATOR);
     assertEquals(base.createMetadata(SAMPLE_BLACK), Surfaces.blackVolatilityByExpiryStrike(NAME.getName(), ACT_ACT_ISDA));
     assertEquals(base.createMetadata(SAMPLE_NORMAL), Surfaces.normalVolatilityByExpiryStrike(NAME.getName(), ACT_ACT_ISDA));
-    assertThrowsIllegalArg(() -> base.createMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.createMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
   }
 
   public void test_computePenaltyMatrix() {
@@ -109,10 +110,12 @@ public class DirectIborCapletFloorletVolatilityDefinitionTest {
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, LAMBDA_STRIKE, INTERPOLATOR);
     DoubleArray strikes1 = DoubleArray.of(0.1);
     DoubleArray expiries1 = DoubleArray.of(1d, 2d, 5d);
-    assertThrowsIllegalArg(() -> base.computePenaltyMatrix(strikes1, expiries1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.computePenaltyMatrix(strikes1, expiries1));
     DoubleArray strikes2 = DoubleArray.of(0.01, 0.05, 0.1);
     DoubleArray expiries2 = DoubleArray.of(2d);
-    assertThrowsIllegalArg(() -> base.computePenaltyMatrix(strikes2, expiries2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.computePenaltyMatrix(strikes2, expiries2));
     DoubleArray strikes3 = DoubleArray.of(0.05, 0.1, 0.15);
     DoubleArray expiries3 = DoubleArray.of(1d, 2d, 5d);
     DoubleMatrix computed = base.computePenaltyMatrix(strikes3, expiries3);

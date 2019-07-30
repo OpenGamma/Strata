@@ -8,9 +8,9 @@ package com.opengamma.strata.product.rate;
 import static com.opengamma.strata.basics.index.PriceIndices.CH_CPI;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.YearMonth;
@@ -46,9 +46,11 @@ public class InflationInterpolatedRateComputationTest {
   }
 
   public void test_wrongMonthOrder() {
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateComputation.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationInterpolatedRateComputation.of(
         GB_HICP, END_MONTH_FIRST, START_MONTH_FIRST, WEIGHT));
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationInterpolatedRateComputation.meta().builder()
         .set(InflationInterpolatedRateComputation.meta().startObservation(),
             PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
         .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
@@ -59,7 +61,8 @@ public class InflationInterpolatedRateComputationTest {
             PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
         .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
         .build());
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationInterpolatedRateComputation.meta().builder()
         .set(InflationInterpolatedRateComputation.meta().startObservation(),
             PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
         .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
@@ -70,7 +73,8 @@ public class InflationInterpolatedRateComputationTest {
             PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
         .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
         .build());
-    assertThrowsIllegalArg(() -> InflationInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationInterpolatedRateComputation.meta().builder()
         .set(InflationInterpolatedRateComputation.meta().startObservation(),
             PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
         .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),

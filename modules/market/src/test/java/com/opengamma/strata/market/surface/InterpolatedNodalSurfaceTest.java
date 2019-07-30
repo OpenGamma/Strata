@@ -7,13 +7,13 @@ package com.opengamma.strata.market.surface;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
@@ -73,23 +73,29 @@ public class InterpolatedNodalSurfaceTest {
 
   public void test_of_invalid() {
     // not enough nodes
-    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, DoubleArray.of(1d), DoubleArray.of(2d), DoubleArray.of(3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalSurface.of(
+            METADATA, DoubleArray.of(1d), DoubleArray.of(2d), DoubleArray.of(3d), INTERPOLATOR));
     // x node size != y node size
-    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, XVALUES, DoubleArray.of(1d, 3d), ZVALUES, INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalSurface.of(
+            METADATA, XVALUES, DoubleArray.of(1d, 3d), ZVALUES, INTERPOLATOR));
     // x node size != z node size
-    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, XVALUES, YVALUES, DoubleArray.of(1d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalSurface.of(
+            METADATA, XVALUES, YVALUES, DoubleArray.of(1d, 3d), INTERPOLATOR));
     // parameter metadata size != node size
-    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalSurface.of(
+            METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
     // x not in order
-    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(1d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalSurface.of(
+            METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(1d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
     // y not in order
-    assertThrowsIllegalArg(() -> InterpolatedNodalSurface.of(
-        METADATA, DoubleArray.of(1d, 1d), DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalSurface.of(
+            METADATA, DoubleArray.of(1d, 1d), DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------
@@ -122,7 +128,8 @@ public class InterpolatedNodalSurfaceTest {
 
   public void test_withMetadata_badSize() {
     InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withMetadata(METADATA_ENTRIES2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withMetadata(METADATA_ENTRIES2));
   }
 
   //-------------------------------------------------------------------------
@@ -139,8 +146,10 @@ public class InterpolatedNodalSurfaceTest {
 
   public void test_withZValues_badSize() {
     InterpolatedNodalSurface base = InterpolatedNodalSurface.of(METADATA, XVALUES, YVALUES, ZVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withZValues(DoubleArray.of(4d, 6d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withZValues(DoubleArray.EMPTY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withZValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------

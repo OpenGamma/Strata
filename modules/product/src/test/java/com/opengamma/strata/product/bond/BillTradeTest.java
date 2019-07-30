@@ -6,10 +6,10 @@
 package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -85,25 +85,27 @@ public class BillTradeTest {
   }
 
   public void test_price() {
-    assertThrows(() -> BillTrade.builder()
-        .info(TRADE_INFO)
-        .product(PRODUCT)
-        .quantity(QUANTITY)
-        .build(), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BillTrade.builder()
+            .info(TRADE_INFO)
+            .product(PRODUCT)
+            .quantity(QUANTITY)
+            .build());
   }
 
   public void test_settle_or_trade() {
-    assertThrows(() -> BillTrade.builder()
-        .info(TradeInfo.empty())
-        .product(PRODUCT)
-        .quantity(QUANTITY)
-        .price(PRICE)
-        .build(), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BillTrade.builder()
+            .info(TradeInfo.empty())
+            .product(PRODUCT)
+            .quantity(QUANTITY)
+            .price(PRICE)
+            .build());
   }
 
   public void test_of_yield_settledate() {
-    assertThrows(() -> BillTrade.ofYield(TradeInfo.builder().tradeDate(TRADE_DATE).build(), PRODUCT, QUANTITY, YIELD),
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BillTrade.ofYield(TradeInfo.builder().tradeDate(TRADE_DATE).build(), PRODUCT, QUANTITY, YIELD));
   }
 
   //-------------------------------------------------------------------------

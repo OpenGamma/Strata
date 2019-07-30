@@ -14,8 +14,6 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -23,6 +21,8 @@ import static com.opengamma.strata.product.swap.CompoundingMethod.NONE;
 import static com.opengamma.strata.product.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.product.swap.PaymentRelativeTo.PERIOD_END;
 import static com.opengamma.strata.product.swap.PaymentRelativeTo.PERIOD_START;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -148,7 +148,8 @@ public class PaymentScheduleTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .firstRegularStartDate(DATE_05_05)
         .build();
-    assertThrowsIllegalArg(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
   public void test_createSchedule_term_badLastRegular() {
@@ -157,7 +158,8 @@ public class PaymentScheduleTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .lastRegularEndDate(DATE_05_05)
         .build();
-    assertThrowsIllegalArg(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
   public void test_createSchedule_fullMerge() {
@@ -274,7 +276,8 @@ public class PaymentScheduleTest {
         .firstRegularStartDate(DATE_01_06)
         .lastRegularEndDate(DATE_04_07)
         .build();
-    assertThrows(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA), ScheduleException.class);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
   public void test_createSchedule_firstAndLastDate_initialAccrualStub() {
@@ -334,7 +337,8 @@ public class PaymentScheduleTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .firstRegularStartDate(DATE_01_06)
         .build();
-    assertThrows(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA), ScheduleException.class);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
   public void test_createSchedule_firstDate_initialAccrualStub() {
@@ -393,7 +397,8 @@ public class PaymentScheduleTest {
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .lastRegularEndDate(DATE_04_05)
         .build();
-    assertThrows(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA), ScheduleException.class);
+    assertThatExceptionOfType(ScheduleException.class)
+        .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
   public void test_createSchedule_lastDate_finalAccrualStub() {

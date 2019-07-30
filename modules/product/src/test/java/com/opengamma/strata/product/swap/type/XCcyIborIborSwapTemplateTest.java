@@ -11,13 +11,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -79,7 +79,8 @@ public class XCcyIborIborSwapTemplateTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> XCcyIborIborSwapTemplate.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> XCcyIborIborSwapTemplate.builder()
         .tenor(TENOR_2Y)
         .build());
   }

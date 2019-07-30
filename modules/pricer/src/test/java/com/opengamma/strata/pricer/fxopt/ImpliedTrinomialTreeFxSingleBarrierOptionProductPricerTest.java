@@ -7,7 +7,7 @@ package com.opengamma.strata.pricer.fxopt;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -332,16 +332,21 @@ public class ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest {
   }
 
   public void test_expired_calibration() {
-    assertThrowsIllegalArg(() -> PRICER_39.getCalibrator().calibrateTrinomialTree(CALL_DKO.getUnderlyingOption(),
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_39.getCalibrator().calibrateTrinomialTree(CALL_DKO.getUnderlyingOption(),
         RATE_PROVIDER_AFTER, VOLS_AFTER));
     // pricing also fails because trinomial data can not be obtained
-    assertThrowsIllegalArg(() -> PRICER_39.price(CALL_DKO, RATE_PROVIDER_AFTER, VOLS_AFTER));
-    assertThrowsIllegalArg(() -> PRICER_39.presentValue(CALL_DKO, RATE_PROVIDER_AFTER, VOLS_AFTER));
-    assertThrowsIllegalArg(() -> PRICER_39.currencyExposure(CALL_DKO, RATE_PROVIDER_AFTER, VOLS_AFTER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_39.price(CALL_DKO, RATE_PROVIDER_AFTER, VOLS_AFTER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_39.presentValue(CALL_DKO, RATE_PROVIDER_AFTER, VOLS_AFTER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_39.currencyExposure(CALL_DKO, RATE_PROVIDER_AFTER, VOLS_AFTER));
   }
 
   public void test_dataMismatch() {
-    assertThrowsIllegalArg(() -> PRICER_70.presentValueSensitivityRates(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_70.presentValueSensitivityRates(
         CALL_DKO, RATE_PROVIDER, VOLS, DATA_39));
   }
 

@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -53,7 +53,8 @@ public class SwaptionMarketDataLookupTest {
     assertEquals(test.queryType(), SwaptionMarketDataLookup.class);
     assertEquals(test.getVolatilityIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getVolatilityIds(USD_LIBOR_3M), ImmutableSet.of(VOL_ID1));
-    assertThrowsIllegalArg(() -> test.getVolatilityIds(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
     assertEquals(
         test.requirements(USD_LIBOR_3M),
@@ -61,7 +62,8 @@ public class SwaptionMarketDataLookupTest {
     assertEquals(
         test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
         FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
   }
 
   public void test_of_map() {
@@ -70,7 +72,8 @@ public class SwaptionMarketDataLookupTest {
     assertEquals(test.queryType(), SwaptionMarketDataLookup.class);
     assertEquals(test.getVolatilityIndices(), ImmutableSet.of(USD_LIBOR_3M, USD_LIBOR_6M));
     assertEquals(test.getVolatilityIds(USD_LIBOR_3M), ImmutableSet.of(VOL_ID1));
-    assertThrowsIllegalArg(() -> test.getVolatilityIds(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
     assertEquals(
         test.requirements(USD_LIBOR_3M),
@@ -78,10 +81,12 @@ public class SwaptionMarketDataLookupTest {
     assertEquals(
         test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
         FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
 
     assertEquals(test.volatilities(USD_LIBOR_3M, MOCK_MARKET_DATA), MOCK_VOLS);
-    assertThrowsIllegalArg(() -> test.volatilities(GBP_LIBOR_3M, MOCK_MARKET_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.volatilities(GBP_LIBOR_3M, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------

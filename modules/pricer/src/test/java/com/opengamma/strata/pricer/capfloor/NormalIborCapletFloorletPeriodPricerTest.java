@@ -7,10 +7,10 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -233,7 +233,8 @@ public class NormalIborCapletFloorletPeriodPricerTest {
   }
 
   public void test_impliedVolatility_afterFix() {
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.impliedVolatility(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX));
   }
 
   //-------------------------------------------------------------------------
@@ -476,13 +477,20 @@ public class NormalIborCapletFloorletPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   public void test_fail_Black() {
-    assertThrowsIllegalArg(() -> PRICER.presentValue(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueGamma(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES, VOLS_NORMAL));
-    assertThrowsIllegalArg(() -> PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValue(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.impliedVolatility(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueGamma(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES, VOLS_NORMAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES, VOLS_NORMAL));
   }
 
 }

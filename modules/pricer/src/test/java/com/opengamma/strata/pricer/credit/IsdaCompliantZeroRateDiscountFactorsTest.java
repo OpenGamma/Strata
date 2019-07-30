@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365L;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -160,16 +160,20 @@ public class IsdaCompliantZeroRateDiscountFactorsTest {
         .build();
     InterpolatedNodalCurve curveNoDcc = InterpolatedNodalCurve.of(metadata, TIME, RATE,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveNoDcc));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveNoDcc));
     InterpolatedNodalCurve curveWrongLeft = InterpolatedNodalCurve.of(METADATA, TIME, RATE,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.PRODUCT_LINEAR, CurveExtrapolators.PRODUCT_LINEAR);
-    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongLeft));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongLeft));
     InterpolatedNodalCurve curveWrongInterp = InterpolatedNodalCurve.of(METADATA, TIME, RATE,
         CurveInterpolators.NATURAL_SPLINE, CurveExtrapolators.FLAT, CurveExtrapolators.PRODUCT_LINEAR);
-    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongInterp));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongInterp));
     InterpolatedNodalCurve curveWrongRight = InterpolatedNodalCurve.of(METADATA, TIME, RATE,
         CurveInterpolators.PRODUCT_LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertThrowsIllegalArg(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongRight));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IsdaCreditDiscountFactors.of(USD, VALUATION, curveWrongRight));
   }
 
   //-------------------------------------------------------------------------

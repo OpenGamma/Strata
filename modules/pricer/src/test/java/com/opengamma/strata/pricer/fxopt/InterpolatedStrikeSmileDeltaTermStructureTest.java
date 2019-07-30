@@ -7,9 +7,9 @@ package com.opengamma.strata.pricer.fxopt;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
@@ -107,25 +107,33 @@ public class InterpolatedStrikeSmileDeltaTermStructureTest {
     DoubleArray timeShort = DoubleArray.of(0.10, 0.25, 0.50, 1.00, 2.00);
     DoubleArray deltaLong = DoubleArray.of(0.10, 0.2, 0.25);
     DoubleArray delta0 = DoubleArray.of();
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         timeShort, DELTA, DoubleMatrix.copyOf(vol), ACT_360));
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         TIME_TO_EXPIRY, deltaLong, DoubleMatrix.copyOf(vol), ACT_360));
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         TIME_TO_EXPIRY, delta0, DoubleMatrix.copyOf(vol), ACT_360));
     DoubleMatrix shortMat = DoubleMatrix.copyOf(new double[][] {
         {0.0300, 0.0100}, {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}});
     DoubleMatrix vec = DoubleMatrix.copyOf(new double[][] {
         {0.0300}, {0.0310}, {0.0320}, {0.0330}, {0.0340}, {0.0340}});
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         timeShort, DELTA, ATM, RISK_REVERSAL, STRANGLE, ACT_360));
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         TIME_TO_EXPIRY, deltaLong, ATM, RISK_REVERSAL, STRANGLE, ACT_360));
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         TIME_TO_EXPIRY, DELTA, ATM, shortMat, STRANGLE, ACT_360));
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, shortMat, ACT_360));
-    assertThrowsIllegalArg(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedStrikeSmileDeltaTermStructure.of(
         TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, vec, ACT_360));
   }
 

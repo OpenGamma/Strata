@@ -19,7 +19,6 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
@@ -27,6 +26,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.AFMA;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -106,7 +106,8 @@ public class FraConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_noIndex() {
-    assertThrowsIllegalArg(() -> ImmutableFraConvention.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ImmutableFraConvention.builder()
         .spotDateOffset(NEXT_SAME_BUS_DAY)
         .build());
   }
@@ -293,7 +294,8 @@ public class FraConventionTest {
   }
 
   public void test_unknownIndex() {
-    assertThrowsIllegalArg(() -> FraConvention.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraConvention.of("Rubbish"));
   }
 
   public void test_toTemplate_badDateOrder() {
@@ -302,7 +304,8 @@ public class FraConventionTest {
     LocalDate startDate = date(2015, 4, 5);
     LocalDate endDate = date(2015, 7, 5);
     LocalDate paymentDate = date(2015, 8, 7);
-    assertThrowsIllegalArg(() -> base.toTrade(tradeDate, startDate, endDate, paymentDate, BUY, NOTIONAL_2M, 0.25d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.toTrade(tradeDate, startDate, endDate, paymentDate, BUY, NOTIONAL_2M, 0.25d));
   }
 
   //-------------------------------------------------------------------------
@@ -337,11 +340,13 @@ public class FraConventionTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> FraConvention.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraConvention.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> FraConvention.of((String) null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------

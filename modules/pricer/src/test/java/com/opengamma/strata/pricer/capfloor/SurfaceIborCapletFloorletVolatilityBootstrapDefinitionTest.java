@@ -10,13 +10,13 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.STEP_UPPER;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -172,7 +172,8 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
 
   //-------------------------------------------------------------------------
   public void test_of_wrongInterpolator() {
-    assertThrowsIllegalArg(() -> SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, DOUBLE_QUADRATIC, DOUBLE_QUADRATIC));
 
   }
@@ -185,7 +186,8 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
         ValueType.STRIKE,
         DoubleMatrix.copyOf(new double[][] {{0.15, 0.12, 0.13}, {0.1, 0.08, 0.09}}),
         ValueType.PRICE);
-    assertThrowsIllegalArg(() -> base.createMetadata(capData));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.createMetadata(capData));
   }
 
   //-------------------------------------------------------------------------

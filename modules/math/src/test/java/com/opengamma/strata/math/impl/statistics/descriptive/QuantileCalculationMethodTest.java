@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.function.Function;
@@ -86,50 +86,66 @@ public class QuantileCalculationMethodTest {
 
   //-------------------------------------------------------------------------
   public void discrete_wrong_quantile_large() {
-    assertThrowsIllegalArg(() -> QUANTILE_INDEX_ABOVE.quantileFromUnsorted(1.01, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_INDEX_ABOVE.quantileFromUnsorted(1.01, UNSORTED_100));
   }
 
   public void discrete_wrong_quantile_0() {
-    assertThrowsIllegalArg(() -> QUANTILE_INDEX_ABOVE.quantileFromUnsorted(0.0, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_INDEX_ABOVE.quantileFromUnsorted(0.0, UNSORTED_100));
   }
 
   public void interpolation_wrong_quantile_1() {
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(1.01, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(1.01, UNSORTED_100));
   }
 
   public void interpolation_wrong_quantile_0() {
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(0.0, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(0.0, UNSORTED_100));
   }
 
   public void interpolation_wrong_quantile_small() {
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
   }
 
   public void interpolation_wrong_quantile_large() {
-    assertThrowsIllegalArg(() -> QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_MIDWAY_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100));
   }
 
   //-------------------------------------------------------------------------
   public void discrete_wrong_expectedShortfall_large() {
-    assertThrowsIllegalArg(() -> QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(1.01, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(1.01, UNSORTED_100));
   }
 
   public void discrete_wrong_expectedShortfall_0() {
-    assertThrowsIllegalArg(() -> QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(0.0, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(0.0, UNSORTED_100));
   }
 
   public void interpolation_wrong_expectedShortfall_1() {
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(1.01, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(1.01, UNSORTED_100));
   }
 
   public void interpolation_wrong_expectedShortfall_0() {
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(0.0, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE_INTERPOLATION.expectedShortfallFromUnsorted(0.0, UNSORTED_100));
   }
 
   //-------------------------------------------------------------------------
@@ -660,8 +676,10 @@ public class QuantileCalculationMethodTest {
         QUANTILE_INDEX_ABOVE.expectedShortfallFromUnsorted(LEVEL3, UNSORTED_100),
         0.48622,
         TOL);
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
     assertEquals(QUANTILE_SAMPLE_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100), 0.994769, TOL);
     assertEquals(QUANTILE_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100),  0.9948, TOL);
     assertEquals(
@@ -677,10 +695,14 @@ public class QuantileCalculationMethodTest {
     assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL2, UNSORTED_100), 0.7864, TOL);
     assertEquals(QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL3, UNSORTED_100), 0.953485, TOL);
     assertEquals(QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL3, UNSORTED_100), 0.9535, TOL);
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
-    assertThrowsIllegalArg(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL4, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_INTERPOLATION.quantileFromUnsorted(LEVEL5, UNSORTED_100));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QUANTILE_SAMPLE1_NEAREST_INDEX.quantileFromUnsorted(LEVEL5, UNSORTED_100));
   }
 
   public void regression_test3() {

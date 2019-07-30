@@ -7,9 +7,9 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -45,11 +45,13 @@ public class FxResetFixingRelativeToTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> FxResetFixingRelativeTo.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxResetFixingRelativeTo.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> FxResetFixingRelativeTo.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxResetFixingRelativeTo.of(null));
   }
 
   //-------------------------------------------------------------------------

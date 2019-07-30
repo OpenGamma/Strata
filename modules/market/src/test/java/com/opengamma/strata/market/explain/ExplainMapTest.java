@@ -7,10 +7,10 @@ package com.opengamma.strata.market.explain;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -77,7 +77,8 @@ public class ExplainMapTest {
     ExplainMapBuilder builder = ExplainMap.builder();
     ExplainMapBuilder child = builder.openListEntry(ExplainKey.LEGS);
     child.put(ExplainKey.ACCRUAL_DAYS, 2);
-    assertThrows(() -> child.closeListEntry(ExplainKey.PAYMENT_PERIODS), IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(() -> child.closeListEntry(ExplainKey.PAYMENT_PERIODS));
   }
 
   public void test_builder_addListEntry() {

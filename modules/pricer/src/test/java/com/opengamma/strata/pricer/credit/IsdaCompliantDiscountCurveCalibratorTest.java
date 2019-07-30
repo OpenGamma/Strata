@@ -13,7 +13,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -716,7 +716,8 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
-    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
   public void oneNodeTest() {
@@ -735,7 +736,8 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
-    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
   public void moneyMarketAfterSwapTest() {
@@ -769,7 +771,8 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     ImmutableMarketData quotes = builder.build();
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
-    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

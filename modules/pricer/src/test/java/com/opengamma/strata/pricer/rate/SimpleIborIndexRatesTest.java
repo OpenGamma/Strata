@@ -10,11 +10,11 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -112,7 +112,8 @@ public class SimpleIborIndexRatesTest {
         .build();
     InterpolatedNodalCurve notDayCount = InterpolatedNodalCurve.of(
         noDayCountMetadata, DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
-    assertThrowsIllegalArg(() -> SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, notDayCount));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, notDayCount));
   }
 
   //-------------------------------------------------------------------------
@@ -133,12 +134,14 @@ public class SimpleIborIndexRatesTest {
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_EMPTY);
-    assertThrowsIllegalArg(() -> test.rate(GBP_LIBOR_3M_BEFORE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(GBP_LIBOR_3M_BEFORE));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     SimpleIborIndexRates test = SimpleIborIndexRates.of(GBP_LIBOR_3M, DATE_VAL, CURVE, SERIES_MINIMAL);
-    assertThrowsIllegalArg(() -> test.rate(GBP_LIBOR_3M_BEFORE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(GBP_LIBOR_3M_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {

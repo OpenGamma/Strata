@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer.common;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -40,11 +40,11 @@ public class PriceTypeTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> PriceType.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> PriceType.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> PriceType.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> PriceType.of(null));
   }
 
   //-------------------------------------------------------------------------

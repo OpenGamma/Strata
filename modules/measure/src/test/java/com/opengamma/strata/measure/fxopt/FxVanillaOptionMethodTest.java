@@ -7,9 +7,9 @@ package com.opengamma.strata.measure.fxopt;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.measure.fxopt.FxVanillaOptionMethod.BLACK;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -50,11 +50,11 @@ public class FxVanillaOptionMethodTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> FxVanillaOptionMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> FxVanillaOptionMethod.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> FxVanillaOptionMethod.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(() -> FxVanillaOptionMethod.of(null));
   }
 
   //-------------------------------------------------------------------------

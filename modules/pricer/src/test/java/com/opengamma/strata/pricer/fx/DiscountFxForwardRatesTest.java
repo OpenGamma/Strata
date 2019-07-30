@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -106,20 +106,25 @@ public class DiscountFxForwardRatesTest {
   }
 
   public void test_of_nonMatchingCurrency() {
-    assertThrowsIllegalArg(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_GBP));
-    assertThrowsIllegalArg(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_USD, DFCURVE_USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_USD, DFCURVE_USD));
   }
 
   public void test_of_nonMatchingValuationDates() {
     DiscountFactors curve2 = ZeroRateDiscountFactors.of(USD, DATE_REF, CURVE2);
-    assertThrowsIllegalArg(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, curve2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, curve2));
   }
 
   public void test_builder() {
-    assertThrowsIllegalArg(() -> DiscountFxForwardRates.meta().builder()
-        .set(DiscountFxForwardRates.meta().currencyPair(), CurrencyPair.parse("GBP/USD")).build());
-    assertThrowsIllegalArg(() -> DiscountFxForwardRates.meta().builder()
-        .set(DiscountFxForwardRates.meta().currencyPair().name(), CurrencyPair.parse("GBP/USD")).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DiscountFxForwardRates.meta().builder()
+            .set(DiscountFxForwardRates.meta().currencyPair(), CurrencyPair.parse("GBP/USD")).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DiscountFxForwardRates.meta().builder()
+            .set(DiscountFxForwardRates.meta().currencyPair().name(), CurrencyPair.parse("GBP/USD")).build());
   }
 
   //-------------------------------------------------------------------------
@@ -145,7 +150,8 @@ public class DiscountFxForwardRatesTest {
 
   public void test_rate_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertThrowsIllegalArg(() -> test.rate(EUR, DATE_VAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------
@@ -159,7 +165,8 @@ public class DiscountFxForwardRatesTest {
 
   public void test_ratePointSensitivity_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertThrowsIllegalArg(() -> test.ratePointSensitivity(EUR, DATE_VAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.ratePointSensitivity(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------
@@ -174,7 +181,8 @@ public class DiscountFxForwardRatesTest {
 
   public void test_rateFxSpotSensitivity_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertThrowsIllegalArg(() -> test.rateFxSpotSensitivity(EUR, DATE_VAL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rateFxSpotSensitivity(EUR, DATE_VAL));
   }
 
   //-------------------------------------------------------------------------

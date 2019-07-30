@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.impl.rate;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -997,12 +997,11 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
     for (int i = lastFixing; i < USD_OBS.length; i++) {
       when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
-    assertThrows(
-        () -> OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv),
-        PricingException.class);
-    assertThrows(
-        () -> OBS_FN_APPROX_FWD.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv),
-        PricingException.class);
+    assertThatExceptionOfType(PricingException.class)
+        .isThrownBy(() -> OBS_FN_APPROX_FWD.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv));
+    assertThatExceptionOfType(PricingException.class)
+        .isThrownBy(() -> OBS_FN_APPROX_FWD.rateSensitivity(
+            ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv));
   }
 
   /** Two days cutoff, all ON rates already fixed. */
