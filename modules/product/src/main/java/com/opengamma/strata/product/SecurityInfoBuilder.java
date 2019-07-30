@@ -83,16 +83,15 @@ public final class SecurityInfoBuilder {
    * The attribute is added using {@code Map.put(type, value)} semantics.
    * 
    * @param <T> the type of the value
-   * @param type  the type providing meaning to the value
-   * @param value  the value
+   * @param attributeType  the type providing meaning to the value
+   * @param attributeValue  the value
    * @return this, for chaining
    */
   @SuppressWarnings("unchecked")
-  public <T> SecurityInfoBuilder addAttribute(AttributeType<T> type, T value) {
-    ArgChecker.notNull(type, "type");
-    ArgChecker.notNull(value, "value");
-    // ImmutableMap.Builder would not provide Map.put semantics
-    attributes.put(type, value);
+  public <T> SecurityInfoBuilder addAttribute(AttributeType<T> attributeType, T attributeValue) {
+    ArgChecker.notNull(attributeType, "attributeType");
+    ArgChecker.notNull(attributeValue, "attributeValue");
+    attributes.put(attributeType, attributeType.toStoredForm(attributeValue));
     return this;
   }
 

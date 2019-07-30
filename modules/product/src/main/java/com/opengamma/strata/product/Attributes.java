@@ -28,10 +28,10 @@ public interface Attributes {
   }
 
   /**
-   * Obtains an empty instance.
+   * Obtains an instance with a single attribute.
    * <p>
    * The {@link #withAttribute(AttributeType, Object)} method can be used on
-   * the instance to add attributes.
+   * the instance to add more attributes.
    * 
    * @param <T>  the type of the attribute value
    * @param type  the type providing meaning to the value

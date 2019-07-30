@@ -23,7 +23,6 @@ import org.joda.beans.impl.direct.MinimalMetaBean;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.collect.Messages;
 
 /**
  * Additional information about a portfolio item instance.
@@ -31,7 +30,7 @@ import com.opengamma.strata.collect.Messages;
  * This allows additional information about an item to be associated.
  * It is kept in a separate object as the information is optional for pricing.
  */
-@BeanDefinition(style = "minimal", builderScope = "private")
+@BeanDefinition(style = "minimal", builderScope = "private", constructorScope = "package")
 final class ItemInfo
     implements PortfolioItemInfo, ImmutableBean, Serializable {
 
@@ -83,15 +82,9 @@ final class ItemInfo
   }
 
   @Override
-  public <T> T getAttribute(AttributeType<T> type) {
-    return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
-        Messages.format("Attribute not found for type '{}'", type)));
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
-    return Optional.ofNullable((T) attributes.get(type));
+    return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
 
   @Override
@@ -99,7 +92,11 @@ final class ItemInfo
   public <T> ItemInfo withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
     Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
-    updatedAttributes.put(type, value);
+    if (value == null) {
+      updatedAttributes.remove(type);
+    } else {
+      updatedAttributes.put(type, type.toStoredForm(value));
+    }
     return new ItemInfo(id, updatedAttributes);
   }
 
@@ -134,7 +131,12 @@ final class ItemInfo
    */
   private static final long serialVersionUID = 1L;
 
-  private ItemInfo(
+  /**
+   * Creates an instance.
+   * @param id  the value of the property
+   * @param attributes  the value of the property, not null
+   */
+  ItemInfo(
       StandardId id,
       Map<AttributeType<?>, Object> attributes) {
     JodaBeanUtils.notNull(attributes, "attributes");

@@ -141,15 +141,15 @@ public final class EtdContractSpecBuilder {
    * Only one attribute is stored for each attribute type. If this method is called multiple times with the
    * same attribute type the previous attribute value will be replaced.
    *
+   * @param <T> the type of the attribute
    * @param attributeType the type of the attribute
    * @param attributeValue the value of the attribute
-   * @param <T> the type of the attribute
    * @return this builder
    */
   public <T> EtdContractSpecBuilder addAttribute(AttributeType<T> attributeType, T attributeValue) {
     JodaBeanUtils.notNull(attributeType, "attributeType");
     JodaBeanUtils.notNull(attributeValue, "attributeValue");
-    attributes.put(attributeType, attributeValue);
+    attributes.put(attributeType, attributeType.toStoredForm(attributeValue));
     return this;
   }
 

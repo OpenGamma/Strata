@@ -98,29 +98,21 @@ public final class EtdContractSpec
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Finds the attribute associated with the specified type.
-   * <p>
-   * This method obtains the specified attribute.
-   * This allows an attribute about a security to be obtained if available.
-   * <p>
-   * If the attribute is not found, optional empty is returned.
-   *
-   * @param <T>  the type of the result
-   * @param type  the type to find
-   * @return the attribute value
-   */
   @Override
   @SuppressWarnings("unchecked")
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
-    return Optional.ofNullable((T) attributes.get(type));
+    return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
 
   @Override
   public <T> EtdContractSpec withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
     Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
-    updatedAttributes.put(type, value);
+    if (value == null) {
+      updatedAttributes.remove(type);
+    } else {
+      updatedAttributes.put(type, type.toStoredForm(value));
+    }
     return new EtdContractSpec(id, this.type, exchangeId, contractCode, description, priceInfo, updatedAttributes);
   }
 
