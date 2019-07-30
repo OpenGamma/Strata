@@ -9,14 +9,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -29,7 +28,6 @@ import com.opengamma.strata.data.TestingObservableId;
 /**
  * Test {@link RepeatedScenarioMarketData}.
  */
-@Test
 public class RepeatedScenarioMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
@@ -46,40 +44,44 @@ public class RepeatedScenarioMarketDataTest {
   private static final ImmutableMarketData BASE_DATA = baseData();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     RepeatedScenarioMarketData test = RepeatedScenarioMarketData.of(2, BASE_DATA);
-    assertEquals(test.getScenarioCount(), 2);
-    assertEquals(test.getUnderlying(), BASE_DATA);
-    assertEquals(test.getValuationDate(), MarketDataBox.ofSingleValue(VAL_DATE));
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.containsValue(ID3), false);
-    assertEquals(test.getValue(ID1), MarketDataBox.ofSingleValue(VAL1));
-    assertEquals(test.getValue(ID2), MarketDataBox.ofSingleValue(VAL2));
+    assertThat(test.getScenarioCount()).isEqualTo(2);
+    assertThat(test.getUnderlying()).isEqualTo(BASE_DATA);
+    assertThat(test.getValuationDate()).isEqualTo(MarketDataBox.ofSingleValue(VAL_DATE));
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.containsValue(ID2)).isEqualTo(true);
+    assertThat(test.containsValue(ID3)).isEqualTo(false);
+    assertThat(test.getValue(ID1)).isEqualTo(MarketDataBox.ofSingleValue(VAL1));
+    assertThat(test.getValue(ID2)).isEqualTo(MarketDataBox.ofSingleValue(VAL2));
     assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID3));
-    assertEquals(test.findValue(ID1), Optional.of(MarketDataBox.ofSingleValue(VAL1)));
-    assertEquals(test.findValue(ID2), Optional.of(MarketDataBox.ofSingleValue(VAL2)));
-    assertEquals(test.findValue(ID3), Optional.empty());
-    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2));
-    assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
-    assertEquals(test.getTimeSeries(ID4), TIME_SERIES);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(MarketDataBox.ofSingleValue(VAL1)));
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.of(MarketDataBox.ofSingleValue(VAL2)));
+    assertThat(test.findValue(ID3)).isEqualTo(Optional.empty());
+    assertThat(test.getIds()).containsExactly(ID1, ID2);
+    assertThat(test.findIds(ID1.getMarketDataName())).isEqualTo(ImmutableSet.of(ID1));
+    assertThat(test.getTimeSeries(ID4)).isEqualTo(TIME_SERIES);
   }
 
+  @Test
   public void test_scenarios() {
     RepeatedScenarioMarketData test = RepeatedScenarioMarketData.of(2, BASE_DATA);
-    assertEquals(test.scenarios().count(), 2);
-    test.scenarios().forEach(md -> assertSame(md, BASE_DATA));
+    assertThat(test.scenarios().count()).isEqualTo(2);
+    test.scenarios().forEach(md -> assertThat(md).isSameAs(BASE_DATA));
   }
 
+  @Test
   public void test_scenario_byIndex() {
     RepeatedScenarioMarketData test = RepeatedScenarioMarketData.of(2, BASE_DATA);
-    assertSame(test.scenario(0), BASE_DATA);
-    assertSame(test.scenario(1), BASE_DATA);
+    assertThat(test.scenario(0)).isSameAs(BASE_DATA);
+    assertThat(test.scenario(1)).isSameAs(BASE_DATA);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.scenario(-1));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.scenario(2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RepeatedScenarioMarketData test = RepeatedScenarioMarketData.of(2, BASE_DATA);
     coverImmutableBean(test);
@@ -87,6 +89,7 @@ public class RepeatedScenarioMarketDataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void serialization() {
     RepeatedScenarioMarketData test = RepeatedScenarioMarketData.of(2, BASE_DATA);
     assertSerialization(test);

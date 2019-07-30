@@ -5,37 +5,38 @@
  */
 package com.opengamma.strata.data;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link MarketDataName}.
  */
-@Test
 public class MarketDataNameTest {
 
   private static final Object ANOTHER_TYPE = "";
 
+  @Test
   public void test_of() {
     TestingName test = new TestingName("Foo");
-    assertEquals(test.getName(), "Foo");
-    assertEquals(test.getMarketDataType(), String.class);
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.getName()).isEqualTo("Foo");
+    assertThat(test.getMarketDataType()).isEqualTo(String.class);
+    assertThat(test.toString()).isEqualTo("Foo");
   }
 
+  @Test
   public void test_comparison() {
     TestingName test = new TestingName("Foo");
-    assertEquals(test.equals(test), true);
-    assertEquals(test.hashCode(), test.hashCode());
-    assertEquals(test.equals(new TestingName("Eoo")), false);
-    assertEquals(test.equals(new TestingName("Foo")), true);
-    assertEquals(test.equals(ANOTHER_TYPE), false);
-    assertEquals(test.equals(null), false);
-    assertEquals(test.compareTo(new TestingName("Eoo")) > 0, true);
-    assertEquals(test.compareTo(new TestingName("Foo")) == 0, true);
-    assertEquals(test.compareTo(new TestingName("Goo")) < 0, true);
-    assertEquals(test.compareTo(new TestingName2("Foo")) < 0, true);
+    assertThat(test.equals(test)).isEqualTo(true);
+    assertThat(test.hashCode()).isEqualTo(test.hashCode());
+    assertThat(test.equals(new TestingName("Eoo"))).isEqualTo(false);
+    assertThat(test.equals(new TestingName("Foo"))).isEqualTo(true);
+    assertThat(test.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(test.equals(null)).isEqualTo(false);
+    assertThat(test.compareTo(new TestingName("Eoo")) > 0).isEqualTo(true);
+    assertThat(test.compareTo(new TestingName("Foo")) == 0).isEqualTo(true);
+    assertThat(test.compareTo(new TestingName("Goo")) < 0).isEqualTo(true);
+    assertThat(test.compareTo(new TestingName2("Foo")) < 0).isEqualTo(true);
   }
 
 }

@@ -11,11 +11,10 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -24,19 +23,20 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link SingleScenarioArray}.
  */
-@Test
 public class SingleScenarioArrayTest {
 
+  @Test
   public void create() {
     SingleScenarioArray<String> test = SingleScenarioArray.of(3, "A");
-    assertEquals(test.getScenarioCount(), 3);
-    assertEquals(test.getValue(), "A");
-    assertEquals(test.get(0), "A");
-    assertEquals(test.get(1), "A");
-    assertEquals(test.get(2), "A");
-    assertEquals(test.stream().collect(toList()), ImmutableList.of("A", "A", "A"));
+    assertThat(test.getScenarioCount()).isEqualTo(3);
+    assertThat(test.getValue()).isEqualTo("A");
+    assertThat(test.get(0)).isEqualTo("A");
+    assertThat(test.get(1)).isEqualTo("A");
+    assertThat(test.get(2)).isEqualTo("A");
+    assertThat(test.stream().collect(toList())).containsExactly("A", "A", "A");
   }
 
+  @Test
   public void convertCurrencyAmount() {
     FxRateScenarioArray rates = FxRateScenarioArray.of(GBP, USD, DoubleArray.of(1.61, 1.62, 1.63));
     ScenarioFxRateProvider fxProvider = new TestScenarioFxRateProvider(rates);
@@ -51,6 +51,7 @@ public class SingleScenarioArrayTest {
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
+  @Test
   public void coverage() {
     SingleScenarioArray<String> test = SingleScenarioArray.of(3, "A");
     coverImmutableBean(test);

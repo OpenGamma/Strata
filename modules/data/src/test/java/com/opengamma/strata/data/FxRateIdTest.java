@@ -12,11 +12,11 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 /**
  * Test {@link FxRateId}.
  */
-@Test
 public class FxRateIdTest {
 
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Test");
@@ -32,45 +31,50 @@ public class FxRateIdTest {
   private static final CurrencyPair INVERSE = PAIR.inverse();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_pair() {
     FxRateId test = FxRateId.of(PAIR);
     FxRateId inverse = FxRateId.of(INVERSE);
-    assertEquals(test.getPair(), PAIR);
-    assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getMarketDataType(), FxRate.class);
-    assertEquals(test.toString(), "FxRateId:GBP/USD");
+    assertThat(test.getPair()).isEqualTo(PAIR);
+    assertThat(inverse.getPair()).isEqualTo(PAIR);
+    assertThat(test.getObservableSource()).isEqualTo(ObservableSource.NONE);
+    assertThat(test.getMarketDataType()).isEqualTo(FxRate.class);
+    assertThat(test.toString()).isEqualTo("FxRateId:GBP/USD");
   }
 
+  @Test
   public void test_of_currencies() {
     FxRateId test = FxRateId.of(GBP, USD);
     FxRateId inverse = FxRateId.of(USD, GBP);
-    assertEquals(test.getPair(), PAIR);
-    assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getMarketDataType(), FxRate.class);
+    assertThat(test.getPair()).isEqualTo(PAIR);
+    assertThat(inverse.getPair()).isEqualTo(PAIR);
+    assertThat(test.getObservableSource()).isEqualTo(ObservableSource.NONE);
+    assertThat(test.getMarketDataType()).isEqualTo(FxRate.class);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_pairAndSource() {
     FxRateId test = FxRateId.of(PAIR, OBS_SOURCE);
     FxRateId inverse = FxRateId.of(INVERSE);
-    assertEquals(test.getPair(), PAIR);
-    assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getObservableSource(), OBS_SOURCE);
-    assertEquals(test.getMarketDataType(), FxRate.class);
+    assertThat(test.getPair()).isEqualTo(PAIR);
+    assertThat(inverse.getPair()).isEqualTo(PAIR);
+    assertThat(test.getObservableSource()).isEqualTo(OBS_SOURCE);
+    assertThat(test.getMarketDataType()).isEqualTo(FxRate.class);
   }
 
+  @Test
   public void test_of_currenciesAndSource() {
     FxRateId test = FxRateId.of(GBP, USD, OBS_SOURCE);
     FxRateId inverse = FxRateId.of(USD, GBP);
-    assertEquals(test.getPair(), PAIR);
-    assertEquals(inverse.getPair(), PAIR);
-    assertEquals(test.getObservableSource(), OBS_SOURCE);
-    assertEquals(test.getMarketDataType(), FxRate.class);
+    assertThat(test.getPair()).isEqualTo(PAIR);
+    assertThat(inverse.getPair()).isEqualTo(PAIR);
+    assertThat(test.getObservableSource()).isEqualTo(OBS_SOURCE);
+    assertThat(test.getMarketDataType()).isEqualTo(FxRate.class);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxRateId test = FxRateId.of(GBP, USD);
     coverImmutableBean(test);
@@ -78,6 +82,7 @@ public class FxRateIdTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void coverage_builder() {
     MetaBean meta = MetaBean.of(FxRateId.class);
     Bean test1 = meta.builder()
@@ -91,6 +96,7 @@ public class FxRateIdTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxRateId test = FxRateId.of(GBP, USD);
     assertSerialization(test);

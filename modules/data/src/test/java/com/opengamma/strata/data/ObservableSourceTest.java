@@ -7,20 +7,20 @@ package com.opengamma.strata.data;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ObservableSource}.
  */
-@Test
 public class ObservableSourceTest {
 
   //-----------------------------------------------------------------------
+  @Test
   public void coverage() {
     ObservableSource test = ObservableSource.of("Foo");
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.toString()).isEqualTo("Foo");
     assertSerialization(test);
     assertJodaConvert(ObservableSource.class, test);
   }

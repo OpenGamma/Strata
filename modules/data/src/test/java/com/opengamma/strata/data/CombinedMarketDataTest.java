@@ -9,14 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -25,7 +25,6 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 /**
  * Test {@link CombinedMarketData}.
  */
-@Test
 public class CombinedMarketDataTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
@@ -46,30 +45,32 @@ public class CombinedMarketDataTest {
   private static final ImmutableMarketData BASE_DATA2 = baseData2();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combination() {
     CombinedMarketData test = new CombinedMarketData(BASE_DATA1, BASE_DATA2);
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.containsValue(ID1), true);
-    assertEquals(test.containsValue(ID2), true);
-    assertEquals(test.containsValue(ID3), true);
-    assertEquals(test.containsValue(ID5), false);
-    assertEquals(test.getValue(ID1), VAL1);
-    assertEquals(test.getValue(ID2), VAL2);
-    assertEquals(test.getValue(ID3), VAL3);
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(test.containsValue(ID1)).isEqualTo(true);
+    assertThat(test.containsValue(ID2)).isEqualTo(true);
+    assertThat(test.containsValue(ID3)).isEqualTo(true);
+    assertThat(test.containsValue(ID5)).isEqualTo(false);
+    assertThat(test.getValue(ID1)).isEqualTo(VAL1);
+    assertThat(test.getValue(ID2)).isEqualTo(VAL2);
+    assertThat(test.getValue(ID3)).isEqualTo(VAL3);
     assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.getValue(ID5));
-    assertEquals(test.findValue(ID1), Optional.of(VAL1));
-    assertEquals(test.findValue(ID2), Optional.of(VAL2));
-    assertEquals(test.findValue(ID3), Optional.of(VAL3));
-    assertEquals(test.findValue(ID5), Optional.empty());
-    assertEquals(test.getIds(), ImmutableSet.of(ID1, ID2, ID3));
-    assertEquals(test.findIds(ID1.getMarketDataName()), ImmutableSet.of(ID1));
-    assertEquals(test.findIds(ID3.getMarketDataName()), ImmutableSet.of(ID3));
-    assertEquals(test.findIds(ID4.getMarketDataName()), ImmutableSet.of());
-    assertEquals(test.getTimeSeries(ID5), TIME_SERIES);
-    assertEquals(test.getTimeSeries(ID6), TIME_SERIES);
+    assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL1));
+    assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
+    assertThat(test.findValue(ID3)).isEqualTo(Optional.of(VAL3));
+    assertThat(test.findValue(ID5)).isEqualTo(Optional.empty());
+    assertThat(test.getIds()).containsExactly(ID1, ID2, ID3);
+    assertThat(test.findIds(ID1.getMarketDataName())).isEqualTo(ImmutableSet.of(ID1));
+    assertThat(test.findIds(ID3.getMarketDataName())).isEqualTo(ImmutableSet.of(ID3));
+    assertThat(test.findIds(ID4.getMarketDataName())).isEqualTo(ImmutableSet.of());
+    assertThat(test.getTimeSeries(ID5)).isEqualTo(TIME_SERIES);
+    assertThat(test.getTimeSeries(ID6)).isEqualTo(TIME_SERIES);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CombinedMarketData test = new CombinedMarketData(BASE_DATA1, BASE_DATA2);
     coverImmutableBean(test);
@@ -77,6 +78,7 @@ public class CombinedMarketDataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void serialization() {
     CombinedMarketData test = new CombinedMarketData(BASE_DATA1, BASE_DATA2);
     assertSerialization(test);

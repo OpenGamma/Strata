@@ -6,45 +6,49 @@
 package com.opengamma.strata.data.scenario;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@link ScenarioArray}.
  */
-@Test
 public class ScenarioArrayTest {
 
+  @Test
   public void test_of_array() {
     ScenarioArray<String> test = ScenarioArray.of("1", "2", "3");
     DefaultScenarioArray<String> expected = DefaultScenarioArray.of("1", "2", "3");
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_of_list() {
     ScenarioArray<String> test = ScenarioArray.of(ImmutableList.of("1", "2", "3"));
     DefaultScenarioArray<String> expected = DefaultScenarioArray.of("1", "2", "3");
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_of_function() {
     ScenarioArray<String> test = ScenarioArray.of(3, i -> Integer.toString(i + 1));
     DefaultScenarioArray<String> expected = DefaultScenarioArray.of("1", "2", "3");
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_ofSingleValue() {
     ScenarioArray<String> test = ScenarioArray.ofSingleValue(3, "aaa");
     SingleScenarioArray<String> expected = SingleScenarioArray.of(3, "aaa");
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_stream() {
     ScenarioArray<String> test = new ScenarioArray<String>() {
 
@@ -60,7 +64,7 @@ public class ScenarioArrayTest {
 
     };
     List<String> output = test.stream().collect(toImmutableList());
-    assertEquals(output, ImmutableList.of("0", "1", "2"));
+    assertThat(output).containsExactly("0", "1", "2");
   }
 
 }

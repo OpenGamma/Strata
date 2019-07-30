@@ -21,7 +21,7 @@ import static org.assertj.core.data.Offset.offset;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +30,9 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.array.DoubleArray;
 
-@Test
+/**
+ * Test {@link MultiCurrencyScenarioArray}.
+ */
 public class MultiCurrencyScenarioArrayTest {
 
   private static final MultiCurrencyScenarioArray VALUES_ARRAY =
@@ -49,6 +51,7 @@ public class MultiCurrencyScenarioArrayTest {
                   CurrencyAmount.of(Currency.USD, 33),
                   CurrencyAmount.of(Currency.EUR, 44))));
 
+  @Test
   public void createAndGetValues() {
     assertThat(VALUES_ARRAY.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(20, 21, 22));
     assertThat(VALUES_ARRAY.getValues(Currency.USD)).isEqualTo(DoubleArray.of(30, 32, 33));
@@ -72,6 +75,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> raggedArray.getValues(Currency.AUD));
   }
 
+  @Test
   public void emptyAmounts() {
     MultiCurrencyScenarioArray array = MultiCurrencyScenarioArray.of(
         MultiCurrencyAmount.empty(),
@@ -81,6 +85,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(array.get(1)).isEqualTo(MultiCurrencyAmount.empty());
   }
 
+  @Test
   public void createByFunction() {
     MultiCurrencyAmount mca1 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.USD, 20));
     MultiCurrencyAmount mca2 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.EUR, 30));
@@ -93,11 +98,13 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(test.get(2)).isEqualTo(mca3.plus(Currency.GBP, 0).plus(Currency.EUR, 0));
   }
 
+  @Test
   public void createByFunctionEmptyAmounts() {
     MultiCurrencyScenarioArray test = MultiCurrencyScenarioArray.of(3, i -> MultiCurrencyAmount.empty());
     assertThat(test.getScenarioCount()).isEqualTo(3);
   }
 
+  @Test
   public void mapFactoryMethod() {
     MultiCurrencyScenarioArray array = MultiCurrencyScenarioArray.of(
         ImmutableMap.of(
@@ -116,6 +123,7 @@ public class MultiCurrencyScenarioArrayTest {
         .withMessageStartingWith("Arrays must have the same size");
   }
 
+  @Test
   public void getAllAmountsUnsafe() {
     Map<Currency, DoubleArray> expected = ImmutableMap.of(
         Currency.GBP, DoubleArray.of(20, 21, 22),
@@ -124,6 +132,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(VALUES_ARRAY.getAmounts().getValues()).isEqualTo(expected);
   }
 
+  @Test
   public void get() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(
         CurrencyAmount.of(Currency.GBP, 22),
@@ -134,6 +143,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> VALUES_ARRAY.get(-1));
   }
 
+  @Test
   public void stream() {
     List<MultiCurrencyAmount> expected = ImmutableList.of(
         MultiCurrencyAmount.of(
@@ -152,6 +162,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(VALUES_ARRAY.stream().collect(toList())).isEqualTo(expected);
   }
 
+  @Test
   public void convert() {
     FxRateScenarioArray rates1 = FxRateScenarioArray.of(GBP, CAD, DoubleArray.of(2.00, 2.01, 2.02));
     FxRateScenarioArray rates2 = FxRateScenarioArray.of(USD, CAD, DoubleArray.of(1.30, 1.31, 1.32));
@@ -165,6 +176,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(convertedArray.getAmounts().getValues()).isEqualTo(expected);
   }
 
+  @Test
   public void convertIntoAnExistingCurrency() {
     FxRateScenarioArray rates1 = FxRateScenarioArray.of(USD, GBP, DoubleArray.of(1 / 1.50, 1 / 1.51, 1 / 1.52));
     FxRateScenarioArray rates2 = FxRateScenarioArray.of(EUR, GBP, DoubleArray.of(0.7, 0.7, 0.7));
@@ -184,6 +196,7 @@ public class MultiCurrencyScenarioArrayTest {
   /**
    * Test the hand-written equals and hashCode methods which correctly handle maps with array values
    */
+  @Test
   public void equalsHashCode() {
     MultiCurrencyScenarioArray array =
         MultiCurrencyScenarioArray.of(
@@ -204,10 +217,12 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(array.hashCode()).isEqualTo(VALUES_ARRAY.hashCode());
   }
 
+  @Test
   public void getCurrencies() {
     assertThat(VALUES_ARRAY.getCurrencies()).containsExactlyInAnyOrder(Currency.GBP, Currency.USD, Currency.EUR);
   }
 
+  @Test
   public void collector() {
     List<CurrencyScenarioArray> arrays = ImmutableList.of(
         CurrencyScenarioArray.of(USD, DoubleArray.of(10, 20, 30)),
@@ -225,6 +240,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(arrays.stream().collect(toMultiCurrencyScenarioArray())).isEqualTo(expected);
   }
 
+  @Test
   public void total() {
     List<CurrencyScenarioArray> arrays = ImmutableList.of(
         CurrencyScenarioArray.of(USD, DoubleArray.of(10, 20, 30)),
@@ -242,6 +258,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThat(MultiCurrencyScenarioArray.total(arrays)).isEqualTo(expected);
   }
 
+  @Test
   public void collectorDifferentArrayLengths() {
     List<CurrencyScenarioArray> arrays = ImmutableList.of(
         CurrencyScenarioArray.of(USD, DoubleArray.of(10, 20, 30)),
@@ -250,6 +267,7 @@ public class MultiCurrencyScenarioArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> arrays.stream().collect(toMultiCurrencyScenarioArray()));
   }
 
+  @Test
   public void coverage() {
     coverImmutableBean(VALUES_ARRAY);
     MultiCurrencyScenarioArray test2 = MultiCurrencyScenarioArray.of(
