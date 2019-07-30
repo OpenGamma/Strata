@@ -80,6 +80,7 @@ public final class CurrencyAmount
    * @param currency  the currency the amount is in
    * @param amount  the amount of the currency to represent
    * @return the currency amount
+   * @throws IllegalArgumentException if the amount is {@code NaN}
    */
   public static CurrencyAmount of(Currency currency, double amount) {
     return new CurrencyAmount(currency, amount);
@@ -97,7 +98,7 @@ public final class CurrencyAmount
    * @param currencyCode  the three letter currency code, ASCII and upper case
    * @param amount  the amount of the currency to represent
    * @return the currency amount
-   * @throws IllegalArgumentException if the currency code is invalid
+   * @throws IllegalArgumentException if the currency code is invalid, or if the amount is {@code NaN}
    */
   public static CurrencyAmount of(String currencyCode, double amount) {
     return of(Currency.of(currencyCode), amount);
@@ -144,7 +145,7 @@ public final class CurrencyAmount
    */
   private CurrencyAmount(Currency currency, double amount) {
     this.currency = ArgChecker.notNull(currency, "currency");
-    this.amount = amount + 0d;  // this weird addition removes negative zero
+    this.amount = ArgChecker.notNaN(amount + 0d, "amount");  // this weird addition removes negative zero
   }
 
   //-------------------------------------------------------------------------
