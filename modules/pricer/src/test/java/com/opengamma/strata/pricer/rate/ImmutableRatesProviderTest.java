@@ -12,10 +12,10 @@ import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertThrows;
@@ -97,8 +97,10 @@ public class ImmutableRatesProviderTest {
   public void test_discountFactors_notKnown() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrowsIllegalArg(() -> test.discountFactors(GBP));
-    assertThrowsIllegalArg(() -> test.discountFactor(GBP, LocalDate.of(2014, 7, 30)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.discountFactors(GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.discountFactor(GBP, LocalDate.of(2014, 7, 30)));
   }
 
   //-------------------------------------------------------------------------

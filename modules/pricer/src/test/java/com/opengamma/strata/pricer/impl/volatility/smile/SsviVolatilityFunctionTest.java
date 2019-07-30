@@ -6,8 +6,8 @@
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.function.Function;
@@ -80,7 +80,8 @@ public class SsviVolatilityFunctionTest {
 
   @Test
   public void test_small_time() {
-    assertThrowsIllegalArg(() -> SSVI_FUNCTION.volatility(FORWARD, STRIKES[0], 0.0, DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SSVI_FUNCTION.volatility(FORWARD, STRIKES[0], 0.0, DATA));
   }
 
   public void coverage() {

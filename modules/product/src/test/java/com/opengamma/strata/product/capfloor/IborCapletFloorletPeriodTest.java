@@ -10,9 +10,9 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -102,17 +102,20 @@ public class IborCapletFloorletPeriodTest {
 
   public void test_builder_fail() {
     // rate observation missing
-    assertThrowsIllegalArg(() -> IborCapletFloorletPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .caplet(STRIKE)
         .build());
     // cap and floor missing
-    assertThrowsIllegalArg(() -> IborCapletFloorletPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .iborRate(RATE_COMP)
         .build());
     // cap and floor present
-    assertThrowsIllegalArg(() -> IborCapletFloorletPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
         .caplet(STRIKE)
         .floorlet(STRIKE)

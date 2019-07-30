@@ -14,11 +14,11 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -79,7 +79,8 @@ public class DsfTest {
   }
 
   public void test_builder_deliveryAfterStart() {
-    assertThrowsIllegalArg(() -> Dsf.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Dsf.builder()
         .notional(NOTIONAL)
         .deliveryDate(LocalDate.of(2014, 9, 19))
         .lastTradeDate(LAST_TRADE_DATE)
@@ -88,7 +89,8 @@ public class DsfTest {
   }
 
   public void test_builder_tradeAfterdelivery() {
-    assertThrowsIllegalArg(() -> Dsf.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Dsf.builder()
         .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LocalDate.of(2014, 9, 11))
@@ -159,14 +161,16 @@ public class DsfTest {
     Swap swap1 = Swap.of(fixedLeg10, SWAP.getLeg(PAY).get());
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     Swap swap3 = Swap.of(knownAmountLeg, SWAP.getLeg(PAY).get());
-    assertThrowsIllegalArg(() -> Dsf.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Dsf.builder()
         .securityId(SECURITY_ID)
         .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)
         .lastTradeDate(LAST_TRADE_DATE)
         .underlyingSwap(swap1)
         .build());
-    assertThrowsIllegalArg(() -> Dsf.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Dsf.builder()
         .securityId(SECURITY_ID)
         .notional(NOTIONAL)
         .deliveryDate(DELIVERY_DATE)

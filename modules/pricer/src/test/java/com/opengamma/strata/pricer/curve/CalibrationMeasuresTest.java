@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.pricer.curve;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.testng.annotations.Test;
 
@@ -69,17 +69,19 @@ public class CalibrationMeasuresTest {
   }
 
   public void test_of_duplicate() {
-    assertThrowsIllegalArg(() -> CalibrationMeasures.of(
-        "Test", TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.FRA_PAR_SPREAD));
-    assertThrowsIllegalArg(() -> CalibrationMeasures.of(
-        "Test", ImmutableList.of(TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.FRA_PAR_SPREAD)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CalibrationMeasures.of(
+            "Test", TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.FRA_PAR_SPREAD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CalibrationMeasures.of(
+            "Test", ImmutableList.of(TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.FRA_PAR_SPREAD)));
   }
 
   public void test_measureNotKnown() {
     CalibrationMeasures test = CalibrationMeasures.of("Test", TradeCalibrationMeasure.FRA_PAR_SPREAD);
-    assertThrowsIllegalArg(
-        () -> test.value(SwapDummyData.SWAP_TRADE, ImmutableRatesProviderSimpleData.IMM_PROV_EUR_FIX),
-        "Trade type 'ResolvedSwapTrade' is not supported for calibration");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.value(SwapDummyData.SWAP_TRADE, ImmutableRatesProviderSimpleData.IMM_PROV_EUR_FIX))
+        .withMessage("Trade type 'ResolvedSwapTrade' is not supported for calibration");
   }
 
 }

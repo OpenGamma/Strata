@@ -6,10 +6,10 @@
 package com.opengamma.strata.product.index;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PutCall.CALL;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZoneOffset;
@@ -43,7 +43,8 @@ public class ResolvedIborFutureOptionTest {
   }
 
   public void test_builder_expiryNotAfterTradeDate() {
-    assertThrowsIllegalArg(() -> ResolvedIborFutureOption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedIborFutureOption.builder()
         .securityId(PRODUCT.getSecurityId())
         .putCall(CALL)
         .expiry(PRODUCT.getUnderlyingFuture().getLastTradeDate().plusDays(1).atStartOfDay(ZoneOffset.UTC))
@@ -53,7 +54,8 @@ public class ResolvedIborFutureOptionTest {
   }
 
   public void test_builder_badPrice() {
-    assertThrowsIllegalArg(() -> sut().toBuilder().strikePrice(2.1).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> sut().toBuilder().strikePrice(2.1).build());
   }
 
   //-------------------------------------------------------------------------

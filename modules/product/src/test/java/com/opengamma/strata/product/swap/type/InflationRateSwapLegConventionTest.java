@@ -10,12 +10,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -67,7 +67,8 @@ public class InflationRateSwapLegConventionTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> IborRateSwapLegConvention.builder().build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateSwapLegConvention.builder().build());
   }
 
   public void test_builderAllSpecified() {

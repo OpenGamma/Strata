@@ -7,11 +7,11 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LOG_LINEAR;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -65,11 +65,13 @@ public class CurveExtrapolatorTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrowsIllegalArg(() -> CurveExtrapolator.of("Rubbish"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveExtrapolator.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrowsIllegalArg(() -> CurveExtrapolator.of(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveExtrapolator.of(null));
   }
 
   //-------------------------------------------------------------------------

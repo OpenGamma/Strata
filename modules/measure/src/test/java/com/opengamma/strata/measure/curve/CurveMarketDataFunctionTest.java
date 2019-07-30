@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.measure.curve;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -67,8 +67,10 @@ public class CurveMarketDataFunctionTest {
     assertEquals(reqs.getNonObservables(), ImmutableSet.of(groupId));
     MarketDataBox<Curve> result = test.build(curveId1, config, marketData, REF_DATA);
     assertEquals(result, MarketDataBox.ofSingleValue(curve));
-    assertThrowsIllegalArg(() -> test.build(curveId2, config, marketData, REF_DATA));
-    assertThrowsIllegalArg(() -> test.build(curveId3, config, marketData, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.build(curveId2, config, marketData, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.build(curveId3, config, marketData, REF_DATA));
   }
 
   public void test_multipleCurves() {

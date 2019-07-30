@@ -7,9 +7,9 @@ package com.opengamma.strata.product.rate;
 
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.OptionalDouble;
@@ -63,9 +63,12 @@ public class IborAveragedFixingTest {
   }
 
   public void test_of_date_null() {
-    assertThrowsIllegalArg(() -> IborAveragedFixing.of(null));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.of(null, 0.05));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.of(null, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.of(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.of(null, 0.05));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.of(null, null));
   }
 
   //-------------------------------------------------------------------------
@@ -105,14 +108,22 @@ public class IborAveragedFixingTest {
   }
 
   public void test_ofDaysInResetPeriod_null() {
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, date(2014, 7, 2), date(2014, 8, 2)));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, null, date(2014, 8, 2)));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, date(2014, 7, 2), null));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, null, null));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, date(2014, 7, 2), date(2014, 8, 2), 0.05));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, null, date(2014, 8, 2), 0.05));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, date(2014, 7, 2), null, 0.05));
-    assertThrowsIllegalArg(() -> IborAveragedFixing.ofDaysInResetPeriod(null, null, null, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(null, date(2014, 7, 2), date(2014, 8, 2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, null, date(2014, 8, 2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, date(2014, 7, 2), null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(null, null, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(null, date(2014, 7, 2), date(2014, 8, 2), 0.05));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, null, date(2014, 8, 2), 0.05));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(GBP_LIBOR_3M_OBS, date(2014, 7, 2), null, 0.05));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborAveragedFixing.ofDaysInResetPeriod(null, null, null, null));
   }
 
   //-------------------------------------------------------------------------

@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsRuntime;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 
@@ -119,8 +119,10 @@ public class CreditRatesMarketDataLookupTest {
             .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
             .outputCurrencies(GBP)
             .build());
-    assertThrowsIllegalArg(() -> LOOKUP.requirements(ISSUER_A, EUR));
-    assertThrowsIllegalArg(() -> LOOKUP.requirements(ISSUER_C, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOOKUP.requirements(ISSUER_A, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOOKUP.requirements(ISSUER_C, USD));
     assertEquals(
         LOOKUP.creditRatesProvider(MOCK_MARKET_DATA),
         DefaultLookupCreditRatesProvider.of((DefaultCreditRatesMarketDataLookup) LOOKUP, MOCK_MARKET_DATA));
@@ -169,16 +171,20 @@ public class CreditRatesMarketDataLookupTest {
     LegalEntitySurvivalProbabilities cc = provider.survivalProbabilities(ISSUER_A, GBP);
     IsdaCreditDiscountFactors ccUnder = (IsdaCreditDiscountFactors) cc.getSurvivalProbabilities();
     assertEquals(ccUnder.getCurve().getName(), ccAGbp.getName());
-    assertThrowsRuntime(() -> provider.survivalProbabilities(ISSUER_B, USD));
-    assertThrowsRuntime(() -> provider.survivalProbabilities(ISSUER_C, USD));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> provider.survivalProbabilities(ISSUER_B, USD));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> provider.survivalProbabilities(ISSUER_C, USD));
     // check discount curve
     IsdaCreditDiscountFactors dc = (IsdaCreditDiscountFactors) provider.discountFactors(USD);
     assertEquals(dc.getCurve().getName(), dcUsd.getName());
-    assertThrowsRuntime(() -> provider.discountFactors(EUR));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> provider.discountFactors(EUR));
     // check recovery rate curve
     ConstantRecoveryRates rc = (ConstantRecoveryRates) provider.recoveryRates(ISSUER_B);
     assertEquals(rc.getRecoveryRate(), rcB.getParameter(0));
-    assertThrowsRuntime(() -> provider.recoveryRates(ISSUER_C));
+    assertThatExceptionOfType(RuntimeException.class)
+        .isThrownBy(() -> provider.recoveryRates(ISSUER_C));
   }
 
   //-------------------------------------------------------------------------

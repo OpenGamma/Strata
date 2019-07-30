@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PutCall.CALL;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -344,8 +344,10 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double rhoEps = 1.e-5;
     double rhoIn = 1.0 - 0.5 * rhoEps;
     SabrFormulaData dataIn = SabrFormulaData.of(ALPHA, BETA, rhoIn, NU);
-    assertThrowsIllegalArg(() -> FUNCTION.volatility(10 * F, STRIKE_ITM, T, dataIn));
-    assertThrowsIllegalArg(() -> FUNCTION.volatilityAdjoint(10 * F, STRIKE_ITM, T, dataIn));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FUNCTION.volatility(10 * F, STRIKE_ITM, T, dataIn));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FUNCTION.volatilityAdjoint(10 * F, STRIKE_ITM, T, dataIn));
   }
 
   public void coverage() {

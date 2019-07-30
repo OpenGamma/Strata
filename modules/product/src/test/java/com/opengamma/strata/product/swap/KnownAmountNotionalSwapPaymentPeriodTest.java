@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -99,43 +99,50 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
   }
 
   public void test_builder_invalid() {
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .endDate(DATE_2014_10_01)
         .notionalAmount(GBP_P50000)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_10_01)
         .notionalAmount(GBP_P50000)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_10_01)
         .endDate(DATE_2014_10_01)
         .notionalAmount(GBP_P50000)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_03_30)
         .endDate(DATE_2014_10_01)
         .notionalAmount(CurrencyAmount.of(USD, 1000d))
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_03_30)
         .endDate(DATE_2014_10_01)
         .notionalAmount(CurrencyAmount.of(GBP, 1000d))
         .fxResetObservation(FX_RESET)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_03_30)
         .endDate(DATE_2014_10_01)
         .notionalAmount(CurrencyAmount.of(EUR, 1000d))
         .fxResetObservation(FX_RESET)
         .build());
-    assertThrowsIllegalArg(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(Payment.of(CurrencyAmount.of(EUR, 1000d), DATE_2014_10_03))
         .startDate(DATE_2014_03_30)
         .endDate(DATE_2014_10_01)

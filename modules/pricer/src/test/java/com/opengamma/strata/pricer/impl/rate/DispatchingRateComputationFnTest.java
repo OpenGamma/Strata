@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.ignoreThrows;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -356,7 +356,8 @@ public class DispatchingRateComputationFnTest {
   public void test_rate_unknownType() {
     RateComputation mockComputation = mock(RateComputation.class);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
-    assertThrowsIllegalArg(() -> test.rate(mockComputation, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(mockComputation, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------

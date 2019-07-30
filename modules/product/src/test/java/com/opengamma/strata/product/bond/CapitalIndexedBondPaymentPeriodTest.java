@@ -10,9 +10,9 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -93,7 +93,8 @@ public class CapitalIndexedBondPaymentPeriodTest {
   public void test_builder_fail() {
     // not inflation rate observation
     FixedRateComputation fixedRate = FixedRateComputation.of(0.01);
-    assertThrowsIllegalArg(() -> CapitalIndexedBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondPaymentPeriod.builder()
         .currency(USD)
         .notional(NOTIONAL)
         .detachmentDate(DETACHMENT)
@@ -105,7 +106,8 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .realCoupon(REAL_COUPON)
         .build());
     // wrong start date and end date
-    assertThrowsIllegalArg(() -> CapitalIndexedBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondPaymentPeriod.builder()
         .currency(USD)
         .notional(NOTIONAL)
         .detachmentDate(DETACHMENT)
@@ -117,7 +119,8 @@ public class CapitalIndexedBondPaymentPeriodTest {
         .realCoupon(REAL_COUPON)
         .build());
     // wrong unadjusted start date and unadjusted end date
-    assertThrowsIllegalArg(() -> CapitalIndexedBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondPaymentPeriod.builder()
         .currency(USD)
         .notional(NOTIONAL)
         .detachmentDate(DETACHMENT)

@@ -9,11 +9,11 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.common.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.common.PriceType.DIRTY;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -159,7 +159,8 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     assertEquals(price, 0d);
     CurrencyAmount pv = PRICER.presentValue(PRODUCT, provider, SETTLEMENT_STD, CLEAN, REF_DATA);
     assertEquals(pv, CurrencyAmount.zero(USD));
-    assertThrowsIllegalArg(() -> PRICER.parSpread(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.parSpread(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
     CurrencyAmount rpv01 = PRICER.rpv01(PRODUCT, provider, SETTLEMENT_STD, CLEAN, REF_DATA);
     assertEquals(rpv01, CurrencyAmount.zero(USD));
     CurrencyAmount recovery01 = PRICER.recovery01(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
@@ -168,7 +169,8 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     assertEquals(sensi, PointSensitivityBuilder.none());
     PointSensitivityBuilder sensiPrice = PRICER.priceSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
-    assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.parSpreadSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
     JumpToDefault jumpToDefault = PRICER.jumpToDefault(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
     assertEquals(jumpToDefault, JumpToDefault.of(USD, ImmutableMap.of(INDEX_ID, 0d)));
     CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT, provider);

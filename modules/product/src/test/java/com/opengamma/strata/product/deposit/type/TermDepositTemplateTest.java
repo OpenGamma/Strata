@@ -13,9 +13,9 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -53,7 +53,8 @@ public class TermDepositTemplateTest {
   }
 
   public void test_builder_negativePeriod() {
-    assertThrowsIllegalArg(() -> TermDepositTemplate.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TermDepositTemplate.builder()
         .convention(CONVENTION)
         .depositPeriod(Period.ofMonths(-2))
         .build());

@@ -16,13 +16,13 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -72,7 +72,8 @@ public class ThreeLegBasisSwapTemplateTest {
 
   //-------------------------------------------------------------------------
   public void test_builder_notEnoughData() {
-    assertThrowsIllegalArg(() -> ThreeLegBasisSwapTemplate.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ThreeLegBasisSwapTemplate.builder()
         .tenor(TENOR_2Y)
         .build());
   }

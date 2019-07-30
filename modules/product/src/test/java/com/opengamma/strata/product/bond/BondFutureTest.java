@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -147,7 +147,8 @@ public class BondFutureTest {
 
   public void test_builder_fail() {
     // wrong size
-    assertThrowsIllegalArg(() -> BondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFuture.builder()
         .securityId(SECURITY_ID)
         .deliveryBasket(BOND_PRODUCT[0])
         .conversionFactors(CONVERSION_FACTOR)
@@ -157,7 +158,8 @@ public class BondFutureTest {
         .rounding(ROUNDING)
         .build());
     // first notice date missing
-    assertThrowsIllegalArg(() -> BondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFuture.builder()
         .securityId(SECURITY_ID)
         .deliveryBasket(BOND_PRODUCT)
         .conversionFactors(CONVERSION_FACTOR)
@@ -166,7 +168,8 @@ public class BondFutureTest {
         .rounding(ROUNDING)
         .build());
     // last notice date missing
-    assertThrowsIllegalArg(() -> BondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFuture.builder()
         .securityId(SECURITY_ID)
         .deliveryBasket(BOND_PRODUCT)
         .conversionFactors(CONVERSION_FACTOR)
@@ -175,7 +178,8 @@ public class BondFutureTest {
         .rounding(ROUNDING)
         .build());
     // basket list empty
-    assertThrowsIllegalArg(() -> BondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFuture.builder()
         .securityId(SECURITY_ID)
         .conversionFactors(CONVERSION_FACTOR)
         .firstNoticeDate(FIRST_NOTICE_DATE)
@@ -187,7 +191,8 @@ public class BondFutureTest {
     FixedCouponBond bond0 = BOND_PRODUCT[0];
     FixedCouponBond bond1 = bond0.toBuilder().notional(100).build();
     FixedCouponBond bond2 = bond0.toBuilder().currency(Currency.CAD).build();
-    assertThrowsIllegalArg(() -> BondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFuture.builder()
         .securityId(SECURITY_ID)
         .deliveryBasket(bond0, bond1)
         .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
@@ -199,7 +204,8 @@ public class BondFutureTest {
         .rounding(ROUNDING)
         .build());
     // currency mismatch
-    assertThrowsIllegalArg(() -> BondFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BondFuture.builder()
         .securityId(SECURITY_ID)
         .deliveryBasket(bond0, bond2)
         .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])

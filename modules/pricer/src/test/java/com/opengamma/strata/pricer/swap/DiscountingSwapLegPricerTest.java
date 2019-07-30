@@ -15,7 +15,6 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_CMP_FLAT_SWAP_LEG_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_CMP_NONE_SWAP_LEG_PAY_GBP;
@@ -41,6 +40,7 @@ import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTE
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -231,12 +231,14 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbp_fxReset() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.pvbp(FIXED_FX_RESET_SWAP_LEG_PAY_GBP, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.pvbp(FIXED_FX_RESET_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
   public void test_pvbp_compounding_none() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.pvbp(FIXED_CMP_NONE_SWAP_LEG_PAY_GBP, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.pvbp(FIXED_CMP_NONE_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -458,12 +460,14 @@ public class DiscountingSwapLegPricerTest {
 
   public void test_pvbpSensitivity_FxReset() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.pvbpSensitivity(FIXED_FX_RESET_SWAP_LEG_PAY_GBP, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.pvbpSensitivity(FIXED_FX_RESET_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
   public void test_pvbpSensitivity_Compounding() {
     DiscountingSwapLegPricer test = DiscountingSwapLegPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.pvbpSensitivity(FIXED_CMP_NONE_SWAP_LEG_PAY_GBP, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.pvbpSensitivity(FIXED_CMP_NONE_SWAP_LEG_PAY_GBP, MOCK_PROV));
   }
 
   public void test_pvbpSensitivity_compounding_flat_ibor() {

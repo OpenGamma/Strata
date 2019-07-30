@@ -8,10 +8,10 @@ package com.opengamma.strata.product.payment;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -55,7 +55,8 @@ public class BulletPaymentTest {
   }
 
   public void test_builder_notNegative() {
-    assertThrowsIllegalArg(() -> BulletPayment.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BulletPayment.builder()
         .payReceive(PayReceive.PAY)
         .value(GBP_M1000)
         .date(AdjustableDate.of(DATE_2015_06_30))

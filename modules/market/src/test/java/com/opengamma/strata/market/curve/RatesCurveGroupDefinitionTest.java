@@ -17,12 +17,12 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
 import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -207,11 +207,12 @@ public class RatesCurveGroupDefinitionTest {
   }
 
   public void test_missingEntries() {
-    assertThrowsIllegalArg(() -> RatesCurveGroupDefinition.of(
-        CurveGroupName.of("group"),
-        ImmutableList.of(ENTRY1),
-        ImmutableList.of(CURVE_DEFN1, CURVE_DEFN2)),
-        "An entry must be provided .* \\[Test2\\]");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RatesCurveGroupDefinition.of(
+            CurveGroupName.of("group"),
+            ImmutableList.of(ENTRY1),
+            ImmutableList.of(CURVE_DEFN1, CURVE_DEFN2)))
+        .withMessageMatching("An entry must be provided .* \\[Test2\\]");
   }
 
   //-------------------------------------------------------------------------
@@ -409,7 +410,8 @@ public class RatesCurveGroupDefinitionTest {
         .name(CurveGroupName.of("TestX"))
         .addCurve(CURVE_DEFN1B, GBP, GBP_LIBOR_6M)
         .build();
-    assertThrowsIllegalArg(() -> base1.combinedWith(base2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base1.combinedWith(base2));
   }
 
   //-------------------------------------------------------------------------

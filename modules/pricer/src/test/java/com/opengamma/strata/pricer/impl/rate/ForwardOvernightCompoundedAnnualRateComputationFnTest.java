@@ -6,8 +6,8 @@
 package com.opengamma.strata.pricer.impl.rate;
 
 import static com.opengamma.strata.basics.index.OvernightIndices.BRL_CDI;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -312,12 +312,11 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
     for (int i = lastFixing; i < BRL_OBS.length; i++) {
       when(mockRates.rate(BRL_OBS[i])).thenReturn(FORWARD_RATES[i]);
     }
-    assertThrows(
-        () -> OBS_BRL_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv),
-        PricingException.class);
-    assertThrows(
-        () -> OBS_BRL_FWD_ONCMP.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv),
-        PricingException.class);
+    assertThatExceptionOfType(PricingException.class)
+        .isThrownBy(() -> OBS_BRL_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv));
+    assertThatExceptionOfType(PricingException.class)
+        .isThrownBy(() -> OBS_BRL_FWD_ONCMP.rateSensitivity(
+            ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv));
   }
 
   //-------------------------------------------------------------------------

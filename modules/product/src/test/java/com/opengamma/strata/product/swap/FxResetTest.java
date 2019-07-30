@@ -11,10 +11,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_GBP_ECB;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_USD_ECB;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -40,11 +40,13 @@ public class FxResetTest {
   }
 
   public void test_invalidCurrency() {
-    assertThrowsIllegalArg(() -> FxReset.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxReset.meta().builder()
         .set(FxReset.meta().observation(), FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA))
         .set(FxReset.meta().referenceCurrency(), GBP)
         .build());
-    assertThrowsIllegalArg(() -> FxReset.of(FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA), GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxReset.of(FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA), GBP));
   }
 
   //-------------------------------------------------------------------------

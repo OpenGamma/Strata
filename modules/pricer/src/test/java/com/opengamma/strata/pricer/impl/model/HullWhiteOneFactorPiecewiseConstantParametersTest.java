@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.impl.model;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -81,12 +81,14 @@ public class HullWhiteOneFactorPiecewiseConstantParametersTest {
 
   public void test_of_notAscendingTime() {
     DoubleArray time = DoubleArray.of(0.5, 1.0, 4.0, 2.0);
-    assertThrowsIllegalArg(() -> HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, time));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, time));
   }
 
   public void test_of_notAscendingTime1() {
     DoubleArray time = DoubleArray.of(0.5, 1.0, 4.0);
-    assertThrowsIllegalArg(() -> HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, time));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, time));
   }
 
   public void test_addVolatility_notAscendingTime() {
@@ -94,7 +96,8 @@ public class HullWhiteOneFactorPiecewiseConstantParametersTest {
         HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
     double time = 3.0;
     double vol = 0.015;
-    assertThrowsIllegalArg(() -> base.withVolatilityAdded(vol, time));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withVolatilityAdded(vol, time));
   }
 
   //-------------------------------------------------------------------------

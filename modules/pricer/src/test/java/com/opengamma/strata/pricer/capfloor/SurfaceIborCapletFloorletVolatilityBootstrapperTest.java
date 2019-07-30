@@ -7,9 +7,9 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.Period;
@@ -82,7 +82,8 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
     DoubleArray strikes = createBlackStrikes();
     RawOptionData data = RawOptionData.of(
         createBlackMaturities(), strikes, ValueType.STRIKE, createFullBlackDataMatrixInvalid(), ValueType.BLACK_VOLATILITY);
-    assertThrowsIllegalArg(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
   }
 
   public void recovery_test_blackSurface_shift() {

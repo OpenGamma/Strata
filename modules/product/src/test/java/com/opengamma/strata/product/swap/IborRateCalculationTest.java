@@ -18,7 +18,6 @@ import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -28,6 +27,7 @@ import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
 import static com.opengamma.strata.product.swap.IborRateResetMethod.WEIGHTED;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.NOT_NEGATIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -174,7 +174,8 @@ public class IborRateCalculationTest {
   }
 
   public void test_builder_noIndex() {
-    assertThrowsIllegalArg(() -> IborRateCalculation.builder().build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateCalculation.builder().build());
   }
 
   //-------------------------------------------------------------------------

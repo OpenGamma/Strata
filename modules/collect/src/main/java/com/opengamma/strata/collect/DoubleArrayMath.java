@@ -438,6 +438,7 @@ public final class DoubleArrayMath {
    *
    * @param values  the array of values
    * @param positions  the array of positions
+   * @return the reordered copy
    * @throws IllegalArgumentException if any of the positions do not correspond to an index in the values
    */
   public static double[] reorderedCopy(double[] values, int[] positions) {

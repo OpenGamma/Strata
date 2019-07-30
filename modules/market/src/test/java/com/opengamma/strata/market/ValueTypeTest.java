@@ -7,8 +7,7 @@ package com.opengamma.strata.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -20,11 +19,17 @@ import org.testng.annotations.Test;
 public class ValueTypeTest {
 
   public void test_validation() {
-    assertThrows(() -> ValueType.of(null), IllegalArgumentException.class);
-    assertThrows(() -> ValueType.of(""), IllegalArgumentException.class);
-    assertThrows(() -> ValueType.of("Foo Bar"), IllegalArgumentException.class, ".*must only contain the characters.*");
-    assertThrows(() -> ValueType.of("Foo_Bar"), IllegalArgumentException.class, ".*must only contain the characters.*");
-    assertThrows(() -> ValueType.of("FooBar!"), IllegalArgumentException.class, ".*must only contain the characters.*");
+    assertThatIllegalArgumentException().isThrownBy(() -> ValueType.of(null));
+    assertThatIllegalArgumentException().isThrownBy(() -> ValueType.of(""));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueType.of("Foo Bar"))
+        .withMessageMatching(".*must only contain the characters.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueType.of("Foo_Bar"))
+        .withMessageMatching(".*must only contain the characters.*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ValueType.of("FooBar!"))
+        .withMessageMatching(".*must only contain the characters.*");
 
     // these should execute without throwing an exception
     ValueType.of("FooBar");
@@ -37,7 +42,7 @@ public class ValueTypeTest {
   public void checkEquals() {
     ValueType test = ValueType.of("Foo");
     test.checkEquals(test, "Error");
-    assertThrowsIllegalArg(() -> test.checkEquals(ValueType.PRICE_INDEX, "Error"));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.checkEquals(ValueType.PRICE_INDEX, "Error"));
   }
 
   //-----------------------------------------------------------------------

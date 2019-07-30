@@ -6,9 +6,9 @@
 package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -107,7 +107,8 @@ public class UnitParameterSensitivitiesTest {
   public void test_getSensitivity() {
     UnitParameterSensitivities test = UnitParameterSensitivities.of(ENTRY1);
     assertEquals(test.getSensitivity(NAME1), ENTRY1);
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME0));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME0));
   }
 
   public void test_findSensitivity() {
@@ -128,7 +129,8 @@ public class UnitParameterSensitivitiesTest {
   }
 
   public void test_combinedWith_one_sizeMismatch() {
-    assertThrowsIllegalArg(() -> SENSI_1.combinedWith(ENTRY_SMALL));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SENSI_1.combinedWith(ENTRY_SMALL));
   }
 
   public void test_combinedWith_other() {

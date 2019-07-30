@@ -7,11 +7,12 @@ package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -111,10 +112,14 @@ public class CdsIndexIsdaCreditCurveNodeTest {
   }
 
   public void test_build_fail_noRate() {
-    assertThrows(
-        () -> CdsIndexIsdaCreditCurveNode.builder().template(TEMPLATE).observableId(QUOTE_ID).cdsIndexId(INDEX_ID)
-            .legalEntityIds(LEGAL_ENTITIES).quoteConvention(CdsQuoteConvention.QUOTED_SPREAD).build(),
-        IllegalArgumentException.class);
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> CdsIndexIsdaCreditCurveNode.builder()
+            .template(TEMPLATE)
+            .observableId(QUOTE_ID)
+            .cdsIndexId(INDEX_ID)
+            .legalEntityIds(LEGAL_ENTITIES)
+            .quoteConvention(CdsQuoteConvention.QUOTED_SPREAD)
+            .build());
   }
 
   //-------------------------------------------------------------------------
@@ -167,7 +172,7 @@ public class CdsIndexIsdaCreditCurveNodeTest {
   public void test_trade_noMarketData() {
     CdsIndexIsdaCreditCurveNode node = CdsIndexIsdaCreditCurveNode.ofParSpread(TEMPLATE, QUOTE_ID, INDEX_ID, LEGAL_ENTITIES);
     MarketData marketData = MarketData.empty(VAL_DATE);
-    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
   //-------------------------------------------------------------------------

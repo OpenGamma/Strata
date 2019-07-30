@@ -7,12 +7,12 @@ package com.opengamma.strata.market.curve.node;
 
 import static com.opengamma.strata.basics.date.Tenor.TENOR_10Y;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -101,7 +101,8 @@ public class XCcyIborIborSwapCurveNodeTest {
   }
 
   public void test_builder_noTemplate() {
-    assertThrowsIllegalArg(() -> XCcyIborIborSwapCurveNode.builder().label(LABEL).spreadId(SPREAD_ID).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> XCcyIborIborSwapCurveNode.builder().label(LABEL).spreadId(SPREAD_ID).build());
   }
 
   public void test_of_noSpread() {
@@ -149,7 +150,8 @@ public class XCcyIborIborSwapCurveNodeTest {
   public void test_trade_noMarketData() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     MarketData marketData = MarketData.empty(VAL_DATE);
-    assertThrows(() -> node.trade(1d, marketData, REF_DATA), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
   public void test_initialGuess() {

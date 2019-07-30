@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
@@ -14,6 +13,7 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_NATURAL_SPLINE_MONOTONE_CUBIC;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -146,9 +146,12 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
         Y_VALUES,
         DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE,
         DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE);
-    assertThrowsIllegalArg(() -> bci.interpolate(0.2d));
-    assertThrowsIllegalArg(() -> bci.firstDerivative(0.3d));
-    assertThrowsIllegalArg(() -> bci.parameterSensitivity(0.6d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bci.interpolate(0.2d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bci.firstDerivative(0.3d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bci.parameterSensitivity(0.6d));
   }
 
   //-------------------------------------------------------------------------

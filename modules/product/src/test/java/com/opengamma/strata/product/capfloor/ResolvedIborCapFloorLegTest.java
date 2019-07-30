@@ -10,11 +10,11 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -112,7 +112,8 @@ public class ResolvedIborCapFloorLegTest {
         .iborRate(IborRateComputation.of(EUR_EURIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
         .yearFraction(0.2611)
         .build();
-    assertThrowsIllegalArg(() -> ResolvedIborCapFloorLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedIborCapFloorLeg.builder()
         .capletFloorletPeriods(PERIOD_1, periodGbp)
         .payReceive(RECEIVE)
         .build());
@@ -129,7 +130,8 @@ public class ResolvedIborCapFloorLegTest {
         .iborRate(IborRateComputation.of(GBP_LIBOR_3M, LocalDate.of(2011, 9, 15), REF_DATA))
         .yearFraction(0.2611)
         .build();
-    assertThrowsIllegalArg(() -> ResolvedIborCapFloorLeg.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedIborCapFloorLeg.builder()
         .capletFloorletPeriods(PERIOD_1, periodLibor)
         .payReceive(RECEIVE)
         .build());

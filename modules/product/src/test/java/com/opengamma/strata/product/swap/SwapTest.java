@@ -15,7 +15,6 @@ import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.basics.value.ValueAdjustment.ofDeltaAmount;
 import static com.opengamma.strata.collect.TestHelper.assertEqualsBean;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -30,6 +29,7 @@ import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 import static com.opengamma.strata.product.swap.SwapLegType.OTHER;
 import static com.opengamma.strata.product.swap.SwapLegType.OVERNIGHT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -92,14 +92,16 @@ public class SwapTest {
     Swap test = Swap.of(MOCK_GBP1, MOCK_USD1);
     assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
     assertEquals(ImmutableList.copyOf(test.getLegs()), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
-    assertThrowsIllegalArg(() -> Swap.of((SwapLeg[]) null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Swap.of((SwapLeg[]) null));
   }
 
   public void test_of_list() {
     Swap test = Swap.of(ImmutableList.of(MOCK_GBP1, MOCK_USD1));
     assertEquals(test.getLegs(), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
     assertEquals(ImmutableList.copyOf(test.getLegs()), ImmutableList.of(MOCK_GBP1, MOCK_USD1));
-    assertThrowsIllegalArg(() -> Swap.of((List<SwapLeg>) null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Swap.of((List<SwapLeg>) null));
   }
 
   //-------------------------------------------------------------------------

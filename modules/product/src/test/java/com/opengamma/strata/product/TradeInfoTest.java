@@ -6,10 +6,10 @@
 package com.opengamma.strata.product;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalTime;
@@ -44,7 +44,8 @@ public class TradeInfoTest {
     assertEquals(test.getSettlementDate(), Optional.empty());
     assertEquals(test.getAttributeTypes(), ImmutableSet.of());
     assertEquals(test.getAttributes(), ImmutableMap.of());
-    assertThrowsIllegalArg(() -> test.getAttribute(AttributeType.DESCRIPTION));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getAttribute(AttributeType.DESCRIPTION));
     assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
   }
 

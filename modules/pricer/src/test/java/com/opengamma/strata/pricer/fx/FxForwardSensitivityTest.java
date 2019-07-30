@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 
@@ -60,8 +60,10 @@ public class FxForwardSensitivityTest {
   }
 
   public void test_of_wrongRefCurrency() {
-    assertThrowsIllegalArg(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, SENSITIVITY));
-    assertThrowsIllegalArg(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, USD, SENSITIVITY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, SENSITIVITY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, USD, SENSITIVITY));
   }
 
   //-------------------------------------------------------------------------

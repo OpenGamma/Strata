@@ -6,7 +6,7 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -96,12 +96,18 @@ public class ProductLinearCurveExtrapolatorTest {
         CurveInterpolators.DOUBLE_QUADRATIC.bind(xValues1, yValues, EXTRAP, EXTRAP);
     BoundCurveInterpolator bind2 =
         CurveInterpolators.DOUBLE_QUADRATIC.bind(xValues2, yValues, EXTRAP, EXTRAP);
-    assertThrowsIllegalArg(() -> bind1.interpolate(-1));
-    assertThrowsIllegalArg(() -> bind1.firstDerivative(-1));
-    assertThrowsIllegalArg(() -> bind1.parameterSensitivity(-1));
-    assertThrowsIllegalArg(() -> bind2.interpolate(1));
-    assertThrowsIllegalArg(() -> bind2.firstDerivative(1));
-    assertThrowsIllegalArg(() -> bind2.parameterSensitivity(1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bind1.interpolate(-1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bind1.firstDerivative(-1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bind1.parameterSensitivity(-1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bind2.interpolate(1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bind2.firstDerivative(1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> bind2.parameterSensitivity(1));
   }
 
   public void test_serialization() {

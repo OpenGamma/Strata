@@ -6,9 +6,9 @@
 package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -55,7 +55,8 @@ public class UnitParameterSensitivityTest {
   }
 
   public void test_of_metadata_badMetadata() {
-    assertThrowsIllegalArg(() -> UnitParameterSensitivity.of(NAME1, METADATA_BAD, VECTOR1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UnitParameterSensitivity.of(NAME1, METADATA_BAD, VECTOR1));
   }
 
   public void test_of_metadataParamSplit() {
@@ -69,7 +70,8 @@ public class UnitParameterSensitivityTest {
   }
 
   public void test_of_metadataParamSplit_badSplit() {
-    assertThrowsIllegalArg(() -> UnitParameterSensitivity.of(NAME_COMBINED, METADATA1, VECTOR1, PARAM_SPLIT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UnitParameterSensitivity.of(NAME_COMBINED, METADATA1, VECTOR1, PARAM_SPLIT));
   }
 
   public void test_combine() {
@@ -85,18 +87,21 @@ public class UnitParameterSensitivityTest {
   }
 
   public void test_combine_arraySize0() {
-    assertThrowsIllegalArg(() -> UnitParameterSensitivity.combine(NAME_COMBINED));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UnitParameterSensitivity.combine(NAME_COMBINED));
   }
 
   public void test_combine_arraySize1() {
     UnitParameterSensitivity base = UnitParameterSensitivity.of(NAME1, METADATA1, VECTOR1);
-    assertThrowsIllegalArg(() -> UnitParameterSensitivity.combine(NAME_COMBINED, base));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UnitParameterSensitivity.combine(NAME_COMBINED, base));
   }
 
   public void test_combine_duplicateNames() {
     UnitParameterSensitivity base1 = UnitParameterSensitivity.of(NAME1, METADATA1, VECTOR1);
     UnitParameterSensitivity base2 = UnitParameterSensitivity.of(NAME1, METADATA2, VECTOR2);
-    assertThrowsIllegalArg(() -> UnitParameterSensitivity.combine(NAME_COMBINED, base1, base2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UnitParameterSensitivity.combine(NAME_COMBINED, base1, base2));
   }
 
   //-------------------------------------------------------------------------
@@ -117,7 +122,8 @@ public class UnitParameterSensitivityTest {
     UnitParameterSensitivity base = UnitParameterSensitivity.of(NAME1, METADATA1, VECTOR1);
     UnitParameterSensitivity test = base.withSensitivity(VECTOR1_FACTOR);
     assertEquals(test, UnitParameterSensitivity.of(NAME1, METADATA1, VECTOR1_FACTOR));
-    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleArray.of(1d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withSensitivity(DoubleArray.of(1d)));
   }
 
   //-------------------------------------------------------------------------
@@ -129,7 +135,8 @@ public class UnitParameterSensitivityTest {
 
   public void test_plus_array_wrongSize() {
     UnitParameterSensitivity base = UnitParameterSensitivity.of(NAME1, METADATA1, VECTOR1);
-    assertThrowsIllegalArg(() -> base.plus(VECTOR2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.plus(VECTOR2));
   }
 
   //-------------------------------------------------------------------------
@@ -142,7 +149,8 @@ public class UnitParameterSensitivityTest {
   public void test_plus_sensitivity_wrongName() {
     UnitParameterSensitivity base1 = UnitParameterSensitivity.of(NAME1, METADATA1, VECTOR1);
     UnitParameterSensitivity base2 = UnitParameterSensitivity.of(NAME2, METADATA1, VECTOR1);
-    assertThrowsIllegalArg(() -> base1.plus(base2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base1.plus(base2));
   }
 
   //-------------------------------------------------------------------------

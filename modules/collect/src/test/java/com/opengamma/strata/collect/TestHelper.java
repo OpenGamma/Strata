@@ -247,7 +247,9 @@ public class TestHelper {
    * 
    * @param runner  the lambda containing the code to test
    * @param expected  the expected exception
+   * @deprecated Use AssertJ {@code assertThatExceptionOfType}
    */
+  @Deprecated
   public static void assertThrows(AssertRunnable runner, Class<? extends Throwable> expected) {
     assertThrowsImpl(runner, expected, null);
   }
@@ -265,7 +267,9 @@ public class TestHelper {
    * @param runner  the lambda containing the code to test
    * @param expected  the expected exception
    * @param regex  the regex that the exception message is expected to match
+   * @deprecated Use AssertJ {@code assertThatExceptionOfType}
    */
+  @Deprecated
   public static void assertThrows(AssertRunnable runner, Class<? extends Throwable> expected, String regex) {
     assertNotNull(regex, "assertThrows() called with null regex");
     assertThrowsImpl(runner, expected, regex);
@@ -306,7 +310,9 @@ public class TestHelper {
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
+   * @deprecated Use AssertJ {@code assertThatExceptionOfType}
    */
+  @Deprecated
   public static void assertThrowsRuntime(AssertRunnable runner) {
     assertThrows(runner, RuntimeException.class);
   }
@@ -320,7 +326,9 @@ public class TestHelper {
    * </pre>
    * 
    * @param runner  the lambda containing the code to test
+   * @deprecated Use AssertJ {@code assertThatIllegalArgumentException}
    */
+  @Deprecated
   public static void assertThrowsIllegalArg(AssertRunnable runner) {
     assertThrows(runner, IllegalArgumentException.class);
   }
@@ -336,7 +344,9 @@ public class TestHelper {
    *
    * @param runner  the lambda containing the code to test
    * @param regex  regular expression that must match the exception message
+   * @deprecated Use AssertJ {@code assertThatIllegalArgumentException}
    */
+  @Deprecated
   public static void assertThrowsIllegalArg(AssertRunnable runner, String regex) {
     assertThrows(runner, IllegalArgumentException.class, regex);
   }
@@ -353,7 +363,9 @@ public class TestHelper {
    *
    * @param runner  the lambda containing the code to test
    * @param cause  the expected cause of the exception thrown
+   * @deprecated Use AssertJ {@code assertThatExceptionOfType}
    */
+  @Deprecated
   public static void assertThrowsWithCause(
       AssertRunnable runner, Class<? extends Throwable> cause) {
     assertNotNull(runner, "assertThrowsWithCause() called with null AssertRunnable");

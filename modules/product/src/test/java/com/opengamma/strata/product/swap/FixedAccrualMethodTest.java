@@ -7,8 +7,8 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -39,11 +39,13 @@ public class FixedAccrualMethodTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> FixedAccrualMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedAccrualMethod.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> FixedAccrualMethod.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedAccrualMethod.of(null));
   }
 
   //-------------------------------------------------------------------------

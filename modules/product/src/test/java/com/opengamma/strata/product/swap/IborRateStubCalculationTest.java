@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -83,46 +83,56 @@ public class IborRateStubCalculationTest {
   }
 
   public void test_ofIborInterpolatedRate_invalid_interpolatedSameIndex() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, GBP_LIBOR_3M));
   }
 
   public void test_of_null() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.ofIborRate(null));
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.ofIborInterpolatedRate(null, GBP_LIBOR_3M));
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, null));
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.ofIborInterpolatedRate(null, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.ofIborRate(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.ofIborInterpolatedRate(null, GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.ofIborInterpolatedRate(GBP_LIBOR_3M, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.ofIborInterpolatedRate(null, null));
   }
 
   //-------------------------------------------------------------------------
   public void test_builder_invalid_fixedAndIbor() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.builder()
         .fixedRate(0.025d)
         .index(GBP_LIBOR_3M)
         .build());
   }
 
   public void test_builder_invalid_fixedAndKnown() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.builder()
         .fixedRate(0.025d)
         .knownAmount(GBP_P1000)
         .build());
   }
 
   public void test_builder_invalid_knownAndIbor() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.builder()
         .knownAmount(GBP_P1000)
         .index(GBP_LIBOR_3M)
         .build());
   }
 
   public void test_builder_invalid_interpolatedWithoutBase() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.builder()
         .indexInterpolated(GBP_LIBOR_3M)
         .build());
   }
 
   public void test_builder_invalid_interpolatedSameIndex() {
-    assertThrowsIllegalArg(() -> IborRateStubCalculation.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> IborRateStubCalculation.builder()
         .index(GBP_LIBOR_3M)
         .indexInterpolated(GBP_LIBOR_3M)
         .build());

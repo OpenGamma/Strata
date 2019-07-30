@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -49,32 +49,38 @@ public class SsviFormulaDataTest {
   //-------------------------------------------------------------------------
   @Test
   public void testNegativeEta() {
-    assertThrowsIllegalArg(() -> SsviFormulaData.of(SIGMA, RHO, -ETA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SsviFormulaData.of(SIGMA, RHO, -ETA));
   }
 
   @Test
   public void testNegativeSigma() {
-    assertThrowsIllegalArg(() -> SsviFormulaData.of(-SIGMA, RHO, ETA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SsviFormulaData.of(-SIGMA, RHO, ETA));
   }
 
   @Test
   public void testLowRho() {
-    assertThrowsIllegalArg(() -> SsviFormulaData.of(SIGMA, RHO - 10, ETA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SsviFormulaData.of(SIGMA, RHO - 10, ETA));
   }
 
   @Test
   public void testHighRho() {
-    assertThrowsIllegalArg(() -> SsviFormulaData.of(SIGMA, RHO + 10, ETA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SsviFormulaData.of(SIGMA, RHO + 10, ETA));
   }
 
   @Test
   public void testWrongIndex() {
-    assertThrowsIllegalArg(() -> DATA.isAllowed(-1, ETA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DATA.isAllowed(-1, ETA));
   }
 
   @Test
   public void testWrongParameterLength() {
-    assertThrowsIllegalArg(() -> SsviFormulaData.of(new double[] {ETA, RHO, SIGMA, 0.1}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SsviFormulaData.of(new double[] {ETA, RHO, SIGMA, 0.1}));
   }
 
   //-------------------------------------------------------------------------

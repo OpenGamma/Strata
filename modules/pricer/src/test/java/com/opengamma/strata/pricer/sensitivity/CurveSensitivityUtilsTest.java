@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.sensitivity;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -201,9 +201,11 @@ public class CurveSensitivityUtilsTest {
     CurrencyParameterSensitivity s1 =
         CurrencyParameterSensitivity.of(NAME_1, CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
     CurrencyParameterSensitivities s2 = CurrencyParameterSensitivities.of(s1);
-    assertThrowsIllegalArg(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES));
     final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
-    assertThrowsIllegalArg(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES, sensitivityDate));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES, sensitivityDate));
   }
 
   public void wrong_metadata() {
@@ -212,7 +214,8 @@ public class CurveSensitivityUtilsTest {
     CurrencyParameterSensitivity s1 =
         CurrencyParameterSensitivity.of(NAME_1, pmdInput, CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
     CurrencyParameterSensitivities s2 = CurrencyParameterSensitivities.of(s1);
-    assertThrowsIllegalArg(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES));
   }
 
 }

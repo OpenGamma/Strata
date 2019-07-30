@@ -8,9 +8,9 @@ package com.opengamma.strata.product.deposit;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -50,7 +50,8 @@ public class ResolvedTermDepositTest {
   }
 
   public void test_builder_wrongDates() {
-    assertThrowsIllegalArg(() -> ResolvedTermDeposit.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedTermDeposit.builder()
         .currency(GBP)
         .notional(PRINCIPAL)
         .startDate(START_DATE)

@@ -7,9 +7,9 @@ package com.opengamma.strata.product;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
@@ -37,7 +37,8 @@ public class SecurityInfoTest {
     assertEquals(test.getId(), ID);
     assertEquals(test.getPriceInfo(), PRICE_INFO);
     assertEquals(test.getAttributes(), ImmutableMap.of());
-    assertThrowsIllegalArg(() -> test.getAttribute(AttributeType.NAME));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getAttribute(AttributeType.NAME));
     assertEquals(test.findAttribute(AttributeType.NAME), Optional.empty());
   }
 
@@ -46,7 +47,8 @@ public class SecurityInfoTest {
     assertEquals(test.getId(), ID);
     assertEquals(test.getPriceInfo(), PRICE_INFO);
     assertEquals(test.getAttributes(), ImmutableMap.of());
-    assertThrowsIllegalArg(() -> test.getAttribute(AttributeType.NAME));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getAttribute(AttributeType.NAME));
     assertEquals(test.findAttribute(AttributeType.NAME), Optional.empty());
   }
 

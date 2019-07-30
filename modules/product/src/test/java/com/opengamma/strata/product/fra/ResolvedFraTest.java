@@ -10,11 +10,11 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -49,7 +49,8 @@ public class ResolvedFraTest {
   }
 
   public void test_builder_datesInOrder() {
-    assertThrowsIllegalArg(() -> ResolvedFra.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFra.builder()
         .notional(NOTIONAL_1M)
         .paymentDate(date(2015, 6, 15))
         .startDate(date(2015, 6, 15))

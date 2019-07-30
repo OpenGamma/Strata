@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.param;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -73,7 +73,8 @@ public class CrossGammaParameterSensitivityTest {
   }
 
   public void test_of_metadata_badMetadata() {
-    assertThrowsIllegalArg(() -> CrossGammaParameterSensitivity.of(NAME1, METADATA_BAD, USD, MATRIX_USD1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CrossGammaParameterSensitivity.of(NAME1, METADATA_BAD, USD, MATRIX_USD1));
   }
 
   //-------------------------------------------------------------------------
@@ -96,7 +97,8 @@ public class CrossGammaParameterSensitivityTest {
     CrossGammaParameterSensitivity base = CrossGammaParameterSensitivity.of(NAME1, METADATA_USD1, USD, MATRIX_USD1);
     CrossGammaParameterSensitivity test = base.withSensitivity(MATRIX_USD_FACTOR);
     assertEquals(test, CrossGammaParameterSensitivity.of(NAME1, METADATA_USD1, USD, MATRIX_USD_FACTOR));
-    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleMatrix.of(1, 1, 1d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withSensitivity(DoubleMatrix.of(1, 1, 1d)));
   }
 
   //-------------------------------------------------------------------------
@@ -132,7 +134,8 @@ public class CrossGammaParameterSensitivityTest {
     CrossGammaParameterSensitivity expected2 =
         CrossGammaParameterSensitivity.of(NAME1, METADATA_USD1, NAME2, METADATA_EUR1, USD, MATRIX_EUR1);
     assertEquals(test.getSensitivity(NAME2), expected2);
-    assertThrowsIllegalArg(() -> test.getSensitivity(CurveName.of("NAME-3")));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(CurveName.of("NAME-3")));
   }
 
   //-------------------------------------------------------------------------

@@ -10,9 +10,9 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -103,7 +103,8 @@ public class CmsPeriodTest {
   }
 
   public void test_builder_nonNullCapFloor() {
-    assertThrowsIllegalArg(() -> CmsPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CmsPeriod.builder()
         .caplet(STRIKE)
         .floorlet(STRIKE)
         .startDate(START)

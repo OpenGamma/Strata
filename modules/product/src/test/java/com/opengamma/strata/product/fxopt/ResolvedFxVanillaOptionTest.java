@@ -9,13 +9,13 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -69,7 +69,8 @@ public class ResolvedFxVanillaOptionTest {
   }
 
   public void test_builder_earlyPaymentDate() {
-    assertThrowsIllegalArg(() -> ResolvedFxVanillaOption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxVanillaOption.builder()
         .longShort(LONG)
         .expiry(LocalDate.of(2015, 2, 21).atStartOfDay(ZoneOffset.UTC))
         .underlying(FX)

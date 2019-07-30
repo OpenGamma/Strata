@@ -7,10 +7,10 @@ package com.opengamma.strata.product.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -47,9 +47,12 @@ public class NotionalExchangeTest {
   }
 
   public void test_of_null() {
-    assertThrowsIllegalArg(() -> NotionalExchange.of(GBP_1000, null));
-    assertThrowsIllegalArg(() -> NotionalExchange.of(null, DATE_2014_06_30));
-    assertThrowsIllegalArg(() -> NotionalExchange.of(null, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> NotionalExchange.of(GBP_1000, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> NotionalExchange.of(null, DATE_2014_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> NotionalExchange.of(null, null));
   }
 
   //-------------------------------------------------------------------------

@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 
@@ -114,11 +114,16 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     assertEquals(
         test.requirements(SEC_B1, ISSUER_B, GBP),
         FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1, CURVE_ID_GBP2).outputCurrencies(GBP).build());
-    assertThrowsIllegalArg(() -> test.requirements(SEC_B1, LegalEntityId.of("XXX", "XXX"), GBP));
-    assertThrowsIllegalArg(() -> test.requirements(SecurityId.of("XXX", "XXX"), LegalEntityId.of("XXX", "XXX"), GBP));
-    assertThrowsIllegalArg(() -> test.requirements(SEC_A1, ISSUER_A, GBP));
-    assertThrowsIllegalArg(() -> test.requirements(SEC_C1, ISSUER_C, GBP));
-    assertThrowsIllegalArg(() -> test.requirements(SEC_D1, ISSUER_D, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(SEC_B1, LegalEntityId.of("XXX", "XXX"), GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(SecurityId.of("XXX", "XXX"), LegalEntityId.of("XXX", "XXX"), GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(SEC_A1, ISSUER_A, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(SEC_C1, ISSUER_C, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(SEC_D1, ISSUER_D, GBP));
 
     assertEquals(
         test.discountingProvider(MOCK_MARKET_DATA),
@@ -148,9 +153,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     assertEquals(
         test.requirements(ISSUER_B, GBP),
         FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1).outputCurrencies(GBP).build());
-    assertThrowsIllegalArg(() -> test.requirements(SEC_A2, ISSUER_A, USD));
-    assertThrowsIllegalArg(() -> test.requirements(LegalEntityId.of("XXX", "XXX"), GBP));
-    assertThrowsIllegalArg(() -> test.requirements(ISSUER_A, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(SEC_A2, ISSUER_A, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(LegalEntityId.of("XXX", "XXX"), GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ISSUER_A, GBP));
     assertEquals(
         test.discountingProvider(MOCK_MARKET_DATA),
         DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
@@ -168,10 +176,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     ImmutableMap<Pair<LegalEntityGroup, Currency>, CurveId> issuerCurves = ImmutableMap.of(
         Pair.of(GROUP_ISSUER_M, USD), CURVE_ID_USD3);
 
-    assertThrowsIllegalArg(() -> LegalEntityDiscountingMarketDataLookup.of(
-        repoSecurityGroups, ImmutableMap.of(), ImmutableMap.of(), issuerGroups, issuerCurves));
-    assertThrowsIllegalArg(() -> LegalEntityDiscountingMarketDataLookup.of(
-        repoSecurityGroups, ImmutableMap.of(), repoCurves, issuerGroups, ImmutableMap.of()));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityDiscountingMarketDataLookup.of(
+            repoSecurityGroups, ImmutableMap.of(), ImmutableMap.of(), issuerGroups, issuerCurves));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityDiscountingMarketDataLookup.of(
+            repoSecurityGroups, ImmutableMap.of(), repoCurves, issuerGroups, ImmutableMap.of()));
   }
 
   //-------------------------------------------------------------------------
@@ -231,14 +241,18 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     SimpleDiscountFactors rdf = (SimpleDiscountFactors) rcdf.getDiscountFactors();
     assertEquals(rdf.getCurve().getName(), repoCurve.getName());
     assertEquals(rcdf, provider.repoCurveDiscountFactors(SEC_B1, ISSUER_B, USD));
-    assertThrowsIllegalArg(() -> provider.repoCurveDiscountFactors(SEC_A1, ISSUER_A, GBP));
-    assertThrowsIllegalArg(() -> provider.repoCurveDiscountFactors(SEC_C1, ISSUER_C, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> provider.repoCurveDiscountFactors(SEC_A1, ISSUER_A, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> provider.repoCurveDiscountFactors(SEC_C1, ISSUER_C, USD));
     // check issuer
     IssuerCurveDiscountFactors icdf = provider.issuerCurveDiscountFactors(ISSUER_A, USD);
     SimpleDiscountFactors idf = (SimpleDiscountFactors) icdf.getDiscountFactors();
     assertEquals(idf.getCurve().getName(), issuerCurve.getName());
-    assertThrowsIllegalArg(() -> provider.issuerCurveDiscountFactors(ISSUER_A, GBP));
-    assertThrowsIllegalArg(() -> provider.issuerCurveDiscountFactors(ISSUER_C, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> provider.issuerCurveDiscountFactors(ISSUER_A, GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> provider.issuerCurveDiscountFactors(ISSUER_C, USD));
   }
 
   //-------------------------------------------------------------------------

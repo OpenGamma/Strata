@@ -6,10 +6,10 @@
 package com.opengamma.strata.measure.bond;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -53,7 +53,8 @@ public class BondFutureOptionMarketDataLookupTest {
     assertEquals(test.queryType(), BondFutureOptionMarketDataLookup.class);
     assertEquals(test.getVolatilitySecurityIds(), ImmutableSet.of(SEC_OG1));
     assertEquals(test.getVolatilityIds(SEC_OG1), ImmutableSet.of(VOL_ID1));
-    assertThrowsIllegalArg(() -> test.getVolatilityIds(SEC_OG2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(SEC_OG2));
 
     assertEquals(
         test.requirements(SEC_OG1),
@@ -61,7 +62,8 @@ public class BondFutureOptionMarketDataLookupTest {
     assertEquals(
         test.requirements(ImmutableSet.of(SEC_OG1)),
         FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
   }
 
   public void test_of_map() {
@@ -70,7 +72,8 @@ public class BondFutureOptionMarketDataLookupTest {
     assertEquals(test.queryType(), BondFutureOptionMarketDataLookup.class);
     assertEquals(test.getVolatilitySecurityIds(), ImmutableSet.of(SEC_OG1, SEC_OG2));
     assertEquals(test.getVolatilityIds(SEC_OG1), ImmutableSet.of(VOL_ID1));
-    assertThrowsIllegalArg(() -> test.getVolatilityIds(SEC_OG3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getVolatilityIds(SEC_OG3));
 
     assertEquals(
         test.requirements(SEC_OG1),
@@ -78,10 +81,12 @@ public class BondFutureOptionMarketDataLookupTest {
     assertEquals(
         test.requirements(ImmutableSet.of(SEC_OG1)),
         FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
 
     assertEquals(test.volatilities(SEC_OG1, MOCK_MARKET_DATA), MOCK_VOLS);
-    assertThrowsIllegalArg(() -> test.volatilities(SEC_OG3, MOCK_MARKET_DATA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.volatilities(SEC_OG3, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------

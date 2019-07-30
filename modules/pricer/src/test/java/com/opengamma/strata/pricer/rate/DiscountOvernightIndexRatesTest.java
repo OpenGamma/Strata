@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -122,12 +122,14 @@ public class DiscountOvernightIndexRatesTest {
 
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES_EMPTY);
-    assertThrowsIllegalArg(() -> test.rate(EUR_EONIA_BEFORE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(EUR_EONIA_BEFORE));
   }
 
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES_MINIMAL);
-    assertThrowsIllegalArg(() -> test.rate(EUR_EONIA_BEFORE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.rate(EUR_EONIA_BEFORE));
   }
 
   public void test_rate_onValuation_fixing() {
@@ -206,7 +208,8 @@ public class DiscountOvernightIndexRatesTest {
 
   public void test_periodRate_badDates() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
-    assertThrowsIllegalArg(() -> test.periodRate(EUR_EONIA_AFTER_END, DATE_AFTER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.periodRate(EUR_EONIA_AFTER_END, DATE_AFTER));
   }
 
   //-------------------------------------------------------------------------
@@ -235,7 +238,8 @@ public class DiscountOvernightIndexRatesTest {
 
   public void test_periodRatePointSensitivity_badDates() {
     DiscountOvernightIndexRates test = DiscountOvernightIndexRates.of(EUR_EONIA, DFCURVE, SERIES);
-    assertThrowsIllegalArg(() -> test.periodRatePointSensitivity(EUR_EONIA_AFTER_END, DATE_AFTER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.periodRatePointSensitivity(EUR_EONIA_AFTER_END, DATE_AFTER));
   }
 
   //-------------------------------------------------------------------------

@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer.impl.cms;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.swap.SwapIndices.EUR_EURIBOR_1100_5Y;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -95,8 +95,10 @@ public class DiscountingCmsPeriodPricerTest {
   }
 
   public void presentValue_beforeFixing_capfloor() {
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(CAPLET, RATES_PROVIDER));
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(FLOORLET, RATES_PROVIDER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValue(CAPLET, RATES_PROVIDER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValue(FLOORLET, RATES_PROVIDER));
   }
 
   public void presentValue_buySell() {
@@ -164,9 +166,12 @@ public class DiscountingCmsPeriodPricerTest {
   }
 
   public void presentValue_afterFix_noTimeSeries() {
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(COUPON, RATES_PROVIDER_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(CAPLET, RATES_PROVIDER_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValue(FLOORLET, RATES_PROVIDER_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValue(COUPON, RATES_PROVIDER_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValue(CAPLET, RATES_PROVIDER_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValue(FLOORLET, RATES_PROVIDER_NO_TS));
   }
 
   public void forward_rate() {
@@ -176,7 +181,8 @@ public class DiscountingCmsPeriodPricerTest {
   }  
 
   public void forward_rate_after_fixing() {
-    assertThrowsIllegalArg(() -> PRICER_CMS.forwardRate(COUPON, RATES_PROVIDER_AFTER_FIX));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.forwardRate(COUPON, RATES_PROVIDER_AFTER_FIX));
   }  
 
   // Present Value Curve Sensitivity
@@ -192,8 +198,10 @@ public class DiscountingCmsPeriodPricerTest {
   }
 
   public void presentValueSensitivity_beforeFixing_capfloor() {
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValueSensitivity(CAPLET, RATES_PROVIDER));
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValueSensitivity(FLOORLET, RATES_PROVIDER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValueSensitivity(CAPLET, RATES_PROVIDER));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValueSensitivity(FLOORLET, RATES_PROVIDER));
   }
 
   public void presentValueSensitivity_buySell() {
@@ -273,9 +281,12 @@ public class DiscountingCmsPeriodPricerTest {
   }
 
   public void presentValueSensitivity_afterFix_noTimeSeries() {
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValueSensitivity(COUPON, RATES_PROVIDER_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValueSensitivity(CAPLET, RATES_PROVIDER_NO_TS));
-    assertThrowsIllegalArg(() -> PRICER_CMS.presentValueSensitivity(FLOORLET, RATES_PROVIDER_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValueSensitivity(COUPON, RATES_PROVIDER_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValueSensitivity(CAPLET, RATES_PROVIDER_NO_TS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_CMS.presentValueSensitivity(FLOORLET, RATES_PROVIDER_NO_TS));
   }
 
   private static CmsPeriod createCmsCaplet(boolean isBuy, double strike) {

@@ -8,9 +8,9 @@ package com.opengamma.strata.product.rate;
 import static com.opengamma.strata.basics.index.PriceIndices.CH_CPI;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.YearMonth;
@@ -44,7 +44,8 @@ public class InflationEndInterpolatedRateComputationTest {
   }
 
   public void test_wrongMonthOrder() {
-    assertThrowsIllegalArg(() -> InflationEndInterpolatedRateComputation.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InflationEndInterpolatedRateComputation.meta().builder()
         .set(InflationEndInterpolatedRateComputation.meta().startIndexValue(), START_INDEX)
         .set(InflationEndInterpolatedRateComputation.meta().endObservation(),
             PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))

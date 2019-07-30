@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.swap;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.KNOWN_AMOUNT_SWAP_LEG;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -46,7 +46,8 @@ public class SwapMeasureCalculationsTest {
         .product(ResolvedSwap.of(KNOWN_AMOUNT_SWAP_LEG, KNOWN_AMOUNT_SWAP_LEG))
         .build();
 
-    assertThrowsIllegalArg(() -> SwapMeasureCalculations.DEFAULT.legInitialNotional(trade));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SwapMeasureCalculations.DEFAULT.legInitialNotional(trade));
   }
 
 }

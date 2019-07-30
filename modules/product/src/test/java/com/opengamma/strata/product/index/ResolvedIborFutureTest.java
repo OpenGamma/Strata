@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -68,7 +68,8 @@ public class ResolvedIborFutureTest {
   }
 
   public void test_builder_noObservation() {
-    assertThrowsIllegalArg(() -> ResolvedIborFuture.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedIborFuture.builder()
         .securityId(SECURITY_ID)
         .notional(NOTIONAL)
         .currency(GBP)

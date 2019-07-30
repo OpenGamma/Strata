@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -45,20 +45,24 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
 
 
   public void lambda_negative() {
-    assertThrowsIllegalArg(() -> new ExponentiallyWeightedInterpolationQuantileMethod(-0.10d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ExponentiallyWeightedInterpolationQuantileMethod(-0.10d));
   }
 
   public void lambda_zero() {
-    assertThrowsIllegalArg(() -> new ExponentiallyWeightedInterpolationQuantileMethod(0.0d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ExponentiallyWeightedInterpolationQuantileMethod(0.0d));
   }
 
   public void lambda_above_1() {
-    assertThrowsIllegalArg(() -> new ExponentiallyWeightedInterpolationQuantileMethod(1.10d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ExponentiallyWeightedInterpolationQuantileMethod(1.10d));
   }
 
   public void quantile_not_extrapolated() {
     double level = 0.999;
-    assertThrowsIllegalArg(() -> METHOD.quantileFromUnsorted(level, DATA_123));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> METHOD.quantileFromUnsorted(level, DATA_123));
   }
 
   public void quantile_last() {

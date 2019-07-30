@@ -6,9 +6,9 @@
 package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -74,9 +74,11 @@ public class AddFixedCurveTest {
 
   public void test_invalid() {
     // null fixed
-    assertThrowsIllegalArg(() -> AddFixedCurve.of(null, SPREAD_CURVE));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> AddFixedCurve.of(null, SPREAD_CURVE));
     // null spread
-    assertThrowsIllegalArg(() -> AddFixedCurve.of(FIXED_CURVE, null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> AddFixedCurve.of(FIXED_CURVE, null));
   }
 
   public void getter() {
@@ -133,7 +135,8 @@ public class AddFixedCurveTest {
     assertEquals(
         ADD_FIXED_CURVE.withUnderlyingCurve(1, newCurve),
         AddFixedCurve.of(FIXED_CURVE, newCurve));
-    assertThrowsIllegalArg(() -> ADD_FIXED_CURVE.withUnderlyingCurve(2, newCurve));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ADD_FIXED_CURVE.withUnderlyingCurve(2, newCurve));
   }
 
   //-------------------------------------------------------------------------

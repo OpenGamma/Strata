@@ -8,10 +8,10 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -79,7 +79,8 @@ public class BillSecurityTest {
   }
 
   public void test_builder_fail() {
-    assertThrowsIllegalArg(() -> BillSecurity.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BillSecurity.builder()
         .dayCount(DAY_COUNT)
         .info(INFO)
         .legalEntityId(LEGAL_ENTITY)
@@ -87,7 +88,8 @@ public class BillSecurityTest {
         .settlementDateOffset(DaysAdjustment.ofBusinessDays(-1, USNY, BUSINESS_ADJUST))
         .yieldConvention(YIELD_CONVENTION)
         .build());
-    assertThrowsIllegalArg(() -> BillSecurity.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BillSecurity.builder()
         .dayCount(DAY_COUNT)
         .info(INFO)
         .legalEntityId(LEGAL_ENTITY)

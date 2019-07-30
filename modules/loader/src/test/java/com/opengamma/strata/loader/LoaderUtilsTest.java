@@ -6,8 +6,8 @@
 package com.opengamma.strata.loader;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -41,7 +41,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.findIndex("GBP-SONIA"), OvernightIndices.GBP_SONIA);
     assertEquals(LoaderUtils.findIndex("GB-RPI"), PriceIndices.GB_RPI);
     assertEquals(LoaderUtils.findIndex("GBP/USD-WM"), FxIndices.GBP_USD_WM);
-    assertThrowsIllegalArg(() -> LoaderUtils.findIndex("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.findIndex("Rubbish"));
   }
 
   public void test_parseBoolean() {
@@ -57,24 +57,28 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseBoolean("f"), false);
     assertEquals(LoaderUtils.parseBoolean("no"), false);
     assertEquals(LoaderUtils.parseBoolean("n"), false);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseBoolean("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseBoolean("Rubbish"));
   }
 
   public void test_parseInteger() {
     assertEquals(LoaderUtils.parseInteger("2"), 2);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseInteger("Rubbish"), "Unable to parse integer from 'Rubbish'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseInteger("Rubbish"))
+        .withMessage("Unable to parse integer from 'Rubbish'");
   }
 
   public void test_parseDouble() {
     assertEquals(LoaderUtils.parseDouble("1.2"), 1.2d, 1e-10);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseDouble("Rubbish"), "Unable to parse double from 'Rubbish'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
+        .withMessage("Unable to parse double from 'Rubbish'");
   }
 
   public void test_parseDoublePercent() {
     assertEquals(LoaderUtils.parseDoublePercent("1.2"), 0.012d, 1e-10);
-    assertThrowsIllegalArg(
-        () -> LoaderUtils.parseDoublePercent("Rubbish"),
-        "Unable to parse percentage from 'Rubbish'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
+        .withMessage("Unable to parse percentage from 'Rubbish'");
   }
 
   public void test_parseDate() {
@@ -97,8 +101,8 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseDate("4-May-12"), LocalDate.of(2012, 5, 4));
     assertEquals(LoaderUtils.parseDate("4May2012"), LocalDate.of(2012, 5, 4));
     assertEquals(LoaderUtils.parseDate("4May12"), LocalDate.of(2012, 5, 4));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseDate("040512"));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseDate("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseDate("040512"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseDate("Rubbish"));
   }
 
   public void test_parseYearMonth() {
@@ -112,11 +116,11 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseYearMonth("01/6/2012"), YearMonth.of(2012, 6));
     assertEquals(LoaderUtils.parseYearMonth("1/06/2012"), YearMonth.of(2012, 6));
     assertEquals(LoaderUtils.parseYearMonth("01/06/2012"), YearMonth.of(2012, 6));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("2/6/2012"));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("1/6/12"));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("Jun1"));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("12345678"));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseYearMonth("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("2/6/2012"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("1/6/12"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("Jun1"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("12345678"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseYearMonth("Rubbish"));
   }
 
   public void test_parseTime() {
@@ -125,19 +129,19 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseTime("11:30"), LocalTime.of(11, 30));
     assertEquals(LoaderUtils.parseTime("11:30:20"), LocalTime.of(11, 30, 20));
     assertEquals(LoaderUtils.parseTime("11:30:20.123"), LocalTime.of(11, 30, 20, 123_000_000));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseTime("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseTime("Rubbish"));
   }
 
   public void test_parsePeriod() {
     assertEquals(LoaderUtils.parsePeriod("P2D"), Period.ofDays(2));
     assertEquals(LoaderUtils.parsePeriod("2D"), Period.ofDays(2));
-    assertThrowsIllegalArg(() -> LoaderUtils.parsePeriod("2"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parsePeriod("2"));
   }
 
   public void test_parseTenor() {
     assertEquals(LoaderUtils.parseTenor("P2D"), Tenor.ofDays(2));
     assertEquals(LoaderUtils.parseTenor("2D"), Tenor.ofDays(2));
-    assertThrowsIllegalArg(() -> LoaderUtils.parseTenor("2"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseTenor("2"));
   }
 
   public void test_tryParseTenor() {
@@ -151,7 +155,7 @@ public class LoaderUtilsTest {
 
   public void test_parseCurrency() {
     assertEquals(LoaderUtils.parseCurrency("GBP"), Currency.GBP);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseCurrency("A"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseCurrency("A"));
   }
 
   public void test_tryParseCurrency() {
@@ -167,13 +171,13 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseBusinessDayConvention("MODFOLLOW"), MODIFIED_FOLLOWING);
     assertEquals(LoaderUtils.parseBusinessDayConvention("ModifiedFollowing"), MODIFIED_FOLLOWING);
     assertEquals(LoaderUtils.parseBusinessDayConvention("MF"), MODIFIED_FOLLOWING);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseBusinessDayConvention("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseBusinessDayConvention("Rubbish"));
   }
 
   public void test_parseRollConvention() {
     assertEquals(LoaderUtils.parseRollConvention("IMM"), RollConventions.IMM);
     assertEquals(LoaderUtils.parseRollConvention("imm"), RollConventions.IMM);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseRollConvention("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseRollConvention("Rubbish"));
   }
 
   //-------------------------------------------------------------------------
@@ -186,7 +190,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseBuySell("Sell"), BuySell.SELL);
     assertEquals(LoaderUtils.parseBuySell("sell"), BuySell.SELL);
     assertEquals(LoaderUtils.parseBuySell("s"), BuySell.SELL);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseBuySell("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseBuySell("Rubbish"));
   }
 
   public void test_parsePayReceive() {
@@ -199,7 +203,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parsePayReceive("receive"), PayReceive.RECEIVE);
     assertEquals(LoaderUtils.parsePayReceive("rec"), PayReceive.RECEIVE);
     assertEquals(LoaderUtils.parsePayReceive("r"), PayReceive.RECEIVE);
-    assertThrowsIllegalArg(() -> LoaderUtils.parsePayReceive("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parsePayReceive("Rubbish"));
   }
 
   public void test_parsePutCall() {
@@ -211,7 +215,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parsePutCall("Call"), PutCall.CALL);
     assertEquals(LoaderUtils.parsePutCall("call"), PutCall.CALL);
     assertEquals(LoaderUtils.parsePutCall("c"), PutCall.CALL);
-    assertThrowsIllegalArg(() -> LoaderUtils.parsePutCall("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parsePutCall("Rubbish"));
   }
 
   public void test_parseLongShort() {
@@ -223,7 +227,7 @@ public class LoaderUtilsTest {
     assertEquals(LoaderUtils.parseLongShort("Short"), LongShort.SHORT);
     assertEquals(LoaderUtils.parseLongShort("short"), LongShort.SHORT);
     assertEquals(LoaderUtils.parseLongShort("s"), LongShort.SHORT);
-    assertThrowsIllegalArg(() -> LoaderUtils.parseLongShort("Rubbish"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseLongShort("Rubbish"));
   }
 
   //-------------------------------------------------------------------------

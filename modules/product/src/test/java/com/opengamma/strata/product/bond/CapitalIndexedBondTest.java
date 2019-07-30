@@ -14,13 +14,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -126,7 +126,8 @@ public class CapitalIndexedBondTest {
 
   public void test_builder_fail() {
     // negative settlement date offset
-    assertThrowsIllegalArg(() -> CapitalIndexedBond.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBond.builder()
         .securityId(SECURITY_ID)
         .notional(NOTIONAL)
         .currency(USD)
@@ -139,7 +140,8 @@ public class CapitalIndexedBondTest {
         .accrualSchedule(SCHEDULE)
         .build());
     // positive ex-coupon days
-    assertThrowsIllegalArg(() -> CapitalIndexedBond.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBond.builder()
         .securityId(SECURITY_ID)
         .notional(NOTIONAL)
         .currency(USD)

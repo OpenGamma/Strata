@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -59,10 +59,12 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
   }
 
   public void testWrongClampedPoints() {
-    assertThrowsIllegalArg(() -> new ClampedPiecewisePolynomialInterpolator(
-        new NaturalSplineInterpolator(), new double[] {0d }, new double[] {0d, 1d }));
-    assertThrowsIllegalArg(() -> new ClampedPiecewisePolynomialInterpolator(
-        new CubicSplineInterpolator(), new double[] {}, new double[] {}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ClampedPiecewisePolynomialInterpolator(
+            new NaturalSplineInterpolator(), new double[] {0d}, new double[] {0d, 1d}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ClampedPiecewisePolynomialInterpolator(
+            new CubicSplineInterpolator(), new double[] {}, new double[] {}));
   }
 
   public void testFunctionalForm() {

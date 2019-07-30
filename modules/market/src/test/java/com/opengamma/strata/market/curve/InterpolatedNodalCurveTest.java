@@ -7,11 +7,11 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,17 +99,19 @@ public class InterpolatedNodalCurveTest {
 
   public void test_of_invalid() {
     // not enough nodes
-    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
-        METADATA, DoubleArray.of(1d), DoubleArray.of(1d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalCurve.of(METADATA, DoubleArray.of(1d), DoubleArray.of(1d), INTERPOLATOR));
     // x node size != y node size
-    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
-        METADATA, XVALUES, DoubleArray.of(1d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalCurve.of(METADATA, XVALUES, DoubleArray.of(1d, 3d), INTERPOLATOR));
     // parameter metadata size != node size
-    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
-        METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalCurve.of(
+            METADATA_ENTRIES, DoubleArray.of(1d, 3d), DoubleArray.of(1d, 3d), INTERPOLATOR));
     // x not in order
-    assertThrowsIllegalArg(() -> InterpolatedNodalCurve.of(
-        METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> InterpolatedNodalCurve.of(
+            METADATA, DoubleArray.of(2d, 1d), DoubleArray.of(2d, 3d), INTERPOLATOR));
   }
 
   //-------------------------------------------------------------------------
@@ -139,7 +141,8 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withMetadata_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withMetadata(METADATA_ENTRIES2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withMetadata(METADATA_ENTRIES2));
   }
 
   //-------------------------------------------------------------------------
@@ -155,8 +158,10 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withValues_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withYValues(DoubleArray.of(4d, 6d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withYValues(DoubleArray.EMPTY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withYValues(DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------
@@ -172,8 +177,10 @@ public class InterpolatedNodalCurveTest {
 
   public void test_withValuesXy_badSize() {
     InterpolatedNodalCurve base = InterpolatedNodalCurve.of(METADATA, XVALUES, YVALUES, INTERPOLATOR);
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
-    assertThrowsIllegalArg(() -> base.withValues(DoubleArray.of(1d, 3d, 5d), DoubleArray.of(4d, 6d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withValues(DoubleArray.EMPTY, DoubleArray.EMPTY));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withValues(DoubleArray.of(1d, 3d, 5d), DoubleArray.of(4d, 6d)));
   }
 
   //-------------------------------------------------------------------------

@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -75,7 +75,8 @@ public class DiscountFactorsTest {
   }
 
   public void test_of_prices() {
-    assertThrowsIllegalArg(() -> DiscountFactors.of(GBP, DATE_VAL, CURVE_PRICES));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DiscountFactors.of(GBP, DATE_VAL, CURVE_PRICES));
   }
 
 }

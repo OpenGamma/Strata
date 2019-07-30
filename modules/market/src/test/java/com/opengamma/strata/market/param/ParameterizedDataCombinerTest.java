@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.market.param;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -35,11 +35,16 @@ public class ParameterizedDataCombinerTest {
     assertEquals(test.getParameter(3), 4d);
     assertEquals(test.getParameter(4), 5d);
     assertEquals(test.getParameterMetadata(0), ParameterMetadata.empty());
-    assertThrows(() -> test.getParameter(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.getParameter(5), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.getParameterMetadata(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> test.getParameterMetadata(5), IndexOutOfBoundsException.class);
-    assertThrowsIllegalArg(() -> ParameterizedDataCombiner.of());
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> test.getParameter(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> test.getParameter(5));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> test.getParameterMetadata(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> test.getParameterMetadata(5));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ParameterizedDataCombiner.of());
   }
 
   //-------------------------------------------------------------------------

@@ -7,10 +7,10 @@ package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -96,7 +96,8 @@ public class BondFutureSecurityTest {
     SecurityId secId = basket.get(0).getSecurityId();
     GenericSecurity sec = GenericSecurity.of(INFO);
     ReferenceData refData = ImmutableReferenceData.of(secId, sec);
-    assertThrows(() -> test.createProduct(refData), ClassCastException.class);
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> test.createProduct(refData));
   }
 
   //-------------------------------------------------------------------------

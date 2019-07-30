@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -60,7 +60,8 @@ public class FxVanillaOptionTest {
   }
 
   public void test_builder_earlyPaymentDate() {
-    assertThrowsIllegalArg(() -> FxVanillaOption.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxVanillaOption.builder()
         .longShort(LONG)
         .expiryDate(LocalDate.of(2015, 2, 21))
         .expiryTime(EXPIRY_TIME)

@@ -7,8 +7,8 @@ package com.opengamma.strata.product.cms;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.DataProvider;
@@ -41,11 +41,13 @@ public class CmsPeriodTypeTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> CmsPeriodType.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CmsPeriodType.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> CmsPeriodType.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CmsPeriodType.of(null));
   }
 
   //-------------------------------------------------------------------------

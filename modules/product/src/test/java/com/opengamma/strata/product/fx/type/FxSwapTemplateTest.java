@@ -10,10 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -70,9 +70,12 @@ public class FxSwapTemplateTest {
   }
 
   public void test_builder_insufficientInfo() {
-    assertThrowsIllegalArg(() -> FxSwapTemplate.builder().convention(CONVENTION).build());
-    assertThrowsIllegalArg(() -> FxSwapTemplate.builder().periodToNear(NEAR_PERIOD).build());
-    assertThrowsIllegalArg(() -> FxSwapTemplate.builder().periodToFar(FAR_PERIOD).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSwapTemplate.builder().convention(CONVENTION).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSwapTemplate.builder().periodToNear(NEAR_PERIOD).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSwapTemplate.builder().periodToFar(FAR_PERIOD).build());
   }
 
   //-------------------------------------------------------------------------

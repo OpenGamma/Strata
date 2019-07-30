@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
@@ -151,14 +151,18 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
    * Barrier event has occured already.
    */
   public void illegalBarrierLevelTest() {
-    assertThrowsIllegalArg(() -> PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,
-        RATE_DOM, VOLATILITY, BARRIER_UP_IN));
-    assertThrowsIllegalArg(() -> PRICER.price(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, EXPIRY_TIME, COST_OF_CARRY,
-        RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
-    assertThrowsIllegalArg(() -> PRICER.priceAdjoint(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,
-        RATE_DOM, VOLATILITY, BARRIER_UP_IN));
-    assertThrowsIllegalArg(() -> PRICER.priceAdjoint(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, EXPIRY_TIME,
-        COST_OF_CARRY, RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,
+            RATE_DOM, VOLATILITY, BARRIER_UP_IN));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.price(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, EXPIRY_TIME, COST_OF_CARRY,
+            RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.priceAdjoint(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,
+            RATE_DOM, VOLATILITY, BARRIER_UP_IN));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.priceAdjoint(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, EXPIRY_TIME,
+            COST_OF_CARRY, RATE_DOM, VOLATILITY, BARRIER_DOWN_OUT));
   }
 
   //-------------------------------------------------------------------------

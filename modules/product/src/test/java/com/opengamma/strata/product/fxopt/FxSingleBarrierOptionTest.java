@@ -9,11 +9,11 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -89,9 +89,11 @@ public class FxSingleBarrierOptionTest {
 
   public void test_of_fail() {
     CurrencyAmount negative = CurrencyAmount.of(USD, -5.0e4);
-    assertThrowsIllegalArg(() -> FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, negative));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, negative));
     CurrencyAmount other = CurrencyAmount.of(GBP, 5.0e4);
-    assertThrowsIllegalArg(() -> FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, other));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, other));
   }
 
   public void test_resolve() {

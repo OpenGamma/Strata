@@ -6,10 +6,10 @@
 package com.opengamma.strata.product.bond;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -88,7 +88,8 @@ public class FixedCouponBondTradeTest {
         .quantity(QUANTITY)
         .price(PRICE)
         .build();
-    assertThrows(() -> test.resolve(REF_DATA), IllegalStateException.class);
+    assertThatIllegalStateException()
+        .isThrownBy(() -> test.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------

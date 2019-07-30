@@ -13,10 +13,10 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -126,7 +126,8 @@ public class RatePaymentPeriodTest {
   }
 
   public void test_builder_badFxReset() {
-    assertThrowsIllegalArg(() -> RatePaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
         .dayCount(ACT_365F)
@@ -135,7 +136,8 @@ public class RatePaymentPeriodTest {
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.NONE)
         .build());
-    assertThrowsIllegalArg(() -> RatePaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
         .accrualPeriods(RAP1, RAP2)
         .dayCount(ACT_365F)

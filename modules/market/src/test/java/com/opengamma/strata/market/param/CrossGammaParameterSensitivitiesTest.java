@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.param;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.List;
@@ -124,9 +124,12 @@ public class CrossGammaParameterSensitivitiesTest {
   public void test_getSensitivity() {
     CrossGammaParameterSensitivities test = CrossGammaParameterSensitivities.of(ENTRY_USD);
     assertEquals(test.getSensitivity(NAME1, USD), ENTRY_USD);
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME1, EUR));
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME0, USD));
-    assertThrowsIllegalArg(() -> test.getSensitivity(NAME0, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME1, EUR));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME0, USD));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getSensitivity(NAME0, EUR));
   }
 
   public void test_findSensitivity() {

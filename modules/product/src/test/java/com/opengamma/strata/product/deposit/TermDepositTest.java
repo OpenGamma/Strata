@@ -12,9 +12,9 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -67,7 +67,8 @@ public class TermDepositTest {
   }
 
   public void test_builder_wrongDates() {
-    assertThrowsIllegalArg(() -> TermDeposit.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TermDeposit.builder()
         .buySell(SELL)
         .startDate(START_DATE)
         .endDate(LocalDate.of(2014, 10, 19))

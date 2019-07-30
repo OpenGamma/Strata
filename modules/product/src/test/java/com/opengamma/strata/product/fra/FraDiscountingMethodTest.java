@@ -7,8 +7,8 @@ package com.opengamma.strata.product.fra;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.util.Locale;
@@ -53,11 +53,13 @@ public class FraDiscountingMethodTest {
   }
 
   public void test_of_lookup_notFound() {
-    assertThrows(() -> FraDiscountingMethod.of("Rubbish"), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraDiscountingMethod.of("Rubbish"));
   }
 
   public void test_of_lookup_null() {
-    assertThrows(() -> FraDiscountingMethod.of(null), IllegalArgumentException.class);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FraDiscountingMethod.of(null));
   }
 
   //-------------------------------------------------------------------------

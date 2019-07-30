@@ -6,7 +6,6 @@
 package com.opengamma.strata.market.surface.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.EXPONENTIAL;
@@ -14,6 +13,7 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LOG_LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -80,16 +80,18 @@ public class GridSurfaceInterpolatorTest {
   //-------------------------------------------------------------------------
   public void test_bind_invalidXValues() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, LINEAR);
-    assertThrowsIllegalArg(() -> test.bind(
-        DoubleArray.of(1d, 1d), DoubleArray.of(1d, 2d), DoubleArray.of(1d, 1d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.bind(DoubleArray.of(1d, 1d), DoubleArray.of(1d, 2d), DoubleArray.of(1d, 1d)));
   }
 
   public void test_bind_invalidOrder() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, LINEAR);
-    assertThrowsIllegalArg(() -> test.bind(
-        DoubleArray.of(1d, 1d, 0d, 0d), DoubleArray.of(1d, 2d, 1d, 2d), DoubleArray.of(1d, 1d, 1d, 1d)));
-    assertThrowsIllegalArg(() -> test.bind(
-        DoubleArray.of(1d, 1d, 2d, 2d), DoubleArray.of(1d, 0d, 1d, 0d), DoubleArray.of(1d, 1d, 1d, 1d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.bind(
+            DoubleArray.of(1d, 1d, 0d, 0d), DoubleArray.of(1d, 2d, 1d, 2d), DoubleArray.of(1d, 1d, 1d, 1d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.bind(
+            DoubleArray.of(1d, 1d, 2d, 2d), DoubleArray.of(1d, 0d, 1d, 0d), DoubleArray.of(1d, 1d, 1d, 1d)));
   }
 
   //-------------------------------------------------------------------------

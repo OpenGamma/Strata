@@ -8,10 +8,10 @@ package com.opengamma.strata.market.surface;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.Optional;
 
@@ -91,7 +91,8 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
     assertThat(test.getYValueType()).isEqualTo(ValueType.DISCOUNT_FACTOR);
     assertThat(test.getZValueType()).isEqualTo(ValueType.ZERO_RATE);
-    assertThrowsIllegalArg(() -> test.getInfo(SurfaceInfoType.DAY_COUNT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getInfo(SurfaceInfoType.DAY_COUNT));
     assertThat(test.findInfo(SurfaceInfoType.DAY_COUNT)).isEmpty();
     assertThat(test.getInfo(DESCRIPTION)).isEqualTo("Hello");
     assertThat(test.findInfo(DESCRIPTION)).isEqualTo(Optional.of("Hello"));

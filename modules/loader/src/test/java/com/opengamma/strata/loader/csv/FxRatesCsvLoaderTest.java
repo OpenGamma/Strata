@@ -5,10 +5,9 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -67,14 +66,13 @@ public class FxRatesCsvLoaderTest {
   }
 
   public void test_load_oneDate_invalidDate() {
-    assertThrows(
-        () -> FxRatesCsvLoader.load(date(2015, 10, 2), RATES_INVALID_DATE),
-        IllegalArgumentException.class,
-        "Error processing resource as CSV file: .*");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxRatesCsvLoader.load(date(2015, 10, 2), RATES_INVALID_DATE))
+        .withMessageStartingWith("Error processing resource as CSV file: ");
   }
 
   public void test_invalidDuplicate() {
-    assertThrowsIllegalArg(() -> FxRatesCsvLoader.load(DATE1, RATES_INVALID_DUPLICATE));
+    assertThatIllegalArgumentException().isThrownBy(() -> FxRatesCsvLoader.load(DATE1, RATES_INVALID_DUPLICATE));
   }
 
   public void test_load_dateSet_file1_date1() {

@@ -11,10 +11,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -111,14 +111,19 @@ public class FxSingleTest {
   }
 
   public void test_of_positiveNegative() {
-    assertThrowsIllegalArg(() -> FxSingle.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> FxSingle.of(GBP_M1000, USD_M1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> FxSingle.of(CurrencyAmount.zero(GBP), USD_M1600, DATE_2015_06_30));
-    assertThrowsIllegalArg(() -> FxSingle.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(GBP_M1000, USD_M1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(CurrencyAmount.zero(GBP), USD_M1600, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
   }
 
   public void test_of_sameCurrency() {
-    assertThrowsIllegalArg(() -> FxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
   }
 
   public void test_of_withAdjustment() {
@@ -161,7 +166,8 @@ public class FxSingleTest {
   }
 
   public void test_of_rate_wrongCurrency() {
-    assertThrowsIllegalArg(() -> FxSingle.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
   }
 
   public void test_of_rate_withAdjustment() {
@@ -200,21 +206,24 @@ public class FxSingleTest {
   }
 
   public void test_builder_bothPositive() {
-    assertThrowsIllegalArg(() -> FxSingle.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.meta().builder()
         .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
         .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_P1600, DATE_2015_06_30))
         .build());
   }
 
   public void test_builder_bothNegative() {
-    assertThrowsIllegalArg(() -> FxSingle.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.meta().builder()
         .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
         .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30))
         .build());
   }
 
   public void test_builder_sameCurrency() {
-    assertThrowsIllegalArg(() -> FxSingle.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxSingle.meta().builder()
         .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
         .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
         .build());

@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.market.observable;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import org.testng.annotations.Test;
 
@@ -21,8 +21,10 @@ public class QuoteScenarioArrayTest {
     assertThat(ARRAY.get(0)).isEqualTo(1d);
     assertThat(ARRAY.get(1)).isEqualTo(2d);
     assertThat(ARRAY.get(2)).isEqualTo(3d);
-    assertThrows(() -> ARRAY.get(-1), IndexOutOfBoundsException.class);
-    assertThrows(() -> ARRAY.get(3), IndexOutOfBoundsException.class);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> ARRAY.get(-1));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class)
+        .isThrownBy(() -> ARRAY.get(3));
   }
 
   public void getValues() {

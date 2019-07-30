@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -35,8 +35,10 @@ public class NormalPriceFunctionTest {
   private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
 
   public void testInvalid() {
-    assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(null));
-    assertThrowsIllegalArg(() -> FUNCTION.getPriceFunction(ITM_CALL).apply((NormalFunctionData) null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FUNCTION.getPriceFunction(null));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FUNCTION.getPriceFunction(ITM_CALL).apply((NormalFunctionData) null));
   }
 
   public void testZeroVolPrice() {

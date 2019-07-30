@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
@@ -24,6 +23,7 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 
@@ -197,7 +197,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
     ImmutableList<DoubleArray> knotsEmptyBeta = ImmutableList.of(ALPHA_KNOTS, DoubleArray.of(), BETA_RHO_KNOTS, NU_KNOTS);
     ImmutableList<DoubleArray> knotsEmptyRho = ImmutableList.of(ALPHA_KNOTS, BETA_RHO_KNOTS, DoubleArray.of(), NU_KNOTS);
     // beta, rho not set
-    assertThrowsIllegalArg(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
         .dayCount(ACT_365F)
         .extrapolatorLeft(FLAT)
         .extrapolatorRight(FLAT)
@@ -210,7 +211,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         .shiftCurve(shiftCurve)
         .build());
     // beta set, but rho knots not defined
-    assertThrowsIllegalArg(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
         .dayCount(ACT_365F)
         .betaCurve(betaCurve)
         .extrapolatorLeft(FLAT)
@@ -224,7 +226,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         .shiftCurve(shiftCurve)
         .build());
     // beta rho set
-    assertThrowsIllegalArg(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
         .dayCount(ACT_365F)
         .betaCurve(betaCurve)
         .rhoCurve(rhoCurve)
@@ -239,7 +242,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         .shiftCurve(shiftCurve)
         .build());
     // wrong initial value array size
-    assertThrowsIllegalArg(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
         .dayCount(ACT_365F)
         .betaCurve(betaCurve)
         .extrapolatorLeft(FLAT)
@@ -252,7 +256,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         .sabrVolatilityFormula(HAGAN)
         .shiftCurve(shiftCurve)
         .build());
-    assertThrowsIllegalArg(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SabrIborCapletFloorletVolatilityCalibrationDefinition.builder()
         .dayCount(ACT_365F)
         .betaCurve(betaCurve)
         .extrapolatorLeft(FLAT)
@@ -273,7 +278,8 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
             NAME, USD_LIBOR_3M, ACT_365F, BETA_RHO, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, LINEAR, HAGAN);
     assertEquals(base.createMetadata(SAMPLE_BLACK), Surfaces.blackVolatilityByExpiryStrike(NAME.getName(), ACT_365F));
     assertEquals(base.createMetadata(SAMPLE_NORMAL), Surfaces.normalVolatilityByExpiryStrike(NAME.getName(), ACT_365F));
-    assertThrowsIllegalArg(() -> base.createMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.createMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
   }
 
   public void test_createSabrParameterMetadata() {

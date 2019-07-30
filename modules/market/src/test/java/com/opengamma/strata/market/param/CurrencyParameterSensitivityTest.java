@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.param;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
 import static org.testng.Assert.assertThrows;
@@ -71,7 +71,8 @@ public class CurrencyParameterSensitivityTest {
   }
 
   public void test_of_metadata_badMetadata() {
-    assertThrowsIllegalArg(() -> CurrencyParameterSensitivity.of(NAME1, METADATA_BAD, USD, VECTOR_USD1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurrencyParameterSensitivity.of(NAME1, METADATA_BAD, USD, VECTOR_USD1));
   }
 
   public void test_of_metadataParamSplit() {
@@ -86,7 +87,8 @@ public class CurrencyParameterSensitivityTest {
   }
 
   public void test_of_metadataParamSplit_badSplit() {
-    assertThrowsIllegalArg(() -> CurrencyParameterSensitivity.of(NAME_COMBINED, METADATA_USD1, USD, VECTOR_USD1, PARAM_SPLIT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurrencyParameterSensitivity.of(NAME_COMBINED, METADATA_USD1, USD, VECTOR_USD1, PARAM_SPLIT));
   }
 
   //-------------------------------------------------------------------------
@@ -141,7 +143,8 @@ public class CurrencyParameterSensitivityTest {
   }
 
   public void test_combine_arraySize0() {
-    assertThrowsIllegalArg(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED));
   }
 
   public void test_combine_arraySize1() {
@@ -163,7 +166,8 @@ public class CurrencyParameterSensitivityTest {
   public void test_combine_duplicateNames() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD2, USD, VECTOR_USD2);
-    assertThrowsIllegalArg(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2));
   }
 
   //-------------------------------------------------------------------------
@@ -191,7 +195,8 @@ public class CurrencyParameterSensitivityTest {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = base.withSensitivity(VECTOR_USD_FACTOR);
     assertEquals(test, CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD_FACTOR));
-    assertThrowsIllegalArg(() -> base.withSensitivity(DoubleArray.of(1d)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.withSensitivity(DoubleArray.of(1d)));
   }
 
   //-------------------------------------------------------------------------
@@ -203,7 +208,8 @@ public class CurrencyParameterSensitivityTest {
 
   public void test_plus_array_wrongSize() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
-    assertThrowsIllegalArg(() -> base.plus(VECTOR_USD2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.plus(VECTOR_USD2));
   }
 
   //-------------------------------------------------------------------------
@@ -216,7 +222,8 @@ public class CurrencyParameterSensitivityTest {
   public void test_plus_sensitivity_wrongName() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, METADATA_USD1, USD, VECTOR_USD1);
-    assertThrowsIllegalArg(() -> base1.plus(base2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base1.plus(base2));
   }
 
   //-------------------------------------------------------------------------

@@ -8,10 +8,10 @@ package com.opengamma.strata.pricer.swaption;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -232,7 +232,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
         .longShort(LongShort.LONG)
         .underlying(SWAP_REC)
         .build();
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION.presentValue(swaption.resolve(REF_DATA), RATE_PROVIDER, VOLS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_SWAPTION.presentValue(swaption.resolve(REF_DATA), RATE_PROVIDER, VOLS));
   }
 
   //-------------------------------------------------------------------------
@@ -459,8 +460,10 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   public void test_impliedVolatility_after_expiry() {
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS));
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOLS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOLS));
   }
 
   //-------------------------------------------------------------------------
@@ -493,7 +496,8 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   public void implied_volatility_wrong_sign() {
     CurrencyAmount pvLongRec =
         PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
-    assertThrowsIllegalArg(() -> PRICER_SWAPTION.impliedVolatilityFromPresentValue(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER_SWAPTION.impliedVolatilityFromPresentValue(
         SWAPTION_REC_LONG, RATE_PROVIDER, ACT_365F, -pvLongRec.getAmount()));
   }
 

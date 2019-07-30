@@ -10,9 +10,9 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.BeanBuilder;
@@ -93,11 +93,13 @@ public class FxVolatilitySurfaceYearFractionParameterMetadataTest {
   public void test_builder_incomplete() {
     BeanBuilder<? extends FxVolatilitySurfaceYearFractionParameterMetadata> builder1 =
         FxVolatilitySurfaceYearFractionParameterMetadata.meta().builder();
-    assertThrowsIllegalArg(() -> builder1.build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> builder1.build());
     BeanBuilder<? extends FxVolatilitySurfaceYearFractionParameterMetadata> builder2 =
         FxVolatilitySurfaceYearFractionParameterMetadata.meta().builder();
     builder2.set(FxVolatilitySurfaceYearFractionParameterMetadata.meta().yearFraction(), TIME_TO_EXPIRY);
-    assertThrowsIllegalArg(() -> builder2.build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> builder2.build());
   }
 
   //-------------------------------------------------------------------------

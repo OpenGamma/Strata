@@ -16,11 +16,11 @@ import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.testng.Assert.assertEquals;
 
@@ -95,8 +95,10 @@ public class RatesMarketDataLookupTest {
     assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
     assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
-    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getDiscountMarketDataIds(GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
     assertEquals(test.getObservableSource(), ObservableSource.NONE);
     assertEquals(test.getFxRateLookup(), FxRateLookup.ofRates());
 
@@ -117,7 +119,8 @@ public class RatesMarketDataLookupTest {
             .timeSeriesRequirements(IndexQuoteId.of(USD_LIBOR_3M))
             .outputCurrencies(USD)
             .build());
-    assertThrowsIllegalArg(() -> test.requirements(ImmutableSet.of(USD), ImmutableSet.of(GBP_LIBOR_3M)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.requirements(ImmutableSet.of(USD), ImmutableSet.of(GBP_LIBOR_3M)));
 
     assertEquals(
         test.ratesProvider(MOCK_MARKET_DATA),
@@ -133,8 +136,10 @@ public class RatesMarketDataLookupTest {
     assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
     assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
-    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getDiscountMarketDataIds(GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
   }
 
   public void test_of_curveGroup() {
@@ -147,8 +152,10 @@ public class RatesMarketDataLookupTest {
     assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(CURVE_ID_DSC));
     assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(CURVE_ID_FWD));
-    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getDiscountMarketDataIds(GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
   }
 
   public void test_of_curveGroupDefinition_and_observableSource() {
@@ -176,8 +183,10 @@ public class RatesMarketDataLookupTest {
     assertEquals(test.getDiscountMarketDataIds(USD), ImmutableSet.of(dscId));
     assertEquals(test.getForwardIndices(), ImmutableSet.of(USD_LIBOR_3M));
     assertEquals(test.getForwardMarketDataIds(USD_LIBOR_3M), ImmutableSet.of(fwdId));
-    assertThrowsIllegalArg(() -> test.getDiscountMarketDataIds(GBP));
-    assertThrowsIllegalArg(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getDiscountMarketDataIds(GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getForwardMarketDataIds(GBP_LIBOR_3M));
   }
 
   //-------------------------------------------------------------------------
@@ -224,23 +233,27 @@ public class RatesMarketDataLookupTest {
     // check discount factors
     SimpleDiscountFactors df = (SimpleDiscountFactors) ratesProvider.discountFactors(USD);
     assertEquals(df.getCurve().getName(), dscCurve.getName());
-    assertThrowsIllegalArg(() -> ratesProvider.discountFactors(GBP));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ratesProvider.discountFactors(GBP));
     // check Ibor
     DiscountIborIndexRates ibor = (DiscountIborIndexRates) ratesProvider.iborIndexRates(USD_LIBOR_3M);
     SimpleDiscountFactors iborDf = (SimpleDiscountFactors) ibor.getDiscountFactors();
     assertEquals(iborDf.getCurve().getName(), fwdCurve.getName());
-    assertThrowsIllegalArg(() -> ratesProvider.iborIndexRates(GBP_LIBOR_3M));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ratesProvider.iborIndexRates(GBP_LIBOR_3M));
     assertEquals(ratesProvider.iborIndexRates(INACTIVE_IBOR_INDEX).getIndex(), INACTIVE_IBOR_INDEX);
     assertEquals(ratesProvider.iborIndexRates(INACTIVE_IBOR_INDEX).getFixings(), dummyTimeSeries);
     // check Overnight
     DiscountOvernightIndexRates on = (DiscountOvernightIndexRates) ratesProvider.overnightIndexRates(USD_FED_FUND);
     SimpleDiscountFactors onDf = (SimpleDiscountFactors) on.getDiscountFactors();
     assertEquals(onDf.getCurve().getName(), dscCurve.getName());
-    assertThrowsIllegalArg(() -> ratesProvider.overnightIndexRates(GBP_SONIA));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ratesProvider.overnightIndexRates(GBP_SONIA));
     assertEquals(ratesProvider.overnightIndexRates(INACTIVE_ON_INDEX).getIndex(), INACTIVE_ON_INDEX);
     assertEquals(ratesProvider.overnightIndexRates(INACTIVE_ON_INDEX).getFixings(), dummyTimeSeries);
     // check price curve must be interpolated
-    assertThrowsIllegalArg(() -> ratesProvider.priceIndexValues(US_CPI_U));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ratesProvider.priceIndexValues(US_CPI_U));
     // to immutable
     ImmutableRatesProvider expectedImmutable = ImmutableRatesProvider.builder(valDate)
         .fxRateProvider(MarketDataFxRateProvider.of(md))
@@ -263,7 +276,8 @@ public class RatesMarketDataLookupTest {
     FxRateProvider fxProvider = test.fxRateProvider(md);
     assertEquals(fxProvider.fxRate(GBP, USD), 1.6);
     assertEquals(test.marketDataView(md).fxRateProvider().fxRate(GBP, USD), 1.6);
-    assertThrows(() -> fxProvider.fxRate(EUR, USD), MarketDataNotFoundException.class);
+    assertThatExceptionOfType(MarketDataNotFoundException.class)
+        .isThrownBy(() -> fxProvider.fxRate(EUR, USD));
   }
 
   //-------------------------------------------------------------------------

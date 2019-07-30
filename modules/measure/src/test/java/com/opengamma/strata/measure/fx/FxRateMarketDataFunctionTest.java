@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.measure.fx;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -50,8 +50,9 @@ public class FxRateMarketDataFunctionTest {
 
   public void requirementsMissingConfig() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
-    String regex = "No configuration found .*FxRateConfig";
-    assertThrowsIllegalArg(() -> function.requirements(RATE_ID, MarketDataConfig.empty()), regex);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.requirements(RATE_ID, MarketDataConfig.empty()))
+        .withMessageMatching("No configuration found .*FxRateConfig");
   }
 
   public void requirementsNoConfigForPair() {
@@ -98,17 +99,17 @@ public class FxRateMarketDataFunctionTest {
 
   public void buildMissingConfig() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
-    String regex = "No configuration found .*FxRateConfig";
-    assertThrowsIllegalArg(
-        () -> function.build(RATE_ID, MarketDataConfig.empty(), ScenarioMarketData.empty(), REF_DATA), regex);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.build(RATE_ID, MarketDataConfig.empty(), ScenarioMarketData.empty(), REF_DATA))
+        .withMessageMatching("No configuration found .*FxRateConfig");
   }
 
   public void buildNoConfigForPair() {
     FxRateMarketDataFunction function = new FxRateMarketDataFunction();
-    String regex = "No FX rate configuration available for GBP/USD";
     CurrencyPair gbpUsd = CurrencyPair.of(Currency.GBP, Currency.USD);
-    assertThrowsIllegalArg(
-        () -> function.build(FxRateId.of(gbpUsd), config(), ScenarioMarketData.empty(), REF_DATA), regex);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.build(FxRateId.of(gbpUsd), config(), ScenarioMarketData.empty(), REF_DATA))
+        .withMessageMatching("No FX rate configuration available for GBP/USD");
   }
 
   private static MarketDataConfig config() {

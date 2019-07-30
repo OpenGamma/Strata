@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.common;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.Period;
@@ -83,11 +83,13 @@ public class GenericVolatilitySurfacePeriodParameterMetadataTest {
   public void test_builder_incomplete() {
     BeanBuilder<? extends GenericVolatilitySurfacePeriodParameterMetadata> builder1 =
         GenericVolatilitySurfacePeriodParameterMetadata.meta().builder();
-    assertThrowsIllegalArg(() -> builder1.build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> builder1.build());
     BeanBuilder<? extends GenericVolatilitySurfacePeriodParameterMetadata> builder2 =
         GenericVolatilitySurfacePeriodParameterMetadata.meta().builder();
     builder2.set(GenericVolatilitySurfacePeriodParameterMetadata.meta().period(), TIME_TO_EXPIRY);
-    assertThrowsIllegalArg(() -> builder2.build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> builder2.build());
   }
 
   //-------------------------------------------------------------------------

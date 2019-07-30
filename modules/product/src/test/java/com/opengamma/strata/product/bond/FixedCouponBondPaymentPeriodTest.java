@@ -8,10 +8,10 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -93,7 +93,8 @@ public class FixedCouponBondPaymentPeriodTest {
   }
 
   public void test_of_wrongDates() {
-    assertThrowsIllegalArg(() -> FixedCouponBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedCouponBondPaymentPeriod.builder()
         .currency(USD)
         .startDate(START_ADJUSTED)
         .unadjustedStartDate(START)
@@ -103,7 +104,8 @@ public class FixedCouponBondPaymentPeriodTest {
         .fixedRate(FIXED_RATE)
         .yearFraction(YEAR_FRACTION)
         .build());
-    assertThrowsIllegalArg(() -> FixedCouponBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedCouponBondPaymentPeriod.builder()
         .currency(USD)
         .startDate(LocalDate.of(2015, 8, 3))
         .unadjustedStartDate(LocalDate.of(2015, 8, 2))
@@ -113,7 +115,8 @@ public class FixedCouponBondPaymentPeriodTest {
         .fixedRate(FIXED_RATE)
         .yearFraction(YEAR_FRACTION)
         .build());
-    assertThrowsIllegalArg(() -> FixedCouponBondPaymentPeriod.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FixedCouponBondPaymentPeriod.builder()
         .currency(USD)
         .startDate(START_ADJUSTED)
         .unadjustedStartDate(START)

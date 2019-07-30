@@ -17,12 +17,11 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_EUR;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP;
-import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
 import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_GBP_USD;
+import static com.opengamma.strata.pricer.datasets.RatesProviderDataSets.MULTI_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_PAY_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FIXED_SWAP_LEG_PAY;
@@ -49,6 +48,7 @@ import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GB
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.IborIborSwapConventions.USD_LIBOR_3M_LIBOR_6M;
 import static com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -331,7 +331,8 @@ public class DiscountingSwapProductPricerTest {
     SwapPaymentEventPricer<SwapPaymentEvent> mockEvent = mock(SwapPaymentEventPricer.class);
     DiscountingSwapLegPricer pricerLeg = new DiscountingSwapLegPricer(mockPeriod, mockEvent);
     DiscountingSwapProductPricer pricerSwap = new DiscountingSwapProductPricer(pricerLeg);
-    assertThrowsIllegalArg(() -> pricerSwap.parRate(swap, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> pricerSwap.parRate(swap, MOCK_PROV));
   }
 
   public void test_parRate_inflation() {

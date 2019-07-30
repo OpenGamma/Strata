@@ -10,12 +10,12 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
@@ -236,7 +236,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   public void validate_cash_settlement() {
-    assertThrowsIllegalArg(() -> PRICER.presentValue(SWAPTION_PHYS, RATE_PROVIDER, VOLS));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.presentValue(SWAPTION_PHYS, RATE_PROVIDER, VOLS));
   }
 
   //-------------------------------------------------------------------------
@@ -383,9 +384,11 @@ public class SabrSwaptionCashParYieldProductPricerTest {
   }
 
   public void test_impliedVolatility_afterMaturity() {
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.impliedVolatility(
         SWAPTION_REC_LONG, RATE_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY));
-    assertThrowsIllegalArg(() -> PRICER.impliedVolatility(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.impliedVolatility(
         SWAPTION_PAY_SHORT, RATE_PROVIDER_AFTER_MATURITY, VOLS_AFTER_MATURITY));
   }
 

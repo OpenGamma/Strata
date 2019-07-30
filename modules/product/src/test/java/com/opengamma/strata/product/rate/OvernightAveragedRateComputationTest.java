@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -85,14 +85,17 @@ public class OvernightAveragedRateComputationTest {
   }
 
   public void test_of_badDateOrder() {
-    assertThrowsIllegalArg(() -> OvernightAveragedRateComputation.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightAveragedRateComputation.of(
         USD_FED_FUND, date(2016, 2, 24), date(2016, 2, 24), REF_DATA));
-    assertThrowsIllegalArg(() -> OvernightAveragedRateComputation.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightAveragedRateComputation.of(
         USD_FED_FUND, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
   }
 
   public void test_of_rateCutoff_negative() {
-    assertThrowsIllegalArg(() -> OvernightAveragedRateComputation.of(
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OvernightAveragedRateComputation.of(
         USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), -1, REF_DATA));
   }
 

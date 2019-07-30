@@ -41,12 +41,12 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.collect.TestHelper.assertEqualsBean;
-import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
@@ -1572,10 +1572,9 @@ public class FpmlDocumentParserTest {
     FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any(),
         FpmlTradeInfoParserPlugin.standard(),
         ImmutableMap.of("foo", tradeParser));
-    assertThrows(
-        () -> parser.parseTrades(rootEl, ImmutableMap.of()),
-        DateTimeParseException.class,
-        ".*2000/06/30.*");
+    assertThatExceptionOfType(DateTimeParseException.class)
+        .isThrownBy(() -> parser.parseTrades(rootEl, ImmutableMap.of()))
+        .withMessageMatching(".*2000/06/30.*");
   }
 
   public void unknownProduct() {
@@ -1585,20 +1584,18 @@ public class FpmlDocumentParserTest {
     XmlElement tradeEl = XmlElement.ofChildren("trade", ImmutableList.of(tradeHeaderEl, unknownEl));
     XmlElement rootEl = XmlElement.ofChildren("dataDocument", ImmutableList.of(tradeEl));
     FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any());
-    assertThrows(
-        () -> parser.parseTrades(rootEl, ImmutableMap.of()),
-        FpmlParseException.class,
-        ".*unknown.*");
+    assertThatExceptionOfType(FpmlParseException.class)
+        .isThrownBy(() -> parser.parseTrades(rootEl, ImmutableMap.of()))
+        .withMessageMatching(".*unknown.*");
   }
 
   public void badSelector() {
     String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex08-fra.xml";
     ByteSource resource = ResourceLocator.of(location).getByteSource();
     FpmlDocumentParser parser = FpmlDocumentParser.of(allParties -> ImmutableList.of("rubbish"));
-    assertThrows(
-        () -> parser.parseTrades(resource),
-        FpmlParseException.class,
-        "Selector returned an ID .*");
+    assertThatExceptionOfType(FpmlParseException.class)
+        .isThrownBy(() -> parser.parseTrades(resource))
+        .withMessageStartingWith("Selector returned an ID ");
   }
 
   public void notFpml() {
@@ -1608,7 +1605,9 @@ public class FpmlDocumentParserTest {
     ByteSource resource = CharSource.wrap(xml).asByteSource(StandardCharsets.UTF_8);
     FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any());
     assertFalse(parser.isKnownFormat(resource));
-    assertThrows(() -> parser.parseTrades(resource), FpmlParseException.class, "Unable to find FpML root element.*");
+    assertThatExceptionOfType(FpmlParseException.class)
+        .isThrownBy(() -> parser.parseTrades(resource))
+        .withMessageStartingWith("Unable to find FpML root element");
   }
 
   public void isKnownFpmlUtf16() {
@@ -1633,8 +1632,8 @@ public class FpmlDocumentParserTest {
     String location = "not-found.xml";
     ByteSource resource = ResourceLocator.of(location).getByteSource();
     FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.any());
-    assertThrows(() -> parser.isKnownFormat(resource), UncheckedIOException.class);
-    assertThrows(() -> parser.parseTrades(resource), UncheckedIOException.class);
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> parser.isKnownFormat(resource));
+    assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> parser.parseTrades(resource));
   }
 
   //-------------------------------------------------------------------------
@@ -1649,8 +1648,12 @@ public class FpmlDocumentParserTest {
     assertEquals(test.getParties(), ImmutableListMultimap.of());
     assertEquals(test.getReferences(), ImmutableMap.of());
     assertEquals(test.getOurPartyHrefIds(), ImmutableList.of());
-    assertThrows(() -> test.lookupReference(tradeEl), FpmlParseException.class, ".*reference not found.*");
-    assertThrows(() -> test.validateNotPresent(tradeEl, "tradeHeader"), FpmlParseException.class, ".*tradeHeader.*");
+    assertThatExceptionOfType(FpmlParseException.class)
+        .isThrownBy(() -> test.lookupReference(tradeEl))
+        .withMessageMatching(".*reference not found.*");
+    assertThatExceptionOfType(FpmlParseException.class)
+        .isThrownBy(() -> test.validateNotPresent(tradeEl, "tradeHeader"))
+        .withMessageMatching(".*tradeHeader.*");
   }
 
   public void documentFrequency() {

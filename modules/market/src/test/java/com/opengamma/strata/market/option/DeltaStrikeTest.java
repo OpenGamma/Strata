@@ -6,9 +6,9 @@
 package com.opengamma.strata.market.option;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.Test;
@@ -29,8 +29,10 @@ public class DeltaStrikeTest {
   }
 
   public void test_of_invalid() {
-    assertThrowsIllegalArg(() -> DeltaStrike.of(-0.001d));
-    assertThrowsIllegalArg(() -> DeltaStrike.of(1.0001d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DeltaStrike.of(-0.001d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DeltaStrike.of(1.0001d));
   }
 
   //-------------------------------------------------------------------------

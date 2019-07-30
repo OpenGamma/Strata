@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.ZonedDateTime;
@@ -174,14 +174,18 @@ public class BlackBarrierPriceFormulaRepositoryTest {
    * Barrier event has occured already.
    */
   public void illegalBarrierLevelTest() {
-    assertThrowsIllegalArg(() -> BARRIER_PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, STRIKE_MID,
-        EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, true, BARRIER_UP_IN));
-    assertThrowsIllegalArg(() -> BARRIER_PRICER.price(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, STRIKE_MID,
-        EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, true, BARRIER_DOWN_OUT));
-    assertThrowsIllegalArg(() -> BARRIER_PRICER.priceAdjoint(BARRIER_UP_IN.getBarrierLevel() + 0.1, STRIKE_MID,
-        EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, false, BARRIER_UP_IN));
-    assertThrowsIllegalArg(() -> BARRIER_PRICER.priceAdjoint(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, STRIKE_MID,
-        EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, false, BARRIER_DOWN_OUT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BARRIER_PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, STRIKE_MID,
+            EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, true, BARRIER_UP_IN));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BARRIER_PRICER.price(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, STRIKE_MID,
+            EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, true, BARRIER_DOWN_OUT));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BARRIER_PRICER.priceAdjoint(BARRIER_UP_IN.getBarrierLevel() + 0.1, STRIKE_MID,
+            EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, false, BARRIER_UP_IN));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BARRIER_PRICER.priceAdjoint(BARRIER_DOWN_OUT.getBarrierLevel() - 0.1, STRIKE_MID,
+            EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, false, BARRIER_DOWN_OUT));
   }
 
   /**

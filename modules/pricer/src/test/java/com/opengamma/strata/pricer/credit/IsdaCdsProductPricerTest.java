@@ -8,11 +8,11 @@ package com.opengamma.strata.pricer.credit;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.pricer.common.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.common.PriceType.DIRTY;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -222,7 +222,8 @@ public class IsdaCdsProductPricerTest {
     CurrencyAmount pv = PRICER.presentValue(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
     assertEquals(pv, CurrencyAmount.zero(USD));
-    assertThrowsIllegalArg(() -> PRICER.parSpread(PRODUCT_NEXTDAY, provider,
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.parSpread(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
     double protectionLeg = PRICER.protectionLeg(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
@@ -242,7 +243,8 @@ public class IsdaCdsProductPricerTest {
     PointSensitivityBuilder sensiPrice = PRICER.priceSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
     assertEquals(sensiPrice, PointSensitivityBuilder.none());
-    assertThrowsIllegalArg(() -> PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, provider,
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
     JumpToDefault jtd = PRICER.jumpToDefault(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);

@@ -10,11 +10,11 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -75,7 +75,8 @@ public class CapitalIndexedBondSecurityTest {
   }
 
   public void test_builder_fail() {
-    assertThrowsIllegalArg(() -> CapitalIndexedBondSecurity.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondSecurity.builder()
         .info(INFO)
         .dayCount(DAY_COUNT)
         .rateCalculation(RATE)
@@ -87,7 +88,8 @@ public class CapitalIndexedBondSecurityTest {
         .yieldConvention(YIELD_CONVENTION)
         .exCouponPeriod(DaysAdjustment.ofBusinessDays(EX_COUPON_DAYS, EUTA, BUSINESS_ADJUST))
         .build());
-    assertThrowsIllegalArg(() -> CapitalIndexedBondSecurity.builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CapitalIndexedBondSecurity.builder()
         .info(INFO)
         .dayCount(DAY_COUNT)
         .rateCalculation(RATE)

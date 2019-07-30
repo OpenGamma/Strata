@@ -6,9 +6,9 @@
 package com.opengamma.strata.pricer.impl.swap;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.ignoreThrows;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
@@ -50,7 +50,8 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   public void test_presentValue_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValue(mockPaymentPeriod, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.presentValue(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -66,21 +67,24 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   public void test_forecastValue_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.forecastValue(mockPaymentPeriod, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.forecastValue(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
   public void test_presentValueSensitivity_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.presentValueSensitivity(mockPaymentPeriod, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.presentValueSensitivity(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
   public void test_forecastValueSensitivity_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.forecastValueSensitivity(mockPaymentPeriod, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.forecastValueSensitivity(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -96,7 +100,8 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   public void test_currencyExposure_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.currencyExposure(mockPaymentPeriod, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.currencyExposure(mockPaymentPeriod, MOCK_PROV));
   }
 
   //-------------------------------------------------------------------------
@@ -112,7 +117,8 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   public void test_currentCash_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
-    assertThrowsIllegalArg(() -> test.currentCash(mockPaymentPeriod, MOCK_PROV));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.currentCash(mockPaymentPeriod, MOCK_PROV));
   }
 
   //------------------------------------------------------------------------- 

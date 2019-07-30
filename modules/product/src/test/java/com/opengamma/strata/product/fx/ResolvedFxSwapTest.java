@@ -9,10 +9,10 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -45,23 +45,27 @@ public class ResolvedFxSwapTest {
   }
 
   public void test_of_wrongOrder() {
-    assertThrowsIllegalArg(() -> ResolvedFxSwap.of(FAR_LEG, NEAR_LEG));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSwap.of(FAR_LEG, NEAR_LEG));
   }
 
   public void test_of_wrongBaseCurrency() {
     ResolvedFxSingle nearLeg = ResolvedFxSingle.of(EUR_P1590, USD_M1600, DATE_2011_11_21);
-    assertThrowsIllegalArg(() -> ResolvedFxSwap.of(nearLeg, FAR_LEG));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSwap.of(nearLeg, FAR_LEG));
   }
 
   public void test_of_wrongCounterCurrency() {
     ResolvedFxSingle nearLeg = ResolvedFxSingle.of(USD_P1550, EUR_P1590.negated(), DATE_2011_11_21);
     ResolvedFxSingle farLeg = ResolvedFxSingle.of(GBP_M1000, EUR_P1590, DATE_2011_12_21);
-    assertThrowsIllegalArg(() -> ResolvedFxSwap.of(nearLeg, farLeg));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSwap.of(nearLeg, farLeg));
   }
 
   public void test_of_sameSign() {
     ResolvedFxSingle farLeg = ResolvedFxSingle.of(GBP_M1000.negated(), USD_P1550.negated(), DATE_2011_12_21);
-    assertThrowsIllegalArg(() -> ResolvedFxSwap.of(NEAR_LEG, farLeg));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ResolvedFxSwap.of(NEAR_LEG, farLeg));
   }
 
   public void test_ofForwardPoints() {

@@ -11,10 +11,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.FxIndices.EUR_USD_ECB;
 import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -46,7 +46,8 @@ public class FxResetNotionalExchangeTest {
   }
 
   public void test_invalidCurrency() {
-    assertThrowsIllegalArg(() -> FxResetNotionalExchange.meta().builder()
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FxResetNotionalExchange.meta().builder()
         .set(FxResetNotionalExchange.meta().paymentDate(), DATE_2014_06_30)
         .set(FxResetNotionalExchange.meta().notionalAmount(), CurrencyAmount.of(GBP, 1000d))
         .set(FxResetNotionalExchange.meta().observation(), FxIndexObservation.of(EUR_USD_ECB, DATE_2014_03_28, REF_DATA))

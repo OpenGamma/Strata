@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.credit;
 
-import static com.opengamma.strata.collect.TestHelper.assertThrowsIllegalArg;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
@@ -66,11 +66,15 @@ public class ConstantRecoveryRatesTest {
   }
 
   public void test_of_rateOutOfRange() {
-    assertThrowsIllegalArg(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, -0.5));
-    assertThrowsIllegalArg(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 1.5));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, -0.5));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 1.5));
     ConstantRecoveryRates test = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, RECOVERY_RATE);
-    assertThrowsIllegalArg(() -> test.getParameter(1));
-    assertThrowsIllegalArg(() -> test.withParameter(1, 0.5));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.getParameter(1));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.withParameter(1, 0.5));
   }
 
   //-------------------------------------------------------------------------
