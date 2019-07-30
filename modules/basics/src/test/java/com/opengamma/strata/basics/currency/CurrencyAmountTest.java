@@ -75,6 +75,10 @@ public class CurrencyAmountTest {
     assertFalse(test.isPositive());
     assertFalse(test.isNegative());
   }
+  
+  public void test_of_Currency_NaN() {
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.of(Currency.USD, Double.NaN));
+  }
 
   public void test_of_Currency_nullCurrency() {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.of((Currency) null, AMT1));
