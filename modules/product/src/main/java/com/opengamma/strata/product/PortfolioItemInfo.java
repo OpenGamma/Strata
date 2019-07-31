@@ -7,6 +7,7 @@ package com.opengamma.strata.product;
 
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 
@@ -31,6 +32,21 @@ public interface PortfolioItemInfo extends Attributes {
    */
   public static PortfolioItemInfo empty() {
     return ItemInfo.empty();
+  }
+
+  /**
+   * Obtains an instance with a single attribute.
+   * <p>
+   * The {@link #withAttribute(AttributeType, Object)} method can be used on
+   * the instance to add more attributes.
+   * 
+   * @param <T>  the type of the attribute value
+   * @param type  the type providing meaning to the value
+   * @param value  the value
+   * @return the instance
+   */
+  public static <T> PortfolioItemInfo of(AttributeType<T> type, T value) {
+    return new ItemInfo(null, ImmutableMap.of(type, value));
   }
 
   //-------------------------------------------------------------------------

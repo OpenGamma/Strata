@@ -30,7 +30,6 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.collect.Messages;
 
 /**
  * Additional information about a trade.
@@ -136,15 +135,9 @@ public final class TradeInfo
   }
 
   @Override
-  public <T> T getAttribute(AttributeType<T> type) {
-    return findAttribute(type).orElseThrow(() -> new IllegalArgumentException(
-        Messages.format("Attribute not found for type '{}'", type)));
-  }
-
-  @Override
   @SuppressWarnings("unchecked")
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
-    return Optional.ofNullable((T) attributes.get(type));
+    return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
 
   @Override
@@ -152,7 +145,11 @@ public final class TradeInfo
   public <T> TradeInfo withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
     Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
-    updatedAttributes.put(type, value);
+    if (value == null) {
+      updatedAttributes.remove(type);
+    } else {
+      updatedAttributes.put(type, type.toStoredForm(value));
+    }
     return new TradeInfo(id, counterparty, tradeDate, tradeTime, zone, settlementDate, updatedAttributes);
   }
 

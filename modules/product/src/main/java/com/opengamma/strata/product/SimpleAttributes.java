@@ -45,14 +45,18 @@ final class SimpleAttributes
   @Override
   @SuppressWarnings("unchecked")
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
-    return Optional.ofNullable((T) attributes.get(type));
+    return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
 
   @Override
   public <T> SimpleAttributes withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
     Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);
-    updatedAttributes.put(type, value);
+    if (value == null) {
+      updatedAttributes.remove(type);
+    } else {
+      updatedAttributes.put(type, type.toStoredForm(value));
+    }
     return new SimpleAttributes(updatedAttributes);
   }
 
