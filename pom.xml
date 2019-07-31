@@ -46,13 +46,31 @@
   </scm>
 
   <!-- ==================================================================== -->
-  <modules>
-    <module>modules</module>
-    <module>examples</module>
-  </modules>
-
-  <!-- ==================================================================== -->
   <profiles>
+    <!-- Profile adding examples unless dist flag is set -->
+    <profile>
+      <id>include-examples</id>
+      <activation>
+        <property>
+          <name>!dist</name>
+        </property>
+      </activation>
+      <modules>
+        <module>examples</module>
+      </modules>
+    </profile>
+    <!-- Profile adding modules unless distexamples flag is set -->
+    <profile>
+      <id>include-modules</id>
+      <activation>
+        <property>
+          <name>!distexamples</name>
+        </property>
+      </activation>
+      <modules>
+        <module>modules</module>
+      </modules>
+    </profile>
     <!-- Profile creating dist zip triggered by -Ddist -->
     <profile>
       <id>build-dist-zip</id>

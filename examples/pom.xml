@@ -161,7 +161,7 @@
     <profile>
       <id>build-report-tool</id>
       <activation>
-        <property><name>dist</name></property>
+        <property><name>distexamples</name></property>
       </activation>
       <build>
         <plugins>

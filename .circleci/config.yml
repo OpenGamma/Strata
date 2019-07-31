@@ -180,6 +180,14 @@ commands:
             shred --remove codesigning.asc
 
 #----------------------------------------------------------------------------
+  maven_package_examples:
+    description: "Maven package examples"
+    steps:
+      - run:
+          name: Maven package examples
+          command: mvn package -Ddistexamples -Doss.repo -DskipTests -Dcheckstyle.skip=true
+
+#----------------------------------------------------------------------------
   maven_deploy_snapshot:
     description: "Deploy snapshot"
     steps:
@@ -234,6 +242,7 @@ jobs:
             - maven_test
             - setup_gpg
             - maven_deploy
+            - maven_package_examples
             - maven_github_releases
 
 #----------------------------------------------------------------------------
