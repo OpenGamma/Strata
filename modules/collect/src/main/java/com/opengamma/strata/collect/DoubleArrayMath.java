@@ -432,7 +432,7 @@ public final class DoubleArrayMath {
    * <p>
    * e.g
    * <pre>{@code double[] values = { 1d, 5d, 10d };
-   * double[] positions = { 2, 0, 1 };
+   * int[] positions = { 2, 0, 1 };
    * reorderedCopy(values, positions); // returns [10d, 1d, 5d]
    * }</pre>
    *
