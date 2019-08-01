@@ -37,7 +37,7 @@
         <include>strata-examples-${version}-sources.jar</include>
       </includes>
     </fileSet>
-    <!-- dependencies, as module sets doesn't seem to work correctly -->
+    <!-- strata-report extracts the dependencies, as moduleSets doesn't seem to work correctly -->
     <fileSet>
       <directory>modules/report/target/dependency</directory>
       <outputDirectory>lib</outputDirectory>
@@ -45,25 +45,13 @@
         <include>*.jar</include>
       </includes>
     </fileSet>
+    <!-- strata-report extracts the dependencies, as moduleSets doesn't seem to work correctly -->
+    <fileSet>
+      <directory>modules/report/target/dependency-sources</directory>
+      <outputDirectory>src</outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+    </fileSet>
   </fileSets>
-  <!-- all the strata jar files -->
-  <moduleSets>
-    <moduleSet>
-      <useAllReactorProjects>true</useAllReactorProjects>
-      <binaries>
-        <outputDirectory>lib</outputDirectory>
-        <unpack>false</unpack>
-        <includeDependencies>false</includeDependencies>
-      </binaries>
-    </moduleSet>
-    <moduleSet>
-      <useAllReactorProjects>true</useAllReactorProjects>
-      <binaries>
-        <attachmentClassifier>sources</attachmentClassifier>
-        <includeDependencies>false</includeDependencies>
-        <outputDirectory>src</outputDirectory>
-        <unpack>false</unpack>
-      </binaries>
-    </moduleSet>
-  </moduleSets>
 </assembly>
