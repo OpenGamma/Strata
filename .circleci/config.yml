@@ -196,7 +196,10 @@ commands:
     steps:
       - run:
           name: Maven package root
-          command: mvn package -N -Ddist -DskipTests -Dcheckstyle.skip=true
+          command: |
+            ls -l examples/target
+            ls -l modules/report/target/dependency
+            mvn package -N -X -Ddist -DskipTests -Dcheckstyle.skip=true
 
 #----------------------------------------------------------------------------
   maven_deploy_snapshot:

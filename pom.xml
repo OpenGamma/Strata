@@ -126,7 +126,6 @@
     <!-- Not installed/deployed -->
     <maven.install.skip>true</maven.install.skip>
     <maven.deploy.skip>true</maven.deploy.skip>
-    <nexus.staging.autoRelease>false</nexus.staging.autoRelease>
   </properties>
 
 </project>
