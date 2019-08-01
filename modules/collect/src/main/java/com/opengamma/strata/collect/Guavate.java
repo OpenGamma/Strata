@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -712,6 +713,37 @@ public final class Guavate {
         Collector.Characteristics.UNORDERED);
   }
 
+  /**
+   * Collector used at the end of a stream to build an immutable sorted map.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into
+   * an {@link ImmutableSortedMap}.
+   * <p>
+   * This returns a map by converting each stream element to a key and value.
+   * See {@link Collectors#toMap(Function, Function)} for more details.
+   *
+   * @param <T> the type of the stream elements
+   * @param <K> the type of the keys in the result map
+   * @param <V> the type of the values in the result map
+   * @param keyExtractor  function to produce keys from stream elements
+   * @param valueExtractor  function to produce values from stream elements
+   * @param mergeFn  function to merge values with the same key
+   * @return the immutable sorted map collector
+   */
+  public static <T, K extends Comparable<?>, V> Collector<T, ?, ImmutableSortedMap<K, V>> toImmutableSortedMap(
+      Function<? super T, ? extends K> keyExtractor,
+      Function<? super T, ? extends V> valueExtractor,
+      BiFunction<? super V, ? super V, ? extends V> mergeFn) {
+
+    return Collector.of(
+        TreeMap<K, V>::new,
+        (map, val) -> map.merge(keyExtractor.apply(val), valueExtractor.apply(val), mergeFn),
+        (m1, m2) -> mergeMaps(m1, m2, mergeFn),
+        map -> ImmutableSortedMap.copyOfSorted(map),
+        Collector.Characteristics.UNORDERED);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Collector used at the end of a stream to build an immutable multimap.
@@ -932,10 +964,11 @@ public final class Guavate {
    * @param mergeFn  function applied to the existing and new values if the map contains the key
    * @param <K>  the key type
    * @param <V>  the value type
+   * @param <M>  the type of the first map
    * @return {@code map1} with the values from {@code map2} inserted
    */
-  private static <K, V> Map<K, V> mergeMaps(
-      Map<K, V> map1,
+  private static <K, V, M extends Map<K, V>> M mergeMaps(
+      M map1,
       Map<K, V> map2,
       BiFunction<? super V, ? super V, ? extends V> mergeFn) {
 
