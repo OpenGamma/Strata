@@ -142,10 +142,12 @@ public final class AttributeType<T>
       TypedStringConverter<T> converter = StringConvert.INSTANCE.findTypedConverter(type);
       this.toStoredFormConverter = value -> converter.convertToString(value);
       this.fromStoredFormConverter =
-          value -> value instanceof String ? converter.convertFromString(type, (String) value) : type.cast(value);
+          value -> value instanceof String ?
+              converter.convertFromString(type, (String) value) :
+              converter.convertFromString(type, StringConvert.INSTANCE.convertToString(value));
     } else {
       this.toStoredFormConverter = value -> value;
-      this.fromStoredFormConverter = value -> (T) value;
+      this.fromStoredFormConverter = value -> type.cast(value);
     }
   }
 

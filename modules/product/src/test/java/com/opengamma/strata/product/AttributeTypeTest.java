@@ -12,6 +12,8 @@ import org.joda.convert.RenameHandler;
 import org.testng.annotations.Test;
 
 import com.opengamma.strata.product.common.CcpId;
+import com.opengamma.strata.product.common.CcpIds;
+import com.opengamma.strata.product.etd.EtdContractCode;
 
 /**
  * Test {@link AttributeType}.
@@ -92,6 +94,14 @@ public class AttributeTypeTest {
     assertThat(regType.normalized()).isSameAs(regType);
     assertThat(regType.toStoredForm(info)).isEqualTo(info);
     assertThat(regType.fromStoredForm(info)).isEqualTo(info);
+  }
+
+  @Test
+  public void test_of_changingType() {
+    AttributeType<CcpId> test = AttributeType.CCP;
+    assertThat(test.fromStoredForm(CcpIds.CME)).isEqualTo(CcpIds.CME);
+    assertThat(test.fromStoredForm("CME")).isEqualTo(CcpIds.CME);
+    assertThat(test.fromStoredForm(EtdContractCode.of("CME"))).isEqualTo(CcpIds.CME);
   }
 
   //-------------------------------------------------------------------------

@@ -39,7 +39,7 @@ public interface Attributes {
    * @return the instance
    */
   public static <T> Attributes of(AttributeType<T> type, T value) {
-    return new SimpleAttributes(ImmutableMap.of(type, value));
+    return new SimpleAttributes(ImmutableMap.of(type, type.toStoredForm(value)));
   }
 
   //-------------------------------------------------------------------------

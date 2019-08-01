@@ -46,7 +46,7 @@ public interface PortfolioItemInfo extends Attributes {
    * @return the instance
    */
   public static <T> PortfolioItemInfo of(AttributeType<T> type, T value) {
-    return new ItemInfo(null, ImmutableMap.of(type, value));
+    return new ItemInfo(null, ImmutableMap.of(type, type.toStoredForm(value)));
   }
 
   //-------------------------------------------------------------------------
