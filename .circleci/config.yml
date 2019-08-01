@@ -37,7 +37,8 @@ commands:
           name: Initializing Maven
           command: |
             mkdir -p ./.mvn
-            echo '-e -B -DtrimStackTrace=false --settings .circleci/maven-settings.xml' > ./.mvn/maven.config
+            echo "-e -B -DtrimStackTrace=false --settings $( pwd )/.circleci/maven-settings.xml" > ./.mvn/maven.config
+            cat ./.mvn/maven.config
             mvn --version
 
 #----------------------------------------------------------------------------
@@ -54,16 +55,8 @@ commands:
     steps:
       - run:
           name: Maven run tests
-          command: mvn test -T 2 -Dcheckstyle.skip=true
+          command: mvn test -T 3 -Dcheckstyle.skip=true
       - store_maven_tests
-
-#----------------------------------------------------------------------------
-  maven_deploy:
-    description: "Maven deploy"
-    steps:
-      - run:
-          name: Maven deploy
-          command: mvn deploy -Ddist -Doss.repo -DskipTests -Dcheckstyle.skip=true
 
 #----------------------------------------------------------------------------
   maven_release:
@@ -180,6 +173,32 @@ commands:
             shred --remove codesigning.asc
 
 #----------------------------------------------------------------------------
+  maven_deploy_modules:
+    description: "Maven deploy modules"
+    steps:
+      - run:
+          name: Maven deploy modules
+          working_directory: ~/repo/modules
+          command: mvn deploy -Ddist -Doss.repo -DskipTests -Dcheckstyle.skip=true
+
+#----------------------------------------------------------------------------
+  maven_package_examples:
+    description: "Maven package examples"
+    steps:
+      - run:
+          name: Maven package examples
+          working_directory: ~/repo/examples
+          command: mvn package -Ddist -DskipTests -Dcheckstyle.skip=true
+
+#----------------------------------------------------------------------------
+  maven_package_root:
+    description: "Maven package root"
+    steps:
+      - run:
+          name: Maven package root
+          command: mvn package -N -Ddist -DskipTests -Dcheckstyle.skip=true
+
+#----------------------------------------------------------------------------
   maven_deploy_snapshot:
     description: "Deploy snapshot"
     steps:
@@ -188,7 +207,7 @@ commands:
           command: |
             if [ "$CIRCLE_BRANCH" == "master" ] && [[ "${POM_VERSION}" =~ "-SNAPSHOT" ]]
             then
-              mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://opengamma.jfrog.io/opengamma/libs-snapshots-local/"
+              mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://opengamma.jfrog.io/opengamma/libs-snapshots-local/" -DskipTests -Dcheckstyle.skip=true
             fi
 
 #----------------------------------------------------------------------------
@@ -233,7 +252,9 @@ jobs:
             - maven_install
             - maven_test
             - setup_gpg
-            - maven_deploy
+            - maven_deploy_modules
+            - maven_package_examples
+            - maven_package_root
             - maven_github_releases
 
 #----------------------------------------------------------------------------

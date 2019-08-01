@@ -17,33 +17,43 @@
       </includes>
     </fileSet>
     <fileSet>
-      <directory>modules/${project.build.directory}/site/apidocs</directory>
+      <directory>modules/target/site/apidocs</directory>
       <outputDirectory>apidocs</outputDirectory>
       <includes>
         <include>**/*</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>examples/${project.build.directory}</directory>
+      <directory>examples/target</directory>
       <outputDirectory>lib</outputDirectory>
       <includes>
         <include>strata-examples-${version}.jar</include>
       </includes>
     </fileSet>
     <fileSet>
-      <directory>examples/${project.build.directory}</directory>
+      <directory>examples/target</directory>
       <outputDirectory>src</outputDirectory>
       <includes>
         <include>strata-examples-${version}-sources.jar</include>
       </includes>
     </fileSet>
+    <!-- dependencies, as module sets doesn't seem to work correctly -->
+    <fileSet>
+      <directory>modules/report/target/dependency</directory>
+      <outputDirectory>lib</outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+    </fileSet>
   </fileSets>
+  <!-- all the strata jar files -->
   <moduleSets>
     <moduleSet>
       <useAllReactorProjects>true</useAllReactorProjects>
       <binaries>
         <outputDirectory>lib</outputDirectory>
         <unpack>false</unpack>
+        <includeDependencies>false</includeDependencies>
       </binaries>
     </moduleSet>
     <moduleSet>

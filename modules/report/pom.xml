@@ -86,6 +86,39 @@
   </dependencies>
 
   <!-- ==================================================================== -->
+  <profiles>
+    <!-- Profile extracting dependencies for dist.zip, triggered by -Ddist -->
+    <profile>
+      <id>build-report-tool</id>
+      <activation>
+        <property><name>dist</name></property>
+      </activation>
+      <build>
+        <plugins>
+          <!-- copy dependencies for main dist.zip -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>extract-dependencies</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+                <configuration>
+                  <includeScope>runtime</includeScope>
+                  <excludeGroupIds>com.opengamma.strata</excludeGroupIds>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- ==================================================================== -->
   <properties>
     <jpms.module.name>com.opengamma.strata.report</jpms.module.name>
     <!-- Locate the root directory of the multi-module build -->

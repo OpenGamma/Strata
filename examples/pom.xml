@@ -165,6 +165,35 @@
       </activation>
       <build>
         <plugins>
+          <!-- generate source jar file for main dist.zip -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+                <configuration>
+                  <skipIfEmpty>true</skipIfEmpty>
+                  <archive>
+                    <manifest>
+                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                    </manifest>
+                    <manifestEntries>
+                      <Implementation-Build>${buildNumber}</Implementation-Build>
+                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
+                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
+                    </manifestEntries>
+                  </archive>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- create the jar-with-dependencies -->
           <plugin>
             <artifactId>maven-shade-plugin</artifactId>
             <configuration>
@@ -217,34 +246,6 @@
                   <descriptors>
                     <descriptor>src/assembly/report-tool-dist.xml</descriptor>
                   </descriptors>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- generate source jar file for main dist.zip -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>jar-no-fork</goal>
-                </goals>
-                <configuration>
-                  <skipIfEmpty>true</skipIfEmpty>
-                  <archive>
-                    <manifest>
-                      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                    </manifest>
-                    <manifestEntries>
-                      <Implementation-Build>${buildNumber}</Implementation-Build>
-                      <Implementation-Date>${maven.build.timestamp}</Implementation-Date>
-                      <Implementation-Build-Id>${ci.build}</Implementation-Build-Id>
-                    </manifestEntries>
-                  </archive>
                 </configuration>
               </execution>
             </executions>
