@@ -412,7 +412,7 @@ public class GuavateTest {
     List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
     ImmutableSortedMap<Integer, String> test = list.stream()
         .collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s, String::concat));
-    assertEquals(test, ImmutableSortedMap.naturalOrder().put(1, "!a!c!b!a").put(2, "!ab!bb").build());
+    assertThat(test).isEqualTo(ImmutableSortedMap.naturalOrder().put(1, "!a!c!b!a").put(2, "!ab!bb").build());
   }
 
   //-------------------------------------------------------------------------
