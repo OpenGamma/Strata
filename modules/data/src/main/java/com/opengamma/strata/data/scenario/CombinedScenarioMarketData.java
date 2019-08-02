@@ -96,7 +96,7 @@ final class CombinedScenarioMarketData
   @Override
   public <T> MarketDataBox<T> getValue(MarketDataId<T> id) {
     Optional<MarketDataBox<T>> value1 = underlying1.findValue(id);
-    return value1.isPresent() ? value1.get() : underlying2.getValue(id);
+    return value1.orElseGet(() -> underlying2.getValue(id));
   }
 
   @Override
