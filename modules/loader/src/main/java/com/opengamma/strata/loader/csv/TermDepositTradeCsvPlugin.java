@@ -79,9 +79,9 @@ final class TermDepositTradeCsvPlugin implements TradeTypeCsvWriter<TermDepositT
 
   // parse the row to a trade
   private static TermDepositTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
-    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
+    double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
     Optional<TermDepositConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> TermDepositConvention.of(s));
     Optional<Period> tenorOpt = row.findValue(TENOR_FIELD).map(s -> LoaderUtils.parseTenor(s).getPeriod());
     Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));

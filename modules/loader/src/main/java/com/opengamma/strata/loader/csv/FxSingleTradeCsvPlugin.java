@@ -96,11 +96,11 @@ class FxSingleTradeCsvPlugin implements TradeTypeCsvWriter<FxSingleTrade> {
   // ideally we'd use the trade date plus "period to start" to get the spot/payment date
   // but we don't have all the data and it gets complicated in places like TRY, RUB and AED
   private static FxSingleTrade parseConvention(CsvRow row, TradeInfo info) {
-    CurrencyPair pair = CurrencyPair.parse(row.getValue(CONVENTION_FIELD));
-    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    CurrencyPair pair = row.getValue(CONVENTION_FIELD, CurrencyPair::parse);
+    BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
     CurrencyAmount amount = buySell.normalize(CsvLoaderUtils.parseCurrencyAmount(row, CURRENCY_FIELD, NOTIONAL_FIELD));
-    double fxRate = LoaderUtils.parseDouble(row.getValue(FX_RATE_FIELD));
-    LocalDate paymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
+    double fxRate = row.getValue(FX_RATE_FIELD, LoaderUtils::parseDouble);
+    LocalDate paymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
     Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
 
     FxSingle fx = paymentAdj
@@ -121,12 +121,12 @@ class FxSingleTradeCsvPlugin implements TradeTypeCsvWriter<FxSingleTrade> {
         row, prefix + LEG_1_CURRENCY_FIELD, prefix + LEG_1_NOTIONAL_FIELD, prefix + LEG_1_DIRECTION_FIELD);
     LocalDate paymentDate1 = row.findValue(prefix + LEG_1_PAYMENT_DATE_FIELD)
         .map(str -> LoaderUtils.parseDate(str))
-        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(prefix + PAYMENT_DATE_FIELD)));
+        .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     CurrencyAmount amount2 = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, prefix + LEG_2_CURRENCY_FIELD, prefix + LEG_2_NOTIONAL_FIELD, prefix + LEG_2_DIRECTION_FIELD);
     LocalDate paymentDate2 = row.findValue(prefix + LEG_2_PAYMENT_DATE_FIELD)
         .map(str -> LoaderUtils.parseDate(str))
-        .orElseGet(() -> LoaderUtils.parseDate(row.getValue(prefix + PAYMENT_DATE_FIELD)));
+        .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
     if (amount1.isPositive() == amount2.isPositive()) {
       throw new IllegalArgumentException(Messages.format(

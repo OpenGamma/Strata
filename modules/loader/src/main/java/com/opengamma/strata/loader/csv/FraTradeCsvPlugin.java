@@ -75,10 +75,10 @@ final class FraTradeCsvPlugin implements TradeTypeCsvWriter<FraTrade> {
 
   // parse the row to a trade
   private static FraTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
     Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(s -> Currency.of(s));
-    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
     Optional<FraConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> FraConvention.of(s));
     Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> LoaderUtils.parsePeriod(s));
     Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));

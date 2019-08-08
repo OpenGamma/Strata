@@ -174,7 +174,7 @@ final class SwapTradeCsvPlugin {
 
     ListMultimap<Integer, ValueStep> steps = ArrayListMultimap.create();
     for (CsvRow row : variableRows) {
-      LocalDate date = LoaderUtils.parseDate(row.getValue(START_DATE_FIELD));
+      LocalDate date = row.getValue(START_DATE_FIELD, LoaderUtils::parseDate);
       for (int i = 0; i < legs.size(); i++) {
         int legIndex = i;  // must be effectively final for lambda
         row.findValue("Leg " + (legIndex + 1) + " " + field)
@@ -207,9 +207,9 @@ final class SwapTradeCsvPlugin {
 
   // parse a trade based on a convention
   static SwapTrade parseWithConvention(CsvRow row, TradeInfo info, ReferenceData refData, String conventionStr) {
-    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
-    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
+    double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
     Optional<Period> periodToStartOpt = row.findValue(PERIOD_TO_START_FIELD).map(s -> LoaderUtils.parsePeriod(s));
     Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD).map(s -> LoaderUtils.parseTenor(s));
     Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));

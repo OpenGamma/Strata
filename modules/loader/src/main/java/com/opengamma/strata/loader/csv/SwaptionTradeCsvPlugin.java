@@ -80,8 +80,8 @@ final class SwaptionTradeCsvPlugin implements TradeTypeCsvWriter<SwaptionTrade> 
     SwaptionSettlement settlement = parseSettlement(row);
     AdjustableDate expiryDate = CsvLoaderUtils.parseAdjustableDate(
         row, EXPIRY_DATE_FIELD, EXPIRY_DATE_CNV_FIELD, EXPIRY_DATE_CAL_FIELD);
-    LocalTime expiryTime = LoaderUtils.parseTime(row.getValue(EXPIRY_TIME_FIELD));
-    ZoneId expiryZone = LoaderUtils.parseZoneId(row.getValue(EXPIRY_ZONE_FIELD));
+    LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
+    ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
     CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, PREMIUM_CURRENCY_FIELD, PREMIUM_AMOUNT_FIELD, PREMIUM_DIRECTION_FIELD);
     AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(
@@ -110,7 +110,7 @@ final class SwaptionTradeCsvPlugin implements TradeTypeCsvWriter<SwaptionTrade> 
       return PhysicalSwaptionSettlement.DEFAULT;
     }
     CashSwaptionSettlementMethod method = CashSwaptionSettlementMethod.of(settlementType);
-    LocalDate date = LoaderUtils.parseDate(row.getValue(PAYOFF_SETTLEMENT_DATE_FIELD));
+    LocalDate date = row.getValue(PAYOFF_SETTLEMENT_DATE_FIELD, LoaderUtils::parseDate);
     return CashSwaptionSettlement.of(date, method);
   }
 

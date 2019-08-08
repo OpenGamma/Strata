@@ -105,13 +105,13 @@ class FxSwapTradeCsvPlugin implements TradeTypeCsvWriter<FxSwapTrade> {
   // ideally we'd use the trade date plus "period to start" to get the spot/payment date
   // but we don't have all the data and it gets complicated in places like TRY, RUB and AED
   private static FxSwapTrade parseConvention(CsvRow row, TradeInfo info) {
-    CurrencyPair pair = CurrencyPair.parse(row.getValue(CONVENTION_FIELD));
-    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
+    CurrencyPair pair = row.getValue(CONVENTION_FIELD, CurrencyPair::parse);
+    BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
     CurrencyAmount amount = buySell.normalize(CsvLoaderUtils.parseCurrencyAmount(row, CURRENCY_FIELD, NOTIONAL_FIELD));
-    double nearFxRate = LoaderUtils.parseDouble(row.getValue(FX_RATE_FIELD));
-    double farFxRate = LoaderUtils.parseDouble(row.getValue(FAR_FX_RATE_DATE_FIELD));
-    LocalDate nearPaymentDate = LoaderUtils.parseDate(row.getValue(PAYMENT_DATE_FIELD));
-    LocalDate farPaymentDate = LoaderUtils.parseDate(row.getValue(FAR_PAYMENT_DATE_FIELD));
+    double nearFxRate = row.getValue(FX_RATE_FIELD, LoaderUtils::parseDouble);
+    double farFxRate = row.getValue(FAR_FX_RATE_DATE_FIELD, LoaderUtils::parseDouble);
+    LocalDate nearPaymentDate = row.getValue(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
+    LocalDate farPaymentDate = row.getValue(FAR_PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
     Optional<BusinessDayAdjustment> paymentAdj = FxSingleTradeCsvPlugin.parsePaymentDateAdjustment(row);
 
     FxRate nearRate = FxRate.of(pair, nearFxRate);

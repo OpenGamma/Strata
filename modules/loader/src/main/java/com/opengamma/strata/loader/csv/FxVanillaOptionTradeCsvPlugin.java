@@ -98,10 +98,10 @@ class FxVanillaOptionTradeCsvPlugin implements TradeTypeCsvWriter<FxVanillaOptio
 
   // parses the trade
   private static FxVanillaOptionTrade parseRow(CsvRow row, TradeInfo info, FxSingle underlying) {
-    LongShort longShort = LoaderUtils.parseLongShort(row.getValue(LONG_SHORT_FIELD));
-    LocalDate expiryDate = LoaderUtils.parseDate(row.getValue(EXPIRY_DATE_FIELD));
-    LocalTime expiryTime = LoaderUtils.parseTime(row.getValue(EXPIRY_TIME_FIELD));
-    ZoneId expiryZone = LoaderUtils.parseZoneId(row.getValue(EXPIRY_ZONE_FIELD));
+    LongShort longShort = row.getValue(LONG_SHORT_FIELD, LoaderUtils::parseLongShort);
+    LocalDate expiryDate = row.getValue(EXPIRY_DATE_FIELD, LoaderUtils::parseDate);
+    LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
+    ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
     CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, PREMIUM_CURRENCY_FIELD, PREMIUM_AMOUNT_FIELD, PREMIUM_DIRECTION_FIELD);
     AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(

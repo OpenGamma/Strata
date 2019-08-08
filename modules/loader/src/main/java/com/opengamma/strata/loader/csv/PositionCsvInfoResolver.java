@@ -224,8 +224,8 @@ public interface PositionCsvInfoResolver {
    * @throws IllegalArgumentException if the specification is not found
    */
   public default EtdContractSpec parseEtdContractSpec(CsvRow row, EtdType type) {
-    ExchangeId exchangeId = ExchangeId.of(row.getValue(EXCHANGE_FIELD));
-    EtdContractCode contractCode = EtdContractCode.of(row.getValue(CONTRACT_CODE_FIELD));
+    ExchangeId exchangeId = row.getValue(EXCHANGE_FIELD, ExchangeId::of);
+    EtdContractCode contractCode = row.getValue(CONTRACT_CODE_FIELD, EtdContractCode::of);
     EtdContractSpecId specId = EtdIdUtils.contractSpecId(type, exchangeId, contractCode);
     return getReferenceData().findValue(specId).orElseThrow(
         () -> new IllegalArgumentException("ETD contract specification not found in reference data: " + specId));
@@ -270,8 +270,8 @@ public interface PositionCsvInfoResolver {
     EtdContractSpec contract = parseEtdContractSpec(row, EtdType.OPTION);
     Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
-    PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
-    double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
+    PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
+    double strikePrice = row.getValue(EXERCISE_PRICE_FIELD, LoaderUtils::parseDouble);
     YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
         .map(str -> LoaderUtils.parseYearMonth(str))
         .orElse(null);
@@ -294,8 +294,8 @@ public interface PositionCsvInfoResolver {
    * @throws IllegalArgumentException if the row cannot be parsed
    */
   public default SecurityPosition parseEtdFutureSecurityPosition(CsvRow row, PositionInfo info) {
-    ExchangeId exchangeId = ExchangeId.of(row.getValue(EXCHANGE_FIELD));
-    EtdContractCode contractCode = EtdContractCode.of(row.getValue(CONTRACT_CODE_FIELD));
+    ExchangeId exchangeId = row.getValue(EXCHANGE_FIELD, ExchangeId::of);
+    EtdContractCode contractCode = row.getValue(CONTRACT_CODE_FIELD, EtdContractCode::of);
     Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.FUTURE);
     SecurityId securityId = EtdIdUtils.futureId(exchangeId, contractCode, variant.getFirst(), variant.getSecond());
     DoublesPair quantity = CsvLoaderUtils.parseQuantity(row);
@@ -314,12 +314,12 @@ public interface PositionCsvInfoResolver {
    * @throws IllegalArgumentException if the row cannot be parsed
    */
   public default SecurityPosition parseEtdOptionSecurityPosition(CsvRow row, PositionInfo info) {
-    ExchangeId exchangeId = ExchangeId.of(row.getValue(EXCHANGE_FIELD));
-    EtdContractCode contractCode = EtdContractCode.of(row.getValue(CONTRACT_CODE_FIELD));
+    ExchangeId exchangeId = row.getValue(EXCHANGE_FIELD, ExchangeId::of);
+    EtdContractCode contractCode = row.getValue(CONTRACT_CODE_FIELD, EtdContractCode::of);
     Pair<YearMonth, EtdVariant> variant = CsvLoaderUtils.parseEtdVariant(row, EtdType.OPTION);
     int version = row.findValue(VERSION_FIELD).map(Integer::parseInt).orElse(DEFAULT_OPTION_VERSION_NUMBER);
-    PutCall putCall = LoaderUtils.parsePutCall(row.getValue(PUT_CALL_FIELD));
-    double strikePrice = Double.parseDouble(row.getValue(EXERCISE_PRICE_FIELD));
+    PutCall putCall = row.getValue(PUT_CALL_FIELD, LoaderUtils::parsePutCall);
+    double strikePrice = row.getValue(EXERCISE_PRICE_FIELD, LoaderUtils::parseDouble);
     YearMonth underlyingExpiry = row.findValue(UNDERLYING_EXPIRY_FIELD)
         .map(str -> LoaderUtils.parseYearMonth(str))
         .orElse(null);
