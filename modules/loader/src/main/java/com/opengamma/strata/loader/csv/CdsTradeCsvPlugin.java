@@ -186,9 +186,9 @@ final class CdsTradeCsvPlugin {
 
   // parse the row to a trade
   private static CdsTrade parseCdsRow(CsvRow row, TradeInfo info, StandardId entityId, TradeCsvInfoResolver resolver) {
-    BuySell buySell = LoaderUtils.parseBuySell(row.getValue(BUY_SELL_FIELD));
-    double notional = LoaderUtils.parseDouble(row.getValue(NOTIONAL_FIELD));
-    double fixedRate = LoaderUtils.parseDoublePercent(row.getValue(FIXED_RATE_FIELD));
+    BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
+    double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
+    double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
     Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD).map(s -> LoaderUtils.parseTenor(s));
     Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
     Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
@@ -255,7 +255,7 @@ final class CdsTradeCsvPlugin {
     }
 
     // parse by full details
-    Currency currency = LoaderUtils.parseCurrency(row.getValue(CURRENCY_FIELD));
+    Currency currency = row.getValue(CURRENCY_FIELD, LoaderUtils::parseCurrency);
     Cds.Builder cdsBuilder = Cds.builder()
         .buySell(buySell)
         .legalEntityId(entityId)
@@ -302,8 +302,8 @@ final class CdsTradeCsvPlugin {
   private static PeriodicSchedule parseSchedule(CsvRow row, Currency currency) {
     PeriodicSchedule.Builder builder = PeriodicSchedule.builder();
     // basics
-    builder.startDate(LoaderUtils.parseDate(row.getValue(START_DATE_FIELD)));
-    builder.endDate(LoaderUtils.parseDate(row.getValue(END_DATE_FIELD)));
+    builder.startDate(row.getValue(START_DATE_FIELD, LoaderUtils::parseDate));
+    builder.endDate(row.getValue(END_DATE_FIELD, LoaderUtils::parseDate));
     builder.frequency(Frequency.parse(row.getValue(FREQUENCY_FIELD)));
     // adjustments
     BusinessDayAdjustment dateAdj =

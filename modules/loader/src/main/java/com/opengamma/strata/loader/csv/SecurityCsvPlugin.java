@@ -69,14 +69,14 @@ final class SecurityCsvPlugin {
     String securityIdScheme = row.findValue(SECURITY_ID_SCHEME_FIELD).orElse(DEFAULT_SECURITY_SCHEME);
     String securityIdValue = row.getValue(SECURITY_ID_FIELD);
     SecurityId securityId = SecurityId.of(securityIdScheme, securityIdValue);
-    double price = LoaderUtils.parseDouble(row.getValue(PRICE_FIELD));
+    double price = row.getValue(PRICE_FIELD, LoaderUtils::parseDouble);
     double quantity = parseTradeQuantity(row);
     return SecurityTrade.of(info, securityId, quantity, price);
   }
 
   // parses the trade quantity, considering the optional buy/sell field
   private static double parseTradeQuantity(CsvRow row) {
-    double quantity = LoaderUtils.parseDouble(row.getValue(QUANTITY_FIELD));
+    double quantity = row.getValue(QUANTITY_FIELD, LoaderUtils::parseDouble);
     Optional<BuySell> buySellOpt = row.findValue(BUY_SELL_FIELD).map(str -> LoaderUtils.parseBuySell(str));
     if (buySellOpt.isPresent()) {
       quantity = buySellOpt.get().normalize(quantity);

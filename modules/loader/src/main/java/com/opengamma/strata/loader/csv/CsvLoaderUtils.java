@@ -152,7 +152,7 @@ public final class CsvLoaderUtils {
    * @throws IllegalArgumentException if the row cannot be parsed
    */
   public static Pair<YearMonth, EtdVariant> parseEtdVariant(CsvRow row, EtdType type) {
-    YearMonth yearMonth = LoaderUtils.parseYearMonth(row.getValue(EXPIRY_FIELD));
+    YearMonth yearMonth = row.getValue(EXPIRY_FIELD, LoaderUtils::parseYearMonth);
     int week = row.findValue(EXPIRY_WEEK_FIELD).map(s -> LoaderUtils.parseInteger(s)).orElse(0);
     int day = row.findValue(EXPIRY_DAY_FIELD).map(s -> LoaderUtils.parseInteger(s)).orElse(0);
     Optional<EtdSettlementType> settleType = row.findValue(SETTLEMENT_TYPE_FIELD).map(s -> parseEtdSettlementType(s));
@@ -268,7 +268,7 @@ public final class CsvLoaderUtils {
       String conventionField,
       String calendarField) {
 
-    LocalDate date = LoaderUtils.parseDate(row.getValue(dateField));
+    LocalDate date = row.getValue(dateField, LoaderUtils::parseDate);
     return parseBusinessDayAdjustment(row, conventionField, calendarField)
         .map(adj -> AdjustableDate.of(date, adj))
         .orElse(AdjustableDate.of(date));
@@ -294,7 +294,7 @@ public final class CsvLoaderUtils {
       BusinessDayConvention defaultConvention,
       Currency currency) {
 
-    LocalDate date = LoaderUtils.parseDate(row.getValue(dateField));
+    LocalDate date = row.getValue(dateField, LoaderUtils::parseDate);
     BusinessDayAdjustment adj = parseBusinessDayAdjustment(row, conventionField, calendarField)
         .orElseGet(() -> BusinessDayAdjustment.of(defaultConvention, HolidayCalendarId.defaultByCurrency(currency)));
     return AdjustableDate.of(date, adj);
@@ -348,7 +348,7 @@ public final class CsvLoaderUtils {
       String cnvField,
       String calField) {
 
-    int days = LoaderUtils.parseInteger(row.getValue(daysField));
+    int days = row.getValue(daysField, LoaderUtils::parseInteger);
     HolidayCalendarId daysCal = row.findValue(daysCalField)
         .map(s -> HolidayCalendarId.of(s))
         .orElse(HolidayCalendarIds.NO_HOLIDAYS);
@@ -372,8 +372,8 @@ public final class CsvLoaderUtils {
    * @throws IllegalArgumentException if the row cannot be parsed
    */
   static CurrencyAmount parseCurrencyAmount(CsvRow row, String currencyField, String amountField) {
-    Currency currency = LoaderUtils.parseCurrency(row.getValue(currencyField));
-    double amount = LoaderUtils.parseDouble(row.getValue(amountField));
+    Currency currency = row.getValue(currencyField, LoaderUtils::parseCurrency);
+    double amount = row.getValue(amountField, LoaderUtils::parseDouble);
     return CurrencyAmount.of(currency, amount);
   }
 
@@ -393,9 +393,9 @@ public final class CsvLoaderUtils {
       String amountField,
       String directionField) {
 
-    Currency currency = LoaderUtils.parseCurrency(row.getValue(currencyField));
-    double amount = LoaderUtils.parseDouble(row.getValue(amountField));
-    PayReceive direction = LoaderUtils.parsePayReceive(row.getValue(directionField));
+    Currency currency = row.getValue(currencyField, LoaderUtils::parseCurrency);
+    double amount = row.getValue(amountField, LoaderUtils::parseDouble);
+    PayReceive direction = row.getValue(directionField, LoaderUtils::parsePayReceive);
     return CurrencyAmount.of(currency, direction.normalize(amount));
   }
 
