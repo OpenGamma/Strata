@@ -93,10 +93,13 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseDate_formatter() {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy'y' MM'm' dd'd'", Locale.ENGLISH);
-    assertThat(LoaderUtils.parseDate("2012y 06m 30d", formatter))
+    DateTimeFormatter formatter2 = DateTimeFormatter.ISO_DATE;
+    assertThat(LoaderUtils.parseDate("2012y 06m 30d", formatter, formatter2))
         .isEqualTo(LocalDate.of(2012, 6, 30));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDate("2012-06-30", formatter));
+    assertThat(LoaderUtils.parseDate("2012-06-30", formatter, formatter2))
+        .isEqualTo(LocalDate.of(2012, 6, 30));
   }
 
   @Test

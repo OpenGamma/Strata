@@ -11,6 +11,7 @@ import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
 import java.math.BigDecimal;
+import java.text.ParsePosition;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -37,6 +38,7 @@ import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
@@ -208,20 +210,30 @@ public final class LoaderUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Parses a date from the input string using the specified formatter.
+   * Parses a date from the input string using the specified formatters.
+   * <p>
+   * Each formatter is tried in order.
    * 
    * @param str  the string to parse
-   * @param formatter  the date format
+   * @param formatters  the date formats
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
    */
-  public static LocalDate parseDate(String str, DateTimeFormatter formatter) {
-    try {
-      return LocalDate.parse(str, formatter);
-
-    } catch (DateTimeParseException ex) {
-      throw new IllegalArgumentException("Unknown date format: " + str);
+  public static LocalDate parseDate(String str, DateTimeFormatter... formatters) {
+    ArgChecker.notEmpty(formatters, "formatters");
+    for (DateTimeFormatter formatter : formatters) {
+      try {
+        ParsePosition pp = new ParsePosition(0);
+        formatter.parseUnresolved(str, pp);
+        int len = str.length();
+        if (pp.getErrorIndex() == -1 && pp.getIndex() == len) {
+          return formatter.parse(str, LocalDate::from);
+        }
+      } catch (RuntimeException ex) {
+        // should not happen, but ignore if it does
+      }
     }
+    throw new IllegalArgumentException("Unknown date format: " + str);
   }
 
   /**
