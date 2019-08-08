@@ -35,6 +35,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
@@ -205,6 +206,24 @@ public final class LoaderUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a date from the input string using the specified formatter.
+   * 
+   * @param str  the string to parse
+   * @param formatter  the date format
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static LocalDate parseDate(String str, DateTimeFormatter formatter) {
+    try {
+      return LocalDate.parse(str, formatter);
+
+    } catch (DateTimeParseException ex) {
+      throw new IllegalArgumentException("Unknown date format: " + str);
+    }
+  }
+
   /**
    * Parses a date from the input string.
    * <p>
@@ -361,7 +380,7 @@ public final class LoaderUtils {
     try {
       return Tenor.parse(str);
 
-    } catch (DateTimeParseException ex) {
+    } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unknown tenor format: " + str);
     }
   }
@@ -383,6 +402,22 @@ public final class LoaderUtils {
       }
     }
     return Optional.empty();
+  }
+
+  /**
+   * Parses a frequency from the input string.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static Frequency parseFrequency(String str) {
+    try {
+      return Frequency.parse(str);
+
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Unknown frequency format: " + str);
+    }
   }
 
   //-------------------------------------------------------------------------
