@@ -26,6 +26,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -228,6 +229,59 @@ public final class Guavate {
     return optional.isPresent() ?
         Stream.of(optional.get()) :
         Stream.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts a stream to an iterable for use in the for-each statement.
+   * <p>
+   * For some use cases this approach is nicer than {@link Stream#forEach(Consumer)}.
+   * Notably code that mutates a local variable or has to handle checked exceptions will benefit.
+   * <p>
+   * <pre>
+   *  for (Item item : in(stream)) {
+   *    // lazily use each item in the stream
+   *  }
+   * </pre>
+   * <p>
+   * NOTE: The result of this method can only be iterated once, which does not
+   * meet the expected specification of {@code Iterable}.
+   * Use in the for-each statement is safe as it will only be called once.
+   *
+   * @param <T>  the type of stream element
+   * @param stream  the stream
+   * @return an iterable representation of the stream that can only be invoked once
+   */
+  public static <T> Iterable<T> in(Stream<T> stream) {
+    return stream::iterator;
+  }
+
+  /**
+   * Converts an optional to an iterable for use in the for-each statement.
+   * <p>
+   * For some use cases this approach is nicer than {@link Optional#isPresent()}
+   * followed by {@link Optional#get()}.
+   * <p>
+   * <pre>
+   *  for (Item item : in(optional)) {
+   *    // use the optional value, code not called if the optional is empty
+   *  }
+   * </pre>
+   * <p>
+   * NOTE: This method is intended only for use with the for-each statement.
+   * It does in fact return a general purpose {@code Iterable}, but the method name
+   * is focussed on the for-each use case.
+   *
+   * @param <T>  the type of optional element
+   * @param optional  the optional
+   * @return an iterable representation of the optional
+   */
+  public static <T> Iterable<T> inOptional(Optional<T> optional) {
+    if (optional.isPresent()) {
+      return ImmutableList.of(optional.get());
+    } else {
+      return ImmutableList.of();
+    }
   }
 
   //-------------------------------------------------------------------------

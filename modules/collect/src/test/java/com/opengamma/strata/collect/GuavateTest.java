@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect;
 
 import static com.opengamma.strata.collect.Guavate.entriesToImmutableMap;
+import static com.opengamma.strata.collect.Guavate.in;
 import static com.opengamma.strata.collect.Guavate.pairsToImmutableMap;
 import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static java.util.stream.Collectors.toList;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -183,6 +185,36 @@ public class GuavateTest {
     Optional<String> empty = Optional.empty();
     List<String> test2 = Guavate.stream(empty).collect(Collectors.toList());
     assertThat(test2).isEqualTo(ImmutableList.of());
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_in_Stream() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : in(Stream.of("a", "b", "c"))) {
+      extracted.add(str);
+    }
+    assertThat(extracted).containsExactly("a", "b", "c");
+  }
+
+  @Test
+  public void test_inOptional_present() {
+    Optional<String> optional = Optional.of("a");
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inOptional(optional)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).containsExactly("a");
+  }
+
+  @Test
+  public void test_inOptional_empty() {
+    Optional<String> optional = Optional.empty();
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inOptional(optional)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
   }
 
   //-------------------------------------------------------------------------
