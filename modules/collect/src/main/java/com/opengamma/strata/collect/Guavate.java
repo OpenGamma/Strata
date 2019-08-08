@@ -263,7 +263,7 @@ public final class Guavate {
    * followed by {@link Optional#get()}.
    * <p>
    * <pre>
-   *  for (Item item : in(optional)) {
+   *  for (Item item : inOptional(optional)) {
    *    // use the optional value, code not called if the optional is empty
    *  }
    * </pre>
