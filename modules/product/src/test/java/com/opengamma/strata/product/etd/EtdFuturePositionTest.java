@@ -83,6 +83,7 @@ public class EtdFuturePositionTest {
     assertEquals(test.getType(), EtdType.FUTURE);
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getSecurityId(), test.getSecurity().getSecurityId());
+    assertEquals(test.getProduct(), SECURITY);
     assertEquals(test.getQuantity(), 1000d, 0d);
   }
 

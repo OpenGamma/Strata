@@ -83,6 +83,7 @@ public class EtdOptionPositionTest {
     assertEquals(test.getType(), EtdType.OPTION);
     assertEquals(test.getCurrency(), Currency.GBP);
     assertEquals(test.getSecurityId(), test.getSecurity().getSecurityId());
+    assertEquals(test.getProduct(), SECURITY);
     assertEquals(test.getQuantity(), 1000d, 0d);
   }
 
