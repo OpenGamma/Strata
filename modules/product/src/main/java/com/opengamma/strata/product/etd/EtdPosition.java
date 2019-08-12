@@ -5,9 +5,10 @@
  */
 package com.opengamma.strata.product.etd;
 
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
+import com.opengamma.strata.product.SecuritizedProduct;
+import com.opengamma.strata.product.SecuritizedProductPosition;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -21,20 +22,11 @@ import com.opengamma.strata.product.SecurityId;
  * In many cases, only a long quantity or short quantity will be present with the other set to zero.
  * However it is also possible for both to be non-zero, allowing long and short positions to be treated separately.
  * The net quantity is available via {@link #getQuantity()}.
+ *
+ * @param <T> the type of securitized product
  */
-public interface EtdPosition
-    extends Position {
-
-  /**
-   * Gets the currency of the position.
-   * <p>
-   * This is the currency of the security.
-   *
-   * @return the trading currency
-   */
-  public default Currency getCurrency() {
-    return getSecurity().getCurrency();
-  }
+public interface EtdPosition<T extends SecuritizedProduct>
+    extends SecuritizedProductPosition<T>, Position {
 
   /**
    * Gets the underlying ETD security.

@@ -50,7 +50,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class EtdFuturePosition
-    implements EtdPosition, ResolvableSecurityPosition, ImmutableBean, Serializable {
+    implements EtdPosition<EtdFutureSecurity>, ResolvableSecurityPosition, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.
@@ -156,6 +156,12 @@ public final class EtdFuturePosition
   @ImmutableDefaults
   private static void applyDefaults(Builder builder) {
     builder.info = PositionInfo.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public EtdFutureSecurity getProduct() {
+    return security;
   }
 
   //-------------------------------------------------------------------------
