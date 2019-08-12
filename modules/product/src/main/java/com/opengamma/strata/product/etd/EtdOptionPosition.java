@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.PortfolioItemSummary;
@@ -50,7 +51,7 @@ import com.opengamma.strata.product.common.SummarizerUtils;
  */
 @BeanDefinition
 public final class EtdOptionPosition
-    implements EtdPosition<EtdOptionSecurity>, ResolvableSecurityPosition, ImmutableBean, Serializable {
+    implements EtdPosition, SecuritizedProductPosition<EtdOptionSecurity>, ResolvableSecurityPosition, ImmutableBean, Serializable {
 
   /**
    * The additional position information, defaulted to an empty instance.
@@ -200,6 +201,12 @@ public final class EtdOptionPosition
   @DerivedProperty
   public double getQuantity() {
     return longQuantity - shortQuantity;
+  }
+
+  @Override
+  @DerivedProperty
+  public Currency getCurrency() {
+    return EtdPosition.super.getCurrency();
   }
 
   @Override
@@ -392,6 +399,11 @@ public final class EtdOptionPosition
     private final MetaProperty<Double> quantity = DirectMetaProperty.ofDerived(
         this, "quantity", EtdOptionPosition.class, Double.TYPE);
     /**
+     * The meta-property for the {@code currency} property.
+     */
+    private final MetaProperty<Currency> currency = DirectMetaProperty.ofDerived(
+        this, "currency", EtdOptionPosition.class, Currency.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -400,7 +412,8 @@ public final class EtdOptionPosition
         "security",
         "longQuantity",
         "shortQuantity",
-        "quantity");
+        "quantity",
+        "currency");
 
     /**
      * Restricted constructor.
@@ -421,6 +434,8 @@ public final class EtdOptionPosition
           return shortQuantity;
         case -1285004149:  // quantity
           return quantity;
+        case 575402001:  // currency
+          return currency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -481,6 +496,14 @@ public final class EtdOptionPosition
       return quantity;
     }
 
+    /**
+     * The meta-property for the {@code currency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Currency> currency() {
+      return currency;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -495,6 +518,8 @@ public final class EtdOptionPosition
           return ((EtdOptionPosition) bean).getShortQuantity();
         case -1285004149:  // quantity
           return ((EtdOptionPosition) bean).getQuantity();
+        case 575402001:  // currency
+          return ((EtdOptionPosition) bean).getCurrency();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
