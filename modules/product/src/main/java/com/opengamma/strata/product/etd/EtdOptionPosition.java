@@ -210,6 +210,12 @@ public final class EtdOptionPosition
   }
 
   @Override
+  @DerivedProperty
+  public SecurityId getSecurityId() {
+    return EtdPosition.super.getSecurityId();
+  }
+
+  @Override
   public SecuritizedProductPosition<?> resolveTarget(ReferenceData refData) {
     SecurityId securityId = getSecurityId();
     Security security = refData.getValue(securityId);
@@ -404,6 +410,11 @@ public final class EtdOptionPosition
     private final MetaProperty<Currency> currency = DirectMetaProperty.ofDerived(
         this, "currency", EtdOptionPosition.class, Currency.class);
     /**
+     * The meta-property for the {@code securityId} property.
+     */
+    private final MetaProperty<SecurityId> securityId = DirectMetaProperty.ofDerived(
+        this, "securityId", EtdOptionPosition.class, SecurityId.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -413,7 +424,8 @@ public final class EtdOptionPosition
         "longQuantity",
         "shortQuantity",
         "quantity",
-        "currency");
+        "currency",
+        "securityId");
 
     /**
      * Restricted constructor.
@@ -436,6 +448,8 @@ public final class EtdOptionPosition
           return quantity;
         case 575402001:  // currency
           return currency;
+        case 1574023291:  // securityId
+          return securityId;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -504,6 +518,14 @@ public final class EtdOptionPosition
       return currency;
     }
 
+    /**
+     * The meta-property for the {@code securityId} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SecurityId> securityId() {
+      return securityId;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -520,6 +542,8 @@ public final class EtdOptionPosition
           return ((EtdOptionPosition) bean).getQuantity();
         case 575402001:  // currency
           return ((EtdOptionPosition) bean).getCurrency();
+        case 1574023291:  // securityId
+          return ((EtdOptionPosition) bean).getSecurityId();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
