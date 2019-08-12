@@ -752,7 +752,7 @@
     <joda.beans.version>2.7.1</joda.beans.version>
     <junit5.version>5.5.1</junit5.version>
     <mockito.version>3.0.0</mockito.version>
-    <slf4j.version>1.7.26</slf4j.version>
+    <slf4j.version>1.7.28</slf4j.version>
     <testng.version>6.14.2</testng.version><!-- 6.14.3 and 6.14.4 are invalid -->
     <!-- Properties for maven-checkstyle-plugin -->
     <!-- versions must be retained to allow the version to be overridden on the command line -->
