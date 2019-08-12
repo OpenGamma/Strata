@@ -123,6 +123,11 @@ public final class PositionInfo
     return new PositionInfo(id, updatedAttributes);
   }
 
+  @Override
+  public PositionInfo combinedWith(PortfolioItemInfo other) {
+    return (PositionInfo) PortfolioItemInfo.super.combinedWith(other);
+  }
+
   /**
    * Returns a builder populated with the values of this instance.
    * 
