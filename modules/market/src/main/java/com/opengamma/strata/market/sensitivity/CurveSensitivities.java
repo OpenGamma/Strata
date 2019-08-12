@@ -38,7 +38,6 @@ import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesBuilder;
 import com.opengamma.strata.market.param.ParameterMetadata;
-import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.PortfolioItem;
 import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
@@ -196,18 +195,10 @@ public final class CurveSensitivities
    * @param other  the other parameter sensitivities
    * @return an instance based on this one, with the other instance added
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public CurveSensitivities mergedWith(CurveSensitivities other) {
-    PortfolioItemInfo combinedInfo = info;
-    if (!info.getId().isPresent() && other.info.getId().isPresent()) {
-      combinedInfo = combinedInfo.withId(other.info.getId().get());
-    }
-    for (AttributeType attrType : other.info.getAttributeTypes()) {
-      if (!combinedInfo.getAttributeTypes().contains(attrType)) {
-        combinedInfo = combinedInfo.withAttribute(attrType, other.info.getAttribute(attrType));
-      }
-    }
-    return new CurveSensitivities(combinedInfo, mergedWith(other.typedSensitivities).getTypedSensitivities());
+    return new CurveSensitivities(
+        info.combinedWith(other.info),
+        mergedWith(other.typedSensitivities).getTypedSensitivities());
   }
 
   //-------------------------------------------------------------------------

@@ -86,4 +86,27 @@ public interface PortfolioItemInfo extends Attributes {
   @Override
   public abstract <T> PortfolioItemInfo withAttribute(AttributeType<T> type, T value);
 
+  /**
+   * Combines this info with another.
+   * <p>
+   * If there is a conflict, data from this instance takes precedence.
+   * If the other instance is not of the same type, data may be lost.
+   * 
+   * @param other  the other instance
+   * @return the combined instance
+   */
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  public default PortfolioItemInfo combinedWith(PortfolioItemInfo other) {
+    PortfolioItemInfo combinedInfo = this;
+    if (!combinedInfo.getId().isPresent() && other.getId().isPresent()) {
+      combinedInfo = combinedInfo.withId(other.getId().get());
+    }
+    for (AttributeType attrType : other.getAttributeTypes()) {
+      if (!combinedInfo.getAttributeTypes().contains(attrType)) {
+        combinedInfo = combinedInfo.withAttribute(attrType, other.getAttribute(attrType));
+      }
+    }
+    return combinedInfo;
+  }
+
 }

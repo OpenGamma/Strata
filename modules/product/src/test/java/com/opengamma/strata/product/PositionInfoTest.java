@@ -8,50 +8,67 @@ package com.opengamma.strata.product;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-
-import java.util.Optional;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 
 /**
  * Test {@link PositionInfo}.
  */
-@Test
 public class PositionInfoTest {
 
   private static final StandardId ID = StandardId.of("OG-Test", "123");
   private static final StandardId ID2 = StandardId.of("OG-Test", "321");
 
+  @Test
   public void test_builder() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
         .build();
-    assertEquals(test.getId(), Optional.of(ID));
-    assertEquals(test.getAttributeTypes(), ImmutableSet.of());
-    assertEquals(test.getAttributes(), ImmutableMap.of());
+    assertThat(test.getId()).hasValue(ID);
+    assertThat(test.getAttributeTypes()).isEmpty();
+    assertThat(test.getAttributes()).isEmpty();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getAttribute(AttributeType.DESCRIPTION));
-    assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.empty());
+    assertThat(test.findAttribute(AttributeType.DESCRIPTION)).isEmpty();
   }
 
+  @Test
   public void test_builder_withers() {
     PositionInfo test = PositionInfo.builder()
         .build()
         .withId(ID)
         .withAttribute(AttributeType.DESCRIPTION, "A");
-    assertEquals(test.getId(), Optional.of(ID));
-    assertEquals(test.getAttributeTypes(), ImmutableSet.of(AttributeType.DESCRIPTION));
-    assertEquals(test.getAttributes(), ImmutableMap.of(AttributeType.DESCRIPTION, "A"));
-    assertEquals(test.getAttribute(AttributeType.DESCRIPTION), "A");
-    assertEquals(test.findAttribute(AttributeType.DESCRIPTION), Optional.of("A"));
+    assertThat(test.getId()).hasValue(ID);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION);
+    assertThat(test.getAttributes()).containsEntry(AttributeType.DESCRIPTION, "A");
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("A");
+    assertThat(test.findAttribute(AttributeType.DESCRIPTION)).hasValue("A");
   }
 
+  @Test
+  public void test_combinedWith() {
+    PositionInfo base = PositionInfo.builder()
+        .id(ID)
+        .addAttribute(AttributeType.DESCRIPTION, "A")
+        .build();
+    PositionInfo other = PositionInfo.builder()
+        .id(ID2)
+        .addAttribute(AttributeType.DESCRIPTION, "B")
+        .addAttribute(AttributeType.NAME, "B")
+        .build();
+    PositionInfo test = base.combinedWith(other);
+    assertThat(test.getId()).hasValue(ID);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttributes())
+        .containsEntry(AttributeType.DESCRIPTION, "A")
+        .containsEntry(AttributeType.NAME, "B");
+  }
+
+  @Test
   public void test_toBuilder() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
@@ -59,11 +76,12 @@ public class PositionInfoTest {
         .toBuilder()
         .id(ID2)
         .build();
-    assertEquals(test.getId(), Optional.of(ID2));
-    assertEquals(test.getAttributes(), ImmutableMap.of());
+    assertThat(test.getId()).hasValue(ID2);
+    assertThat(test.getAttributes()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
@@ -76,6 +94,7 @@ public class PositionInfoTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)
