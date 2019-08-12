@@ -18,6 +18,7 @@ import static org.testng.Assert.assertThrows;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.testng.annotations.Test;
 
@@ -116,6 +117,29 @@ public class CurveSensitivitiesTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_toMergedSensitivities() {
+    CurveName curveName = CurveName.of("WEIRD");
+    CurveSensitivities base = CurveSensitivities.builder(PortfolioItemInfo.empty())
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1M, 4)
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1W, 1)
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1Y, 2)
+        .build();
+    CurveSensitivities other = CurveSensitivities.builder(PortfolioItemInfo.empty())
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1W, 2)
+        .build();
+    CurveSensitivities test = Stream.of(base, other).collect(CurveSensitivities.toMergedSensitivities());
+    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
+    assertEquals(test.getTypedSensitivities().size(), 1);
+    CurrencyParameterSensitivities sens = test.getTypedSensitivity(ZERO_RATE_DELTA);
+    assertEquals(sens.getSensitivities().size(), 1);
+    CurrencyParameterSensitivity singleSens = sens.getSensitivity(curveName, GBP);
+    assertEquals(singleSens.getSensitivity(), DoubleArray.of(3, 4, 2));
+    assertEquals(singleSens.getParameterMetadata(0), TENOR_MD_1W);
+    assertEquals(singleSens.getParameterMetadata(1), TENOR_MD_1M);
+    assertEquals(singleSens.getParameterMetadata(2), TENOR_MD_1Y);
+  }
+
+  //-------------------------------------------------------------------------
   public void test_builder_empty() {
     CurveSensitivities test = CurveSensitivities.builder(PortfolioItemInfo.empty()).build();
     assertEquals(test.getInfo(), PortfolioItemInfo.empty());
@@ -160,6 +184,31 @@ public class CurveSensitivitiesTest {
     CurrencyParameterSensitivity sensUsd = sens.getSensitivity(curveName, USD);
     assertEquals(sensUsd.getSensitivity(), DoubleArray.of(2));
     assertEquals(sensUsd.getParameterMetadata(0), TENOR_MD_1Y);
+  }
+
+  public void test_builder_curveSensitivities() {
+    CurveName curveName = CurveName.of("WEIRD");
+    CurveSensitivities base = CurveSensitivities.builder(PortfolioItemInfo.empty())
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1M, 4)
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1W, 1)
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1Y, 2)
+        .build();
+    CurveSensitivities other = CurveSensitivities.builder(PortfolioItemInfo.empty())
+        .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1W, 2)
+        .build();
+    CurveSensitivities test = CurveSensitivities.builder(PortfolioItemInfo.empty())
+        .add(base)
+        .add(other)
+        .build();
+    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
+    assertEquals(test.getTypedSensitivities().size(), 1);
+    CurrencyParameterSensitivities sens = test.getTypedSensitivity(ZERO_RATE_DELTA);
+    assertEquals(sens.getSensitivities().size(), 1);
+    CurrencyParameterSensitivity singleSens = sens.getSensitivity(curveName, GBP);
+    assertEquals(singleSens.getSensitivity(), DoubleArray.of(3, 4, 2));
+    assertEquals(singleSens.getParameterMetadata(0), TENOR_MD_1W);
+    assertEquals(singleSens.getParameterMetadata(1), TENOR_MD_1M);
+    assertEquals(singleSens.getParameterMetadata(2), TENOR_MD_1Y);
   }
 
   //-------------------------------------------------------------------------

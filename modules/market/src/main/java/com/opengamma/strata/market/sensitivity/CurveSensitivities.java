@@ -126,6 +126,19 @@ public final class CurveSensitivities
     return new CurveSensitivities(info, ImmutableMap.copyOf(typedSensitivities));
   }
 
+  /**
+   * Returns a collector that merges sensitivities.
+   *
+   * @return a collector that can merge sensitivities
+   */
+  public static Collector<CurveSensitivities, ?, CurveSensitivities> toMergedSensitivities() {
+    return Collector.of(
+        () -> builder(PortfolioItemInfo.empty()),
+        CurveSensitivitiesBuilder::add,
+        CurveSensitivitiesBuilder::combine,
+        CurveSensitivitiesBuilder::build);
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets a sensitivity instance by type, throwing an exception if not found.

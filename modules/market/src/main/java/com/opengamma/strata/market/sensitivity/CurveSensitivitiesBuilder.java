@@ -25,7 +25,7 @@ public final class CurveSensitivitiesBuilder {
   /**
    * The info.
    */
-  private final PortfolioItemInfo info;
+  private PortfolioItemInfo info;
   /**
    * The map of sensitivity data.
    */
@@ -39,12 +39,58 @@ public final class CurveSensitivitiesBuilder {
 
   //-------------------------------------------------------------------------
   /**
+   * Adds another set of sensitivities to the builder.
+   * <p>
+   * Values with the same market data name and currency will be merged.
+   * 
+   * @param other  the other sensitivities
+   * @return this, for chaining
+   */
+  CurveSensitivitiesBuilder combine(CurveSensitivitiesBuilder other) {
+    this.info = this.info.combinedWith(other.info);
+    other.data.forEach((type, map) -> add(type, map.build()));
+    return this;
+  }
+
+  /**
+   * Adds another set of sensitivities to the builder.
+   * <p>
+   * Values with the same market data name and currency will be merged.
+   * 
+   * @param other  the other sensitivities
+   * @return this, for chaining
+   */
+  public CurveSensitivitiesBuilder add(CurveSensitivities other) {
+    this.info = this.info.combinedWith(other.getInfo());
+    other.getTypedSensitivities().forEach(this::add);
+    return this;
+  }
+
+  /**
+   * Adds sensitivities to the builder.
+   * <p>
+   * Values with the same market data name and currency will be merged.
+   * 
+   * @param type  the sensitivity type
+   * @param sensitivities  the sensitivities to add
+   * @return this, for chaining
+   */
+  public CurveSensitivitiesBuilder add(
+      CurveSensitivitiesType type,
+      CurrencyParameterSensitivities sensitivities) {
+
+    data.computeIfAbsent(type, t -> CurrencyParameterSensitivities.builder())
+        .add(sensitivities);
+    return this;
+  }
+
+  /**
    * Adds a sensitivity to the builder.
    * <p>
    * Values with the same market data name and currency will be merged.
    * 
    * @param type  the sensitivity type
-   * @param sensitivity  the sensitivity to ad
+   * @param sensitivity  the sensitivity to add
    * @return this, for chaining
    */
   public CurveSensitivitiesBuilder add(
