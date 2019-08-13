@@ -6,19 +6,18 @@
 package com.opengamma.strata.basics.index;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link Index}.
  */
-@Test
 public class IndexTest {
 
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
@@ -44,30 +43,36 @@ public class IndexTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(Index convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(Index convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(Index convention, String name) {
-    assertEquals(Index.of(name), convention);
+    assertThat(Index.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> Index.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> Index.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(Indices.class);
   }

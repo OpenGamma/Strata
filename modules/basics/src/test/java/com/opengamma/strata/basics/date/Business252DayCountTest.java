@@ -11,64 +11,67 @@ import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link Business252DayCount}.
  */
-@Test
 public class Business252DayCountTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_factory_name() {
     DayCount test = DayCount.of("Bus/252 EUTA");
-    assertEquals(test.getName(), "Bus/252 EUTA");
-    assertEquals(test.toString(), "Bus/252 EUTA");
+    assertThat(test.getName()).isEqualTo("Bus/252 EUTA");
+    assertThat(test.toString()).isEqualTo("Bus/252 EUTA");
 
-    assertSame(DayCount.of("Bus/252 EUTA"), test);
-    assertSame(DayCount.ofBus252(EUTA), test);
+    assertThat(DayCount.of("Bus/252 EUTA")).isSameAs(test);
+    assertThat(DayCount.ofBus252(EUTA)).isSameAs(test);
   }
 
+  @Test
   public void test_factory_nameUpper() {
     DayCount test = DayCount.of("BUS/252 EUTA");
-    assertEquals(test.getName(), "Bus/252 EUTA");
-    assertEquals(test.toString(), "Bus/252 EUTA");
+    assertThat(test.getName()).isEqualTo("Bus/252 EUTA");
+    assertThat(test.toString()).isEqualTo("Bus/252 EUTA");
 
-    assertSame(DayCount.of("Bus/252 EUTA"), test);
-    assertSame(DayCount.ofBus252(EUTA), test);
+    assertThat(DayCount.of("Bus/252 EUTA")).isSameAs(test);
+    assertThat(DayCount.ofBus252(EUTA)).isSameAs(test);
   }
 
+  @Test
   public void test_factory_calendar() {
     DayCount test = DayCount.ofBus252(GBLO);
-    assertEquals(test.getName(), "Bus/252 GBLO");
-    assertEquals(test.toString(), "Bus/252 GBLO");
+    assertThat(test.getName()).isEqualTo("Bus/252 GBLO");
+    assertThat(test.toString()).isEqualTo("Bus/252 GBLO");
 
-    assertSame(DayCount.of("Bus/252 GBLO"), test);
-    assertSame(DayCount.ofBus252(GBLO), test);
+    assertThat(DayCount.of("Bus/252 GBLO")).isSameAs(test);
+    assertThat(DayCount.ofBus252(GBLO)).isSameAs(test);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_yearFraction() {
     DayCount test = DayCount.of("Bus/252 EUTA");
     LocalDate date1 = date(2014, 12, 1);
     LocalDate date2 = date(2014, 12, 1);
     for (int i = 0; i < 366; i++) {
-      assertEquals(test.yearFraction(date1, date2), EUTA.resolve(REF_DATA).daysBetween(date1, date2) / 252d);
+      assertThat(test.yearFraction(date1, date2)).isEqualTo(EUTA.resolve(REF_DATA).daysBetween(date1, date2) / 252d);
       date2 = date2.plusDays(1);
     }
   }
 
+  @Test
   public void test_yearFraction_badOrder() {
     DayCount test = DayCount.of("Bus/252 EUTA");
     LocalDate date1 = date(2014, 12, 2);
@@ -76,36 +79,41 @@ public class Business252DayCountTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test.yearFraction(date1, date2));
   }
 
+  @Test
   public void test_days() {
     DayCount test = DayCount.of("Bus/252 EUTA");
     LocalDate date1 = date(2014, 12, 1);
     LocalDate date2 = date(2014, 12, 1);
     for (int i = 0; i < 366; i++) {
-      assertEquals(test.days(date1, date2), EUTA.resolve(REF_DATA).daysBetween(date1, date2));
+      assertThat(test.days(date1, date2)).isEqualTo(EUTA.resolve(REF_DATA).daysBetween(date1, date2));
       date2 = date2.plusDays(1);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     DayCount a = DayCount.of("Bus/252 EUTA");
     DayCount b = DayCount.of("Bus/252 GBLO");
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(ANOTHER_TYPE), false);
-    assertEquals(a.equals(null), false);
-    assertEquals(a.hashCode(), a.hashCode());
+    assertThat(a.equals(a)).isEqualTo(true);
+    assertThat(a.equals(b)).isEqualTo(false);
+    assertThat(a.equals(ANOTHER_TYPE)).isEqualTo(false);
+    assertThat(a.equals(null)).isEqualTo(false);
+    assertThat(a.hashCode()).isEqualTo(a.hashCode());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(Business252DayCount.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(DayCount.ofBus252(EUTA));
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(DayCount.class, DayCount.ofBus252(EUTA));
   }

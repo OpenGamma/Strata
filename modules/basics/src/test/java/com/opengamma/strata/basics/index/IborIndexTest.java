@@ -56,14 +56,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -77,547 +78,592 @@ import com.opengamma.strata.basics.date.TenorAdjustment;
 /**
  * Test Ibor Index.
  */
-@Test
 public class IborIndexTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId NZBD = HolidayCalendarId.of("NZBD");  // no constant for this
 
+  @Test
   public void test_gbpLibor3m() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
-    assertEquals(test.getName(), "GBP-LIBOR-3M");
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.isActive(), true);
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), GBLO);
-    assertEquals(test.getFixingDateOffset(),
-        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
-    assertEquals(test.getEffectiveDateOffset(),
-        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.getFloatingRateName(), FloatingRateName.of("GBP-LIBOR"));
-    assertEquals(test.toString(), "GBP-LIBOR-3M");
+    assertThat(test.getName()).isEqualTo("GBP-LIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(GBLO);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, GBLO)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getFloatingRateName()).isEqualTo(FloatingRateName.of("GBP-LIBOR"));
+    assertThat(test.toString()).isEqualTo("GBP-LIBOR-3M");
   }
 
+  @Test
   public void test_gbpLibor3m_dates() {
     IborIndex test = IborIndex.of("GBP-LIBOR-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA), date(2015, 1, 13));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 13), REF_DATA), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 13), REF_DATA), date(2015, 1, 13));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 13), REF_DATA)).isEqualTo(date(2014, 10, 13));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 13), REF_DATA)).isEqualTo(date(2015, 1, 13));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 13), REF_DATA)).isEqualTo(date(2014, 10, 13));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 13), REF_DATA)).isEqualTo(date(2015, 1, 13));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 12));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 10), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 10), REF_DATA), date(2015, 1, 12));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2015, 1, 12));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2015, 1, 12));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 13));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 13));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 13));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 13));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 13));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 13));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 13));
     // fixing time and zone
-    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
-        date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
+    assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
     // resolve
-    assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 13)), IborIndexObservation.of(test, date(2014, 10, 13), REF_DATA));
+    assertThat(test.resolve(REF_DATA).apply(date(2014, 10, 13)))
+        .isEqualTo(IborIndexObservation.of(test, date(2014, 10, 13), REF_DATA));
   }
 
+  @Test
   public void test_getFloatingRateName() {
     for (IborIndex index : IborIndex.extendedEnum().lookupAll().values()) {
       String name = index.getName().substring(0, index.getName().lastIndexOf('-'));
-      assertEquals(index.getFloatingRateName(), FloatingRateName.of(name));
+      assertThat(index.getFloatingRateName()).isEqualTo(FloatingRateName.of(name));
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_usdLibor3m() {
     IborIndex test = IborIndex.of("USD-LIBOR-3M");
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getName(), "USD-LIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), GBLO);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, GBLO));
-    assertEquals(test.getEffectiveDateOffset(),
-        DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, GBLO.combinedWith(USNY))));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combinedWith(USNY))));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
-    assertEquals(test.getFloatingRateName(), FloatingRateName.of("USD-LIBOR"));
-    assertEquals(test.toString(), "USD-LIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getName()).isEqualTo("USD-LIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(GBLO);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, GBLO));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofBusinessDays(2, GBLO, BusinessDayAdjustment.of(FOLLOWING, GBLO.combinedWith(USNY))));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.ofLastBusinessDay(
+            TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO.combinedWith(USNY))));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getFloatingRateName()).isEqualTo(FloatingRateName.of("USD-LIBOR"));
+    assertThat(test.toString()).isEqualTo("USD-LIBOR-3M");
   }
 
+  @Test
   public void test_usdLibor3m_dates() {
     IborIndex test = IborIndex.of("USD-LIBOR-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2014, 10, 29));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2015, 1, 29));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2014, 10, 27));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 14));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 14));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 14), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 14), REF_DATA), date(2015, 1, 14));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2014, 10, 14));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2015, 1, 14));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 14), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 14), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // effective date is US holiday
-    assertEquals(test.calculateEffectiveFromFixing(date(2015, 1, 16), REF_DATA), date(2015, 1, 20));
-    assertEquals(test.calculateMaturityFromFixing(date(2015, 1, 16), REF_DATA), date(2015, 4, 20));
-    assertEquals(test.calculateFixingFromEffective(date(2015, 1, 20), REF_DATA), date(2015, 1, 16));
-    assertEquals(test.calculateMaturityFromEffective(date(2015, 1, 20), REF_DATA), date(2015, 4, 20));
+    assertThat(test.calculateEffectiveFromFixing(date(2015, 1, 16), REF_DATA)).isEqualTo(date(2015, 1, 20));
+    assertThat(test.calculateMaturityFromFixing(date(2015, 1, 16), REF_DATA)).isEqualTo(date(2015, 4, 20));
+    assertThat(test.calculateFixingFromEffective(date(2015, 1, 20), REF_DATA)).isEqualTo(date(2015, 1, 16));
+    assertThat(test.calculateMaturityFromEffective(date(2015, 1, 20), REF_DATA)).isEqualTo(date(2015, 4, 20));
     // input date is Sunday, 13th is US holiday, but not UK holiday (can fix, but not be effective)
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 14));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 15));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 15));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // fixing time and zone
-    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
-        date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
+    assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
     // resolve
-    assertEquals(test.resolve(REF_DATA).apply(date(2014, 10, 27)), IborIndexObservation.of(test, date(2014, 10, 27), REF_DATA));
+    assertThat(test.resolve(REF_DATA).apply(date(2014, 10, 27)))
+        .isEqualTo(IborIndexObservation.of(test, date(2014, 10, 27), REF_DATA));
   }
 
+  @Test
   public void test_euribor3m() {
     IborIndex test = IborIndex.of("EUR-EURIBOR-3M");
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getName(), "EUR-EURIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), EUTA);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, EUTA));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, EUTA));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
-    assertEquals(test.getFloatingRateName(), FloatingRateName.of("EUR-EURIBOR"));
-    assertEquals(test.toString(), "EUR-EURIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getName()).isEqualTo("EUR-EURIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(EUTA);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, EUTA));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, EUTA));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, EUTA)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(THIRTY_U_360);
+    assertThat(test.getFloatingRateName()).isEqualTo(FloatingRateName.of("EUR-EURIBOR"));
+    assertThat(test.toString()).isEqualTo("EUR-EURIBOR-3M");
   }
 
+  @Test
   public void test_euribor3m_dates() {
     IborIndex test = IborIndex.of("EUR-EURIBOR-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2014, 10, 29));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2015, 1, 29));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2014, 10, 27));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 14));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 14));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 14), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 14), REF_DATA), date(2015, 1, 14));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2014, 10, 14));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2015, 1, 14));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 14), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 14), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 9));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 13));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 15));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 15));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 9));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 13));
     // fixing time and zone
-    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
-        date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/Brussels")));
+    assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/Brussels")));
   }
 
+  @Test
   public void test_tibor_japan3m() {
     IborIndex test = IborIndex.of("JPY-TIBOR-JAPAN-3M");
-    assertEquals(test.getCurrency(), JPY);
-    assertEquals(test.getName(), "JPY-TIBOR-JAPAN-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), JPTO);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, JPTO));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, JPTO));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.getFloatingRateName(), FloatingRateName.of("JPY-TIBOR-JAPAN"));
-    assertEquals(test.toString(), "JPY-TIBOR-JAPAN-3M");
+    assertThat(test.getCurrency()).isEqualTo(JPY);
+    assertThat(test.getName()).isEqualTo("JPY-TIBOR-JAPAN-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(JPTO);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, JPTO));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, JPTO));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getFloatingRateName()).isEqualTo(FloatingRateName.of("JPY-TIBOR-JAPAN"));
+    assertThat(test.toString()).isEqualTo("JPY-TIBOR-JAPAN-3M");
   }
 
+  @Test
   public void test_tibor_japan3m_dates() {
     IborIndex test = IborIndex.of("JPY-TIBOR-JAPAN-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2014, 10, 29));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2015, 1, 29));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2014, 10, 27));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15), REF_DATA), date(2015, 1, 15));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2014, 10, 15));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2015, 1, 15));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 15), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 15), REF_DATA)).isEqualTo(date(2015, 1, 15));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 16));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 9));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 14));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 16));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 16));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 9));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // fixing time and zone
-    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
-        date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
+    assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
   }
 
+  @Test
   public void test_tibor_euroyen3m() {
     IborIndex test = IborIndex.of("JPY-TIBOR-EUROYEN-3M");
-    assertEquals(test.getCurrency(), JPY);
-    assertEquals(test.getName(), "JPY-TIBOR-EUROYEN-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), JPTO);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, JPTO));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, JPTO));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.getFloatingRateName(), FloatingRateName.of("JPY-TIBOR-EUROYEN"));
-    assertEquals(test.toString(), "JPY-TIBOR-EUROYEN-3M");
+    assertThat(test.getCurrency()).isEqualTo(JPY);
+    assertThat(test.getName()).isEqualTo("JPY-TIBOR-EUROYEN-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(JPTO);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, JPTO));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, JPTO));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.ofLastBusinessDay(TENOR_3M, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, JPTO)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getFloatingRateName()).isEqualTo(FloatingRateName.of("JPY-TIBOR-EUROYEN"));
+    assertThat(test.toString()).isEqualTo("JPY-TIBOR-EUROYEN-3M");
   }
 
+  @Test
   public void test_tibor_euroyen3m_dates() {
     IborIndex test = IborIndex.of("JPY-TIBOR-EUROYEN-3M");
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA), date(2014, 10, 29));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA), date(2015, 1, 29));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA), date(2014, 10, 27));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA), date(2015, 1, 29));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2014, 10, 29));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 27), REF_DATA)).isEqualTo(date(2015, 1, 29));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2014, 10, 27));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 29), REF_DATA)).isEqualTo(date(2015, 1, 29));
     // weekend
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA), date(2014, 10, 15));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA), date(2015, 1, 15));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 15), REF_DATA), date(2014, 10, 10));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 15), REF_DATA), date(2015, 1, 15));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2014, 10, 15));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 10), REF_DATA)).isEqualTo(date(2015, 1, 15));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 15), REF_DATA)).isEqualTo(date(2014, 10, 10));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 15), REF_DATA)).isEqualTo(date(2015, 1, 15));
     // input date is Sunday
-    assertEquals(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA), date(2014, 10, 16));
-    assertEquals(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA), date(2015, 1, 16));
-    assertEquals(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA), date(2014, 10, 9));
-    assertEquals(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA), date(2015, 1, 14));
+    assertThat(test.calculateEffectiveFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 16));
+    assertThat(test.calculateMaturityFromFixing(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 16));
+    assertThat(test.calculateFixingFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2014, 10, 9));
+    assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // fixing time and zone
-    assertEquals(test.calculateFixingDateTime(date(2014, 10, 13)),
-        date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
+    assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
   }
 
+  @Test
   public void test_usdLibor_all() {
-    assertEquals(IborIndex.of("USD-LIBOR-1W").getName(), "USD-LIBOR-1W");
-    assertEquals(IborIndex.of("USD-LIBOR-1W"), IborIndices.USD_LIBOR_1W);
-    assertEquals(IborIndex.of("USD-LIBOR-1M").getName(), "USD-LIBOR-1M");
-    assertEquals(IborIndex.of("USD-LIBOR-1M"), IborIndices.USD_LIBOR_1M);
-    assertEquals(IborIndex.of("USD-LIBOR-2M").getName(), "USD-LIBOR-2M");
-    assertEquals(IborIndex.of("USD-LIBOR-2M"), IborIndices.USD_LIBOR_2M);
-    assertEquals(IborIndex.of("USD-LIBOR-3M").getName(), "USD-LIBOR-3M");
-    assertEquals(IborIndex.of("USD-LIBOR-3M"), IborIndices.USD_LIBOR_3M);
-    assertEquals(IborIndex.of("USD-LIBOR-6M").getName(), "USD-LIBOR-6M");
-    assertEquals(IborIndex.of("USD-LIBOR-6M"), IborIndices.USD_LIBOR_6M);
-    assertEquals(IborIndex.of("USD-LIBOR-12M").getName(), "USD-LIBOR-12M");
-    assertEquals(IborIndex.of("USD-LIBOR-12M"), IborIndices.USD_LIBOR_12M);
+    assertThat(IborIndex.of("USD-LIBOR-1W").getName()).isEqualTo("USD-LIBOR-1W");
+    assertThat(IborIndex.of("USD-LIBOR-1W")).isEqualTo(IborIndices.USD_LIBOR_1W);
+    assertThat(IborIndex.of("USD-LIBOR-1M").getName()).isEqualTo("USD-LIBOR-1M");
+    assertThat(IborIndex.of("USD-LIBOR-1M")).isEqualTo(IborIndices.USD_LIBOR_1M);
+    assertThat(IborIndex.of("USD-LIBOR-2M").getName()).isEqualTo("USD-LIBOR-2M");
+    assertThat(IborIndex.of("USD-LIBOR-2M")).isEqualTo(IborIndices.USD_LIBOR_2M);
+    assertThat(IborIndex.of("USD-LIBOR-3M").getName()).isEqualTo("USD-LIBOR-3M");
+    assertThat(IborIndex.of("USD-LIBOR-3M")).isEqualTo(IborIndices.USD_LIBOR_3M);
+    assertThat(IborIndex.of("USD-LIBOR-6M").getName()).isEqualTo("USD-LIBOR-6M");
+    assertThat(IborIndex.of("USD-LIBOR-6M")).isEqualTo(IborIndices.USD_LIBOR_6M);
+    assertThat(IborIndex.of("USD-LIBOR-12M").getName()).isEqualTo("USD-LIBOR-12M");
+    assertThat(IborIndex.of("USD-LIBOR-12M")).isEqualTo(IborIndices.USD_LIBOR_12M);
   }
 
+  @Test
   public void test_bbsw1m() {
     IborIndex test = IborIndex.of("AUD-BBSW-1M");
-    assertEquals(test.getCurrency(), AUD);
-    assertEquals(test.getName(), "AUD-BBSW-1M");
-    assertEquals(test.getTenor(), TENOR_1M);
-    assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(
-            TENOR_1M,
-            PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-BBSW-1M");
+    assertThat(test.getCurrency()).isEqualTo(AUD);
+    assertThat(test.getName()).isEqualTo("AUD-BBSW-1M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_1M);
+    assertThat(test.getFixingCalendar()).isEqualTo(AUSY);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_1M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("AUD-BBSW-1M");
   }
 
+  @Test
   public void test_bbsw2m() {
     IborIndex test = IborIndex.of("AUD-BBSW-2M");
-    assertEquals(test.getCurrency(), AUD);
-    assertEquals(test.getName(), "AUD-BBSW-2M");
-    assertEquals(test.getTenor(), TENOR_2M);
-    assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(
-            TENOR_2M,
-            PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-BBSW-2M");
+    assertThat(test.getCurrency()).isEqualTo(AUD);
+    assertThat(test.getName()).isEqualTo("AUD-BBSW-2M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_2M);
+    assertThat(test.getFixingCalendar()).isEqualTo(AUSY);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_2M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("AUD-BBSW-2M");
   }
 
+  @Test
   public void test_bbsw3m() {
     IborIndex test = IborIndex.of("AUD-BBSW-3M");
-    assertEquals(test.getCurrency(), AUD);
-    assertEquals(test.getName(), "AUD-BBSW-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(
-            TENOR_3M,
-            PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-BBSW-3M");
+    assertThat(test.getCurrency()).isEqualTo(AUD);
+    assertThat(test.getName()).isEqualTo("AUD-BBSW-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(AUSY);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("AUD-BBSW-3M");
   }
 
+  @Test
   public void test_bbsw4m() {
     IborIndex test = IborIndex.of("AUD-BBSW-4M");
-    assertEquals(test.getCurrency(), AUD);
-    assertEquals(test.getName(), "AUD-BBSW-4M");
-    assertEquals(test.getTenor(), TENOR_4M);
-    assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(
-            TENOR_4M,
-            PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-BBSW-4M");
+    assertThat(test.getCurrency()).isEqualTo(AUD);
+    assertThat(test.getName()).isEqualTo("AUD-BBSW-4M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_4M);
+    assertThat(test.getFixingCalendar()).isEqualTo(AUSY);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_4M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("AUD-BBSW-4M");
   }
 
+  @Test
   public void test_bbsw5m() {
     IborIndex test = IborIndex.of("AUD-BBSW-5M");
-    assertEquals(test.getCurrency(), AUD);
-    assertEquals(test.getName(), "AUD-BBSW-5M");
-    assertEquals(test.getTenor(), TENOR_5M);
-    assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(
-            TENOR_5M,
-            PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-BBSW-5M");
+    assertThat(test.getCurrency()).isEqualTo(AUD);
+    assertThat(test.getName()).isEqualTo("AUD-BBSW-5M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_5M);
+    assertThat(test.getFixingCalendar()).isEqualTo(AUSY);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_5M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("AUD-BBSW-5M");
   }
 
+  @Test
   public void test_bbsw6m() {
     IborIndex test = IborIndex.of("AUD-BBSW-6M");
-    assertEquals(test.getCurrency(), AUD);
-    assertEquals(test.getName(), "AUD-BBSW-6M");
-    assertEquals(test.getTenor(), TENOR_6M);
-    assertEquals(test.getFixingCalendar(), AUSY);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(
-            TENOR_6M,
-            PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.toString(), "AUD-BBSW-6M");
+    assertThat(test.getCurrency()).isEqualTo(AUD);
+    assertThat(test.getName()).isEqualTo("AUD-BBSW-6M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_6M);
+    assertThat(test.getFixingCalendar()).isEqualTo(AUSY);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, AUSY)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_6M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING_BI_MONTHLY, AUSY)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("AUD-BBSW-6M");
   }
 
+  @Test
   public void test_czk_pribor() {
     IborIndex test = IborIndex.of("CZK-PRIBOR-3M");
-    assertEquals(test.getCurrency(), CZK);
-    assertEquals(test.getName(), "CZK-PRIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), CZPR);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, CZPR));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, CZPR));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CZPR)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
-    assertEquals(test.toString(), "CZK-PRIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(CZK);
+    assertThat(test.getName()).isEqualTo("CZK-PRIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(CZPR);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, CZPR));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, CZPR));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, CZPR)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_360);
+    assertThat(test.toString()).isEqualTo("CZK-PRIBOR-3M");
   }
 
+  @Test
   public void test_dkk_cibor() {
     IborIndex test = IborIndex.of("DKK-CIBOR-3M");
-    assertEquals(test.getCurrency(), DKK);
-    assertEquals(test.getName(), "DKK-CIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), DKCO);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, DKCO));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, DKCO));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, DKCO)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
-    assertEquals(test.toString(), "DKK-CIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(DKK);
+    assertThat(test.getName()).isEqualTo("DKK-CIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(DKCO);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, DKCO));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, DKCO));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, DKCO)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(THIRTY_U_360);
+    assertThat(test.toString()).isEqualTo("DKK-CIBOR-3M");
   }
 
+  @Test
   public void test_hkd_hibor() {
     HolidayCalendarId HKHK = HolidayCalendarId.of("HKHK");
     IborIndex test = IborIndex.of("HKD-HIBOR-3M");
-    assertEquals(test.getCurrency(), HKD);
-    assertEquals(test.getName(), "HKD-HIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), HKHK);
-    assertEquals(test.getFixingDateOffset(),  DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, HKHK)));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, HKHK)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HKHK)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "HKD-HIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(HKD);
+    assertThat(test.getName()).isEqualTo("HKD-HIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(HKHK);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, HKHK)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, HKHK)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HKHK)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("HKD-HIBOR-3M");
   }
 
+  @Test
   public void test_huf_bubor() {
     IborIndex test = IborIndex.of("HUF-BUBOR-3M");
-    assertEquals(test.getCurrency(), HUF);
-    assertEquals(test.getName(), "HUF-BUBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), HUBU);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, HUBU));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, HUBU));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HUBU)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "HUF-BUBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(HUF);
+    assertThat(test.getName()).isEqualTo("HUF-BUBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(HUBU);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, HUBU));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, HUBU));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, HUBU)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("HUF-BUBOR-3M");
   }
 
+  @Test
   public void test_krw_cd() {
     HolidayCalendarId KRSE = HolidayCalendarId.of("KRSE");
     IborIndex test = IborIndex.of("KRW-CD-13W");
-    assertEquals(test.getCurrency(), KRW);
-    assertEquals(test.getName(), "KRW-CD-13W");
-    assertEquals(test.getTenor(), TENOR_13W);
-    assertEquals(test.getFixingCalendar(), KRSE);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, KRSE));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, KRSE));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_13W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, KRSE)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "KRW-CD-13W");
+    assertThat(test.getCurrency()).isEqualTo(KRW);
+    assertThat(test.getName()).isEqualTo("KRW-CD-13W");
+    assertThat(test.getTenor()).isEqualTo(TENOR_13W);
+    assertThat(test.getFixingCalendar()).isEqualTo(KRSE);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-1, KRSE));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(1, KRSE));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_13W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, KRSE)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("KRW-CD-13W");
 
     IborIndex test2 = IborIndex.of("KRW-CD-3M");
-    assertEquals(test2.getName(), "KRW-CD-13W");
+    assertThat(test2.getName()).isEqualTo("KRW-CD-13W");
   }
 
+  @Test
   public void test_mxn_tiie() {
     IborIndex test = IborIndex.of("MXN-TIIE-4W");
-    assertEquals(test.getCurrency(), MXN);
-    assertEquals(test.getName(), "MXN-TIIE-4W");
-    assertEquals(test.getTenor(), TENOR_4W);
-    assertEquals(test.getFixingCalendar(), MXMC);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-1, MXMC));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(1, MXMC));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_4W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, MXMC)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_360);
-    assertEquals(test.toString(), "MXN-TIIE-4W");
+    assertThat(test.getCurrency()).isEqualTo(MXN);
+    assertThat(test.getName()).isEqualTo("MXN-TIIE-4W");
+    assertThat(test.getTenor()).isEqualTo(TENOR_4W);
+    assertThat(test.getFixingCalendar()).isEqualTo(MXMC);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-1, MXMC));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(1, MXMC));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_4W, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(FOLLOWING, MXMC)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_360);
+    assertThat(test.toString()).isEqualTo("MXN-TIIE-4W");
   }
 
+  @Test
   public void test_nzd_bkbm() {
     IborIndex test = IborIndex.of("NZD-BKBM-3M");
-    assertEquals(test.getCurrency(), NZD);
-    assertEquals(test.getName(), "NZD-BKBM-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), NZBD);
-    assertEquals(test.getFixingDateOffset(),
-        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, NZBD)));
-    assertEquals(test.getEffectiveDateOffset(),
-        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, NZBD)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, NZBD)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "NZD-BKBM-3M");
+    assertThat(test.getCurrency()).isEqualTo(NZD);
+    assertThat(test.getName()).isEqualTo("NZD-BKBM-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(NZBD);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, NZBD)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, NZBD)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, NZBD)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("NZD-BKBM-3M");
   }
 
+  @Test
   public void test_pln_wibor() {
     IborIndex test = IborIndex.of("PLN-WIBOR-3M");
-    assertEquals(test.getCurrency(), PLN);
-    assertEquals(test.getName(), "PLN-WIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), PLWA);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, PLWA));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, PLWA));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, PLWA)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.toString(), "PLN-WIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(PLN);
+    assertThat(test.getName()).isEqualTo("PLN-WIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(PLWA);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, PLWA));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, PLWA));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, PLWA)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.toString()).isEqualTo("PLN-WIBOR-3M");
   }
 
+  @Test
   public void test_sek_stibor() {
     IborIndex test = IborIndex.of("SEK-STIBOR-3M");
-    assertEquals(test.getCurrency(), SEK);
-    assertEquals(test.getName(), "SEK-STIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), SEST);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, SEST));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, SEST));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SEST)));
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getDefaultFixedLegDayCount(), THIRTY_U_360);
-    assertEquals(test.toString(), "SEK-STIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(SEK);
+    assertThat(test.getName()).isEqualTo("SEK-STIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(SEST);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, SEST));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, SEST));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SEST)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(THIRTY_U_360);
+    assertThat(test.toString()).isEqualTo("SEK-STIBOR-3M");
   }
 
+  @Test
   public void test_sgd_sibor() {
     HolidayCalendarId SGSI = HolidayCalendarId.of("SGSI");
     IborIndex test = IborIndex.of("SGD-SIBOR-3M");
-    assertEquals(test.getCurrency(), SGD);
-    assertEquals(test.getName(), "SGD-SIBOR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), SGSI);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, SGSI));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, SGSI));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SGSI)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "SGD-SIBOR-3M");
+    assertThat(test.getCurrency()).isEqualTo(SGD);
+    assertThat(test.getName()).isEqualTo("SGD-SIBOR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(SGSI);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, SGSI));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, SGSI));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, SGSI)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("SGD-SIBOR-3M");
   }
 
+  @Test
   public void test_thb_thbfix() {
     HolidayCalendarId THBA = HolidayCalendarId.of("THBA");
     IborIndex test = IborIndex.of("THB-THBFIX-6M");
-    assertEquals(test.getCurrency(), THB);
-    assertEquals(test.getName(), "THB-THBFIX-6M");
-    assertEquals(test.getTenor(), TENOR_6M);
-    assertEquals(test.getFixingCalendar(), THBA);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, THBA));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, THBA));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_6M, PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING, THBA)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "THB-THBFIX-6M");
+    assertThat(test.getCurrency()).isEqualTo(THB);
+    assertThat(test.getName()).isEqualTo("THB-THBFIX-6M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_6M);
+    assertThat(test.getFixingCalendar()).isEqualTo(THBA);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, THBA));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, THBA));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_6M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, THBA)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("THB-THBFIX-6M");
   }
 
+  @Test
   public void test_twd_taibor() {
     HolidayCalendarId TWTA = HolidayCalendarId.of("TWTA");
     IborIndex test = IborIndex.of("TWD-TAIBOR-6M");
-    assertEquals(test.getCurrency(), TWD);
-    assertEquals(test.getName(), "TWD-TAIBOR-6M");
-    assertEquals(test.getTenor(), TENOR_6M);
-    assertEquals(test.getFixingCalendar(), TWTA);
-    assertEquals(test.getFixingDateOffset(), DaysAdjustment.ofBusinessDays(-2, TWTA));
-    assertEquals(test.getEffectiveDateOffset(), DaysAdjustment.ofBusinessDays(2, TWTA));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_6M, PeriodAdditionConventions.NONE,
-            BusinessDayAdjustment.of(MODIFIED_FOLLOWING, TWTA)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "TWD-TAIBOR-6M");
+    assertThat(test.getCurrency()).isEqualTo(TWD);
+    assertThat(test.getName()).isEqualTo("TWD-TAIBOR-6M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_6M);
+    assertThat(test.getFixingCalendar()).isEqualTo(TWTA);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, TWTA));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, TWTA));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_6M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, TWTA)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("TWD-TAIBOR-6M");
   }
 
+  @Test
   public void test_zar_jibar() {
     IborIndex test = IborIndex.of("ZAR-JIBAR-3M");
-    assertEquals(test.getCurrency(), ZAR);
-    assertEquals(test.getName(), "ZAR-JIBAR-3M");
-    assertEquals(test.getTenor(), TENOR_3M);
-    assertEquals(test.getFixingCalendar(), ZAJO);
-    assertEquals(test.getFixingDateOffset(),
-        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, ZAJO)));
-    assertEquals(test.getEffectiveDateOffset(),
-        DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, ZAJO)));
-    assertEquals(test.getMaturityDateOffset(),
-        TenorAdjustment.of(TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, ZAJO)));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getDefaultFixedLegDayCount(), ACT_365F);
-    assertEquals(test.toString(), "ZAR-JIBAR-3M");
+    assertThat(test.getCurrency()).isEqualTo(ZAR);
+    assertThat(test.getName()).isEqualTo("ZAR-JIBAR-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(ZAJO);
+    assertThat(test.getFixingDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, ZAJO)));
+    assertThat(test.getEffectiveDateOffset())
+        .isEqualTo(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, ZAJO)));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, ZAJO)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("ZAR-JIBAR-3M");
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
@@ -637,36 +683,43 @@ public class IborIndexTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(IborIndex convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(IborIndex convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(IborIndex convention, String name) {
-    assertEquals(IborIndex.of(name), convention);
+    assertThat(IborIndex.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(IborIndex convention, String name) {
     ImmutableMap<String, IborIndex> map = IborIndex.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> IborIndex.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> IborIndex.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals() {
     ImmutableIborIndex a = ImmutableIborIndex.builder()
         .name("Test-3M")
@@ -680,10 +733,11 @@ public class IborIndexTest {
         .fixingZone(ZoneId.of("Europe/London"))
         .build();
     IborIndex b = a.toBuilder().name("Rubbish-3M").build();
-    assertEquals(a.equals(b), false);
+    assertThat(a.equals(b)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableIborIndex index = ImmutableIborIndex.builder()
         .name("Test-3M")
@@ -700,10 +754,12 @@ public class IborIndexTest {
     coverPrivateConstructor(IborIndices.class);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(IborIndex.class, IborIndices.GBP_LIBOR_12M);
   }
 
+  @Test
   public void test_serialization() {
     IborIndex index = ImmutableIborIndex.builder()
         .name("Test-3M")

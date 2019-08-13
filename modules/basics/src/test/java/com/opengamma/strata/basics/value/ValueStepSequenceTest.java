@@ -8,12 +8,12 @@ package com.opengamma.strata.basics.value;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -22,7 +22,6 @@ import com.opengamma.strata.basics.schedule.RollConventions;
 /**
  * Test {@link ValueStepSequence}.
  */
-@Test
 public class ValueStepSequenceTest {
 
   private static final ValueAdjustment ADJ = ValueAdjustment.ofDeltaAmount(-100);
@@ -30,14 +29,16 @@ public class ValueStepSequenceTest {
   private static final ValueAdjustment ADJ_BAD = ValueAdjustment.ofReplace(100);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ADJ);
-    assertEquals(test.getFirstStepDate(), date(2016, 4, 20));
-    assertEquals(test.getLastStepDate(), date(2016, 10, 20));
-    assertEquals(test.getFrequency(), Frequency.P3M);
-    assertEquals(test.getAdjustment(), ADJ);
+    assertThat(test.getFirstStepDate()).isEqualTo(date(2016, 4, 20));
+    assertThat(test.getLastStepDate()).isEqualTo(date(2016, 10, 20));
+    assertThat(test.getFrequency()).isEqualTo(Frequency.P3M);
+    assertThat(test.getAdjustment()).isEqualTo(ADJ);
   }
 
+  @Test
   public void test_of_invalid() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ValueStepSequence.of(date(2016, 4, 20), date(2016, 4, 19), Frequency.P3M, ADJ));
@@ -46,17 +47,19 @@ public class ValueStepSequenceTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ADJ);
     ValueStep baseStep = ValueStep.of(date(2016, 1, 20), ValueAdjustment.ofReplace(500d));
     List<ValueStep> steps = test.resolve(ImmutableList.of(baseStep), RollConventions.NONE);
-    assertEquals(steps.size(), 4);
-    assertEquals(steps.get(0), baseStep);
-    assertEquals(steps.get(1), ValueStep.of(date(2016, 4, 20), ADJ));
-    assertEquals(steps.get(2), ValueStep.of(date(2016, 7, 20), ADJ));
-    assertEquals(steps.get(3), ValueStep.of(date(2016, 10, 20), ADJ));
+    assertThat(steps.size()).isEqualTo(4);
+    assertThat(steps.get(0)).isEqualTo(baseStep);
+    assertThat(steps.get(1)).isEqualTo(ValueStep.of(date(2016, 4, 20), ADJ));
+    assertThat(steps.get(2)).isEqualTo(ValueStep.of(date(2016, 7, 20), ADJ));
+    assertThat(steps.get(3)).isEqualTo(ValueStep.of(date(2016, 10, 20), ADJ));
   }
 
+  @Test
   public void test_resolve_invalid() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P12M, ADJ);
     ValueStep baseStep = ValueStep.of(date(2016, 1, 20), ValueAdjustment.ofReplace(500d));
@@ -65,6 +68,7 @@ public class ValueStepSequenceTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ADJ);
     coverImmutableBean(test);
@@ -72,6 +76,7 @@ public class ValueStepSequenceTest {
     coverImmutableBean(test2);
   }
 
+  @Test
   public void test_serialization() {
     ValueStepSequence test = ValueStepSequence.of(date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ADJ);
     assertSerialization(test);

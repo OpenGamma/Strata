@@ -10,29 +10,30 @@ import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.YearMonth;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link PriceIndexObservation}.
  */
-@Test
 public class PriceIndexObservationTest {
 
   private static final YearMonth FIXING_MONTH = YearMonth.of(2016, 2);
 
+  @Test
   public void test_of() {
     PriceIndexObservation test = PriceIndexObservation.of(GB_HICP, FIXING_MONTH);
-    assertEquals(test.getIndex(), GB_HICP);
-    assertEquals(test.getFixingMonth(), FIXING_MONTH);
-    assertEquals(test.getCurrency(), GB_HICP.getCurrency());
-    assertEquals(test.toString(), "PriceIndexObservation[GB-HICP on 2016-02]");
+    assertThat(test.getIndex()).isEqualTo(GB_HICP);
+    assertThat(test.getFixingMonth()).isEqualTo(FIXING_MONTH);
+    assertThat(test.getCurrency()).isEqualTo(GB_HICP.getCurrency());
+    assertThat(test.toString()).isEqualTo("PriceIndexObservation[GB-HICP on 2016-02]");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     PriceIndexObservation test = PriceIndexObservation.of(GB_HICP, FIXING_MONTH);
     coverImmutableBean(test);
@@ -40,6 +41,7 @@ public class PriceIndexObservationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     PriceIndexObservation test = PriceIndexObservation.of(GB_HICP, FIXING_MONTH);
     assertSerialization(test);

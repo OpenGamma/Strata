@@ -7,45 +7,49 @@ package com.opengamma.strata.basics;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.Serializable;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@link CalculationTargetList}.
  */
-@Test
 public class CalculationTargetListTest {
 
   private static final CalculationTarget TARGET1 = new TestTarget(1);
   private static final CalculationTarget TARGET2 = new TestTarget(2);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_array0() {
     CalculationTargetList test = CalculationTargetList.of();
-    assertEquals(test.getTargets(), ImmutableList.of());
+    assertThat(test.getTargets()).isEqualTo(ImmutableList.of());
   }
 
+  @Test
   public void test_array2() {
     CalculationTargetList test = CalculationTargetList.of(TARGET1, TARGET2);
-    assertEquals(test.getTargets(), ImmutableList.of(TARGET1, TARGET2));
+    assertThat(test.getTargets()).containsExactly(TARGET1, TARGET2);
   }
 
+  @Test
   public void test_collection1() {
     CalculationTargetList test = CalculationTargetList.of(ImmutableList.of(TARGET1));
-    assertEquals(test.getTargets(), ImmutableList.of(TARGET1));
+    assertThat(test.getTargets()).isEqualTo(ImmutableList.of(TARGET1));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CalculationTargetList test = CalculationTargetList.of(TARGET1, TARGET2);
     coverImmutableBean(test);
   }
 
+  @Test
   public void test_serialization() {
     CalculationTargetList test = CalculationTargetList.of(TARGET1, TARGET2);
     assertSerialization(test);

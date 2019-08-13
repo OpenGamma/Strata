@@ -9,12 +9,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -27,10 +27,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link ValueSchedule}.
  */
-@Test
 public class ValueScheduleTest {
 
-  private static double TOLERANCE = 1.0E-10;
   private static ValueStep STEP1 = ValueStep.of(date(2014, 6, 30), ValueAdjustment.ofReplace(2000d));
   private static ValueStep STEP2 = ValueStep.of(date(2014, 7, 30), ValueAdjustment.ofReplace(3000d));
 
@@ -46,64 +44,74 @@ public class ValueScheduleTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_constant_ALWAYS_0() {
     ValueSchedule test = ValueSchedule.ALWAYS_0;
-    assertEquals(test.getInitialValue(), 0d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
+    assertThat(test.getInitialValue()).isEqualTo(0d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
   }
 
+  @Test
   public void test_constant_ALWAYS_1() {
     ValueSchedule test = ValueSchedule.ALWAYS_1;
-    assertEquals(test.getInitialValue(), 1d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
+    assertThat(test.getInitialValue()).isEqualTo(1d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_int() {
     ValueSchedule test = ValueSchedule.of(10000d);
-    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
+    assertThat(test.getInitialValue()).isEqualTo(10000d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
   }
 
+  @Test
   public void test_of_intStepsArray() {
     ValueSchedule test = ValueSchedule.of(10000d, STEP1, STEP2);
-    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of(STEP1, STEP2));
+    assertThat(test.getInitialValue()).isEqualTo(10000d);
+    assertThat(test.getSteps()).containsExactly(STEP1, STEP2);
   }
 
+  @Test
   public void test_of_intStepsArray_empty() {
     ValueSchedule test = ValueSchedule.of(10000d, new ValueStep[0]);
-    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
+    assertThat(test.getInitialValue()).isEqualTo(10000d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
   }
 
+  @Test
   public void test_of_intStepsList() {
     ValueSchedule test = ValueSchedule.of(10000d, Lists.newArrayList(STEP1, STEP2));
-    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of(STEP1, STEP2));
+    assertThat(test.getInitialValue()).isEqualTo(10000d);
+    assertThat(test.getSteps()).containsExactly(STEP1, STEP2);
   }
 
+  @Test
   public void test_of_intStepsList_empty() {
     ValueSchedule test = ValueSchedule.of(10000d, Lists.newArrayList());
-    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
+    assertThat(test.getInitialValue()).isEqualTo(10000d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
   }
 
+  @Test
   public void test_of_sequence() {
     ValueStepSequence seq = ValueStepSequence.of(
         date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ValueAdjustment.ofDeltaAmount(-100));
     ValueSchedule test = ValueSchedule.of(10000d, seq);
-    assertEquals(test.getInitialValue(), 10000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
-    assertEquals(test.getStepSequence(), Optional.of(seq));
+    assertThat(test.getInitialValue()).isEqualTo(10000d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
+    assertThat(test.getStepSequence()).isEqualTo(Optional.of(seq));
   }
 
+  @Test
   public void test_builder_validEmpty() {
     ValueSchedule test = ValueSchedule.builder().build();
-    assertEquals(test.getInitialValue(), 0d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of());
+    assertThat(test.getInitialValue()).isEqualTo(0d);
+    assertThat(test.getSteps()).isEqualTo(ImmutableList.of());
   }
 
+  @Test
   public void test_builder_validFull() {
     ValueStepSequence seq = ValueStepSequence.of(
         date(2016, 4, 20), date(2016, 10, 20), Frequency.P3M, ValueAdjustment.ofDeltaAmount(-100));
@@ -112,46 +120,49 @@ public class ValueScheduleTest {
         .steps(STEP1, STEP2)
         .stepSequence(seq)
         .build();
-    assertEquals(test.getInitialValue(), 2000d, TOLERANCE);
-    assertEquals(test.getSteps(), ImmutableList.of(STEP1, STEP2));
-    assertEquals(test.getStepSequence(), Optional.of(seq));
+    assertThat(test.getInitialValue()).isEqualTo(2000d);
+    assertThat(test.getSteps()).containsExactly(STEP1, STEP2);
+    assertThat(test.getStepSequence()).isEqualTo(Optional.of(seq));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolveValues_dateBased() {
     ValueStep step1 = ValueStep.of(date(2014, 2, 1), ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(date(2014, 3, 1), ValueAdjustment.ofReplace(400d));
     // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
-    assertEquals(test0.resolveValues(SCHEDULE), DoubleArray.of(200d, 200d, 200d));
+    assertThat(test0.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 200d, 200d));
     // step1
     ValueSchedule test1a = ValueSchedule.of(200d, ImmutableList.of(step1));
-    assertEquals(test1a.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 300d));
+    assertThat(test1a.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 300d));
     // step2
     ValueSchedule test1b = ValueSchedule.of(200d, ImmutableList.of(step2));
-    assertEquals(test1b.resolveValues(SCHEDULE), DoubleArray.of(200d, 200d, 400d));
+    assertThat(test1b.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 200d, 400d));
     // step1 and step2
     ValueSchedule test2 = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
-    assertEquals(test2.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
+    assertThat(test2.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 400d));
   }
 
+  @Test
   public void test_resolveValues_dateBased_matchAdjusted() {
     ValueStep step1 = ValueStep.of(date(2014, 2, 1), ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(date(2014, 3, 2), ValueAdjustment.ofReplace(400d));
     // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
-    assertEquals(test0.resolveValues(SCHEDULE), DoubleArray.of(200d, 200d, 200d));
+    assertThat(test0.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 200d, 200d));
     // step1
     ValueSchedule test1a = ValueSchedule.of(200d, ImmutableList.of(step1));
-    assertEquals(test1a.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 300d));
+    assertThat(test1a.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 300d));
     // step2
     ValueSchedule test1b = ValueSchedule.of(200d, ImmutableList.of(step2));
-    assertEquals(test1b.resolveValues(SCHEDULE), DoubleArray.of(200d, 200d, 400d));
+    assertThat(test1b.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 200d, 400d));
     // step1 and step2
     ValueSchedule test2 = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
-    assertEquals(test2.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
+    assertThat(test2.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 400d));
   }
 
+  @Test
   public void test_resolveValues_dateBased_ignoreExcess() {
     ValueStep step1 = ValueStep.of(date(2014, 2, 1), ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(date(2014, 2, 15), ValueAdjustment.ofReplace(300d));  // no change to value
@@ -159,33 +170,36 @@ public class ValueScheduleTest {
     ValueStep step4 = ValueStep.of(date(2014, 3, 15), ValueAdjustment.ofDeltaAmount(0d));  // no change to value
     ValueStep step5 = ValueStep.of(date(2014, 4, 1), ValueAdjustment.ofMultiplier(1d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2, step3, step4, step5));
-    assertEquals(test.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
+    assertThat(test.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 400d));
   }
 
+  @Test
   public void test_resolveValues_indexBased() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(2, ValueAdjustment.ofReplace(400d));
     // no steps
     ValueSchedule test0 = ValueSchedule.of(200d, ImmutableList.of());
-    assertEquals(test0.resolveValues(SCHEDULE), DoubleArray.of(200d, 200d, 200d));
+    assertThat(test0.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 200d, 200d));
     // step1
     ValueSchedule test1a = ValueSchedule.of(200d, ImmutableList.of(step1));
-    assertEquals(test1a.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 300d));
+    assertThat(test1a.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 300d));
     // step2
     ValueSchedule test1b = ValueSchedule.of(200d, ImmutableList.of(step2));
-    assertEquals(test1b.resolveValues(SCHEDULE), DoubleArray.of(200d, 200d, 400d));
+    assertThat(test1b.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 200d, 400d));
     // step1 and step2
     ValueSchedule test2 = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
-    assertEquals(test2.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
+    assertThat(test2.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 400d));
   }
 
+  @Test
   public void test_resolveValues_indexBased_duplicateDefinitionValid() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step1, step2));
-    assertEquals(test.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 300d));
+    assertThat(test.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 300d));
   }
 
+  @Test
   public void test_resolveValues_indexBased_duplicateDefinitionInvalid() {
     ValueStep step1 = ValueStep.of(1, ValueAdjustment.ofReplace(300d));
     ValueStep step2 = ValueStep.of(1, ValueAdjustment.ofReplace(400d));
@@ -193,18 +207,21 @@ public class ValueScheduleTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test.resolveValues(SCHEDULE));
   }
 
+  @Test
   public void test_resolveValues_dateBased_indexZeroValid() {
     ValueStep step = ValueStep.of(date(2014, 1, 1), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
-    assertEquals(test.resolveValues(SCHEDULE), DoubleArray.of(300d, 300d, 300d));
+    assertThat(test.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(300d, 300d, 300d));
   }
 
+  @Test
   public void test_resolveValues_indexBased_indexTooBig() {
     ValueStep step = ValueStep.of(3, ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
     assertThatIllegalArgumentException().isThrownBy(() -> test.resolveValues(SCHEDULE));
   }
 
+  @Test
   public void test_resolveValues_dateBased_invalidChangeValue() {
     ValueStep step = ValueStep.of(date(2014, 4, 1), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
@@ -213,6 +230,7 @@ public class ValueScheduleTest {
         .withMessageStartingWith("ValueStep date does not match a period boundary");
   }
 
+  @Test
   public void test_resolveValues_dateBased_invalidDateBefore() {
     ValueStep step = ValueStep.of(date(2013, 12, 31), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
@@ -221,6 +239,7 @@ public class ValueScheduleTest {
         .withMessageStartingWith("ValueStep date is before the start of the schedule");
   }
 
+  @Test
   public void test_resolveValues_dateBased_invalidDateAfter() {
     ValueStep step = ValueStep.of(date(2014, 4, 3), ValueAdjustment.ofReplace(300d));
     ValueSchedule test = ValueSchedule.of(200d, ImmutableList.of(step));
@@ -230,21 +249,24 @@ public class ValueScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolveValues_sequence() {
     ValueStepSequence seq = ValueStepSequence.of(
         date(2014, 2, 1), date(2014, 3, 1), Frequency.P1M, ValueAdjustment.ofDeltaAmount(100));
     ValueSchedule test = ValueSchedule.of(200d, seq);
-    assertEquals(test.resolveValues(SCHEDULE), DoubleArray.of(200d, 300d, 400d));
+    assertThat(test.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(200d, 300d, 400d));
   }
 
+  @Test
   public void test_resolveValues_sequenceAndSteps() {
     ValueStepSequence seq = ValueStepSequence.of(
         date(2014, 2, 1), date(2014, 3, 1), Frequency.P1M, ValueAdjustment.ofDeltaAmount(100));
     ValueStep step1 = ValueStep.of(date(2014, 1, 1), ValueAdjustment.ofReplace(350d));
     ValueSchedule test = ValueSchedule.builder().initialValue(200d).steps(step1).stepSequence(seq).build();
-    assertEquals(test.resolveValues(SCHEDULE), DoubleArray.of(350d, 450d, 550d));
+    assertThat(test.resolveValues(SCHEDULE)).isEqualTo(DoubleArray.of(350d, 450d, 550d));
   }
 
+  @Test
   public void test_resolveValues_sequenceAndStepClash() {
     ValueStepSequence seq = ValueStepSequence.of(
         date(2014, 2, 1), date(2014, 3, 1), Frequency.P1M, ValueAdjustment.ofDeltaAmount(100));
@@ -254,17 +276,24 @@ public class ValueScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void equals() {
     ValueSchedule a1 = ValueSchedule.of(10000d, Lists.newArrayList(STEP1, STEP2));
     ValueSchedule a2 = ValueSchedule.of(10000d, Lists.newArrayList(STEP1, STEP2));
     ValueSchedule b = ValueSchedule.of(5000d, Lists.newArrayList(STEP1, STEP2));
     ValueSchedule c = ValueSchedule.of(10000d, Lists.newArrayList(STEP1));
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
+    assertThat(a1)
+        .isEqualTo(a1)
+        .isEqualTo(a2)
+        .isNotEqualTo(b)
+        .isNotEqualTo(c)
+        .isNotEqualTo("")
+        .isNotEqualTo(null)
+        .hasSameHashCodeAs(a2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ValueStepSequence seq = ValueStepSequence.of(
         date(2014, 2, 1), date(2014, 3, 1), Frequency.P1M, ValueAdjustment.ofDeltaAmount(100));
@@ -274,6 +303,7 @@ public class ValueScheduleTest {
     coverBeanEquals(test, ValueSchedule.of(20000d, seq));
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(ValueSchedule.of(10000d, Lists.newArrayList(STEP1, STEP2)));
   }

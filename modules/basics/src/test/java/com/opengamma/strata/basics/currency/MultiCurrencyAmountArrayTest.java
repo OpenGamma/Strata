@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,7 +34,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link MultiCurrencyAmountArray}.
  */
-@Test
 public class MultiCurrencyAmountArrayTest {
 
   private static final MultiCurrencyAmountArray VALUES_ARRAY =
@@ -54,6 +53,7 @@ public class MultiCurrencyAmountArrayTest {
                   CurrencyAmount.of(Currency.EUR, 44))));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     assertThat(VALUES_ARRAY.getValues(Currency.GBP)).isEqualTo(DoubleArray.of(20, 21, 22));
     assertThat(VALUES_ARRAY.getValues(Currency.USD)).isEqualTo(DoubleArray.of(30, 32, 33));
@@ -78,6 +78,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> raggedArray.getValues(Currency.AUD));
   }
 
+  @Test
   public void test_empty_amounts() {
     MultiCurrencyAmountArray array = MultiCurrencyAmountArray.of(
         MultiCurrencyAmount.empty(),
@@ -87,6 +88,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(array.get(1)).isEqualTo(MultiCurrencyAmount.empty());
   }
 
+  @Test
   public void test_of_function() {
     MultiCurrencyAmount mca1 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.USD, 20));
     MultiCurrencyAmount mca2 = MultiCurrencyAmount.of(CurrencyAmount.of(Currency.GBP, 10), CurrencyAmount.of(Currency.EUR, 30));
@@ -100,6 +102,7 @@ public class MultiCurrencyAmountArrayTest {
   }
 
   // Test that the size is correctly restored after deserialization.
+  @Test
   public void serializeSize() throws Exception {
     MultiCurrencyAmountArray deserialized = serializedDeserialize(VALUES_ARRAY);
     assertThat(deserialized.size()).isEqualTo(3);
@@ -111,11 +114,13 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(deserializedEmpty.size()).isEqualTo(2);
   }
 
+  @Test
   public void test_of_function_empty_amounts() {
     MultiCurrencyAmountArray test = MultiCurrencyAmountArray.of(3, i -> MultiCurrencyAmount.empty());
     assertThat(test.size()).isEqualTo(3);
   }
 
+  @Test
   public void test_of_map() {
     MultiCurrencyAmountArray array = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -148,6 +153,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(empty.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_getValues() {
     Map<Currency, DoubleArray> expected = ImmutableMap.of(
         Currency.GBP, DoubleArray.of(20, 21, 22),
@@ -156,6 +162,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(VALUES_ARRAY.getValues()).isEqualTo(expected);
   }
 
+  @Test
   public void test_get() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(
         CurrencyAmount.of(Currency.GBP, 22),
@@ -166,6 +173,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> VALUES_ARRAY.get(-1));
   }
 
+  @Test
   public void test_stream() {
     List<MultiCurrencyAmount> expected = ImmutableList.of(
         MultiCurrencyAmount.of(
@@ -184,6 +192,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(VALUES_ARRAY.stream().collect(toList())).isEqualTo(expected);
   }
 
+  @Test
   public void test_convertedTo() {
     FxMatrix fxMatrix = FxMatrix.builder()
         .addRate(GBP, CAD, 2)
@@ -198,6 +207,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(convertedArray.getValues()).isEqualTo(expected);
   }
 
+  @Test
   public void test_convertedTo_existingCurrency() {
     FxMatrix fxMatrix = FxMatrix.builder()
         .addRate(USD, GBP, 1 / 1.5)
@@ -217,6 +227,7 @@ public class MultiCurrencyAmountArrayTest {
 
   //-------------------------------------------------------------------------
   // Test hand-written equals and hashCode methods which correctly handle maps with array values
+  @Test
   public void test_equalsHashCode() {
     MultiCurrencyAmountArray array =
         MultiCurrencyAmountArray.of(
@@ -238,6 +249,7 @@ public class MultiCurrencyAmountArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(VALUES_ARRAY);
     MultiCurrencyAmountArray test2 = MultiCurrencyAmountArray.of(
@@ -253,6 +265,7 @@ public class MultiCurrencyAmountArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plusArray() {
     MultiCurrencyAmountArray array1 = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -274,6 +287,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(array1.plus(array2)).isEqualTo(expected);
   }
 
+  @Test
   public void test_plusAmount() {
     MultiCurrencyAmountArray array = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -295,6 +309,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(array.plus(amount)).isEqualTo(expected);
   }
 
+  @Test
   public void test_plusDifferentSize() {
     MultiCurrencyAmountArray array1 = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -310,6 +325,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> array1.plus(array2));
   }
 
+  @Test
   public void test_minusArray() {
     MultiCurrencyAmountArray array1 = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -331,6 +347,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(array1.minus(array2)).isEqualTo(expected);
   }
 
+  @Test
   public void test_minusAmount() {
     MultiCurrencyAmountArray array = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -352,6 +369,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(array.minus(amount)).isEqualTo(expected);
   }
 
+  @Test
   public void test_minusDifferentSize() {
     MultiCurrencyAmountArray array1 = MultiCurrencyAmountArray.of(
         ImmutableMap.of(
@@ -367,6 +385,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> array1.minus(array2));
   }
 
+  @Test
   public void collector() {
     List<CurrencyAmountArray> arrays = ImmutableList.of(
         CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
@@ -384,6 +403,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(arrays.stream().collect(toMultiCurrencyAmountArray())).isEqualTo(expected);
   }
 
+  @Test
   public void total() {
     List<CurrencyAmountArray> arrays = ImmutableList.of(
         CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),
@@ -401,6 +421,7 @@ public class MultiCurrencyAmountArrayTest {
     assertThat(MultiCurrencyAmountArray.total(arrays)).isEqualTo(expected);
   }
 
+  @Test
   public void collectorDifferentArrayLengths() {
     List<CurrencyAmountArray> arrays = ImmutableList.of(
         CurrencyAmountArray.of(USD, DoubleArray.of(10, 20, 30)),

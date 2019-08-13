@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -25,10 +25,10 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link CurrencyAmountArray}.
  */
-@Test
 public class CurrencyAmountArrayTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_CurrencyDoubleArray() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, values);
@@ -42,6 +42,7 @@ public class CurrencyAmountArrayTest {
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
   }
 
+  @Test
   public void test_of_List() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
@@ -56,12 +57,14 @@ public class CurrencyAmountArrayTest {
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
   }
 
+  @Test
   public void test_of_CurrencyList_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmountArray.of(values));
   }
 
+  @Test
   public void test_of_function() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
@@ -76,6 +79,7 @@ public class CurrencyAmountArrayTest {
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(GBP, 2), CurrencyAmount.of(GBP, 3));
   }
 
+  @Test
   public void test_of_function_mixedCurrency() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
@@ -83,6 +87,7 @@ public class CurrencyAmountArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus() {
     List<CurrencyAmount> values = ImmutableList.of(
         CurrencyAmount.of(GBP, 1), CurrencyAmount.of(USD, 2), CurrencyAmount.of(GBP, 3));
@@ -90,6 +95,7 @@ public class CurrencyAmountArrayTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, values);
@@ -101,6 +107,7 @@ public class CurrencyAmountArrayTest {
     assertThat(convertedList).isEqualTo(expectedList);
   }
 
+  @Test
   public void test_convertedTo_noConversionNecessary() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, values);
@@ -110,6 +117,7 @@ public class CurrencyAmountArrayTest {
     assertThat(convertedList).isEqualTo(test);
   }
 
+  @Test
   public void test_convertedTo_missingFxRate() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, values);
@@ -118,6 +126,7 @@ public class CurrencyAmountArrayTest {
     assertThatIllegalArgumentException().isThrownBy(() -> test.convertedTo(USD, fxRate));
   }
   
+  @Test
   public void test_minus_currencyAmount() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyAmountArray array = CurrencyAmountArray.of(GBP, values);
@@ -127,6 +136,7 @@ public class CurrencyAmountArrayTest {
   }
   
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DoubleArray values = DoubleArray.of(1, 2, 3);
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, values);
@@ -136,6 +146,7 @@ public class CurrencyAmountArrayTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     CurrencyAmountArray test = CurrencyAmountArray.of(GBP, DoubleArray.of(1, 2, 3));
     assertSerialization(test);

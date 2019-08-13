@@ -49,16 +49,17 @@ import static java.time.Month.MAY;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -70,7 +71,6 @@ import com.opengamma.strata.basics.date.HolidayCalendar;
 /**
  * Test {@link PeriodicSchedule}.
  */
-@Test
 public class PeriodicScheduleTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -118,46 +118,49 @@ public class PeriodicScheduleTest {
   private static final LocalDate NOV_30 = date(2014, NOVEMBER, 30);  // Sun
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_LocalDateEomFalse() {
     PeriodicSchedule test = PeriodicSchedule.of(JUN_04, SEP_17, P1M, BDA, SHORT_INITIAL, false);
-    assertEquals(test.getStartDate(), JUN_04);
-    assertEquals(test.getEndDate(), SEP_17);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getEndDateBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getStubConvention(), Optional.of(SHORT_INITIAL));
-    assertEquals(test.getRollConvention(), Optional.empty());
-    assertEquals(test.getFirstRegularStartDate(), Optional.empty());
-    assertEquals(test.getLastRegularEndDate(), Optional.empty());
-    assertEquals(test.getOverrideStartDate(), Optional.empty());
-    assertEquals(test.calculatedRollConvention(), DAY_17);
-    assertEquals(test.calculatedFirstRegularStartDate(), JUN_04);
-    assertEquals(test.calculatedLastRegularEndDate(), SEP_17);
-    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
-    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
+    assertThat(test.getStartDate()).isEqualTo(JUN_04);
+    assertThat(test.getEndDate()).isEqualTo(SEP_17);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getStubConvention()).isEqualTo(Optional.of(SHORT_INITIAL));
+    assertThat(test.getRollConvention()).isEqualTo(Optional.empty());
+    assertThat(test.getFirstRegularStartDate()).isEqualTo(Optional.empty());
+    assertThat(test.getLastRegularEndDate()).isEqualTo(Optional.empty());
+    assertThat(test.getOverrideStartDate()).isEqualTo(Optional.empty());
+    assertThat(test.calculatedRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.calculatedFirstRegularStartDate()).isEqualTo(JUN_04);
+    assertThat(test.calculatedLastRegularEndDate()).isEqualTo(SEP_17);
+    assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(JUN_04, BDA));
+    assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(SEP_17, BDA));
   }
 
+  @Test
   public void test_of_LocalDateEomTrue() {
     PeriodicSchedule test = PeriodicSchedule.of(JUN_04, SEP_17, P1M, BDA, SHORT_FINAL, true);
-    assertEquals(test.getStartDate(), JUN_04);
-    assertEquals(test.getEndDate(), SEP_17);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getEndDateBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getStubConvention(), Optional.of(SHORT_FINAL));
-    assertEquals(test.getRollConvention(), Optional.of(EOM));
-    assertEquals(test.getFirstRegularStartDate(), Optional.empty());
-    assertEquals(test.getLastRegularEndDate(), Optional.empty());
-    assertEquals(test.getOverrideStartDate(), Optional.empty());
-    assertEquals(test.calculatedRollConvention(), DAY_4);
-    assertEquals(test.calculatedFirstRegularStartDate(), JUN_04);
-    assertEquals(test.calculatedLastRegularEndDate(), SEP_17);
-    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
-    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
+    assertThat(test.getStartDate()).isEqualTo(JUN_04);
+    assertThat(test.getEndDate()).isEqualTo(SEP_17);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getStubConvention()).isEqualTo(Optional.of(SHORT_FINAL));
+    assertThat(test.getRollConvention()).isEqualTo(Optional.of(EOM));
+    assertThat(test.getFirstRegularStartDate()).isEqualTo(Optional.empty());
+    assertThat(test.getLastRegularEndDate()).isEqualTo(Optional.empty());
+    assertThat(test.getOverrideStartDate()).isEqualTo(Optional.empty());
+    assertThat(test.calculatedRollConvention()).isEqualTo(DAY_4);
+    assertThat(test.calculatedFirstRegularStartDate()).isEqualTo(JUN_04);
+    assertThat(test.calculatedLastRegularEndDate()).isEqualTo(SEP_17);
+    assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(JUN_04, BDA));
+    assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(SEP_17, BDA));
   }
 
+  @Test
   public void test_of_LocalDateEom_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PeriodicSchedule.of(null, SEP_17, P1M, BDA, SHORT_INITIAL, false));
@@ -172,26 +175,28 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_LocalDateRoll() {
     PeriodicSchedule test = PeriodicSchedule.of(JUN_04, SEP_17, P1M, BDA, SHORT_INITIAL, DAY_17);
-    assertEquals(test.getStartDate(), JUN_04);
-    assertEquals(test.getEndDate(), SEP_17);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getEndDateBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getStubConvention(), Optional.of(SHORT_INITIAL));
-    assertEquals(test.getRollConvention(), Optional.of(DAY_17));
-    assertEquals(test.getFirstRegularStartDate(), Optional.empty());
-    assertEquals(test.getLastRegularEndDate(), Optional.empty());
-    assertEquals(test.getOverrideStartDate(), Optional.empty());
-    assertEquals(test.calculatedRollConvention(), DAY_17);
-    assertEquals(test.calculatedFirstRegularStartDate(), JUN_04);
-    assertEquals(test.calculatedLastRegularEndDate(), SEP_17);
-    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUN_04, BDA));
-    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA));
+    assertThat(test.getStartDate()).isEqualTo(JUN_04);
+    assertThat(test.getEndDate()).isEqualTo(SEP_17);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getStubConvention()).isEqualTo(Optional.of(SHORT_INITIAL));
+    assertThat(test.getRollConvention()).isEqualTo(Optional.of(DAY_17));
+    assertThat(test.getFirstRegularStartDate()).isEqualTo(Optional.empty());
+    assertThat(test.getLastRegularEndDate()).isEqualTo(Optional.empty());
+    assertThat(test.getOverrideStartDate()).isEqualTo(Optional.empty());
+    assertThat(test.calculatedRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.calculatedFirstRegularStartDate()).isEqualTo(JUN_04);
+    assertThat(test.calculatedLastRegularEndDate()).isEqualTo(SEP_17);
+    assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(JUN_04, BDA));
+    assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(SEP_17, BDA));
   }
   
+  @Test
   public void test_firstPaymentDate_before_effectiveDate() {
   
     // Schedule where the combination of override start date and regular first period start date produce a first
@@ -212,7 +217,7 @@ public class PeriodicScheduleTest {
         .build();
   
     Schedule schedule = scheduleDefinition.createSchedule(REF_DATA);
-    assertEquals(schedule.size(), 5);
+    assertThat(schedule.size()).isEqualTo(5);
     
     for (int i = 0; i < schedule.size(); i++) {
 
@@ -221,10 +226,11 @@ public class PeriodicScheduleTest {
       SchedulePeriod expectedPeriod = SchedulePeriod.of(expectedStart, expectedEnd);
   
       SchedulePeriod actualPeriod = schedule.getPeriod(i);
-      assertEquals(expectedPeriod, actualPeriod);
+      assertThat(expectedPeriod).isEqualTo(actualPeriod);
     }
   }
 
+  @Test
   public void test_of_LocalDateRoll_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> PeriodicSchedule.of(null, SEP_17, P1M, BDA, SHORT_INITIAL, DAY_17));
     assertThatIllegalArgumentException().isThrownBy(() -> PeriodicSchedule.of(JUN_04, null, P1M, BDA, SHORT_INITIAL, DAY_17));
@@ -235,6 +241,7 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_invalidDateOrder() {
     // start vs end
     assertThatIllegalArgumentException().isThrownBy(() -> createDates(SEP_17, SEP_17, null, null));
@@ -268,7 +275,6 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "generation")
   public static Object[][] data_generation() {
     return new Object[][] {
         // stub null
@@ -592,7 +598,8 @@ public class PeriodicScheduleTest {
     };
   }
 
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void test_monthly_schedule(
       LocalDate start,
       LocalDate end,
@@ -619,19 +626,20 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(lastReg)
         .build();
     Schedule test = defn.createSchedule(REF_DATA);
-    assertEquals(test.size(), unadjusted.size() - 1);
+    assertThat(test.size()).isEqualTo(unadjusted.size() - 1);
     for (int i = 0; i < test.size(); i++) {
       SchedulePeriod period = test.getPeriod(i);
-      assertEquals(period.getUnadjustedStartDate(), unadjusted.get(i));
-      assertEquals(period.getUnadjustedEndDate(), unadjusted.get(i + 1));
-      assertEquals(period.getStartDate(), adjusted.get(i));
-      assertEquals(period.getEndDate(), adjusted.get(i + 1));
+      assertThat(period.getUnadjustedStartDate()).isEqualTo(unadjusted.get(i));
+      assertThat(period.getUnadjustedEndDate()).isEqualTo(unadjusted.get(i + 1));
+      assertThat(period.getStartDate()).isEqualTo(adjusted.get(i));
+      assertThat(period.getEndDate()).isEqualTo(adjusted.get(i + 1));
     }
-    assertEquals(test.getFrequency(), freq);
-    assertEquals(test.getRollConvention(), expRoll);
+    assertThat(test.getFrequency()).isEqualTo(freq);
+    assertThat(test.getRollConvention()).isEqualTo(expRoll);
   }
 
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void test_monthly_schedule_withOverride(
       LocalDate start,
       LocalDate end,
@@ -659,24 +667,25 @@ public class PeriodicScheduleTest {
         .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
         .build();
     Schedule test = defn.createSchedule(REF_DATA);
-    assertEquals(test.size(), unadjusted.size() - 1);
+    assertThat(test.size()).isEqualTo(unadjusted.size() - 1);
     SchedulePeriod period0 = test.getPeriod(0);
-    assertEquals(period0.getUnadjustedStartDate(), date(2011, 1, 9));
-    assertEquals(period0.getUnadjustedEndDate(), unadjusted.get(1));
-    assertEquals(period0.getStartDate(), date(2011, 1, 10));
-    assertEquals(period0.getEndDate(), adjusted.get(1));
+    assertThat(period0.getUnadjustedStartDate()).isEqualTo(date(2011, 1, 9));
+    assertThat(period0.getUnadjustedEndDate()).isEqualTo(unadjusted.get(1));
+    assertThat(period0.getStartDate()).isEqualTo(date(2011, 1, 10));
+    assertThat(period0.getEndDate()).isEqualTo(adjusted.get(1));
     for (int i = 1; i < test.size(); i++) {
       SchedulePeriod period = test.getPeriod(i);
-      assertEquals(period.getUnadjustedStartDate(), unadjusted.get(i));
-      assertEquals(period.getUnadjustedEndDate(), unadjusted.get(i + 1));
-      assertEquals(period.getStartDate(), adjusted.get(i));
-      assertEquals(period.getEndDate(), adjusted.get(i + 1));
+      assertThat(period.getUnadjustedStartDate()).isEqualTo(unadjusted.get(i));
+      assertThat(period.getUnadjustedEndDate()).isEqualTo(unadjusted.get(i + 1));
+      assertThat(period.getStartDate()).isEqualTo(adjusted.get(i));
+      assertThat(period.getEndDate()).isEqualTo(adjusted.get(i + 1));
     }
-    assertEquals(test.getFrequency(), freq);
-    assertEquals(test.getRollConvention(), expRoll);
+    assertThat(test.getFrequency()).isEqualTo(freq);
+    assertThat(test.getRollConvention()).isEqualTo(expRoll);
   }
 
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void test_monthly_unadjusted(
       LocalDate start,
       LocalDate end,
@@ -703,15 +712,16 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(lastReg)
         .build();
     ImmutableList<LocalDate> test = defn.createUnadjustedDates(REF_DATA);
-    assertEquals(test, unadjusted);
+    assertThat(test).isEqualTo(unadjusted);
     // createUnadjustedDates() does not work as expected without ReferenceData
     if (startBusDayAdjustment == null && !EOM.equals(rollConv)) {
       ImmutableList<LocalDate> testNoRefData = defn.createUnadjustedDates();
-      assertEquals(testNoRefData, unadjusted);
+      assertThat(testNoRefData).isEqualTo(unadjusted);
     }
   }
 
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void test_monthly_unadjusted_withOverride(
       LocalDate start,
       LocalDate end,
@@ -739,17 +749,18 @@ public class PeriodicScheduleTest {
         .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
         .build();
     ImmutableList<LocalDate> test = defn.createUnadjustedDates(REF_DATA);
-    assertEquals(test.get(0), date(2011, 1, 9));
-    assertEquals(test.subList(1, test.size()), unadjusted.subList(1, test.size()));
+    assertThat(test.get(0)).isEqualTo(date(2011, 1, 9));
+    assertThat(test.subList(1, test.size())).isEqualTo(unadjusted.subList(1, test.size()));
     // createUnadjustedDates() does not work as expected without ReferenceData
     if (startBusDayAdjustment == null && !EOM.equals(rollConv)) {
       ImmutableList<LocalDate> testNoRefData = defn.createUnadjustedDates();
-      assertEquals(testNoRefData.get(0), date(2011, 1, 9));
-      assertEquals(testNoRefData.subList(1, testNoRefData.size()), unadjusted.subList(1, testNoRefData.size()));
+      assertThat(testNoRefData.get(0)).isEqualTo(date(2011, 1, 9));
+      assertThat(testNoRefData.subList(1, testNoRefData.size())).isEqualTo(unadjusted.subList(1, testNoRefData.size()));
     }
   }
 
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void test_monthly_adjusted(
       LocalDate start,
       LocalDate end,
@@ -776,10 +787,11 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(lastReg)
         .build();
     ImmutableList<LocalDate> test = defn.createAdjustedDates(REF_DATA);
-    assertEquals(test, adjusted);
+    assertThat(test).isEqualTo(adjusted);
   }
 
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void test_monthly_adjusted_withOverride(
       LocalDate start,
       LocalDate end,
@@ -807,11 +819,12 @@ public class PeriodicScheduleTest {
         .overrideStartDate(AdjustableDate.of(date(2011, 1, 9), BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)))
         .build();
     ImmutableList<LocalDate> test = defn.createAdjustedDates(REF_DATA);
-    assertEquals(test.get(0), date(2011, 1, 10));
-    assertEquals(test.subList(1, test.size()), adjusted.subList(1, test.size()));
+    assertThat(test.get(0)).isEqualTo(date(2011, 1, 10));
+    assertThat(test.subList(1, test.size())).isEqualTo(adjusted.subList(1, test.size()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_override_fallbackWhenStartDateMismatch() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUL_04)
@@ -822,24 +835,25 @@ public class PeriodicScheduleTest {
         .rollConvention(DAY_17)
         .build();
     Schedule test = defn.createSchedule(REF_DATA);
-    assertEquals(test.size(), 3);
+    assertThat(test.size()).isEqualTo(3);
     SchedulePeriod period0 = test.getPeriod(0);
-    assertEquals(period0.getUnadjustedStartDate(), JUN_17);
-    assertEquals(period0.getUnadjustedEndDate(), JUL_17);
-    assertEquals(period0.getStartDate(), JUN_17);
-    assertEquals(period0.getEndDate(), JUL_17);
+    assertThat(period0.getUnadjustedStartDate()).isEqualTo(JUN_17);
+    assertThat(period0.getUnadjustedEndDate()).isEqualTo(JUL_17);
+    assertThat(period0.getStartDate()).isEqualTo(JUN_17);
+    assertThat(period0.getEndDate()).isEqualTo(JUL_17);
     SchedulePeriod period1 = test.getPeriod(1);
-    assertEquals(period1.getUnadjustedStartDate(), JUL_17);
-    assertEquals(period1.getUnadjustedEndDate(), AUG_17);
-    assertEquals(period1.getStartDate(), JUL_17);
-    assertEquals(period1.getEndDate(), AUG_18);
+    assertThat(period1.getUnadjustedStartDate()).isEqualTo(JUL_17);
+    assertThat(period1.getUnadjustedEndDate()).isEqualTo(AUG_17);
+    assertThat(period1.getStartDate()).isEqualTo(JUL_17);
+    assertThat(period1.getEndDate()).isEqualTo(AUG_18);
     SchedulePeriod period2 = test.getPeriod(2);
-    assertEquals(period2.getUnadjustedStartDate(), AUG_17);
-    assertEquals(period2.getUnadjustedEndDate(), SEP_17);
-    assertEquals(period2.getStartDate(), AUG_18);
-    assertEquals(period2.getEndDate(), SEP_17);
+    assertThat(period2.getUnadjustedStartDate()).isEqualTo(AUG_17);
+    assertThat(period2.getUnadjustedEndDate()).isEqualTo(SEP_17);
+    assertThat(period2.getStartDate()).isEqualTo(AUG_18);
+    assertThat(period2.getEndDate()).isEqualTo(SEP_17);
   }
 
+  @Test
   public void test_override_fallbackWhenStartDateMismatchEndStub() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(JUL_04)
@@ -851,25 +865,26 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(AUG_17)
         .build();
     Schedule test = defn.createSchedule(REF_DATA);
-    assertEquals(test.size(), 3);
+    assertThat(test.size()).isEqualTo(3);
     SchedulePeriod period0 = test.getPeriod(0);
-    assertEquals(period0.getUnadjustedStartDate(), JUN_17);
-    assertEquals(period0.getUnadjustedEndDate(), JUL_17);
-    assertEquals(period0.getStartDate(), JUN_17);
-    assertEquals(period0.getEndDate(), JUL_17);
+    assertThat(period0.getUnadjustedStartDate()).isEqualTo(JUN_17);
+    assertThat(period0.getUnadjustedEndDate()).isEqualTo(JUL_17);
+    assertThat(period0.getStartDate()).isEqualTo(JUN_17);
+    assertThat(period0.getEndDate()).isEqualTo(JUL_17);
     SchedulePeriod period1 = test.getPeriod(1);
-    assertEquals(period1.getUnadjustedStartDate(), JUL_17);
-    assertEquals(period1.getUnadjustedEndDate(), AUG_17);
-    assertEquals(period1.getStartDate(), JUL_17);
-    assertEquals(period1.getEndDate(), AUG_18);
+    assertThat(period1.getUnadjustedStartDate()).isEqualTo(JUL_17);
+    assertThat(period1.getUnadjustedEndDate()).isEqualTo(AUG_17);
+    assertThat(period1.getStartDate()).isEqualTo(JUL_17);
+    assertThat(period1.getEndDate()).isEqualTo(AUG_18);
     SchedulePeriod period2 = test.getPeriod(2);
-    assertEquals(period2.getUnadjustedStartDate(), AUG_17);
-    assertEquals(period2.getUnadjustedEndDate(), SEP_04);
-    assertEquals(period2.getStartDate(), AUG_18);
-    assertEquals(period2.getEndDate(), SEP_04);
+    assertThat(period2.getUnadjustedStartDate()).isEqualTo(AUG_17);
+    assertThat(period2.getUnadjustedEndDate()).isEqualTo(SEP_04);
+    assertThat(period2.getStartDate()).isEqualTo(AUG_18);
+    assertThat(period2.getEndDate()).isEqualTo(SEP_04);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_startEndAdjust() {
     BusinessDayAdjustment bda1 = BusinessDayAdjustment.of(PRECEDING, SAT_SUN);
     BusinessDayAdjustment bda2 = BusinessDayAdjustment.of(MODIFIED_PRECEDING, SAT_SUN);
@@ -882,10 +897,10 @@ public class PeriodicScheduleTest {
         .endDateBusinessDayAdjustment(bda2)
         .stubConvention(STUB_NONE)
         .build();
-    assertEquals(test.calculatedStartDate(), AdjustableDate.of(date(2014, 10, 4), bda1));
-    assertEquals(test.calculatedEndDate(), AdjustableDate.of(date(2015, 4, 4), bda2));
-    assertEquals(test.createUnadjustedDates(), list(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4)));
-    assertEquals(test.createAdjustedDates(REF_DATA), list(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3)));
+    assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(date(2014, 10, 4), bda1));
+    assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(date(2015, 4, 4), bda2));
+    assertThat(test.createUnadjustedDates()).containsExactly(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4));
+    assertThat(test.createAdjustedDates(REF_DATA)).containsExactly(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3));
   }
 
   //-------------------------------------------------------------------------
@@ -998,6 +1013,7 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_emptyWhenAdjusted_term_createUnadjustedDates() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2015, 5, 29))
@@ -1010,7 +1026,7 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(null)
         .build();
     ImmutableList<LocalDate> test = defn.createUnadjustedDates();
-    assertEquals(test, list(date(2015, 5, 29), date(2015, 5, 31)));
+    assertThat(test).containsExactly(date(2015, 5, 29), date(2015, 5, 31));
   }
 
   @Test
@@ -1047,6 +1063,7 @@ public class PeriodicScheduleTest {
         .withMessageMatching(".*duplicate adjusted dates.*");
   }
 
+  @Test
   public void test_emptyWhenAdjusted_twoPeriods_createUnadjustedDates() {
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2015, 5, 27))
@@ -1059,7 +1076,7 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(null)
         .build();
     ImmutableList<LocalDate> test = defn.createUnadjustedDates();
-    assertEquals(test, list(date(2015, 5, 27), date(2015, 5, 29), date(2015, 5, 31)));
+    assertThat(test).containsExactly(date(2015, 5, 27), date(2015, 5, 29), date(2015, 5, 31));
   }
 
   @Test
@@ -1167,7 +1184,8 @@ public class PeriodicScheduleTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(dataProvider = "generation")
+  @ParameterizedTest
+  @MethodSource("data_generation")
   public void coverage_equals(
       LocalDate start,
       LocalDate end,
@@ -1199,19 +1217,19 @@ public class PeriodicScheduleTest {
     PeriodicSchedule k = of(start, end, freq, busDayAdjustment, stubConv, rollConv, firstReg, lastReg, null, BDA, null);
     PeriodicSchedule m = of(
         start, end, freq, busDayAdjustment, stubConv, rollConv, firstReg, lastReg, null, null, AdjustableDate.of(start.minusDays(1)));
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
-    assertEquals(a1.equals(d), false);
-    assertEquals(a1.equals(e), false);
-    assertEquals(a1.equals(f), false);
-    assertEquals(a1.equals(g), false);
-    assertEquals(a1.equals(h), false);
-    assertEquals(a1.equals(i), false);
-    assertEquals(a1.equals(j), false);
-    assertEquals(a1.equals(k), false);
-    assertEquals(a1.equals(m), false);
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
+    assertThat(a1.equals(d)).isEqualTo(false);
+    assertThat(a1.equals(e)).isEqualTo(false);
+    assertThat(a1.equals(f)).isEqualTo(false);
+    assertThat(a1.equals(g)).isEqualTo(false);
+    assertThat(a1.equals(h)).isEqualTo(false);
+    assertThat(a1.equals(i)).isEqualTo(false);
+    assertThat(a1.equals(j)).isEqualTo(false);
+    assertThat(a1.equals(k)).isEqualTo(false);
+    assertThat(a1.equals(m)).isEqualTo(false);
   }
 
   private PeriodicSchedule of(
@@ -1233,6 +1251,7 @@ public class PeriodicScheduleTest {
         .build();
   }
 
+  @Test
   public void coverage_builder() {
     PeriodicSchedule test = PeriodicSchedule.builder()
         .startDate(JUL_17)
@@ -1247,13 +1266,14 @@ public class PeriodicScheduleTest {
         .lastRegularEndDate(SEP_17)
         .overrideStartDate(AdjustableDate.of(JUL_11))
         .build();
-    assertEquals(test.getStartDate(), JUL_17);
-    assertEquals(test.getEndDate(), SEP_17);
-    assertEquals(test.calculatedStartDate(), AdjustableDate.of(JUL_11, BDA_NONE));
-    assertEquals(test.calculatedEndDate(), AdjustableDate.of(SEP_17, BDA_NONE));
+    assertThat(test.getStartDate()).isEqualTo(JUL_17);
+    assertThat(test.getEndDate()).isEqualTo(SEP_17);
+    assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(JUL_11, BDA_NONE));
+    assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(SEP_17, BDA_NONE));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule defn = PeriodicSchedule.of(
@@ -1266,6 +1286,7 @@ public class PeriodicScheduleTest {
     coverImmutableBean(defn);
   }
 
+  @Test
   public void test_serialization() {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule defn = PeriodicSchedule.of(

@@ -14,62 +14,63 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.util.Optional;
 import java.util.Set;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableSet;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link CurrencyPair}.
  */
-@Test
 public class CurrencyPairTest {
 
   private static final Object ANOTHER_TYPE = "";
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_getAvailable() {
     Set<CurrencyPair> available = CurrencyPair.getAvailablePairs();
-    assertTrue(available.contains(CurrencyPair.of(EUR, USD)));
-    assertTrue(available.contains(CurrencyPair.of(EUR, GBP)));
-    assertTrue(available.contains(CurrencyPair.of(GBP, USD)));
+    assertThat(available.contains(CurrencyPair.of(EUR, USD))).isTrue();
+    assertThat(available.contains(CurrencyPair.of(EUR, GBP))).isTrue();
+    assertThat(available.contains(CurrencyPair.of(GBP, USD))).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_CurrencyCurrency() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertEquals(test.getBase(), GBP);
-    assertEquals(test.getCounter(), USD);
-    assertEquals(test.isIdentity(), false);
-    assertEquals(test.toSet(), ImmutableSet.of(GBP, USD));
-    assertEquals(test.toString(), "GBP/USD");
+    assertThat(test.getBase()).isEqualTo(GBP);
+    assertThat(test.getCounter()).isEqualTo(USD);
+    assertThat(test.isIdentity()).isEqualTo(false);
+    assertThat(test.toSet()).containsOnly(GBP, USD);
+    assertThat(test.toString()).isEqualTo("GBP/USD");
   }
 
+  @Test
   public void test_of_CurrencyCurrency_reverseStandardOrder() {
     CurrencyPair test = CurrencyPair.of(USD, GBP);
-    assertEquals(test.getBase(), USD);
-    assertEquals(test.getCounter(), GBP);
-    assertEquals(test.isIdentity(), false);
-    assertEquals(test.toSet(), ImmutableSet.of(GBP, USD));
-    assertEquals(test.toString(), "USD/GBP");
+    assertThat(test.getBase()).isEqualTo(USD);
+    assertThat(test.getCounter()).isEqualTo(GBP);
+    assertThat(test.isIdentity()).isEqualTo(false);
+    assertThat(test.toSet()).containsOnly(GBP, USD);
+    assertThat(test.toString()).isEqualTo("USD/GBP");
   }
 
+  @Test
   public void test_of_CurrencyCurrency_same() {
     CurrencyPair test = CurrencyPair.of(USD, USD);
-    assertEquals(test.getBase(), USD);
-    assertEquals(test.getCounter(), USD);
-    assertEquals(test.isIdentity(), true);
-    assertEquals(test.toString(), "USD/USD");
+    assertThat(test.getBase()).isEqualTo(USD);
+    assertThat(test.getCounter()).isEqualTo(USD);
+    assertThat(test.isIdentity()).isEqualTo(true);
+    assertThat(test.toString()).isEqualTo("USD/USD");
   }
 
+  @Test
   public void test_of_CurrencyCurrency_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyPair.of(null, USD));
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyPair.of(USD, null));
@@ -77,7 +78,6 @@ public class CurrencyPairTest {
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "parseGood")
   public static Object[][] data_parseGood() {
     return new Object[][] {
         {"USD/EUR", USD, EUR},
@@ -87,12 +87,12 @@ public class CurrencyPairTest {
     };
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good(String input, Currency base, Currency counter) {
-    assertEquals(CurrencyPair.parse(input), CurrencyPair.of(base, counter));
+    assertThat(CurrencyPair.parse(input)).isEqualTo(CurrencyPair.of(base, counter));
   }
 
-  @DataProvider(name = "parseBad")
   public static Object[][] data_parseBad() {
     return new Object[][] {
         {"AUD"},
@@ -105,79 +105,91 @@ public class CurrencyPairTest {
     };
   }
 
-  @Test(dataProvider = "parseBad")
+  @ParameterizedTest
+  @MethodSource("data_parseBad")
   public void test_parse_String_bad(String input) {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyPair.parse(input));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_inverse() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertEquals(test.inverse(), CurrencyPair.of(USD, GBP));
+    assertThat(test.inverse()).isEqualTo(CurrencyPair.of(USD, GBP));
   }
 
+  @Test
   public void test_inverse_same() {
     CurrencyPair test = CurrencyPair.of(GBP, GBP);
-    assertEquals(test.inverse(), CurrencyPair.of(GBP, GBP));
+    assertThat(test.inverse()).isEqualTo(CurrencyPair.of(GBP, GBP));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_contains_Currency() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertEquals(test.contains(GBP), true);
-    assertEquals(test.contains(USD), true);
-    assertEquals(test.contains(EUR), false);
+    assertThat(test.contains(GBP)).isEqualTo(true);
+    assertThat(test.contains(USD)).isEqualTo(true);
+    assertThat(test.contains(EUR)).isEqualTo(false);
   }
 
+  @Test
   public void test_contains_Currency_same() {
     CurrencyPair test = CurrencyPair.of(GBP, GBP);
-    assertEquals(test.contains(GBP), true);
-    assertEquals(test.contains(USD), false);
-    assertEquals(test.contains(EUR), false);
+    assertThat(test.contains(GBP)).isEqualTo(true);
+    assertThat(test.contains(USD)).isEqualTo(false);
+    assertThat(test.contains(EUR)).isEqualTo(false);
   }
 
+  @Test
   public void test_contains_Currency_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertThatIllegalArgumentException().isThrownBy(() -> test.contains(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_other_Currency() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertEquals(test.other(GBP), USD);
-    assertEquals(test.other(USD), GBP);
+    assertThat(test.other(GBP)).isEqualTo(USD);
+    assertThat(test.other(USD)).isEqualTo(GBP);
     assertThatIllegalArgumentException().isThrownBy(() -> test.other(EUR));
   }
 
+  @Test
   public void test_other_Currency_same() {
     CurrencyPair test = CurrencyPair.of(GBP, GBP);
-    assertEquals(test.other(GBP), GBP);
+    assertThat(test.other(GBP)).isEqualTo(GBP);
     assertThatIllegalArgumentException().isThrownBy(() -> test.other(EUR));
   }
 
+  @Test
   public void test_other_Currency_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertThatIllegalArgumentException().isThrownBy(() -> test.other(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isInverse_CurrencyPair() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
-    assertEquals(test.isInverse(test), false);
-    assertEquals(test.isInverse(CurrencyPair.of(GBP, USD)), false);
-    assertEquals(test.isInverse(CurrencyPair.of(USD, GBP)), true);
-    assertEquals(test.isInverse(CurrencyPair.of(GBP, EUR)), false);
-    assertEquals(test.isInverse(CurrencyPair.of(EUR, GBP)), false);
-    assertEquals(test.isInverse(CurrencyPair.of(USD, EUR)), false);
-    assertEquals(test.isInverse(CurrencyPair.of(EUR, USD)), false);
+    assertThat(test.isInverse(test)).isEqualTo(false);
+    assertThat(test.isInverse(CurrencyPair.of(GBP, USD))).isEqualTo(false);
+    assertThat(test.isInverse(CurrencyPair.of(USD, GBP))).isEqualTo(true);
+    assertThat(test.isInverse(CurrencyPair.of(GBP, EUR))).isEqualTo(false);
+    assertThat(test.isInverse(CurrencyPair.of(EUR, GBP))).isEqualTo(false);
+    assertThat(test.isInverse(CurrencyPair.of(USD, EUR))).isEqualTo(false);
+    assertThat(test.isInverse(CurrencyPair.of(EUR, USD))).isEqualTo(false);
   }
 
+  @Test
   public void test_isInverse_CurrencyPair_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertThatIllegalArgumentException().isThrownBy(() -> test.isInverse(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cross_CurrencyPair() {
     CurrencyPair gbpGbp = CurrencyPair.of(GBP, GBP);
     CurrencyPair gbpUsd = CurrencyPair.of(GBP, USD);
@@ -186,99 +198,107 @@ public class CurrencyPairTest {
     CurrencyPair eurUsd = CurrencyPair.of(EUR, USD);
     CurrencyPair usdEur = CurrencyPair.of(USD, EUR);
 
-    assertEquals(gbpUsd.cross(gbpUsd), Optional.empty());
-    assertEquals(gbpUsd.cross(usdGbp), Optional.empty());
-    assertEquals(gbpGbp.cross(gbpUsd), Optional.empty());
-    assertEquals(gbpUsd.cross(gbpGbp), Optional.empty());
+    assertThat(gbpUsd.cross(gbpUsd)).isEqualTo(Optional.empty());
+    assertThat(gbpUsd.cross(usdGbp)).isEqualTo(Optional.empty());
+    assertThat(gbpGbp.cross(gbpUsd)).isEqualTo(Optional.empty());
+    assertThat(gbpUsd.cross(gbpGbp)).isEqualTo(Optional.empty());
 
-    assertEquals(gbpUsd.cross(usdEur), Optional.of(eurGbp));
-    assertEquals(gbpUsd.cross(eurUsd), Optional.of(eurGbp));
-    assertEquals(usdGbp.cross(usdEur), Optional.of(eurGbp));
-    assertEquals(usdGbp.cross(eurUsd), Optional.of(eurGbp));
+    assertThat(gbpUsd.cross(usdEur)).isEqualTo(Optional.of(eurGbp));
+    assertThat(gbpUsd.cross(eurUsd)).isEqualTo(Optional.of(eurGbp));
+    assertThat(usdGbp.cross(usdEur)).isEqualTo(Optional.of(eurGbp));
+    assertThat(usdGbp.cross(eurUsd)).isEqualTo(Optional.of(eurGbp));
 
-    assertEquals(usdEur.cross(gbpUsd), Optional.of(eurGbp));
-    assertEquals(usdEur.cross(usdGbp), Optional.of(eurGbp));
-    assertEquals(eurUsd.cross(gbpUsd), Optional.of(eurGbp));
-    assertEquals(eurUsd.cross(usdGbp), Optional.of(eurGbp));
+    assertThat(usdEur.cross(gbpUsd)).isEqualTo(Optional.of(eurGbp));
+    assertThat(usdEur.cross(usdGbp)).isEqualTo(Optional.of(eurGbp));
+    assertThat(eurUsd.cross(gbpUsd)).isEqualTo(Optional.of(eurGbp));
+    assertThat(eurUsd.cross(usdGbp)).isEqualTo(Optional.of(eurGbp));
   }
 
+  @Test
   public void test_cross_CurrencyPair_null() {
     CurrencyPair test = CurrencyPair.of(GBP, USD);
     assertThatIllegalArgumentException().isThrownBy(() -> test.cross(null));
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_isConventional() {
-    assertEquals(CurrencyPair.of(GBP, USD).isConventional(), true);
-    assertEquals(CurrencyPair.of(USD, GBP).isConventional(), false);
+    assertThat(CurrencyPair.of(GBP, USD).isConventional()).isEqualTo(true);
+    assertThat(CurrencyPair.of(USD, GBP).isConventional()).isEqualTo(false);
     // There is no configuration for GBP/BRL or BRL/GBP so the ordering list is used to choose a convention pair
     // GBP is in the currency order list and BRL isn't so GBP is the base
-    assertEquals(CurrencyPair.of(GBP, BRL).isConventional(), true);
-    assertEquals(CurrencyPair.of(BRL, GBP).isConventional(), false);
+    assertThat(CurrencyPair.of(GBP, BRL).isConventional()).isEqualTo(true);
+    assertThat(CurrencyPair.of(BRL, GBP).isConventional()).isEqualTo(false);
     // There is no configuration for BHD/BRL or BRL/BHD and neither are in the list specifying currency priority order.
     // Lexicographical ordering is used
-    assertEquals(CurrencyPair.of(BHD, BRL).isConventional(), true);
-    assertEquals(CurrencyPair.of(BRL, BHD).isConventional(), false);
-    assertEquals(CurrencyPair.of(GBP, GBP).isConventional(), true);
+    assertThat(CurrencyPair.of(BHD, BRL).isConventional()).isEqualTo(true);
+    assertThat(CurrencyPair.of(BRL, BHD).isConventional()).isEqualTo(false);
+    assertThat(CurrencyPair.of(GBP, GBP).isConventional()).isEqualTo(true);
   }
 
+  @Test
   public void test_toConventional() {
-    assertEquals(CurrencyPair.of(GBP, USD).toConventional(), CurrencyPair.of(GBP, USD));
-    assertEquals(CurrencyPair.of(USD, GBP).toConventional(), CurrencyPair.of(GBP, USD));
+    assertThat(CurrencyPair.of(GBP, USD).toConventional()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(CurrencyPair.of(USD, GBP).toConventional()).isEqualTo(CurrencyPair.of(GBP, USD));
 
-    assertEquals(CurrencyPair.of(GBP, BRL).toConventional(), CurrencyPair.of(GBP, BRL));
-    assertEquals(CurrencyPair.of(BRL, GBP).toConventional(), CurrencyPair.of(GBP, BRL));
+    assertThat(CurrencyPair.of(GBP, BRL).toConventional()).isEqualTo(CurrencyPair.of(GBP, BRL));
+    assertThat(CurrencyPair.of(BRL, GBP).toConventional()).isEqualTo(CurrencyPair.of(GBP, BRL));
 
-    assertEquals(CurrencyPair.of(BHD, BRL).toConventional(), CurrencyPair.of(BHD, BRL));
-    assertEquals(CurrencyPair.of(BRL, BHD).toConventional(), CurrencyPair.of(BHD, BRL));
+    assertThat(CurrencyPair.of(BHD, BRL).toConventional()).isEqualTo(CurrencyPair.of(BHD, BRL));
+    assertThat(CurrencyPair.of(BRL, BHD).toConventional()).isEqualTo(CurrencyPair.of(BHD, BRL));
   }
 
+  @Test
   public void test_rateDigits() {
-    assertEquals(CurrencyPair.of(GBP, USD).getRateDigits(), 4);
-    assertEquals(CurrencyPair.of(USD, GBP).getRateDigits(), 4);
-    assertEquals(CurrencyPair.of(BRL, GBP).getRateDigits(), 4);
-    assertEquals(CurrencyPair.of(GBP, BRL).getRateDigits(), 4);
-    assertEquals(CurrencyPair.of(BRL, BHD).getRateDigits(), 5);
-    assertEquals(CurrencyPair.of(BHD, BRL).getRateDigits(), 5);
+    assertThat(CurrencyPair.of(GBP, USD).getRateDigits()).isEqualTo(4);
+    assertThat(CurrencyPair.of(USD, GBP).getRateDigits()).isEqualTo(4);
+    assertThat(CurrencyPair.of(BRL, GBP).getRateDigits()).isEqualTo(4);
+    assertThat(CurrencyPair.of(GBP, BRL).getRateDigits()).isEqualTo(4);
+    assertThat(CurrencyPair.of(BRL, BHD).getRateDigits()).isEqualTo(5);
+    assertThat(CurrencyPair.of(BHD, BRL).getRateDigits()).isEqualTo(5);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals_hashCode() {
     CurrencyPair a1 = CurrencyPair.of(AUD, GBP);
     CurrencyPair a2 = CurrencyPair.of(AUD, GBP);
     CurrencyPair b = CurrencyPair.of(USD, GBP);
     CurrencyPair c = CurrencyPair.of(USD, EUR);
 
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
 
-    assertEquals(b.equals(a1), false);
-    assertEquals(b.equals(a2), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
+    assertThat(b.equals(a1)).isEqualTo(false);
+    assertThat(b.equals(a2)).isEqualTo(false);
+    assertThat(b.equals(b)).isEqualTo(true);
+    assertThat(b.equals(c)).isEqualTo(false);
 
-    assertEquals(c.equals(a1), false);
-    assertEquals(c.equals(a2), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
+    assertThat(c.equals(a1)).isEqualTo(false);
+    assertThat(c.equals(a2)).isEqualTo(false);
+    assertThat(c.equals(b)).isEqualTo(false);
+    assertThat(c.equals(c)).isEqualTo(true);
 
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
+  @Test
   public void test_equals_bad() {
     CurrencyPair test = CurrencyPair.of(AUD, GBP);
-    assertFalse(test.equals(ANOTHER_TYPE));
-    assertFalse(test.equals(null));
+    assertThat(test.equals(ANOTHER_TYPE)).isFalse();
+    assertThat(test.equals(null)).isFalse();
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(CurrencyPair.of(GBP, USD));
     assertSerialization(CurrencyPair.of(GBP, GBP));
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(CurrencyPair.class, CurrencyPair.of(GBP, USD));
     assertJodaConvert(CurrencyPair.class, CurrencyPair.of(GBP, GBP));

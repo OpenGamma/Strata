@@ -5,19 +5,19 @@
  */
 package com.opengamma.strata.basics.date;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.joda.beans.ser.JodaBeanSer;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test serialization using Joda-Beans.
  */
-@Test
 public class SerializeTest {
 
+  @Test
   public void test_jodaBeans_serialize() {
     serialize(HolidayCalendars.NO_HOLIDAYS);
     serialize(HolidayCalendars.SAT_SUN);
@@ -34,7 +34,7 @@ public class SerializeTest {
 
     String xml = JodaBeanSer.PRETTY.xmlWriter().write(bean);
     MockSerBean test = JodaBeanSer.COMPACT.xmlReader().read(xml, MockSerBean.class);
-    assertEquals(test, bean);
+    assertThat(test).isEqualTo(bean);
   }
 
 }

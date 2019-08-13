@@ -20,21 +20,20 @@ import static java.time.Month.JUNE;
 import static java.time.Month.NOVEMBER;
 import static java.time.Month.OCTOBER;
 import static java.time.Month.SEPTEMBER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 
 /**
  * Test {@link Schedule}.
  */
-@Test
 public class ScheduleTest {
 
   private static final LocalDate JUN_15 = date(2014, JUNE, 15);
@@ -72,231 +71,241 @@ public class ScheduleTest {
   private static final SchedulePeriod P4_6 = SchedulePeriod.of(SEP_17, DEC_17);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_size0() {
     assertThatIllegalArgumentException().isThrownBy(() -> Schedule.builder().periods(ImmutableList.of()));
   }
 
+  @Test
   public void test_ofTerm() {
     Schedule test = Schedule.ofTerm(P1_STUB);
-    assertEquals(test.size(), 1);
-    assertEquals(test.isTerm(), true);
-    assertEquals(test.isSinglePeriod(), true);
-    assertEquals(test.getFrequency(), TERM);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P1_STUB));
-    assertEquals(test.getPeriod(0), P1_STUB);
-    assertEquals(test.getStartDate(), P1_STUB.getStartDate());
-    assertEquals(test.getEndDate(), P1_STUB.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P1_STUB.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P1_STUB.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P1_STUB);
-    assertEquals(test.getLastPeriod(), P1_STUB);
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P1_STUB));
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.isTerm()).isEqualTo(true);
+    assertThat(test.isSinglePeriod()).isEqualTo(true);
+    assertThat(test.getFrequency()).isEqualTo(TERM);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.NONE);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).isEqualTo(ImmutableList.of(P1_STUB));
+    assertThat(test.getPeriod(0)).isEqualTo(P1_STUB);
+    assertThat(test.getStartDate()).isEqualTo(P1_STUB.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P1_STUB.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P1_STUB.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P1_STUB.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getLastPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P1_STUB));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17);
   }
 
+  @Test
   public void test_size1_stub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 1);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), true);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P1_STUB));
-    assertEquals(test.getPeriod(0), P1_STUB);
-    assertEquals(test.getStartDate(), P1_STUB.getStartDate());
-    assertEquals(test.getEndDate(), P1_STUB.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P1_STUB.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P1_STUB.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P1_STUB);
-    assertEquals(test.getLastPeriod(), P1_STUB);
-    assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getRegularPeriods(), ImmutableList.of());
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(true);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).isEqualTo(ImmutableList.of(P1_STUB));
+    assertThat(test.getPeriod(0)).isEqualTo(P1_STUB);
+    assertThat(test.getStartDate()).isEqualTo(P1_STUB.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P1_STUB.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P1_STUB.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P1_STUB.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getLastPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.of(P1_STUB));
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of());
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17);
   }
 
+  @Test
   public void test_size1_noStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 1);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), true);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P2_NORMAL));
-    assertEquals(test.getPeriod(0), P2_NORMAL);
-    assertEquals(test.getStartDate(), P2_NORMAL.getStartDate());
-    assertEquals(test.getEndDate(), P2_NORMAL.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P2_NORMAL.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P2_NORMAL.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P2_NORMAL);
-    assertEquals(test.getLastPeriod(), P2_NORMAL);
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL));
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(true);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).isEqualTo(ImmutableList.of(P2_NORMAL));
+    assertThat(test.getPeriod(0)).isEqualTo(P2_NORMAL);
+    assertThat(test.getStartDate()).isEqualTo(P2_NORMAL.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P2_NORMAL.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P2_NORMAL.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P2_NORMAL.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P2_NORMAL);
+    assertThat(test.getLastPeriod()).isEqualTo(P2_NORMAL);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P2_NORMAL));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_17, AUG_17));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_17, AUG_17);
   }
 
+  @Test
   public void test_of_size2_initialStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 2);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), false);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P1_STUB, P2_NORMAL));
-    assertEquals(test.getPeriod(0), P1_STUB);
-    assertEquals(test.getPeriod(1), P2_NORMAL);
-    assertEquals(test.getStartDate(), P1_STUB.getStartDate());
-    assertEquals(test.getEndDate(), P2_NORMAL.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P1_STUB.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P2_NORMAL.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P1_STUB);
-    assertEquals(test.getLastPeriod(), P2_NORMAL);
-    assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL));
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(false);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).containsExactly(P1_STUB, P2_NORMAL);
+    assertThat(test.getPeriod(0)).isEqualTo(P1_STUB);
+    assertThat(test.getPeriod(1)).isEqualTo(P2_NORMAL);
+    assertThat(test.getStartDate()).isEqualTo(P1_STUB.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P2_NORMAL.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P1_STUB.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P2_NORMAL.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getLastPeriod()).isEqualTo(P2_NORMAL);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.of(P1_STUB));
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P2_NORMAL));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17, AUG_17));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17, AUG_17);
   }
 
+  @Test
   public void test_of_size2_noStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 2);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), false);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
-    assertEquals(test.getPeriod(0), P2_NORMAL);
-    assertEquals(test.getPeriod(1), P3_NORMAL);
-    assertEquals(test.getStartDate(), P2_NORMAL.getStartDate());
-    assertEquals(test.getEndDate(), P3_NORMAL.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P2_NORMAL.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P3_NORMAL.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P2_NORMAL);
-    assertEquals(test.getLastPeriod(), P3_NORMAL);
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(false);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).containsExactly(P2_NORMAL, P3_NORMAL);
+    assertThat(test.getPeriod(0)).isEqualTo(P2_NORMAL);
+    assertThat(test.getPeriod(1)).isEqualTo(P3_NORMAL);
+    assertThat(test.getStartDate()).isEqualTo(P2_NORMAL.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P3_NORMAL.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P2_NORMAL.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P3_NORMAL.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P2_NORMAL);
+    assertThat(test.getLastPeriod()).isEqualTo(P3_NORMAL);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getRegularPeriods()).containsExactly(P2_NORMAL, P3_NORMAL);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_17, AUG_17, SEP_17));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_17, AUG_17, SEP_17);
   }
 
+  @Test
   public void test_of_size2_finalStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P3_NORMAL, P4_STUB))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 2);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), false);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P3_NORMAL, P4_STUB));
-    assertEquals(test.getPeriod(0), P3_NORMAL);
-    assertEquals(test.getPeriod(1), P4_STUB);
-    assertEquals(test.getStartDate(), P3_NORMAL.getStartDate());
-    assertEquals(test.getEndDate(), P4_STUB.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P4_STUB.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P3_NORMAL);
-    assertEquals(test.getLastPeriod(), P4_STUB);
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.of(P4_STUB));
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P3_NORMAL));
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(false);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).containsExactly(P3_NORMAL, P4_STUB);
+    assertThat(test.getPeriod(0)).isEqualTo(P3_NORMAL);
+    assertThat(test.getPeriod(1)).isEqualTo(P4_STUB);
+    assertThat(test.getStartDate()).isEqualTo(P3_NORMAL.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P4_STUB.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P3_NORMAL.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P4_STUB.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P3_NORMAL);
+    assertThat(test.getLastPeriod()).isEqualTo(P4_STUB);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.of(P4_STUB));
+    assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P3_NORMAL));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(AUG_17, SEP_17, SEP_30));
+    assertThat(test.getUnadjustedDates()).containsExactly(AUG_17, SEP_17, SEP_30);
   }
 
+  @Test
   public void test_of_size3_initialStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 3);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), false);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL));
-    assertEquals(test.getPeriod(0), P1_STUB);
-    assertEquals(test.getPeriod(1), P2_NORMAL);
-    assertEquals(test.getPeriod(2), P3_NORMAL);
-    assertEquals(test.getStartDate(), P1_STUB.getStartDate());
-    assertEquals(test.getEndDate(), P3_NORMAL.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P1_STUB.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P3_NORMAL.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P1_STUB);
-    assertEquals(test.getLastPeriod(), P3_NORMAL);
-    assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
+    assertThat(test.size()).isEqualTo(3);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(false);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).containsExactly(P1_STUB, P2_NORMAL, P3_NORMAL);
+    assertThat(test.getPeriod(0)).isEqualTo(P1_STUB);
+    assertThat(test.getPeriod(1)).isEqualTo(P2_NORMAL);
+    assertThat(test.getPeriod(2)).isEqualTo(P3_NORMAL);
+    assertThat(test.getStartDate()).isEqualTo(P1_STUB.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P3_NORMAL.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P1_STUB.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P3_NORMAL.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getLastPeriod()).isEqualTo(P3_NORMAL);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.of(P1_STUB));
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getRegularPeriods()).containsExactly(P2_NORMAL, P3_NORMAL);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(3));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17, AUG_17, SEP_17));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17, AUG_17, SEP_17);
   }
 
+  @Test
   public void test_of_size4_bothStubs() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL, P4_STUB))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.size(), 4);
-    assertEquals(test.isTerm(), false);
-    assertEquals(test.isSinglePeriod(), false);
-    assertEquals(test.getFrequency(), P1M);
-    assertEquals(test.getRollConvention(), DAY_17);
-    assertEquals(test.isEndOfMonthConvention(), false);
-    assertEquals(test.getPeriods(), ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL, P4_STUB));
-    assertEquals(test.getPeriod(0), P1_STUB);
-    assertEquals(test.getPeriod(1), P2_NORMAL);
-    assertEquals(test.getPeriod(2), P3_NORMAL);
-    assertEquals(test.getPeriod(3), P4_STUB);
-    assertEquals(test.getStartDate(), P1_STUB.getStartDate());
-    assertEquals(test.getEndDate(), P4_STUB.getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), P1_STUB.getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), P4_STUB.getUnadjustedEndDate());
-    assertEquals(test.getFirstPeriod(), P1_STUB);
-    assertEquals(test.getLastPeriod(), P4_STUB);
-    assertEquals(test.getInitialStub(), Optional.of(P1_STUB));
-    assertEquals(test.getFinalStub(), Optional.of(P4_STUB));
-    assertEquals(test.getRegularPeriods(), ImmutableList.of(P2_NORMAL, P3_NORMAL));
+    assertThat(test.size()).isEqualTo(4);
+    assertThat(test.isTerm()).isEqualTo(false);
+    assertThat(test.isSinglePeriod()).isEqualTo(false);
+    assertThat(test.getFrequency()).isEqualTo(P1M);
+    assertThat(test.getRollConvention()).isEqualTo(DAY_17);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(false);
+    assertThat(test.getPeriods()).containsExactly(P1_STUB, P2_NORMAL, P3_NORMAL, P4_STUB);
+    assertThat(test.getPeriod(0)).isEqualTo(P1_STUB);
+    assertThat(test.getPeriod(1)).isEqualTo(P2_NORMAL);
+    assertThat(test.getPeriod(2)).isEqualTo(P3_NORMAL);
+    assertThat(test.getPeriod(3)).isEqualTo(P4_STUB);
+    assertThat(test.getStartDate()).isEqualTo(P1_STUB.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(P4_STUB.getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(P1_STUB.getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(P4_STUB.getUnadjustedEndDate());
+    assertThat(test.getFirstPeriod()).isEqualTo(P1_STUB);
+    assertThat(test.getLastPeriod()).isEqualTo(P4_STUB);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.of(P1_STUB));
+    assertThat(test.getFinalStub()).isEqualTo(Optional.of(P4_STUB));
+    assertThat(test.getRegularPeriods()).containsExactly(P2_NORMAL, P3_NORMAL);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(4));
-    assertEquals(test.getUnadjustedDates(), ImmutableList.of(JUL_04, JUL_17, AUG_17, SEP_17, SEP_30));
+    assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17, AUG_17, SEP_17, SEP_30);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isEndOfMonthConvention_eom() {
     // schedule doesn't make sense, but test only requires roll convention of EOM
     Schedule test = Schedule.builder()
@@ -304,10 +313,11 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(RollConventions.EOM)
         .build();
-    assertEquals(test.isEndOfMonthConvention(), true);
+    assertThat(test.isEndOfMonthConvention()).isEqualTo(true);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getPeriodEndDate() {
     // schedule doesn't make sense, but test only requires roll convention of EOM
     Schedule test = Schedule.builder()
@@ -315,34 +325,37 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.getPeriodEndDate(P2_NORMAL.getStartDate()), P2_NORMAL.getEndDate());
-    assertEquals(test.getPeriodEndDate(P2_NORMAL.getStartDate().plusDays(1)), P2_NORMAL.getEndDate());
-    assertEquals(test.getPeriodEndDate(P3_NORMAL.getStartDate()), P3_NORMAL.getEndDate());
-    assertEquals(test.getPeriodEndDate(P3_NORMAL.getStartDate().plusDays(1)), P3_NORMAL.getEndDate());
+    assertThat(test.getPeriodEndDate(P2_NORMAL.getStartDate())).isEqualTo(P2_NORMAL.getEndDate());
+    assertThat(test.getPeriodEndDate(P2_NORMAL.getStartDate().plusDays(1))).isEqualTo(P2_NORMAL.getEndDate());
+    assertThat(test.getPeriodEndDate(P3_NORMAL.getStartDate())).isEqualTo(P3_NORMAL.getEndDate());
+    assertThat(test.getPeriodEndDate(P3_NORMAL.getStartDate().plusDays(1))).isEqualTo(P3_NORMAL.getEndDate());
     assertThatIllegalArgumentException().isThrownBy(() -> test.getPeriodEndDate(P2_NORMAL.getStartDate().minusDays(1)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mergeToTerm() {
     Schedule testNormal = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(testNormal.mergeToTerm(), Schedule.ofTerm(P1_3));
-    assertEquals(testNormal.mergeToTerm().mergeToTerm(), Schedule.ofTerm(P1_3));
+    assertThat(testNormal.mergeToTerm()).isEqualTo(Schedule.ofTerm(P1_3));
+    assertThat(testNormal.mergeToTerm().mergeToTerm()).isEqualTo(Schedule.ofTerm(P1_3));
   }
 
+  @Test
   public void test_mergeToTerm_size1_stub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeToTerm(), Schedule.ofTerm(P1_STUB));
+    assertThat(test.mergeToTerm()).isEqualTo(Schedule.ofTerm(P1_STUB));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_merge_group2_within2_initialStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL))
@@ -354,12 +367,13 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, true), expected);
-    assertEquals(test.mergeRegular(2, false), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(expected);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within2_noStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL))
@@ -371,12 +385,13 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, true), expected);
-    assertEquals(test.mergeRegular(2, false), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(expected);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within2_finalStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_STUB))
@@ -388,12 +403,13 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, true), expected);
-    assertEquals(test.mergeRegular(2, false), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(expected);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within3_forwards() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL))
@@ -405,11 +421,12 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, true), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P3_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getStartDate(), P3_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within3_backwards() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL))
@@ -421,11 +438,12 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, false), expected);
-    assertEquals(test.merge(2, P3_NORMAL.getUnadjustedStartDate(), P4_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P3_NORMAL.getStartDate(), P4_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(expected);
+    assertThat(test.merge(2, P3_NORMAL.getUnadjustedStartDate(), P4_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P3_NORMAL.getStartDate(), P4_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within5_forwards() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -437,11 +455,12 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, true), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P5_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P2_NORMAL.getStartDate(), P5_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getUnadjustedStartDate(), P5_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P2_NORMAL.getStartDate(), P5_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within5_backwards() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -453,11 +472,12 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, false), expected);
-    assertEquals(test.merge(2, P3_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P3_NORMAL.getStartDate(), P6_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(expected);
+    assertThat(test.merge(2, P3_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P3_NORMAL.getStartDate(), P6_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within6_includeInitialStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -469,10 +489,11 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.merge(2, P3_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P3_NORMAL.getStartDate(), P6_NORMAL.getEndDate()), expected);
+    assertThat(test.merge(2, P3_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P3_NORMAL.getStartDate(), P6_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group2_within6_includeFinalStub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL, P3_NORMAL, P4_STUB))
@@ -484,10 +505,11 @@ public class ScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.merge(2, P1_STUB.getUnadjustedStartDate(), P2_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(2, P1_STUB.getStartDate(), P2_NORMAL.getEndDate()), expected);
+    assertThat(test.merge(2, P1_STUB.getUnadjustedStartDate(), P2_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(2, P1_STUB.getStartDate(), P2_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group3_within5_forwards() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -499,11 +521,12 @@ public class ScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(3, true), expected);
-    assertEquals(test.merge(3, P2_NORMAL.getUnadjustedStartDate(), P4_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(3, P2_NORMAL.getStartDate(), P4_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(3, true)).isEqualTo(expected);
+    assertThat(test.merge(3, P2_NORMAL.getUnadjustedStartDate(), P4_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(3, P2_NORMAL.getStartDate(), P4_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_group3_within5_backwards() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -515,43 +538,47 @@ public class ScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(3, false), expected);
-    assertEquals(test.merge(3, P4_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()), expected);
-    assertEquals(test.merge(3, P4_NORMAL.getStartDate(), P6_NORMAL.getEndDate()), expected);
+    assertThat(test.mergeRegular(3, false)).isEqualTo(expected);
+    assertThat(test.merge(3, P4_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate())).isEqualTo(expected);
+    assertThat(test.merge(3, P4_NORMAL.getStartDate(), P6_NORMAL.getEndDate())).isEqualTo(expected);
   }
 
+  @Test
   public void test_merge_termNoChange() {
     Schedule test = Schedule.ofTerm(P1_STUB);
-    assertEquals(test.mergeRegular(2, true), test);
-    assertEquals(test.mergeRegular(2, false), test);
-    assertEquals(test.merge(2, P1_STUB.getUnadjustedStartDate(), P1_STUB.getUnadjustedEndDate()), test);
-    assertEquals(test.merge(2, P1_STUB.getStartDate(), P1_STUB.getEndDate()), test);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(test);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(test);
+    assertThat(test.merge(2, P1_STUB.getUnadjustedStartDate(), P1_STUB.getUnadjustedEndDate())).isEqualTo(test);
+    assertThat(test.merge(2, P1_STUB.getStartDate(), P1_STUB.getEndDate())).isEqualTo(test);
   }
 
+  @Test
   public void test_merge_size1_stub() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(2, true), test);
-    assertEquals(test.mergeRegular(2, false), test);
-    assertEquals(test.merge(2, P1_STUB.getUnadjustedStartDate(), P1_STUB.getUnadjustedEndDate()), test);
-    assertEquals(test.merge(2, P1_STUB.getStartDate(), P1_STUB.getEndDate()), test);
+    assertThat(test.mergeRegular(2, true)).isEqualTo(test);
+    assertThat(test.mergeRegular(2, false)).isEqualTo(test);
+    assertThat(test.merge(2, P1_STUB.getUnadjustedStartDate(), P1_STUB.getUnadjustedEndDate())).isEqualTo(test);
+    assertThat(test.merge(2, P1_STUB.getStartDate(), P1_STUB.getEndDate())).isEqualTo(test);
   }
 
+  @Test
   public void test_merge_groupSizeOneNoChange() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.mergeRegular(1, true), test);
-    assertEquals(test.mergeRegular(1, false), test);
-    assertEquals(test.merge(1, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()), test);
-    assertEquals(test.merge(1, P2_NORMAL.getStartDate(), P6_NORMAL.getEndDate()), test);
+    assertThat(test.mergeRegular(1, true)).isEqualTo(test);
+    assertThat(test.mergeRegular(1, false)).isEqualTo(test);
+    assertThat(test.merge(1, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate())).isEqualTo(test);
+    assertThat(test.merge(1, P2_NORMAL.getStartDate(), P6_NORMAL.getEndDate())).isEqualTo(test);
   }
 
+  @Test
   public void test_merge_groupSizeInvalid() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -568,6 +595,7 @@ public class ScheduleTest {
         .isThrownBy(() -> test.merge(-1, P2_NORMAL.getUnadjustedStartDate(), P6_NORMAL.getUnadjustedEndDate()));
   }
 
+  @Test
   public void test_merge_badDate() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -578,6 +606,7 @@ public class ScheduleTest {
     assertThatExceptionOfType(ScheduleException.class).isThrownBy(() -> test.merge(2, JUL_17, SEP_30));
   }
 
+  @Test
   public void test_merge_badGroupSize() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -593,6 +622,7 @@ public class ScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toAdjusted() {
     SchedulePeriod period1 = SchedulePeriod.of(JUN_15, SEP_17);
     SchedulePeriod period2 = SchedulePeriod.of(SEP_17, SEP_30);
@@ -601,14 +631,16 @@ public class ScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test.toAdjusted(date -> date), test);
-    assertEquals(test.toAdjusted(date -> date.equals(JUN_15) ? JUN_16 : date), Schedule.builder()
-        .periods(SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17), period2)
-        .frequency(P3M)
-        .rollConvention(DAY_17)
-        .build());
+    assertThat(test.toAdjusted(date -> date)).isEqualTo(test);
+    assertThat(test.toAdjusted(date -> date.equals(JUN_15) ? JUN_16 : date))
+        .isEqualTo(Schedule.builder()
+            .periods(SchedulePeriod.of(JUN_16, SEP_17, JUN_15, SEP_17), period2)
+            .frequency(P3M)
+            .rollConvention(DAY_17)
+            .build());
   }
 
+  @Test
   public void test_toUnadjusted() {
     SchedulePeriod a = SchedulePeriod.of(JUL_17, OCT_17, JUL_16, OCT_15);
     SchedulePeriod b = SchedulePeriod.of(JUL_16, OCT_15, JUL_16, OCT_15);
@@ -623,10 +655,11 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(DAY_17)
         .build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage_equals() {
     Schedule a = Schedule.builder()
         .periods(ImmutableList.of(P2_NORMAL, P3_NORMAL, P4_NORMAL, P5_NORMAL, P6_NORMAL))
@@ -648,13 +681,14 @@ public class ScheduleTest {
         .frequency(P1M)
         .rollConvention(RollConventions.DAY_1)
         .build();
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(c), false);
-    assertEquals(a.equals(d), false);
+    assertThat(a.equals(a)).isEqualTo(true);
+    assertThat(a.equals(b)).isEqualTo(false);
+    assertThat(a.equals(c)).isEqualTo(false);
+    assertThat(a.equals(d)).isEqualTo(false);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage_builder() {
     Schedule.Builder builder = Schedule.builder();
     builder
@@ -665,6 +699,7 @@ public class ScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL))
@@ -674,6 +709,7 @@ public class ScheduleTest {
     coverImmutableBean(test);
   }
 
+  @Test
   public void test_serialization() {
     Schedule test = Schedule.builder()
         .periods(ImmutableList.of(P1_STUB, P2_NORMAL))

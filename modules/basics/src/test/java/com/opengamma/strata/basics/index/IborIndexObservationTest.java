@@ -13,31 +13,32 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link IborIndexObservation}.
  */
-@Test
 public class IborIndexObservationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     IborIndexObservation test = IborIndexObservation.of(USD_LIBOR_3M, date(2016, 2, 18), REF_DATA);
     double yearFraction = USD_LIBOR_3M.getDayCount().yearFraction(date(2016, 2, 22), date(2016, 5, 23));
     IborIndexObservation expected = new IborIndexObservation(
         USD_LIBOR_3M, date(2016, 2, 18), date(2016, 2, 22), date(2016, 5, 23), yearFraction);
-    assertEquals(test, expected);
-    assertEquals(test.getCurrency(), USD);
+    assertThat(test).isEqualTo(expected);
+    assertThat(test.getCurrency()).isEqualTo(USD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborIndexObservation test = IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
     coverImmutableBean(test);
@@ -45,6 +46,7 @@ public class IborIndexObservationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborIndexObservation test = IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 6, 30), REF_DATA);
     assertSerialization(test);

@@ -7,18 +7,16 @@ package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link CurrencyAmount}.
  */
-@Test
 public class CurrencyAmountTest {
 
   private static final Currency CCY1 = Currency.AUD;
@@ -29,68 +27,78 @@ public class CurrencyAmountTest {
   private static final CurrencyAmount CCY_AMOUNT_NEGATIVE = CurrencyAmount.of(CCY1, -AMT1);
   private static final Object ANOTHER_TYPE = "";
 
+  @Test
   public void test_fixture() {
-    assertEquals(CCY_AMOUNT.getCurrency(), CCY1);
-    assertEquals(CCY_AMOUNT.getAmount(), AMT1, 0);
+    assertThat(CCY_AMOUNT.getCurrency()).isEqualTo(CCY1);
+    assertThat(CCY_AMOUNT.getAmount()).isEqualTo(AMT1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zero_Currency() {
     CurrencyAmount test = CurrencyAmount.zero(Currency.USD);
-    assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(test.getAmount(), 0d, 0);
-    assertTrue(test.isZero());
-    assertFalse(test.isPositive());
-    assertFalse(test.isNegative());
+    assertThat(test.getCurrency()).isEqualTo(Currency.USD);
+    assertThat(test.getAmount()).isEqualTo(0d);
+    assertThat(test.isZero()).isTrue();
+    assertThat(test.isPositive()).isFalse();
+    assertThat(test.isNegative()).isFalse();
   }
 
+  @Test
   public void test_zero_Currency_nullCurrency() {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.zero(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_Currency() {
     CurrencyAmount test = CurrencyAmount.of(Currency.USD, AMT1);
-    assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(test.getAmount(), AMT1, 0);
-    assertFalse(test.isZero());
-    assertTrue(test.isPositive());
-    assertFalse(test.isNegative());
+    assertThat(test.getCurrency()).isEqualTo(Currency.USD);
+    assertThat(test.getAmount()).isEqualTo(AMT1);
+    assertThat(test.isZero()).isFalse();
+    assertThat(test.isPositive()).isTrue();
+    assertThat(test.isNegative()).isFalse();
   }
 
+  @Test
   public void test_of_Currency_negative() {
     CurrencyAmount test = CurrencyAmount.of(Currency.USD, -1);
-    assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(test.getAmount(), -1, 0);
-    assertFalse(test.isZero());
-    assertFalse(test.isPositive());
-    assertTrue(test.isNegative());
+    assertThat(test.getCurrency()).isEqualTo(Currency.USD);
+    assertThat(test.getAmount()).isEqualTo(-1);
+    assertThat(test.isZero()).isFalse();
+    assertThat(test.isPositive()).isFalse();
+    assertThat(test.isNegative()).isTrue();
   }
 
+  @Test
   public void test_of_Currency_negativeZero() {
     CurrencyAmount test = CurrencyAmount.of(Currency.USD, -0d);
-    assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(Double.doubleToLongBits(test.getAmount()), Double.doubleToLongBits(0d));
-    assertTrue(test.isZero());
-    assertFalse(test.isPositive());
-    assertFalse(test.isNegative());
+    assertThat(test.getCurrency()).isEqualTo(Currency.USD);
+    assertThat(Double.doubleToLongBits(test.getAmount())).isEqualTo(Double.doubleToLongBits(0d));
+    assertThat(test.isZero()).isTrue();
+    assertThat(test.isPositive()).isFalse();
+    assertThat(test.isNegative()).isFalse();
   }
   
+  @Test
   public void test_of_Currency_NaN() {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.of(Currency.USD, Double.NaN));
   }
 
+  @Test
   public void test_of_Currency_nullCurrency() {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.of((Currency) null, AMT1));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_String() {
     CurrencyAmount test = CurrencyAmount.of("USD", AMT1);
-    assertEquals(test.getCurrency(), Currency.USD);
-    assertEquals(test.getAmount(), AMT1, 0);
+    assertThat(test.getCurrency()).isEqualTo(Currency.USD);
+    assertThat(test.getAmount()).isEqualTo(AMT1);
   }
 
+  @Test
   public void test_of_String_nullCurrency() {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.of((String) null, AMT1));
   }
@@ -98,10 +106,9 @@ public class CurrencyAmountTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_parse_String_roundTrip() {
-    assertEquals(CurrencyAmount.parse(CCY_AMOUNT.toString()), CCY_AMOUNT);
+    assertThat(CurrencyAmount.parse(CCY_AMOUNT.toString())).isEqualTo(CCY_AMOUNT);
   }
 
-  @DataProvider(name = "parseGood")
   public static Object[][] data_parseGood() {
     return new Object[][] {
         {"AUD 100.001", Currency.AUD, 100.001d},
@@ -113,12 +120,12 @@ public class CurrencyAmountTest {
     };
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good(String input, Currency currency, double amount) {
-    assertEquals(CurrencyAmount.parse(input), CurrencyAmount.of(currency, amount));
+    assertThat(CurrencyAmount.parse(input)).isEqualTo(CurrencyAmount.of(currency, amount));
   }
 
-  @DataProvider(name = "parseBad")
   public static Object[][] data_parseBad() {
     return new Object[][] {
         {"AUD"},
@@ -129,125 +136,146 @@ public class CurrencyAmountTest {
     };
   }
 
-  @Test(dataProvider = "parseBad")
+  @ParameterizedTest
+  @MethodSource("data_parseBad")
   public void test_parse_String_bad(String input) {
     assertThatIllegalArgumentException().isThrownBy(() -> CurrencyAmount.parse(input));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus_CurrencyAmount() {
     CurrencyAmount ccyAmount = CurrencyAmount.of(CCY1, AMT2);
     CurrencyAmount test = CCY_AMOUNT.plus(ccyAmount);
-    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 + AMT2));
+    assertThat(test).isEqualTo(CurrencyAmount.of(CCY1, AMT1 + AMT2));
   }
 
+  @Test
   public void test_plus_CurrencyAmount_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> CCY_AMOUNT.plus(null));
   }
 
+  @Test
   public void test_plus_CurrencyAmount_wrongCurrency() {
     assertThatIllegalArgumentException().isThrownBy(() -> CCY_AMOUNT.plus(CurrencyAmount.of(CCY2, AMT2)));
   }
 
+  @Test
   public void test_plus_double() {
     CurrencyAmount test = CCY_AMOUNT.plus(AMT2);
-    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 + AMT2));
+    assertThat(test).isEqualTo(CurrencyAmount.of(CCY1, AMT1 + AMT2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_minus_CurrencyAmount() {
     CurrencyAmount ccyAmount = CurrencyAmount.of(CCY1, AMT2);
     CurrencyAmount test = CCY_AMOUNT.minus(ccyAmount);
-    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 - AMT2));
+    assertThat(test).isEqualTo(CurrencyAmount.of(CCY1, AMT1 - AMT2));
   }
 
+  @Test
   public void test_minus_CurrencyAmount_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> CCY_AMOUNT.minus(null));
   }
 
+  @Test
   public void test_minus_CurrencyAmount_wrongCurrency() {
     assertThatIllegalArgumentException().isThrownBy(() -> CCY_AMOUNT.minus(CurrencyAmount.of(CCY2, AMT2)));
   }
 
+  @Test
   public void test_minus_double() {
     CurrencyAmount test = CCY_AMOUNT.minus(AMT2);
-    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 - AMT2));
+    assertThat(test).isEqualTo(CurrencyAmount.of(CCY1, AMT1 - AMT2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     CurrencyAmount test = CCY_AMOUNT.multipliedBy(3.5);
-    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 * 3.5));
+    assertThat(test).isEqualTo(CurrencyAmount.of(CCY1, AMT1 * 3.5));
   }
 
+  @Test
   public void test_mapAmount() {
     CurrencyAmount test = CCY_AMOUNT.mapAmount(v -> v * 2 + 1);
-    assertEquals(test, CurrencyAmount.of(CCY1, AMT1 * 2 + 1));
+    assertThat(test).isEqualTo(CurrencyAmount.of(CCY1, AMT1 * 2 + 1));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_negated() {
-    assertEquals(CCY_AMOUNT.negated(), CCY_AMOUNT_NEGATIVE);
-    assertEquals(CCY_AMOUNT_NEGATIVE.negated(), CCY_AMOUNT);
-    assertEquals(CurrencyAmount.zero(Currency.USD), CurrencyAmount.zero(Currency.USD).negated());
-    assertEquals(CurrencyAmount.of(Currency.USD, -0d).negated(), CurrencyAmount.zero(Currency.USD));
+    assertThat(CCY_AMOUNT.negated()).isEqualTo(CCY_AMOUNT_NEGATIVE);
+    assertThat(CCY_AMOUNT_NEGATIVE.negated()).isEqualTo(CCY_AMOUNT);
+    assertThat(CurrencyAmount.zero(Currency.USD)).isEqualTo(CurrencyAmount.zero(Currency.USD).negated());
+    assertThat(CurrencyAmount.of(Currency.USD, -0d).negated()).isEqualTo(CurrencyAmount.zero(Currency.USD));
   }
 
+  @Test
   public void test_negative() {
-    assertEquals(CCY_AMOUNT.negative(), CCY_AMOUNT_NEGATIVE);
-    assertEquals(CCY_AMOUNT_NEGATIVE.negative(), CCY_AMOUNT_NEGATIVE);
+    assertThat(CCY_AMOUNT.negative()).isEqualTo(CCY_AMOUNT_NEGATIVE);
+    assertThat(CCY_AMOUNT_NEGATIVE.negative()).isEqualTo(CCY_AMOUNT_NEGATIVE);
   }
 
+  @Test
   public void test_positive() {
-    assertEquals(CCY_AMOUNT.positive(), CCY_AMOUNT);
-    assertEquals(CCY_AMOUNT_NEGATIVE.positive(), CCY_AMOUNT);
+    assertThat(CCY_AMOUNT.positive()).isEqualTo(CCY_AMOUNT);
+    assertThat(CCY_AMOUNT_NEGATIVE.positive()).isEqualTo(CCY_AMOUNT);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo_explicitRate() {
-    assertEquals(CCY_AMOUNT.convertedTo(CCY2, 2.5d), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
-    assertEquals(CCY_AMOUNT.convertedTo(CCY1, 1d), CCY_AMOUNT);
+    assertThat(CCY_AMOUNT.convertedTo(CCY2, 2.5d)).isEqualTo(CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+    assertThat(CCY_AMOUNT.convertedTo(CCY1, 1d)).isEqualTo(CCY_AMOUNT);
     assertThatIllegalArgumentException().isThrownBy(() -> CCY_AMOUNT.convertedTo(CCY1, 1.5d));
   }
 
+  @Test
   public void test_convertedTo_rateProvider() {
     FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
-    assertEquals(CCY_AMOUNT.convertedTo(CCY2, provider), CurrencyAmount.of(CCY2, AMT1 * 2.5d));
-    assertEquals(CCY_AMOUNT.convertedTo(CCY1, provider), CCY_AMOUNT);
+    assertThat(CCY_AMOUNT.convertedTo(CCY2, provider)).isEqualTo(CurrencyAmount.of(CCY2, AMT1 * 2.5d));
+    assertThat(CCY_AMOUNT.convertedTo(CCY1, provider)).isEqualTo(CCY_AMOUNT);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals_hashCode() {
     CurrencyAmount other = CurrencyAmount.of(CCY1, AMT1);
-    assertTrue(CCY_AMOUNT.equals(CCY_AMOUNT));
-    assertTrue(CCY_AMOUNT.equals(other));
-    assertTrue(other.equals(CCY_AMOUNT));
-    assertEquals(CCY_AMOUNT.hashCode(), other.hashCode());
+    assertThat(CCY_AMOUNT.equals(CCY_AMOUNT)).isTrue();
+    assertThat(CCY_AMOUNT.equals(other)).isTrue();
+    assertThat(other.equals(CCY_AMOUNT)).isTrue();
+    assertThat(CCY_AMOUNT.hashCode()).isEqualTo(other.hashCode());
     other = CurrencyAmount.of(CCY1, AMT1);
-    assertEquals(CCY_AMOUNT, other);
-    assertEquals(CCY_AMOUNT.hashCode(), other.hashCode());
+    assertThat(CCY_AMOUNT).isEqualTo(other);
+    assertThat(CCY_AMOUNT.hashCode()).isEqualTo(other.hashCode());
     other = CurrencyAmount.of(CCY2, AMT1);
-    assertFalse(CCY_AMOUNT.equals(other));
+    assertThat(CCY_AMOUNT.equals(other)).isFalse();
     other = CurrencyAmount.of(CCY1, AMT2);
-    assertFalse(CCY_AMOUNT.equals(other));
+    assertThat(CCY_AMOUNT.equals(other)).isFalse();
   }
 
+  @Test
   public void test_equals_bad() {
-    assertFalse(CCY_AMOUNT.equals(ANOTHER_TYPE));
-    assertFalse(CCY_AMOUNT.equals(null));
+    assertThat(CCY_AMOUNT.equals(ANOTHER_TYPE)).isFalse();
+    assertThat(CCY_AMOUNT.equals(null)).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toString() {
-    assertEquals(CurrencyAmount.of(Currency.AUD, 100d).toString(), "AUD 100");
-    assertEquals(CurrencyAmount.of(Currency.AUD, 100.123d).toString(), "AUD 100.123");
+    assertThat(CurrencyAmount.of(Currency.AUD, 100d).toString()).isEqualTo("AUD 100");
+    assertThat(CurrencyAmount.of(Currency.AUD, 100.123d).toString()).isEqualTo("AUD 100.123");
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(CCY_AMOUNT);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(CurrencyAmount.class, CCY_AMOUNT);
   }

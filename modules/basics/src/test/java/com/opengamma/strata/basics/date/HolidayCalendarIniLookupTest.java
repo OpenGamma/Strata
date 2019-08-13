@@ -7,16 +7,14 @@ package com.opengamma.strata.basics.date;
 
 import static com.opengamma.strata.collect.TestHelper.caputureLog;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
@@ -24,99 +22,102 @@ import com.opengamma.strata.basics.currency.Currency;
 /**
  * Test {@link HolidayCalendar}.
  */
-@Test
 public class HolidayCalendarIniLookupTest {
 
+  @Test
   public void test_valid1() {
     ImmutableMap<String, HolidayCalendar> lookup = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataValid1.ini");
-    assertEquals(lookup.size(), 1);
+    assertThat(lookup.size()).isEqualTo(1);
 
     HolidayCalendar test = lookup.get("TEST-VALID");
-    assertTrue(test.isHoliday(date(2015, 1, 1)));
-    assertTrue(test.isHoliday(date(2015, 1, 6)));
-    assertTrue(test.isHoliday(date(2015, 4, 5)));
-    assertTrue(test.isHoliday(date(2015, 12, 25)));
-    assertTrue(test.isHoliday(date(2016, 1, 1)));
-    assertEquals(test.getName(), "TEST-VALID");
-    assertEquals(test.toString(), "HolidayCalendar[TEST-VALID]");
+    assertThat(test.isHoliday(date(2015, 1, 1))).isTrue();
+    assertThat(test.isHoliday(date(2015, 1, 6))).isTrue();
+    assertThat(test.isHoliday(date(2015, 4, 5))).isTrue();
+    assertThat(test.isHoliday(date(2015, 12, 25))).isTrue();
+    assertThat(test.isHoliday(date(2016, 1, 1))).isTrue();
+    assertThat(test.getName()).isEqualTo("TEST-VALID");
+    assertThat(test.toString()).isEqualTo("HolidayCalendar[TEST-VALID]");
   }
 
+  @Test
   public void test_workingDays() {
     ImmutableMap<String, HolidayCalendar> lookup =
         HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataWorkingDays.ini");
-    assertEquals(lookup.size(), 1);
+    assertThat(lookup.size()).isEqualTo(1);
 
     HolidayCalendar test = lookup.get("TEST-WORKINGDAYS");
-    assertTrue(test.isHoliday(date(2015, 1, 1)));
-    assertTrue(test.isHoliday(date(2015, 1, 6)));
-    assertTrue(test.isHoliday(date(2015, 4, 5)));
-    assertTrue(test.isHoliday(date(2015, 12, 25)));
-    assertTrue(test.isHoliday(date(2016, 1, 1)));
-    assertFalse(test.isHoliday(date(2016, 1, 2)));
-    assertFalse(test.isHoliday(date(2016, 1, 3)));
-    assertEquals(test.getName(), "TEST-WORKINGDAYS");
-    assertEquals(test.toString(), "HolidayCalendar[TEST-WORKINGDAYS]");
+    assertThat(test.isHoliday(date(2015, 1, 1))).isTrue();
+    assertThat(test.isHoliday(date(2015, 1, 6))).isTrue();
+    assertThat(test.isHoliday(date(2015, 4, 5))).isTrue();
+    assertThat(test.isHoliday(date(2015, 12, 25))).isTrue();
+    assertThat(test.isHoliday(date(2016, 1, 1))).isTrue();
+    assertThat(test.isHoliday(date(2016, 1, 2))).isFalse();
+    assertThat(test.isHoliday(date(2016, 1, 3))).isFalse();
+    assertThat(test.getName()).isEqualTo("TEST-WORKINGDAYS");
+    assertThat(test.toString()).isEqualTo("HolidayCalendar[TEST-WORKINGDAYS]");
   }
 
+  @Test
   public void test_valid2() {
     ImmutableMap<String, HolidayCalendar> lookup = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataValid2.ini");
-    assertEquals(lookup.size(), 1);
+    assertThat(lookup.size()).isEqualTo(1);
 
     HolidayCalendar test = lookup.get("TEST-VALID");
-    assertTrue(test.isHoliday(date(2015, 1, 1)));
-    assertTrue(test.isHoliday(date(2015, 1, 6)));
-    assertTrue(test.isHoliday(date(2015, 4, 5)));
-    assertTrue(test.isHoliday(date(2015, 12, 25)));
-    assertTrue(test.isHoliday(date(2016, 1, 1)));
-    assertEquals(test.getName(), "TEST-VALID");
-    assertEquals(test.toString(), "HolidayCalendar[TEST-VALID]");
+    assertThat(test.isHoliday(date(2015, 1, 1))).isTrue();
+    assertThat(test.isHoliday(date(2015, 1, 6))).isTrue();
+    assertThat(test.isHoliday(date(2015, 4, 5))).isTrue();
+    assertThat(test.isHoliday(date(2015, 12, 25))).isTrue();
+    assertThat(test.isHoliday(date(2016, 1, 1))).isTrue();
+    assertThat(test.getName()).isEqualTo("TEST-VALID");
+    assertThat(test.toString()).isEqualTo("HolidayCalendar[TEST-VALID]");
   }
 
+  @Test
   public void test_valid1equals2() {
     ImmutableMap<String, HolidayCalendar> lookup1 = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataValid1.ini");
     ImmutableMap<String, HolidayCalendar> lookup2 = HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataValid2.ini");
-    assertEquals(lookup1, lookup2);
+    assertThat(lookup1).isEqualTo(lookup2);
   }
 
   public synchronized void test_invalid1_invalidYear() {
     List<LogRecord> captured = caputureLog(
         HolidayCalendarIniLookup.class,
         () -> HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataInvalid1.ini"));
-    assertEquals(captured.size(), 1);
+    assertThat(captured.size()).isEqualTo(1);
     LogRecord record = captured.get(0);
-    assertEquals(record.getLevel(), Level.SEVERE);
-    assertTrue(record.getThrown().getMessage().contains("Parsed date had incorrect year"));
+    assertThat(record.getLevel()).isEqualTo(Level.SEVERE);
+    assertThat(record.getThrown().getMessage().contains("Parsed date had incorrect year")).isTrue();
   }
 
   public synchronized void test_invalid1_invalidDayOfWeek() {
     List<LogRecord> captured = caputureLog(
         HolidayCalendarIniLookup.class,
         () -> HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDataInvalid2.ini"));
-    assertEquals(captured.size(), 1);
+    assertThat(captured.size()).isEqualTo(1);
     LogRecord record = captured.get(0);
-    assertEquals(record.getLevel(), Level.SEVERE);
-    assertTrue(record.getThrown() instanceof DateTimeParseException);
-    assertTrue(record.getThrown().getMessage().contains("'Bob'"));
+    assertThat(record.getLevel()).isEqualTo(Level.SEVERE);
+    assertThat(record.getThrown() instanceof DateTimeParseException).isTrue();
+    assertThat(record.getThrown().getMessage().contains("'Bob'")).isTrue();
   }
 
   //-------------------------------------------------------------------------
   public synchronized void test_defaultByCurrency_valid() {
     ImmutableMap<Currency, HolidayCalendarId> test =
         HolidayCalendarIniLookup.loadDefaultsFromIni("HolidayCalendarDefaultDataValid.ini");
-    assertEquals(test.size(), 2);
+    assertThat(test.size()).isEqualTo(2);
 
-    assertEquals(test.get(Currency.GBP), HolidayCalendarIds.GBLO);
-    assertEquals(test.get(Currency.USD), HolidayCalendarIds.NYSE);
+    assertThat(test.get(Currency.GBP)).isEqualTo(HolidayCalendarIds.GBLO);
+    assertThat(test.get(Currency.USD)).isEqualTo(HolidayCalendarIds.NYSE);
   }
 
   public synchronized void test_defaultByCurrency_invalid() {
     List<LogRecord> captured = caputureLog(
         HolidayCalendarIniLookup.class,
         () -> HolidayCalendarIniLookup.loadFromIni("HolidayCalendarDefaultDataInvalid.ini"));
-    assertEquals(captured.size(), 1);
+    assertThat(captured.size()).isEqualTo(1);
     LogRecord record = captured.get(0);
-    assertEquals(record.getLevel(), Level.SEVERE);
-    assertTrue(record.getMessage().contains("Error processing resource"));
+    assertThat(record.getLevel()).isEqualTo(Level.SEVERE);
+    assertThat(record.getMessage().contains("Error processing resource")).isTrue();
   }
 
 }

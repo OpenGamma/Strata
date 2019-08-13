@@ -7,17 +7,16 @@ package com.opengamma.strata.basics.currency;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link FxRate}.
  */
-@Test
 public class FxRateTest {
 
   private static final Currency AUD = Currency.AUD;
@@ -28,32 +27,37 @@ public class FxRateTest {
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_CurrencyCurrencyDouble() {
     FxRate test = FxRate.of(GBP, USD, 1.5d);
-    assertEquals(test.getPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.fxRate(GBP, USD), 1.5d, 0);
-    assertEquals(test.toString(), "GBP/USD 1.5");
+    assertThat(test.getPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.fxRate(GBP, USD)).isEqualTo(1.5d);
+    assertThat(test.toString()).isEqualTo("GBP/USD 1.5");
   }
 
+  @Test
   public void test_of_CurrencyCurrencyDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(USD, GBP, 0.8d);
-    assertEquals(test.getPair(), CurrencyPair.of(USD, GBP));
-    assertEquals(test.fxRate(USD, GBP), 0.8d, 0);
-    assertEquals(test.toString(), "USD/GBP 0.8");
+    assertThat(test.getPair()).isEqualTo(CurrencyPair.of(USD, GBP));
+    assertThat(test.fxRate(USD, GBP)).isEqualTo(0.8d);
+    assertThat(test.toString()).isEqualTo("USD/GBP 0.8");
   }
 
+  @Test
   public void test_of_CurrencyCurrencyDouble_same() {
     FxRate test = FxRate.of(USD, USD, 1d);
-    assertEquals(test.getPair(), CurrencyPair.of(USD, USD));
-    assertEquals(test.fxRate(USD, USD), 1d, 0);
-    assertEquals(test.toString(), "USD/USD 1");
+    assertThat(test.getPair()).isEqualTo(CurrencyPair.of(USD, USD));
+    assertThat(test.fxRate(USD, USD)).isEqualTo(1d);
+    assertThat(test.toString()).isEqualTo("USD/USD 1");
   }
 
+  @Test
   public void test_of_CurrencyCurrencyDouble_invalid() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(GBP, USD, -1.5d));
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(GBP, GBP, 2d));
   }
 
+  @Test
   public void test_of_CurrencyCurrencyDouble_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(null, USD, 1.5d));
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(USD, null, 1.5d));
@@ -61,43 +65,48 @@ public class FxRateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_CurrencyPairDouble() {
     FxRate test = FxRate.of(CurrencyPair.of(GBP, USD), 1.5d);
-    assertEquals(test.getPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.fxRate(GBP, USD), 1.5d, 0);
-    assertEquals(test.toString(), "GBP/USD 1.5");
+    assertThat(test.getPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.fxRate(GBP, USD)).isEqualTo(1.5d);
+    assertThat(test.toString()).isEqualTo("GBP/USD 1.5");
   }
 
+  @Test
   public void test_of_CurrencyPairDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, GBP), 0.8d);
-    assertEquals(test.getPair(), CurrencyPair.of(USD, GBP));
-    assertEquals(test.fxRate(USD, GBP), 0.8d, 0);
-    assertEquals(test.toString(), "USD/GBP 0.8");
+    assertThat(test.getPair()).isEqualTo(CurrencyPair.of(USD, GBP));
+    assertThat(test.fxRate(USD, GBP)).isEqualTo( 0.8d);
+    assertThat(test.toString()).isEqualTo("USD/GBP 0.8");
   }
 
+  @Test
   public void test_of_CurrencyPairDouble_same() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, USD), 1d);
-    assertEquals(test.getPair(), CurrencyPair.of(USD, USD));
-    assertEquals(test.fxRate(USD, USD), 1d, 0);
-    assertEquals(test.toString(), "USD/USD 1");
+    assertThat(test.getPair()).isEqualTo(CurrencyPair.of(USD, USD));
+    assertThat(test.fxRate(USD, USD)).isEqualTo(1d);
+    assertThat(test.toString()).isEqualTo("USD/USD 1");
   }
 
+  @Test
   public void test_of_CurrencyPairDouble_invalid() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(CurrencyPair.of(GBP, USD), -1.5d));
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(CurrencyPair.of(USD, USD), 2d));
   }
 
+  @Test
   public void test_of_CurrencyPairDouble_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.of(null, 1.5d));
   }
 
+  @Test
   public void test_toConventional() {
-    assertEquals(FxRate.of(GBP, USD, 1.25), FxRate.of(USD, GBP, 0.8).toConventional());
-    assertEquals(FxRate.of(GBP, USD, 1.25), FxRate.of(GBP, USD, 1.25).toConventional());
+    assertThat(FxRate.of(GBP, USD, 1.25)).isEqualTo(FxRate.of(USD, GBP, 0.8).toConventional());
+    assertThat(FxRate.of(GBP, USD, 1.25)).isEqualTo(FxRate.of(GBP, USD, 1.25).toConventional());
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "parseGood")
   public static Object[][] data_parseGood() {
     return new Object[][] {
         {"USD/EUR 205.123", USD, EUR, 205.123d},
@@ -110,12 +119,12 @@ public class FxRateTest {
     };
   }
 
-  @Test(dataProvider = "parseGood")
+  @ParameterizedTest
+  @MethodSource("data_parseGood")
   public void test_parse_String_good(String input, Currency base, Currency counter, double rate) {
-    assertEquals(FxRate.parse(input), FxRate.of(base, counter, rate));
+    assertThat(FxRate.parse(input)).isEqualTo(FxRate.of(base, counter, rate));
   }
 
-  @DataProvider(name = "parseBad")
   public static Object[][] data_parseBad() {
     return new Object[][] {
         {"AUD 1.25"},
@@ -131,37 +140,42 @@ public class FxRateTest {
     };
   }
 
-  @Test(dataProvider = "parseBad")
+  @ParameterizedTest
+  @MethodSource("data_parseBad")
   public void test_parse_String_bad(String input) {
     assertThatIllegalArgumentException().isThrownBy(() -> FxRate.parse(input));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_inverse() {
     FxRate test = FxRate.of(GBP, USD, 1.25d);
-    assertEquals(test.inverse(), FxRate.of(USD, GBP, 0.8d));
+    assertThat(test.inverse()).isEqualTo(FxRate.of(USD, GBP, 0.8d));
   }
 
+  @Test
   public void test_inverse_same() {
     FxRate test = FxRate.of(GBP, GBP, 1d);
-    assertEquals(test.inverse(), FxRate.of(GBP, GBP, 1d));
+    assertThat(test.inverse()).isEqualTo(FxRate.of(GBP, GBP, 1d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_fxRate_forBase() {
     FxRate test = FxRate.of(GBP, USD, 1.25d);
-    assertEquals(test.fxRate(GBP, USD), 1.25d);
-    assertEquals(test.fxRate(USD, GBP), 1d / 1.25d);
+    assertThat(test.fxRate(GBP, USD)).isEqualTo(1.25d);
+    assertThat(test.fxRate(USD, GBP)).isEqualTo(1d / 1.25d);
     assertThatIllegalArgumentException().isThrownBy(() -> test.fxRate(GBP, AUD));
   }
 
+  @Test
   public void test_fxRate_forPair() {
     FxRate test = FxRate.of(GBP, USD, 1.25d);
-    assertEquals(test.fxRate(GBP, USD), 1.25d);
-    assertEquals(test.fxRate(USD, GBP), 1d / 1.25d);
-    assertEquals(test.fxRate(GBP, GBP), 1d);
-    assertEquals(test.fxRate(USD, USD), 1d);
-    assertEquals(test.fxRate(AUD, AUD), 1d);
+    assertThat(test.fxRate(GBP, USD)).isEqualTo(1.25d);
+    assertThat(test.fxRate(USD, GBP)).isEqualTo(1d / 1.25d);
+    assertThat(test.fxRate(GBP, GBP)).isEqualTo(1d);
+    assertThat(test.fxRate(USD, USD)).isEqualTo(1d);
+    assertThat(test.fxRate(AUD, AUD)).isEqualTo(1d);
     assertThatIllegalArgumentException().isThrownBy(() -> test.fxRate(AUD, GBP));
     assertThatIllegalArgumentException().isThrownBy(() -> test.fxRate(GBP, AUD));
     assertThatIllegalArgumentException().isThrownBy(() -> test.fxRate(AUD, USD));
@@ -170,14 +184,16 @@ public class FxRateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convert() {
     FxRate test = FxRate.of(GBP, USD, 1.25d);
-    assertEquals(test.convert(100, GBP, USD), 125d);
-    assertEquals(test.convert(100, USD, GBP), 100d / 1.25d);
+    assertThat(test.convert(100, GBP, USD)).isEqualTo(125d);
+    assertThat(test.convert(100, USD, GBP)).isEqualTo(100d / 1.25d);
     assertThatIllegalArgumentException().isThrownBy(() -> test.convert(100, GBP, AUD));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_crossRate() {
     FxRate gbpUsd = FxRate.of(GBP, USD, 5d / 4d);
     FxRate usdGbp = FxRate.of(USD, GBP, 4d / 5d);
@@ -187,15 +203,15 @@ public class FxRateTest {
     FxRate gbpGbp = FxRate.of(GBP, GBP, 1d);
     FxRate usdUsd = FxRate.of(USD, USD, 1d);
 
-    assertEquals(eurUsd.crossRate(usdGbp), eurGbp);
-    assertEquals(eurUsd.crossRate(gbpUsd), eurGbp);
-    assertEquals(usdEur.crossRate(usdGbp), eurGbp);
-    assertEquals(usdEur.crossRate(gbpUsd), eurGbp);
+    assertThat(eurUsd.crossRate(usdGbp)).isEqualTo(eurGbp);
+    assertThat(eurUsd.crossRate(gbpUsd)).isEqualTo(eurGbp);
+    assertThat(usdEur.crossRate(usdGbp)).isEqualTo(eurGbp);
+    assertThat(usdEur.crossRate(gbpUsd)).isEqualTo(eurGbp);
 
-    assertEquals(gbpUsd.crossRate(usdEur), eurGbp);
-    assertEquals(gbpUsd.crossRate(eurUsd), eurGbp);
-    assertEquals(usdGbp.crossRate(usdEur), eurGbp);
-    assertEquals(usdGbp.crossRate(eurUsd), eurGbp);
+    assertThat(gbpUsd.crossRate(usdEur)).isEqualTo(eurGbp);
+    assertThat(gbpUsd.crossRate(eurUsd)).isEqualTo(eurGbp);
+    assertThat(usdGbp.crossRate(usdEur)).isEqualTo(eurGbp);
+    assertThat(usdGbp.crossRate(eurUsd)).isEqualTo(eurGbp);
 
     assertThatIllegalArgumentException().isThrownBy(() -> gbpGbp.crossRate(gbpUsd));  // identity
     assertThatIllegalArgumentException().isThrownBy(() -> usdUsd.crossRate(gbpUsd));  // identity
@@ -205,43 +221,47 @@ public class FxRateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equals_hashCode() {
     FxRate a1 = FxRate.of(AUD, GBP, 1.25d);
     FxRate a2 = FxRate.of(AUD, GBP, 1.25d);
     FxRate b = FxRate.of(USD, GBP, 1.25d);
     FxRate c = FxRate.of(USD, GBP, 1.35d);
 
-    assertEquals(a1.equals(a1), true);
-    assertEquals(a1.equals(a2), true);
-    assertEquals(a1.equals(b), false);
-    assertEquals(a1.equals(c), false);
+    assertThat(a1.equals(a1)).isEqualTo(true);
+    assertThat(a1.equals(a2)).isEqualTo(true);
+    assertThat(a1.equals(b)).isEqualTo(false);
+    assertThat(a1.equals(c)).isEqualTo(false);
 
-    assertEquals(b.equals(a1), false);
-    assertEquals(b.equals(a2), false);
-    assertEquals(b.equals(b), true);
-    assertEquals(b.equals(c), false);
+    assertThat(b.equals(a1)).isEqualTo(false);
+    assertThat(b.equals(a2)).isEqualTo(false);
+    assertThat(b.equals(b)).isEqualTo(true);
+    assertThat(b.equals(c)).isEqualTo(false);
 
-    assertEquals(c.equals(a1), false);
-    assertEquals(c.equals(a2), false);
-    assertEquals(c.equals(b), false);
-    assertEquals(c.equals(c), true);
+    assertThat(c.equals(a1)).isEqualTo(false);
+    assertThat(c.equals(a2)).isEqualTo(false);
+    assertThat(c.equals(b)).isEqualTo(false);
+    assertThat(c.equals(c)).isEqualTo(true);
 
-    assertEquals(a1.hashCode(), a2.hashCode());
+    assertThat(a1.hashCode()).isEqualTo(a2.hashCode());
   }
 
+  @Test
   public void test_equals_bad() {
     FxRate test = FxRate.of(AUD, GBP, 1.25d);
-    assertFalse(test.equals(ANOTHER_TYPE));
-    assertFalse(test.equals(null));
+    assertThat(test.equals(ANOTHER_TYPE)).isFalse();
+    assertThat(test.equals(null)).isFalse();
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(FxRate.of(GBP, USD, 1.25d));
     assertSerialization(FxRate.of(GBP, GBP, 1d));
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(FxRate.of(GBP, USD, 1.25d));
   }
