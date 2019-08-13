@@ -82,13 +82,11 @@ final class ItemInfo
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> ItemInfo withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
     Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);

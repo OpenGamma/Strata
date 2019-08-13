@@ -9,9 +9,8 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
 
 import java.time.YearMonth;
 
@@ -35,11 +34,12 @@ public class EtdContractSpecTest {
 
   //-------------------------------------------------------------------------
   public void test_attributes() {
-    assertEquals(sut2().getAttribute(AttributeType.NAME), "NAME");
-    assertEquals(sut2().findAttribute(AttributeType.NAME).get(), "NAME");
-    assertThrows(IllegalArgumentException.class, () -> sut2().getAttribute(AttributeType.of("Foo")));
+    assertThat(sut2().getAttributeTypes()).containsOnly(AttributeType.NAME);
+    assertThat(sut2().getAttribute(AttributeType.NAME)).isEqualTo("NAME");
+    assertThat(sut2().findAttribute(AttributeType.NAME)).hasValue("NAME");
+    assertThatIllegalArgumentException().isThrownBy(() -> sut2().getAttribute(AttributeType.of("Foo")));
     EtdContractSpec updated = sut2().withAttribute(AttributeType.NAME, "FOO");
-    assertEquals(updated.getAttribute(AttributeType.NAME), "FOO");
+    assertThat(updated.getAttribute(AttributeType.NAME)).isEqualTo("FOO");
   }
 
   //-------------------------------------------------------------------------

@@ -146,7 +146,7 @@ public final class AttributeType<T>
               converter.convertFromString(type, (String) value) :
               converter.convertFromString(type, StringConvert.INSTANCE.convertToString(value));
     } else {
-      this.toStoredFormConverter = value -> value;
+      this.toStoredFormConverter = value -> type.cast(value);
       this.fromStoredFormConverter = value -> type.cast(value);
     }
   }
@@ -169,6 +169,20 @@ public final class AttributeType<T>
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Captures the wildcard type.
+   * <p>
+   * This is intended to handle the case where you have {@code AttributeType<?>} but need {@code AttributeType<T>}.
+   * Care must be used, as incorrect use can lead to {@code ClassCastException}.
+   * 
+   * @param <R>  the captured type
+   * @return the normalized form
+   */
+  @SuppressWarnings("unchecked")
+  public <R> AttributeType<R> captureWildcard() {
+    return (AttributeType<R>) this;
+  }
+
   /**
    * Returns the normalized form of the attribute type.
    * <p>

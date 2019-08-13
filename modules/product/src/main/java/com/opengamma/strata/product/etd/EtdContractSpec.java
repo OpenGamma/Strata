@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.Attributes;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -99,7 +100,11 @@ public final class EtdContractSpec
 
   //-------------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
+  public ImmutableSet<AttributeType<?>> getAttributeTypes() {
+    return attributes.keySet();
+  }
+
+  @Override
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }

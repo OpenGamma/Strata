@@ -17,6 +17,7 @@ import java.util.Optional;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
@@ -36,6 +37,7 @@ public class SecurityInfoTest {
     SecurityInfo test = SecurityInfo.of(ID, PRICE_INFO.getTickSize(), PRICE_INFO.getTickValue());
     assertEquals(test.getId(), ID);
     assertEquals(test.getPriceInfo(), PRICE_INFO);
+    assertEquals(test.getAttributeTypes(), ImmutableSet.of());
     assertEquals(test.getAttributes(), ImmutableMap.of());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getAttribute(AttributeType.NAME));

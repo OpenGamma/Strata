@@ -31,6 +31,7 @@ public class AttributeTypeTest {
     assertThat(test.fromStoredForm("xxx")).isEqualTo("xxx");
     assertThat(test.toStoredForm(null)).isNull();
     assertThat(test.fromStoredForm(null)).isNull();
+    assertThat(test.captureWildcard()).isSameAs(test);
   }
 
   @Test

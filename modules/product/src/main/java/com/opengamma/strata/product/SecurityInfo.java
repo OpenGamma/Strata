@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
@@ -113,13 +114,16 @@ public final class SecurityInfo
 
   //-------------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
+  public ImmutableSet<AttributeType<?>> getAttributeTypes() {
+    return attributes.keySet();
+  }
+
+  @Override
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public <T> SecurityInfo withAttribute(AttributeType<T> type, T value) {
     // ImmutableMap.Builder would not provide Map.put semantics
     Map<AttributeType<?>, Object> updatedAttributes = new HashMap<>(attributes);

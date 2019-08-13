@@ -8,6 +8,7 @@ package com.opengamma.strata.product;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -43,6 +44,19 @@ public interface Attributes {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the attribute types that are available.
+   * <p>
+   * See {@link AttributeType#captureWildcard()} for a way to capture the wildcard type.
+   * <p>
+   * The default implementation returns an empty set (backwards compatibility prevents an abstract method for now).
+   * 
+   * @return the attribute types
+   */
+  public default ImmutableSet<AttributeType<?>> getAttributeTypes() {
+    return ImmutableSet.of(); // TODO: Remove default in Strata v3
+  }
+
   /**
    * Gets the attribute associated with the specified type.
    * <p>

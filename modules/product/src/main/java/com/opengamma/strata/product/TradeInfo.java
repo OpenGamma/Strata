@@ -167,15 +167,10 @@ public final class TradeInfo
     }
     for (AttributeType<?> attrType : other.getAttributeTypes()) {
       if (!attributes.keySet().contains(attrType)) {
-        combine(builder, other, attrType);
+        builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
       }
     }
     return builder.build();
-  }
-
-  // capture the generic wildcard
-  private <T> void combine(TradeInfoBuilder builder, PortfolioItemInfo other, AttributeType<T> type) {
-    builder.addAttribute(type, other.getAttribute(type));
   }
 
   /**

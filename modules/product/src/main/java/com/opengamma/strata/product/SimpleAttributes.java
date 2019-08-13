@@ -20,6 +20,7 @@ import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * A simple implementation of attributes.
@@ -43,7 +44,11 @@ final class SimpleAttributes
 
   //-------------------------------------------------------------------------
   @Override
-  @SuppressWarnings("unchecked")
+  public ImmutableSet<AttributeType<?>> getAttributeTypes() {
+    return attributes.keySet();
+  }
+
+  @Override
   public <T> Optional<T> findAttribute(AttributeType<T> type) {
     return Optional.ofNullable(type.fromStoredForm(attributes.get(type)));
   }
