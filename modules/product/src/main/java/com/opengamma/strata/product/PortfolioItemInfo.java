@@ -76,11 +76,7 @@ public interface PortfolioItemInfo extends Attributes {
    */
   public abstract PortfolioItemInfo withId(StandardId identifier);
 
-  /**
-   * Gets the attribute types that the info contains.
-   * 
-   * @return the attribute types
-   */
+  @Override
   public abstract ImmutableSet<AttributeType<?>> getAttributeTypes();
 
   @Override
@@ -95,15 +91,14 @@ public interface PortfolioItemInfo extends Attributes {
    * @param other  the other instance
    * @return the combined instance
    */
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public default PortfolioItemInfo combinedWith(PortfolioItemInfo other) {
     PortfolioItemInfo combinedInfo = this;
     if (!combinedInfo.getId().isPresent() && other.getId().isPresent()) {
       combinedInfo = combinedInfo.withId(other.getId().get());
     }
-    for (AttributeType attrType : other.getAttributeTypes()) {
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
       if (!combinedInfo.getAttributeTypes().contains(attrType)) {
-        combinedInfo = combinedInfo.withAttribute(attrType, other.getAttribute(attrType));
+        combinedInfo = combinedInfo.withAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
       }
     }
     return combinedInfo;
