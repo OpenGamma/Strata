@@ -87,6 +87,27 @@ public final class FailureItems
 
   //-------------------------------------------------------------------------
   /**
+   * Combines these failure items with other failure items.
+   *
+   * @param other the other failure items
+   * @return the combined failure items
+   */
+  public FailureItems combinedWith(FailureItems other) {
+    return combinedWith(other.failures);
+  }
+
+  /**
+   * Combines these failure items with other failure items.
+   *
+   * @param otherFailures the other failure items
+   * @return the combined failure items
+   */
+  public FailureItems combinedWith(List<FailureItem> otherFailures) {
+    return builder().addAllFailures(failures).addAllFailures(otherFailures).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Checks if the list of failures is empty.
    *
    * @return true if there are no failures
