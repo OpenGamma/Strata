@@ -58,6 +58,11 @@ public final class CurveSensitivities
     implements PortfolioItem, FxConvertible<CurveSensitivities>, ImmutableBean, Serializable {
 
   /**
+   * An empty instance.
+   */
+  private static final CurveSensitivities EMPTY = new CurveSensitivities(PortfolioItemInfo.empty(), ImmutableMap.of());
+
+  /**
    * The additional information.
    * <p>
    * This allows additional information to be attached to the sensitivities.
@@ -80,7 +85,7 @@ public final class CurveSensitivities
    * @return the empty sensitivities instance
    */
   public static CurveSensitivities empty() {
-    return new CurveSensitivities(PortfolioItemInfo.empty(), ImmutableMap.of());
+    return EMPTY;
   }
 
   /**
