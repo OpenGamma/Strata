@@ -150,18 +150,22 @@ public final class RatesCalibrationCsvLoader {
   private static final String CURVE_MIN_GAP = "Min Gap";
   private static final String CURVE_CLASH_ACTION = "Clash Action";
 
+  // these regexes use possessive ?+ and ++ to prevent unnecessary backtracking
+
   // Regex to parse FRA time string
-  private static final Pattern FRA_TIME_REGEX = Pattern.compile("P?([0-9]+)M? ?X ?P?([0-9]+)M?");
+  private static final Pattern FRA_TIME_REGEX = Pattern.compile("P?+([0-9]++)M?+ ?+X ?+P?+([0-9]++)M?+");
   // Regex to parse future time string
-  private static final Pattern FUT_TIME_REGEX = Pattern.compile("P?((?:[0-9]+D)?(?:[0-9]+W)?(?:[0-9]+M)?) ?[+] ?([0-9]+)");
+  private static final Pattern FUT_TIME_REGEX =
+      Pattern.compile("P?+((?:[0-9]++D)?+(?:[0-9]++W)?+(?:[0-9]++M)?+) ?+[+] ?+([0-9]++)");
   // Regex to parse future month string
-  private static final Pattern FUT_MONTH_REGEX = Pattern.compile("([A-Z][A-Z][A-Z][0-9][0-9])");
+  private static final Pattern FUT_MONTH_REGEX = Pattern.compile("([A-Z]{3}[0-9]{2})");
   // Regex to parse simple time string with years, months and days
-  private static final Pattern SIMPLE_YMD_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?([0-9]+W)?([0-9]+D)?)");
+  private static final Pattern SIMPLE_YMD_TIME_REGEX =
+      Pattern.compile("P?+(([0-9]++Y)?+([0-9]++M)?+([0-9]++W)?+([0-9]++D)?+)");
   // Regex to parse simple time string with years and months
-  private static final Pattern SIMPLE_YM_TIME_REGEX = Pattern.compile("P?(([0-9]+Y)?([0-9]+M)?)");
+  private static final Pattern SIMPLE_YM_TIME_REGEX = Pattern.compile("P?+(([0-9]++Y)?+([0-9]++M)?+)");
   // Regex to parse simple time string with days
-  private static final Pattern SIMPLE_DAYS_REGEX = Pattern.compile("P?([0-9]+D)?");
+  private static final Pattern SIMPLE_DAYS_REGEX = Pattern.compile("P?+([0-9]++D)?+");
   // parse year-month
   private static final DateTimeFormatter YM_FORMATTER = new DateTimeFormatterBuilder()
       .parseCaseInsensitive().appendPattern("MMMuu").toFormatter(Locale.ENGLISH);
