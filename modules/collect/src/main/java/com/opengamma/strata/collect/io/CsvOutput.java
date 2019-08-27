@@ -46,12 +46,10 @@ import com.opengamma.strata.collect.tuple.ObjIntPair;
  */
 public final class CsvOutput {
 
-  // regex for a number
-  private static final String DIGITS = "([0-9]+)";
-  private static final String EXPONENT = "[eE][+-]?" + DIGITS;
-  private static final Pattern FP_REGEX = Pattern.compile(
-      "(" + DIGITS + "(\\.)?(" + DIGITS + "?)(" + EXPONENT + ")?)|" +
-          "(\\.(" + DIGITS + ")(" + EXPONENT + ")?)");
+  // regex for a floating point decimal number, using possessive to prevent backtracking
+  private static final String DIGITS = "(?:[0-9]++(?:[.][0-9]*+)?+|[.][0-9]++)";
+  private static final String EXPONENT = "(?:[eE][+-]?+[0-9]++)?+";
+  private static final Pattern FP_REGEX = Pattern.compile(DIGITS + EXPONENT);
   private static final String COMMA = ",";
   private static final String NEW_LINE = System.lineSeparator();
 
