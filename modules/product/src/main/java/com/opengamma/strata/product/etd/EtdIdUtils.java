@@ -83,10 +83,10 @@ public final class EtdIdUtils {
    * Creates an identifier for an ETD future instrument.
    * <p>
    * A typical monthly ETD will have the format:
-   * {@code 'OG-ETD~O-ECAG-OGBS-201706'}.
+   * {@code 'OG-ETD~F-ECAG-OGBS-201706'}.
    * <p>
    * A more complex flex ETD (12th of the month, Physical settlement) will have the format:
-   * {@code 'OG-ETD~O-ECAG-OGBS-20170612E'}.
+   * {@code 'OG-ETD~F-ECAG-OGBS-20170612E'}.
    *
    * @param exchangeId  the MIC code of the exchange where the instruments are traded
    * @param contractCode  the code supplied by the exchange for use in clearing and margining, such as in SPAN
