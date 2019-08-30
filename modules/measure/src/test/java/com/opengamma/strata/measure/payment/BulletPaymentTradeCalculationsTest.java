@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.payment;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,13 +28,13 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 /**
  * Test {@link BulletPaymentTradeCalculations}.
  */
-@Test
 public class BulletPaymentTradeCalculationsTest {
 
   private static final ResolvedBulletPaymentTrade RTRADE = BulletPaymentTradeCalculationFunctionTest.RTRADE;
   private static final RatesMarketDataLookup RATES_LOOKUP = BulletPaymentTradeCalculationFunctionTest.RATES_LOOKUP;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = BulletPaymentTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -45,20 +45,13 @@ public class BulletPaymentTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(payment, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(payment, provider);
 
-    assertEquals(
-        BulletPaymentTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        BulletPaymentTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
-    assertEquals(
-        BulletPaymentTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        BulletPaymentTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(BulletPaymentTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(BulletPaymentTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
+    assertThat(BulletPaymentTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(BulletPaymentTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = BulletPaymentTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -69,12 +62,8 @@ public class BulletPaymentTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        BulletPaymentTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        BulletPaymentTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(BulletPaymentTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(BulletPaymentTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

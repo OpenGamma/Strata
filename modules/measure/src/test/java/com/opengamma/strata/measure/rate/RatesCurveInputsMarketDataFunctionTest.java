@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -47,7 +47,6 @@ import com.opengamma.strata.product.fra.type.FraTemplate;
 /**
  * Test {@link RatesCurveInputsMarketDataFunction}.
  */
-@Test
 public class RatesCurveInputsMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -56,6 +55,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that the curve node requirements are extracted and returned.
    */
+  @Test
   public void requirements() {
     FraCurveNode node1x4 = fraNode(1, "a");
     FraCurveNode node2x5 = fraNode(2, "b");
@@ -91,6 +91,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that an exception is thrown if there is no curve group configuration corresponding to the ID
    */
+  @Test
   public void requirementsMissingGroupConfig() {
     RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
     RatesCurveInputsId curveInputsId =
@@ -102,6 +103,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that requirements are empty if the curve group config exists but not the curve
    */
+  @Test
   public void requirementsMissingCurveDefinition() {
     RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
     RatesCurveInputsId curveInputsId =
@@ -115,6 +117,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that inputs are correctly built from market data.
    */
+  @Test
   public void build() {
     FraCurveNode node1x4 = fraNode(1, "a");
     FraCurveNode node2x5 = fraNode(2, "b");
@@ -169,6 +172,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that a failure is returned if there is no config for the curve group.
    */
+  @Test
   public void buildMissingGroupConfig() {
     RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
     RatesCurveInputsId curveInputsId =
@@ -182,6 +186,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that a failure is returned if there is config for the curve group but it doesn't contain the named curve.
    */
+  @Test
   public void buildMissingCurveDefinition() {
     RatesCurveInputsMarketDataFunction marketDataFunction = new RatesCurveInputsMarketDataFunction();
     RatesCurveInputsId curveInputsId =
@@ -198,6 +203,7 @@ public class RatesCurveInputsMarketDataFunctionTest {
   /**
    * Test that a failure is returned if the observable data isn't available.
    */
+  @Test
   public void buildMissingMarketData() {
     FraCurveNode node1x4 = fraNode(1, "a");
     FraCurveNode node2x5 = fraNode(2, "b");

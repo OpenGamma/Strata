@@ -10,14 +10,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -71,7 +69,6 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
 /**
  * Test {@link FixedCouponBondTradeCalculationFunction}.
  */
-@Test
 public class FixedCouponBondTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -118,6 +115,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
   private static final MarketQuoteSensitivityCalculator MQ_CALC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -128,6 +126,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -153,6 +152,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01_calibrated() {
     FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -173,6 +173,7 @@ public class FixedCouponBondTradeCalculationFunctionTest {
             Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
   }
 
+  @Test
   public void test_pv01_quote() {
     FixedCouponBondTradeCalculationFunction<FixedCouponBondTrade> function = FixedCouponBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -191,14 +192,14 @@ public class FixedCouponBondTradeCalculationFunctionTest {
     @SuppressWarnings("unchecked")
     ScenarioArray<CurrencyParameterSensitivities> bucketedComputed =
         (ScenarioArray<CurrencyParameterSensitivities>) computed.get(Measures.PV01_MARKET_QUOTE_BUCKETED).getValue();
-    assertEquals(sumComputed.getScenarioCount(), 1);
-    assertEquals(sumComputed.get(0).getCurrencies(), ImmutableSet.of(GBP));
-    assertTrue(DoubleMath.fuzzyEquals(
-        sumComputed.get(0).getAmount(GBP).getAmount(),
-        expectedPv01Cal.getAmount(GBP).getAmount(),
-        1.0e-10));
-    assertEquals(bucketedComputed.getScenarioCount(), 1);
-    assertTrue(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10));
+    assertThat(sumComputed.getScenarioCount()).isEqualTo(1);
+    assertThat(sumComputed.get(0).getCurrencies()).containsOnly(GBP);
+    assertThat(DoubleMath.fuzzyEquals(
+            sumComputed.get(0).getAmount(GBP).getAmount(),
+            expectedPv01Cal.getAmount(GBP).getAmount(),
+            1.0e-10)).isTrue();
+    assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
+    assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
   }
 
   //-------------------------------------------------------------------------

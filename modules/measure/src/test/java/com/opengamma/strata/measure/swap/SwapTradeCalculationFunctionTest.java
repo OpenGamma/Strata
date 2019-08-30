@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -52,7 +52,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 /**
  * Test {@link SwapTradeCalculationFunction}.
  */
-@Test
 public class SwapTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -71,6 +70,7 @@ public class SwapTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     SwapTradeCalculationFunction function = new SwapTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -82,6 +82,7 @@ public class SwapTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     SwapTradeCalculationFunction function = new SwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -123,6 +124,7 @@ public class SwapTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     SwapTradeCalculationFunction function = new SwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();

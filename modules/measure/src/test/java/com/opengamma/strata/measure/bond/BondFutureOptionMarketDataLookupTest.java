@@ -9,15 +9,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -32,7 +32,6 @@ import com.opengamma.strata.product.SecurityId;
 /**
  * Test {@link BondFutureOptionMarketDataLookup}.
  */
-@Test
 public class BondFutureOptionMarketDataLookupTest {
 
   private static final BondFutureVolatilitiesId VOL_ID1 = BondFutureVolatilitiesId.of("ID1");
@@ -48,63 +47,59 @@ public class BondFutureOptionMarketDataLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_single() {
     BondFutureOptionMarketDataLookup test = BondFutureOptionMarketDataLookup.of(SEC_OG1, VOL_ID1);
-    assertEquals(test.queryType(), BondFutureOptionMarketDataLookup.class);
-    assertEquals(test.getVolatilitySecurityIds(), ImmutableSet.of(SEC_OG1));
-    assertEquals(test.getVolatilityIds(SEC_OG1), ImmutableSet.of(VOL_ID1));
+    assertThat(test.queryType()).isEqualTo(BondFutureOptionMarketDataLookup.class);
+    assertThat(test.getVolatilitySecurityIds()).containsOnly(SEC_OG1);
+    assertThat(test.getVolatilityIds(SEC_OG1)).containsOnly(VOL_ID1);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getVolatilityIds(SEC_OG2));
 
-    assertEquals(
-        test.requirements(SEC_OG1),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertEquals(
-        test.requirements(ImmutableSet.of(SEC_OG1)),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(SEC_OG1)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(SEC_OG1))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
   }
 
+  @Test
   public void test_of_map() {
     ImmutableMap<SecurityId, BondFutureVolatilitiesId> ids = ImmutableMap.of(SEC_OG1, VOL_ID1, SEC_OG2, VOL_ID1);
     BondFutureOptionMarketDataLookup test = BondFutureOptionMarketDataLookup.of(ids);
-    assertEquals(test.queryType(), BondFutureOptionMarketDataLookup.class);
-    assertEquals(test.getVolatilitySecurityIds(), ImmutableSet.of(SEC_OG1, SEC_OG2));
-    assertEquals(test.getVolatilityIds(SEC_OG1), ImmutableSet.of(VOL_ID1));
+    assertThat(test.queryType()).isEqualTo(BondFutureOptionMarketDataLookup.class);
+    assertThat(test.getVolatilitySecurityIds()).containsOnly(SEC_OG1, SEC_OG2);
+    assertThat(test.getVolatilityIds(SEC_OG1)).containsOnly(VOL_ID1);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getVolatilityIds(SEC_OG3));
 
-    assertEquals(
-        test.requirements(SEC_OG1),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertEquals(
-        test.requirements(ImmutableSet.of(SEC_OG1)),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(SEC_OG1)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(SEC_OG1))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
 
-    assertEquals(test.volatilities(SEC_OG1, MOCK_MARKET_DATA), MOCK_VOLS);
+    assertThat(test.volatilities(SEC_OG1, MOCK_MARKET_DATA)).isEqualTo(MOCK_VOLS);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.volatilities(SEC_OG3, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marketDataView() {
     BondFutureOptionMarketDataLookup test = BondFutureOptionMarketDataLookup.of(SEC_OG1, VOL_ID1);
     LocalDate valDate = date(2015, 6, 30);
     ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     BondFutureOptionScenarioMarketData multiScenario = test.marketDataView(md);
-    assertEquals(multiScenario.getLookup(), test);
-    assertEquals(multiScenario.getMarketData(), md);
-    assertEquals(multiScenario.getScenarioCount(), 1);
+    assertThat(multiScenario.getLookup()).isEqualTo(test);
+    assertThat(multiScenario.getMarketData()).isEqualTo(md);
+    assertThat(multiScenario.getScenarioCount()).isEqualTo(1);
     BondFutureOptionMarketData scenario = multiScenario.scenario(0);
-    assertEquals(scenario.getLookup(), test);
-    assertEquals(scenario.getMarketData(), md.scenario(0));
-    assertEquals(scenario.getValuationDate(), valDate);
+    assertThat(scenario.getLookup()).isEqualTo(test);
+    assertThat(scenario.getMarketData()).isEqualTo(md.scenario(0));
+    assertThat(scenario.getValuationDate()).isEqualTo(valDate);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DefaultBondFutureOptionMarketDataLookup test =
         DefaultBondFutureOptionMarketDataLookup.of(ImmutableMap.of(SEC_OG1, VOL_ID1, SEC_OG2, VOL_ID1));
@@ -116,6 +111,7 @@ public class BondFutureOptionMarketDataLookupTest {
     coverImmutableBean((ImmutableBean) test.marketDataView(MOCK_MARKET_DATA));
   }
 
+  @Test
   public void test_serialization() {
     DefaultBondFutureOptionMarketDataLookup test =
         DefaultBondFutureOptionMarketDataLookup.of(ImmutableMap.of(SEC_OG1, VOL_ID1, SEC_OG2, VOL_ID1));

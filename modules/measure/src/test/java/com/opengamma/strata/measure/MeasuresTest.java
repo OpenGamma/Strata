@@ -6,29 +6,30 @@
 package com.opengamma.strata.measure;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link Measures}.
  */
-@Test
 public class MeasuresTest {
 
+  @Test
   public void test_standard() {
-    assertEquals(Measures.PRESENT_VALUE.isCurrencyConvertible(), true);
-    assertEquals(Measures.EXPLAIN_PRESENT_VALUE.isCurrencyConvertible(), false);
-    assertEquals(Measures.PV01_CALIBRATED_SUM.isCurrencyConvertible(), true);
-    assertEquals(Measures.PV01_CALIBRATED_BUCKETED.isCurrencyConvertible(), true);
-    assertEquals(Measures.PV01_MARKET_QUOTE_SUM.isCurrencyConvertible(), true);
-    assertEquals(Measures.PV01_MARKET_QUOTE_BUCKETED.isCurrencyConvertible(), true);
-    assertEquals(Measures.PAR_RATE.isCurrencyConvertible(), false);
-    assertEquals(Measures.PAR_SPREAD.isCurrencyConvertible(), false);
-    assertEquals(Measures.CURRENCY_EXPOSURE.isCurrencyConvertible(), false);
-    assertEquals(Measures.CURRENT_CASH.isCurrencyConvertible(), true);
+    assertThat(Measures.PRESENT_VALUE.isCurrencyConvertible()).isTrue();
+    assertThat(Measures.EXPLAIN_PRESENT_VALUE.isCurrencyConvertible()).isFalse();
+    assertThat(Measures.PV01_CALIBRATED_SUM.isCurrencyConvertible()).isTrue();
+    assertThat(Measures.PV01_CALIBRATED_BUCKETED.isCurrencyConvertible()).isTrue();
+    assertThat(Measures.PV01_MARKET_QUOTE_SUM.isCurrencyConvertible()).isTrue();
+    assertThat(Measures.PV01_MARKET_QUOTE_BUCKETED.isCurrencyConvertible()).isTrue();
+    assertThat(Measures.PAR_RATE.isCurrencyConvertible()).isFalse();
+    assertThat(Measures.PAR_SPREAD.isCurrencyConvertible()).isFalse();
+    assertThat(Measures.CURRENCY_EXPOSURE.isCurrencyConvertible()).isFalse();
+    assertThat(Measures.CURRENT_CASH.isCurrencyConvertible()).isTrue();
   }
 
+  @Test
   public void coverage() {
     coverPrivateConstructor(Measures.class);
   }

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -49,7 +49,6 @@ import com.opengamma.strata.product.index.type.IborFutureConventions;
 /**
  * Test {@link IborFutureTradeCalculationFunction}.
  */
-@Test
 public class IborFutureTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -71,6 +70,7 @@ public class IborFutureTradeCalculationFunctionTest {
   private static final QuoteId QUOTE_KEY = QuoteId.of(SEC_ID, FieldName.SETTLEMENT_PRICE);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     IborFutureTradeCalculationFunction<IborFutureTrade> function = IborFutureTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -82,6 +82,7 @@ public class IborFutureTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     IborFutureTradeCalculationFunction<IborFutureTrade> function = IborFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();

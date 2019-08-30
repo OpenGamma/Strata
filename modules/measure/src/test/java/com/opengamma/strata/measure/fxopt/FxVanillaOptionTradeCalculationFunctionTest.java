@@ -18,7 +18,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -65,7 +65,6 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 /**
  * Test {@link FxVanillaOptionTradeCalculationFunction}.
  */
-@Test
 public class FxVanillaOptionTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -124,6 +123,7 @@ public class FxVanillaOptionTradeCalculationFunctionTest {
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP, FX_OPTION_LOOKUP);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     FxVanillaOptionTradeCalculationFunction function = new FxVanillaOptionTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -135,6 +135,7 @@ public class FxVanillaOptionTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(EUR);
   }
 
+  @Test
   public void test_simpleMeasures() {
     FxVanillaOptionTradeCalculationFunction function = new FxVanillaOptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -161,6 +162,7 @@ public class FxVanillaOptionTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     FxVanillaOptionTradeCalculationFunction function = new FxVanillaOptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();

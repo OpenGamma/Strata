@@ -17,8 +17,7 @@ import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.
 import static com.opengamma.strata.measure.Measures.PRESENT_VALUE;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static java.util.stream.Collectors.toList;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -68,13 +67,13 @@ import com.opengamma.strata.market.GenericDoubleShifts;
 import com.opengamma.strata.market.ShiftType;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
+import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.RatesCurveGroup;
 import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 import com.opengamma.strata.market.curve.RatesCurveGroupId;
-import com.opengamma.strata.market.curve.CurveGroupName;
-import com.opengamma.strata.market.curve.CurveName;
-import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
 import com.opengamma.strata.market.curve.node.FixedOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
@@ -111,7 +110,6 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 /**
  * Test {@code FxOptionVolatilitiesMarketDataFunction}.
  */
-@Test
 public class FxOptionVolatilitiesMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -337,6 +335,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
   }
   private static final BlackFxVanillaOptionTradePricer PRICER = BlackFxVanillaOptionTradePricer.DEFAULT;
 
+  @Test
   public void test_singleMarketData() {
     MarketData marketDataCalibrated = StandardComponents.marketDataFactory().create(
         REQUIREMENTS, CONFIG, MARKET_DATA, REF_DATA);
@@ -344,9 +343,10 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     CurrencyAmount computed = results.get(0, 0, CurrencyAmount.class).getValue();
     CurrencyAmount expected = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_scenarioMarketData() {
     ScenarioMarketData marketDataCalibrated = StandardComponents.marketDataFactory().createMultiScenario(
         REQUIREMENTS, SCENARIO_CONFIG, SCENARIO_MARKET_DATA, REF_DATA, ScenarioDefinition.empty());
@@ -356,10 +356,11 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
         .convertedTo(USD, EXP_RATES);
     CurrencyAmount pv1 = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES_1, EXP_VOLS_1)
         .convertedTo(USD, EXP_RATES_1);
-    assertEquals(pvs.get(0), pv0);
-    assertEquals(pvs.get(1), pv1);
+    assertThat(pvs.get(0)).isEqualTo(pv0);
+    assertThat(pvs.get(1)).isEqualTo(pv1);
   }
 
+  @Test
   public void test_quote_secenarioDefinition() {
     List<PerturbationMapping<?>> perturbationMapping = new ArrayList<>();
     int nScenarios = 3;
@@ -386,10 +387,11 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
           REQUIREMENTS, CONFIG, shiftedMarketData, REF_DATA);
       Results shiftedResults = CALC_RUNNER.calculate(RULES, TARGETS, COLUMN, shiftedMarketDataCalibrated, REF_DATA);
       CurrencyAmount pv = shiftedResults.get(0, 0, CurrencyAmount.class).getValue();
-      assertEquals(pvs.get(i), pv);
+      assertThat(pvs.get(i)).isEqualTo(pv);
     }
   }
 
+  @Test
   public void test_parameter_secenarioDefinition() {
     List<PerturbationMapping<?>> perturbationMapping = new ArrayList<>();
     int nVolParams = EXP_VOLS.getParameterCount();
@@ -413,10 +415,11 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
       BlackFxOptionSmileVolatilities shiftedSmile = EXP_VOLS.withPerturbation((j, v, m) -> Math.pow(0.9, index) * v);
       CurrencyAmount pv = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, shiftedSmile)
           .convertedTo(USD, EXP_RATES);
-      assertEquals(pvs.get(i), pv);
+      assertThat(pvs.get(i)).isEqualTo(pv);
     }
   }
 
+  @Test
   public void test_builtData() {
     List<PerturbationMapping<?>> perturbationMapping = new ArrayList<>();
     int nScenarios = 3;
@@ -440,8 +443,8 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     CurrencyAmount expected = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
     // dependency graph is absent, thus scenarios are not created
-    assertTrue(computed.getScenarioCount() == 1);
-    assertEquals(computed.get(0), expected);
+    assertThat(computed.getScenarioCount() == 1).isTrue();
+    assertThat(computed.get(0)).isEqualTo(expected);
   }
 
   private static final List<Tenor> SURFACE_TENORS = ImmutableList.of(Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_1Y);
@@ -507,6 +510,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
         VOL_NAME, GBP_USD, VALUATION_DATE.atTime(VALUATION_TIME).atZone(ZONE), surface);
   }
 
+  @Test
   public void test_surface() {
     MarketData marketDataCalibrated = StandardComponents.marketDataFactory().create(
         REQUIREMENTS, SURFACE_CONFIG, SURFACE_MARKET_DATA, REF_DATA);
@@ -514,7 +518,7 @@ public class FxOptionVolatilitiesMarketDataFunctionTest {
     CurrencyAmount computed = results.get(0, 0, CurrencyAmount.class).getValue();
     CurrencyAmount expected = PRICER.presentValue(OPTION_TRADE.resolve(REF_DATA), EXP_RATES, SURFACE_EXP_VOLS)
         .convertedTo(USD, EXP_RATES);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
 }

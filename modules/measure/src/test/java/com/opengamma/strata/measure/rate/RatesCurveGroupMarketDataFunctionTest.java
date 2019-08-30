@@ -18,7 +18,7 @@ import java.time.Period;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -75,7 +75,6 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 /**
  * Test {@link RatesCurveGroupMarketDataFunction}.
  */
-@Test
 public class RatesCurveGroupMarketDataFunctionTest {
 
   /** The calibrator. */
@@ -88,6 +87,7 @@ public class RatesCurveGroupMarketDataFunctionTest {
   /**
    * Tests calibration a curve containing FRAs and pricing the curve instruments using the curve.
    */
+  @Test
   public void roundTripFra() {
     InterpolatedNodalCurveDefinition curveDefn = CurveTestUtils.fraCurveDefinition();
 
@@ -139,6 +139,7 @@ public class RatesCurveGroupMarketDataFunctionTest {
     nodes.stream().forEach(node -> checkFraPvIsZero(node, ratesProvider, marketData));
   }
 
+  @Test
   public void roundTripFraAndFixedFloatSwap() {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
     InterpolatedNodalCurveDefinition curveDefn = CurveTestUtils.fraSwapCurveDefinition();
@@ -189,6 +190,7 @@ public class RatesCurveGroupMarketDataFunctionTest {
   /**
    * Tests that par rates and ibor index are required for curves.
    */
+  @Test
   public void requirements() {
     FraCurveNode node1x4 = CurveTestUtils.fraNode(1, "foo");
     FraCurveNode node2x5 = CurveTestUtils.fraNode(2, "foo");
@@ -223,6 +225,7 @@ public class RatesCurveGroupMarketDataFunctionTest {
     assertThat(requirements.getTimeSeries().contains(IndexQuoteId.of(ibor)));
   }
 
+  @Test
   public void metadata() {
     CurveGroupName groupName = CurveGroupName.of("Curve Group");
 
@@ -286,6 +289,7 @@ public class RatesCurveGroupMarketDataFunctionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void duplicateInputDataKeys() {
     FxSwapTemplate template1 = FxSwapTemplate.of(Period.ofMonths(1), FxSwapConventions.EUR_USD);
     FxSwapTemplate template2 = FxSwapTemplate.of(Period.ofMonths(2), FxSwapConventions.EUR_USD);

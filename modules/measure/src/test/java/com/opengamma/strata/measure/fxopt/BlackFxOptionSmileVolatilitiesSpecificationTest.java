@@ -21,13 +21,13 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -51,7 +51,6 @@ import com.opengamma.strata.pricer.fxopt.SmileDeltaTermStructure;
 /**
  * Test {@link BlackFxOptionSmileVolatilitiesSpecification}.
  */
-@Test
 public class BlackFxOptionSmileVolatilitiesSpecificationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -82,6 +81,7 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
     QUOTE_IDS = quoteBuilder.build();
   }
 
+  @Test
   public void test_builder() {
     BlackFxOptionSmileVolatilitiesSpecification test = BlackFxOptionSmileVolatilitiesSpecification.builder()
         .name(VOL_NAME)
@@ -95,20 +95,21 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
         .strikeExtrapolatorLeft(FLAT)
         .strikeExtrapolatorRight(LINEAR)
         .build();
-    assertEquals(test.getCurrencyPair(), EUR_GBP);
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getName(), VOL_NAME);
-    assertEquals(test.getNodes(), NODES);
-    assertEquals(test.getParameterCount(), TENORS.size());
-    assertEquals(test.getStrikeInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getStrikeExtrapolatorLeft(), FLAT);
-    assertEquals(test.getStrikeExtrapolatorRight(), LINEAR);
-    assertEquals(test.getTimeInterpolator(), PCHIP);
-    assertEquals(test.getTimeExtrapolatorLeft(), LINEAR);
-    assertEquals(test.getTimeExtrapolatorRight(), FLAT);
-    assertEquals(test.volatilitiesInputs(), QUOTE_IDS);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getName()).isEqualTo(VOL_NAME);
+    assertThat(test.getNodes()).isEqualTo(NODES);
+    assertThat(test.getParameterCount()).isEqualTo(TENORS.size());
+    assertThat(test.getStrikeInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getStrikeExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getStrikeExtrapolatorRight()).isEqualTo(LINEAR);
+    assertThat(test.getTimeInterpolator()).isEqualTo(PCHIP);
+    assertThat(test.getTimeExtrapolatorLeft()).isEqualTo(LINEAR);
+    assertThat(test.getTimeExtrapolatorRight()).isEqualTo(FLAT);
+    assertThat(test.volatilitiesInputs()).isEqualTo(QUOTE_IDS);
   }
 
+  @Test
   public void test_volatilities() {
     BlackFxOptionSmileVolatilitiesSpecification base = BlackFxOptionSmileVolatilitiesSpecification.builder()
         .name(VOL_NAME)
@@ -131,10 +132,11 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
         expiries, DoubleArray.of(0.1), DoubleArray.of(0.25, 0.15), DoubleMatrix.ofUnsafe(new double[][] {{-0.1}, {-0.05}}),
         DoubleMatrix.ofUnsafe(new double[][] {{0.1}, {0.05}}), ACT_360, PCHIP, FLAT, FLAT, PCHIP, FLAT, FLAT);
     BlackFxOptionSmileVolatilities expected = BlackFxOptionSmileVolatilities.of(VOL_NAME, EUR_GBP, dateTime, smiles);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BlackFxOptionSmileVolatilitiesSpecification test1 = BlackFxOptionSmileVolatilitiesSpecification.builder()
         .name(VOL_NAME)
@@ -168,6 +170,7 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void serialization() {
     BlackFxOptionSmileVolatilitiesSpecification test = BlackFxOptionSmileVolatilitiesSpecification.builder()
         .name(VOL_NAME)

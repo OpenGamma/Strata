@@ -6,9 +6,9 @@
 package com.opengamma.strata.measure.fxopt;
 
 import static com.opengamma.strata.measure.fxopt.FxVanillaOptionMethod.BLACK;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,7 +28,6 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 /**
  * Test {@link FxVanillaOptionTradeCalculations}.
  */
-@Test
 public class FxVanillaOptionTradeCalculationsTest {
 
   private static final ResolvedFxVanillaOptionTrade RTRADE = FxVanillaOptionTradeCalculationFunctionTest.RTRADE;
@@ -37,6 +36,7 @@ public class FxVanillaOptionTradeCalculationsTest {
   private static final BlackFxOptionVolatilities VOLS = FxVanillaOptionTradeCalculationFunctionTest.VOLS;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = FxVanillaOptionTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -45,17 +45,12 @@ public class FxVanillaOptionTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, VOLS);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider.getValuationDate());
 
-    assertEquals(
-        FxVanillaOptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        FxVanillaOptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        FxVanillaOptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(FxVanillaOptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(FxVanillaOptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(FxVanillaOptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = FxVanillaOptionTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -65,12 +60,8 @@ public class FxVanillaOptionTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        FxVanillaOptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        FxVanillaOptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(FxVanillaOptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(FxVanillaOptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

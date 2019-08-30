@@ -12,15 +12,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
@@ -48,7 +48,6 @@ import com.opengamma.strata.product.SecurityId;
 /**
  * Test {@link LegalEntityDiscountingMarketDataLookup}.
  */
-@Test
 public class LegalEntityDiscountingMarketDataLookupTest {
 
   private static final SecurityId SEC_A1 = SecurityId.of("OG-Bond", "A1");
@@ -76,6 +75,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   private static final ScenarioMarketData MOCK_CALC_MARKET_DATA = mock(ScenarioMarketData.class);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_map() {
     ImmutableMap<SecurityId, RepoGroup> repoSecurityGroups = ImmutableMap.of(
         SEC_A1, GROUP_REPO_X);
@@ -100,20 +100,12 @@ public class LegalEntityDiscountingMarketDataLookupTest {
 
     LegalEntityDiscountingMarketDataLookup test =
         LegalEntityDiscountingMarketDataLookup.of(repoSecurityGroups, repoGroups, repoCurves, issuerGroups, issuerCurves);
-    assertEquals(test.queryType(), LegalEntityDiscountingMarketDataLookup.class);
+    assertThat(test.queryType()).isEqualTo(LegalEntityDiscountingMarketDataLookup.class);
 
-    assertEquals(
-        test.requirements(SEC_A1, ISSUER_A, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1, CURVE_ID_USD3).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(SEC_A2, ISSUER_A, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD3).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(SEC_B1, ISSUER_B, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD4).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(SEC_B1, ISSUER_B, GBP),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1, CURVE_ID_GBP2).outputCurrencies(GBP).build());
+    assertThat(test.requirements(SEC_A1, ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1, CURVE_ID_USD3).outputCurrencies(USD).build());
+    assertThat(test.requirements(SEC_A2, ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD3).outputCurrencies(USD).build());
+    assertThat(test.requirements(SEC_B1, ISSUER_B, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD4).outputCurrencies(USD).build());
+    assertThat(test.requirements(SEC_B1, ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1, CURVE_ID_GBP2).outputCurrencies(GBP).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(SEC_B1, LegalEntityId.of("XXX", "XXX"), GBP));
     assertThatIllegalArgumentException()
@@ -125,11 +117,10 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(SEC_D1, ISSUER_D, GBP));
 
-    assertEquals(
-        test.discountingProvider(MOCK_MARKET_DATA),
-        DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
+    assertThat(test.discountingProvider(MOCK_MARKET_DATA)).isEqualTo(DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
   }
 
+  @Test
   public void test_of_repoMap() {
     ImmutableMap<LegalEntityId, RepoGroup> repoGroups = ImmutableMap.of(
         ISSUER_A, GROUP_REPO_X,
@@ -142,29 +133,22 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         Pair.of(GROUP_REPO_Y, GBP), CURVE_ID_GBP1);
     LegalEntityDiscountingMarketDataLookup test =
         LegalEntityDiscountingMarketDataLookup.of(repoGroups, repoCurves);
-    assertEquals(test.queryType(), LegalEntityDiscountingMarketDataLookup.class);
+    assertThat(test.queryType()).isEqualTo(LegalEntityDiscountingMarketDataLookup.class);
 
-    assertEquals(
-        test.requirements(ISSUER_A, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(ISSUER_B, USD),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2).outputCurrencies(USD).build());
-    assertEquals(
-        test.requirements(ISSUER_B, GBP),
-        FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1).outputCurrencies(GBP).build());
+    assertThat(test.requirements(ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1).outputCurrencies(USD).build());
+    assertThat(test.requirements(ISSUER_B, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2).outputCurrencies(USD).build());
+    assertThat(test.requirements(ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1).outputCurrencies(GBP).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(SEC_A2, ISSUER_A, USD));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(LegalEntityId.of("XXX", "XXX"), GBP));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ISSUER_A, GBP));
-    assertEquals(
-        test.discountingProvider(MOCK_MARKET_DATA),
-        DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
+    assertThat(test.discountingProvider(MOCK_MARKET_DATA)).isEqualTo(DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_map_invalid() {
     ImmutableMap<SecurityId, RepoGroup> repoSecurityGroups = ImmutableMap.of(
         SEC_A1, GROUP_REPO_X);
@@ -185,6 +169,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marketDataView() {
     ImmutableMap<SecurityId, RepoGroup> repoSecurityGroups = ImmutableMap.of(
         SEC_A1, GROUP_REPO_X);
@@ -202,15 +187,16 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     LocalDate valDate = date(2015, 6, 30);
     ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     LegalEntityDiscountingScenarioMarketData multiScenario = test.marketDataView(md);
-    assertEquals(multiScenario.getLookup(), test);
-    assertEquals(multiScenario.getMarketData(), md);
-    assertEquals(multiScenario.getScenarioCount(), 1);
+    assertThat(multiScenario.getLookup()).isEqualTo(test);
+    assertThat(multiScenario.getMarketData()).isEqualTo(md);
+    assertThat(multiScenario.getScenarioCount()).isEqualTo(1);
     LegalEntityDiscountingMarketData scenario = multiScenario.scenario(0);
-    assertEquals(scenario.getLookup(), test);
-    assertEquals(scenario.getMarketData(), md.scenario(0));
-    assertEquals(scenario.getValuationDate(), valDate);
+    assertThat(scenario.getLookup()).isEqualTo(test);
+    assertThat(scenario.getMarketData()).isEqualTo(md.scenario(0));
+    assertThat(scenario.getValuationDate()).isEqualTo(valDate);
   }
 
+  @Test
   public void test_bondDiscountingProvider() {
     ImmutableMap<SecurityId, RepoGroup> repoSecurityGroups = ImmutableMap.of(
         SEC_A1, GROUP_REPO_X);
@@ -232,15 +218,15 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     MarketData md = ImmutableMarketData.of(valDate, ImmutableMap.of(CURVE_ID_USD1, repoCurve, CURVE_ID_USD3, issuerCurve));
     LegalEntityDiscountingProvider provider = test.discountingProvider(md);
 
-    assertEquals(provider.getValuationDate(), valDate);
-    assertEquals(provider.findData(CURVE_ID_USD1.getCurveName()), Optional.of(repoCurve));
-    assertEquals(provider.findData(CURVE_ID_USD3.getCurveName()), Optional.of(issuerCurve));
-    assertEquals(provider.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(provider.getValuationDate()).isEqualTo(valDate);
+    assertThat(provider.findData(CURVE_ID_USD1.getCurveName())).isEqualTo(Optional.of(repoCurve));
+    assertThat(provider.findData(CURVE_ID_USD3.getCurveName())).isEqualTo(Optional.of(issuerCurve));
+    assertThat(provider.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
     // check repo
     RepoCurveDiscountFactors rcdf = provider.repoCurveDiscountFactors(SEC_A1, ISSUER_A, USD);
     SimpleDiscountFactors rdf = (SimpleDiscountFactors) rcdf.getDiscountFactors();
-    assertEquals(rdf.getCurve().getName(), repoCurve.getName());
-    assertEquals(rcdf, provider.repoCurveDiscountFactors(SEC_B1, ISSUER_B, USD));
+    assertThat(rdf.getCurve().getName()).isEqualTo(repoCurve.getName());
+    assertThat(rcdf).isEqualTo(provider.repoCurveDiscountFactors(SEC_B1, ISSUER_B, USD));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> provider.repoCurveDiscountFactors(SEC_A1, ISSUER_A, GBP));
     assertThatIllegalArgumentException()
@@ -248,7 +234,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     // check issuer
     IssuerCurveDiscountFactors icdf = provider.issuerCurveDiscountFactors(ISSUER_A, USD);
     SimpleDiscountFactors idf = (SimpleDiscountFactors) icdf.getDiscountFactors();
-    assertEquals(idf.getCurve().getName(), issuerCurve.getName());
+    assertThat(idf.getCurve().getName()).isEqualTo(issuerCurve.getName());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> provider.issuerCurveDiscountFactors(ISSUER_A, GBP));
     assertThatIllegalArgumentException()
@@ -256,6 +242,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableMap<SecurityId, RepoGroup> repoSecurityGroups = ImmutableMap.of(
         SEC_A1, GROUP_REPO_X);
@@ -297,6 +284,7 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     DefaultLookupLegalEntityDiscountingProvider.meta();
   }
 
+  @Test
   public void test_serialization() {
     ImmutableMap<SecurityId, RepoGroup> repoSecurityGroups = ImmutableMap.of(
         SEC_A1, GROUP_REPO_X);

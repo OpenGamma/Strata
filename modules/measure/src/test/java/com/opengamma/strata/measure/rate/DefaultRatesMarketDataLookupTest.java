@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
@@ -21,12 +21,12 @@ import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveId;
 import com.opengamma.strata.market.curve.CurveName;
 
-@Test
 public class DefaultRatesMarketDataLookupTest {
 
   /**
    * Validates the observable source in the curve IDs match the observable source passed in.
    */
+  @Test
   public void validateObservableSourceDiscountCurves() {
     ObservableSource observableSource = ObservableSource.of("source");
     CurveId curveId = CurveId.of(CurveGroupName.of("group"), CurveName.of("curves"), observableSource);
@@ -43,6 +43,7 @@ public class DefaultRatesMarketDataLookupTest {
   /**
    * Validates the observable source in the curve IDs match the observable source passed in.
    */
+  @Test
   public void validateObservableSourceForwardCurves() {
     ObservableSource observableSource = ObservableSource.of("source");
     CurveId curveId = CurveId.of(CurveGroupName.of("group"), CurveName.of("curves"), observableSource);

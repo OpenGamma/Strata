@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.offset;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -59,7 +59,6 @@ import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapLeg;
 import com.opengamma.strata.product.swap.SwapTrade;
 
-@Test
 public class SwapPricingTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard()
@@ -81,6 +80,7 @@ public class SwapPricingTest {
   private static final double TOLERANCE_PV = 1.0E-4;
 
   //-------------------------------------------------------------------------
+  @Test
   public void presentValueVanillaFixedVsLibor1mSwap() {
     SwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), Frequency.P6M, PayReceive.PAY, NOTIONAL, 0.0125, null);

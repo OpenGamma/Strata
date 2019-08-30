@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -52,7 +52,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 /**
  * Test {@link FxSwapTradeCalculationFunction}.
  */
-@Test
 public class FxSwapTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -77,6 +76,7 @@ public class FxSwapTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getNearLeg().getPaymentDate().minusDays(7);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     FxSwapTradeCalculationFunction function = new FxSwapTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -88,6 +88,7 @@ public class FxSwapTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(GBP);
   }
 
+  @Test
   public void test_simpleMeasures() {
     FxSwapTradeCalculationFunction function = new FxSwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -118,6 +119,7 @@ public class FxSwapTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     FxSwapTradeCalculationFunction function = new FxSwapTradeCalculationFunction();
     ScenarioMarketData md = marketData();

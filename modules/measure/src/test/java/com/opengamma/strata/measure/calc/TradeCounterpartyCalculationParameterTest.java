@@ -7,12 +7,12 @@ package com.opengamma.strata.measure.calc;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
@@ -31,7 +31,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link TradeCounterpartyCalculationParameter}.
  */
-@Test
 public class TradeCounterpartyCalculationParameterTest {
 
   private static final CalculationParameter PARAM1 = new TestParameter();
@@ -58,29 +57,33 @@ public class TradeCounterpartyCalculationParameterTest {
   private static final GenericSecurityTrade TRADE_3 = GenericSecurityTrade.of(TRADE_INFO_3, SEC_2, 2, 2.0);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     TradeCounterpartyCalculationParameter test = TradeCounterpartyCalculationParameter.of(
         ImmutableMap.of(ID1, PARAM1, ID2, PARAM2), PARAM3);
-    assertEquals(test.getQueryType(), TestParameter.class);
-    assertEquals(test.getParameters().size(), 2);
-    assertEquals(test.getDefaultParameter(), PARAM3);
-    assertEquals(test.queryType(), TestParameter.class);
-    assertEquals(test.filter(TRADE_1, TestingMeasures.PRESENT_VALUE), Optional.of(PARAM1));
-    assertEquals(test.filter(TRADE_2, TestingMeasures.PRESENT_VALUE), Optional.of(PARAM2));
-    assertEquals(test.filter(TRADE_3, TestingMeasures.PRESENT_VALUE), Optional.of(PARAM3));
+    assertThat(test.getQueryType()).isEqualTo(TestParameter.class);
+    assertThat(test.getParameters()).hasSize(2);
+    assertThat(test.getDefaultParameter()).isEqualTo(PARAM3);
+    assertThat(test.queryType()).isEqualTo(TestParameter.class);
+    assertThat(test.filter(TRADE_1, TestingMeasures.PRESENT_VALUE)).isEqualTo(Optional.of(PARAM1));
+    assertThat(test.filter(TRADE_2, TestingMeasures.PRESENT_VALUE)).isEqualTo(Optional.of(PARAM2));
+    assertThat(test.filter(TRADE_3, TestingMeasures.PRESENT_VALUE)).isEqualTo(Optional.of(PARAM3));
   }
 
+  @Test
   public void of_empty() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> TradeCounterpartyCalculationParameter.of(ImmutableMap.of(), PARAM3));
   }
 
+  @Test
   public void of_badType() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> TradeCounterpartyCalculationParameter.of(ImmutableMap.of(ID1, PARAM_OTHER), PARAM3));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TradeCounterpartyCalculationParameter test = TradeCounterpartyCalculationParameter.of(
         ImmutableMap.of(ID1, PARAM1, ID2, PARAM2), PARAM3);

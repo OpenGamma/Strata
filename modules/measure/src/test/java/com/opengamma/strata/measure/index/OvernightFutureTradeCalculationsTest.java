@@ -9,11 +9,12 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -43,7 +44,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link OvernightFutureTradeCalculations}.
  */
-@Test
 public class OvernightFutureTradeCalculationsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -93,54 +93,57 @@ public class OvernightFutureTradeCalculationsTest {
   private static final double TOL = 1.0e-14;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount expected = TRADE_PRICER.presentValue(RESOLVED_TRADE, RATES_PROVIDER, SETTLEMENT_PRICE);
-    assertEquals(
-        CALC.presentValue(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA),
-        CurrencyScenarioArray.of(ImmutableList.of(expected)));
-    assertEquals(CALC.presentValue(RESOLVED_TRADE, RATES_PROVIDER), expected);
+    assertThat(CALC.presentValue(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expected)));
+    assertThat(CALC.presentValue(RESOLVED_TRADE, RATES_PROVIDER)).isEqualTo(expected);
   }
 
+  @Test
   public void test_parSpread() {
     double expected = TRADE_PRICER.parSpread(RESOLVED_TRADE, RATES_PROVIDER, SETTLEMENT_PRICE);
-    assertEquals(CALC.parSpread(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA).get(0).doubleValue(), expected, TOL);
-    assertEquals(CALC.parSpread(RESOLVED_TRADE, RATES_PROVIDER), expected, TOL);
+    assertThat(CALC.parSpread(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA).get(0).doubleValue())
+        .isCloseTo(expected, offset(TOL));
+    assertThat(CALC.parSpread(RESOLVED_TRADE, RATES_PROVIDER)).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_unitPrice() {
     double expected = TRADE_PRICER.price(RESOLVED_TRADE, RATES_PROVIDER);
-    assertEquals(CALC.unitPrice(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA).get(0).doubleValue(), expected, TOL);
-    assertEquals(CALC.unitPrice(RESOLVED_TRADE, RATES_PROVIDER), expected, TOL);
+    assertThat(CALC.unitPrice(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA).get(0).doubleValue())
+        .isCloseTo(expected, offset(TOL));
+    assertThat(CALC.unitPrice(RESOLVED_TRADE, RATES_PROVIDER)).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_pv01_calibrated() {
     PointSensitivities pvPointSens = TRADE_PRICER.presentValueSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
     CurrencyParameterSensitivities pvParamSens = RATES_PROVIDER.parameterSensitivity(pvPointSens);
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(ONE_BP);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(ONE_BP);
-    assertEquals(
-        CALC.pv01CalibratedSum(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(CALC.pv01CalibratedSum(RESOLVED_TRADE, RATES_PROVIDER), expectedPv01Cal);
-    assertEquals(
-        CALC.pv01CalibratedBucketed(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
-    assertEquals(CALC.pv01CalibratedBucketed(RESOLVED_TRADE, RATES_PROVIDER), expectedPv01CalBucketed);
+    assertThat(CALC.pv01CalibratedSum(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(CALC.pv01CalibratedSum(RESOLVED_TRADE, RATES_PROVIDER)).isEqualTo(expectedPv01Cal);
+    assertThat(CALC.pv01CalibratedBucketed(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(CALC.pv01CalibratedBucketed(RESOLVED_TRADE, RATES_PROVIDER)).isEqualTo(expectedPv01CalBucketed);
   }
 
+  @Test
   public void test_pv01_quote() {
     PointSensitivities pvPointSens = TRADE_PRICER.presentValueSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
     CurrencyParameterSensitivities pvParamSens = RATES_PROVIDER.parameterSensitivity(pvPointSens);
     CurrencyParameterSensitivities expectedPv01Bucketed = MQ_CALC.sensitivity(pvParamSens, RATES_PROVIDER).multipliedBy(ONE_BP);
     MultiCurrencyAmount expectedPv01Sum = expectedPv01Bucketed.total();
-    assertEquals(
-        CALC.pv01MarketQuoteSum(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Sum)));
-    assertEquals(CALC.pv01MarketQuoteSum(RESOLVED_TRADE, RATES_PROVIDER), expectedPv01Sum);
-    assertEquals(
-        CALC.pv01MarketQuoteBucketed(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA),
-        ScenarioArray.of(ImmutableList.of(expectedPv01Bucketed)));
-    assertEquals(CALC.pv01MarketQuoteBucketed(RESOLVED_TRADE, RATES_PROVIDER), expectedPv01Bucketed);
+    assertThat(CALC.pv01MarketQuoteSum(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Sum)));
+    assertThat(CALC.pv01MarketQuoteSum(RESOLVED_TRADE, RATES_PROVIDER)).isEqualTo(expectedPv01Sum);
+    assertThat(CALC.pv01MarketQuoteBucketed(RESOLVED_TRADE, RATES_LOOKUP, MARKET_DATA))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01Bucketed)));
+    assertThat(CALC.pv01MarketQuoteBucketed(RESOLVED_TRADE, RATES_PROVIDER))
+        .isEqualTo(expectedPv01Bucketed);
   }
 
 }

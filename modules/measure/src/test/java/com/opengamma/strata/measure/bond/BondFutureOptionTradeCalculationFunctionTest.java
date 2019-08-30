@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -73,7 +73,6 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 /**
  * Test {@link BondFutureTradeCalculationFunction}.
  */
-@Test
 public class BondFutureOptionTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -139,6 +138,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
   private static final CalculationParameters PARAMS = CalculationParameters.of(LED_LOOKUP, VOL_LOOKUP);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -150,6 +150,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -171,6 +172,7 @@ public class BondFutureOptionTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     BondFutureOptionTradeCalculationFunction<BondFutureOptionTrade> function = BondFutureOptionTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();

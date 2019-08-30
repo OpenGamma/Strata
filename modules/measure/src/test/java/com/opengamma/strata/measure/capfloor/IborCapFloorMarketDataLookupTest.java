@@ -12,15 +12,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -35,7 +35,6 @@ import com.opengamma.strata.pricer.capfloor.IborCapletFloorletVolatilitiesId;
 /**
  * Test {@link IborCapFloorMarketDataLookup}.
  */
-@Test
 public class IborCapFloorMarketDataLookupTest {
 
   private static final IborCapletFloorletVolatilitiesId VOL_ID1 = IborCapletFloorletVolatilitiesId.of("USD1");
@@ -48,63 +47,59 @@ public class IborCapFloorMarketDataLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_single() {
     IborCapFloorMarketDataLookup test = IborCapFloorMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
-    assertEquals(test.queryType(), IborCapFloorMarketDataLookup.class);
-    assertEquals(test.getVolatilityIndices(), ImmutableSet.of(USD_LIBOR_3M));
-    assertEquals(test.getVolatilityIds(USD_LIBOR_3M), ImmutableSet.of(VOL_ID1));
+    assertThat(test.queryType()).isEqualTo(IborCapFloorMarketDataLookup.class);
+    assertThat(test.getVolatilityIndices()).containsOnly(USD_LIBOR_3M);
+    assertThat(test.getVolatilityIds(USD_LIBOR_3M)).containsOnly(VOL_ID1);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
-    assertEquals(
-        test.requirements(USD_LIBOR_3M),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertEquals(
-        test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(USD_LIBOR_3M)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(USD_LIBOR_3M))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
   }
 
+  @Test
   public void test_of_map() {
     ImmutableMap<IborIndex, IborCapletFloorletVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1);
     IborCapFloorMarketDataLookup test = IborCapFloorMarketDataLookup.of(ids);
-    assertEquals(test.queryType(), IborCapFloorMarketDataLookup.class);
-    assertEquals(test.getVolatilityIndices(), ImmutableSet.of(USD_LIBOR_3M, USD_LIBOR_6M));
-    assertEquals(test.getVolatilityIds(USD_LIBOR_3M), ImmutableSet.of(VOL_ID1));
+    assertThat(test.queryType()).isEqualTo(IborCapFloorMarketDataLookup.class);
+    assertThat(test.getVolatilityIndices()).containsOnly(USD_LIBOR_3M, USD_LIBOR_6M);
+    assertThat(test.getVolatilityIds(USD_LIBOR_3M)).containsOnly(VOL_ID1);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
-    assertEquals(
-        test.requirements(USD_LIBOR_3M),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertEquals(
-        test.requirements(ImmutableSet.of(USD_LIBOR_3M)),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(USD_LIBOR_3M)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(USD_LIBOR_3M))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
 
-    assertEquals(test.volatilities(USD_LIBOR_3M, MOCK_MARKET_DATA), MOCK_VOLS);
+    assertThat(test.volatilities(USD_LIBOR_3M, MOCK_MARKET_DATA)).isEqualTo(MOCK_VOLS);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.volatilities(GBP_LIBOR_3M, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marketDataView() {
     IborCapFloorMarketDataLookup test = IborCapFloorMarketDataLookup.of(USD_LIBOR_3M, VOL_ID1);
     LocalDate valDate = date(2015, 6, 30);
     ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     IborCapFloorScenarioMarketData multiScenario = test.marketDataView(md);
-    assertEquals(multiScenario.getLookup(), test);
-    assertEquals(multiScenario.getMarketData(), md);
-    assertEquals(multiScenario.getScenarioCount(), 1);
+    assertThat(multiScenario.getLookup()).isEqualTo(test);
+    assertThat(multiScenario.getMarketData()).isEqualTo(md);
+    assertThat(multiScenario.getScenarioCount()).isEqualTo(1);
     IborCapFloorMarketData scenario = multiScenario.scenario(0);
-    assertEquals(scenario.getLookup(), test);
-    assertEquals(scenario.getMarketData(), md.scenario(0));
-    assertEquals(scenario.getValuationDate(), valDate);
+    assertThat(scenario.getLookup()).isEqualTo(test);
+    assertThat(scenario.getMarketData()).isEqualTo(md.scenario(0));
+    assertThat(scenario.getValuationDate()).isEqualTo(valDate);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DefaultIborCapFloorMarketDataLookup test =
         DefaultIborCapFloorMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));
@@ -116,6 +111,7 @@ public class IborCapFloorMarketDataLookupTest {
     coverImmutableBean((ImmutableBean) test.marketDataView(MOCK_MARKET_DATA));
   }
 
+  @Test
   public void test_serialization() {
     DefaultIborCapFloorMarketDataLookup test =
         DefaultIborCapFloorMarketDataLookup.of(ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1));

@@ -18,7 +18,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -69,7 +69,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link FxSingleBarrierOptionTradeCalculationFunction}.
  */
-@Test
 public class FxSingleBarrierOptionTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -132,6 +131,7 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
   private static final CalculationParameters PARAMS = CalculationParameters.of(RATES_LOOKUP, FX_OPTION_LOOKUP);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     FxSingleBarrierOptionTradeCalculationFunction function = new FxSingleBarrierOptionTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -143,6 +143,7 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(EUR);
   }
 
+  @Test
   public void test_simpleMeasures() {
     FxSingleBarrierOptionTradeCalculationFunction function = new FxSingleBarrierOptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -169,6 +170,7 @@ public class FxSingleBarrierOptionTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     FxSingleBarrierOptionTradeCalculationFunction function = new FxSingleBarrierOptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();

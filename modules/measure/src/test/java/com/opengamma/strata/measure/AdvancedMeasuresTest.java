@@ -6,20 +6,21 @@
 package com.opengamma.strata.measure;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link AdvancedMeasures}.
  */
-@Test
 public class AdvancedMeasuresTest {
 
+  @Test
   public void test_standard() {
-    assertEquals(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED.isCurrencyConvertible(), true);
+    assertThat(AdvancedMeasures.PV01_SEMI_PARALLEL_GAMMA_BUCKETED.isCurrencyConvertible()).isTrue();
   }
 
+  @Test
   public void coverage() {
     coverPrivateConstructor(Measures.class);
   }

@@ -8,7 +8,7 @@ package com.opengamma.strata.measure.curve;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
@@ -33,11 +33,11 @@ import com.opengamma.strata.market.curve.CurveParallelShifts;
 /**
  * Test usage of {@link CurveParallelShifts}.
  */
-@Test
 public class CurveParallelShiftsUsageTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
+  @Test
   public void absoluteScenarios() {
     CurveName curveName = CurveName.of("curveName");
     CurveGroupName curveGroupName = CurveGroupName.of("curveGroupName");

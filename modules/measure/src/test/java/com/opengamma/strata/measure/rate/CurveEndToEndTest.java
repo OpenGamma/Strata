@@ -18,7 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +62,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test curves.
  */
-@Test
 public class CurveEndToEndTest {
 
   /** The maximum allowable PV when round-tripping an instrument used to calibrate a curve. */
@@ -80,6 +79,7 @@ public class CurveEndToEndTest {
    *   - Individual curves
    *   - Discount factors
    */
+  @Test
   public void roundTripFraAndFixedFloatSwap() {
 
     // Configuration and market data for the curve ---------------------------------

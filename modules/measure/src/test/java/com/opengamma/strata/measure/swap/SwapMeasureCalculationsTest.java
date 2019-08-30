@@ -7,10 +7,10 @@ package com.opengamma.strata.measure.swap;
 
 import static com.opengamma.strata.pricer.swap.SwapDummyData.KNOWN_AMOUNT_SWAP_LEG;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.SWAP_TRADE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -24,9 +24,9 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 /**
  * Test {@link SwapMeasureCalculations}.
  */
-@Test
 public class SwapMeasureCalculationsTest {
 
+  @Test
   public void test_legInitialNotional() {
     ResolvedSwapLeg firstLeg = SWAP_TRADE.getProduct().getLegs().get(0);
     ResolvedSwapLeg secondLeg = SWAP_TRADE.getProduct().getLegs().get(1);
@@ -38,9 +38,10 @@ public class SwapMeasureCalculationsTest {
         SwapLegAmount.of(firstLeg, CurrencyAmount.of(ccy, notional)),
         SwapLegAmount.of(secondLeg, CurrencyAmount.of(ccy, notional)));
 
-    assertEquals(SwapMeasureCalculations.DEFAULT.legInitialNotional(SWAP_TRADE), expected);
+    assertThat(SwapMeasureCalculations.DEFAULT.legInitialNotional(SWAP_TRADE)).isEqualTo(expected);
   }
 
+  @Test
   public void test_legInitialNotionalWithoutNotional() {
     ResolvedSwapTrade trade = ResolvedSwapTrade.builder()
         .product(ResolvedSwap.of(KNOWN_AMOUNT_SWAP_LEG, KNOWN_AMOUNT_SWAP_LEG))

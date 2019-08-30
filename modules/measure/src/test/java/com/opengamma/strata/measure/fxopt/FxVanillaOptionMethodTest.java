@@ -9,13 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.measure.fxopt.FxVanillaOptionMethod.BLACK;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.measure.Measures;
@@ -24,14 +25,12 @@ import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 /**
  * Test {@link FxVanillaOptionMethod}.
  */
-@Test
 public class FxVanillaOptionMethodTest {
 
   private static final FxVanillaOptionTrade TRADE = FxVanillaOptionTradeCalculationFunctionTest.TRADE;
   private static final CalculationTarget TARGET = new CalculationTarget() {};
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FxVanillaOptionMethod.BLACK, "Black"},
@@ -39,39 +38,47 @@ public class FxVanillaOptionMethodTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FxVanillaOptionMethod convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FxVanillaOptionMethod convention, String name) {
-    assertEquals(FxVanillaOptionMethod.of(name), convention);
+    assertThat(FxVanillaOptionMethod.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxVanillaOptionMethod.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxVanillaOptionMethod.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filter() {
-    assertEquals(BLACK.filter(TRADE, Measures.PRESENT_VALUE), Optional.of(BLACK));
-    assertEquals(BLACK.filter(TARGET, Measures.PRESENT_VALUE), Optional.empty());
+    assertThat(BLACK.filter(TRADE, Measures.PRESENT_VALUE)).isEqualTo(Optional.of(BLACK));
+    assertThat(BLACK.filter(TARGET, Measures.PRESENT_VALUE)).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(FxVanillaOptionMethod.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(FxVanillaOptionMethod.BLACK);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(FxVanillaOptionMethod.class, FxVanillaOptionMethod.BLACK);
   }

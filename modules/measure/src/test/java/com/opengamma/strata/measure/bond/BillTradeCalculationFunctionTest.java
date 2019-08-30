@@ -9,12 +9,11 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -66,7 +65,6 @@ import com.opengamma.strata.product.bond.ResolvedBillTrade;
 /**
  * Test {@link BillTradeCalculationFunction}.
  */
-@Test
 public class BillTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -102,6 +100,7 @@ public class BillTradeCalculationFunctionTest {
   private static final MarketQuoteSensitivityCalculator MQ_CALC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     BillTradeCalculationFunction<BillTrade> function = BillTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -112,6 +111,7 @@ public class BillTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_target() {
     BillTradeCalculationFunction<BillTrade> functionTrade = BillTradeCalculationFunction.TRADE;
     BillTradeCalculationFunction<BillPosition> functionPosition = BillTradeCalculationFunction.POSITION;
@@ -120,6 +120,7 @@ public class BillTradeCalculationFunctionTest {
     assertThat(functionTrade.identifier(TRADE)).isEqualTo(TRADE.getInfo().getId());
   }
 
+  @Test
   public void test_simpleMeasures() {
     BillTradeCalculationFunction<BillTrade> function = BillTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -145,6 +146,7 @@ public class BillTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01_calibrated() {
     BillTradeCalculationFunction<BillTrade> function = BillTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -165,6 +167,7 @@ public class BillTradeCalculationFunctionTest {
             Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
   }
 
+  @Test
   public void test_pv01_quote() {
     BillTradeCalculationFunction<BillTrade> function = BillTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -185,11 +188,12 @@ public class BillTradeCalculationFunctionTest {
             Measures.PV01_MARKET_QUOTE_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
   }
 
+  @Test
   public void test_calculate_failure() {
     BillTradeCalculationFunction<BillTrade> function = BillTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     Set<Measure> measures = ImmutableSet.of(Measures.FORWARD_FX_RATE);
-    assertTrue(function.calculate(TRADE, measures, PARAMS, md, REF_DATA).get(Measures.FORWARD_FX_RATE).isFailure());
+    assertThat(function.calculate(TRADE, measures, PARAMS, md, REF_DATA).get(Measures.FORWARD_FX_RATE).isFailure()).isTrue();
   }
 
   //-------------------------------------------------------------------------

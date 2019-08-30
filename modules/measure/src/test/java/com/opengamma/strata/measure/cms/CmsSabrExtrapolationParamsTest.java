@@ -8,23 +8,24 @@ package com.opengamma.strata.measure.cms;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link CmsSabrExtrapolationParams}.
  */
-@Test
 public class CmsSabrExtrapolationParamsTest {
 
+  @Test
   public void test_of() {
     CmsSabrExtrapolationParams test = CmsSabrExtrapolationParams.of(1d, 2d);
-    assertEquals(test.getCutOffStrike(), 1d);
-    assertEquals(test.getMu(), 2d);
+    assertThat(test.getCutOffStrike()).isEqualTo(1d);
+    assertThat(test.getMu()).isEqualTo(2d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CmsSabrExtrapolationParams test = CmsSabrExtrapolationParams.of(1d, 2d);
     coverImmutableBean(test);
@@ -32,6 +33,7 @@ public class CmsSabrExtrapolationParamsTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     CmsSabrExtrapolationParams test = CmsSabrExtrapolationParams.of(1d, 2d);
     assertSerialization(test);

@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +62,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link OvernightFutureTradeCalculationFunction}.
  */
-@Test
 public class OvernightFutureTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -110,6 +109,7 @@ public class OvernightFutureTradeCalculationFunctionTest {
   private static final DiscountingOvernightFutureTradePricer TRADE_PRICER = DiscountingOvernightFutureTradePricer.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     OvernightFutureTradeCalculationFunction<OvernightFutureTrade> function = OvernightFutureTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -121,6 +121,7 @@ public class OvernightFutureTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     OvernightFutureTradeCalculationFunction<OvernightFutureTrade> function = OvernightFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData(FORWARD_CURVE_ID.getCurveName());
