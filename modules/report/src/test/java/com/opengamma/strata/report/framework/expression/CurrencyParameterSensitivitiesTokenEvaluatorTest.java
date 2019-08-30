@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -25,11 +25,11 @@ import com.opengamma.strata.measure.StandardComponents;
 /**
  * Test {@link CurrencyParameterSensitivitiesTokenEvaluator}.
  */
-@Test
 public class CurrencyParameterSensitivitiesTokenEvaluatorTest {
 
   private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
+  @Test
   public void tokens() {
     CurrencyParameterSensitivity sensitivity1 =
         CurrencyParameterSensitivity.of(CurveName.of("curve1"), Currency.AUD, DoubleArray.EMPTY);
@@ -44,6 +44,7 @@ public class CurrencyParameterSensitivitiesTokenEvaluatorTest {
     assertThat(evaluator.tokens(sensitivities)).isEqualTo(expected);
   }
 
+  @Test
   public void evaluate() {
     CurrencyParameterSensitivity sensitivity1 =
         CurrencyParameterSensitivity.of(CurveName.of("curve1"), Currency.AUD, DoubleArray.EMPTY);

@@ -12,11 +12,11 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -33,7 +33,6 @@ import com.opengamma.strata.product.fra.FraTrade;
 /**
  * Test {@link ReportCalculationResults}.
  */
-@Test
 public class ReportCalculationResultsTest {
 
   private static final LocalDate VAL_DATE = date(2016, 6, 30);
@@ -61,16 +60,18 @@ public class ReportCalculationResultsTest {
   private static final CurrencyAmount PV = CurrencyAmount.of(GBP, 12);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ReportCalculationResults test = sut();
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getTargets(), ImmutableList.of(TRADE));
-    assertEquals(test.getColumns(), ImmutableList.of(COLUMN));
-    assertEquals(test.getCalculationResults().get(0, 0).getValue(), PV);
-    assertEquals(test.getReferenceData(), ReferenceData.standard());
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(test.getTargets()).containsExactly(TRADE);
+    assertThat(test.getColumns()).containsExactly(COLUMN);
+    assertThat(test.getCalculationResults().get(0, 0).getValue()).isEqualTo(PV);
+    assertThat(test.getReferenceData()).isEqualTo(ReferenceData.standard());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ArrayTable;
 import com.google.common.collect.ImmutableList;
@@ -22,11 +22,11 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Test {@link TradeReportFormatter}.
  */
-@Test
 public class TradeReportFormatterTest {
 
   private static final ImmutableList<Integer> INDICES = ImmutableList.of(0, 1);
 
+  @Test
   public void getColumnTypes() {
     ArrayTable<Integer, Integer, Result<?>> table = ArrayTable.create(INDICES, INDICES);
     table.put(0, 0, Result.success(1));
@@ -38,6 +38,7 @@ public class TradeReportFormatterTest {
     assertThat(columnTypes).isEqualTo(ImmutableList.of(Integer.class, String.class));
   }
 
+  @Test
   public void getColumnTypesWithSomeFailures() {
     ImmutableList<Integer> indices = ImmutableList.of(0, 1);
     ArrayTable<Integer, Integer, Result<?>> table = ArrayTable.create(indices, indices);
@@ -50,6 +51,7 @@ public class TradeReportFormatterTest {
     assertThat(columnTypes).isEqualTo(ImmutableList.of(Integer.class, String.class));
   }
 
+  @Test
   public void getColumnTypesWithAllFailures() {
     ImmutableList<Integer> indices = ImmutableList.of(0, 1);
     ArrayTable<Integer, Integer, Result<?>> table = ArrayTable.create(indices, indices);

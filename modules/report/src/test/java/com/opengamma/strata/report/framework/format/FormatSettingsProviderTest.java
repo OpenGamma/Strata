@@ -7,14 +7,14 @@ package com.opengamma.strata.report.framework.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link FormatSettingsProvider}.
  */
-@Test
 public class FormatSettingsProviderTest {
 
+  @Test
   public void doubleArray() {
     FormatSettingsProvider settingsProvider = FormatSettingsProvider.INSTANCE;
     FormatSettings<Object> defaultSettings = FormatSettings.of(FormatCategory.TEXT, ValueFormatters.UNSUPPORTED);
