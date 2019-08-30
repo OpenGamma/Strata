@@ -11,13 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -36,7 +36,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link FxSingleBarrierOptionTrade}.
  */
-@Test
 public class FxSingleBarrierOptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -65,16 +64,18 @@ public class FxSingleBarrierOptionTradeTest {
       AdjustablePayment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     FxSingleBarrierOptionTrade test = sut();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getProduct().getCurrencyPair(), PRODUCT.getCurrencyPair());
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getPremium(), PREMIUM);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getProduct().getCurrencyPair()).isEqualTo(PRODUCT.getCurrencyPair());
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getPremium()).isEqualTo(PREMIUM);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     FxSingleBarrierOptionTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -83,10 +84,11 @@ public class FxSingleBarrierOptionTradeTest {
         .currencies(Currency.USD, Currency.EUR)
         .description("Long Barrier Rec EUR 1mm @ EUR/USD 1.35 Premium EUR 50k : 14Feb15")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     FxSingleBarrierOptionTrade base = sut();
     ResolvedFxSingleBarrierOptionTrade expected = ResolvedFxSingleBarrierOptionTrade.builder()
@@ -94,10 +96,11 @@ public class FxSingleBarrierOptionTradeTest {
         .product(PRODUCT.resolve(REF_DATA))
         .premium(PREMIUM.resolve(REF_DATA))
         .build();
-    assertEquals(base.resolve(REF_DATA), expected);
+    assertThat(base.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxSingleBarrierOptionTrade test1 = sut();
     FxSingleBarrierOptionTrade test2 = FxSingleBarrierOptionTrade.builder()
@@ -108,6 +111,7 @@ public class FxSingleBarrierOptionTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxSingleBarrierOptionTrade test = sut();
     assertSerialization(test);

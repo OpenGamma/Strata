@@ -19,13 +19,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -47,7 +48,6 @@ import com.opengamma.strata.product.credit.ProtectionStartOfDay;
 /**
  * Test {@link CdsConvention}.
  */
-@Test
 public class CdsConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -62,23 +62,25 @@ public class CdsConventionTest {
   private static final BusinessDayAdjustment BUSI_ADJ_STD = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
   private static final String NAME = "GB_CDS";
 
+  @Test
   public void test_of() {
     ImmutableCdsConvention test = ImmutableCdsConvention.of(NAME, GBP, ACT_365F, P3M, BUSI_ADJ, SETTLE_DAY_ADJ);
-    assertEquals(test.getBusinessDayAdjustment(), BUSI_ADJ);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BUSI_ADJ);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getPaymentFrequency(), P3M);
-    assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.ACCRUED_PREMIUM);
-    assertEquals(test.getProtectionStart(), ProtectionStartOfDay.BEGINNING);
-    assertEquals(test.getRollConvention(), RollConventions.DAY_20);
-    assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
-    assertEquals(test.getStepinDateOffset(), DaysAdjustment.ofCalendarDays(1));
-    assertEquals(test.getStubConvention(), StubConvention.SMART_INITIAL);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BUSI_ADJ);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(BUSI_ADJ);
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.NONE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getPaymentFrequency()).isEqualTo(P3M);
+    assertThat(test.getPaymentOnDefault()).isEqualTo(PaymentOnDefault.ACCRUED_PREMIUM);
+    assertThat(test.getProtectionStart()).isEqualTo(ProtectionStartOfDay.BEGINNING);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.DAY_20);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_DAY_ADJ);
+    assertThat(test.getStepinDateOffset()).isEqualTo(DaysAdjustment.ofCalendarDays(1));
+    assertThat(test.getStubConvention()).isEqualTo(StubConvention.SMART_INITIAL);
   }
 
+  @Test
   public void test_builder() {
     ImmutableCdsConvention test = ImmutableCdsConvention.builder()
         .businessDayAdjustment(BUSI_ADJ)
@@ -95,22 +97,23 @@ public class CdsConventionTest {
         .stepinDateOffset(DaysAdjustment.NONE)
         .stubConvention(StubConvention.LONG_INITIAL)
         .build();
-    assertEquals(test.getBusinessDayAdjustment(), BUSI_ADJ);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BUSI_ADJ);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getPaymentFrequency(), P6M);
-    assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.NONE);
-    assertEquals(test.getProtectionStart(), ProtectionStartOfDay.NONE);
-    assertEquals(test.getRollConvention(), RollConventions.NONE);
-    assertEquals(test.getSettlementDateOffset(), DaysAdjustment.ofCalendarDays(7));
-    assertEquals(test.getStepinDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getStubConvention(), StubConvention.LONG_INITIAL);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BUSI_ADJ);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.NONE);
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(BUSI_ADJ);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getPaymentFrequency()).isEqualTo(P6M);
+    assertThat(test.getPaymentOnDefault()).isEqualTo(PaymentOnDefault.NONE);
+    assertThat(test.getProtectionStart()).isEqualTo(ProtectionStartOfDay.NONE);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.NONE);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(DaysAdjustment.ofCalendarDays(7));
+    assertThat(test.getStepinDateOffset()).isEqualTo(DaysAdjustment.NONE);
+    assertThat(test.getStubConvention()).isEqualTo(StubConvention.LONG_INITIAL);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade() {
     LocalDate tradeDate = LocalDate.of(2015, 12, 21); // 19, 20 weekend
     LocalDate startDate = LocalDate.of(2015, 12, 20);
@@ -147,13 +150,13 @@ public class CdsConventionTest {
         .product(product)
         .build();
     CdsTrade test1 = base.createTrade(LEGAL_ENTITY, tradeDate, tenor, BUY, NOTIONAL, COUPON, REF_DATA);
-    assertEquals(test1, expected);
+    assertThat(test1).isEqualTo(expected);
     CdsTrade test2 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, tenor, BUY, NOTIONAL, COUPON, REF_DATA);
-    assertEquals(test2, expected);
+    assertThat(test2).isEqualTo(expected);
     CdsTrade test3 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, endDate, BUY, NOTIONAL, COUPON, REF_DATA);
-    assertEquals(test3, expected);
+    assertThat(test3).isEqualTo(expected);
     CdsTrade test4 = base.toTrade(LEGAL_ENTITY, info, startDate, endDate, BUY, NOTIONAL, COUPON);
-    assertEquals(test4, expected);
+    assertThat(test4).isEqualTo(expected);
 
     AdjustablePayment upfront = AdjustablePayment.of(CurrencyAmount.of(GBP, 0.1 * NOTIONAL), settlementDate);
     CdsTrade expectedWithUf = CdsTrade.builder()
@@ -162,17 +165,16 @@ public class CdsConventionTest {
         .upfrontFee(upfront)
         .build();
     CdsTrade test5 = base.createTrade(LEGAL_ENTITY, tradeDate, tenor, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
-    assertEquals(test5, expectedWithUf);
+    assertThat(test5).isEqualTo(expectedWithUf);
     CdsTrade test6 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, tenor, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
-    assertEquals(test6, expectedWithUf);
+    assertThat(test6).isEqualTo(expectedWithUf);
     CdsTrade test7 = base.createTrade(LEGAL_ENTITY, tradeDate, startDate, endDate, BUY, NOTIONAL, COUPON, upfront, REF_DATA);
-    assertEquals(test7, expectedWithUf);
+    assertThat(test7).isEqualTo(expectedWithUf);
     CdsTrade test8 = base.toTrade(LEGAL_ENTITY, info, startDate, endDate, BUY, NOTIONAL, COUPON, upfront);
-    assertEquals(test8, expectedWithUf);
+    assertThat(test8).isEqualTo(expectedWithUf);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {CdsConventions.USD_STANDARD, "USD-STANDARD"},
@@ -180,39 +182,46 @@ public class CdsConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(CdsConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(CdsConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(CdsConvention convention, String name) {
-    assertEquals(CdsConvention.of(name), convention);
+    assertThat(CdsConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(CdsConvention convention, String name) {
     CdsConvention.of(name);  // ensures map is populated
     ImmutableMap<String, CdsConvention> map = CdsConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CdsConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CdsConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableCdsConvention test1 = ImmutableCdsConvention.of(NAME, GBP, ACT_360, P3M, BUSI_ADJ_STD, SETTLE_DAY_ADJ_STD);
     coverImmutableBean(test1);
@@ -234,6 +243,7 @@ public class CdsConventionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ImmutableCdsConvention test = ImmutableCdsConvention.of(NAME, GBP, ACT_360, P3M, BUSI_ADJ_STD, SETTLE_DAY_ADJ_STD);
     assertSerialization(test);

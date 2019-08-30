@@ -15,13 +15,14 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
 import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -36,7 +37,6 @@ import com.opengamma.strata.product.common.BuySell;
 /**
  * Test {@link ResolvedCdsIndex}.
  */
-@Test
 public class ResolvedCdsIndexTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -87,6 +87,7 @@ public class ResolvedCdsIndexTest {
         .build());
   }
 
+  @Test
   public void test_builder() {
     ResolvedCdsIndex test = ResolvedCdsIndex.builder()
         .buySell(BUY)
@@ -100,23 +101,24 @@ public class ResolvedCdsIndexTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test.getBuySell(), BUY);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getAccrualStartDate(), PAYMENTS.get(0).getStartDate());
-    assertEquals(test.getAccrualEndDate(), PAYMENTS.get(42).getEndDate());
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getFixedRate(), COUPON);
-    assertEquals(test.getCdsIndexId(), INDEX_ID);
-    assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPaymentOnDefault(), ACCRUED_PREMIUM);
-    assertEquals(test.getPaymentPeriods(), PAYMENTS);
-    assertEquals(test.getProtectionEndDate(), PAYMENTS.get(42).getEffectiveEndDate());
-    assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
-    assertEquals(test.getProtectionStart(), BEGINNING);
-    assertEquals(test.getStepinDateOffset(), STEPIN_DAY_ADJ);
+    assertThat(test.getBuySell()).isEqualTo(BUY);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getAccrualStartDate()).isEqualTo(PAYMENTS.get(0).getStartDate());
+    assertThat(test.getAccrualEndDate()).isEqualTo(PAYMENTS.get(42).getEndDate());
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getFixedRate()).isEqualTo(COUPON);
+    assertThat(test.getCdsIndexId()).isEqualTo(INDEX_ID);
+    assertThat(test.getLegalEntityIds()).isEqualTo(LEGAL_ENTITIES);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPaymentOnDefault()).isEqualTo(ACCRUED_PREMIUM);
+    assertThat(test.getPaymentPeriods()).isEqualTo(PAYMENTS);
+    assertThat(test.getProtectionEndDate()).isEqualTo(PAYMENTS.get(42).getEffectiveEndDate());
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_DAY_ADJ);
+    assertThat(test.getProtectionStart()).isEqualTo(BEGINNING);
+    assertThat(test.getStepinDateOffset()).isEqualTo(STEPIN_DAY_ADJ);
   }
 
+  @Test
   public void test_accruedYearFraction() {
     double eps = 1.0e-15;
     ResolvedCdsIndex test = ResolvedCdsIndex.builder()
@@ -138,16 +140,17 @@ public class ResolvedCdsIndexTest {
     double accMod = test.accruedYearFraction(START_DATE.plusYears(1));
     double accEnd = test.accruedYearFraction(END_DATE);
     double accEndOne = test.accruedYearFraction(END_DATE.plusDays(1));
-    assertEquals(accStart, 0d);
-    assertEquals(accNext, 0d);
-    assertEquals(accNextMinusOne, ACT_360.relativeYearFraction(START_DATE, START_DATE.plusMonths(3).minusDays(1)), eps);
-    assertEquals(accNextOne, 1d / 360d, eps);
+    assertThat(accStart).isEqualTo(0d);
+    assertThat(accNext).isEqualTo(0d);
+    assertThat(accNextMinusOne).isCloseTo(ACT_360.relativeYearFraction(START_DATE, START_DATE.plusMonths(3).minusDays(1)), offset(eps));
+    assertThat(accNextOne).isCloseTo(1d / 360d, offset(eps));
     // 2.x
-    assertEquals(accMod, 0.24722222222222223, eps);
-    assertEquals(accEnd, 0.25555555555555554, eps);
-    assertEquals(accEndOne, 0.25833333333333336, eps);
+    assertThat(accMod).isCloseTo(0.24722222222222223, offset(eps));
+    assertThat(accEnd).isCloseTo(0.25555555555555554, offset(eps));
+    assertThat(accEndOne).isCloseTo(0.25833333333333336, offset(eps));
   }
 
+  @Test
   public void test_effectiveStartDate() {
     ResolvedCdsIndex test1 = ResolvedCdsIndex.builder()
         .buySell(BUY)
@@ -162,9 +165,9 @@ public class ResolvedCdsIndexTest {
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
     LocalDate date1 = LocalDate.of(2016, 3, 22);
-    assertEquals(test1.calculateEffectiveStartDate(date1), date1.minusDays(1));
+    assertThat(test1.calculateEffectiveStartDate(date1)).isEqualTo(date1.minusDays(1));
     LocalDate date2 = LocalDate.of(2013, 9, 22);
-    assertEquals(test1.calculateEffectiveStartDate(date2), START_DATE.minusDays(1));
+    assertThat(test1.calculateEffectiveStartDate(date2)).isEqualTo(START_DATE.minusDays(1));
     ResolvedCdsIndex test2 = ResolvedCdsIndex.builder()
         .buySell(BUY)
         .dayCount(ACT_360)
@@ -178,11 +181,12 @@ public class ResolvedCdsIndexTest {
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
     LocalDate date3 = LocalDate.of(2016, 3, 22);
-    assertEquals(test2.calculateEffectiveStartDate(date3), date3);
+    assertThat(test2.calculateEffectiveStartDate(date3)).isEqualTo(date3);
     LocalDate date4 = LocalDate.of(2013, 9, 22);
-    assertEquals(test2.calculateEffectiveStartDate(date4), START_DATE);
+    assertThat(test2.calculateEffectiveStartDate(date4)).isEqualTo(START_DATE);
   }
 
+  @Test
   public void test_totoSingleNameCds() {
     ResolvedCdsIndex base = ResolvedCdsIndex.builder()
         .buySell(BUY)
@@ -208,10 +212,11 @@ public class ResolvedCdsIndexTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedCdsIndex test1 = ResolvedCdsIndex.builder()
         .buySell(BUY)
@@ -241,6 +246,7 @@ public class ResolvedCdsIndexTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedCdsIndex test = ResolvedCdsIndex.builder()
         .buySell(BUY)

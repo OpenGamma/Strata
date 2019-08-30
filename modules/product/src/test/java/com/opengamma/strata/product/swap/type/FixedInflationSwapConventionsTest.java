@@ -6,10 +6,11 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndices;
@@ -17,11 +18,9 @@ import com.opengamma.strata.basics.index.PriceIndices;
 /**
  * Test {@link FixedInflationSwapConventions}.
  */
-@Test
 public class FixedInflationSwapConventionsTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "floatLeg")
   public static Object[][] data_float_leg() {
     return new Object[][] {
         {FixedInflationSwapConventions.CHF_FIXED_ZC_CH_CPI, PriceIndices.CH_CPI},
@@ -36,12 +35,14 @@ public class FixedInflationSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "floatLeg")
+  @ParameterizedTest
+  @MethodSource("data_float_leg")
   public void test_float_leg(FixedInflationSwapConvention convention, PriceIndex floatLeg) {
-    assertEquals(convention.getFloatingLeg().getIndex(), floatLeg);
+    assertThat(convention.getFloatingLeg().getIndex()).isEqualTo(floatLeg);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(FixedIborSwapConventions.class);
     coverPrivateConstructor(StandardFixedIborSwapConventions.class);

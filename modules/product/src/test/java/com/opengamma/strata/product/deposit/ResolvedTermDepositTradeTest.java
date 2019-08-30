@@ -11,18 +11,17 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.product.TradeInfo;
 
 /**
  * Test {@link ResolvedTermDepositTrade}. 
  */
-@Test
 public class ResolvedTermDepositTradeTest {
 
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
@@ -42,22 +41,25 @@ public class ResolvedTermDepositTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ResolvedTermDepositTrade test = ResolvedTermDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     ResolvedTermDepositTrade test = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
         .info(TRADE_INFO)
         .build();
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedTermDepositTrade test1 = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)
@@ -70,6 +72,7 @@ public class ResolvedTermDepositTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedTermDepositTrade test = ResolvedTermDepositTrade.builder()
         .product(DEPOSIT)

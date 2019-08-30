@@ -11,13 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
@@ -27,29 +27,31 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 /**
  * Test {@link IborFixingDepositTemplate}.
  */
-@Test
 public class IborFixingDepositTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final IborFixingDepositConvention CONVENTION = IborFixingDepositConvention.of(EUR_LIBOR_3M);
 
+  @Test
   public void test_builder() {
     IborFixingDepositTemplate test = IborFixingDepositTemplate.builder()
         .convention(CONVENTION)
         .depositPeriod(Period.ofMonths(1))
         .build();
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getDepositPeriod(), Period.ofMonths(1));
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getDepositPeriod()).isEqualTo(Period.ofMonths(1));
   }
 
+  @Test
   public void test_builder_noPeriod() {
     IborFixingDepositTemplate test = IborFixingDepositTemplate.builder()
         .convention(CONVENTION)
         .build();
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getDepositPeriod(), EUR_LIBOR_3M.getTenor().getPeriod());
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getDepositPeriod()).isEqualTo(EUR_LIBOR_3M.getTenor().getPeriod());
   }
 
+  @Test
   public void test_build_negativePeriod() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFixingDepositTemplate.builder()
@@ -58,18 +60,21 @@ public class IborFixingDepositTemplateTest {
         .build());
   }
 
+  @Test
   public void test_of_index() {
     IborFixingDepositTemplate test = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getDepositPeriod(), EUR_LIBOR_3M.getTenor().getPeriod());
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getDepositPeriod()).isEqualTo(EUR_LIBOR_3M.getTenor().getPeriod());
   }
 
+  @Test
   public void test_of_periodAndIndex() {
     IborFixingDepositTemplate test = IborFixingDepositTemplate.of(Period.ofMonths(1), EUR_LIBOR_3M);
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getDepositPeriod(), Period.ofMonths(1));
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getDepositPeriod()).isEqualTo(Period.ofMonths(1));
   }
 
+  @Test
   public void test_createTrade() {
     IborFixingDepositTemplate template = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
     double notional = 1d;
@@ -91,11 +96,12 @@ public class IborFixingDepositTemplateTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(tradeDate)
         .build();
-    assertEquals(trade.getInfo(), tradeInfoExpected);
-    assertEquals(trade.getProduct(), productExpected);
+    assertThat(trade.getInfo()).isEqualTo(tradeInfoExpected);
+    assertThat(trade.getProduct()).isEqualTo(productExpected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborFixingDepositTemplate test1 = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
     coverImmutableBean(test1);
@@ -103,6 +109,7 @@ public class IborFixingDepositTemplateTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborFixingDepositTemplate test = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
     assertSerialization(test);

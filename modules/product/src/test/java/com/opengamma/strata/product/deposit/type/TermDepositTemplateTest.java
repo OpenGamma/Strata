@@ -15,13 +15,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -34,7 +34,6 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 /**
  * Test {@link TermDepositTemplate}.
  */
-@Test
 public class TermDepositTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,15 +42,17 @@ public class TermDepositTemplateTest {
   private static final TermDepositConvention CONVENTION = TermDepositConventions.EUR_DEPOSIT_T2;
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(3);
 
+  @Test
   public void test_builder() {
     TermDepositTemplate test = TermDepositTemplate.builder()
         .convention(CONVENTION)
         .depositPeriod(DEPOSIT_PERIOD)
         .build();
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getDepositPeriod(), DEPOSIT_PERIOD);
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getDepositPeriod()).isEqualTo(DEPOSIT_PERIOD);
   }
 
+  @Test
   public void test_builder_negativePeriod() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> TermDepositTemplate.builder()
@@ -60,12 +61,14 @@ public class TermDepositTemplateTest {
         .build());
   }
 
+  @Test
   public void test_of() {
     TermDepositTemplate test = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getDepositPeriod(), DEPOSIT_PERIOD);
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getDepositPeriod()).isEqualTo(DEPOSIT_PERIOD);
   }
 
+  @Test
   public void test_createTrade() {
     TermDepositTemplate template = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     LocalDate tradeDate = LocalDate.of(2015, 1, 23);
@@ -86,11 +89,12 @@ public class TermDepositTemplateTest {
         .rate(rate)
         .dayCount(ACT_360)
         .build();
-    assertEquals(trade.getInfo(), tradeInfoExpected);
-    assertEquals(trade.getProduct(), productExpected);
+    assertThat(trade.getInfo()).isEqualTo(tradeInfoExpected);
+    assertThat(trade.getProduct()).isEqualTo(productExpected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TermDepositTemplate test1 = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     coverImmutableBean(test1);
@@ -100,6 +104,7 @@ public class TermDepositTemplateTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     TermDepositTemplate test = TermDepositTemplate.of(DEPOSIT_PERIOD, CONVENTION);
     assertSerialization(test);

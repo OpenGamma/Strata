@@ -9,13 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -28,7 +29,6 @@ import com.opengamma.strata.product.TradedPrice;
 /**
  * Test {@link IborFutureTrade}.
  */
-@Test
 public class IborFutureTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -42,23 +42,26 @@ public class IborFutureTradeTest {
   private static final double PRICE2 = 0.98;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     IborFutureTrade test = sut();
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(0.9129).getQuantity(), 0.9129d, 1e-10);
-    assertEquals(test.withPrice(0.9129).getPrice(), 0.9129d, 1e-10);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(0.9129).getQuantity()).isCloseTo(0.9129d, offset(1e-10));
+    assertThat(test.withPrice(0.9129).getPrice()).isCloseTo(0.9129d, offset(1e-10));
   }
 
+  @Test
   public void test_builder_badPrice() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> sut().toBuilder().price(2.1).build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     IborFutureTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -68,20 +71,22 @@ public class IborFutureTradeTest {
         .currencies(Currency.USD)
         .description("IborFuture x 35")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     IborFutureTrade test = sut();
     ResolvedIborFutureTrade resolved = test.resolve(REF_DATA);
-    assertEquals(resolved.getInfo(), TRADE_INFO);
-    assertEquals(resolved.getProduct(), PRODUCT.resolve(REF_DATA));
-    assertEquals(resolved.getQuantity(), QUANTITY);
-    assertEquals(resolved.getTradedPrice(), Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
+    assertThat(resolved.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(resolved.getProduct()).isEqualTo(PRODUCT.resolve(REF_DATA));
+    assertThat(resolved.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(resolved.getTradedPrice()).isEqualTo(Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withQuantity() {
     IborFutureTrade base = sut();
     double quantity = 65243;
@@ -92,9 +97,10 @@ public class IborFutureTradeTest {
         .quantity(quantity)
         .price(PRICE)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_withPrice() {
     IborFutureTrade base = sut();
     double price = 0.95;
@@ -105,15 +111,17 @@ public class IborFutureTradeTest {
         .quantity(QUANTITY)
         .price(price)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

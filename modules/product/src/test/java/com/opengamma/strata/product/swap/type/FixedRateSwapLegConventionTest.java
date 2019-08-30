@@ -19,12 +19,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -43,7 +43,6 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
 /**
  * Test {@link FixedRateSwapLegConvention}.
  */
-@Test
 public class FixedRateSwapLegConventionTest {
 
   private static final double NOTIONAL_2M = 2_000_000d;
@@ -52,22 +51,24 @@ public class FixedRateSwapLegConventionTest {
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     FixedRateSwapLegConvention test = FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getAccrualFrequency(), P3M);
-    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SMART_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.EOM);
-    assertEquals(test.getPaymentFrequency(), P3M);
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
-    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.DEFAULT);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getAccrualFrequency()).isEqualTo(P3M);
+    assertThat(test.getAccrualBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getStubConvention()).isEqualTo(StubConvention.SMART_INITIAL);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.EOM);
+    assertThat(test.getPaymentFrequency()).isEqualTo(P3M);
+    assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.NONE);
+    assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.NONE);
+    assertThat(test.getAccrualMethod()).isEqualTo(FixedAccrualMethod.DEFAULT);
   }
 
+  @Test
   public void test_builder() {
     FixedRateSwapLegConvention test = FixedRateSwapLegConvention.builder()
         .currency(GBP)
@@ -75,25 +76,27 @@ public class FixedRateSwapLegConventionTest {
         .accrualFrequency(P3M)
         .accrualBusinessDayAdjustment(BDA_MOD_FOLLOW)
         .build();
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getAccrualFrequency(), P3M);
-    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.SMART_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.EOM);
-    assertEquals(test.getPaymentFrequency(), P3M);
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.NONE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getAccrualFrequency()).isEqualTo(P3M);
+    assertThat(test.getAccrualBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getStubConvention()).isEqualTo(StubConvention.SMART_INITIAL);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.EOM);
+    assertThat(test.getPaymentFrequency()).isEqualTo(P3M);
+    assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.NONE);
+    assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.NONE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedRateSwapLegConvention.builder().build());
   }
 
+  @Test
   public void test_builderAllSpecified() {
     FixedRateSwapLegConvention test = FixedRateSwapLegConvention.builder()
         .currency(USD)
@@ -109,21 +112,22 @@ public class FixedRateSwapLegConventionTest {
         .compoundingMethod(CompoundingMethod.FLAT)
         .accrualMethod(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE)
         .build();
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getAccrualFrequency(), P6M);
-    assertEquals(test.getAccrualBusinessDayAdjustment(), BDA_FOLLOW);
-    assertEquals(test.getStartDateBusinessDayAdjustment(), BDA_FOLLOW);
-    assertEquals(test.getEndDateBusinessDayAdjustment(), BDA_FOLLOW);
-    assertEquals(test.getStubConvention(), StubConvention.LONG_INITIAL);
-    assertEquals(test.getRollConvention(), RollConventions.DAY_1);
-    assertEquals(test.getPaymentFrequency(), P6M);
-    assertEquals(test.getPaymentDateOffset(), PLUS_TWO_DAYS);
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.FLAT);
-    assertEquals(test.getAccrualMethod(), FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getAccrualFrequency()).isEqualTo(P6M);
+    assertThat(test.getAccrualBusinessDayAdjustment()).isEqualTo(BDA_FOLLOW);
+    assertThat(test.getStartDateBusinessDayAdjustment()).isEqualTo(BDA_FOLLOW);
+    assertThat(test.getEndDateBusinessDayAdjustment()).isEqualTo(BDA_FOLLOW);
+    assertThat(test.getStubConvention()).isEqualTo(StubConvention.LONG_INITIAL);
+    assertThat(test.getRollConvention()).isEqualTo(RollConventions.DAY_1);
+    assertThat(test.getPaymentFrequency()).isEqualTo(P6M);
+    assertThat(test.getPaymentDateOffset()).isEqualTo(PLUS_TWO_DAYS);
+    assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.FLAT);
+    assertThat(test.getAccrualMethod()).isEqualTo(FixedAccrualMethod.OVERNIGHT_COMPOUNDED_ANNUAL_RATE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toLeg1() {
     FixedRateSwapLegConvention base = FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
     LocalDate startDate = LocalDate.of(2015, 5, 5);
@@ -145,9 +149,10 @@ public class FixedRateSwapLegConventionTest {
         .notionalSchedule(NotionalSchedule.of(GBP, NOTIONAL_2M))
         .calculation(FixedRateCalculation.of(0.25d, ACT_365F))
         .build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_toLeg2() {
     FixedRateSwapLegConvention base = FixedRateSwapLegConvention.builder()
         .currency(GBP)
@@ -180,10 +185,11 @@ public class FixedRateSwapLegConventionTest {
             .futureValueNotional(FutureValueNotional.autoCalculate())
             .build())
         .build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FixedRateSwapLegConvention test = FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
     coverImmutableBean(test);
@@ -202,6 +208,7 @@ public class FixedRateSwapLegConventionTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FixedRateSwapLegConvention test = FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
     assertSerialization(test);

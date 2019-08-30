@@ -15,12 +15,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
@@ -30,7 +30,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link IborFuture}.
  */
-@Test
 public class IborFutureTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -45,18 +44,20 @@ public class IborFutureTest {
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "IborFuture2");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     IborFuture test = sut();
-    assertEquals(test.getSecurityId(), SECURITY_ID);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR);
-    assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getRounding(), ROUNDING);
-    assertEquals(test.getFixingDate(), LAST_TRADE_DATE);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAccrualFactor()).isEqualTo(ACCRUAL_FACTOR);
+    assertThat(test.getLastTradeDate()).isEqualTo(LAST_TRADE_DATE);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getRounding()).isEqualTo(ROUNDING);
+    assertThat(test.getFixingDate()).isEqualTo(LAST_TRADE_DATE);
   }
 
+  @Test
   public void test_builder_defaults() {
     IborFuture test = IborFuture.builder()
         .securityId(SECURITY_ID)
@@ -65,16 +66,17 @@ public class IborFutureTest {
         .lastTradeDate(LAST_TRADE_DATE)
         .index(GBP_LIBOR_2M)
         .build();
-    assertEquals(test.getSecurityId(), SECURITY_ID);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR2);
-    assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
-    assertEquals(test.getIndex(), GBP_LIBOR_2M);
-    assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getFixingDate(), LAST_TRADE_DATE);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAccrualFactor()).isEqualTo(ACCRUAL_FACTOR2);
+    assertThat(test.getLastTradeDate()).isEqualTo(LAST_TRADE_DATE);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_2M);
+    assertThat(test.getRounding()).isEqualTo(Rounding.none());
+    assertThat(test.getFixingDate()).isEqualTo(LAST_TRADE_DATE);
   }
 
+  @Test
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFuture.builder()
@@ -86,6 +88,7 @@ public class IborFutureTest {
         .build());
   }
 
+  @Test
   public void test_builder_noCurrency() {
     IborFuture test = IborFuture.builder()
         .securityId(SECURITY_ID)
@@ -94,9 +97,10 @@ public class IborFutureTest {
         .lastTradeDate(LAST_TRADE_DATE)
         .rounding(ROUNDING)
         .build();
-    assertEquals(GBP, test.getCurrency());
+    assertThat(GBP).isEqualTo(test.getCurrency());
   }
 
+  @Test
   public void test_builder_noLastTradeDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFuture.builder()
@@ -109,6 +113,7 @@ public class IborFutureTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     IborFuture test = sut();
     ResolvedIborFuture expected = ResolvedIborFuture.builder()
@@ -119,15 +124,17 @@ public class IborFutureTest {
         .iborRate(IborRateComputation.of(USD_LIBOR_3M, LAST_TRADE_DATE, REF_DATA))
         .rounding(ROUNDING)
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

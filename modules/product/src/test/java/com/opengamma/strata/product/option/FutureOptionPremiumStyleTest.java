@@ -8,20 +8,19 @@ package com.opengamma.strata.product.option;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test.
  */
-@Test
 public class FutureOptionPremiumStyleTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FutureOptionPremiumStyle.DAILY_MARGIN, "DailyMargin"},
@@ -29,35 +28,42 @@ public class FutureOptionPremiumStyleTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FutureOptionPremiumStyle convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FutureOptionPremiumStyle convention, String name) {
-    assertEquals(FutureOptionPremiumStyle.of(name), convention);
+    assertThat(FutureOptionPremiumStyle.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FutureOptionPremiumStyle.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FutureOptionPremiumStyle.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(FutureOptionPremiumStyle.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(FutureOptionPremiumStyle.DAILY_MARGIN);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(FutureOptionPremiumStyle.class, FutureOptionPremiumStyle.DAILY_MARGIN);
   }

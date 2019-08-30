@@ -16,16 +16,16 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -36,7 +36,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test.
  */
-@Test
 public class RatePaymentPeriodTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -63,6 +62,7 @@ public class RatePaymentPeriodTest {
       .rateComputation(GBP_LIBOR_3M_2014_06_28)
       .build();
 
+  @Test
   public void test_builder_oneAccrualPeriod() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -72,18 +72,19 @@ public class RatePaymentPeriodTest {
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
-    assertEquals(test.getStartDate(), DATE_2014_06_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_01);
-    assertEquals(test.getAccrualPeriods(), ImmutableList.of(RAP2));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getNotional(), 1000d, 0d);
-    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(GBP, 1000d));
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
-    assertEquals(test.isCompoundingApplicable(), false);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_06_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getAccrualPeriods()).containsExactly(RAP2);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getFxReset()).isEqualTo(Optional.empty());
+    assertThat(test.getNotional()).isCloseTo(1000d, offset(0d));
+    assertThat(test.getNotionalAmount()).isEqualTo(CurrencyAmount.of(GBP, 1000d));
+    assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.STRAIGHT);
+    assertThat(test.isCompoundingApplicable()).isFalse();
   }
 
+  @Test
   public void test_builder_twoAccrualPeriods() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -93,17 +94,18 @@ public class RatePaymentPeriodTest {
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_01);
-    assertEquals(test.getAccrualPeriods(), ImmutableList.of(RAP1, RAP2));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.getNotional(), 1000d, 0d);
-    assertEquals(test.getCompoundingMethod(), CompoundingMethod.STRAIGHT);
-    assertEquals(test.isCompoundingApplicable(), true);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getAccrualPeriods()).containsExactly(RAP1, RAP2);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getFxReset()).isEqualTo(Optional.empty());
+    assertThat(test.getNotional()).isCloseTo(1000d, offset(0d));
+    assertThat(test.getCompoundingMethod()).isEqualTo(CompoundingMethod.STRAIGHT);
+    assertThat(test.isCompoundingApplicable()).isTrue();
   }
 
+  @Test
   public void test_builder_twoAccrualPeriods_compoundingDefaultedToNone_fxReset() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -114,17 +116,18 @@ public class RatePaymentPeriodTest {
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.NONE)
         .build();
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_01);
-    assertEquals(test.getAccrualPeriods(), ImmutableList.of(RAP1, RAP2));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getFxReset(), Optional.of(FX_RESET_USD));
-    assertEquals(test.getNotional(), 1000d, 0d);
-    assertEquals(test.getNotionalAmount(), CurrencyAmount.of(USD, 1000d));
-    assertEquals(test.isCompoundingApplicable(), false);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getAccrualPeriods()).containsExactly(RAP1, RAP2);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getFxReset()).isEqualTo(Optional.of(FX_RESET_USD));
+    assertThat(test.getNotional()).isCloseTo(1000d, offset(0d));
+    assertThat(test.getNotionalAmount()).isEqualTo(CurrencyAmount.of(USD, 1000d));
+    assertThat(test.isCompoundingApplicable()).isFalse();
   }
 
+  @Test
   public void test_builder_badFxReset() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> RatePaymentPeriod.builder()
@@ -149,6 +152,7 @@ public class RatePaymentPeriodTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_adjustPaymentDate() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -166,11 +170,12 @@ public class RatePaymentPeriodTest {
         .notional(1000d)
         .compoundingMethod(CompoundingMethod.STRAIGHT)
         .build();
-    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
-    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), expected);
+    assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0)))).isEqualTo(test);
+    assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2)))).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices_simple() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -182,9 +187,10 @@ public class RatePaymentPeriodTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_collectIndices_fxReset() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -197,10 +203,11 @@ public class RatePaymentPeriodTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, GBP_USD_WM));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_3M, GBP_USD_WM);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)
@@ -223,6 +230,7 @@ public class RatePaymentPeriodTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RatePaymentPeriod test = RatePaymentPeriod.builder()
         .paymentDate(DATE_2014_10_01)

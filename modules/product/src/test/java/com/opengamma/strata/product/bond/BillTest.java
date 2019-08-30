@@ -10,12 +10,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -33,7 +34,6 @@ import com.opengamma.strata.product.SecurityId;
 /**
  * Tests {@link Bill}.
  */
-@Test
 public class BillTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -67,35 +67,39 @@ public class BillTest {
   private static final double TOLERANCE_PRICE = 1.0E-8;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
-    assertEquals(US_BILL.getCurrency(), CCY);
-    assertEquals(US_BILL.getDayCount(), DAY_COUNT);
-    assertEquals(US_BILL.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(US_BILL.getNotional(), NOTIONAL);
-    assertEquals(US_BILL.getSecurityId(), SECURITY_ID);
-    assertEquals(US_BILL.getSettlementDateOffset(), SETTLE);
-    assertEquals(US_BILL.getYieldConvention(), YIELD_CONVENTION);
+    assertThat(US_BILL.getCurrency()).isEqualTo(CCY);
+    assertThat(US_BILL.getDayCount()).isEqualTo(DAY_COUNT);
+    assertThat(US_BILL.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(US_BILL.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(US_BILL.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(US_BILL.getSettlementDateOffset()).isEqualTo(SETTLE);
+    assertThat(US_BILL.getYieldConvention()).isEqualTo(YIELD_CONVENTION);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void price_from_yield_discount() {
     double yield = 0.01;
     LocalDate settlementDate = LocalDate.of(2018, 8, 17);
     double af = US_BILL.getDayCount().relativeYearFraction(settlementDate, MATURITY_DATE);
     double priceExpected = 1.0d - yield * af;
     double priceComputed = US_BILL.priceFromYield(yield, settlementDate);
-    assertEquals(priceExpected, priceComputed, TOLERANCE_PRICE);
+    assertThat(priceExpected).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
   }
 
+  @Test
   public void yield_from_price_discount() {
     double price = 0.99;
     LocalDate settlementDate = LocalDate.of(2018, 8, 17);
     double af = US_BILL.getDayCount().relativeYearFraction(settlementDate, MATURITY_DATE);
     double yieldExpected = (1.0d - price) / af;
     double yieldComputed = US_BILL.yieldFromPrice(price, settlementDate);
-    assertEquals(yieldExpected, yieldComputed, TOLERANCE_PRICE);
+    assertThat(yieldExpected).isCloseTo(yieldComputed, offset(TOLERANCE_PRICE));
   }
 
+  @Test
   public void price_from_yield_intatmat() {
     Bill bill = US_BILL.toBuilder().yieldConvention(BillYieldConvention.INTEREST_AT_MATURITY).build();
     double yield = 0.01;
@@ -103,9 +107,10 @@ public class BillTest {
     double af = bill.getDayCount().relativeYearFraction(settlementDate, MATURITY_DATE);
     double priceExpected = 1.0d / (1 + yield * af);
     double priceComputed = bill.priceFromYield(yield, settlementDate);
-    assertEquals(priceExpected, priceComputed, TOLERANCE_PRICE);
+    assertThat(priceExpected).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
   }
 
+  @Test
   public void yield_from_price_intatmat() {
     Bill bill = US_BILL.toBuilder().yieldConvention(BillYieldConvention.INTEREST_AT_MATURITY).build();
     double price = 0.99;
@@ -113,46 +118,53 @@ public class BillTest {
     double af = bill.getDayCount().relativeYearFraction(settlementDate, MATURITY_DATE);
     double yieldExpected = (1.0d / price - 1.0d) / af;
     double yieldComputed = bill.yieldFromPrice(price, settlementDate);
-    assertEquals(yieldExpected, yieldComputed, TOLERANCE_PRICE);
+    assertThat(yieldExpected).isCloseTo(yieldComputed, offset(TOLERANCE_PRICE));
   }
 
+  @Test
   public void test_positive_notional() {
-    assertThrows(() -> Bill.builder()
-        .dayCount(DAY_COUNT)
-        .legalEntityId(LEGAL_ENTITY)
-        .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, -10), MATURITY_DATE_ADJ))
-        .securityId(SECURITY_ID)
-        .settlementDateOffset(SETTLE)
-        .yieldConvention(YIELD_CONVENTION).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Bill.builder()
+            .dayCount(DAY_COUNT)
+            .legalEntityId(LEGAL_ENTITY)
+            .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, -10), MATURITY_DATE_ADJ))
+            .securityId(SECURITY_ID)
+            .settlementDateOffset(SETTLE)
+            .yieldConvention(YIELD_CONVENTION).build());
   }
 
+  @Test
   public void test_positive_offset() {
-    assertThrows(() -> Bill.builder()
-        .dayCount(DAY_COUNT)
-        .legalEntityId(LEGAL_ENTITY)
-        .notional(NOTIONAL)
-        .securityId(SECURITY_ID)
-        .settlementDateOffset(DaysAdjustment.ofBusinessDays(-11, USNY, BUSINESS_ADJUST))
-        .yieldConvention(YIELD_CONVENTION).build());
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> Bill.builder()
+            .dayCount(DAY_COUNT)
+            .legalEntityId(LEGAL_ENTITY)
+            .notional(NOTIONAL)
+            .securityId(SECURITY_ID)
+            .settlementDateOffset(DaysAdjustment.ofBusinessDays(-11, USNY, BUSINESS_ADJUST))
+            .yieldConvention(YIELD_CONVENTION).build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     ResolvedBill resolved = US_BILL.resolve(REF_DATA);
-    assertEquals(resolved.getDayCount(), DAY_COUNT);
-    assertEquals(resolved.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(resolved.getNotional(), NOTIONAL.resolve(REF_DATA));
-    assertEquals(resolved.getSecurityId(), SECURITY_ID);
-    assertEquals(resolved.getSettlementDateOffset(), SETTLE);
-    assertEquals(resolved.getYieldConvention(), YIELD_CONVENTION);
+    assertThat(resolved.getDayCount()).isEqualTo(DAY_COUNT);
+    assertThat(resolved.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(resolved.getNotional()).isEqualTo(NOTIONAL.resolve(REF_DATA));
+    assertThat(resolved.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(resolved.getSettlementDateOffset()).isEqualTo(SETTLE);
+    assertThat(resolved.getYieldConvention()).isEqualTo(YIELD_CONVENTION);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(US_BILL);
     coverBeanEquals(US_BILL, BILL_2);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(US_BILL);
   }

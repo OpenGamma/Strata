@@ -12,11 +12,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardId;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 /**
  * Test {@link CdsIndexCalibrationTrade}.
  */
-@Test
 public class CdsIndexCalibrationTradeTest {
   private static final StandardId INDEX_ID = StandardId.of("OG", "ABCXX");
   private static final ImmutableList<StandardId> LEGAL_ENTITIES =
@@ -51,14 +50,16 @@ public class CdsIndexCalibrationTradeTest {
   private static final CdsQuote QUOTE3 = CdsQuote.of(CdsQuoteConvention.PAR_SPREAD, 0.012);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_trade() {
     CdsIndexCalibrationTrade test = CdsIndexCalibrationTrade.of(TRADE, QUOTE1);
-    assertEquals(test.getUnderlyingTrade(), TRADE);
-    assertEquals(test.getQuote(), QUOTE1);
-    assertEquals(test.getInfo(), TRADE.getInfo());
+    assertThat(test.getUnderlyingTrade()).isEqualTo(TRADE);
+    assertThat(test.getQuote()).isEqualTo(QUOTE1);
+    assertThat(test.getInfo()).isEqualTo(TRADE.getInfo());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage_trade() {
     CdsIndexCalibrationTrade test1 = CdsIndexCalibrationTrade.of(TRADE, QUOTE1);
     coverImmutableBean(test1);
@@ -71,6 +72,7 @@ public class CdsIndexCalibrationTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization_trade() {
     CdsIndexCalibrationTrade test = CdsIndexCalibrationTrade.of(TRADE, QUOTE3);
     assertSerialization(test);

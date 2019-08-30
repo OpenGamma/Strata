@@ -20,14 +20,15 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -40,7 +41,6 @@ import com.opengamma.strata.product.deposit.IborFixingDepositTrade;
 /**
  * Test {@link IborFixingDepositConvention}.
  */
-@Test
 public class IborFixingDepositConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -50,6 +50,7 @@ public class IborFixingDepositConventionTest {
       DaysAdjustment.ofBusinessDays(-2, EUTA, BusinessDayAdjustment.of(PRECEDING, GBLO));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_full() {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.builder()
         .name("Name")
@@ -60,40 +61,41 @@ public class IborFixingDepositConventionTest {
         .index(EUR_LIBOR_3M)
         .spotDateOffset(SPOT_ADJ)
         .build();
-    assertEquals(test.getName(), "Name");
-    assertEquals(test.getBusinessDayAdjustment(), BDA_MOD_FOLLOW);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getFixingDateOffset(), FIXING_ADJ);
-    assertEquals(test.getIndex(), EUR_LIBOR_3M);
-    assertEquals(test.getSpotDateOffset(), SPOT_ADJ);
+    assertThat(test.getName()).isEqualTo("Name");
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getFixingDateOffset()).isEqualTo(FIXING_ADJ);
+    assertThat(test.getIndex()).isEqualTo(EUR_LIBOR_3M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(SPOT_ADJ);
   }
 
+  @Test
   public void test_builder_indexOnly() {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.builder()
         .index(GBP_LIBOR_6M)
         .build();
-    assertEquals(test.getBusinessDayAdjustment(),
-        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
-    assertEquals(test.getCurrency(), GBP_LIBOR_6M.getCurrency());
-    assertEquals(test.getDayCount(), GBP_LIBOR_6M.getDayCount());
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_6M.getFixingDateOffset());
-    assertEquals(test.getIndex(), GBP_LIBOR_6M);
-    assertEquals(test.getSpotDateOffset(), GBP_LIBOR_6M.getEffectiveDateOffset());
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
+    assertThat(test.getCurrency()).isEqualTo(GBP_LIBOR_6M.getCurrency());
+    assertThat(test.getDayCount()).isEqualTo(GBP_LIBOR_6M.getDayCount());
+    assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_6M.getFixingDateOffset());
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_6M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(GBP_LIBOR_6M.getEffectiveDateOffset());
   }
 
+  @Test
   public void test_of_indexOnly() {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
-    assertEquals(test.getBusinessDayAdjustment(),
-        BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
-    assertEquals(test.getCurrency(), GBP_LIBOR_6M.getCurrency());
-    assertEquals(test.getDayCount(), GBP_LIBOR_6M.getDayCount());
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_6M.getFixingDateOffset());
-    assertEquals(test.getIndex(), GBP_LIBOR_6M);
-    assertEquals(test.getSpotDateOffset(), GBP_LIBOR_6M.getEffectiveDateOffset());
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
+    assertThat(test.getCurrency()).isEqualTo(GBP_LIBOR_6M.getCurrency());
+    assertThat(test.getDayCount()).isEqualTo(GBP_LIBOR_6M.getDayCount());
+    assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_6M.getFixingDateOffset());
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_6M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(GBP_LIBOR_6M.getEffectiveDateOffset());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade() {
     IborFixingDepositConvention convention = ImmutableIborFixingDepositConvention.builder()
         .businessDayAdjustment(BDA_MOD_FOLLOW)
@@ -125,12 +127,11 @@ public class IborFixingDepositConventionTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(tradeDate)
         .build();
-    assertEquals(trade.getProduct(), productExpected);
-    assertEquals(trade.getInfo(), tradeInfoExpected);
+    assertThat(trade.getProduct()).isEqualTo(productExpected);
+    assertThat(trade.getInfo()).isEqualTo(tradeInfoExpected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {ImmutableIborFixingDepositConvention.of(GBP_LIBOR_3M), "GBP-LIBOR-3M"},
@@ -138,39 +139,46 @@ public class IborFixingDepositConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(IborFixingDepositConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(IborFixingDepositConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(IborFixingDepositConvention convention, String name) {
-    assertEquals(IborFixingDepositConvention.of(name), convention);
+    assertThat(IborFixingDepositConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(IborFixingDepositConvention convention, String name) {
     IborFixingDepositConvention.of(name);  // ensures map is populated
     ImmutableMap<String, IborFixingDepositConvention> map = IborFixingDepositConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFixingDepositConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFixingDepositConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableIborFixingDepositConvention test1 = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
     coverImmutableBean(test1);
@@ -184,6 +192,7 @@ public class IborFixingDepositConventionTest {
     coverPrivateConstructor(IborFixingDepositConventionLookup.class);
   }
 
+  @Test
   public void test_serialization() {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
     assertSerialization(test);

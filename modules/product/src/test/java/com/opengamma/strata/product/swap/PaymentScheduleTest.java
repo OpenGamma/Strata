@@ -21,14 +21,14 @@ import static com.opengamma.strata.product.swap.CompoundingMethod.NONE;
 import static com.opengamma.strata.product.swap.CompoundingMethod.STRAIGHT;
 import static com.opengamma.strata.product.swap.PaymentRelativeTo.PERIOD_END;
 import static com.opengamma.strata.product.swap.PaymentRelativeTo.PERIOD_START;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -41,7 +41,6 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 /**
  * Test.
  */
-@Test
 public class PaymentScheduleTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -102,46 +101,51 @@ public class PaymentScheduleTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_ensureDefaults() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
-    assertEquals(test.getPaymentFrequency(), P1M);
-    assertEquals(test.getBusinessDayAdjustment(), Optional.empty());
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.ofBusinessDays(2, GBLO));
-    assertEquals(test.getPaymentRelativeTo(), PERIOD_END);
-    assertEquals(test.getCompoundingMethod(), NONE);
+    assertThat(test.getPaymentFrequency()).isEqualTo(P1M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(Optional.empty());
+    assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, GBLO));
+    assertThat(test.getPaymentRelativeTo()).isEqualTo(PERIOD_END);
+    assertThat(test.getCompoundingMethod()).isEqualTo(NONE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createSchedule_sameFrequency() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(schedule, ACCRUAL_SCHEDULE);
+    assertThat(schedule).isEqualTo(ACCRUAL_SCHEDULE);
   }
 
+  @Test
   public void test_createSchedule_singleAccrualPeriod() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_SINGLE, REF_DATA);
-    assertEquals(schedule, ACCRUAL_SCHEDULE_SINGLE);
+    assertThat(schedule).isEqualTo(ACCRUAL_SCHEDULE_SINGLE);
   }
 
+  @Test
   public void test_createSchedule_term() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(TERM)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(schedule, ACCRUAL_SCHEDULE_TERM);
+    assertThat(schedule).isEqualTo(ACCRUAL_SCHEDULE_TERM);
   }
 
+  @Test
   public void test_createSchedule_term_badFirstRegular() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(TERM)
@@ -152,6 +156,7 @@ public class PaymentScheduleTest {
         .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
+  @Test
   public void test_createSchedule_term_badLastRegular() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(TERM)
@@ -162,6 +167,7 @@ public class PaymentScheduleTest {
         .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
+  @Test
   public void test_createSchedule_fullMerge() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)
@@ -173,9 +179,10 @@ public class PaymentScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_partMergeForwards() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -189,9 +196,10 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_initialStubPartMergeBackwards() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -206,9 +214,10 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_finalStubFullMerge() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -222,19 +231,21 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_dualStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
         .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
         .build();
     Schedule schedule = test.createSchedule(ACCRUAL_SCHEDULE_STUBS, REF_DATA);
-    assertEquals(schedule, ACCRUAL_SCHEDULE_STUBS.toBuilder().frequency(P2M).build());
+    assertThat(schedule).isEqualTo(ACCRUAL_SCHEDULE_STUBS.toBuilder().frequency(P2M).build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createSchedule_firstAndLastDate() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)
@@ -248,9 +259,10 @@ public class PaymentScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_firstAndLastDate_validInitialStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -266,9 +278,10 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_firstAndLastDate_invalidInitialStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -280,6 +293,7 @@ public class PaymentScheduleTest {
         .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
+  @Test
   public void test_createSchedule_firstAndLastDate_initialAccrualStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -295,10 +309,11 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createSchedule_firstDate() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)
@@ -311,9 +326,10 @@ public class PaymentScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_firstDate_validInitialStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -328,9 +344,10 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_firstDate_invalidInitialStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -341,6 +358,7 @@ public class PaymentScheduleTest {
         .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
+  @Test
   public void test_createSchedule_firstDate_initialAccrualStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -355,10 +373,11 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createSchedule_lastDate() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)
@@ -371,9 +390,10 @@ public class PaymentScheduleTest {
         .frequency(P3M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_lastDate_validFinalStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -388,9 +408,10 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSchedule_lastDate_invalidFinalStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -401,6 +422,7 @@ public class PaymentScheduleTest {
         .isThrownBy(() -> test.createSchedule(ACCRUAL_SCHEDULE, REF_DATA));
   }
 
+  @Test
   public void test_createSchedule_lastDate_finalAccrualStub() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P2M)
@@ -415,10 +437,11 @@ public class PaymentScheduleTest {
         .frequency(P2M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P1M)
@@ -437,6 +460,7 @@ public class PaymentScheduleTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     PaymentSchedule test = PaymentSchedule.builder()
         .paymentFrequency(P3M)

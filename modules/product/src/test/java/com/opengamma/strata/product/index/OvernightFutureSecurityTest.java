@@ -10,11 +10,10 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.TestHelper;
@@ -26,7 +25,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link OvernightFutureSecurity}.
  */
-@Test
 public class OvernightFutureSecurityTest {
 
   private static final OvernightFuture PRODUCT = OvernightFutureTest.sut();
@@ -36,18 +34,20 @@ public class OvernightFutureSecurityTest {
   private static final SecurityInfo INFO2 = SecurityInfo.of(PRODUCT2.getSecurityId(), PRICE_INFO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     OvernightFutureSecurity test = sut();
-    assertEquals(test.getInfo(), INFO);
-    assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
-    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
+    assertThat(test.getInfo()).isEqualTo(INFO);
+    assertThat(test.getSecurityId()).isEqualTo(PRODUCT.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(PRODUCT.getCurrency());
+    assertThat(test.getUnderlyingIds()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createProduct() {
     OvernightFutureSecurity test = sut();
-    assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
+    assertThat(test.createProduct(ReferenceData.empty())).isEqualTo(PRODUCT);
     TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     OvernightFutureTrade expectedTrade = OvernightFutureTrade.builder()
         .info(tradeInfo)
@@ -55,7 +55,7 @@ public class OvernightFutureSecurityTest {
         .quantity(100)
         .price(0.995)
         .build();
-    assertEquals(test.createTrade(tradeInfo, 100, 0.995, ReferenceData.empty()), expectedTrade);
+    assertThat(test.createTrade(tradeInfo, 100, 0.995, ReferenceData.empty())).isEqualTo(expectedTrade);
 
     PositionInfo positionInfo = PositionInfo.empty();
     OvernightFuturePosition expectedPosition1 = OvernightFuturePosition.builder()
@@ -70,15 +70,17 @@ public class OvernightFutureSecurityTest {
         .longQuantity(100)
         .shortQuantity(50)
         .build();
-    assertEquals(test.createPosition(positionInfo, 100, 50, ReferenceData.empty()), expectedPosition2);
+    assertThat(test.createPosition(positionInfo, 100, 50, ReferenceData.empty())).isEqualTo(expectedPosition2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

@@ -13,11 +13,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -31,7 +31,6 @@ import com.opengamma.strata.product.common.BuySell;
 /**
  * Test {@link TermDepositTrade}. 
  */
-@Test
 public class TermDepositTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -49,23 +48,26 @@ public class TermDepositTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     TermDepositTrade test = TermDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     TermDepositTrade test = TermDepositTrade.builder()
         .product(DEPOSIT)
         .info(TRADE_INFO)
         .build();
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     TermDepositTrade trade = TermDepositTrade.builder()
         .product(DEPOSIT)
@@ -78,17 +80,19 @@ public class TermDepositTradeTest {
         .currencies(Currency.GBP)
         .description("6M GBP 100mm Deposit 2.5% : 19Jan15-19Jul15")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     TermDepositTrade test = TermDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
-    assertEquals(test.resolve(REF_DATA).getProduct(), DEPOSIT.resolve(REF_DATA));
+    assertThat(test.resolve(REF_DATA).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.resolve(REF_DATA).getProduct()).isEqualTo(DEPOSIT.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TermDepositTrade test1 = TermDepositTrade.builder()
         .product(DEPOSIT)
@@ -101,6 +105,7 @@ public class TermDepositTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     TermDepositTrade test = TermDepositTrade.builder()
         .product(DEPOSIT)

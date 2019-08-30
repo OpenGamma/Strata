@@ -11,14 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -28,7 +27,6 @@ import com.opengamma.strata.product.common.PayReceive;
 /**
  * Test {@link BulletPayment}.
  */
-@Test
 public class BulletPaymentTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -39,21 +37,23 @@ public class BulletPaymentTest {
   private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.PAY)
         .value(GBP_P1000)
         .date(AdjustableDate.of(DATE_2015_06_30))
         .build();
-    assertEquals(test.getPayReceive(), PayReceive.PAY);
-    assertEquals(test.getValue(), GBP_P1000);
-    assertEquals(test.getDate(), AdjustableDate.of(DATE_2015_06_30));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertThat(test.getPayReceive()).isEqualTo(PayReceive.PAY);
+    assertThat(test.getValue()).isEqualTo(GBP_P1000);
+    assertThat(test.getDate()).isEqualTo(AdjustableDate.of(DATE_2015_06_30));
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP);
+    assertThat(test.allCurrencies()).containsOnly(GBP);
   }
 
+  @Test
   public void test_builder_notNegative() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BulletPayment.builder()
@@ -64,6 +64,7 @@ public class BulletPaymentTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve_pay() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.PAY)
@@ -71,9 +72,10 @@ public class BulletPaymentTest {
         .date(AdjustableDate.of(DATE_2015_06_30))
         .build();
     ResolvedBulletPayment expected = ResolvedBulletPayment.of(Payment.of(GBP_M1000, DATE_2015_06_30));
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_receive() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.RECEIVE)
@@ -81,10 +83,11 @@ public class BulletPaymentTest {
         .date(AdjustableDate.of(DATE_2015_06_30))
         .build();
     ResolvedBulletPayment expected = ResolvedBulletPayment.of(Payment.of(GBP_P1000, DATE_2015_06_30));
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.PAY)
@@ -100,6 +103,7 @@ public class BulletPaymentTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     BulletPayment test = BulletPayment.builder()
         .payReceive(PayReceive.PAY)

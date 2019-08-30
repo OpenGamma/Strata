@@ -13,14 +13,14 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -31,7 +31,6 @@ import com.opengamma.strata.product.fra.FraTrade;
 /**
  * Test {@link FraTemplate}.
  */
-@Test
 public class FraTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -40,30 +39,34 @@ public class FraTemplateTest {
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_PeriodIndex() {
     FraTemplate test = FraTemplate.of(Period.ofMonths(2), GBP_LIBOR_3M);
-    assertEquals(test.getPeriodToStart(), Period.ofMonths(2));
-    assertEquals(test.getPeriodToEnd(), Period.ofMonths(5));  // defaulted
-    assertEquals(test.getConvention(), FRA_GBP_LIBOR_3M);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ofMonths(2));
+    assertThat(test.getPeriodToEnd()).isEqualTo(Period.ofMonths(5));  // defaulted
+    assertThat(test.getConvention()).isEqualTo(FRA_GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_of_PeriodPeriodConvention() {
     FraTemplate test = FraTemplate.of(Period.ofMonths(2), Period.ofMonths(4), FRA_GBP_LIBOR_3M);
-    assertEquals(test.getPeriodToStart(), Period.ofMonths(2));
-    assertEquals(test.getPeriodToEnd(), Period.ofMonths(4));
-    assertEquals(test.getConvention(), FRA_GBP_LIBOR_3M);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ofMonths(2));
+    assertThat(test.getPeriodToEnd()).isEqualTo(Period.ofMonths(4));
+    assertThat(test.getConvention()).isEqualTo(FRA_GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_builder_defaults() {
     FraTemplate test = FraTemplate.builder()
         .periodToStart(Period.ofMonths(2))
         .convention(FRA_GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getPeriodToStart(), Period.ofMonths(2));
-    assertEquals(test.getPeriodToEnd(), Period.ofMonths(5));  // defaulted
-    assertEquals(test.getConvention(), FRA_GBP_LIBOR_3M);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ofMonths(2));
+    assertThat(test.getPeriodToEnd()).isEqualTo(Period.ofMonths(5));  // defaulted
+    assertThat(test.getConvention()).isEqualTo(FRA_GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_builder_insufficientInfo() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FraTemplate.builder().convention(FRA_GBP_LIBOR_3M).build());
@@ -72,6 +75,7 @@ public class FraTemplateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     FraTemplate base = FraTemplate.of(Period.ofMonths(3), Period.ofMonths(6), FRA_GBP_LIBOR_3M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 4); // trade date is a holiday!
@@ -84,10 +88,11 @@ public class FraTemplateTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_createTrade_paymentOffset() {
     FraConvention convention = ((ImmutableFraConvention) FRA_GBP_LIBOR_3M).toBuilder()
         .paymentDateOffset(PLUS_TWO_DAYS)
@@ -104,11 +109,12 @@ public class FraTemplateTest {
         .fixedRate(0.25d)
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FraTemplate test = FraTemplate.of(Period.ofMonths(2), GBP_LIBOR_3M);
     coverImmutableBean(test);
@@ -116,6 +122,7 @@ public class FraTemplateTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FraTemplate test = FraTemplate.of(Period.ofMonths(2), GBP_LIBOR_3M);
     assertSerialization(test);

@@ -5,32 +5,33 @@
  */
 package com.opengamma.strata.product;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 
 /**
  * Test {@link Position}.
  */
-@Test
 public class PositionTest {
 
   private static final StandardId STANDARD_ID = StandardId.of("A", "B");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_methods() {
     Position test = sut();
-    assertEquals(test.getId(), Optional.empty());
-    assertEquals(test.getInfo(), PositionInfo.empty());
-    assertEquals(test.getQuantity(), 123d);
-    assertEquals(test.getSecurityId(), SecurityId.of(STANDARD_ID));
+    assertThat(test.getId()).isEqualTo(Optional.empty());
+    assertThat(test.getInfo()).isEqualTo(PositionInfo.empty());
+    assertThat(test.getQuantity()).isEqualTo(123d);
+    assertThat(test.getSecurityId()).isEqualTo(SecurityId.of(STANDARD_ID));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     Position trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -38,7 +39,7 @@ public class PositionTest {
         .productType(ProductType.SECURITY)
         .description("B x 123")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

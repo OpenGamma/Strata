@@ -8,28 +8,29 @@ package com.opengamma.strata.product.option;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SimpleConstantContinuousBarrier}.
  */
-@Test
 public class SimpleConstantContinuousBarrierTest {
 
+  @Test
   public void test_of() {
     double level = 1.5;
     SimpleConstantContinuousBarrier test =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, level);
-    assertEquals(test.getBarrierLevel(), level);
-    assertEquals(test.getBarrierLevel(LocalDate.of(2015, 1, 21)), level);
-    assertEquals(test.getBarrierType(), BarrierType.DOWN);
-    assertEquals(test.getKnockType(), KnockType.KNOCK_IN);
+    assertThat(test.getBarrierLevel()).isEqualTo(level);
+    assertThat(test.getBarrierLevel(LocalDate.of(2015, 1, 21))).isEqualTo(level);
+    assertThat(test.getBarrierType()).isEqualTo(BarrierType.DOWN);
+    assertThat(test.getKnockType()).isEqualTo(KnockType.KNOCK_IN);
   }
 
+  @Test
   public void test_inverseKnockType() {
     double level = 1.5;
     SimpleConstantContinuousBarrier base =
@@ -37,11 +38,12 @@ public class SimpleConstantContinuousBarrierTest {
     SimpleConstantContinuousBarrier test = base.inverseKnockType();
     SimpleConstantContinuousBarrier expected =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, level);
-    assertEquals(test, expected);
-    assertEquals(test.inverseKnockType(), base);
+    assertThat(test).isEqualTo(expected);
+    assertThat(test.inverseKnockType()).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SimpleConstantContinuousBarrier test1 =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, 1.5);
@@ -51,6 +53,7 @@ public class SimpleConstantContinuousBarrierTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     SimpleConstantContinuousBarrier test =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, 1.5);

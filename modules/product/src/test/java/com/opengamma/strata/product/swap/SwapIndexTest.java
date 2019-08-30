@@ -9,16 +9,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalTime;
 import java.time.ZoneId;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -35,18 +34,19 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 /**
  * Test {@link SwapIndex}.
  */
-@Test
 public class SwapIndexTest {
 
   private static ZoneId LONDON = ZoneId.of("Europe/London");
   private static ZoneId NEY_YORK = ZoneId.of("America/New_York");
   private static ZoneId FRANKFURT = ZoneId.of("Europe/Berlin");  // Frankfurt not defined in TZDB
 
+  @Test
   public void test_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> SwapIndex.of("foo"));
   }
 
+  @Test
   public void test_swapIndicies() {
     ImmutableMap<String, SwapIndex> mapAll = SwapIndices.ENUM_LOOKUP.lookupAll();
     ImmutableList<SwapIndex> indexAll = mapAll.values().asList();
@@ -55,59 +55,58 @@ public class SwapIndexTest {
     for (int i = 0; i < size; ++i) {
       // check no duplication
       for (int j = i + 1; j < size; ++j) {
-        assertFalse(nameAll.get(i).equals(nameAll.get(j)));
-        assertFalse(indexAll.get(i).equals(indexAll.get(j)));
+        assertThat(nameAll.get(i).equals(nameAll.get(j))).isFalse();
+        assertThat(indexAll.get(i).equals(indexAll.get(j))).isFalse();
       }
     }
     for (String name : nameAll) {
       SwapIndex index = mapAll.get(name);
-      assertEquals(SwapIndex.of(name), index);
-      assertEquals(index.isActive(), true);
+      assertThat(SwapIndex.of(name)).isEqualTo(index);
+      assertThat(index.isActive()).isTrue();
       FixedIborSwapTemplate temp = index.getTemplate();
       FixedIborSwapConvention conv = temp.getConvention();
       Tenor tenor = temp.getTenor();
       LocalTime time = index.getFixingTime();
       ZoneId zone = index.getFixingZone();
       // test consistency between name and template
-      assertTrue(name.contains(tenor.toString()));
+      assertThat(name.contains(tenor.toString())).isTrue();
       if (name.startsWith("USD")) {
-        assertTrue(name.contains("1100") || name.contains("1500"));
-        assertTrue(conv.equals(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M));
-        assertTrue(zone.equals(NEY_YORK));
+        assertThat(name.contains("1100") || name.contains("1500")).isTrue();
+        assertThat(conv.equals(FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M)).isTrue();
+        assertThat(zone.equals(NEY_YORK)).isTrue();
       }
       if (name.startsWith("GBP")) {
-        assertTrue(name.contains("1100"));
+        assertThat(name.contains("1100")).isTrue();
         if (tenor.equals(Tenor.TENOR_1Y)) {
-          assertTrue(conv.equals(FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M));
+          assertThat(conv.equals(FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M)).isTrue();
         } else {
-          assertTrue(conv.equals(FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M));
+          assertThat(conv.equals(FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M)).isTrue();
         }
-        assertTrue(zone.equals(LONDON));
+        assertThat(zone.equals(LONDON)).isTrue();
       }
       if (name.startsWith("EUR")) {
-        assertTrue(name.contains("1100") || name.contains("1200"));
+        assertThat(name.contains("1100") || name.contains("1200")).isTrue();
         if (tenor.equals(Tenor.TENOR_1Y)) {
-          assertTrue(conv.equals(FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M));
+          assertThat(conv.equals(FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M)).isTrue();
         } else {
-          assertTrue(conv.equals(FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M));
+          assertThat(conv.equals(FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M)).isTrue();
         }
-        assertTrue(zone.equals(FRANKFURT));
+        assertThat(zone.equals(FRANKFURT)).isTrue();
       }
       if (name.contains("1100")) {
-        assertTrue(time.equals(LocalTime.of(11, 0)));
+        assertThat(time.equals(LocalTime.of(11, 0))).isTrue();
       }
       if (name.contains("1200")) {
-        assertTrue(time.equals(LocalTime.of(12, 0)));
+        assertThat(time.equals(LocalTime.of(12, 0))).isTrue();
       }
       if (name.contains("1500")) {
-        assertTrue(time.equals(LocalTime.of(15, 0)));
+        assertThat(time.equals(LocalTime.of(15, 0))).isTrue();
       }
-      assertEquals(index.calculateFixingDateTime(date(2015, 6, 30)), date(2015, 6, 30).atTime(time).atZone(zone));
+      assertThat(index.calculateFixingDateTime(date(2015, 6, 30))).isEqualTo(date(2015, 6, 30).atTime(time).atZone(zone));
     }
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "indexName")
   public static Object[][] data_name() {
     return new Object[][] {
         {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
@@ -120,22 +119,26 @@ public class SwapIndexTest {
     };
   }
 
-  @Test(dataProvider = "indexName")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(Index convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "indexName")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(Index convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "indexName")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(Index convention, String name) {
-    assertEquals(Index.of(name), convention);
+    assertThat(Index.of(name)).isEqualTo(convention);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableSwapIndex index = ImmutableSwapIndex.builder()
         .name("FooIndex")
@@ -147,6 +150,7 @@ public class SwapIndexTest {
     coverPrivateConstructor(SwapIndices.class);
   }
 
+  @Test
   public void test_serialization() {
     SwapIndex index = ImmutableSwapIndex.builder()
         .name("FooIndex")

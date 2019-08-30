@@ -19,7 +19,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
@@ -27,7 +27,7 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -48,7 +48,6 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 /**
  * Test {@link CapitalIndexedBond}.
  */
-@Test
 public class CapitalIndexedBondTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -85,21 +84,23 @@ public class CapitalIndexedBondTest {
   private static final PeriodicSchedule SCHEDULE =
       PeriodicSchedule.of(START, END, FREQUENCY, SCHEDULE_ADJ, StubConvention.NONE, RollConventions.NONE);
 
+  @Test
   public void test_builder_full() {
     CapitalIndexedBond test = sut();
-    assertEquals(test.getSecurityId(), SECURITY_ID);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getExCouponPeriod(), EX_COUPON);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getAccrualSchedule(), SCHEDULE);
-    assertEquals(test.getRateCalculation(), RATE_CALC);
-    assertEquals(test.getFirstIndexValue(), RATE_CALC.getFirstIndexValue().getAsDouble());
-    assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
-    assertEquals(test.getYieldConvention(), US_IL_REAL);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getExCouponPeriod()).isEqualTo(EX_COUPON);
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAccrualSchedule()).isEqualTo(SCHEDULE);
+    assertThat(test.getRateCalculation()).isEqualTo(RATE_CALC);
+    assertThat(test.getFirstIndexValue()).isEqualTo(RATE_CALC.getFirstIndexValue().getAsDouble());
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_OFFSET);
+    assertThat(test.getYieldConvention()).isEqualTo(US_IL_REAL);
   }
 
+  @Test
   public void test_builder_min() {
     CapitalIndexedBond test = CapitalIndexedBond.builder()
         .securityId(SECURITY_ID)
@@ -112,18 +113,19 @@ public class CapitalIndexedBondTest {
         .settlementDateOffset(SETTLE_OFFSET)
         .accrualSchedule(SCHEDULE)
         .build();
-    assertEquals(test.getSecurityId(), SECURITY_ID);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getExCouponPeriod(), DaysAdjustment.NONE);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getAccrualSchedule(), SCHEDULE);
-    assertEquals(test.getRateCalculation(), RATE_CALC);
-    assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
-    assertEquals(test.getYieldConvention(), US_IL_REAL);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getExCouponPeriod()).isEqualTo(DaysAdjustment.NONE);
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAccrualSchedule()).isEqualTo(SCHEDULE);
+    assertThat(test.getRateCalculation()).isEqualTo(RATE_CALC);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_OFFSET);
+    assertThat(test.getYieldConvention()).isEqualTo(US_IL_REAL);
   }
 
+  @Test
   public void test_builder_fail() {
     // negative settlement date offset
     assertThatIllegalArgumentException()
@@ -156,6 +158,7 @@ public class CapitalIndexedBondTest {
         .build());
   }
 
+  @Test
   public void test_resolve() {
     CapitalIndexedBond base = sut();
     LocalDate[] unAdjDates = new LocalDate[] {LocalDate.of(2008, 1, 13), LocalDate.of(2008, 7, 13),
@@ -192,15 +195,17 @@ public class CapitalIndexedBondTest {
         .yieldConvention(US_IL_REAL)
         .rateCalculation(base.getRateCalculation())
         .build();
-    assertEquals(base.resolve(REF_DATA), expected);
+    assertThat(base.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

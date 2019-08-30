@@ -9,11 +9,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@code SwaptionTrade}.
  */
-@Test
 public class SwaptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -37,22 +36,25 @@ public class SwaptionTradeTest {
       AdjustablePayment.of(CurrencyAmount.of(Currency.USD, -3150000d), date(2014, 3, 17));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
-    assertEquals(test.getPremium(), PREMIUM);
-    assertEquals(test.getProduct(), SWAPTION);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertThat(test.getPremium()).isEqualTo(PREMIUM);
+    assertThat(test.getProduct()).isEqualTo(SWAPTION);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     SwaptionTrade test = sut();
-    assertEquals(test.getPremium(), PREMIUM);
-    assertEquals(test.getProduct(), SWAPTION);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getPremium()).isEqualTo(PREMIUM);
+    assertThat(test.getProduct()).isEqualTo(SWAPTION);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     SwaptionTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -62,23 +64,26 @@ public class SwaptionTradeTest {
         .currencies(Currency.USD)
         .description("Long 10Y USD 100mm Rec USD-LIBOR-3M / Pay 1.5% : 14Jun14")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     SwaptionTrade test = SwaptionTrade.of(TRADE_INFO, SWAPTION, PREMIUM);
-    assertEquals(test.resolve(REF_DATA).getPremium(), PREMIUM.resolve(REF_DATA));
-    assertEquals(test.resolve(REF_DATA).getProduct(), SWAPTION.resolve(REF_DATA));
-    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
+    assertThat(test.resolve(REF_DATA).getPremium()).isEqualTo(PREMIUM.resolve(REF_DATA));
+    assertThat(test.resolve(REF_DATA).getProduct()).isEqualTo(SWAPTION.resolve(REF_DATA));
+    assertThat(test.resolve(REF_DATA).getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

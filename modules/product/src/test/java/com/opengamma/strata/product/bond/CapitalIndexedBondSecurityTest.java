@@ -14,14 +14,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -42,7 +41,6 @@ import com.opengamma.strata.product.swap.PriceIndexCalculationMethod;
 /**
  * Test {@link CapitalIndexedBondSecurity}.
  */
-@Test
 public class CapitalIndexedBondSecurityTest {
 
   private static final CapitalIndexedBond PRODUCT = CapitalIndexedBondTest.sut();
@@ -65,15 +63,17 @@ public class CapitalIndexedBondSecurityTest {
   private static final int EX_COUPON_DAYS = 5;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     CapitalIndexedBondSecurity test = sut();
-    assertEquals(test.getInfo(), INFO);
-    assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
-    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
-    assertEquals(test.getFirstIndexValue(), PRODUCT.getFirstIndexValue());
+    assertThat(test.getInfo()).isEqualTo(INFO);
+    assertThat(test.getSecurityId()).isEqualTo(PRODUCT.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(PRODUCT.getCurrency());
+    assertThat(test.getUnderlyingIds()).isEmpty();
+    assertThat(test.getFirstIndexValue()).isEqualTo(PRODUCT.getFirstIndexValue());
   }
 
+  @Test
   public void test_builder_fail() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CapitalIndexedBondSecurity.builder()
@@ -103,9 +103,10 @@ public class CapitalIndexedBondSecurityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createProduct() {
     CapitalIndexedBondSecurity test = sut();
-    assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
+    assertThat(test.createProduct(ReferenceData.empty())).isEqualTo(PRODUCT);
     TradeInfo tradeInfo = TradeInfo.builder().tradeDate(date(2016, 6, 30)).settlementDate(date(2016, 7, 1)).build();
     CapitalIndexedBondTrade expectedTrade = CapitalIndexedBondTrade.builder()
         .info(tradeInfo)
@@ -113,15 +114,17 @@ public class CapitalIndexedBondSecurityTest {
         .quantity(100)
         .price(123.50)
         .build();
-    assertEquals(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty()), expectedTrade);
+    assertThat(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty())).isEqualTo(expectedTrade);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

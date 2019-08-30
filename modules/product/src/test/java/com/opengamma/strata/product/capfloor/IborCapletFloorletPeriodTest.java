@@ -12,13 +12,13 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.common.PutCall;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link IborCapletFloorletPeriod}.
  */
-@Test
 public class IborCapletFloorletPeriodTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,6 +42,7 @@ public class IborCapletFloorletPeriodTest {
   private static final IborRateComputation RATE_COMP = IborRateComputation.of(EUR_EURIBOR_3M, FIXING, REF_DATA);
   private static final double YEAR_FRACTION = 0.251d;
 
+  @Test
   public void test_builder_min() {
     IborCapletFloorletPeriod test = IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
@@ -52,24 +52,25 @@ public class IborCapletFloorletPeriodTest {
         .caplet(STRIKE)
         .iborRate(RATE_COMP)
         .build();
-    assertEquals(test.getCaplet().getAsDouble(), STRIKE);
-    assertEquals(test.getFloorlet().isPresent(), false);
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getStartDate(), START);
-    assertEquals(test.getEndDate(), END);
-    assertEquals(test.getPaymentDate(), test.getEndDate());
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getIborRate(), RATE_COMP);
-    assertEquals(test.getIndex(), EUR_EURIBOR_3M);
-    assertEquals(test.getFixingDate(), FIXING_TIME_ZONE.toLocalDate());
-    assertEquals(test.getFixingDateTime(), FIXING_TIME_ZONE);
-    assertEquals(test.getPutCall(), PutCall.CALL);
-    assertEquals(test.getUnadjustedStartDate(), START);
-    assertEquals(test.getUnadjustedEndDate(), END);
-    assertEquals(test.getYearFraction(), YEAR_FRACTION);
+    assertThat(test.getCaplet().getAsDouble()).isEqualTo(STRIKE);
+    assertThat(test.getFloorlet()).isNotPresent();
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getStartDate()).isEqualTo(START);
+    assertThat(test.getEndDate()).isEqualTo(END);
+    assertThat(test.getPaymentDate()).isEqualTo(test.getEndDate());
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getIborRate()).isEqualTo(RATE_COMP);
+    assertThat(test.getIndex()).isEqualTo(EUR_EURIBOR_3M);
+    assertThat(test.getFixingDate()).isEqualTo(FIXING_TIME_ZONE.toLocalDate());
+    assertThat(test.getFixingDateTime()).isEqualTo(FIXING_TIME_ZONE);
+    assertThat(test.getPutCall()).isEqualTo(PutCall.CALL);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(START);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(END);
+    assertThat(test.getYearFraction()).isEqualTo(YEAR_FRACTION);
   }
 
+  @Test
   public void test_builder_full() {
     IborCapletFloorletPeriod test = IborCapletFloorletPeriod.builder()
         .notional(NOTIONAL)
@@ -83,23 +84,24 @@ public class IborCapletFloorletPeriodTest {
         .floorlet(STRIKE)
         .iborRate(RATE_COMP)
         .build();
-    assertEquals(test.getFloorlet().getAsDouble(), STRIKE);
-    assertEquals(test.getCaplet().isPresent(), false);
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getStartDate(), START);
-    assertEquals(test.getEndDate(), END);
-    assertEquals(test.getUnadjustedStartDate(), START_UNADJ);
-    assertEquals(test.getUnadjustedEndDate(), END_UNADJ);
-    assertEquals(test.getPaymentDate(), PAYMENT);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getIborRate(), RATE_COMP);
-    assertEquals(test.getIndex(), EUR_EURIBOR_3M);
-    assertEquals(test.getFixingDateTime(), FIXING_TIME_ZONE);
-    assertEquals(test.getPutCall(), PutCall.PUT);
-    assertEquals(test.getYearFraction(), YEAR_FRACTION);
+    assertThat(test.getFloorlet().getAsDouble()).isEqualTo(STRIKE);
+    assertThat(test.getCaplet()).isNotPresent();
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getStartDate()).isEqualTo(START);
+    assertThat(test.getEndDate()).isEqualTo(END);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(START_UNADJ);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(END_UNADJ);
+    assertThat(test.getPaymentDate()).isEqualTo(PAYMENT);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getIborRate()).isEqualTo(RATE_COMP);
+    assertThat(test.getIndex()).isEqualTo(EUR_EURIBOR_3M);
+    assertThat(test.getFixingDateTime()).isEqualTo(FIXING_TIME_ZONE);
+    assertThat(test.getPutCall()).isEqualTo(PutCall.PUT);
+    assertThat(test.getYearFraction()).isEqualTo(YEAR_FRACTION);
   }
 
+  @Test
   public void test_builder_fail() {
     // rate observation missing
     assertThatIllegalArgumentException()
@@ -124,11 +126,13 @@ public class IborCapletFloorletPeriodTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

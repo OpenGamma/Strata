@@ -9,80 +9,89 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Locale;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link PayReceive}.
  */
-@Test
 public class PayReceiveTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofPay() {
-    assertEquals(PayReceive.ofPay(true), PayReceive.PAY);
-    assertEquals(PayReceive.ofPay(false), PayReceive.RECEIVE);
+    assertThat(PayReceive.ofPay(true)).isEqualTo(PayReceive.PAY);
+    assertThat(PayReceive.ofPay(false)).isEqualTo(PayReceive.RECEIVE);
   }
 
+  @Test
   public void test_ofSignedAmount() {
-    assertEquals(PayReceive.ofSignedAmount(-1d), PayReceive.PAY);
-    assertEquals(PayReceive.ofSignedAmount(-0d), PayReceive.PAY);
-    assertEquals(PayReceive.ofSignedAmount(0d), PayReceive.RECEIVE);
-    assertEquals(PayReceive.ofSignedAmount(+0d), PayReceive.RECEIVE);
-    assertEquals(PayReceive.ofSignedAmount(1d), PayReceive.RECEIVE);
+    assertThat(PayReceive.ofSignedAmount(-1d)).isEqualTo(PayReceive.PAY);
+    assertThat(PayReceive.ofSignedAmount(-0d)).isEqualTo(PayReceive.PAY);
+    assertThat(PayReceive.ofSignedAmount(0d)).isEqualTo(PayReceive.RECEIVE);
+    assertThat(PayReceive.ofSignedAmount(+0d)).isEqualTo(PayReceive.RECEIVE);
+    assertThat(PayReceive.ofSignedAmount(1d)).isEqualTo(PayReceive.RECEIVE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalize_pay_double() {
-    assertEquals(PayReceive.PAY.normalize(1d), -1d, 0d);
-    assertEquals(PayReceive.PAY.normalize(0d), 0d, 0d);
-    assertEquals(PayReceive.PAY.normalize(-0d), 0d, 0d);
-    assertEquals(PayReceive.PAY.normalize(-1d), -1d, 0d);
+    assertThat(PayReceive.PAY.normalize(1d)).isCloseTo(-1d, offset(0d));
+    assertThat(PayReceive.PAY.normalize(0d)).isCloseTo(0d, offset(0d));
+    assertThat(PayReceive.PAY.normalize(-0d)).isCloseTo(0d, offset(0d));
+    assertThat(PayReceive.PAY.normalize(-1d)).isCloseTo(-1d, offset(0d));
   }
 
+  @Test
   public void test_normalize_pay_amount() {
-    assertEquals(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 1d)), CurrencyAmount.of(GBP, -1d));
-    assertEquals(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 0d)), CurrencyAmount.of(GBP, 0d));
-    assertEquals(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, -1d)), CurrencyAmount.of(GBP, -1d));
+    assertThat(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 1d))).isEqualTo(CurrencyAmount.of(GBP, -1d));
+    assertThat(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, 0d))).isEqualTo(CurrencyAmount.of(GBP, 0d));
+    assertThat(PayReceive.PAY.normalize(CurrencyAmount.of(GBP, -1d))).isEqualTo(CurrencyAmount.of(GBP, -1d));
   }
 
+  @Test
   public void test_normalize_receive_double() {
-    assertEquals(PayReceive.RECEIVE.normalize(1d), 1d, 0d);
-    assertEquals(PayReceive.RECEIVE.normalize(0d), 0d, 0d);
-    assertEquals(PayReceive.RECEIVE.normalize(-0d), 0d, 0d);
-    assertEquals(PayReceive.RECEIVE.normalize(-1d), 1d, 0d);
+    assertThat(PayReceive.RECEIVE.normalize(1d)).isCloseTo(1d, offset(0d));
+    assertThat(PayReceive.RECEIVE.normalize(0d)).isCloseTo(0d, offset(0d));
+    assertThat(PayReceive.RECEIVE.normalize(-0d)).isCloseTo(0d, offset(0d));
+    assertThat(PayReceive.RECEIVE.normalize(-1d)).isCloseTo(1d, offset(0d));
   }
 
+  @Test
   public void test_normalize_receive_amount() {
-    assertEquals(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 1d)), CurrencyAmount.of(GBP, 1d));
-    assertEquals(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 0d)), CurrencyAmount.of(GBP, 0d));
-    assertEquals(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, -1d)), CurrencyAmount.of(GBP, 1d));
+    assertThat(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 1d))).isEqualTo(CurrencyAmount.of(GBP, 1d));
+    assertThat(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, 0d))).isEqualTo(CurrencyAmount.of(GBP, 0d));
+    assertThat(PayReceive.RECEIVE.normalize(CurrencyAmount.of(GBP, -1d))).isEqualTo(CurrencyAmount.of(GBP, 1d));
   }
 
+  @Test
   public void test_isPay() {
-    assertEquals(PayReceive.PAY.isPay(), true);
-    assertEquals(PayReceive.RECEIVE.isPay(), false);
+    assertThat(PayReceive.PAY.isPay()).isTrue();
+    assertThat(PayReceive.RECEIVE.isPay()).isFalse();
   }
 
+  @Test
   public void test_isReceive() {
-    assertEquals(PayReceive.PAY.isReceive(), false);
-    assertEquals(PayReceive.RECEIVE.isReceive(), true);
+    assertThat(PayReceive.PAY.isReceive()).isFalse();
+    assertThat(PayReceive.RECEIVE.isReceive()).isTrue();
   }
 
+  @Test
   public void test_opposite() {
-    assertEquals(PayReceive.PAY.opposite(), PayReceive.RECEIVE);
-    assertEquals(PayReceive.RECEIVE.opposite(), PayReceive.PAY);
+    assertThat(PayReceive.PAY.opposite()).isEqualTo(PayReceive.RECEIVE);
+    assertThat(PayReceive.RECEIVE.opposite()).isEqualTo(PayReceive.PAY);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {PayReceive.PAY, "Pay"},
@@ -90,45 +99,54 @@ public class PayReceiveTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(PayReceive convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(PayReceive convention, String name) {
-    assertEquals(PayReceive.of(name), convention);
+    assertThat(PayReceive.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupUpperCase(PayReceive convention, String name) {
-    assertEquals(PayReceive.of(name.toUpperCase(Locale.ENGLISH)), convention);
+    assertThat(PayReceive.of(name.toUpperCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookupLowerCase(PayReceive convention, String name) {
-    assertEquals(PayReceive.of(name.toLowerCase(Locale.ENGLISH)), convention);
+    assertThat(PayReceive.of(name.toLowerCase(Locale.ENGLISH))).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PayReceive.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PayReceive.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(PayReceive.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(PayReceive.PAY);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(PayReceive.class, PayReceive.PAY);
   }

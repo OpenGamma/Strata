@@ -8,19 +8,18 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link FixedAccrualMethod}.
  */
-@Test
 public class FixedAccrualMethodTest {
 
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FixedAccrualMethod.DEFAULT, "Default"},
@@ -28,35 +27,42 @@ public class FixedAccrualMethodTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FixedAccrualMethod convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FixedAccrualMethod convention, String name) {
-    assertEquals(FixedAccrualMethod.of(name), convention);
+    assertThat(FixedAccrualMethod.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedAccrualMethod.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedAccrualMethod.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(FixedAccrualMethod.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(FixedAccrualMethod.DEFAULT);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(FixedAccrualMethod.class, FixedAccrualMethod.DEFAULT);
   }

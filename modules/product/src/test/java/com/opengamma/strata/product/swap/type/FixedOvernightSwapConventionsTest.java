@@ -6,13 +6,13 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -34,12 +34,10 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * These tests  match the table 18.1 in the following guide:
  * https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
  */
-@Test
 public class FixedOvernightSwapConventionsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
-  @DataProvider(name = "spotLag")
   public static Object[][] data_spot_lag() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, 2},
@@ -53,13 +51,13 @@ public class FixedOvernightSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "spotLag")
+  @ParameterizedTest
+  @MethodSource("data_spot_lag")
   public void test_spot_lag(ImmutableFixedOvernightSwapConvention convention, int lag) {
-    assertEquals(convention.getSpotDateOffset().getDays(), lag);
+    assertThat(convention.getSpotDateOffset().getDays()).isEqualTo(lag);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "period")
   public static Object[][] data_period() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, Frequency.TERM},
@@ -73,18 +71,19 @@ public class FixedOvernightSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "period")
+  @ParameterizedTest
+  @MethodSource("data_period")
   public void test_accrualPeriod(FixedOvernightSwapConvention convention, Frequency frequency) {
-    assertEquals(convention.getFixedLeg().getAccrualFrequency(), frequency);
+    assertThat(convention.getFixedLeg().getAccrualFrequency()).isEqualTo(frequency);
   }
 
-  @Test(dataProvider = "period")
+  @ParameterizedTest
+  @MethodSource("data_period")
   public void test_paymentPeriod(FixedOvernightSwapConvention convention, Frequency frequency) {
-    assertEquals(convention.getFixedLeg().getPaymentFrequency(), frequency);
+    assertThat(convention.getFixedLeg().getPaymentFrequency()).isEqualTo(frequency);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "dayCount")
   public static Object[][] data_day_count() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, DayCounts.ACT_360},
@@ -98,13 +97,13 @@ public class FixedOvernightSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "dayCount")
+  @ParameterizedTest
+  @MethodSource("data_day_count")
   public void test_day_count(FixedOvernightSwapConvention convention, DayCount dayCount) {
-    assertEquals(convention.getFixedLeg().getDayCount(), dayCount);
+    assertThat(convention.getFixedLeg().getDayCount()).isEqualTo(dayCount);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "floatLeg")
   public static Object[][] data_float_leg() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, OvernightIndices.USD_FED_FUND},
@@ -118,13 +117,13 @@ public class FixedOvernightSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "floatLeg")
+  @ParameterizedTest
+  @MethodSource("data_float_leg")
   public void test_float_leg(FixedOvernightSwapConvention convention, OvernightIndex floatLeg) {
-    assertEquals(convention.getFloatingLeg().getIndex(), floatLeg);
+    assertThat(convention.getFloatingLeg().getIndex()).isEqualTo(floatLeg);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "dayConvention")
   public static Object[][] data_day_convention() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
@@ -138,13 +137,13 @@ public class FixedOvernightSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "dayConvention")
+  @ParameterizedTest
+  @MethodSource("data_day_convention")
   public void test_day_convention(FixedOvernightSwapConvention convention, BusinessDayConvention dayConvention) {
-    assertEquals(convention.getFixedLeg().getAccrualBusinessDayAdjustment().getConvention(), dayConvention);
+    assertThat(convention.getFixedLeg().getAccrualBusinessDayAdjustment().getConvention()).isEqualTo(dayConvention);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "stubOn")
   public static Object[][] data_stub_on() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, Tenor.TENOR_18M},
@@ -154,17 +153,19 @@ public class FixedOvernightSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "stubOn")
+  @ParameterizedTest
+  @MethodSource("data_stub_on")
   public void test_stub_overnight(FixedOvernightSwapConvention convention, Tenor tenor) {
     LocalDate tradeDate = LocalDate.of(2015, 10, 20);
     SwapTrade swap = convention.createTrade(tradeDate, tenor, BuySell.BUY, 1, 0.01, REF_DATA);
     ResolvedSwap swapResolved = swap.getProduct().resolve(REF_DATA);
     LocalDate endDate = swapResolved.getLeg(PayReceive.PAY).get().getEndDate();
-    assertTrue(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1)));
-    assertTrue(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1)));
+    assertThat(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1))).isTrue();
+    assertThat(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1))).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(FixedOvernightSwapConventions.class);
     coverPrivateConstructor(StandardFixedOvernightSwapConventions.class);

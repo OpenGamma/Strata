@@ -15,12 +15,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
@@ -32,7 +32,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link ResolvedOvernightFutureTrade}.
  */
-@Test
 public class ResolvedOvernightFutureTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -83,6 +82,7 @@ public class ResolvedOvernightFutureTradeTest {
   private static final double PRICE2 = 0.98;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedOvernightFutureTrade test = ResolvedOvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -90,13 +90,14 @@ public class ResolvedOvernightFutureTradeTest {
         .quantity(QUANTITY)
         .tradedPrice(TradedPrice.of(TRADE_DATE, PRICE))
         .build();
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getTradedPrice(), Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getTradedPrice()).isEqualTo(Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedOvernightFutureTrade test1 = ResolvedOvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -114,6 +115,7 @@ public class ResolvedOvernightFutureTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedOvernightFutureTrade test = ResolvedOvernightFutureTrade.builder()
         .info(TRADE_INFO)

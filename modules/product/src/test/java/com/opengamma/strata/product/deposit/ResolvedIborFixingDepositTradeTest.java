@@ -12,11 +12,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.TradeInfo;
@@ -25,7 +25,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link ResolvedIborFixingDepositTrade}. 
  */
-@Test
 public class ResolvedIborFixingDepositTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -49,22 +48,25 @@ public class ResolvedIborFixingDepositTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ResolvedIborFixingDepositTrade test = ResolvedIborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     ResolvedIborFixingDepositTrade test = ResolvedIborFixingDepositTrade.builder()
         .product(DEPOSIT)
         .info(TRADE_INFO)
         .build();
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedIborFixingDepositTrade test1 = ResolvedIborFixingDepositTrade.builder()
         .product(DEPOSIT)
@@ -77,6 +79,7 @@ public class ResolvedIborFixingDepositTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedIborFixingDepositTrade test = ResolvedIborFixingDepositTrade.builder()
         .product(DEPOSIT)

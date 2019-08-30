@@ -19,15 +19,13 @@ import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 import static com.opengamma.strata.product.swap.SwapLegType.OTHER;
 import static com.opengamma.strata.product.swap.SwapLegType.OVERNIGHT;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.common.PayReceive;
@@ -36,7 +34,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test.
  */
-@Test
 public class ResolvedSwapTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -79,58 +76,64 @@ public class ResolvedSwapTest {
       .paymentPeriods(RPP2)
       .build();
 
+  @Test
   public void test_of() {
     ResolvedSwap test = ResolvedSwap.of(LEG1, LEG2);
-    assertEquals(test.getLegs(), ImmutableSet.of(LEG1, LEG2));
-    assertEquals(test.getLegs(SwapLegType.FIXED), ImmutableList.of(LEG1));
-    assertEquals(test.getLegs(SwapLegType.IBOR), ImmutableList.of(LEG2));
-    assertEquals(test.getLeg(PayReceive.PAY), Optional.of(LEG1));
-    assertEquals(test.getLeg(PayReceive.RECEIVE), Optional.of(LEG2));
-    assertEquals(test.getPayLeg(), Optional.of(LEG1));
-    assertEquals(test.getReceiveLeg(), Optional.of(LEG2));
-    assertEquals(test.getStartDate(), LEG1.getStartDate());
-    assertEquals(test.getEndDate(), LEG1.getEndDate());
-    assertEquals(test.isCrossCurrency(), true);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, USD));
-    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertThat(test.getLegs()).containsOnly(LEG1, LEG2);
+    assertThat(test.getLegs(SwapLegType.FIXED)).containsExactly(LEG1);
+    assertThat(test.getLegs(SwapLegType.IBOR)).containsExactly(LEG2);
+    assertThat(test.getLeg(PayReceive.PAY)).isEqualTo(Optional.of(LEG1));
+    assertThat(test.getLeg(PayReceive.RECEIVE)).isEqualTo(Optional.of(LEG2));
+    assertThat(test.getPayLeg()).isEqualTo(Optional.of(LEG1));
+    assertThat(test.getReceiveLeg()).isEqualTo(Optional.of(LEG2));
+    assertThat(test.getStartDate()).isEqualTo(LEG1.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(LEG1.getEndDate());
+    assertThat(test.isCrossCurrency()).isTrue();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP, USD);
+    assertThat(test.allIndices()).containsOnly(GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_of_singleCurrency() {
     ResolvedSwap test = ResolvedSwap.of(LEG1);
-    assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
-    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertThat(test.getLegs()).containsOnly(LEG1);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP);
+    assertThat(test.allIndices()).containsOnly(GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_builder() {
     ResolvedSwap test = ResolvedSwap.builder()
         .legs(LEG1)
         .build();
-    assertEquals(test.getLegs(), ImmutableSet.of(LEG1));
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
-    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertThat(test.getLegs()).containsOnly(LEG1);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP);
+    assertThat(test.allIndices()).containsOnly(GBP_LIBOR_3M);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getLegs_SwapLegType() {
-    assertEquals(ResolvedSwap.of(LEG1, LEG2).getLegs(FIXED), ImmutableList.of(LEG1));
-    assertEquals(ResolvedSwap.of(LEG1, LEG2).getLegs(IBOR), ImmutableList.of(LEG2));
-    assertEquals(ResolvedSwap.of(LEG1, LEG2).getLegs(OVERNIGHT), ImmutableList.of());
-    assertEquals(ResolvedSwap.of(LEG1, LEG2).getLegs(OTHER), ImmutableList.of());
+    assertThat(ResolvedSwap.of(LEG1, LEG2).getLegs(FIXED)).containsExactly(LEG1);
+    assertThat(ResolvedSwap.of(LEG1, LEG2).getLegs(IBOR)).containsExactly(LEG2);
+    assertThat(ResolvedSwap.of(LEG1, LEG2).getLegs(OVERNIGHT)).isEmpty();
+    assertThat(ResolvedSwap.of(LEG1, LEG2).getLegs(OTHER)).isEmpty();
   }
 
+  @Test
   public void test_getLeg_PayReceive() {
-    assertEquals(ResolvedSwap.of(LEG1, LEG2).getLeg(PAY), Optional.of(LEG1));
-    assertEquals(ResolvedSwap.of(LEG1, LEG2).getLeg(RECEIVE), Optional.of(LEG2));
-    assertEquals(ResolvedSwap.of(LEG1).getLeg(PAY), Optional.of(LEG1));
-    assertEquals(ResolvedSwap.of(LEG2).getLeg(PAY), Optional.empty());
-    assertEquals(ResolvedSwap.of(LEG1).getLeg(RECEIVE), Optional.empty());
-    assertEquals(ResolvedSwap.of(LEG2).getLeg(RECEIVE), Optional.of(LEG2));
+    assertThat(ResolvedSwap.of(LEG1, LEG2).getLeg(PAY)).isEqualTo(Optional.of(LEG1));
+    assertThat(ResolvedSwap.of(LEG1, LEG2).getLeg(RECEIVE)).isEqualTo(Optional.of(LEG2));
+    assertThat(ResolvedSwap.of(LEG1).getLeg(PAY)).isEqualTo(Optional.of(LEG1));
+    assertThat(ResolvedSwap.of(LEG2).getLeg(PAY)).isEqualTo(Optional.empty());
+    assertThat(ResolvedSwap.of(LEG1).getLeg(RECEIVE)).isEqualTo(Optional.empty());
+    assertThat(ResolvedSwap.of(LEG2).getLeg(RECEIVE)).isEqualTo(Optional.of(LEG2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedSwap test = ResolvedSwap.builder()
         .legs(LEG1)
@@ -142,6 +145,7 @@ public class ResolvedSwapTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedSwap test = ResolvedSwap.builder()
         .legs(LEG1)

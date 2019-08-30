@@ -9,11 +9,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.Payment;
@@ -22,7 +22,6 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 /**
  * Test {@link ResolvedCapitalIndexedBondSettlement}. 
  */
-@Test
 public class ResolvedCapitalIndexedBondSettlementTest {
 
   private static final LocalDate SETTLE_DATE = date(2018, 6, 1);
@@ -38,19 +37,22 @@ public class ResolvedCapitalIndexedBondSettlementTest {
           Payment.of(Currency.GBP, 200, SETTLE_DATE2),
           SchedulePeriod.of(SETTLE_DATE2.minusMonths(1), SETTLE_DATE2));
 
+  @Test
   public void test_of() {
     ResolvedCapitalIndexedBondSettlement test = sut();
-    assertEquals(test.getSettlementDate(), SETTLE_DATE);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.getPayment(), SETTLE_PERIOD);
+    assertThat(test.getSettlementDate()).isEqualTo(SETTLE_DATE);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.getPayment()).isEqualTo(SETTLE_PERIOD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

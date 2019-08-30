@@ -13,12 +13,12 @@ import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -29,43 +29,46 @@ import com.opengamma.strata.basics.value.ValueStep;
 /**
  * Test.
  */
-@Test
 public class NotionalScheduleTest {
 
   private static final CurrencyAmount CA_GBP_1000 = CurrencyAmount.of(GBP, 1000d);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_CurrencyAmount() {
     NotionalSchedule test = NotionalSchedule.of(CA_GBP_1000);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), ValueSchedule.of(1000d));
-    assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.isInitialExchange(), false);
-    assertEquals(test.isIntermediateExchange(), false);
-    assertEquals(test.isFinalExchange(), false);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(ValueSchedule.of(1000d));
+    assertThat(test.getFxReset()).isEqualTo(Optional.empty());
+    assertThat(test.isInitialExchange()).isFalse();
+    assertThat(test.isIntermediateExchange()).isFalse();
+    assertThat(test.isFinalExchange()).isFalse();
   }
 
+  @Test
   public void test_of_CurrencyAndAmount() {
     NotionalSchedule test = NotionalSchedule.of(GBP, 1000d);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), ValueSchedule.of(1000d));
-    assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.isInitialExchange(), false);
-    assertEquals(test.isIntermediateExchange(), false);
-    assertEquals(test.isFinalExchange(), false);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(ValueSchedule.of(1000d));
+    assertThat(test.getFxReset()).isEqualTo(Optional.empty());
+    assertThat(test.isInitialExchange()).isFalse();
+    assertThat(test.isIntermediateExchange()).isFalse();
+    assertThat(test.isFinalExchange()).isFalse();
   }
 
+  @Test
   public void test_of_CurrencyAndValueSchedule() {
     ValueSchedule valueSchedule = ValueSchedule.of(1000d, ValueStep.of(1, ValueAdjustment.ofReplace(2000d)));
     NotionalSchedule test = NotionalSchedule.of(GBP, valueSchedule);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmount(), valueSchedule);
-    assertEquals(test.getFxReset(), Optional.empty());
-    assertEquals(test.isInitialExchange(), false);
-    assertEquals(test.isIntermediateExchange(), false);
-    assertEquals(test.isFinalExchange(), false);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmount()).isEqualTo(valueSchedule);
+    assertThat(test.getFxReset()).isEqualTo(Optional.empty());
+    assertThat(test.isInitialExchange()).isFalse();
+    assertThat(test.isIntermediateExchange()).isFalse();
+    assertThat(test.isFinalExchange()).isFalse();
   }
 
+  @Test
   public void test_builder_FxResetSetsFlags() {
     FxResetCalculation fxReset = FxResetCalculation.builder()
         .referenceCurrency(GBP)
@@ -79,14 +82,15 @@ public class NotionalScheduleTest {
         .finalExchange(true)
         .fxReset(fxReset)
         .build();
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getAmount(), ValueSchedule.of(2000d));
-    assertEquals(test.getFxReset(), Optional.of(fxReset));
-    assertEquals(test.isInitialExchange(), false);
-    assertEquals(test.isIntermediateExchange(), true);
-    assertEquals(test.isFinalExchange(), true);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getAmount()).isEqualTo(ValueSchedule.of(2000d));
+    assertThat(test.getFxReset()).isEqualTo(Optional.of(fxReset));
+    assertThat(test.isInitialExchange()).isFalse();
+    assertThat(test.isIntermediateExchange()).isTrue();
+    assertThat(test.isFinalExchange()).isTrue();
   }
 
+  @Test
   public void test_builder_invalidCurrencyFxReset() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> NotionalSchedule.builder()
@@ -110,6 +114,7 @@ public class NotionalScheduleTest {
         .build());
   }
 
+  @Test
   public void test_of_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> NotionalSchedule.of(null));
@@ -124,6 +129,7 @@ public class NotionalScheduleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     NotionalSchedule test = NotionalSchedule.of(GBP, 1000d);
     coverImmutableBean(test);
@@ -142,6 +148,7 @@ public class NotionalScheduleTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     NotionalSchedule test = NotionalSchedule.of(GBP, 1000d);
     assertSerialization(test);

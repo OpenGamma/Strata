@@ -14,12 +14,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -39,7 +38,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link CdsIndexTrade}.
  */
-@Test
 public class CdsIndexTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -62,43 +60,48 @@ public class CdsIndexTradeTest {
   private static final AdjustablePayment UPFRONT = AdjustablePayment.of(
       USD, NOTIONAL, AdjustableDate.of(SETTLE_DATE, BusinessDayAdjustment.of(FOLLOWING, SAT_SUN)));
 
+  @Test
   public void test_full_builder() {
     CdsIndexTrade test = sut();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpfrontFee().get(), UPFRONT);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getUpfrontFee().get()).isEqualTo(UPFRONT);
   }
 
+  @Test
   public void test_min_builder() {
     CdsIndexTrade test = CdsIndexTrade.builder()
         .product(PRODUCT)
         .info(TRADE_INFO)
         .build();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertFalse(test.getUpfrontFee().isPresent());
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getUpfrontFee().isPresent()).isFalse();
   }
 
+  @Test
   public void test_full_resolve() {
     ResolvedCdsIndexTrade test = sut()
         .resolve(REF_DATA);
-    assertEquals(test.getProduct(), PRODUCT.resolve(REF_DATA));
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpfrontFee().get(), UPFRONT.resolve(REF_DATA));
+    assertThat(test.getProduct()).isEqualTo(PRODUCT.resolve(REF_DATA));
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getUpfrontFee().get()).isEqualTo(UPFRONT.resolve(REF_DATA));
   }
 
+  @Test
   public void test_min_resolve() {
     ResolvedCdsIndexTrade test = CdsIndexTrade.builder()
         .product(PRODUCT)
         .info(TRADE_INFO)
         .build()
         .resolve(REF_DATA);
-    assertEquals(test.getProduct(), PRODUCT.resolve(REF_DATA));
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertFalse(test.getUpfrontFee().isPresent());
+    assertThat(test.getProduct()).isEqualTo(PRODUCT.resolve(REF_DATA));
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getUpfrontFee().isPresent()).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     CdsIndexTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -108,10 +111,11 @@ public class CdsIndexTradeTest {
         .currencies(Currency.USD)
         .description("10Y9M Buy USD 1000mm AA-INDEX / 5% : 20Dec13-20Sep24")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CdsIndexTrade test1 = sut();
     coverImmutableBean(test1);
@@ -123,6 +127,7 @@ public class CdsIndexTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     CdsIndexTrade test = sut();
     assertSerialization(test);

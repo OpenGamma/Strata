@@ -13,14 +13,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
@@ -33,7 +33,6 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 /**
  * Test {@link KnownAmountNotionalSwapPaymentPeriod}.
  */
-@Test
 public class KnownAmountNotionalSwapPaymentPeriodTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -50,35 +49,38 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
   private static final FxIndexObservation FX_RESET = FxIndexObservation.of(GBP_USD_WM, date(2014, 3, 28), REF_DATA);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     SchedulePeriod sched = SchedulePeriod.of(DATE_2014_03_30, DATE_2014_09_30);
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.of(PAYMENT_2014_10_03, sched, GBP_P50000);
-    assertEquals(test.getPayment(), PAYMENT_2014_10_03);
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_03);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotionalAmount(), GBP_P50000);
-    assertEquals(test.getFxResetObservation(), Optional.empty());
+    assertThat(test.getPayment()).isEqualTo(PAYMENT_2014_10_03);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_03);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotionalAmount()).isEqualTo(GBP_P50000);
+    assertThat(test.getFxResetObservation()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_of_fxReset() {
     SchedulePeriod sched = SchedulePeriod.of(DATE_2014_03_30, DATE_2014_09_30);
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.of(
         PAYMENT_2014_10_03, sched, USD_P50000, FX_RESET);
-    assertEquals(test.getPayment(), PAYMENT_2014_10_03);
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_03);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotionalAmount(), USD_P50000);
-    assertEquals(test.getFxResetObservation(), Optional.of(FX_RESET));
+    assertThat(test.getPayment()).isEqualTo(PAYMENT_2014_10_03);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_03);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotionalAmount()).isEqualTo(USD_P50000);
+    assertThat(test.getFxResetObservation()).isEqualTo(Optional.of(FX_RESET));
   }
 
+  @Test
   public void test_builder_defaultDates() {
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
@@ -87,17 +89,18 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
         .notionalAmount(USD_P50000)
         .fxResetObservation(FX_RESET)
         .build();
-    assertEquals(test.getPayment(), PAYMENT_2014_10_03);
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_10_01);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_10_01);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_03);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotionalAmount(), USD_P50000);
-    assertEquals(test.getFxResetObservation(), Optional.of(FX_RESET));
+    assertThat(test.getPayment()).isEqualTo(PAYMENT_2014_10_03);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_03);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotionalAmount()).isEqualTo(USD_P50000);
+    assertThat(test.getFxResetObservation()).isEqualTo(Optional.of(FX_RESET));
   }
 
+  @Test
   public void test_builder_invalid() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
@@ -152,6 +155,7 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_adjustPaymentDate() {
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_01)
@@ -169,11 +173,12 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
         .unadjustedEndDate(DATE_2014_09_30)
         .notionalAmount(GBP_P50000)
         .build();
-    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
-    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), expected);
+    assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0)))).isEqualTo(test);
+    assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2)))).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices_simple() {
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
@@ -185,19 +190,21 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of());
+    assertThat(builder.build()).isEmpty();
   }
 
+  @Test
   public void test_collectIndices_fxReset() {
     SchedulePeriod sched = SchedulePeriod.of(DATE_2014_03_30, DATE_2014_09_30);
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.of(
         PAYMENT_2014_10_03, sched, USD_P50000, FX_RESET);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(FX_RESET.getIndex()));
+    assertThat(builder.build()).containsOnly(FX_RESET.getIndex());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
@@ -217,6 +224,7 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     KnownAmountNotionalSwapPaymentPeriod test = KnownAmountNotionalSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)

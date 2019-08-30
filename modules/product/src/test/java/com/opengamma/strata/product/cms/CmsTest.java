@@ -13,14 +13,12 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -42,7 +40,6 @@ import com.opengamma.strata.product.swap.SwapLeg;
 /**
  * Test {@link Cms}.
  */
-@Test
 public class CmsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -69,45 +66,51 @@ public class CmsTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_twoLegs() {
     Cms test = sutCap();
-    assertEquals(test.getCmsLeg(), CMS_LEG);
-    assertEquals(test.getPayLeg().get(), PAY_LEG);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
-    assertEquals(test.allRateIndices(), ImmutableSet.of(CMS_LEG.getUnderlyingIndex()));
+    assertThat(test.getCmsLeg()).isEqualTo(CMS_LEG);
+    assertThat(test.getPayLeg().get()).isEqualTo(PAY_LEG);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(CMS_LEG.getCurrency());
+    assertThat(test.allCurrencies()).containsOnly(CMS_LEG.getCurrency());
+    assertThat(test.allRateIndices()).containsOnly(CMS_LEG.getUnderlyingIndex());
   }
 
+  @Test
   public void test_of_oneLeg() {
     Cms test = Cms.of(CMS_LEG);
-    assertEquals(test.getCmsLeg(), CMS_LEG);
-    assertFalse(test.getPayLeg().isPresent());
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(CMS_LEG.getCurrency()));
+    assertThat(test.getCmsLeg()).isEqualTo(CMS_LEG);
+    assertThat(test.getPayLeg().isPresent()).isFalse();
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(CMS_LEG.getCurrency());
+    assertThat(test.allCurrencies()).containsOnly(CMS_LEG.getCurrency());
   }
 
+  @Test
   public void test_resolve_twoLegs() {
     Cms base = sutCap();
     ResolvedCms test = base.resolve(REF_DATA);
-    assertEquals(test.getCmsLeg(), CMS_LEG.resolve(REF_DATA));
-    assertEquals(test.getPayLeg().get(), PAY_LEG.resolve(REF_DATA));
+    assertThat(test.getCmsLeg()).isEqualTo(CMS_LEG.resolve(REF_DATA));
+    assertThat(test.getPayLeg().get()).isEqualTo(PAY_LEG.resolve(REF_DATA));
   }
 
+  @Test
   public void test_resolve_oneLeg() {
     Cms base = Cms.of(CMS_LEG);
     ResolvedCms test = base.resolve(REF_DATA);
-    assertEquals(test.getCmsLeg(), CMS_LEG.resolve(REF_DATA));
-    assertFalse(test.getPayLeg().isPresent());
+    assertThat(test.getCmsLeg()).isEqualTo(CMS_LEG.resolve(REF_DATA));
+    assertThat(test.getPayLeg().isPresent()).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sutCap());
     coverBeanEquals(sutCap(), sutFloor());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sutCap());
   }

@@ -8,20 +8,19 @@ package com.opengamma.strata.product.credit;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link PaymentOnDefault}.
  */
-@Test
 public class PaymentOnDefaultTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {PaymentOnDefault.NONE, "None"},
@@ -29,35 +28,42 @@ public class PaymentOnDefaultTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(PaymentOnDefault convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(PaymentOnDefault convention, String name) {
-    assertEquals(PaymentOnDefault.of(name), convention);
+    assertThat(PaymentOnDefault.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PaymentOnDefault.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PaymentOnDefault.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(PaymentOnDefault.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(PaymentOnDefault.ACCRUED_PREMIUM);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(PaymentOnDefault.class, PaymentOnDefault.ACCRUED_PREMIUM);
   }

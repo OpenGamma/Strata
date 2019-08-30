@@ -9,16 +9,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.product.TradeInfo;
 
 /**
  * Test {@link ResolvedFraTrade}.
  */
-@Test
 public class ResolvedFraTradeTest {
 
   private static final ResolvedFra PRODUCT = ResolvedFraTest.sut();
@@ -26,26 +25,30 @@ public class ResolvedFraTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ResolvedFraTrade test = ResolvedFraTrade.of(TRADE_INFO, PRODUCT);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     ResolvedFraTrade test = ResolvedFraTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.empty());
-    assertEquals(test.getProduct(), PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

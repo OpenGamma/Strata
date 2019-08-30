@@ -9,16 +9,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.product.TradeInfo;
 
 /**
  * Test {@link ResolvedSwapTrade}.
  */
-@Test
 public class ResolvedSwapTradeTest {
 
   private static final ResolvedSwap SWAP1 = ResolvedSwap.of(ResolvedSwapTest.LEG1, ResolvedSwapTest.LEG2);
@@ -26,21 +25,24 @@ public class ResolvedSwapTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ResolvedSwapTrade test = ResolvedSwapTrade.of(TRADE_INFO, SWAP1);
-    assertEquals(test.getProduct(), SWAP1);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(SWAP1);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
         .product(SWAP1)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.empty());
-    assertEquals(test.getProduct(), SWAP1);
+    assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());
+    assertThat(test.getProduct()).isEqualTo(SWAP1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
         .info(TradeInfo.of(date(2014, 6, 30)))
@@ -53,6 +55,7 @@ public class ResolvedSwapTradeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedSwapTrade test = ResolvedSwapTrade.builder()
         .info(TradeInfo.of(date(2014, 6, 30)))

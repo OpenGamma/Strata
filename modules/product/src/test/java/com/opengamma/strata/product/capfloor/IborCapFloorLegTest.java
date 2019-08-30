@@ -15,14 +15,14 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -42,7 +42,6 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 /**
  * Test {@link IborCapFloorLeg}.
  */
-@Test
 public class IborCapFloorLegTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -77,6 +76,7 @@ public class IborCapFloorLegTest {
   private static final ValueSchedule FLOOR = ValueSchedule.of(STRIKES[0], FLOOR_STEPS);
   private static final ValueSchedule NOTIONAL = ValueSchedule.of(NOTIONALS[0], NOTIONAL_STEPS);
 
+  @Test
   public void test_builder_full() {
     IborCapFloorLeg test = IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
@@ -87,19 +87,20 @@ public class IborCapFloorLegTest {
         .paymentSchedule(SCHEDULE)
         .payReceive(PAY)
         .build();
-    assertEquals(test.getCalculation(), RATE_CALCULATION);
-    assertEquals(test.getCapSchedule().get(), CAP);
-    assertEquals(test.getFloorSchedule().isPresent(), false);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPaymentDateOffset(), PAYMENT_OFFSET);
-    assertEquals(test.getPaymentSchedule(), SCHEDULE);
-    assertEquals(test.getPayReceive(), PAY);
-    assertEquals(test.getStartDate(), AdjustableDate.of(START, BUSS_ADJ));
-    assertEquals(test.getEndDate(), AdjustableDate.of(END, BUSS_ADJ));
-    assertEquals(test.getIndex(), EUR_EURIBOR_3M);
+    assertThat(test.getCalculation()).isEqualTo(RATE_CALCULATION);
+    assertThat(test.getCapSchedule().get()).isEqualTo(CAP);
+    assertThat(test.getFloorSchedule()).isNotPresent();
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPaymentDateOffset()).isEqualTo(PAYMENT_OFFSET);
+    assertThat(test.getPaymentSchedule()).isEqualTo(SCHEDULE);
+    assertThat(test.getPayReceive()).isEqualTo(PAY);
+    assertThat(test.getStartDate()).isEqualTo(AdjustableDate.of(START, BUSS_ADJ));
+    assertThat(test.getEndDate()).isEqualTo(AdjustableDate.of(END, BUSS_ADJ));
+    assertThat(test.getIndex()).isEqualTo(EUR_EURIBOR_3M);
   }
 
+  @Test
   public void test_builder_min() {
     IborCapFloorLeg test = IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
@@ -108,18 +109,19 @@ public class IborCapFloorLegTest {
         .paymentSchedule(SCHEDULE)
         .payReceive(RECEIVE)
         .build();
-    assertEquals(test.getCalculation(), RATE_CALCULATION);
-    assertEquals(test.getCapSchedule().isPresent(), false);
-    assertEquals(test.getFloorSchedule().get(), FLOOR);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPaymentDateOffset(), DaysAdjustment.NONE);
-    assertEquals(test.getPaymentSchedule(), SCHEDULE);
-    assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), AdjustableDate.of(START, BUSS_ADJ));
-    assertEquals(test.getEndDate(), AdjustableDate.of(END, BUSS_ADJ));
+    assertThat(test.getCalculation()).isEqualTo(RATE_CALCULATION);
+    assertThat(test.getCapSchedule()).isNotPresent();
+    assertThat(test.getFloorSchedule().get()).isEqualTo(FLOOR);
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPaymentDateOffset()).isEqualTo(DaysAdjustment.NONE);
+    assertThat(test.getPaymentSchedule()).isEqualTo(SCHEDULE);
+    assertThat(test.getPayReceive()).isEqualTo(RECEIVE);
+    assertThat(test.getStartDate()).isEqualTo(AdjustableDate.of(START, BUSS_ADJ));
+    assertThat(test.getEndDate()).isEqualTo(AdjustableDate.of(END, BUSS_ADJ));
   }
 
+  @Test
   public void test_builder_fail() {
     // cap and floor present 
     assertThatIllegalArgumentException()
@@ -163,6 +165,7 @@ public class IborCapFloorLegTest {
         .build());
   }
 
+  @Test
   public void test_resolve_cap() {
     IborRateCalculation rateCalc = IborRateCalculation.builder()
         .index(EUR_EURIBOR_3M)
@@ -202,9 +205,10 @@ public class IborCapFloorLegTest {
         .payReceive(RECEIVE)
         .build();
     ResolvedIborCapFloorLeg computed = base.resolve(REF_DATA);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_floor() {
     IborCapFloorLeg base = IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
@@ -241,10 +245,11 @@ public class IborCapFloorLegTest {
         .payReceive(PAY)
         .build();
     ResolvedIborCapFloorLeg computed = base.resolve(REF_DATA);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborCapFloorLeg test1 = IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)
@@ -270,6 +275,7 @@ public class IborCapFloorLegTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborCapFloorLeg test = IborCapFloorLeg.builder()
         .calculation(RATE_CALCULATION)

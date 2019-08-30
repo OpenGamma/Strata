@@ -15,9 +15,9 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -25,7 +25,7 @@ import java.time.YearMonth;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -46,7 +46,6 @@ import com.opengamma.strata.product.rate.InflationMonthlyRateComputation;
 /**
  * Test {@link InflationRateCalculation}. 
  */
-@Test
 public class InflationRateCalculationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -72,27 +71,30 @@ public class InflationRateCalculationTest {
       ValueSchedule.of(1d, ValueStep.of(2, ValueAdjustment.ofReplace(2d)));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     InflationRateCalculation test1 = InflationRateCalculation.of(CH_CPI, 3, MONTHLY);
-    assertEquals(test1.getIndex(), CH_CPI);
-    assertEquals(test1.getLag(), Period.ofMonths(3));
-    assertEquals(test1.getIndexCalculationMethod(), MONTHLY);
-    assertEquals(test1.getFirstIndexValue(), OptionalDouble.empty());
-    assertEquals(test1.getGearing(), Optional.empty());
-    assertEquals(test1.getType(), SwapLegType.INFLATION);
+    assertThat(test1.getIndex()).isEqualTo(CH_CPI);
+    assertThat(test1.getLag()).isEqualTo(Period.ofMonths(3));
+    assertThat(test1.getIndexCalculationMethod()).isEqualTo(MONTHLY);
+    assertThat(test1.getFirstIndexValue()).isEqualTo(OptionalDouble.empty());
+    assertThat(test1.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test1.getType()).isEqualTo(SwapLegType.INFLATION);
   }
 
+  @Test
   public void test_of_firstIndexValue() {
     InflationRateCalculation test1 = InflationRateCalculation.of(CH_CPI, 3, MONTHLY, 123d);
-    assertEquals(test1.getIndex(), CH_CPI);
-    assertEquals(test1.getLag(), Period.ofMonths(3));
-    assertEquals(test1.getIndexCalculationMethod(), MONTHLY);
-    assertEquals(test1.getFirstIndexValue(), OptionalDouble.of(123d));
-    assertEquals(test1.getGearing(), Optional.empty());
-    assertEquals(test1.getType(), SwapLegType.INFLATION);
+    assertThat(test1.getIndex()).isEqualTo(CH_CPI);
+    assertThat(test1.getLag()).isEqualTo(Period.ofMonths(3));
+    assertThat(test1.getIndexCalculationMethod()).isEqualTo(MONTHLY);
+    assertThat(test1.getFirstIndexValue()).isEqualTo(OptionalDouble.of(123d));
+    assertThat(test1.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test1.getType()).isEqualTo(SwapLegType.INFLATION);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
         .index(CH_CPI)
@@ -100,31 +102,33 @@ public class InflationRateCalculationTest {
         .indexCalculationMethod(MONTHLY)
         .firstIndexValue(123d)
         .build();
-    assertEquals(test1.getIndex(), CH_CPI);
-    assertEquals(test1.getLag(), Period.ofMonths(3));
-    assertEquals(test1.getIndexCalculationMethod(), MONTHLY);
-    assertEquals(test1.getGearing(), Optional.empty());
-    assertEquals(test1.getFirstIndexValue(), OptionalDouble.of(123d));
-    assertEquals(test1.getType(), SwapLegType.INFLATION);
+    assertThat(test1.getIndex()).isEqualTo(CH_CPI);
+    assertThat(test1.getLag()).isEqualTo(Period.ofMonths(3));
+    assertThat(test1.getIndexCalculationMethod()).isEqualTo(MONTHLY);
+    assertThat(test1.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test1.getFirstIndexValue()).isEqualTo(OptionalDouble.of(123d));
+    assertThat(test1.getType()).isEqualTo(SwapLegType.INFLATION);
     InflationRateCalculation test2 = InflationRateCalculation.builder()
         .index(GB_HICP)
         .lag(Period.ofMonths(4))
         .indexCalculationMethod(INTERPOLATED)
         .gearing(GEARING)
         .build();
-    assertEquals(test2.getIndex(), GB_HICP);
-    assertEquals(test2.getLag(), Period.ofMonths(4));
-    assertEquals(test2.getIndexCalculationMethod(), INTERPOLATED);
-    assertEquals(test2.getFirstIndexValue(), OptionalDouble.empty());
-    assertEquals(test2.getGearing().get(), GEARING);
-    assertEquals(test2.getType(), SwapLegType.INFLATION);
+    assertThat(test2.getIndex()).isEqualTo(GB_HICP);
+    assertThat(test2.getLag()).isEqualTo(Period.ofMonths(4));
+    assertThat(test2.getIndexCalculationMethod()).isEqualTo(INTERPOLATED);
+    assertThat(test2.getFirstIndexValue()).isEqualTo(OptionalDouble.empty());
+    assertThat(test2.getGearing().get()).isEqualTo(GEARING);
+    assertThat(test2.getType()).isEqualTo(SwapLegType.INFLATION);
   }
 
+  @Test
   public void test_builder_missing_index() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationRateCalculation.builder().build());
   }
 
+  @Test
   public void test_builder_badLag() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationRateCalculation.builder()
@@ -139,6 +143,7 @@ public class InflationRateCalculationTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
@@ -147,10 +152,11 @@ public class InflationRateCalculationTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GB_HICP));
+    assertThat(builder.build()).containsOnly(GB_HICP);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createAccrualPeriods_Monthly() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
@@ -182,9 +188,10 @@ public class InflationRateCalculationTest {
                 YearMonth.from(DATE_2015_04_05).minusMonths(3)))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_createAccrualPeriods_Interpolated() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
@@ -222,9 +229,10 @@ public class InflationRateCalculationTest {
             weight3))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_createRateComputation_InterpolatedJapan() {
     LocalDate date1 = LocalDate.of(2013, 3, 9);
     LocalDate date2 = LocalDate.of(2013, 3, 10);
@@ -244,11 +252,12 @@ public class InflationRateCalculationTest {
         JP_CPI_EXF, START_INDEX, YearMonth.from(date2).minusMonths(3), weight2);
     InflationEndInterpolatedRateComputation obs3 = InflationEndInterpolatedRateComputation.of(
         JP_CPI_EXF, START_INDEX, YearMonth.from(date3).minusMonths(3), weight3);
-    assertEquals(test.createRateComputation(date1), obs1);
-    assertEquals(test.createRateComputation(date2), obs2);
-    assertEquals(test.createRateComputation(date3), obs3);
+    assertThat(test.createRateComputation(date1)).isEqualTo(obs1);
+    assertThat(test.createRateComputation(date2)).isEqualTo(obs2);
+    assertThat(test.createRateComputation(date3)).isEqualTo(obs3);
   }
 
+  @Test
   public void test_createAccrualPeriods_Monthly_firstKnown() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
@@ -281,10 +290,11 @@ public class InflationRateCalculationTest {
                 YearMonth.from(DATE_2015_04_05).minusMonths(3)))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createRateComputation_Monthly() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(GB_HICP)
@@ -298,11 +308,12 @@ public class InflationRateCalculationTest {
         GB_HICP, START_INDEX, YearMonth.from(DATE_2015_03_07).minusMonths(3));
     InflationEndMonthRateComputation obs3 = InflationEndMonthRateComputation.of(
         GB_HICP, START_INDEX, YearMonth.from(DATE_2015_04_05).minusMonths(3));
-    assertEquals(test.createRateComputation(DATE_2015_02_05), obs1);
-    assertEquals(test.createRateComputation(DATE_2015_03_07), obs2);
-    assertEquals(test.createRateComputation(DATE_2015_04_05), obs3);
+    assertThat(test.createRateComputation(DATE_2015_02_05)).isEqualTo(obs1);
+    assertThat(test.createRateComputation(DATE_2015_03_07)).isEqualTo(obs2);
+    assertThat(test.createRateComputation(DATE_2015_04_05)).isEqualTo(obs3);
   }
 
+  @Test
   public void test_createRateComputation_Interpolated() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
@@ -319,11 +330,12 @@ public class InflationRateCalculationTest {
         CH_CPI, START_INDEX, YearMonth.from(DATE_2015_03_07).minusMonths(3), weight2);
     InflationEndInterpolatedRateComputation obs3 = InflationEndInterpolatedRateComputation.of(
         CH_CPI, START_INDEX, YearMonth.from(DATE_2015_04_05).minusMonths(3), weight3);
-    assertEquals(test.createRateComputation(DATE_2015_02_05), obs1);
-    assertEquals(test.createRateComputation(DATE_2015_03_07), obs2);
-    assertEquals(test.createRateComputation(DATE_2015_04_05), obs3);
+    assertThat(test.createRateComputation(DATE_2015_02_05)).isEqualTo(obs1);
+    assertThat(test.createRateComputation(DATE_2015_03_07)).isEqualTo(obs2);
+    assertThat(test.createRateComputation(DATE_2015_04_05)).isEqualTo(obs3);
   }
 
+  @Test
   public void test_createRateComputation_noFirstIndexValue() {
     InflationRateCalculation test = InflationRateCalculation.builder()
         .index(CH_CPI)
@@ -335,6 +347,7 @@ public class InflationRateCalculationTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
         .index(CH_CPI)
@@ -351,6 +364,7 @@ public class InflationRateCalculationTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     InflationRateCalculation test1 = InflationRateCalculation.builder()
         .index(CH_CPI)

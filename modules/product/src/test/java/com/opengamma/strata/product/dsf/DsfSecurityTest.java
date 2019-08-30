@@ -19,14 +19,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -56,7 +55,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 /**
  * Test {@link DsfSecurity}.
  */
-@Test
 public class DsfSecurityTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -74,14 +72,16 @@ public class DsfSecurityTest {
   private static final double NOTIONAL = 100000;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     DsfSecurity test = sut();
-    assertEquals(test.getInfo(), INFO);
-    assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
-    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
+    assertThat(test.getInfo()).isEqualTo(INFO);
+    assertThat(test.getSecurityId()).isEqualTo(PRODUCT.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(PRODUCT.getCurrency());
+    assertThat(test.getUnderlyingIds()).isEmpty();
   }
 
+  @Test
   public void test_builder_notUnitNotional() {
     SwapLeg fixedLeg10 = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
@@ -169,9 +169,10 @@ public class DsfSecurityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createProduct() {
     DsfSecurity test = sut();
-    assertEquals(test.createProduct(ReferenceData.empty()), PRODUCT);
+    assertThat(test.createProduct(ReferenceData.empty())).isEqualTo(PRODUCT);
     TradeInfo tradeInfo = TradeInfo.of(PRODUCT.getLastTradeDate().minusDays(1));
     DsfTrade expectedTrade = DsfTrade.builder()
         .info(tradeInfo)
@@ -179,7 +180,7 @@ public class DsfSecurityTest {
         .quantity(100)
         .price(123.50)
         .build();
-    assertEquals(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty()), expectedTrade);
+    assertThat(test.createTrade(tradeInfo, 100, 123.50, ReferenceData.empty())).isEqualTo(expectedTrade);
 
     PositionInfo positionInfo = PositionInfo.empty();
     DsfPosition expectedPosition1 = DsfPosition.builder()
@@ -194,15 +195,17 @@ public class DsfSecurityTest {
         .longQuantity(100)
         .shortQuantity(50)
         .build();
-    assertEquals(test.createPosition(positionInfo, 100, 50, ReferenceData.empty()), expectedPosition2);
+    assertThat(test.createPosition(positionInfo, 100, 50, ReferenceData.empty())).isEqualTo(expectedPosition2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

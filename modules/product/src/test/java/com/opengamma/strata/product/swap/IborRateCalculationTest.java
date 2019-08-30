@@ -27,14 +27,14 @@ import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
 import static com.opengamma.strata.product.swap.IborRateResetMethod.WEIGHTED;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.NOT_NEGATIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -57,7 +57,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test.
  */
-@Test
 public class IborRateCalculationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -120,39 +119,42 @@ public class IborRateCalculationTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     IborRateCalculation test = IborRateCalculation.of(GBP_LIBOR_3M);
-    assertEquals(test.getType(), SwapLegType.IBOR);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getResetPeriods(), Optional.empty());
-    assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
-    assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getGearing(), Optional.empty());
-    assertEquals(test.getSpread(), Optional.empty());
+    assertThat(test.getType()).isEqualTo(SwapLegType.IBOR);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_3M);
+    assertThat(test.getResetPeriods()).isEqualTo(Optional.empty());
+    assertThat(test.getFixingRelativeTo()).isEqualTo(PERIOD_START);
+    assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_3M.getFixingDateOffset());
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
+    assertThat(test.getFirstRegularRate()).isEqualTo(OptionalDouble.empty());
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test.getSpread()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_ensureDefaults() {
     IborRateCalculation test = IborRateCalculation.builder()
         .index(GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getResetPeriods(), Optional.empty());
-    assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_3M.getFixingDateOffset());
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
-    assertEquals(test.getFirstRegularRate(), OptionalDouble.empty());
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getGearing(), Optional.empty());
-    assertEquals(test.getSpread(), Optional.empty());
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_3M);
+    assertThat(test.getResetPeriods()).isEqualTo(Optional.empty());
+    assertThat(test.getFixingRelativeTo()).isEqualTo(PERIOD_START);
+    assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_3M.getFixingDateOffset());
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
+    assertThat(test.getFirstRegularRate()).isEqualTo(OptionalDouble.empty());
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test.getSpread()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_ensureOptionalDouble() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -160,25 +162,27 @@ public class IborRateCalculationTest {
         .fixingDateOffset(MINUS_TWO_DAYS)
         .firstRegularRate(0.028d)
         .build();
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getIndex(), GBP_LIBOR_3M);
-    assertEquals(test.getResetPeriods(), Optional.empty());
-    assertEquals(test.getFixingRelativeTo(), PERIOD_START);
-    assertEquals(test.getFixingDateOffset(), MINUS_TWO_DAYS);
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
-    assertEquals(test.getFirstRegularRate(), OptionalDouble.of(0.028d));
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getGearing(), Optional.empty());
-    assertEquals(test.getSpread(), Optional.empty());
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_3M);
+    assertThat(test.getResetPeriods()).isEqualTo(Optional.empty());
+    assertThat(test.getFixingRelativeTo()).isEqualTo(PERIOD_START);
+    assertThat(test.getFixingDateOffset()).isEqualTo(MINUS_TWO_DAYS);
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
+    assertThat(test.getFirstRegularRate()).isEqualTo(OptionalDouble.of(0.028d));
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test.getSpread()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborRateCalculation.builder().build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices_simple() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -187,9 +191,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_1M);
   }
 
+  @Test
   public void test_collectIndices_stubCalcsTwoStubs() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -200,9 +205,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_1W, GBP_LIBOR_3M));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_1M, GBP_LIBOR_1W, GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_collectIndices_stubCalcsTwoStubs_interpolated() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -213,10 +219,11 @@ public class IborRateCalculationTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_1M, GBP_LIBOR_1W, GBP_LIBOR_3M));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_1M, GBP_LIBOR_1W, GBP_LIBOR_3M);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_simple() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -236,9 +243,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_simpleFinalStub() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -259,9 +267,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_FINAL_STUB, ACCRUAL_SCHEDULE_FINAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_simpleInitialStub() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -282,9 +291,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_simpleTwoStubs() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -305,10 +315,11 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_stubCalcsTwoStubs() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -331,9 +342,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_stubCalcsTwoStubs_interpolated() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -356,9 +368,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_singlePeriod_stubCalcsInitialStub_interpolated() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -372,10 +385,11 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(SINGLE_ACCRUAL_SCHEDULE_STUB, SINGLE_ACCRUAL_SCHEDULE_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1));
+    assertThat(periods).containsExactly(rap1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_firstFixingDateOffsetNoStub() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -396,9 +410,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_firstFixingDateOffsetInitialStub() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -420,10 +435,11 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_firstRegularRateFixed() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -445,9 +461,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_firstRegularRateFixedInitialStub() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -470,9 +487,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_firstRegularRateFixedTwoStubs() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -494,10 +512,11 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_STUBS, ACCRUAL_SCHEDULE_STUBS, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_firstRateFixed() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -518,9 +537,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborRateComputation.of(GBP_LIBOR_1M, DATE_03_03, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_firstRateFixedInitialStubNotSpecified() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -542,9 +562,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_firstRateFixedInitialStubSpecifiedNone() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -567,9 +588,10 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_firstRateFixedInitialStubSpecified() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -592,10 +614,11 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods =
         test.createAccrualPeriods(ACCRUAL_SCHEDULE_INITIAL_STUB, ACCRUAL_SCHEDULE_INITIAL_STUB, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_resetPeriods_weighted() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -640,9 +663,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2));
+    assertThat(periods).containsExactly(rap1, rap2);
   }
 
+  @Test
   public void test_expand_resetPeriods_weighted_firstFixed() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -688,9 +712,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2));
+    assertThat(periods).containsExactly(rap1, rap2);
   }
 
+  @Test
   public void test_expand_resetPeriods_weighted_firstFixingDateOffset() {
     // only the fixing date of the first reset period is changed, everything else stays the same
     IborRateCalculation test = IborRateCalculation.builder()
@@ -737,9 +762,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2));
+    assertThat(periods).containsExactly(rap1, rap2);
   }
 
+  @Test
   public void test_expand_resetPeriods_unweighted() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -784,9 +810,10 @@ public class IborRateCalculationTest {
         .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2));
+    assertThat(periods).containsExactly(rap1, rap2);
   }
 
+  @Test
   public void test_expand_initialStubAndResetPeriods_weighted_firstFixed() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_360)
@@ -825,10 +852,11 @@ public class IborRateCalculationTest {
         .rateComputation(IborAveragedRateComputation.of(fixings2))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2));
+    assertThat(periods).containsExactly(rap1, rap2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_gearingSpreadEverythingElse() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_360)
@@ -858,10 +886,11 @@ public class IborRateCalculationTest {
         .spread(-0.025d)
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -889,6 +918,7 @@ public class IborRateCalculationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborRateCalculation test = IborRateCalculation.builder()
         .dayCount(ACT_365F)

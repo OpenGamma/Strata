@@ -8,32 +8,34 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link ResolvedFixedCouponBondTrade}.
  */
-@Test
 public class ResolvedFixedCouponBondTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedFixedCouponBondTrade test = sut();
-    assertEquals(test.getSettlement().isPresent(), true);
+    assertThat(test.getSettlement()).isPresent();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

@@ -9,9 +9,10 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -24,7 +25,6 @@ import com.opengamma.strata.product.TradedPrice;
 /**
  * Test {@link BondFutureOptionTrade}. 
  */
-@Test
 public class BondFutureOptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -39,18 +39,20 @@ public class BondFutureOptionTradeTest {
   private static final Double PRICE2 = 0.02;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     BondFutureOptionTrade test = sut();
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getProduct(), OPTION_PRODUCT);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(OPTION_PRODUCT);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withPrice(129).getPrice()).isCloseTo(129d, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     BondFutureOptionTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -60,10 +62,11 @@ public class BondFutureOptionTradeTest {
         .currencies(Currency.USD)
         .description("BondFutureOption x 1234")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     ResolvedBondFutureOptionTrade expected = ResolvedBondFutureOptionTrade.builder()
         .info(TRADE_INFO)
@@ -71,10 +74,11 @@ public class BondFutureOptionTradeTest {
         .quantity(QUANTITY)
         .tradedPrice(TradedPrice.of(TRADE_INFO.getTradeDate().get(), PRICE))
         .build();
-    assertEquals(sut().resolve(REF_DATA), expected);
+    assertThat(sut().resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withQuantity() {
     BondFutureOptionTrade base = sut();
     double quantity = 5432d;
@@ -85,9 +89,10 @@ public class BondFutureOptionTradeTest {
         .quantity(quantity)
         .price(PRICE)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_withPrice() {
     BondFutureOptionTrade base = sut();
     double price = 0.05d;
@@ -98,15 +103,17 @@ public class BondFutureOptionTradeTest {
         .quantity(QUANTITY)
         .price(price)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

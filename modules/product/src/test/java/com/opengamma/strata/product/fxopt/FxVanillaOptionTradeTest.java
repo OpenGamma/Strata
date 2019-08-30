@@ -10,9 +10,9 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -26,7 +26,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link FxVanillaOptionTrade}.
  */
-@Test
 public class FxVanillaOptionTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -38,16 +37,18 @@ public class FxVanillaOptionTradeTest {
       AdjustablePayment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     FxVanillaOptionTrade test = sut();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getProduct().getCurrencyPair(), PRODUCT.getCurrencyPair());
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getPremium(), PREMIUM);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getProduct().getCurrencyPair()).isEqualTo(PRODUCT.getCurrencyPair());
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getPremium()).isEqualTo(PREMIUM);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     FxVanillaOptionTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -56,10 +57,11 @@ public class FxVanillaOptionTradeTest {
         .currencies(Currency.USD, Currency.EUR)
         .description("Long Rec EUR 1mm @ EUR/USD 1.35 Premium EUR 50k : 14Feb15")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     FxVanillaOptionTrade test = sut();
     ResolvedFxVanillaOptionTrade expected = ResolvedFxVanillaOptionTrade.builder()
@@ -67,15 +69,17 @@ public class FxVanillaOptionTradeTest {
         .product(PRODUCT.resolve(REF_DATA))
         .premium(PREMIUM.resolve(REF_DATA))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

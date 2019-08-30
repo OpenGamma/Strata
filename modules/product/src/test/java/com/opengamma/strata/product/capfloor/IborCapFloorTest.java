@@ -16,13 +16,12 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
@@ -40,7 +39,6 @@ import com.opengamma.strata.product.swap.SwapLeg;
 /**
  * Test {@link IborCapFloor}.
  */
-@Test
 public class IborCapFloorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -88,51 +86,57 @@ public class IborCapFloorTest {
           NotionalSchedule.of(GBP, NOTIONAL))
       .build();
 
+  @Test
   public void test_of_oneLeg() {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG);
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
-    assertEquals(test.getPayLeg().isPresent(), false);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR));
-    assertEquals(test.allIndices(), ImmutableSet.of(EUR_EURIBOR_3M));
+    assertThat(test.getCapFloorLeg()).isEqualTo(CAPFLOOR_LEG);
+    assertThat(test.getPayLeg()).isNotPresent();
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(EUR);
+    assertThat(test.allCurrencies()).containsOnly(EUR);
+    assertThat(test.allIndices()).containsOnly(EUR_EURIBOR_3M);
   }
 
+  @Test
   public void test_of_twoLegs() {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
-    assertEquals(test.getPayLeg().get(), PAY_LEG);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR));
-    assertEquals(test.allIndices(), ImmutableSet.of(EUR_EURIBOR_3M));
+    assertThat(test.getCapFloorLeg()).isEqualTo(CAPFLOOR_LEG);
+    assertThat(test.getPayLeg().get()).isEqualTo(PAY_LEG);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(EUR);
+    assertThat(test.allCurrencies()).containsOnly(EUR);
+    assertThat(test.allIndices()).containsOnly(EUR_EURIBOR_3M);
   }
 
+  @Test
   public void test_of_twoLegs_xccy() {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG_XCCY);
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG);
-    assertEquals(test.getPayLeg().get(), PAY_LEG_XCCY);
-    assertEquals(test.isCrossCurrency(), true);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP, EUR));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, EUR));
-    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M, EUR_EURIBOR_3M));
+    assertThat(test.getCapFloorLeg()).isEqualTo(CAPFLOOR_LEG);
+    assertThat(test.getPayLeg().get()).isEqualTo(PAY_LEG_XCCY);
+    assertThat(test.isCrossCurrency()).isTrue();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP, EUR);
+    assertThat(test.allCurrencies()).containsOnly(GBP, EUR);
+    assertThat(test.allIndices()).containsOnly(GBP_LIBOR_3M, EUR_EURIBOR_3M);
   }
 
+  @Test
   public void test_resolve_oneLeg() {
     IborCapFloor base = IborCapFloor.of(CAPFLOOR_LEG);
     ResolvedIborCapFloor test = base.resolve(REF_DATA);
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.resolve(REF_DATA));
-    assertEquals(test.getPayLeg().isPresent(), false);
+    assertThat(test.getCapFloorLeg()).isEqualTo(CAPFLOOR_LEG.resolve(REF_DATA));
+    assertThat(test.getPayLeg()).isNotPresent();
   }
 
+  @Test
   public void test_resolve_twoLegs() {
     IborCapFloor base = IborCapFloor.of(CAPFLOOR_LEG, PAY_LEG);
     ResolvedIborCapFloor test = base.resolve(REF_DATA);
-    assertEquals(test.getCapFloorLeg(), CAPFLOOR_LEG.resolve(REF_DATA));
-    assertEquals(test.getPayLeg().get(), PAY_LEG.resolve(REF_DATA));
+    assertThat(test.getCapFloorLeg()).isEqualTo(CAPFLOOR_LEG.resolve(REF_DATA));
+    assertThat(test.getPayLeg().get()).isEqualTo(PAY_LEG.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborCapFloor test1 = IborCapFloor.of(CAPFLOOR_LEG);
     coverImmutableBean(test1);
@@ -148,6 +152,7 @@ public class IborCapFloorTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborCapFloor test = IborCapFloor.of(CAPFLOOR_LEG);
     assertSerialization(test);

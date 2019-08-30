@@ -10,12 +10,12 @@ import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.YearMonth;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
@@ -23,19 +23,20 @@ import com.opengamma.strata.basics.index.Index;
 /**
  * Test {@link InflationMonthlyRateComputation}.
  */
-@Test
 public class InflationMonthlyRateComputationTest {
 
   private static final YearMonth START_MONTH = YearMonth.of(2014, 1);
   private static final YearMonth END_MONTH = YearMonth.of(2015, 1);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     InflationMonthlyRateComputation test =
         InflationMonthlyRateComputation.of(GB_HICP, START_MONTH, END_MONTH);
-    assertEquals(test.getIndex(), GB_HICP);
+    assertThat(test.getIndex()).isEqualTo(GB_HICP);
   }
 
+  @Test
   public void test_wrongMonthOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationMonthlyRateComputation.of(GB_HICP, END_MONTH, START_MONTH));
@@ -44,15 +45,17 @@ public class InflationMonthlyRateComputationTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     InflationMonthlyRateComputation test =
         InflationMonthlyRateComputation.of(GB_HICP, START_MONTH, END_MONTH);
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GB_HICP));
+    assertThat(builder.build()).containsOnly(GB_HICP);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     InflationMonthlyRateComputation test1 =
         InflationMonthlyRateComputation.of(GB_HICP, START_MONTH, END_MONTH);
@@ -62,6 +65,7 @@ public class InflationMonthlyRateComputationTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     InflationMonthlyRateComputation test =
         InflationMonthlyRateComputation.of(GB_HICP, START_MONTH, END_MONTH);
