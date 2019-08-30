@@ -10,54 +10,58 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ReportingCurrency}.
  */
-@Test
 public class ReportingCurrencyTest {
 
+  @Test
   public void test_NATURAL() {
     ReportingCurrency test = ReportingCurrency.NATURAL;
-    assertEquals(test.getType(), ReportingCurrencyType.NATURAL);
-    assertEquals(test.isSpecific(), false);
-    assertEquals(test.isNatural(), true);
-    assertEquals(test.isNone(), false);
-    assertEquals(test.toString(), "Natural");
+    assertThat(test.getType()).isEqualTo(ReportingCurrencyType.NATURAL);
+    assertThat(test.isSpecific()).isFalse();
+    assertThat(test.isNatural()).isTrue();
+    assertThat(test.isNone()).isFalse();
+    assertThat(test.toString()).isEqualTo("Natural");
     assertThatIllegalStateException().isThrownBy(() -> test.getCurrency());
   }
 
+  @Test
   public void test_NONE() {
     ReportingCurrency test = ReportingCurrency.NONE;
-    assertEquals(test.getType(), ReportingCurrencyType.NONE);
-    assertEquals(test.isSpecific(), false);
-    assertEquals(test.isNatural(), false);
-    assertEquals(test.isNone(), true);
-    assertEquals(test.toString(), "None");
+    assertThat(test.getType()).isEqualTo(ReportingCurrencyType.NONE);
+    assertThat(test.isSpecific()).isFalse();
+    assertThat(test.isNatural()).isFalse();
+    assertThat(test.isNone()).isTrue();
+    assertThat(test.toString()).isEqualTo("None");
     assertThatIllegalStateException().isThrownBy(() -> test.getCurrency());
   }
 
+  @Test
   public void test_of_specific() {
     ReportingCurrency test = ReportingCurrency.of(USD);
-    assertEquals(test.getType(), ReportingCurrencyType.SPECIFIC);
-    assertEquals(test.isSpecific(), true);
-    assertEquals(test.isNatural(), false);
-    assertEquals(test.isNone(), false);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.toString(), "Specific:USD");
+    assertThat(test.getType()).isEqualTo(ReportingCurrencyType.SPECIFIC);
+    assertThat(test.isSpecific()).isTrue();
+    assertThat(test.isNatural()).isFalse();
+    assertThat(test.isNone()).isFalse();
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.toString()).isEqualTo("Specific:USD");
   }
 
+  @Test
   public void test_type() {
-    assertEquals(ReportingCurrencyType.of("Specific").toString(), "Specific");
-    assertEquals(ReportingCurrencyType.of("Natural").toString(), "Natural");
-    assertEquals(ReportingCurrencyType.of("None").toString(), "None");
+    assertThat(ReportingCurrencyType.of("Specific").toString()).isEqualTo("Specific");
+    assertThat(ReportingCurrencyType.of("Natural").toString()).isEqualTo("Natural");
+    assertThat(ReportingCurrencyType.of("None").toString()).isEqualTo("None");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ReportingCurrency test = ReportingCurrency.NATURAL;
     coverImmutableBean(test);
@@ -66,6 +70,7 @@ public class ReportingCurrencyTest {
     coverEnum(ReportingCurrencyType.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(ReportingCurrency.NATURAL);
     assertSerialization(ReportingCurrency.of(USD));

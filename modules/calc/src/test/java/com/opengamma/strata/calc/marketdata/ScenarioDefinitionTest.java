@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -20,7 +20,6 @@ import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 
-@Test
 public class ScenarioDefinitionTest {
 
   private static final TestFilter FILTER_A = new TestFilter("a");
@@ -36,6 +35,7 @@ public class ScenarioDefinitionTest {
 
   private static final PerturbationMapping<Object> MAPPING_C = PerturbationMapping.of(FILTER_C, PERTURBATION_C1);
 
+  @Test
   public void ofMappings() {
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     ScenarioDefinition scenarioDefinition = ScenarioDefinition.ofMappings(mappings);
@@ -44,6 +44,7 @@ public class ScenarioDefinitionTest {
     assertThat(scenarioDefinition.getScenarioNames()).isEqualTo(scenarioNames);
   }
 
+  @Test
   public void ofMappingsWithNames() {
     List<PerturbationMapping<Object>> mappings = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     List<String> scenarioNames = ImmutableList.of("foo", "bar");
@@ -85,6 +86,7 @@ public class ScenarioDefinitionTest {
     assertThatIllegalArgumentException().isThrownBy(() -> ScenarioDefinition.ofMappings(mappings, scenarioNames));
   }
 
+  @Test
   public void repeatItems() {
     List<Integer> inputs = ImmutableList.of(1, 2, 3, 4);
 
@@ -104,6 +106,7 @@ public class ScenarioDefinitionTest {
   /**
    * Tests that exceptions are thrown when the scenario names contain duplicate values.
    */
+  @Test
   public void nonUniqueNames() {
     List<PerturbationMapping<Object>> mappings2 = ImmutableList.of(MAPPING_A, MAPPING_B, MAPPING_C);
     List<String> names2 = ImmutableList.of("foo", "foo");

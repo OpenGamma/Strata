@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.calc.runner;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.basics.ReferenceData;
@@ -19,9 +19,9 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
-@Test
 public class CompositeCalculationFunctionsTest {
 
+  @Test
   public void compose() {
     Fn1 fn1a = new Fn1();
     Fn1 fn1b = new Fn1();
@@ -31,8 +31,8 @@ public class CompositeCalculationFunctionsTest {
     CalculationFunctions fns2 = CalculationFunctions.of(fn1b, fn2);
     CalculationFunctions composed = fns1.composedWith(fns2);
 
-    assertEquals(composed.getFunction(new Target1()), fn1a);
-    assertEquals(composed.getFunction(new Target2()), fn2);
+    assertThat(composed.getFunction(new Target1())).isEqualTo(fn1a);
+    assertThat(composed.getFunction(new Target2())).isEqualTo(fn2);
   }
 
   //-------------------------------------------------------------------------

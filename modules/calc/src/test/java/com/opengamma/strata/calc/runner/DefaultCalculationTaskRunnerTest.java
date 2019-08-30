@@ -11,7 +11,6 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -23,7 +22,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -46,7 +46,6 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 /**
  * Test {@link CalculationTaskRunner} and {@link DefaultCalculationTaskRunner}.
  */
-@Test(singleThreaded = true)
 public class DefaultCalculationTaskRunnerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -56,6 +55,7 @@ public class DefaultCalculationTaskRunnerTest {
 
   //-------------------------------------------------------------------------
   // Test that ScenarioArrays containing a single value are unwrapped.
+  @Test
   public void unwrapScenarioResults() throws Exception {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PRESENT_VALUE, scenarioResult);
@@ -92,6 +92,7 @@ public class DefaultCalculationTaskRunnerTest {
   /**
    * Test that ScenarioArrays containing multiple values are an error.
    */
+  @Test
   public void unwrapMultipleScenarioResults() {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo", "bar");
     ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PAR_RATE, scenarioResult);
@@ -110,6 +111,7 @@ public class DefaultCalculationTaskRunnerTest {
   /**
    * Test that ScenarioArrays containing a single value are unwrapped when calling calculateAsync().
    */
+  @Test
   public void unwrapScenarioResultsAsync() {
     ScenarioArray<String> scenarioResult = ScenarioArray.of("foo");
     ScenarioResultFunction fn = new ScenarioResultFunction(TestingMeasures.PRESENT_VALUE, scenarioResult);
@@ -140,6 +142,7 @@ public class DefaultCalculationTaskRunnerTest {
   /**
    * Tests that running an empty list of tasks completes and returns a set of results with zero rows.
    */
+  @Test
   public void runWithNoTasks() {
     Column column = Column.of(TestingMeasures.PRESENT_VALUE);
     CalculationTasks tasks = CalculationTasks.of(ImmutableList.of(), ImmutableList.of(column));
@@ -219,7 +222,8 @@ public class DefaultCalculationTaskRunnerTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(timeOut = 5000)
+  @Test
+  @Timeout(5)
   public void interruptHangingCalculate() throws InterruptedException {
     HangingFunction fn = new HangingFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
@@ -251,15 +255,16 @@ public class DefaultCalculationTaskRunnerTest {
     thread.interrupt();
     latch.await();
     // asserts
-    assertEquals(interrupted.get(), true);
-    assertEquals(shouldNeverThrow.get(), false);
+    assertThat(interrupted.get()).isTrue();
+    assertThat(shouldNeverThrow.get()).isFalse();
     Result<?> result00 = results.get().get(0, 0);
-    assertEquals(result00.isFailure(), true);
-    assertEquals(result00.getFailure().getReason(), FailureReason.CALCULATION_FAILED);
-    assertEquals(result00.getFailure().getMessage().contains("Runtime interrupted"), true);
+    assertThat(result00.isFailure()).isTrue();
+    assertThat(result00.getFailure().getReason()).isEqualTo(FailureReason.CALCULATION_FAILED);
+    assertThat(result00.getFailure().getMessage().contains("Runtime interrupted")).isTrue();
   }
 
-  @Test(timeOut = 5000)
+  @Test
+  @Timeout(5)
   public void interruptHangingResultsListener() throws InterruptedException {
     HangingFunction fn = new HangingFunction();
     CalculationTaskCell cell = CalculationTaskCell.of(0, 0, TestingMeasures.PRESENT_VALUE, NATURAL);
@@ -294,10 +299,10 @@ public class DefaultCalculationTaskRunnerTest {
       thread.interrupt();
       latch.await();
       // asserts
-      assertEquals(interrupted.get(), true);
-      assertEquals(shouldNeverComplete.get(), false);
-      assertEquals(thrown.get() instanceof RuntimeException, true);
-      assertEquals(thrown.get().getCause() instanceof InterruptedException, true);
+      assertThat(interrupted.get()).isTrue();
+      assertThat(shouldNeverComplete.get()).isFalse();
+      assertThat(thrown.get() instanceof RuntimeException).isTrue();
+      assertThat(thrown.get().getCause() instanceof InterruptedException).isTrue();
     } finally {
       executor.shutdownNow();
     }

@@ -8,7 +8,7 @@ package com.opengamma.strata.calc;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -21,13 +21,13 @@ import com.opengamma.strata.data.scenario.ScenarioMarketData;
 /**
  * Test {@link CalculationRunner} and {@link DefaultCalculationRunner}.
  */
-@Test
 public class DefaultCalculationRunnerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final TestTarget TARGET = new TestTarget();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     try (CalculationRunner test = CalculationRunner.ofMultiThreaded()) {
       assertThat(test.getTaskRunner()).isNotNull();
@@ -35,6 +35,7 @@ public class DefaultCalculationRunnerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void calculate() {
     ImmutableList<CalculationTarget> targets = ImmutableList.of(TARGET);
     Column column1 = Column.of(TestingMeasures.PRESENT_VALUE);

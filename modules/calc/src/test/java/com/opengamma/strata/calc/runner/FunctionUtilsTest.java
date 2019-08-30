@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -18,9 +18,9 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 
-@Test
 public class FunctionUtilsTest {
 
+  @Test
   public void toScenarioArray() {
     List<CurrencyAmount> amounts = ImmutableList.of(
         CurrencyAmount.of(Currency.GBP, 1),
@@ -31,6 +31,7 @@ public class FunctionUtilsTest {
     assertThat(result).isEqualTo(expectedResult);
   }
 
+  @Test
   public void toScenarioArray2() {
     List<MultiCurrencyAmount> amounts = ImmutableList.of(
         MultiCurrencyAmount.of(Currency.GBP, 1),
@@ -41,6 +42,7 @@ public class FunctionUtilsTest {
     assertThat(result).isEqualTo(expectedResult);
   }
 
+  @Test
   public void toMultiCurrencyArray() {
     List<MultiCurrencyAmount> amounts = ImmutableList.of(
         MultiCurrencyAmount.of(

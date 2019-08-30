@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -27,9 +27,9 @@ import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
-@Test
 public class DerivedCalculationFunctionsTest {
 
+  @Test
   public void oneDerivedFunction() {
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),
@@ -49,6 +49,7 @@ public class DerivedCalculationFunctionsTest {
   /**
    * Test that multiple derived functions for the same target type are correctly combined.
    */
+  @Test
   public void multipleDerivedFunctionsForSameTargetType() {
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),
@@ -71,6 +72,7 @@ public class DerivedCalculationFunctionsTest {
    * Test that multiple derived functions for the same target type are correctly combined when one derived function
    * depends on another.
    */
+  @Test
   public void multipleDerivedFunctionsForSameTargetTypeWithDependencyBetweenDerivedFunctions() {
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),
@@ -92,6 +94,7 @@ public class DerivedCalculationFunctionsTest {
     assertThat(function.supportedMeasures()).isEqualTo(expectedMeasures);
   }
 
+  @Test
   public void oneDerivedFunctionWithAnotherTargetType() {
     Map<Measure, Result<?>> delegate1Results = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),

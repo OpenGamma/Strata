@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -34,7 +34,6 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.data.scenario.ScenarioPerturbation;
 
-@Test
 public class DefaultMarketDataFactoryTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,6 +42,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building time series from requirements.
    */
+  @Test
   public void buildTimeSeries() {
     TestObservableId id1 = TestObservableId.of("1");
     TestObservableId id2 = TestObservableId.of("2");
@@ -73,6 +73,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests non-observable market data values supplied by the user are included in the results.
    */
+  @Test
   public void buildSuppliedNonObservableValues() {
     TestId id1 = new TestId("1");
     TestId id2 = new TestId("2");
@@ -93,6 +94,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building single values using market data functions.
    */
+  @Test
   public void buildNonObservableValues() {
     ObservableId idA = new TestIdA("1");
     MarketDataId<?> idC = new TestIdC("1");
@@ -120,6 +122,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building observable market data values.
    */
+  @Test
   public void buildObservableValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -137,6 +140,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests observable market data values supplied by the user are included in the results.
    */
+  @Test
   public void buildSuppliedObservableValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         ObservableDataProvider.none(),
@@ -158,6 +162,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building market data that depends on other market data.
    */
+  @Test
   public void buildDataFromOtherData() {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
@@ -219,6 +224,7 @@ public class DefaultMarketDataFactoryTest {
    * requirements will not contain par rates IDs. The requirements contain curve IDs and the curve
    * building function will declare that it requires par rates.
    */
+  @Test
   public void buildDataFromSuppliedData() {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
@@ -275,6 +281,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests an exception is thrown when there is no builder for an ID type.
    */
+  @Test
   public void noMarketDataBuilderAvailable() {
     TestIdB idB1 = new TestIdB("1");
     TestIdB idB2 = new TestIdB("2");
@@ -302,6 +309,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building a result and keeping the intermediate values.
    */
+  @Test
   public void buildWithIntermediateValues() {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
@@ -359,6 +367,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building multiple observable values for scenarios where the values aren't perturbed.
    */
+  @Test
   public void buildObservableScenarioValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -386,6 +395,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests observable values supplied by the user are included in the results when they aren't perturbed
    */
+  @Test
   public void buildSuppliedObservableScenarioValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         ObservableDataProvider.none(),
@@ -417,6 +427,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Test that time series from the supplied data are copied to the scenario data.
    */
+  @Test
   public void buildSuppliedTimeSeries() {
     MarketDataFactory factory = MarketDataFactory.of(
         ObservableDataProvider.none(),
@@ -458,6 +469,7 @@ public class DefaultMarketDataFactoryTest {
     assertThat(marketData.getTimeSeries(id2)).isEqualTo(timeSeries2);
   }
 
+  @Test
   public void perturbObservableValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -484,6 +496,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests that observable data is only perturbed once, even if there are two applicable perturbation mappings.
    */
+  @Test
   public void observableDataOnlyPerturbedOnce() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -513,6 +526,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests building multiple values of non-observable market data for multiple scenarios. The data isn't perturbed.
    */
+  @Test
   public void buildNonObservableScenarioValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -549,6 +563,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests non-observable values supplied by the user are included in the results when they aren't perturbed
    */
+  @Test
   public void buildSuppliedNonObservableScenarioValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         ObservableDataProvider.none(),
@@ -583,6 +598,7 @@ public class DefaultMarketDataFactoryTest {
    * requirements will not contain par rates IDs. The requirements contain curve IDs and the curve
    * building function will declare that it requires par rates.
    */
+  @Test
   public void buildScenarioValuesFromSuppliedData() {
     TestMarketDataFunctionB builderB = new TestMarketDataFunctionB();
     TestMarketDataFunctionC builderC = new TestMarketDataFunctionC();
@@ -659,6 +675,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests that perturbations are applied to non-observable market data.
    */
+  @Test
   public void perturbNonObservableValues() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -688,6 +705,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests that non-observable data is only perturbed once, even if there are two applicable perturbation mappings.
    */
+  @Test
   public void nonObservableDataOnlyPerturbedOnce() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -719,6 +737,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests that observable data built from observable values see the effects of the perturbations.
    */
+  @Test
   public void nonObservableDataBuiltFromPerturbedObservableData() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -749,6 +768,7 @@ public class DefaultMarketDataFactoryTest {
    * Tests that an exception is thrown when building observable market data for scenarios where there is no
    * market data function.
    */
+  @Test
   public void nonObservableScenarioDataWithMissingBuilder() {
     MarketDataFactory factory = MarketDataFactory.of(
         new TestObservableDataProvider(),
@@ -778,6 +798,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests that perturbations are applied to observable data supplied by the user.
    */
+  @Test
   public void perturbSuppliedNonObservableData() {
     MarketDataFactory factory = MarketDataFactory.of(
         ObservableDataProvider.none(),
@@ -804,6 +825,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests that perturbations are applied to non-observable data supplied by the user.
    */
+  @Test
   public void perturbSuppliedObservableData() {
     MarketDataFactory factory = MarketDataFactory.of(
         ObservableDataProvider.none(),
@@ -830,6 +852,7 @@ public class DefaultMarketDataFactoryTest {
   /**
    * Tests ObservableDataProvider.none(), which is never normally be invoked.
    */
+  @Test
   public void coverage_ObservableDataProvider_none() {
     TestObservableId id = TestObservableId.of(StandardId.of("reqs", "a"));
     ObservableDataProvider test = ObservableDataProvider.none();

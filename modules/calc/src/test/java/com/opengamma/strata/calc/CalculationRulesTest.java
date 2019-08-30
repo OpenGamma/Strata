@@ -8,9 +8,9 @@ package com.opengamma.strata.calc;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.calc.runner.CalculationFunctions;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -20,42 +20,46 @@ import com.opengamma.strata.calc.runner.TestParameter;
 /**
  * Test {@link CalculationRules}.
  */
-@Test
 public class CalculationRulesTest {
 
   private static final CalculationFunctions FUNCTIONS = CalculationFunctions.empty();
   private static final CalculationParameter PARAM = new TestParameter();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_FunctionsParametersArray() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, PARAM);
-    assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
-    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
+    assertThat(test.getFunctions()).isEqualTo(FUNCTIONS);
+    assertThat(test.getReportingCurrency()).isEqualTo(ReportingCurrency.NATURAL);
+    assertThat(test.getParameters()).isEqualTo(CalculationParameters.of(PARAM));
   }
 
+  @Test
   public void test_of_FunctionsParametersObject() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, CalculationParameters.of(PARAM));
-    assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getReportingCurrency(), ReportingCurrency.NATURAL);
-    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
+    assertThat(test.getFunctions()).isEqualTo(FUNCTIONS);
+    assertThat(test.getReportingCurrency()).isEqualTo(ReportingCurrency.NATURAL);
+    assertThat(test.getParameters()).isEqualTo(CalculationParameters.of(PARAM));
   }
 
+  @Test
   public void test_of_FunctionsCurrencyParametersArray() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, USD, PARAM);
-    assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
-    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
+    assertThat(test.getFunctions()).isEqualTo(FUNCTIONS);
+    assertThat(test.getReportingCurrency()).isEqualTo(ReportingCurrency.of(USD));
+    assertThat(test.getParameters()).isEqualTo(CalculationParameters.of(PARAM));
   }
 
+  @Test
   public void test_of_All() {
     CalculationRules test = CalculationRules.of(FUNCTIONS, ReportingCurrency.of(USD), CalculationParameters.of(PARAM));
-    assertEquals(test.getFunctions(), FUNCTIONS);
-    assertEquals(test.getReportingCurrency(), ReportingCurrency.of(USD));
-    assertEquals(test.getParameters(), CalculationParameters.of(PARAM));
+    assertThat(test.getFunctions()).isEqualTo(FUNCTIONS);
+    assertThat(test.getReportingCurrency()).isEqualTo(ReportingCurrency.of(USD));
+    assertThat(test.getParameters()).isEqualTo(CalculationParameters.of(PARAM));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CalculationRules test = CalculationRules.of(FUNCTIONS);
     coverImmutableBean(test);
