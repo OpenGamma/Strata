@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardId;
@@ -34,9 +34,9 @@ import com.opengamma.strata.report.ReportCalculationResults;
 /**
  * Test {@link ValuePathEvaluator}.
  */
-@Test
 public class ValuePathEvaluatorTest {
 
+  @Test
   public void measurePath() {
     ReportCalculationResults reportResults = reportResults();
 
@@ -57,6 +57,7 @@ public class ValuePathEvaluatorTest {
     assertThat(amountResults).isEqualTo(expectedAmounts);
   }
 
+  @Test
   public void measurePath_failure_noDot() {
     ReportCalculationResults reportResults = reportResults();
 
@@ -67,6 +68,7 @@ public class ValuePathEvaluatorTest {
     assertThat(result.getFailure().getMessage()).contains("ParRate");
   }
 
+  @Test
   public void measurePath_failure_noMeasureName() {
     ReportCalculationResults reportResults = reportResults();
 
@@ -77,6 +79,7 @@ public class ValuePathEvaluatorTest {
     assertThat(result.getFailure().getMessage()).contains("ParRate");
   }
 
+  @Test
   public void measurePath_failure_unknownMeasure() {
     ReportCalculationResults reportResults = reportResults();
 
@@ -88,6 +91,7 @@ public class ValuePathEvaluatorTest {
     assertThat(result.getFailure().getMessage()).contains("ParRate");
   }
 
+  @Test
   public void measurePath_failure_nonQueriedMeasure() {
     ReportCalculationResults reportResults = reportResults();
 
@@ -98,6 +102,7 @@ public class ValuePathEvaluatorTest {
     assertThat(result.getFailure().getMessage()).contains("ParRate");
   }
 
+  @Test
   public void tradePath() {
     ReportCalculationResults reportResults = reportResults();
 
@@ -111,6 +116,7 @@ public class ValuePathEvaluatorTest {
     assertThat(counterpartyResults2).isEqualTo(expectedCounterparties);
   }
 
+  @Test
   public void productPath() {
     ReportCalculationResults reportResults = reportResults();
 

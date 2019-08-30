@@ -7,7 +7,7 @@ package com.opengamma.strata.report.framework.format;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -17,9 +17,9 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 /**
  * Test {@link CurrencyParameterSensitivityValueFormatter}.
  */
-@Test
 public class CurrencyParameterSensitivityValueFormatterTest {
 
+  @Test
   public void formatForCsv() {
     CurrencyParameterSensitivity sensitivity =
         CurrencyParameterSensitivity.of(CurveName.of("foo"), Currency.AED, DoubleArray.of(10, 20, 30));
@@ -27,6 +27,7 @@ public class CurrencyParameterSensitivityValueFormatterTest {
     assertThat(str).isEqualTo("1 = 10 | 2 = 20 | 3 = 30");
   }
 
+  @Test
   public void formatForDisplay() {
     CurrencyParameterSensitivity sensitivity =
         CurrencyParameterSensitivity.of(CurveName.of("foo"), Currency.AED, DoubleArray.of(1, 2, 3));

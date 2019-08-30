@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -29,11 +29,11 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link TradeTokenEvaluator}.
  */
-@Test
 public class TradeTokenEvaluatorTest {
 
   private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
+  @Test
   public void tokens() {
     TradeTokenEvaluator evaluator = new TradeTokenEvaluator();
     Set<String> tokens = evaluator.tokens(trade());
@@ -52,6 +52,7 @@ public class TradeTokenEvaluatorTest {
     assertThat(tokens).isEqualTo(expected);
   }
 
+  @Test
   public void evaluate() {
     TradeTokenEvaluator evaluator = new TradeTokenEvaluator();
     Trade trade = trade();

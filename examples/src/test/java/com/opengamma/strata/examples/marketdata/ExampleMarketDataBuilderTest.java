@@ -5,17 +5,15 @@
  */
 package com.opengamma.strata.examples.marketdata;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
@@ -38,7 +36,6 @@ import com.opengamma.strata.market.observable.QuoteId;
 /**
  * Test {@link ExampleMarketDataBuilder}, {@link DirectoryMarketDataBuilder} and {@link JarMarketDataBuilder}.
  */
-@Test
 public class ExampleMarketDataBuilderTest {
 
   private static final String EXAMPLE_MARKET_DATA_CLASSPATH_ROOT = "example-marketdata";
@@ -79,67 +76,72 @@ public class ExampleMarketDataBuilderTest {
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15")),
       QuoteId.of(StandardId.of("OG-Future", "CME-F1U-Jun15"), FieldName.SETTLEMENT_PRICE));
 
+  @Test
   public void test_directory() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();
     DirectoryMarketDataBuilder builder = new DirectoryMarketDataBuilder(rootPath);
     assertBuilder(builder);
   }
 
+  @Test
   public void test_ofPath() {
     Path rootPath = new File(EXAMPLE_MARKET_DATA_DIRECTORY_ROOT).toPath();
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
     assertBuilder(builder);
   }
 
+  @Test
   public void test_ofPath_with_spaces() {
     Path rootPath = new File(TEST_SPACES_DIRECTORY_ROOT).toPath();
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofPath(rootPath);
 
     ImmutableMarketData snapshot = builder.buildSnapshot(LocalDate.of(2015, 1, 1));
-    assertEquals(snapshot.getTimeSeries().size(), 1);
+    assertThat(snapshot.getTimeSeries()).hasSize(1);
   }
 
+  @Test
   public void test_ofResource_directory() {
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource(EXAMPLE_MARKET_DATA_CLASSPATH_ROOT);
     assertBuilder(builder);
   }
 
+  @Test
   public void test_ofResource_directory_extraSlashes() {
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource("/" + EXAMPLE_MARKET_DATA_CLASSPATH_ROOT + "/");
     assertBuilder(builder);
   }
 
+  @Test
   public void test_ofResource_directory_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> ExampleMarketDataBuilder.ofResource("bad-dir"));
   }
 
+  @Test
   public void test_ofResource_directory_with_spaces() {
     ExampleMarketDataBuilder builder = ExampleMarketDataBuilder.ofResource(TEST_SPACES_CLASSPATH_ROOT);
 
     ImmutableMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
-    assertEquals(snapshot.getTimeSeries().size(), 1);
+    assertThat(snapshot.getTimeSeries()).hasSize(1);
   }
 
   //-------------------------------------------------------------------------
   private void assertBuilder(ExampleMarketDataBuilder builder) {
     ImmutableMarketData snapshot = builder.buildSnapshot(MARKET_DATA_DATE);
 
-    assertEquals(MARKET_DATA_DATE, snapshot.getValuationDate());
+    assertThat(MARKET_DATA_DATE).isEqualTo(snapshot.getValuationDate());
 
     for (ObservableId id : TIME_SERIES) {
-      assertFalse(snapshot.getTimeSeries(id).isEmpty(), "Time-series not found: " + id);
+      assertThat(snapshot.getTimeSeries(id).isEmpty()).as("Time-series not found: " + id).isFalse();
     }
-    assertEquals(snapshot.getTimeSeries().size(), TIME_SERIES.size(),
-        Messages.format("Snapshot contained unexpected time-series: {}",
-            Sets.difference(snapshot.getTimeSeries().keySet(), TIME_SERIES)));
+    assertThat(snapshot.getTimeSeries().size()).as(Messages.format("Snapshot contained unexpected time-series: {}",
+            Sets.difference(snapshot.getTimeSeries().keySet(), TIME_SERIES))).isEqualTo(TIME_SERIES.size());
 
     for (MarketDataId<?> id : VALUES) {
-      assertTrue(snapshot.containsValue(id), "Id not found: " + id);
+      assertThat(snapshot.containsValue(id)).as("Id not found: " + id).isTrue();
     }
 
-    assertEquals(snapshot.getValues().size(), VALUES.size(),
-        Messages.format("Snapshot contained unexpected market data: {}",
-            Sets.difference(snapshot.getValues().keySet(), VALUES)));
+    assertThat(snapshot.getValues().size()).as(Messages.format("Snapshot contained unexpected market data: {}",
+            Sets.difference(snapshot.getValues().keySet(), VALUES))).isEqualTo(VALUES.size());
   }
 
 }

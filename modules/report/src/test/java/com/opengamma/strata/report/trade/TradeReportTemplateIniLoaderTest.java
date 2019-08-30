@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.report.trade;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.io.IniFile;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -15,9 +15,9 @@ import com.opengamma.strata.collect.io.ResourceLocator;
 /**
  * Test {@link TradeReportTemplateIniLoader}.
  */
-@Test
 public class TradeReportTemplateIniLoaderTest {
 
+  @Test
   public void test_simple_values() {
     TradeReportTemplate template = parseIni("trade-report-test-simple.ini");
 
@@ -31,11 +31,12 @@ public class TradeReportTemplateIniLoaderTest {
         .header("Present Value")
         .build();
 
-    assertEquals(template.getColumns().size(), 2);
-    assertEquals(template.getColumns().get(0), productColumn);
-    assertEquals(template.getColumns().get(1), pvColumn);
+    assertThat(template.getColumns()).hasSize(2);
+    assertThat(template.getColumns().get(0)).isEqualTo(productColumn);
+    assertThat(template.getColumns().get(1)).isEqualTo(pvColumn);
   }
 
+  @Test
   public void test_path() {
     TradeReportTemplate template = parseIni("trade-report-test-path.ini");
 
@@ -44,10 +45,11 @@ public class TradeReportTemplateIniLoaderTest {
         .header("Pay Leg Ccy")
         .build();
 
-    assertEquals(template.getColumns().size(), 1);
-    assertEquals(template.getColumns().get(0), payLegCcyColumn);
+    assertThat(template.getColumns()).hasSize(1);
+    assertThat(template.getColumns().get(0)).isEqualTo(payLegCcyColumn);
   }
 
+  @Test
   public void test_ignore_failures() {
     TradeReportTemplate template = parseIni("trade-report-test-ignore-failures.ini");
 
@@ -62,9 +64,9 @@ public class TradeReportTemplateIniLoaderTest {
         .ignoreFailures(true)
         .build();
 
-    assertEquals(template.getColumns().size(), 2);
-    assertEquals(template.getColumns().get(0), payLegCcyColumn);
-    assertEquals(template.getColumns().get(1), pvColumn);
+    assertThat(template.getColumns()).hasSize(2);
+    assertThat(template.getColumns().get(0)).isEqualTo(payLegCcyColumn);
+    assertThat(template.getColumns().get(1)).isEqualTo(pvColumn);
   }
 
   private TradeReportTemplate parseIni(String resourceName) {

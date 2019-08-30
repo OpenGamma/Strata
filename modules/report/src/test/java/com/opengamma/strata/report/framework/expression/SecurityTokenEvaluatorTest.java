@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -26,13 +26,13 @@ import com.opengamma.strata.product.SecurityInfo;
 /**
  * Test {@link SecurityTokenEvaluator}.
  */
-@Test
 public class SecurityTokenEvaluatorTest {
 
   private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
   private static final SecurityId ID = SecurityId.of("OG-Test", "1");
 
+  @Test
   public void tokens() {
     SecurityTokenEvaluator evaluator = new SecurityTokenEvaluator();
     Set<String> tokens = evaluator.tokens(security());
@@ -48,6 +48,7 @@ public class SecurityTokenEvaluatorTest {
     assertThat(tokens).isEqualTo(expected);
   }
 
+  @Test
   public void evaluate() {
     SecurityTokenEvaluator evaluator = new SecurityTokenEvaluator();
     Security sec = security();

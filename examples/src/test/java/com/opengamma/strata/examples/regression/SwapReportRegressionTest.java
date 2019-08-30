@@ -11,7 +11,7 @@ import static com.opengamma.strata.measure.StandardComponents.marketDataFactory;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -56,7 +56,6 @@ import com.opengamma.strata.report.trade.TradeReportTemplate;
 /**
  * Regression test for an example swap report.
  */
-@Test
 public class SwapReportRegressionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -64,6 +63,7 @@ public class SwapReportRegressionTest {
   /**
    * Tests the full set of results against a golden copy.
    */
+  @Test
   public void testResults() {
     List<Trade> trades = ImmutableList.of(createTrade1());
 

@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -29,11 +29,11 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.swap.SwapLegType;
 
-@Test
 public class BeanTokenEvaluatorTest {
 
   private static final CalculationFunctions FUNCTIONS = StandardComponents.calculationFunctions();
 
+  @Test
   public void evaluate() {
     Bean bean = bean();
     BeanTokenEvaluator evaluator = new BeanTokenEvaluator();
@@ -45,6 +45,7 @@ public class BeanTokenEvaluatorTest {
     assertThat(notional2.getResult()).hasValue(1_000_000d);
   }
 
+  @Test
   public void tokens() {
     Bean bean = bean();
     BeanTokenEvaluator evaluator = new BeanTokenEvaluator();
@@ -76,6 +77,7 @@ public class BeanTokenEvaluatorTest {
    * 2) If the token doesn't match the property it is assumed to match something on the property's value. In this
    *    case the property value is returned and no tokens are consumed.
    */
+  @Test
   public void evaluateSingleProperty() {
     SwapLegAmount amount = SwapLegAmount.builder()
         .amount(CurrencyAmount.of(Currency.AUD, 7))
@@ -99,6 +101,7 @@ public class BeanTokenEvaluatorTest {
    * Tests the tokens() method when the bean has a single property. The tokens should include the single property
    * name plus the tokens of the property value.
    */
+  @Test
   public void tokensSingleProperty() {
     SwapLegAmount amount = SwapLegAmount.builder()
         .amount(CurrencyAmount.of(Currency.AUD, 7))

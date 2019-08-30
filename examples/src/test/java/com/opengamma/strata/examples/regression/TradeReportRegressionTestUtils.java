@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.examples.regression;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import org.testng.Assert;
 
 import com.google.common.base.Strings;
 import com.opengamma.strata.collect.Messages;
@@ -34,11 +35,11 @@ public final class TradeReportRegressionTestUtils {
     for (int i = 0; i < maxLines; i++) {
       if (i >= actualLines.size()) {
         String expectedLine = expectedLines.get(i);
-        Assert.fail(Messages.format("No more results but expected:\n{}", expectedLine));
+        fail(Messages.format("No more results but expected:\n{}", expectedLine));
       }
       if (i >= expectedLines.size()) {
         String actualLine = actualLines.get(i);
-        Assert.fail(Messages.format("Expected end of results but got:\n{}", actualLine));
+        fail(Messages.format("Expected end of results but got:\n{}", actualLine));
       }
       String actualLine = actualLines.get(i);
       String expectedLine = expectedLines.get(i);
@@ -46,23 +47,23 @@ public final class TradeReportRegressionTestUtils {
         if (isDataRow(expectedLine) && isDataRow(actualLine)) {
           List<String> actualCells = toCells(actualLine);
           List<String> expectedCells = toCells(expectedLine);
-          Assert.assertEquals(actualCells, expectedCells, "Mismatch at line " + i);
+          assertThat(actualCells).as("Mismatch at line " + i).isEqualTo(expectedCells);
         } else {
-          Assert.fail(Messages.format(
-              "Mismatch at line {}:\n" +
-                  "Expected:\n" +
-                  "{}\n" +
-                  "Got:\n" +
-                  "{}\n" +
-                  "Expected table:\n" +
-                  "{}\n" +
-                  "Actual table:\n" +
-                  "{}",
-              i,
-              expectedLine,
-              actualLine,
-              expected,
-              actual));
+          fail(Messages.format(
+                  "Mismatch at line {}:\n" +
+                          "Expected:\n" +
+                          "{}\n" +
+                          "Got:\n" +
+                          "{}\n" +
+                          "Expected table:\n" +
+                          "{}\n" +
+                          "Actual table:\n" +
+                          "{}",
+                  i,
+                  expectedLine,
+                  actualLine,
+                  expected,
+                  actual));
         }
       }
     }
