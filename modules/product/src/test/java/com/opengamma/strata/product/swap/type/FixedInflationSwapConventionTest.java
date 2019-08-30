@@ -22,15 +22,16 @@ import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.Currency;
@@ -45,7 +46,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link FixedInflationSwapConvention}.
  */
-@Test
 public class FixedInflationSwapConventionTest {
 
   private static final Period LAG_3M = Period.ofMonths(3);
@@ -62,30 +62,33 @@ public class FixedInflationSwapConventionTest {
   private static final InflationRateSwapLegConvention INFL3 = InflationRateSwapLegConvention.of(GB_RPIX, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
         NAME,
         FIXED,
         INFL,
         PLUS_ONE_DAY);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED);
-    assertEquals(test.getFloatingLeg(), INFL);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getFixedLeg()).isEqualTo(FIXED);
+    assertThat(test.getFloatingLeg()).isEqualTo(INFL);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
+  @Test
   public void test_of_spotDateOffset() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
         NAME,
         FIXED,
         INFL,
         PLUS_ONE_DAY);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED);
-    assertEquals(test.getFloatingLeg(), INFL);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getFixedLeg()).isEqualTo(FIXED);
+    assertThat(test.getFloatingLeg()).isEqualTo(INFL);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
+  @Test
   public void test_builder() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.builder()
         .name(NAME)
@@ -93,13 +96,14 @@ public class FixedInflationSwapConventionTest {
         .floatingLeg(INFL)
         .spotDateOffset(PLUS_ONE_DAY)
         .build();
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED);
-    assertEquals(test.getFloatingLeg(), INFL);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getFixedLeg()).isEqualTo(FIXED);
+    assertThat(test.getFloatingLeg()).isEqualTo(INFL);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade_dates() {
     ImmutableFixedInflationSwapConvention base = ImmutableFixedInflationSwapConvention.of(
         NAME,
@@ -113,12 +117,11 @@ public class FixedInflationSwapConventionTest {
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         INFL.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FixedInflationSwapConventions.GBP_FIXED_ZC_GB_HCIP, "GBP-FIXED-ZC-GB-HCIP"},
@@ -126,39 +129,46 @@ public class FixedInflationSwapConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(FixedInflationSwapConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FixedInflationSwapConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FixedInflationSwapConvention convention, String name) {
-    assertEquals(FixedInflationSwapConvention.of(name), convention);
+    assertThat(FixedInflationSwapConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(FixedInflationSwapConvention convention, String name) {
     FixedInflationSwapConvention.of(name);  // ensures map is populated
     ImmutableMap<String, FixedInflationSwapConvention> map = FixedInflationSwapConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedInflationSwapConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedInflationSwapConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableFixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
         NAME,
@@ -180,6 +190,7 @@ public class FixedInflationSwapConventionTest {
     coverBeanEquals(test, test3);
   }
 
+  @Test
   public void test_serialization() {
     FixedInflationSwapConvention test = ImmutableFixedInflationSwapConvention.of(
         NAME,

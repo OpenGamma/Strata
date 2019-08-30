@@ -5,33 +5,34 @@
  */
 package com.opengamma.strata.product.etd;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link EtdContractCode}.
  */
-@Test
 public class EtdContractCodeTest {
 
   private static final Object ANOTHER_TYPE = "";
 
+  @Test
   public void test_of() {
     EtdContractCode test = EtdContractCode.of("test");
-    assertEquals(test.toString(), "test");
+    assertThat(test.toString()).isEqualTo("test");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     EtdContractCode a = EtdContractCode.of("test");
     EtdContractCode a2 = EtdContractCode.of("test");
     EtdContractCode b = EtdContractCode.of("test2");
-    assertEquals(a.equals(a), true);
-    assertEquals(a.equals(a2), true);
-    assertEquals(a.equals(b), false);
-    assertEquals(a.equals(null), false);
-    assertEquals(a.equals(ANOTHER_TYPE), false);
+    assertThat(a.equals(a)).isTrue();
+    assertThat(a.equals(a2)).isTrue();
+    assertThat(a.equals(b)).isFalse();
+    assertThat(a.equals(null)).isFalse();
+    assertThat(a.equals(ANOTHER_TYPE)).isFalse();
   }
 
 }

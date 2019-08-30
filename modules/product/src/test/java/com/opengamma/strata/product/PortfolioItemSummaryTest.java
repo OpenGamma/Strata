@@ -8,11 +8,11 @@ package com.opengamma.strata.product;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
@@ -20,23 +20,25 @@ import com.opengamma.strata.basics.currency.Currency;
 /**
  * Test {@link PortfolioItemSummary}.
  */
-@Test
 public class PortfolioItemSummaryTest {
 
   private static final StandardId STANDARD_ID = StandardId.of("A", "B");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
-    assertEquals(sut().getId(), Optional.of(STANDARD_ID));
-    assertEquals(sut2().getId(), Optional.empty());
+    assertThat(sut().getId()).isEqualTo(Optional.of(STANDARD_ID));
+    assertThat(sut2().getId()).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

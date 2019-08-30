@@ -9,12 +9,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -27,7 +28,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link BillTrade}.
  */
-@Test
 public class BillTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -49,41 +49,45 @@ public class BillTradeTest {
   private static final double TOLERANCE_PRICE = 1.0E-8;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofYield() {
     BillTrade test = sut_yield();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getQuantity(), QUANTITY);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
     double price = 1.0d -
         YIELD * PRODUCT.getDayCount().relativeYearFraction(SETTLEMENT_DATE, PRODUCT.getNotional().getDate().getUnadjusted());
-    assertEquals(test.getPrice(), price, TOLERANCE_PRICE);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+    assertThat(test.getPrice()).isCloseTo(price, offset(TOLERANCE_PRICE));
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withPrice(129).getPrice()).isCloseTo(129d, offset(0d));
   }
 
+  @Test
   public void test_ofPrice() {
     BillTrade test = sut_price();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withPrice(129).getPrice()).isCloseTo(129d, offset(0d));
   }
 
+  @Test
   public void test_builder_price() {
     BillTrade test = sut_price();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getPrice(), PRICE, TOLERANCE_PRICE);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getPrice()).isCloseTo(PRICE, offset(TOLERANCE_PRICE));
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withPrice(129).getPrice()).isCloseTo(129d, offset(0d));
   }
 
+  @Test
   public void test_price() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BillTrade.builder()
@@ -93,6 +97,7 @@ public class BillTradeTest {
             .build());
   }
 
+  @Test
   public void test_settle_or_trade() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BillTrade.builder()
@@ -103,12 +108,14 @@ public class BillTradeTest {
             .build());
   }
 
+  @Test
   public void test_of_yield_settledate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BillTrade.ofYield(TradeInfo.builder().tradeDate(TRADE_DATE).build(), PRODUCT, QUANTITY, YIELD));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     BillTrade trade = sut_yield();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -118,10 +125,11 @@ public class BillTradeTest {
         .currencies(Currency.USD)
         .description("Bill2019-05-23 x 123")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     Payment settle = Payment
         .of(PRODUCT.getNotional().getValue().multipliedBy(-PRICE * QUANTITY), SETTLEMENT_DATE);
@@ -131,10 +139,11 @@ public class BillTradeTest {
         .quantity(QUANTITY)
         .settlement(settle)
         .build();
-    assertEquals(sut_price().resolve(REF_DATA), expected);
+    assertThat(sut_price().resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withQuantity() {
     BillTrade base = sut_price();
     double quantity = 75343d;
@@ -145,9 +154,10 @@ public class BillTradeTest {
         .quantity(quantity)
         .price(PRICE)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_withPrice() {
     BillTrade base = sut_yield();
     double price = 135d;
@@ -158,15 +168,17 @@ public class BillTradeTest {
         .quantity(QUANTITY)
         .price(price)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut_yield());
     coverBeanEquals(sut_yield(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut_yield());
   }

@@ -23,15 +23,14 @@ import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
 import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -46,7 +45,6 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 /**
  * Test {@link Cds}.
  */
-@Test
 public class CdsTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -60,6 +58,7 @@ public class CdsTest {
   private static final Cds PRODUCT_STD = Cds.of(
       BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
 
+  @Test
   public void test_builder() {
     LocalDate startDate = LocalDate.of(2014, 12, 20);
     LocalDate endDate = LocalDate.of(2020, 10, 20);
@@ -78,22 +77,23 @@ public class CdsTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test.getPaymentSchedule(), sch);
-    assertEquals(test.getBuySell(), SELL);
-    assertEquals(test.getCurrency(), JPY);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getFixedRate(), COUPON);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.NONE);
-    assertEquals(test.getProtectionStart(), ProtectionStartOfDay.NONE);
-    assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
-    assertEquals(test.getStepinDateOffset(), STEPIN_DAY_ADJ);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(JPY));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(JPY));
+    assertThat(test.getPaymentSchedule()).isEqualTo(sch);
+    assertThat(test.getBuySell()).isEqualTo(SELL);
+    assertThat(test.getCurrency()).isEqualTo(JPY);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getFixedRate()).isEqualTo(COUPON);
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPaymentOnDefault()).isEqualTo(PaymentOnDefault.NONE);
+    assertThat(test.getProtectionStart()).isEqualTo(ProtectionStartOfDay.NONE);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_DAY_ADJ);
+    assertThat(test.getStepinDateOffset()).isEqualTo(STEPIN_DAY_ADJ);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(JPY);
+    assertThat(test.allCurrencies()).containsOnly(JPY);
   }
 
+  @Test
   public void test_of() {
     BusinessDayAdjustment bussAdj = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule expected = PeriodicSchedule.builder()
@@ -106,21 +106,22 @@ public class CdsTest {
         .rollConvention(RollConventions.NONE)
         .stubConvention(SMART_INITIAL)
         .build();
-    assertEquals(PRODUCT_STD.getPaymentSchedule(), expected);
-    assertEquals(PRODUCT_STD.getBuySell(), BUY);
-    assertEquals(PRODUCT_STD.getCurrency(), USD);
-    assertEquals(PRODUCT_STD.getDayCount(), ACT_360);
-    assertEquals(PRODUCT_STD.getFixedRate(), COUPON);
-    assertEquals(PRODUCT_STD.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(PRODUCT_STD.getNotional(), NOTIONAL);
-    assertEquals(PRODUCT_STD.getPaymentOnDefault(), ACCRUED_PREMIUM);
-    assertEquals(PRODUCT_STD.getProtectionStart(), BEGINNING);
-    assertEquals(PRODUCT_STD.getSettlementDateOffset(), SETTLE_DAY_ADJ);
-    assertEquals(PRODUCT_STD.getStepinDateOffset(), STEPIN_DAY_ADJ);
+    assertThat(PRODUCT_STD.getPaymentSchedule()).isEqualTo(expected);
+    assertThat(PRODUCT_STD.getBuySell()).isEqualTo(BUY);
+    assertThat(PRODUCT_STD.getCurrency()).isEqualTo(USD);
+    assertThat(PRODUCT_STD.getDayCount()).isEqualTo(ACT_360);
+    assertThat(PRODUCT_STD.getFixedRate()).isEqualTo(COUPON);
+    assertThat(PRODUCT_STD.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(PRODUCT_STD.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(PRODUCT_STD.getPaymentOnDefault()).isEqualTo(ACCRUED_PREMIUM);
+    assertThat(PRODUCT_STD.getProtectionStart()).isEqualTo(BEGINNING);
+    assertThat(PRODUCT_STD.getSettlementDateOffset()).isEqualTo(SETTLE_DAY_ADJ);
+    assertThat(PRODUCT_STD.getStepinDateOffset()).isEqualTo(STEPIN_DAY_ADJ);
     Cds test = Cds.of(BUY, LEGAL_ENTITY, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
-    assertEquals(test, PRODUCT_STD);
+    assertThat(test).isEqualTo(PRODUCT_STD);
   }
 
+  @Test
   public void test_resolve() {
     BusinessDayAdjustment bussAdj = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     ResolvedCds test = PRODUCT_STD.resolve(REF_DATA);
@@ -172,10 +173,11 @@ public class CdsTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(PRODUCT_STD);
     Cds other = Cds.builder()
@@ -204,6 +206,7 @@ public class CdsTest {
     coverBeanEquals(PRODUCT_STD, other);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(PRODUCT_STD);
   }

@@ -12,12 +12,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -27,7 +28,6 @@ import com.opengamma.strata.basics.currency.Payment;
 /**
  * Test {@link ResolvedFxSingle}.
  */
-@Test
 public class ResolvedFxSingleTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
@@ -43,57 +43,64 @@ public class ResolvedFxSingleTest {
   private static final Payment PAYMENT_USD_M1600 = Payment.of(USD_M1600, DATE_2015_06_30);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_payments_rightOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.of(PAYMENT_GBP_P1000, PAYMENT_USD_M1600);
-    assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
-    assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(PAYMENT_GBP_P1000);
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(PAYMENT_USD_M1600);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(GBP_P1000);
   }
 
+  @Test
   public void test_of_payments_switchOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.of(PAYMENT_USD_M1600, PAYMENT_GBP_P1000);
-    assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
-    assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(PAYMENT_GBP_P1000);
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(PAYMENT_USD_M1600);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(GBP_P1000);
   }
 
+  @Test
   public void test_of_payments_sameCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.of(PAYMENT_GBP_P1000, PAYMENT_GBP_M1000));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_amounts_rightOrder() {
     ResolvedFxSingle test = sut();
-    assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
-    assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(PAYMENT_GBP_P1000);
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(PAYMENT_USD_M1600);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(GBP_P1000);
   }
 
+  @Test
   public void test_of_amounts_switchOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.of(USD_M1600, GBP_P1000, DATE_2015_06_30);
-    assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
-    assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(PAYMENT_GBP_P1000);
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(PAYMENT_USD_M1600);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(GBP_P1000);
   }
 
+  @Test
   public void test_of_amounts_bothZero() {
     ResolvedFxSingle test = ResolvedFxSingle.of(CurrencyAmount.zero(GBP), CurrencyAmount.zero(USD), DATE_2015_06_30);
-    assertEquals(test.getBaseCurrencyPayment(), Payment.of(CurrencyAmount.zero(GBP), DATE_2015_06_30));
-    assertEquals(test.getCounterCurrencyPayment(), Payment.of(CurrencyAmount.zero(USD), DATE_2015_06_30));
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.zero(USD));
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(Payment.of(CurrencyAmount.zero(GBP), DATE_2015_06_30));
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(Payment.of(CurrencyAmount.zero(USD), DATE_2015_06_30));
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(CurrencyAmount.zero(USD));
   }
 
+  @Test
   public void test_of_amounts_positiveNegative() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.of(GBP_P1000, USD_P1600, DATE_2015_06_30));
@@ -105,65 +112,73 @@ public class ResolvedFxSingleTest {
         .isThrownBy(() -> ResolvedFxSingle.of(CurrencyAmount.zero(GBP), USD_P1600, DATE_2015_06_30));
   }
 
+  @Test
   public void test_of_sameCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.of(GBP_P1000, GBP_M1000, DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_rate_rightOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.of(GBP_P1000, FxRate.of(GBP, USD, 1.6d), DATE_2015_06_30);
-    assertEquals(test.getBaseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
-    assertEquals(test.getCounterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30));
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(Payment.of(USD_M1600, DATE_2015_06_30));
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(GBP_P1000);
   }
 
+  @Test
   public void test_of_rate_switchOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.of(USD_M1600, FxRate.of(USD, GBP, 1d / 1.6d), DATE_2015_06_30);
-    assertEquals(test.getBaseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30));
-    assertEquals(test.getCounterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30));
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), GBP_P1000);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(Payment.of(GBP_P1000, DATE_2015_06_30));
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(Payment.of(USD_M1600, DATE_2015_06_30));
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(GBP_P1000);
   }
 
+  @Test
   public void test_of_rate_bothZero() {
     ResolvedFxSingle test = ResolvedFxSingle.of(CurrencyAmount.zero(GBP), FxRate.of(USD, GBP, 1.6d), DATE_2015_06_30);
-    assertEquals(test.getBaseCurrencyPayment().getValue(), CurrencyAmount.zero(GBP));
-    assertEquals(test.getCounterCurrencyPayment().getValue().getAmount(), CurrencyAmount.zero(USD).getAmount(), 1e-12);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
-    assertEquals(test.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(test.getReceiveCurrencyAmount(), CurrencyAmount.of(USD, 0d));
+    assertThat(test.getBaseCurrencyPayment().getValue()).isEqualTo(CurrencyAmount.zero(GBP));
+    assertThat(test.getCounterCurrencyPayment().getValue().getAmount()).isCloseTo(CurrencyAmount.zero(USD).getAmount(), offset(1e-12));
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
+    assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(test.getReceiveCurrencyAmount()).isEqualTo(CurrencyAmount.of(USD, 0d));
   }
 
+  @Test
   public void test_of_rate_wrongCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxSingle.of(GBP_P1000, FxRate.of(USD, EUR, 1.45d), DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_rightOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.meta().builder()
         .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
         .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
         .build();
-    assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
-    assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(PAYMENT_GBP_P1000);
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(PAYMENT_USD_M1600);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
   }
 
+  @Test
   public void test_builder_switchOrder() {
     ResolvedFxSingle test = ResolvedFxSingle.meta().builder()
         .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_USD_M1600)
         .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_GBP_P1000)
         .build();
-    assertEquals(test.getBaseCurrencyPayment(), PAYMENT_GBP_P1000);
-    assertEquals(test.getCounterCurrencyPayment(), PAYMENT_USD_M1600);
-    assertEquals(test.getPaymentDate(), DATE_2015_06_30);
+    assertThat(test.getBaseCurrencyPayment()).isEqualTo(PAYMENT_GBP_P1000);
+    assertThat(test.getCounterCurrencyPayment()).isEqualTo(PAYMENT_USD_M1600);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
   }
 
+  @Test
   public void test_builder_bothPositive() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.meta().builder()
@@ -172,6 +187,7 @@ public class ResolvedFxSingleTest {
         .build());
   }
 
+  @Test
   public void test_builder_bothNegative() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.meta().builder()
@@ -180,6 +196,7 @@ public class ResolvedFxSingleTest {
         .build());
   }
 
+  @Test
   public void test_builder_sameCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.meta().builder()
@@ -189,12 +206,14 @@ public class ResolvedFxSingleTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_inverse() {
     ResolvedFxSingle test = sut();
-    assertEquals(test.inverse(), ResolvedFxSingle.of(GBP_M1000, USD_P1600, DATE_2015_06_30));
+    assertThat(test.inverse()).isEqualTo(ResolvedFxSingle.of(GBP_M1000, USD_P1600, DATE_2015_06_30));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
@@ -202,6 +221,7 @@ public class ResolvedFxSingleTest {
     coverBeanEquals(sut2(), sut3());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

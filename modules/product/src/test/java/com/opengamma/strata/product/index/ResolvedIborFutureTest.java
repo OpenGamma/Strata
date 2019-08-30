@@ -12,12 +12,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link ResolvedIborFuture}.
  */
-@Test
 public class ResolvedIborFutureTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -40,17 +39,19 @@ public class ResolvedIborFutureTest {
   private static final SecurityId SECURITY_ID = SecurityId.of("OG-Test", "IborFuture");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedIborFuture test = sut();
-    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
-    assertEquals(test.getNotional(), PRODUCT.getNotional());
-    assertEquals(test.getAccrualFactor(), PRODUCT.getAccrualFactor());
-    assertEquals(test.getLastTradeDate(), PRODUCT.getLastTradeDate());
-    assertEquals(test.getIndex(), PRODUCT.getIndex());
-    assertEquals(test.getRounding(), PRODUCT.getRounding());
-    assertEquals(test.getIborRate(), IborRateComputation.of(PRODUCT.getIndex(), PRODUCT.getLastTradeDate(), REF_DATA));
+    assertThat(test.getCurrency()).isEqualTo(PRODUCT.getCurrency());
+    assertThat(test.getNotional()).isEqualTo(PRODUCT.getNotional());
+    assertThat(test.getAccrualFactor()).isEqualTo(PRODUCT.getAccrualFactor());
+    assertThat(test.getLastTradeDate()).isEqualTo(PRODUCT.getLastTradeDate());
+    assertThat(test.getIndex()).isEqualTo(PRODUCT.getIndex());
+    assertThat(test.getRounding()).isEqualTo(PRODUCT.getRounding());
+    assertThat(test.getIborRate()).isEqualTo(IborRateComputation.of(PRODUCT.getIndex(), PRODUCT.getLastTradeDate(), REF_DATA));
   }
 
+  @Test
   public void test_builder_defaults() {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .securityId(SECURITY_ID)
@@ -58,15 +59,16 @@ public class ResolvedIborFutureTest {
         .notional(NOTIONAL)
         .iborRate(IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
         .build();
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR_2M);
-    assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
-    assertEquals(test.getIndex(), GBP_LIBOR_2M);
-    assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getIborRate(), IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA));
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAccrualFactor()).isEqualTo(ACCRUAL_FACTOR_2M);
+    assertThat(test.getLastTradeDate()).isEqualTo(LAST_TRADE_DATE);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_2M);
+    assertThat(test.getRounding()).isEqualTo(Rounding.none());
+    assertThat(test.getIborRate()).isEqualTo(IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA));
   }
 
+  @Test
   public void test_builder_noObservation() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedIborFuture.builder()
@@ -77,6 +79,7 @@ public class ResolvedIborFutureTest {
         .build());
   }
 
+  @Test
   public void test_builder_noCurrency() {
     ResolvedIborFuture test = ResolvedIborFuture.builder()
         .securityId(SECURITY_ID)
@@ -84,15 +87,17 @@ public class ResolvedIborFutureTest {
         .iborRate(IborRateComputation.of(GBP_LIBOR_2M, LAST_TRADE_DATE, REF_DATA))
         .rounding(ROUNDING)
         .build();
-    assertEquals(GBP, test.getCurrency());
+    assertThat(GBP).isEqualTo(test.getCurrency());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

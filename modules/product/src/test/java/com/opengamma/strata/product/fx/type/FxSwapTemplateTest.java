@@ -13,14 +13,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -36,7 +36,6 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 /**
  * Test {@link FxSwapTemplate}.
  */
-@Test
 public class FxSwapTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -53,22 +52,25 @@ public class FxSwapTemplateTest {
   private static final double FX_RATE_NEAR = 1.30d;
   private static final double FX_RATE_PTS = 0.0050d;
 
+  @Test
   public void test_of_far() {
     FxSwapTemplate test = FxSwapTemplate.of(FAR_PERIOD, CONVENTION);
-    assertEquals(test.getPeriodToNear(), Period.ZERO);
-    assertEquals(test.getPeriodToFar(), FAR_PERIOD);
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getPeriodToNear()).isEqualTo(Period.ZERO);
+    assertThat(test.getPeriodToFar()).isEqualTo(FAR_PERIOD);
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
+  @Test
   public void test_of_near_far() {
     FxSwapTemplate test = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
-    assertEquals(test.getPeriodToNear(), NEAR_PERIOD);
-    assertEquals(test.getPeriodToFar(), FAR_PERIOD);
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getPeriodToNear()).isEqualTo(NEAR_PERIOD);
+    assertThat(test.getPeriodToFar()).isEqualTo(FAR_PERIOD);
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
+  @Test
   public void test_builder_insufficientInfo() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxSwapTemplate.builder().convention(CONVENTION).build());
@@ -79,6 +81,7 @@ public class FxSwapTemplateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     FxSwapTemplate base = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     LocalDate tradeDate = LocalDate.of(2015, 10, 29);
@@ -89,11 +92,12 @@ public class FxSwapTemplateTest {
     BusinessDayAdjustment bda = CONVENTION.getBusinessDayAdjustment();
     FxSwap expected = FxSwap.ofForwardPoints(
         CurrencyAmount.of(EUR, NOTIONAL_EUR), FxRate.of(EUR, USD, FX_RATE_NEAR), FX_RATE_PTS, nearDate, farDate, bda);
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxSwapTemplate test = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     coverImmutableBean(test);
@@ -101,6 +105,7 @@ public class FxSwapTemplateTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxSwapTemplate test = FxSwapTemplate.of(NEAR_PERIOD, FAR_PERIOD, CONVENTION);
     assertSerialization(test);

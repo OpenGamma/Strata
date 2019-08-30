@@ -11,12 +11,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -35,21 +35,22 @@ import com.opengamma.strata.product.rate.FixedRateComputation;
 /**
  * Test.
  */
-@Test
 public class FixedRateCalculationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
+  @Test
   public void test_of() {
     FixedRateCalculation test = FixedRateCalculation.of(0.025d, ACT_365F);
-    assertEquals(test.getType(), SwapLegType.FIXED);
-    assertEquals(test.getRate(), ValueSchedule.of(0.025d));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getInitialStub(), Optional.empty());
-    assertEquals(test.getFinalStub(), Optional.empty());
-    assertEquals(test.getFutureValueNotional(), Optional.empty());
+    assertThat(test.getType()).isEqualTo(SwapLegType.FIXED);
+    assertThat(test.getRate()).isEqualTo(ValueSchedule.of(0.025d));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getFutureValueNotional()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -58,14 +59,15 @@ public class FixedRateCalculationTest {
         .finalStub(FixedRateStubCalculation.ofFixedRate(0.2d))
         .futureValueNotional(FutureValueNotional.autoCalculate())
         .build();
-    assertEquals(test.getRate(), ValueSchedule.of(0.025d));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getInitialStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
-    assertEquals(test.getFinalStub(), Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
-    assertEquals(test.getFutureValueNotional(), Optional.of(FutureValueNotional.autoCalculate()));
+    assertThat(test.getRate()).isEqualTo(ValueSchedule.of(0.025d));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getInitialStub()).isEqualTo(Optional.of(FixedRateStubCalculation.ofFixedRate(0.1d)));
+    assertThat(test.getFinalStub()).isEqualTo(Optional.of(FixedRateStubCalculation.ofFixedRate(0.2d)));
+    assertThat(test.getFutureValueNotional()).isEqualTo(Optional.of(FutureValueNotional.autoCalculate()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -73,10 +75,11 @@ public class FixedRateCalculationTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of());
+    assertThat(builder.build()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_oneValue() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -103,9 +106,10 @@ public class FixedRateCalculationTest {
         .rateComputation(FixedRateComputation.of(0.025d))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_distinctValues() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -135,10 +139,11 @@ public class FixedRateCalculationTest {
         .rateComputation(FixedRateComputation.of(0.015d))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_onePeriod_with_futureValueNotional() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -157,9 +162,10 @@ public class FixedRateCalculationTest {
         .rateComputation(FixedOvernightCompoundedAnnualRateComputation.of(0.025d, yearFraction))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap));
+    assertThat(periods).containsExactly(rap);
   }
 
+  @Test
   public void test_expand_multiplePeriod_with_futureValueNotional() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -179,6 +185,7 @@ public class FixedRateCalculationTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -192,6 +199,7 @@ public class FixedRateCalculationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FixedRateCalculation test = FixedRateCalculation.builder()
         .dayCount(ACT_365F)

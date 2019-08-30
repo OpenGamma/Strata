@@ -20,14 +20,13 @@ import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -40,7 +39,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test.
  */
-@Test
 public class RatePeriodSwapLegTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -101,6 +99,7 @@ public class RatePeriodSwapLegTest {
   private static final BusinessDayAdjustment FOLLOWING_GBLO = BusinessDayAdjustment.of(FOLLOWING, GBLO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -112,37 +111,39 @@ public class RatePeriodSwapLegTest {
         .paymentEvents(NOTIONAL_EXCHANGE)
         .paymentBusinessDayAdjustment(FOLLOWING_GBLO)
         .build();
-    assertEquals(test.getType(), IBOR);
-    assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_2014_06_30));
-    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_2014_09_30));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of(NOTIONAL_EXCHANGE));
-    assertEquals(test.isInitialExchange(), true);
-    assertEquals(test.isIntermediateExchange(), true);
-    assertEquals(test.isFinalExchange(), true);
-    assertEquals(test.getPaymentBusinessDayAdjustment(), FOLLOWING_GBLO);
+    assertThat(test.getType()).isEqualTo(IBOR);
+    assertThat(test.getPayReceive()).isEqualTo(RECEIVE);
+    assertThat(test.getStartDate()).isEqualTo(AdjustableDate.of(DATE_2014_06_30));
+    assertThat(test.getEndDate()).isEqualTo(AdjustableDate.of(DATE_2014_09_30));
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getPaymentPeriods()).containsExactly(RPP1);
+    assertThat(test.getPaymentEvents()).containsExactly(NOTIONAL_EXCHANGE);
+    assertThat(test.isInitialExchange()).isTrue();
+    assertThat(test.isIntermediateExchange()).isTrue();
+    assertThat(test.isFinalExchange()).isTrue();
+    assertThat(test.getPaymentBusinessDayAdjustment()).isEqualTo(FOLLOWING_GBLO);
   }
 
+  @Test
   public void test_builder_defaults() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1)
         .build();
-    assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_2014_06_30));
-    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_2014_09_30));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of());
-    assertEquals(test.isInitialExchange(), false);
-    assertEquals(test.isIntermediateExchange(), false);
-    assertEquals(test.isFinalExchange(), false);
-    assertEquals(test.getPaymentBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
+    assertThat(test.getPayReceive()).isEqualTo(RECEIVE);
+    assertThat(test.getStartDate()).isEqualTo(AdjustableDate.of(DATE_2014_06_30));
+    assertThat(test.getEndDate()).isEqualTo(AdjustableDate.of(DATE_2014_09_30));
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getPaymentPeriods()).containsExactly(RPP1);
+    assertThat(test.getPaymentEvents()).isEmpty();
+    assertThat(test.isInitialExchange()).isFalse();
+    assertThat(test.isIntermediateExchange()).isFalse();
+    assertThat(test.isFinalExchange()).isFalse();
+    assertThat(test.getPaymentBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.NONE);
   }
 
+  @Test
   public void test_builder_invalidMixedCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> RatePeriodSwapLeg.builder()
@@ -154,6 +155,7 @@ public class RatePeriodSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -162,10 +164,11 @@ public class RatePeriodSwapLegTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_3M);
+    assertThat(test.allCurrencies()).containsOnly(GBP);
   }
 
+  @Test
   public void test_collectIndices_fxReset() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -174,11 +177,12 @@ public class RatePeriodSwapLegTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M, GBP_USD_WM));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP, USD));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_3M, GBP_USD_WM);
+    assertThat(test.allCurrencies()).containsOnly(GBP, USD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -192,9 +196,10 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_createNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -212,9 +217,10 @@ public class RatePeriodSwapLegTest {
             NotionalExchange.of(CurrencyAmount.of(GBP, -5000d), DATE_2014_06_30),
             NotionalExchange.of(CurrencyAmount.of(GBP, 5000d), DATE_2014_10_01))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_fxResetNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -236,9 +242,10 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1_FXRESET, RPP2)
         .paymentEvents(ne1a, ne1b, ne2a, ne2b)
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_FxResetOmitIntermediateNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -260,9 +267,10 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1_FXRESET)
         .paymentEvents(initialExchange, finalExchange)
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_FxResetOmitInitialNotionalExchange() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -282,9 +290,10 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1_FXRESET)
         .paymentEvents(finalExchange)
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_createNotionalExchange_noInitial() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -300,9 +309,10 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(CurrencyAmount.of(GBP, 5000d), DATE_2014_10_01))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_createNotionalExchange_initialOnly() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -318,9 +328,10 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(CurrencyAmount.of(GBP, -5000d), DATE_2014_06_30))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_createNotionalExchange_finalOnly() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -336,10 +347,11 @@ public class RatePeriodSwapLegTest {
         .paymentPeriods(RPP1)
         .paymentEvents(NotionalExchange.of(CurrencyAmount.of(GBP, 5000d), DATE_2014_10_01))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)
@@ -360,6 +372,7 @@ public class RatePeriodSwapLegTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
         .type(IBOR)

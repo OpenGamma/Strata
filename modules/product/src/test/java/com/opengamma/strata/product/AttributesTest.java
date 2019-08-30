@@ -12,14 +12,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link Attributes}.
  */
-@Test
 public class AttributesTest {
 
+  @Test
   public void test_empty() {
     Attributes test = Attributes.empty();
     assertThat(test.findAttribute(AttributeType.DESCRIPTION)).isEmpty();
@@ -30,6 +30,7 @@ public class AttributesTest {
     assertThat(test2.getAttribute(AttributeType.NAME)).isEqualTo("world");
   }
 
+  @Test
   public void test_single() {
     Attributes test = Attributes.of(AttributeType.DESCRIPTION, "hello");
     assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION);
@@ -44,6 +45,7 @@ public class AttributesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableBean test = (ImmutableBean) Attributes.of(AttributeType.DESCRIPTION, "hello");
     coverImmutableBean(test);
@@ -51,6 +53,7 @@ public class AttributesTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     Attributes test = Attributes.of(AttributeType.DESCRIPTION, "hello");
     assertSerialization(test);

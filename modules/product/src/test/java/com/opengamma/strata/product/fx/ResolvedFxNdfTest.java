@@ -13,12 +13,12 @@ import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 /**
  * Test {@link ResolvedFxNdf}.
  */
-@Test
 public class ResolvedFxNdfTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -39,17 +38,19 @@ public class ResolvedFxNdfTest {
   private static final LocalDate FIXING_DATE = LocalDate.of(2015, 3, 17);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedFxNdf test = sut();
-    assertEquals(test.getAgreedFxRate(), FX_RATE);
-    assertEquals(test.getIndex(), GBP_USD_WM);
-    assertEquals(test.getNonDeliverableCurrency(), USD);
-    assertEquals(test.getPaymentDate(), PAYMENT_DATE);
-    assertEquals(test.getSettlementCurrency(), GBP);
-    assertEquals(test.getSettlementCurrencyNotional(), CURRENCY_NOTIONAL);
-    assertEquals(test.getSettlementNotional(), NOTIONAL);
+    assertThat(test.getAgreedFxRate()).isEqualTo(FX_RATE);
+    assertThat(test.getIndex()).isEqualTo(GBP_USD_WM);
+    assertThat(test.getNonDeliverableCurrency()).isEqualTo(USD);
+    assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
+    assertThat(test.getSettlementCurrency()).isEqualTo(GBP);
+    assertThat(test.getSettlementCurrencyNotional()).isEqualTo(CURRENCY_NOTIONAL);
+    assertThat(test.getSettlementNotional()).isEqualTo(NOTIONAL);
   }
 
+  @Test
   public void test_builder_inverse() {
     CurrencyAmount currencyNotional = CurrencyAmount.of(USD, NOTIONAL);
     ResolvedFxNdf test = ResolvedFxNdf.builder()
@@ -58,15 +59,16 @@ public class ResolvedFxNdfTest {
         .paymentDate(PAYMENT_DATE)
         .settlementCurrencyNotional(currencyNotional)
         .build();
-    assertEquals(test.getAgreedFxRate(), FX_RATE);
-    assertEquals(test.getIndex(), GBP_USD_WM);
-    assertEquals(test.getNonDeliverableCurrency(), GBP);
-    assertEquals(test.getPaymentDate(), PAYMENT_DATE);
-    assertEquals(test.getSettlementCurrency(), USD);
-    assertEquals(test.getSettlementCurrencyNotional(), currencyNotional);
-    assertEquals(test.getSettlementNotional(), NOTIONAL);
+    assertThat(test.getAgreedFxRate()).isEqualTo(FX_RATE);
+    assertThat(test.getIndex()).isEqualTo(GBP_USD_WM);
+    assertThat(test.getNonDeliverableCurrency()).isEqualTo(GBP);
+    assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
+    assertThat(test.getSettlementCurrency()).isEqualTo(USD);
+    assertThat(test.getSettlementCurrencyNotional()).isEqualTo(currencyNotional);
+    assertThat(test.getSettlementNotional()).isEqualTo(NOTIONAL);
   }
 
+  @Test
   public void test_builder_wrongCurrency() {
     CurrencyAmount currencyNotional = CurrencyAmount.of(EUR, NOTIONAL);
     assertThatIllegalArgumentException()
@@ -78,6 +80,7 @@ public class ResolvedFxNdfTest {
         .build());
   }
 
+  @Test
   public void test_builder_wrongRate() {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
     assertThatIllegalArgumentException()
@@ -90,11 +93,13 @@ public class ResolvedFxNdfTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

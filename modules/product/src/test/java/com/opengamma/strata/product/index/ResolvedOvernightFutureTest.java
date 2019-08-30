@@ -14,11 +14,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link ResolvedOvernightFuture}.
  */
-@Test
 public class ResolvedOvernightFutureTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -44,6 +43,7 @@ public class ResolvedOvernightFutureTest {
       USD_FED_FUND, START_DATE, END_DATE, 0, OvernightAccrualMethod.AVERAGED_DAILY, REF_DATA);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedOvernightFuture test = ResolvedOvernightFuture.builder()
         .currency(USD)
@@ -54,16 +54,17 @@ public class ResolvedOvernightFutureTest {
         .rounding(ROUNDING)
         .securityId(SECURITY_ID)
         .build();
-    assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR_1M);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getIndex(), USD_FED_FUND);
-    assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getOvernightRate(), RATE_COMPUTATION);
-    assertEquals(test.getRounding(), ROUNDING);
-    assertEquals(test.getSecurityId(), SECURITY_ID);
+    assertThat(test.getAccrualFactor()).isEqualTo(ACCRUAL_FACTOR_1M);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getIndex()).isEqualTo(USD_FED_FUND);
+    assertThat(test.getLastTradeDate()).isEqualTo(LAST_TRADE_DATE);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getOvernightRate()).isEqualTo(RATE_COMPUTATION);
+    assertThat(test.getRounding()).isEqualTo(ROUNDING);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
   }
 
+  @Test
   public void test_builder_default() {
     ResolvedOvernightFuture test = ResolvedOvernightFuture.builder()
         .accrualFactor(ACCRUAL_FACTOR_1M)
@@ -72,17 +73,18 @@ public class ResolvedOvernightFutureTest {
         .notional(NOTIONAL)
         .securityId(SECURITY_ID)
         .build();
-    assertEquals(test.getAccrualFactor(), ACCRUAL_FACTOR_1M);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getIndex(), USD_FED_FUND);
-    assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getOvernightRate(), RATE_COMPUTATION);
-    assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getSecurityId(), SECURITY_ID);
+    assertThat(test.getAccrualFactor()).isEqualTo(ACCRUAL_FACTOR_1M);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getIndex()).isEqualTo(USD_FED_FUND);
+    assertThat(test.getLastTradeDate()).isEqualTo(LAST_TRADE_DATE);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getOvernightRate()).isEqualTo(RATE_COMPUTATION);
+    assertThat(test.getRounding()).isEqualTo(Rounding.none());
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedOvernightFuture test1 = ResolvedOvernightFuture.builder()
         .currency(USD)
@@ -106,6 +108,7 @@ public class ResolvedOvernightFutureTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedOvernightFuture test = ResolvedOvernightFuture.builder()
         .currency(USD)

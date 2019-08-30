@@ -10,12 +10,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.credit.CdsTrade;
 /**
  * Test {@link DatesCdsTemplate}.
  */
-@Test
 public class DatesCdsTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -40,14 +39,16 @@ public class DatesCdsTemplateTest {
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "BCD");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     DatesCdsTemplate test = DatesCdsTemplate.of(START, END, CONV1);
-    assertEquals(test.getStartDate(), START);
-    assertEquals(test.getEndDate(), END);
-    assertEquals(test.getConvention(), CONV1);
+    assertThat(test.getStartDate()).isEqualTo(START);
+    assertThat(test.getEndDate()).isEqualTo(END);
+    assertThat(test.getConvention()).isEqualTo(CONV1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     DatesCdsTemplate base = DatesCdsTemplate.of(START, END, CONV1);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -61,11 +62,12 @@ public class DatesCdsTemplateTest {
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
-    assertEquals(test.getUpfrontFee(), Optional.empty());
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
+    assertThat(test.getUpfrontFee()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_createTrade_withFee() {
     DatesCdsTemplate base = DatesCdsTemplate.of(START, END, CONV1);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -81,12 +83,13 @@ public class DatesCdsTemplateTest {
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getUpfrontFee(), Optional.of(payment));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getUpfrontFee()).isEqualTo(Optional.of(payment));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DatesCdsTemplate test1 = DatesCdsTemplate.of(START, END, CONV1);
     coverImmutableBean(test1);
@@ -95,6 +98,7 @@ public class DatesCdsTemplateTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     DatesCdsTemplate test = DatesCdsTemplate.of(START, END, CONV1);
     assertSerialization(test);

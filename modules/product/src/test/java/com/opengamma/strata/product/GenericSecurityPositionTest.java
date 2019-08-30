@@ -8,16 +8,16 @@ package com.opengamma.strata.product;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 
 /**
  * Test {@link GenericSecurityPosition}.
  */
-@Test
 public class GenericSecurityPositionTest {
 
   private static final PositionInfo POSITION_INFO = PositionInfo.of(StandardId.of("A", "B"));
@@ -30,76 +30,84 @@ public class GenericSecurityPositionTest {
   private static final double QUANTITY = 100;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofNet_noInfo() {
     GenericSecurityPosition test = GenericSecurityPosition.ofNet(SECURITY, QUANTITY);
-    assertEquals(test.getInfo(), PositionInfo.empty());
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), QUANTITY);
-    assertEquals(test.getShortQuantity(), 0d);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getProduct(), SECURITY);
-    assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
-    assertEquals(test.getCurrency(), SECURITY.getCurrency());
-    assertEquals(test.withInfo(POSITION_INFO).getInfo(), POSITION_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withQuantity(-129).getQuantity(), -129d, 0d);
+    assertThat(test.getInfo()).isEqualTo(PositionInfo.empty());
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getShortQuantity()).isEqualTo(0d);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getProduct()).isEqualTo(SECURITY);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(SECURITY.getCurrency());
+    assertThat(test.withInfo(POSITION_INFO).getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withQuantity(-129).getQuantity()).isCloseTo(-129d, offset(0d));
   }
 
+  @Test
   public void test_ofNet_withInfo_positive() {
     GenericSecurityPosition test = GenericSecurityPosition.ofNet(POSITION_INFO, SECURITY, 100d);
-    assertEquals(test.getInfo(), POSITION_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), 100d);
-    assertEquals(test.getShortQuantity(), 0d);
-    assertEquals(test.getQuantity(), 100d);
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(100d);
+    assertThat(test.getShortQuantity()).isEqualTo(0d);
+    assertThat(test.getQuantity()).isEqualTo(100d);
   }
 
+  @Test
   public void test_ofNet_withInfo_zero() {
     GenericSecurityPosition test = GenericSecurityPosition.ofNet(POSITION_INFO, SECURITY, 0d);
-    assertEquals(test.getInfo(), POSITION_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), 0d);
-    assertEquals(test.getShortQuantity(), 0d);
-    assertEquals(test.getQuantity(), 0d);
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(0d);
+    assertThat(test.getShortQuantity()).isEqualTo(0d);
+    assertThat(test.getQuantity()).isEqualTo(0d);
   }
 
+  @Test
   public void test_ofNet_withInfo_negative() {
     GenericSecurityPosition test = GenericSecurityPosition.ofNet(POSITION_INFO, SECURITY, -100d);
-    assertEquals(test.getInfo(), POSITION_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), 0d);
-    assertEquals(test.getShortQuantity(), 100d);
-    assertEquals(test.getQuantity(), -100d);
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(0d);
+    assertThat(test.getShortQuantity()).isEqualTo(100d);
+    assertThat(test.getQuantity()).isEqualTo(-100d);
   }
 
+  @Test
   public void test_ofLongShort_noInfo() {
     GenericSecurityPosition test = GenericSecurityPosition.ofLongShort(SECURITY, LONG_QUANTITY, SHORT_QUANTITY);
-    assertEquals(test.getInfo(), PositionInfo.empty());
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), LONG_QUANTITY);
-    assertEquals(test.getShortQuantity(), SHORT_QUANTITY);
-    assertEquals(test.getQuantity(), QUANTITY);
+    assertThat(test.getInfo()).isEqualTo(PositionInfo.empty());
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(LONG_QUANTITY);
+    assertThat(test.getShortQuantity()).isEqualTo(SHORT_QUANTITY);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
   }
 
+  @Test
   public void test_ofLongShort_withInfo() {
     GenericSecurityPosition test = GenericSecurityPosition.ofLongShort(POSITION_INFO, SECURITY, LONG_QUANTITY, SHORT_QUANTITY);
-    assertEquals(test.getInfo(), POSITION_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), LONG_QUANTITY);
-    assertEquals(test.getShortQuantity(), SHORT_QUANTITY);
-    assertEquals(test.getQuantity(), QUANTITY);
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(LONG_QUANTITY);
+    assertThat(test.getShortQuantity()).isEqualTo(SHORT_QUANTITY);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
   }
 
+  @Test
   public void test_builder() {
     GenericSecurityPosition test = sut();
-    assertEquals(test.getInfo(), POSITION_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getLongQuantity(), LONG_QUANTITY);
-    assertEquals(test.getShortQuantity(), SHORT_QUANTITY);
-    assertEquals(test.getQuantity(), QUANTITY);
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getLongQuantity()).isEqualTo(LONG_QUANTITY);
+    assertThat(test.getShortQuantity()).isEqualTo(SHORT_QUANTITY);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     GenericSecurityPosition trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -109,15 +117,17 @@ public class GenericSecurityPositionTest {
         .currencies(SECURITY.getCurrency())
         .description("1 x 100")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

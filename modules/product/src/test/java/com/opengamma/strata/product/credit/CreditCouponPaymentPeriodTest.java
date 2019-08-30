@@ -9,20 +9,17 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 
 /**
  * Test {@link CreditCouponPaymentPeriod}.
  */
-@Test
 public class CreditCouponPaymentPeriodTest {
   private static final double COUPON = 0.05;
   private static final double NOTIONAL = 1.0e9;
@@ -32,6 +29,7 @@ public class CreditCouponPaymentPeriodTest {
   private static final LocalDate EFF_END_DATE = LocalDate.of(2014, 3, 19);
   private static final double YEAR_FRACTION = 0.256;
 
+  @Test
   public void test_builder() {
     CreditCouponPaymentPeriod test = CreditCouponPaymentPeriod.builder()
         .currency(USD)
@@ -44,17 +42,18 @@ public class CreditCouponPaymentPeriodTest {
         .fixedRate(COUPON)
         .yearFraction(YEAR_FRACTION)
         .build();
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getEffectiveStartDate(), EFF_START_DATE);
-    assertEquals(test.getEffectiveEndDate(), EFF_END_DATE);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), END_DATE);
-    assertEquals(test.getFixedRate(), COUPON);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPaymentDate(), END_DATE);
-    assertEquals(test.getYearFraction(), YEAR_FRACTION);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getEffectiveStartDate()).isEqualTo(EFF_START_DATE);
+    assertThat(test.getEffectiveEndDate()).isEqualTo(EFF_END_DATE);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(END_DATE);
+    assertThat(test.getFixedRate()).isEqualTo(COUPON);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPaymentDate()).isEqualTo(END_DATE);
+    assertThat(test.getYearFraction()).isEqualTo(YEAR_FRACTION);
   }
 
+  @Test
   public void test_contains() {
     CreditCouponPaymentPeriod test = CreditCouponPaymentPeriod.builder()
         .currency(USD)
@@ -67,13 +66,14 @@ public class CreditCouponPaymentPeriodTest {
         .fixedRate(COUPON)
         .yearFraction(YEAR_FRACTION)
         .build();
-    assertTrue(test.contains(START_DATE));
-    assertTrue(test.contains(START_DATE.plusMonths(1)));
-    assertFalse(test.contains(END_DATE));
-    assertFalse(test.contains(START_DATE.minusDays(1)));
+    assertThat(test.contains(START_DATE)).isTrue();
+    assertThat(test.contains(START_DATE.plusMonths(1))).isTrue();
+    assertThat(test.contains(END_DATE)).isFalse();
+    assertThat(test.contains(START_DATE.minusDays(1))).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CreditCouponPaymentPeriod test1 = CreditCouponPaymentPeriod.builder()
         .currency(USD)
@@ -101,6 +101,7 @@ public class CreditCouponPaymentPeriodTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     CreditCouponPaymentPeriod test = CreditCouponPaymentPeriod.builder()
         .currency(USD)

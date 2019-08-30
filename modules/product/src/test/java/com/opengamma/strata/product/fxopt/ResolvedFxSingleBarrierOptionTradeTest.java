@@ -12,13 +12,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.LongShort.LONG;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -31,7 +31,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link ResolvedFxSingleBarrierOptionTrade}.
  */
-@Test
 public class ResolvedFxSingleBarrierOptionTradeTest {
 
   private static final ZonedDateTime EXPIRY_DATE_TIME = ZonedDateTime.of(2015, 2, 14, 12, 15, 0, 0, ZoneOffset.UTC);
@@ -55,18 +54,20 @@ public class ResolvedFxSingleBarrierOptionTradeTest {
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, NOTIONAL * 0.05), date(2014, 11, 14));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedFxSingleBarrierOptionTrade test = ResolvedFxSingleBarrierOptionTrade.builder()
         .info(TRADE_INFO)
         .product(PRODUCT)
         .premium(PREMIUM)
         .build();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getPremium(), PREMIUM);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getPremium()).isEqualTo(PREMIUM);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedFxSingleBarrierOptionTrade test1 = ResolvedFxSingleBarrierOptionTrade.builder()
         .info(TRADE_INFO)
@@ -81,6 +82,7 @@ public class ResolvedFxSingleBarrierOptionTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedFxSingleBarrierOptionTrade test = ResolvedFxSingleBarrierOptionTrade.builder()
         .info(TRADE_INFO)

@@ -19,8 +19,8 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -46,7 +46,6 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
  * <p>
  * The accrued interest method is test in the pricer test.
  */
-@Test
 public class ResolvedCapitalIndexedBondTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -88,32 +87,32 @@ public class ResolvedCapitalIndexedBondTest {
   private static final CapitalIndexedBondPaymentPeriod NOMINAL =
       PERIODIC[3].withUnitCoupon(PERIODIC[0].getStartDate(), PERIODIC[0].getUnadjustedStartDate());
 
+  @Test
   public void test_builder() {
     ResolvedCapitalIndexedBond test = sut();
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getStartDate(), PERIODIC[0].getStartDate());
-    assertEquals(test.getEndDate(), PERIODIC[3].getEndDate());
-    assertEquals(test.getUnadjustedStartDate(), PERIODIC[0].getUnadjustedStartDate());
-    assertEquals(test.getUnadjustedEndDate(), PERIODIC[3].getUnadjustedEndDate());
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getNominalPayment(), NOMINAL);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPeriodicPayments().toArray(), PERIODIC);
-    assertEquals(test.getSettlementDateOffset(), SETTLE_OFFSET);
-    assertEquals(test.getYieldConvention(), US_IL_REAL);
-    assertEquals(test.hasExCouponPeriod(), false);
-    assertEquals(test.getFirstIndexValue(), RATE_CALC.getFirstIndexValue().getAsDouble());
-    assertEquals(test.findPeriod(PERIODIC[0].getUnadjustedStartDate()), Optional.of(test.getPeriodicPayments().get(0)));
-    assertEquals(test.findPeriod(LocalDate.MIN), Optional.empty());
-    assertEquals(test.findPeriodIndex(PERIODIC[0].getUnadjustedStartDate()), OptionalInt.of(0));
-    assertEquals(test.findPeriodIndex(PERIODIC[1].getUnadjustedStartDate()), OptionalInt.of(1));
-    assertEquals(test.findPeriodIndex(LocalDate.MIN), OptionalInt.empty());
-    assertEquals(
-        test.calculateSettlementDateFromValuation(date(2015, 6, 30), REF_DATA),
-        SETTLE_OFFSET.adjust(date(2015, 6, 30), REF_DATA));
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getStartDate()).isEqualTo(PERIODIC[0].getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(PERIODIC[3].getEndDate());
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(PERIODIC[0].getUnadjustedStartDate());
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(PERIODIC[3].getUnadjustedEndDate());
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getNominalPayment()).isEqualTo(NOMINAL);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPeriodicPayments().toArray()).isEqualTo(PERIODIC);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_OFFSET);
+    assertThat(test.getYieldConvention()).isEqualTo(US_IL_REAL);
+    assertThat(test.hasExCouponPeriod()).isFalse();
+    assertThat(test.getFirstIndexValue()).isEqualTo(RATE_CALC.getFirstIndexValue().getAsDouble());
+    assertThat(test.findPeriod(PERIODIC[0].getUnadjustedStartDate())).isEqualTo(Optional.of(test.getPeriodicPayments().get(0)));
+    assertThat(test.findPeriod(LocalDate.MIN)).isEqualTo(Optional.empty());
+    assertThat(test.findPeriodIndex(PERIODIC[0].getUnadjustedStartDate())).isEqualTo(OptionalInt.of(0));
+    assertThat(test.findPeriodIndex(PERIODIC[1].getUnadjustedStartDate())).isEqualTo(OptionalInt.of(1));
+    assertThat(test.findPeriodIndex(LocalDate.MIN)).isEqualTo(OptionalInt.empty());
+    assertThat(test.calculateSettlementDateFromValuation(date(2015, 6, 30), REF_DATA)).isEqualTo(SETTLE_OFFSET.adjust(date(2015, 6, 30), REF_DATA));
   }
 
+  @Test
   public void test_builder_fail() {
     CapitalIndexedBondPaymentPeriod period = CapitalIndexedBondPaymentPeriod.builder()
         .startDate(PERIODIC[2].getStartDate())
@@ -135,6 +134,7 @@ public class ResolvedCapitalIndexedBondTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_yearFraction_scheduleInfo() {
     ResolvedCapitalIndexedBond base = sut();
     CapitalIndexedBondPaymentPeriod period = base.getPeriodicPayments().get(0);
@@ -142,11 +142,11 @@ public class ResolvedCapitalIndexedBondTest {
     DayCount dc = new DayCount() {
       @Override
       public double yearFraction(LocalDate firstDate, LocalDate secondDate, ScheduleInfo scheduleInfo) {
-        assertEquals(scheduleInfo.getStartDate(), base.getUnadjustedStartDate());
-        assertEquals(scheduleInfo.getEndDate(), base.getUnadjustedEndDate());
-        assertEquals(scheduleInfo.getPeriodEndDate(firstDate), period.getUnadjustedEndDate());
-        assertEquals(scheduleInfo.getFrequency(), base.getFrequency());
-        assertEquals(scheduleInfo.isEndOfMonthConvention(), eom.get());
+        assertThat(scheduleInfo.getStartDate()).isEqualTo(base.getUnadjustedStartDate());
+        assertThat(scheduleInfo.getEndDate()).isEqualTo(base.getUnadjustedEndDate());
+        assertThat(scheduleInfo.getPeriodEndDate(firstDate)).isEqualTo(period.getUnadjustedEndDate());
+        assertThat(scheduleInfo.getFrequency()).isEqualTo(base.getFrequency());
+        assertThat(scheduleInfo.isEndOfMonthConvention()).isEqualTo(eom.get());
         return 0.5;
       }
 
@@ -161,19 +161,21 @@ public class ResolvedCapitalIndexedBondTest {
       }
     };
     ResolvedCapitalIndexedBond test = base.toBuilder().dayCount(dc).build();
-    assertEquals(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), 0.5);
+    assertThat(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate())).isEqualTo(0.5);
     // test with EOM=true
     ResolvedCapitalIndexedBond test2 = test.toBuilder().rollConvention(RollConventions.EOM).build();
     eom.set(true);
-    assertEquals(test2.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()), 0.5);
+    assertThat(test2.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate())).isEqualTo(0.5);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

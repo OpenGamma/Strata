@@ -14,14 +14,13 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -31,7 +30,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link IborFixingDeposit}.
  */
-@Test
 public class IborFixingDepositTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -44,6 +42,7 @@ public class IborFixingDepositTest {
   private static final DaysAdjustment DAY_ADJ = DaysAdjustment.ofBusinessDays(1, GBLO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_full() {
     IborFixingDeposit test = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -57,21 +56,22 @@ public class IborFixingDepositTest {
         .index(GBP_LIBOR_6M)
         .fixedRate(RATE)
         .build();
-    assertEquals(test.getBusinessDayAdjustment().get(), BDA_MOD_FOLLOW);
-    assertEquals(test.getBuySell(), SELL);
-    assertEquals(test.getFixingDateOffset(), DAY_ADJ);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), END_DATE);
-    assertEquals(test.getIndex(), GBP_LIBOR_6M);
-    assertEquals(test.getFixedRate(), RATE);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertThat(test.getBusinessDayAdjustment().get()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getBuySell()).isEqualTo(SELL);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DAY_ADJ);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(END_DATE);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_6M);
+    assertThat(test.getFixedRate()).isEqualTo(RATE);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP);
+    assertThat(test.allCurrencies()).containsOnly(GBP);
   }
 
+  @Test
   public void test_builder_minimum() {
     IborFixingDeposit test = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -82,18 +82,19 @@ public class IborFixingDepositTest {
         .index(GBP_LIBOR_6M)
         .fixedRate(RATE)
         .build();
-    assertEquals(test.getBusinessDayAdjustment().get(), BDA_MOD_FOLLOW);
-    assertEquals(test.getBuySell(), SELL);
-    assertEquals(test.getFixingDateOffset(), GBP_LIBOR_6M.getFixingDateOffset());
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), END_DATE);
-    assertEquals(test.getIndex(), GBP_LIBOR_6M);
-    assertEquals(test.getFixedRate(), RATE);
+    assertThat(test.getBusinessDayAdjustment().get()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getBuySell()).isEqualTo(SELL);
+    assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_6M.getFixingDateOffset());
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(END_DATE);
+    assertThat(test.getIndex()).isEqualTo(GBP_LIBOR_6M);
+    assertThat(test.getFixedRate()).isEqualTo(RATE);
   }
 
+  @Test
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFixingDeposit.builder()
@@ -108,6 +109,7 @@ public class IborFixingDepositTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     IborFixingDeposit base = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -123,16 +125,17 @@ public class IborFixingDepositTest {
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
     IborRateComputation expectedObservation = IborRateComputation.of(
         GBP_LIBOR_6M, GBP_LIBOR_6M.getFixingDateOffset().adjust(START_DATE, REF_DATA), REF_DATA);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), expectedEndDate);
-    assertEquals(test.getFloatingRate(), expectedObservation);
-    assertEquals(test.getNotional(), -NOTIONAL);
-    assertEquals(test.getFixedRate(), RATE);
-    assertEquals(test.getYearFraction(), expectedYearFraction);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(expectedEndDate);
+    assertThat(test.getFloatingRate()).isEqualTo(expectedObservation);
+    assertThat(test.getNotional()).isEqualTo(-NOTIONAL);
+    assertThat(test.getFixedRate()).isEqualTo(RATE);
+    assertThat(test.getYearFraction()).isEqualTo(expectedYearFraction);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborFixingDeposit test1 = IborFixingDeposit.builder()
         .buySell(SELL)
@@ -156,6 +159,7 @@ public class IborFixingDepositTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborFixingDeposit test = IborFixingDeposit.builder()
         .buySell(SELL)

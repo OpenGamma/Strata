@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.YearMonth;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.AttributeType;
@@ -26,13 +26,13 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link EtdContractSpec}.
  */
-@Test
 public class EtdContractSpecTest {
 
   private static final EtdContractSpec FUTURE_CONTRACT = sut();
   private static final EtdContractSpec OPTION_CONTRACT = sut2();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_attributes() {
     assertThat(sut2().getAttributeTypes()).containsOnly(AttributeType.NAME);
     assertThat(sut2().getAttribute(AttributeType.NAME)).isEqualTo("NAME");
@@ -43,6 +43,7 @@ public class EtdContractSpecTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void createFutureAutoId() {
     EtdFutureSecurity security = FUTURE_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdVariant.MONTHLY);
 
@@ -53,6 +54,7 @@ public class EtdContractSpecTest {
     assertThat(security.getInfo().getPriceInfo()).isEqualTo(FUTURE_CONTRACT.getPriceInfo());
   }
 
+  @Test
   public void createFutureFromOptionContractSpec() {
     assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdVariant.MONTHLY))
         .isInstanceOf(IllegalStateException.class)
@@ -60,6 +62,7 @@ public class EtdContractSpecTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void createOptionAutoId() {
     EtdOptionSecurity security = OPTION_CONTRACT.createOption(YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45);
 
@@ -73,6 +76,7 @@ public class EtdContractSpecTest {
     assertThat(security.getInfo().getPriceInfo()).isEqualTo(OPTION_CONTRACT.getPriceInfo());
   }
 
+  @Test
   public void createOptionFromFutureContractSpec() {
     assertThatThrownBy(
         () -> FUTURE_CONTRACT.createOption(YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45))
@@ -81,6 +85,7 @@ public class EtdContractSpecTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void createOptionWithUnderlyingAutoId() {
     EtdOptionSecurity security = OPTION_CONTRACT.createOption(
         YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45, YearMonth.of(2015, 9));
@@ -95,6 +100,7 @@ public class EtdContractSpecTest {
     assertThat(security.getInfo().getPriceInfo()).isEqualTo(OPTION_CONTRACT.getPriceInfo());
   }
 
+  @Test
   public void createOptionWithUnderlyingFromFutureContractSpec() {
     assertThatThrownBy(
         () -> FUTURE_CONTRACT.createOption(
@@ -104,11 +110,13 @@ public class EtdContractSpecTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

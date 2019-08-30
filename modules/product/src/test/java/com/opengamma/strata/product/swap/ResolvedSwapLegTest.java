@@ -17,15 +17,14 @@ import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
 import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -37,7 +36,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test.
  */
-@Test
 public class ResolvedSwapLegTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -86,6 +84,7 @@ public class ResolvedSwapLegTest {
       .notional(6000d)
       .build();
 
+  @Test
   public void test_builder() {
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)
@@ -93,15 +92,16 @@ public class ResolvedSwapLegTest {
         .paymentPeriods(RPP1)
         .paymentEvents(NOTIONAL_EXCHANGE)
         .build();
-    assertEquals(test.getType(), IBOR);
-    assertEquals(test.getPayReceive(), RECEIVE);
-    assertEquals(test.getStartDate(), DATE_2014_06_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getPaymentPeriods(), ImmutableList.of(RPP1));
-    assertEquals(test.getPaymentEvents(), ImmutableList.of(NOTIONAL_EXCHANGE));
+    assertThat(test.getType()).isEqualTo(IBOR);
+    assertThat(test.getPayReceive()).isEqualTo(RECEIVE);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_06_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getPaymentPeriods()).containsExactly(RPP1);
+    assertThat(test.getPaymentEvents()).containsExactly(NOTIONAL_EXCHANGE);
   }
 
+  @Test
   public void test_builder_invalidMixedCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedSwapLeg.builder()
@@ -113,21 +113,23 @@ public class ResolvedSwapLegTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_findPaymentPeriod() {
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)
         .payReceive(RECEIVE)
         .paymentPeriods(RPP1, RPP2)
         .build();
-    assertEquals(test.findPaymentPeriod(RPP1.getStartDate()), Optional.empty());
-    assertEquals(test.findPaymentPeriod(RPP1.getStartDate().plusDays(1)), Optional.of(RPP1));
-    assertEquals(test.findPaymentPeriod(RPP1.getEndDate()), Optional.of(RPP1));
-    assertEquals(test.findPaymentPeriod(RPP2.getStartDate()), Optional.of(RPP1));
-    assertEquals(test.findPaymentPeriod(RPP2.getStartDate().plusDays(1)), Optional.of(RPP2));
-    assertEquals(test.findPaymentPeriod(RPP2.getEndDate()), Optional.of(RPP2));
-    assertEquals(test.findPaymentPeriod(RPP2.getEndDate().plusDays(1)), Optional.empty());
+    assertThat(test.findPaymentPeriod(RPP1.getStartDate())).isEqualTo(Optional.empty());
+    assertThat(test.findPaymentPeriod(RPP1.getStartDate().plusDays(1))).isEqualTo(Optional.of(RPP1));
+    assertThat(test.findPaymentPeriod(RPP1.getEndDate())).isEqualTo(Optional.of(RPP1));
+    assertThat(test.findPaymentPeriod(RPP2.getStartDate())).isEqualTo(Optional.of(RPP1));
+    assertThat(test.findPaymentPeriod(RPP2.getStartDate().plusDays(1))).isEqualTo(Optional.of(RPP2));
+    assertThat(test.findPaymentPeriod(RPP2.getEndDate())).isEqualTo(Optional.of(RPP2));
+    assertThat(test.findPaymentPeriod(RPP2.getEndDate().plusDays(1))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_collectIndices() {
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)
@@ -137,9 +139,10 @@ public class ResolvedSwapLegTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertThat(builder.build()).containsOnly(GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_findNotional() {
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)
@@ -147,19 +150,20 @@ public class ResolvedSwapLegTest {
         .paymentPeriods(RPP1, RPP2)
         .build();
     // Date is before the start date
-    assertEquals(test.findNotional(RPP1.getStartDate().minusMonths(1)), Optional.of(RPP1.getNotionalAmount()));
+    assertThat(test.findNotional(RPP1.getStartDate().minusMonths(1))).isEqualTo(Optional.of(RPP1.getNotionalAmount()));
     // Date is on the start date
-    assertEquals(test.findNotional(RPP1.getStartDate()), Optional.of(RPP1.getNotionalAmount()));
+    assertThat(test.findNotional(RPP1.getStartDate())).isEqualTo(Optional.of(RPP1.getNotionalAmount()));
     // Date is after the start date
-    assertEquals(test.findNotional(RPP1.getStartDate().plusDays(1)), Optional.of(RPP1.getNotionalAmount()));
+    assertThat(test.findNotional(RPP1.getStartDate().plusDays(1))).isEqualTo(Optional.of(RPP1.getNotionalAmount()));
     // Date is before the end date
-    assertEquals(test.findNotional(RPP2.getEndDate().minusDays(1)), Optional.of(RPP2.getNotionalAmount()));
+    assertThat(test.findNotional(RPP2.getEndDate().minusDays(1))).isEqualTo(Optional.of(RPP2.getNotionalAmount()));
     // Date is on the end date
-    assertEquals(test.findNotional(RPP2.getEndDate()), Optional.of(RPP2.getNotionalAmount()));
+    assertThat(test.findNotional(RPP2.getEndDate())).isEqualTo(Optional.of(RPP2.getNotionalAmount()));
     // Date is after the end date
-    assertEquals(test.findNotional(RPP2.getEndDate().plusMonths(1)), Optional.of(RPP2.getNotionalAmount()));
+    assertThat(test.findNotional(RPP2.getEndDate().plusMonths(1))).isEqualTo(Optional.of(RPP2.getNotionalAmount()));
   }
 
+  @Test
   public void test_findNotionalKnownAmount() {
     Payment payment = Payment.of(GBP, 1000, LocalDate.of(2011, 3, 8));
     SchedulePeriod schedulePeriod = SchedulePeriod.of(LocalDate.of(2010, 3, 8), LocalDate.of(2011, 3, 8));
@@ -170,20 +174,21 @@ public class ResolvedSwapLegTest {
         .paymentPeriods(paymentPeriod)
         .build();
     // Date is before the start date
-    assertEquals(test.findNotional(RPP1.getStartDate().minusMonths(1)), Optional.empty());
+    assertThat(test.findNotional(RPP1.getStartDate().minusMonths(1))).isEqualTo(Optional.empty());
     // Date is on the start date
-    assertEquals(test.findNotional(RPP1.getStartDate()), Optional.empty());
+    assertThat(test.findNotional(RPP1.getStartDate())).isEqualTo(Optional.empty());
     // Date is after the start date
-    assertEquals(test.findNotional(RPP1.getStartDate().plusDays(1)), Optional.empty());
+    assertThat(test.findNotional(RPP1.getStartDate().plusDays(1))).isEqualTo(Optional.empty());
     // Date is before the end date
-    assertEquals(test.findNotional(RPP2.getEndDate().minusDays(1)), Optional.empty());
+    assertThat(test.findNotional(RPP2.getEndDate().minusDays(1))).isEqualTo(Optional.empty());
     // Date is on the end date
-    assertEquals(test.findNotional(RPP2.getEndDate()), Optional.empty());
+    assertThat(test.findNotional(RPP2.getEndDate())).isEqualTo(Optional.empty());
     // Date is after the end date
-    assertEquals(test.findNotional(RPP2.getEndDate().plusMonths(1)), Optional.empty());
+    assertThat(test.findNotional(RPP2.getEndDate().plusMonths(1))).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)
@@ -200,6 +205,7 @@ public class ResolvedSwapLegTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedSwapLeg test = ResolvedSwapLeg.builder()
         .type(IBOR)

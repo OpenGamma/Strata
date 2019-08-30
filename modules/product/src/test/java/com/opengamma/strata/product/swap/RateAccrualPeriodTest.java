@@ -12,11 +12,12 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.ALLOW_NEGATIVE;
 import static com.opengamma.strata.product.swap.NegativeRateMethod.NOT_NEGATIVE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -25,7 +26,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test.
  */
-@Test
 public class RateAccrualPeriodTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -39,6 +39,7 @@ public class RateAccrualPeriodTest {
   private static final IborRateComputation GBP_LIBOR_3M_2014_03_28 =
       IborRateComputation.of(GBP_LIBOR_3M, DATE_2014_03_28, REF_DATA);
 
+  @Test
   public void test_builder() {
     RateAccrualPeriod test = RateAccrualPeriod.builder()
         .startDate(DATE_2014_03_31)
@@ -48,17 +49,18 @@ public class RateAccrualPeriodTest {
         .yearFraction(0.25d)
         .rateComputation(GBP_LIBOR_3M_2014_03_28)
         .build();
-    assertEquals(test.getStartDate(), DATE_2014_03_31);
-    assertEquals(test.getEndDate(), DATE_2014_07_01);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_06_30);
-    assertEquals(test.getYearFraction(), 0.25d, 0d);
-    assertEquals(test.getRateComputation(), GBP_LIBOR_3M_2014_03_28);
-    assertEquals(test.getGearing(), 1d, 0d);
-    assertEquals(test.getSpread(), 0d, 0d);
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_31);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_07_01);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_06_30);
+    assertThat(test.getYearFraction()).isCloseTo(0.25d, offset(0d));
+    assertThat(test.getRateComputation()).isEqualTo(GBP_LIBOR_3M_2014_03_28);
+    assertThat(test.getGearing()).isCloseTo(1d, offset(0d));
+    assertThat(test.getSpread()).isCloseTo(0d, offset(0d));
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
   }
 
+  @Test
   public void test_builder_defaultDates() {
     RateAccrualPeriod test = RateAccrualPeriod.builder()
         .startDate(DATE_2014_03_31)
@@ -66,35 +68,37 @@ public class RateAccrualPeriodTest {
         .yearFraction(0.25d)
         .rateComputation(GBP_LIBOR_3M_2014_03_28)
         .build();
-    assertEquals(test.getStartDate(), DATE_2014_03_31);
-    assertEquals(test.getEndDate(), DATE_2014_07_01);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_31);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_07_01);
-    assertEquals(test.getYearFraction(), 0.25d, 0d);
-    assertEquals(test.getRateComputation(), GBP_LIBOR_3M_2014_03_28);
-    assertEquals(test.getGearing(), 1d, 0d);
-    assertEquals(test.getSpread(), 0d, 0d);
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_31);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_07_01);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_31);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_07_01);
+    assertThat(test.getYearFraction()).isCloseTo(0.25d, offset(0d));
+    assertThat(test.getRateComputation()).isEqualTo(GBP_LIBOR_3M_2014_03_28);
+    assertThat(test.getGearing()).isCloseTo(1d, offset(0d));
+    assertThat(test.getSpread()).isCloseTo(0d, offset(0d));
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
   }
 
+  @Test
   public void test_builder_schedulePeriod() {
     SchedulePeriod schedulePeriod = SchedulePeriod.of(DATE_2014_03_31, DATE_2014_07_01, DATE_2014_03_30, DATE_2014_06_30);
     RateAccrualPeriod test = RateAccrualPeriod.builder(schedulePeriod)
         .yearFraction(0.25d)
         .rateComputation(GBP_LIBOR_3M_2014_03_28)
         .build();
-    assertEquals(test.getStartDate(), DATE_2014_03_31);
-    assertEquals(test.getEndDate(), DATE_2014_07_01);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_06_30);
-    assertEquals(test.getYearFraction(), 0.25d, 0d);
-    assertEquals(test.getRateComputation(), GBP_LIBOR_3M_2014_03_28);
-    assertEquals(test.getGearing(), 1d, 0d);
-    assertEquals(test.getSpread(), 0d, 0d);
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_31);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_07_01);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_06_30);
+    assertThat(test.getYearFraction()).isCloseTo(0.25d, offset(0d));
+    assertThat(test.getRateComputation()).isEqualTo(GBP_LIBOR_3M_2014_03_28);
+    assertThat(test.getGearing()).isCloseTo(1d, offset(0d));
+    assertThat(test.getSpread()).isCloseTo(0d, offset(0d));
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RateAccrualPeriod test = RateAccrualPeriod.builder()
         .startDate(DATE_2014_03_31)
@@ -119,6 +123,7 @@ public class RateAccrualPeriodTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RateAccrualPeriod test = RateAccrualPeriod.builder()
         .startDate(DATE_2014_03_31)

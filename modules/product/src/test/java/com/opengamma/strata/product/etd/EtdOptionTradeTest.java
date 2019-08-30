@@ -8,11 +8,12 @@ package com.opengamma.strata.product.etd;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.product.GenericSecurity;
@@ -26,35 +27,38 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link EtdOptionTrade}.
  */
-@Test
 public class EtdOptionTradeTest {
 
   private static final TradeInfo TRADE_INFO = TradeInfo.of(LocalDate.of(2017, 1, 1));
   private static final EtdOptionSecurity SECURITY = EtdOptionSecurityTest.sut();
 
+  @Test
   public void test_of() {
     EtdOptionTrade test = EtdOptionTrade.of(TRADE_INFO, SECURITY, 1000, 20);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getQuantity(), 1000d, 0d);
-    assertEquals(test.getPrice(), 20d, 0d);
-    assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
-    assertEquals(test.getCurrency(), SECURITY.getCurrency());
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getQuantity()).isCloseTo(1000d, offset(0d));
+    assertThat(test.getPrice()).isCloseTo(20d, offset(0d));
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(SECURITY.getCurrency());
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withPrice(129).getPrice()).isCloseTo(129d, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     EtdOptionTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -63,15 +67,16 @@ public class EtdOptionTradeTest {
         .currencies(SECURITY.getCurrency())
         .description(SECURITY.getSecurityId().getStandardId().getValue() + " x 3000, Jun17 P2")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolveTarget() {
     GenericSecurity security = GenericSecurity.of(SECURITY.getInfo());
     Trade test = sut().resolveTarget(ImmutableReferenceData.of(SECURITY.getSecurityId(), security));
     GenericSecurityTrade expected = GenericSecurityTrade.of(TRADE_INFO, security, 3000, 20);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

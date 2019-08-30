@@ -10,14 +10,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -32,7 +31,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link BondFutureSecurity}.
  */
-@Test
 public class BondFutureSecurityTest {
 
   private static final BondFuture PRODUCT = BondFutureTest.sut();
@@ -42,18 +40,20 @@ public class BondFutureSecurityTest {
   private static final SecurityInfo INFO2 = SecurityInfo.of(PRODUCT2.getSecurityId(), PRICE_INFO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     BondFutureSecurity test = sut();
-    assertEquals(test.getInfo(), INFO);
-    assertEquals(test.getSecurityId(), PRODUCT.getSecurityId());
-    assertEquals(test.getCurrency(), PRODUCT.getCurrency());
-    assertEquals(test.getFirstDeliveryDate(), PRODUCT.getFirstDeliveryDate());
-    assertEquals(test.getLastDeliveryDate(), PRODUCT.getLastDeliveryDate());
+    assertThat(test.getInfo()).isEqualTo(INFO);
+    assertThat(test.getSecurityId()).isEqualTo(PRODUCT.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(PRODUCT.getCurrency());
+    assertThat(test.getFirstDeliveryDate()).isEqualTo(PRODUCT.getFirstDeliveryDate());
+    assertThat(test.getLastDeliveryDate()).isEqualTo(PRODUCT.getLastDeliveryDate());
     ImmutableList<FixedCouponBond> basket = PRODUCT.getDeliveryBasket();
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of(basket.get(0).getSecurityId(), basket.get(1).getSecurityId()));
+    assertThat(test.getUnderlyingIds()).containsOnly(basket.get(0).getSecurityId(), basket.get(1).getSecurityId());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createProduct() {
     BondFutureSecurity test = sut();
     ImmutableList<FixedCouponBond> basket = PRODUCT.getDeliveryBasket();
@@ -63,8 +63,8 @@ public class BondFutureSecurityTest {
         basket.get(0).getSecurityId(), bondSec0,
         basket.get(1).getSecurityId(), bondSec1));
     BondFuture product = test.createProduct(refData);
-    assertEquals(product.getDeliveryBasket().get(0), PRODUCT.getDeliveryBasket().get(0));
-    assertEquals(product.getDeliveryBasket().get(1), PRODUCT.getDeliveryBasket().get(1));
+    assertThat(product.getDeliveryBasket().get(0)).isEqualTo(PRODUCT.getDeliveryBasket().get(0));
+    assertThat(product.getDeliveryBasket().get(1)).isEqualTo(PRODUCT.getDeliveryBasket().get(1));
     TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     BondFutureTrade expectedTrade = BondFutureTrade.builder()
         .info(tradeInfo)
@@ -72,7 +72,7 @@ public class BondFutureSecurityTest {
         .quantity(100)
         .price(123.50)
         .build();
-    assertEquals(test.createTrade(tradeInfo, 100, 123.50, refData), expectedTrade);
+    assertThat(test.createTrade(tradeInfo, 100, 123.50, refData)).isEqualTo(expectedTrade);
 
     PositionInfo positionInfo = PositionInfo.empty();
     BondFuturePosition expectedPosition1 = BondFuturePosition.builder()
@@ -87,9 +87,10 @@ public class BondFutureSecurityTest {
         .longQuantity(100)
         .shortQuantity(50)
         .build();
-    assertEquals(test.createPosition(positionInfo, 100, 50, refData), expectedPosition2);
+    assertThat(test.createPosition(positionInfo, 100, 50, refData)).isEqualTo(expectedPosition2);
   }
 
+  @Test
   public void test_createProduct_wrongType() {
     BondFutureSecurity test = sut();
     ImmutableList<FixedCouponBond> basket = PRODUCT.getDeliveryBasket();
@@ -101,11 +102,13 @@ public class BondFutureSecurityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

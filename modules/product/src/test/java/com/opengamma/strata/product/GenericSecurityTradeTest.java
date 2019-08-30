@@ -9,14 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link GenericSecurityTrade}.
  */
-@Test
 public class GenericSecurityTradeTest {
 
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
@@ -28,41 +28,46 @@ public class GenericSecurityTradeTest {
   private static final double PRICE2 = 120.50;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     GenericSecurityTrade test = GenericSecurityTrade.of(TRADE_INFO, SECURITY, QUANTITY, PRICE);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.getProduct(), SECURITY);
-    assertEquals(test.getCurrency(), SECURITY.getCurrency());
-    assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
-    assertEquals(test.withPrice(129).getPrice(), 129d, 0d);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.getProduct()).isEqualTo(SECURITY);
+    assertThat(test.getCurrency()).isEqualTo(SECURITY.getCurrency());
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY.getSecurityId());
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
+    assertThat(test.withPrice(129).getPrice()).isCloseTo(129d, offset(0d));
   }
 
+  @Test
   public void test_builder() {
     GenericSecurityTrade test = sut();
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getSecurity(), SECURITY);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.getCurrency(), SECURITY.getCurrency());
-    assertEquals(test.getSecurityId(), SECURITY.getSecurityId());
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getSecurity()).isEqualTo(SECURITY);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.getCurrency()).isEqualTo(SECURITY.getCurrency());
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY.getSecurityId());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     GenericSecurityTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -71,7 +76,7 @@ public class GenericSecurityTradeTest {
         .currencies(SECURITY.getCurrency())
         .description("1 x 100")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

@@ -17,15 +17,16 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -41,7 +42,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link XCcyIborIborSwapConvention}.
  */
-@Test
 public class XCcyIborIborSwapConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -66,24 +66,27 @@ public class XCcyIborIborSwapConventionTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), EUR3M);
-    assertEquals(test.getFlatLeg(), USD3M);
-    assertEquals(test.getSpotDateOffset(), EUR3M.getIndex().getEffectiveDateOffset());
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(EUR3M);
+    assertThat(test.getFlatLeg()).isEqualTo(USD3M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(EUR3M.getIndex().getEffectiveDateOffset());
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
+  @Test
   public void test_of_spotDateOffset() {
     ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_ONE_DAY);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), EUR3M);
-    assertEquals(test.getFlatLeg(), USD3M);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(EUR3M);
+    assertThat(test.getFlatLeg()).isEqualTo(USD3M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
+  @Test
   public void test_builder() {
     ImmutableXCcyIborIborSwapConvention test = ImmutableXCcyIborIborSwapConvention.builder()
         .name(NAME)
@@ -91,14 +94,15 @@ public class XCcyIborIborSwapConventionTest {
         .flatLeg(USD3M)
         .spotDateOffset(PLUS_ONE_DAY)
         .build();
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), EUR3M);
-    assertEquals(test.getFlatLeg(), USD3M);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(EUR3M);
+    assertThat(test.getFlatLeg()).isEqualTo(USD3M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade_tenor() {
     ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -108,10 +112,11 @@ public class XCcyIborIborSwapConventionTest {
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_periodTenor() {
     ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -122,10 +127,11 @@ public class XCcyIborIborSwapConventionTest {
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_dates() {
     ImmutableXCcyIborIborSwapConvention base = ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -135,12 +141,11 @@ public class XCcyIborIborSwapConventionTest {
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, "USD-LIBOR-1M-LIBOR-3M"},
@@ -148,39 +153,46 @@ public class XCcyIborIborSwapConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(IborIborSwapConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(IborIborSwapConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(IborIborSwapConvention convention, String name) {
-    assertEquals(IborIborSwapConvention.of(name), convention);
+    assertThat(IborIborSwapConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(IborIborSwapConvention convention, String name) {
     IborIborSwapConvention.of(name);  // ensures map is populated
     ImmutableMap<String, IborIborSwapConvention> map = IborIborSwapConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborIborSwapConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborIborSwapConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableXCcyIborIborSwapConvention test =
         ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);
@@ -190,6 +202,7 @@ public class XCcyIborIborSwapConventionTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ImmutableXCcyIborIborSwapConvention test =
         ImmutableXCcyIborIborSwapConvention.of(NAME, EUR3M, USD3M, PLUS_TWO_DAYS);

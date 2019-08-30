@@ -18,14 +18,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -50,7 +49,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 /**
  * Test {@link Dsf}.
  */
-@Test
 public class DsfTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -66,18 +64,20 @@ public class DsfTest {
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "DSF2");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     Dsf test = sut();
-    assertEquals(test.getDeliveryDate(), DELIVERY_DATE);
-    assertEquals(test.getLastTradeDate(), LAST_TRADE_DATE);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getUnderlyingSwap(), SWAP);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(USD));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(USD));
+    assertThat(test.getDeliveryDate()).isEqualTo(DELIVERY_DATE);
+    assertThat(test.getLastTradeDate()).isEqualTo(LAST_TRADE_DATE);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getUnderlyingSwap()).isEqualTo(SWAP);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(USD);
+    assertThat(test.allCurrencies()).containsOnly(USD);
   }
 
+  @Test
   public void test_builder_deliveryAfterStart() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Dsf.builder()
@@ -88,6 +88,7 @@ public class DsfTest {
         .build());
   }
 
+  @Test
   public void test_builder_tradeAfterdelivery() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Dsf.builder()
@@ -98,6 +99,7 @@ public class DsfTest {
         .build());
   }
 
+  @Test
   public void test_builder_notUnitNotional() {
     SwapLeg fixedLeg10 = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
@@ -188,11 +190,13 @@ public class DsfTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

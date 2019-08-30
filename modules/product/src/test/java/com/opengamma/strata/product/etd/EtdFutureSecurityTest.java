@@ -8,13 +8,12 @@ package com.opengamma.strata.product.etd;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.YearMonth;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.PositionInfo;
@@ -26,43 +25,40 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link EtdFutureSecurity}.
  */
-@Test
 public class EtdFutureSecurityTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
+  @Test
   public void test() {
     EtdFutureSecurity test = sut();
-    assertEquals(test.getVariant(), EtdVariant.MONTHLY);
-    assertEquals(test.getType(), EtdType.FUTURE);
-    assertEquals(test.getCurrency(), Currency.GBP);
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
-    assertEquals(test.createProduct(REF_DATA), test);
-    assertEquals(
-        test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
-        EtdFutureTrade.of(TradeInfo.empty(), test, 1, 2));
-    assertEquals(
-        test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty()),
-        EtdFuturePosition.ofNet(PositionInfo.empty(), test, 1));
-    assertEquals(
-        test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty()),
-        EtdFuturePosition.ofLongShort(PositionInfo.empty(), test, 1, 2));
+    assertThat(test.getVariant()).isEqualTo(EtdVariant.MONTHLY);
+    assertThat(test.getType()).isEqualTo(EtdType.FUTURE);
+    assertThat(test.getCurrency()).isEqualTo(Currency.GBP);
+    assertThat(test.getUnderlyingIds()).isEmpty();
+    assertThat(test.createProduct(REF_DATA)).isEqualTo(test);
+    assertThat(test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(EtdFutureTrade.of(TradeInfo.empty(), test, 1, 2));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty())).isEqualTo(EtdFuturePosition.ofNet(PositionInfo.empty(), test, 1));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(EtdFuturePosition.ofLongShort(PositionInfo.empty(), test, 1, 2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summaryDescription() {
-    assertEquals(sut().summaryDescription(), "Jun17");
-    assertEquals(sut2().summaryDescription(), "W2Sep17");
+    assertThat(sut().summaryDescription()).isEqualTo("Jun17");
+    assertThat(sut2().summaryDescription()).isEqualTo("W2Sep17");
   }
 
   //-------------------------------------------------------------------------

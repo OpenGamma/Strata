@@ -10,27 +10,28 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.product.common.SettlementType;
 
 /**
  * Test {@link CashSwaptionSettlement}.
  */
-@Test
 public class CashSwaptionSettlementTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     CashSwaptionSettlement test = CashSwaptionSettlement.of(date(2015, 6, 30), CashSwaptionSettlementMethod.CASH_PRICE);
-    assertEquals(test.getMethod(), CashSwaptionSettlementMethod.CASH_PRICE);
-    assertEquals(test.getSettlementDate(), date(2015, 6, 30));
-    assertEquals(test.getSettlementType(), SettlementType.CASH);
+    assertThat(test.getMethod()).isEqualTo(CashSwaptionSettlementMethod.CASH_PRICE);
+    assertThat(test.getSettlementDate()).isEqualTo(date(2015, 6, 30));
+    assertThat(test.getSettlementType()).isEqualTo(SettlementType.CASH);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CashSwaptionSettlement test = CashSwaptionSettlement.of(date(2015, 6, 30), CashSwaptionSettlementMethod.CASH_PRICE);
     coverImmutableBean(test);
@@ -40,6 +41,7 @@ public class CashSwaptionSettlementTest {
     coverEnum(SettlementType.class);
   }
 
+  @Test
   public void test_serialization() {
     CashSwaptionSettlement test = CashSwaptionSettlement.of(date(2015, 6, 30), CashSwaptionSettlementMethod.CASH_PRICE);
     assertSerialization(test);

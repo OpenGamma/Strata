@@ -17,11 +17,11 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
 import static com.opengamma.strata.product.swap.IborRateResetMethod.WEIGHTED;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -31,7 +31,6 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 /**
  * Test.
  */
-@Test
 public class ResetScheduleTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,17 +42,19 @@ public class ResetScheduleTest {
   private static final LocalDate DATE_04_07 = date(2014, 4, 7);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_ensureDefaults() {
     ResetSchedule test = ResetSchedule.builder()
         .resetFrequency(P1M)
         .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
         .build();
-    assertEquals(test.getResetFrequency(), P1M);
-    assertEquals(test.getBusinessDayAdjustment(), BusinessDayAdjustment.of(FOLLOWING, GBLO));
-    assertEquals(test.getResetMethod(), UNWEIGHTED);
+    assertThat(test.getResetFrequency()).isEqualTo(P1M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.of(FOLLOWING, GBLO));
+    assertThat(test.getResetMethod()).isEqualTo(UNWEIGHTED);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     ResetSchedule test = ResetSchedule.builder()
         .resetFrequency(P1M)
@@ -69,10 +70,11 @@ public class ResetScheduleTest {
         .frequency(P1M)
         .rollConvention(DAY_5)
         .build();
-    assertEquals(schedule, expected);
+    assertThat(schedule).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResetSchedule test = ResetSchedule.builder()
         .resetFrequency(P1M)
@@ -87,6 +89,7 @@ public class ResetScheduleTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResetSchedule test = ResetSchedule.builder()
         .resetFrequency(P1M)

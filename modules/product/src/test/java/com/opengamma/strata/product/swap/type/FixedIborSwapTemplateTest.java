@@ -25,14 +25,14 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -42,7 +42,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link FixedIborSwapTemplate}.
  */
-@Test
 public class FixedIborSwapTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -60,21 +59,24 @@ public class FixedIborSwapTemplateTest {
   private static final FixedIborSwapConvention CONV2 = ImmutableFixedIborSwapConvention.of("GBP-Swap", FIXED2, IBOR2);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     FixedIborSwapTemplate test = FixedIborSwapTemplate.of(TENOR_10Y, CONV);
-    assertEquals(test.getPeriodToStart(), Period.ZERO);
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getConvention(), CONV);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ZERO);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getConvention()).isEqualTo(CONV);
   }
 
+  @Test
   public void test_of_period() {
     FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
-    assertEquals(test.getPeriodToStart(), Period.ofMonths(3));
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getConvention(), CONV);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ofMonths(3));
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getConvention()).isEqualTo(CONV);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedIborSwapTemplate.builder()
@@ -83,6 +85,7 @@ public class FixedIborSwapTemplateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     FixedIborSwapTemplate base = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -92,11 +95,12 @@ public class FixedIborSwapTemplateTest {
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     coverImmutableBean(test);
@@ -104,6 +108,7 @@ public class FixedIborSwapTemplateTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FixedIborSwapTemplate test = FixedIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     assertSerialization(test);

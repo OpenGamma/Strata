@@ -14,12 +14,12 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -33,7 +33,6 @@ import com.opengamma.strata.product.credit.CdsTrade;
 /**
  * Test {@link TenorCdsTemplate}.
  */
-@Test
 public class TenorCdsTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,21 +42,24 @@ public class TenorCdsTemplateTest {
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "BCD");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     TenorCdsTemplate test = TenorCdsTemplate.of(TENOR_10Y, CONV1);
-    assertEquals(test.getAccrualStart(), AccrualStart.IMM_DATE);
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getConvention(), CONV1);
+    assertThat(test.getAccrualStart()).isEqualTo(AccrualStart.IMM_DATE);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getConvention()).isEqualTo(CONV1);
   }
 
+  @Test
   public void test_of_accStart() {
     TenorCdsTemplate test = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_10Y, CONV2);
-    assertEquals(test.getAccrualStart(), AccrualStart.NEXT_DAY);
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getConvention(), CONV2);
+    assertThat(test.getAccrualStart()).isEqualTo(AccrualStart.NEXT_DAY);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getConvention()).isEqualTo(CONV2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     TenorCdsTemplate base1 = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     TenorCdsTemplate base2 = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_2Y, CONV2);
@@ -86,14 +88,15 @@ public class TenorCdsTemplateTest {
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
-    assertEquals(test1.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test1.getProduct(), expected1);
-    assertEquals(test1.getUpfrontFee(), Optional.empty());
-    assertEquals(test2.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test2.getUpfrontFee(), Optional.empty());
-    assertEquals(test2.getProduct(), expected2);
+    assertThat(test1.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test1.getProduct()).isEqualTo(expected1);
+    assertThat(test1.getUpfrontFee()).isEqualTo(Optional.empty());
+    assertThat(test2.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test2.getUpfrontFee()).isEqualTo(Optional.empty());
+    assertThat(test2.getProduct()).isEqualTo(expected2);
   }
 
+  @Test
   public void test_createTrade_withFee() {
     TenorCdsTemplate base1 = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     TenorCdsTemplate base2 = TenorCdsTemplate.of(AccrualStart.NEXT_DAY, TENOR_2Y, CONV2);
@@ -126,15 +129,16 @@ public class TenorCdsTemplateTest {
             .rollConvention(RollConventions.DAY_20)
             .build())
         .build();
-    assertEquals(test1.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test1.getUpfrontFee(), Optional.of(payment1));
-    assertEquals(test1.getProduct(), expected1);
-    assertEquals(test2.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test2.getUpfrontFee(), Optional.of(payment2));
-    assertEquals(test2.getProduct(), expected2);
+    assertThat(test1.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test1.getUpfrontFee()).isEqualTo(Optional.of(payment1));
+    assertThat(test1.getProduct()).isEqualTo(expected1);
+    assertThat(test2.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test2.getUpfrontFee()).isEqualTo(Optional.of(payment2));
+    assertThat(test2.getProduct()).isEqualTo(expected2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TenorCdsTemplate test1 = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     coverImmutableBean(test1);
@@ -142,6 +146,7 @@ public class TenorCdsTemplateTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     TenorCdsTemplate test = TenorCdsTemplate.of(TENOR_10Y, CONV1);
     assertSerialization(test);

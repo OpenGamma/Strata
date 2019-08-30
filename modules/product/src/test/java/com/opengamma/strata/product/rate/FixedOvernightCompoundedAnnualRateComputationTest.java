@@ -7,9 +7,9 @@ package com.opengamma.strata.product.rate;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.index.Index;
@@ -18,32 +18,33 @@ import com.opengamma.strata.collect.TestHelper;
 /**
  * Test {@link FixedOvernightCompoundedAnnualRateComputation}.
  */
-@Test
 public class FixedOvernightCompoundedAnnualRateComputationTest {
 
+  @Test
   public void test_of() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
-    assertEquals(test.getRate(), 0.05);
-    assertEquals(test.getAccrualFactor(), 0.1);
+    assertThat(test.getRate()).isEqualTo(0.05);
+    assertThat(test.getAccrualFactor()).isEqualTo(0.1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of());
+    assertThat(builder.build()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getSimpleRate() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
-    assertEquals(
-        1 + test.getAccrualFactor() * test.getSimpleRate(),
-        Math.pow(1 + test.getRate(), test.getAccrualFactor()));
+    assertThat(1 + test.getAccrualFactor() * test.getSimpleRate()).isEqualTo(Math.pow(1 + test.getRate(), test.getAccrualFactor()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
     coverImmutableBean(test);
@@ -51,6 +52,7 @@ public class FixedOvernightCompoundedAnnualRateComputationTest {
     TestHelper.coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
     assertSerialization(test);

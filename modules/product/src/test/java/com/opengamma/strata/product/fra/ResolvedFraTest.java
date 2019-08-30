@@ -14,19 +14,18 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.fra.FraDiscountingMethod.ISDA;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateComputation;
 
 /**
  * Test {@link ResolvedFra}.
  */
-@Test
 public class ResolvedFraTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -34,20 +33,22 @@ public class ResolvedFraTest {
   private static final double NOTIONAL_2M = 2_000_000d;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedFra test = sut();
-    assertEquals(test.getPaymentDate(), date(2015, 6, 16));
-    assertEquals(test.getStartDate(), date(2015, 6, 15));
-    assertEquals(test.getEndDate(), date(2015, 9, 15));
-    assertEquals(test.getYearFraction(), 0.25d, 0d);
-    assertEquals(test.getFixedRate(), 0.25d, 0d);
-    assertEquals(test.getFloatingRate(), IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL_1M, 0d);
-    assertEquals(test.getDiscounting(), ISDA);
-    assertEquals(test.allIndices(), ImmutableSet.of(GBP_LIBOR_3M));
+    assertThat(test.getPaymentDate()).isEqualTo(date(2015, 6, 16));
+    assertThat(test.getStartDate()).isEqualTo(date(2015, 6, 15));
+    assertThat(test.getEndDate()).isEqualTo(date(2015, 9, 15));
+    assertThat(test.getYearFraction()).isCloseTo(0.25d, offset(0d));
+    assertThat(test.getFixedRate()).isCloseTo(0.25d, offset(0d));
+    assertThat(test.getFloatingRate()).isEqualTo(IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA));
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isCloseTo(NOTIONAL_1M, offset(0d));
+    assertThat(test.getDiscounting()).isEqualTo(ISDA);
+    assertThat(test.allIndices()).containsOnly(GBP_LIBOR_3M);
   }
 
+  @Test
   public void test_builder_datesInOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFra.builder()
@@ -61,11 +62,13 @@ public class ResolvedFraTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     ResolvedFra test = sut();
     assertSerialization(test);

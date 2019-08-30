@@ -13,12 +13,12 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -39,7 +39,6 @@ import com.opengamma.strata.product.SecurityId;
 /**
  * Test {@link FixedCouponBond}.
  */
-@Test
 public class FixedCouponBondTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -62,20 +61,22 @@ public class FixedCouponBondTest {
       DaysAdjustment.ofBusinessDays(-EX_COUPON_DAYS, EUTA, BUSINESS_ADJUST);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     FixedCouponBond test = sut();
-    assertEquals(test.getSecurityId(), SECURITY_ID);
-    assertEquals(test.getDayCount(), DAY_COUNT);
-    assertEquals(test.getFixedRate(), FIXED_RATE);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getAccrualSchedule(), PERIOD_SCHEDULE);
-    assertEquals(test.getSettlementDateOffset(), DATE_OFFSET);
-    assertEquals(test.getYieldConvention(), YIELD_CONVENTION);
-    assertEquals(test.getExCouponPeriod(), EX_COUPON);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(test.getDayCount()).isEqualTo(DAY_COUNT);
+    assertThat(test.getFixedRate()).isEqualTo(FIXED_RATE);
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getAccrualSchedule()).isEqualTo(PERIOD_SCHEDULE);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(DATE_OFFSET);
+    assertThat(test.getYieldConvention()).isEqualTo(YIELD_CONVENTION);
+    assertThat(test.getExCouponPeriod()).isEqualTo(EX_COUPON);
   }
 
+  @Test
   public void test_builder_fail() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedCouponBond.builder()
@@ -104,42 +105,45 @@ public class FixedCouponBondTest {
         .build());
   }
 
+  @Test
   public void test_resolve() {
     FixedCouponBond base = sut();
     ResolvedFixedCouponBond resolved = base.resolve(REF_DATA);
-    assertEquals(resolved.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(resolved.getSettlementDateOffset(), DATE_OFFSET);
-    assertEquals(resolved.getYieldConvention(), YIELD_CONVENTION);
+    assertThat(resolved.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(resolved.getSettlementDateOffset()).isEqualTo(DATE_OFFSET);
+    assertThat(resolved.getYieldConvention()).isEqualTo(YIELD_CONVENTION);
     ImmutableList<FixedCouponBondPaymentPeriod> periodicPayments = resolved.getPeriodicPayments();
     int expNum = 20;
-    assertEquals(periodicPayments.size(), expNum);
+    assertThat(periodicPayments).hasSize(expNum);
     LocalDate unadjustedEnd = END_DATE;
     Schedule unadjusted = PERIOD_SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     for (int i = 0; i < expNum; ++i) {
       FixedCouponBondPaymentPeriod payment = periodicPayments.get(expNum - 1 - i);
-      assertEquals(payment.getCurrency(), EUR);
-      assertEquals(payment.getNotional(), NOTIONAL);
-      assertEquals(payment.getFixedRate(), FIXED_RATE);
-      assertEquals(payment.getUnadjustedEndDate(), unadjustedEnd);
-      assertEquals(payment.getEndDate(), BUSINESS_ADJUST.adjust(unadjustedEnd, REF_DATA));
-      assertEquals(payment.getPaymentDate(), payment.getEndDate());
+      assertThat(payment.getCurrency()).isEqualTo(EUR);
+      assertThat(payment.getNotional()).isEqualTo(NOTIONAL);
+      assertThat(payment.getFixedRate()).isEqualTo(FIXED_RATE);
+      assertThat(payment.getUnadjustedEndDate()).isEqualTo(unadjustedEnd);
+      assertThat(payment.getEndDate()).isEqualTo(BUSINESS_ADJUST.adjust(unadjustedEnd, REF_DATA));
+      assertThat(payment.getPaymentDate()).isEqualTo(payment.getEndDate());
       LocalDate unadjustedStart = unadjustedEnd.minusMonths(6);
-      assertEquals(payment.getUnadjustedStartDate(), unadjustedStart);
-      assertEquals(payment.getStartDate(), BUSINESS_ADJUST.adjust(unadjustedStart, REF_DATA));
-      assertEquals(payment.getYearFraction(), unadjusted.getPeriod(expNum - 1 - i).yearFraction(DAY_COUNT, unadjusted));
-      assertEquals(payment.getDetachmentDate(), EX_COUPON.adjust(payment.getPaymentDate(), REF_DATA));
+      assertThat(payment.getUnadjustedStartDate()).isEqualTo(unadjustedStart);
+      assertThat(payment.getStartDate()).isEqualTo(BUSINESS_ADJUST.adjust(unadjustedStart, REF_DATA));
+      assertThat(payment.getYearFraction()).isEqualTo(unadjusted.getPeriod(expNum - 1 - i).yearFraction(DAY_COUNT, unadjusted));
+      assertThat(payment.getDetachmentDate()).isEqualTo(EX_COUPON.adjust(payment.getPaymentDate(), REF_DATA));
       unadjustedEnd = unadjustedStart;
     }
     Payment expectedPayment = Payment.of(CurrencyAmount.of(EUR, NOTIONAL), BUSINESS_ADJUST.adjust(END_DATE, REF_DATA));
-    assertEquals(resolved.getNominalPayment(), expectedPayment);
+    assertThat(resolved.getNominalPayment()).isEqualTo(expectedPayment);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

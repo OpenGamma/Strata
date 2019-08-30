@@ -9,10 +9,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
@@ -20,7 +21,6 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 /**
  * Test {@link FxSwapConventions}.
  */
-@Test
 public class FxSwapConventionsTest {
 
   private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
@@ -28,8 +28,7 @@ public class FxSwapConventionsTest {
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_JPTO = GBLO.combinedWith(JPTO);
 
-  @DataProvider(name = "spotLag")
-  public static Object[][] data_spot_lag() {
+  public static Object[][] data_spotLag() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, 2},
         {FxSwapConventions.EUR_GBP, 2},
@@ -38,13 +37,13 @@ public class FxSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "spotLag")
-  public void test_spot_lag(ImmutableFxSwapConvention convention, int lag) {
-    assertEquals(convention.getSpotDateOffset().getDays(), lag);
+  @ParameterizedTest
+  @MethodSource("data_spotLag")
+  public void test_spotLag(ImmutableFxSwapConvention convention, int lag) {
+    assertThat(convention.getSpotDateOffset().getDays()).isEqualTo(lag);
   }
 
-  @DataProvider(name = "currencyPair")
-  public static Object[][] data_currency_pair() {
+  public static Object[][] data_currencyPair() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, CurrencyPair.of(EUR, USD)},
         {FxSwapConventions.EUR_GBP, CurrencyPair.of(EUR, GBP)},
@@ -53,12 +52,12 @@ public class FxSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "currencyPair")
-  public void test_currency_pair(ImmutableFxSwapConvention convention, CurrencyPair ccys) {
-    assertEquals(convention.getCurrencyPair(), ccys);
+  @ParameterizedTest
+  @MethodSource("data_currencyPair")
+  public void test_currencyPair(ImmutableFxSwapConvention convention, CurrencyPair ccys) {
+    assertThat(convention.getCurrencyPair()).isEqualTo(ccys);
   }
 
-  @DataProvider(name = "calendar")
   public static Object[][] data_calendar() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, EUTA_USNY},
@@ -68,13 +67,15 @@ public class FxSwapConventionsTest {
     };
   }
 
-  @Test(dataProvider = "calendar")
+  @ParameterizedTest
+  @MethodSource("data_calendar")
   public void test_calendar(ImmutableFxSwapConvention convention, HolidayCalendarId cal) {
-    assertEquals(convention.getSpotDateOffset().getCalendar(), cal);
-    assertEquals(convention.getBusinessDayAdjustment().getCalendar(), cal);
+    assertThat(convention.getSpotDateOffset().getCalendar()).isEqualTo(cal);
+    assertThat(convention.getBusinessDayAdjustment().getCalendar()).isEqualTo(cal);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(FxSwapConventions.class);
     coverPrivateConstructor(StandardFxSwapConventions.class);

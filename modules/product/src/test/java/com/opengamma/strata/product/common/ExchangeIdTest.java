@@ -10,14 +10,14 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ExchangeId}.
  */
-@Test
 public class ExchangeIdTest {
 
+  @Test
   public void test_of() {
     ExchangeId test = ExchangeId.of("GB");
     assertThat(test.getName()).isEqualTo("GB");
@@ -26,6 +26,7 @@ public class ExchangeIdTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     ExchangeId a = ExchangeId.of("ECAG");
     ExchangeId a2 = ExchangeIds.ECAG;
@@ -40,10 +41,12 @@ public class ExchangeIdTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(ExchangeIds.class);
   }
 
+  @Test
   public void test_serialization() {
     ExchangeId test = ExchangeId.of("ECAG");
     assertSerialization(test);

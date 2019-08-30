@@ -21,15 +21,16 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -41,7 +42,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link ThreeLegBasisSwapConvention}.
  */
-@Test
 public class ThreeLegBasisSwapConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -57,25 +57,28 @@ public class ThreeLegBasisSwapConventionTest {
   private static final IborRateSwapLegConvention IBOR12M = IborRateSwapLegConvention.of(EUR_EURIBOR_12M);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ImmutableThreeLegBasisSwapConvention test = ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), FIXED);
-    assertEquals(test.getSpreadFloatingLeg(), IBOR6M);
-    assertEquals(test.getFlatFloatingLeg(), IBOR12M);
-    assertEquals(test.getSpotDateOffset(), EUR_EURIBOR_6M.getEffectiveDateOffset());
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(FIXED);
+    assertThat(test.getSpreadFloatingLeg()).isEqualTo(IBOR6M);
+    assertThat(test.getFlatFloatingLeg()).isEqualTo(IBOR12M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(EUR_EURIBOR_6M.getEffectiveDateOffset());
   }
 
+  @Test
   public void test_of_spotDateOffset() {
     ImmutableThreeLegBasisSwapConvention test =
         ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M, PLUS_ONE_DAY);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), FIXED);
-    assertEquals(test.getSpreadFloatingLeg(), IBOR6M);
-    assertEquals(test.getFlatFloatingLeg(), IBOR12M);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(FIXED);
+    assertThat(test.getSpreadFloatingLeg()).isEqualTo(IBOR6M);
+    assertThat(test.getFlatFloatingLeg()).isEqualTo(IBOR12M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
+  @Test
   public void test_builder() {
     ImmutableThreeLegBasisSwapConvention test = ImmutableThreeLegBasisSwapConvention.builder()
         .name(NAME)
@@ -84,14 +87,15 @@ public class ThreeLegBasisSwapConventionTest {
         .flatFloatingLeg(IBOR12M)
         .spotDateOffset(PLUS_ONE_DAY)
         .build();
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), FIXED);
-    assertEquals(test.getSpreadFloatingLeg(), IBOR6M);
-    assertEquals(test.getFlatFloatingLeg(), IBOR12M);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(FIXED);
+    assertThat(test.getSpreadFloatingLeg()).isEqualTo(IBOR6M);
+    assertThat(test.getFlatFloatingLeg()).isEqualTo(IBOR12M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade_tenor() {
     ThreeLegBasisSwapConvention base = ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -102,10 +106,11 @@ public class ThreeLegBasisSwapConventionTest {
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
         IBOR12M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_periodTenor() {
     ThreeLegBasisSwapConvention base = ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -116,10 +121,11 @@ public class ThreeLegBasisSwapConventionTest {
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
         IBOR12M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_dates() {
     ThreeLegBasisSwapConvention base = ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -130,51 +136,57 @@ public class ThreeLegBasisSwapConventionTest {
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, PAY, NOTIONAL_2M),
         IBOR12M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {ThreeLegBasisSwapConventions.EUR_FIXED_1Y_EURIBOR_3M_EURIBOR_6M, "EUR-FIXED-1Y-EURIBOR-3M-EURIBOR-6M"},
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(ThreeLegBasisSwapConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(ThreeLegBasisSwapConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(ThreeLegBasisSwapConvention convention, String name) {
-    assertEquals(ThreeLegBasisSwapConvention.of(name), convention);
+    assertThat(ThreeLegBasisSwapConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(ThreeLegBasisSwapConvention convention, String name) {
     ThreeLegBasisSwapConvention.of(name);  // ensures map is populated
     ImmutableMap<String, ThreeLegBasisSwapConvention> map = ThreeLegBasisSwapConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ThreeLegBasisSwapConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ThreeLegBasisSwapConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableThreeLegBasisSwapConvention test = ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M);
     coverImmutableBean(test);
@@ -184,6 +196,7 @@ public class ThreeLegBasisSwapConventionTest {
     coverBeanEquals(test, test3);
   }
 
+  @Test
   public void test_serialization() {
     ThreeLegBasisSwapConvention test = ImmutableThreeLegBasisSwapConvention.of(NAME, FIXED, IBOR6M, IBOR12M);
     assertSerialization(test);

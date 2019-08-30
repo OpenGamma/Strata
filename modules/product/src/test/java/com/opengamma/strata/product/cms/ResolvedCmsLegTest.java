@@ -11,17 +11,16 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 
 /**
  * Test {@link ResolvedCmsLeg}.
  */
-@Test
 public class ResolvedCmsLegTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -29,19 +28,21 @@ public class ResolvedCmsLegTest {
   private static final CmsPeriod PERIOD_1 = CmsLegTest.sutCap().resolve(REF_DATA).getCmsPeriods().get(0);
   private static final CmsPeriod PERIOD_2 = CmsLegTest.sutCap().resolve(REF_DATA).getCmsPeriods().get(1);
 
+  @Test
   public void test_builder() {
     ResolvedCmsLeg test = sut();
-    assertEquals(test.getCmsPeriods().size(), 2);
-    assertEquals(test.getCmsPeriods().get(0), PERIOD_1);
-    assertEquals(test.getCmsPeriods().get(1), PERIOD_2);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getStartDate(), PERIOD_1.getStartDate());
-    assertEquals(test.getEndDate(), PERIOD_2.getEndDate());
-    assertEquals(test.getIndex(), PERIOD_1.getIndex());
-    assertEquals(test.getUnderlyingIndex(), PERIOD_1.getIndex().getTemplate().getConvention().getFloatingLeg().getIndex());
-    assertEquals(test.getPayReceive(), RECEIVE);
+    assertThat(test.getCmsPeriods()).hasSize(2);
+    assertThat(test.getCmsPeriods().get(0)).isEqualTo(PERIOD_1);
+    assertThat(test.getCmsPeriods().get(1)).isEqualTo(PERIOD_2);
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getStartDate()).isEqualTo(PERIOD_1.getStartDate());
+    assertThat(test.getEndDate()).isEqualTo(PERIOD_2.getEndDate());
+    assertThat(test.getIndex()).isEqualTo(PERIOD_1.getIndex());
+    assertThat(test.getUnderlyingIndex()).isEqualTo(PERIOD_1.getIndex().getTemplate().getConvention().getFloatingLeg().getIndex());
+    assertThat(test.getPayReceive()).isEqualTo(RECEIVE);
   }
 
+  @Test
   public void test_builder_multiCurrencyIndex() {
     CmsPeriod period3 = CmsPeriodTest.sut2();
     assertThatIllegalArgumentException()
@@ -52,11 +53,13 @@ public class ResolvedCmsLegTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

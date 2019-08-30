@@ -5,26 +5,27 @@
  */
 package com.opengamma.strata.product;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link Trade}.
  */
-@Test
 public class TradeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_methods() {
     Trade test = sut();
-    assertEquals(test.getId(), Optional.empty());
-    assertEquals(test.getInfo(), TradeInfo.empty());
+    assertThat(test.getId()).isEqualTo(Optional.empty());
+    assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     Trade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -32,7 +33,7 @@ public class TradeTest {
         .productType(ProductType.OTHER)
         .description("Unknown: MockTrade")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

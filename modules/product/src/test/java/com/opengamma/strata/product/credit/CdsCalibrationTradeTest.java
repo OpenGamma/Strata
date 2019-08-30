@@ -11,11 +11,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 /**
  * Test {@link CdsCalibrationTrade} and {@link CdsQuote}.
  */
-@Test
 public class CdsCalibrationTradeTest {
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
@@ -49,29 +48,34 @@ public class CdsCalibrationTradeTest {
   private static final CdsQuote QUOTE3 = CdsQuote.of(CdsQuoteConvention.PAR_SPREAD, 0.012);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_quote() {
-    assertEquals(QUOTE3.getQuoteConvention(), CdsQuoteConvention.PAR_SPREAD);
-    assertEquals(QUOTE3.getQuotedValue(), 0.012);
+    assertThat(QUOTE3.getQuoteConvention()).isEqualTo(CdsQuoteConvention.PAR_SPREAD);
+    assertThat(QUOTE3.getQuotedValue()).isEqualTo(0.012);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage_quote() {
     coverImmutableBean(QUOTE2);
     coverBeanEquals(QUOTE2, QUOTE3);
   }
 
+  @Test
   public void test_serialization_quote() {
     assertSerialization(QUOTE1);
   }
 
+  @Test
   public void test_of_trade() {
     CdsCalibrationTrade test = CdsCalibrationTrade.of(TRADE, QUOTE1);
-    assertEquals(test.getUnderlyingTrade(), TRADE);
-    assertEquals(test.getQuote(), QUOTE1);
-    assertEquals(test.getInfo(), TRADE.getInfo());
+    assertThat(test.getUnderlyingTrade()).isEqualTo(TRADE);
+    assertThat(test.getQuote()).isEqualTo(QUOTE1);
+    assertThat(test.getInfo()).isEqualTo(TRADE.getInfo());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage_trade() {
     CdsCalibrationTrade test1 = CdsCalibrationTrade.of(TRADE, QUOTE1);
     coverImmutableBean(test1);
@@ -84,6 +88,7 @@ public class CdsCalibrationTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization_trade() {
     CdsCalibrationTrade test = CdsCalibrationTrade.of(TRADE, QUOTE1);
     assertSerialization(test);

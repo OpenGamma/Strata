@@ -8,72 +8,78 @@ package com.opengamma.strata.product.etd;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link EtdVariant}.
  */
-@Test
 public class EtdVariantTest {
 
+  @Test
   public void test_monthly() {
     EtdVariant test = EtdVariant.ofMonthly();
-    assertEquals(test.getType(), EtdExpiryType.MONTHLY);
-    assertEquals(test.getDateCode().isPresent(), false);
-    assertEquals(test.getSettlementType().isPresent(), false);
-    assertEquals(test.getOptionType().isPresent(), false);
-    assertEquals(test.isFlex(), false);
-    assertEquals(test.getCode(), "");
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.MONTHLY);
+    assertThat(test.getDateCode()).isNotPresent();
+    assertThat(test.getSettlementType()).isNotPresent();
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.isFlex()).isFalse();
+    assertThat(test.getCode()).isEmpty();
   }
 
+  @Test
   public void test_weekly() {
     EtdVariant test = EtdVariant.ofWeekly(2);
-    assertEquals(test.getType(), EtdExpiryType.WEEKLY);
-    assertEquals(test.getDateCode().getAsInt(), 2);
-    assertEquals(test.getSettlementType().isPresent(), false);
-    assertEquals(test.getOptionType().isPresent(), false);
-    assertEquals(test.isFlex(), false);
-    assertEquals(test.getCode(), "W2");
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.WEEKLY);
+    assertThat(test.getDateCode().getAsInt()).isEqualTo(2);
+    assertThat(test.getSettlementType()).isNotPresent();
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.isFlex()).isFalse();
+    assertThat(test.getCode()).isEqualTo("W2");
   }
 
+  @Test
   public void test_daily() {
     EtdVariant test = EtdVariant.ofDaily(24);
-    assertEquals(test.getType(), EtdExpiryType.DAILY);
-    assertEquals(test.getDateCode().getAsInt(), 24);
-    assertEquals(test.getSettlementType().isPresent(), false);
-    assertEquals(test.getOptionType().isPresent(), false);
-    assertEquals(test.isFlex(), false);
-    assertEquals(test.getCode(), "24");
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.DAILY);
+    assertThat(test.getDateCode().getAsInt()).isEqualTo(24);
+    assertThat(test.getSettlementType()).isNotPresent();
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.isFlex()).isFalse();
+    assertThat(test.getCode()).isEqualTo("24");
   }
 
+  @Test
   public void test_flexFuture() {
     EtdVariant test = EtdVariant.ofFlexFuture(2, EtdSettlementType.CASH);
-    assertEquals(test.getType(), EtdExpiryType.DAILY);
-    assertEquals(test.getDateCode().getAsInt(), 2);
-    assertEquals(test.getSettlementType().get(), EtdSettlementType.CASH);
-    assertEquals(test.getOptionType().isPresent(), false);
-    assertEquals(test.isFlex(), true);
-    assertEquals(test.getCode(), "02C");
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.DAILY);
+    assertThat(test.getDateCode().getAsInt()).isEqualTo(2);
+    assertThat(test.getSettlementType().get()).isEqualTo(EtdSettlementType.CASH);
+    assertThat(test.getOptionType()).isNotPresent();
+    assertThat(test.isFlex()).isTrue();
+    assertThat(test.getCode()).isEqualTo("02C");
   }
 
+  @Test
   public void test_flexOption() {
     EtdVariant test = EtdVariant.ofFlexOption(24, EtdSettlementType.CASH, EtdOptionType.AMERICAN);
-    assertEquals(test.getType(), EtdExpiryType.DAILY);
-    assertEquals(test.getDateCode().getAsInt(), 24);
-    assertEquals(test.getSettlementType().get(), EtdSettlementType.CASH);
-    assertEquals(test.getOptionType().get(), EtdOptionType.AMERICAN);
-    assertEquals(test.isFlex(), true);
-    assertEquals(test.getCode(), "24CA");
+    assertThat(test.getType()).isEqualTo(EtdExpiryType.DAILY);
+    assertThat(test.getDateCode().getAsInt()).isEqualTo(24);
+    assertThat(test.getSettlementType().get()).isEqualTo(EtdSettlementType.CASH);
+    assertThat(test.getOptionType().get()).isEqualTo(EtdOptionType.AMERICAN);
+    assertThat(test.isFlex()).isTrue();
+    assertThat(test.getCode()).isEqualTo("24CA");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

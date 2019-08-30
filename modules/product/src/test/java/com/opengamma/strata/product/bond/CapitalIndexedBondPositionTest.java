@@ -8,9 +8,10 @@ package com.opengamma.strata.product.bond;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -23,7 +24,6 @@ import com.opengamma.strata.product.ProductType;
 /**
  * Test {@link CapitalIndexedBondPosition}.
  */
-@Test
 public class CapitalIndexedBondPositionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -38,18 +38,20 @@ public class CapitalIndexedBondPositionTest {
   private static final CapitalIndexedBond PRODUCT2 = CapitalIndexedBondTest.sut2();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_resolved() {
     CapitalIndexedBondPosition test = sut();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), POSITION_INFO);
-    assertEquals(test.getLongQuantity(), QUANTITY, 0d);
-    assertEquals(test.getShortQuantity(), 0d, 0d);
-    assertEquals(test.getQuantity(), QUANTITY, 0d);
-    assertEquals(test.withInfo(POSITION_INFO).getInfo(), POSITION_INFO);
-    assertEquals(test.withQuantity(129).getQuantity(), 129d, 0d);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.getLongQuantity()).isCloseTo(QUANTITY, offset(0d));
+    assertThat(test.getShortQuantity()).isCloseTo(0d, offset(0d));
+    assertThat(test.getQuantity()).isCloseTo(QUANTITY, offset(0d));
+    assertThat(test.withInfo(POSITION_INFO).getInfo()).isEqualTo(POSITION_INFO);
+    assertThat(test.withQuantity(129).getQuantity()).isCloseTo(129d, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     CapitalIndexedBondPosition trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -59,10 +61,11 @@ public class CapitalIndexedBondPositionTest {
         .currencies(Currency.USD)
         .description("Bond x 10")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withQuantity() {
     CapitalIndexedBondPosition base = sut();
     double quantity = 75343d;
@@ -72,25 +75,28 @@ public class CapitalIndexedBondPositionTest {
         .product(PRODUCT)
         .longQuantity(quantity)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     ResolvedCapitalIndexedBondTrade expected = ResolvedCapitalIndexedBondTrade.builder()
         .info(POSITION_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .quantity(QUANTITY)
         .build();
-    assertEquals(sut().resolve(REF_DATA), expected);
+    assertThat(sut().resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

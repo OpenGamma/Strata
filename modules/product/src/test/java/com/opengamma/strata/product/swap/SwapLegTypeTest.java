@@ -8,20 +8,19 @@ package com.opengamma.strata.product.swap;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test.
  */
-@Test
 public class SwapLegTypeTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {SwapLegType.FIXED, "Fixed"},
@@ -31,52 +30,61 @@ public class SwapLegTypeTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(SwapLegType convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(SwapLegType convention, String name) {
-    assertEquals(SwapLegType.of(name), convention);
+    assertThat(SwapLegType.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> SwapLegType.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> SwapLegType.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isFixed() {
-    assertEquals(SwapLegType.FIXED.isFixed(), true);
-    assertEquals(SwapLegType.IBOR.isFixed(), false);
-    assertEquals(SwapLegType.OVERNIGHT.isFixed(), false);
-    assertEquals(SwapLegType.INFLATION.isFixed(), false);
-    assertEquals(SwapLegType.OTHER.isFixed(), false);
+    assertThat(SwapLegType.FIXED.isFixed()).isTrue();
+    assertThat(SwapLegType.IBOR.isFixed()).isFalse();
+    assertThat(SwapLegType.OVERNIGHT.isFixed()).isFalse();
+    assertThat(SwapLegType.INFLATION.isFixed()).isFalse();
+    assertThat(SwapLegType.OTHER.isFixed()).isFalse();
   }
 
+  @Test
   public void test_isFloat() {
-    assertEquals(SwapLegType.FIXED.isFloat(), false);
-    assertEquals(SwapLegType.IBOR.isFloat(), true);
-    assertEquals(SwapLegType.OVERNIGHT.isFloat(), true);
-    assertEquals(SwapLegType.INFLATION.isFloat(), true);
-    assertEquals(SwapLegType.OTHER.isFloat(), false);
+    assertThat(SwapLegType.FIXED.isFloat()).isFalse();
+    assertThat(SwapLegType.IBOR.isFloat()).isTrue();
+    assertThat(SwapLegType.OVERNIGHT.isFloat()).isTrue();
+    assertThat(SwapLegType.INFLATION.isFloat()).isTrue();
+    assertThat(SwapLegType.OTHER.isFloat()).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(SwapLegType.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(SwapLegType.FIXED);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(SwapLegType.class, SwapLegType.IBOR);
   }

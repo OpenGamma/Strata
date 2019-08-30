@@ -12,13 +12,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.Tenor;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 /**
  * Test {@link ResolvedSwaption}.
  */
-@Test
 public class ResolvedSwaptionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -45,23 +44,26 @@ public class ResolvedSwaptionTest {
       CashSwaptionSettlement.of(SWAP.getLegs().get(0).getStartDate(), CashSwaptionSettlementMethod.PAR_YIELD);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedSwaption test = sut();
-    assertEquals(test.getExpiryDate(), EXPIRY.toLocalDate());
-    assertEquals(test.getExpiry(), EXPIRY);
-    assertEquals(test.getLongShort(), LONG);
-    assertEquals(test.getSwaptionSettlement(), PHYSICAL_SETTLE);
-    assertEquals(test.getUnderlying(), SWAP);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
+    assertThat(test.getExpiryDate()).isEqualTo(EXPIRY.toLocalDate());
+    assertThat(test.getExpiry()).isEqualTo(EXPIRY);
+    assertThat(test.getLongShort()).isEqualTo(LONG);
+    assertThat(test.getSwaptionSettlement()).isEqualTo(PHYSICAL_SETTLE);
+    assertThat(test.getUnderlying()).isEqualTo(SWAP);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

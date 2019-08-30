@@ -10,11 +10,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -23,7 +23,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link ResolvedCmsTrade}.
  */
-@Test
 public class ResolvedCmsTradeTest {
 
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2016, 6, 30));
@@ -32,28 +31,32 @@ public class ResolvedCmsTradeTest {
   private static final Payment PREMIUM = Payment.of(CurrencyAmount.of(EUR, -0.001 * 1.0e6), date(2016, 7, 2));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedCmsTrade test = sut();
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getPremium(), Optional.of(PREMIUM));
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getPremium()).isEqualTo(Optional.of(PREMIUM));
   }
 
+  @Test
   public void test_builder_full() {
     ResolvedCmsTrade test = ResolvedCmsTrade.builder()
         .product(PRODUCT)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.empty());
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getPremium(), Optional.empty());
+    assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getPremium()).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

@@ -10,11 +10,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -23,7 +23,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link ResolvedBulletPaymentTrade}.
  */
-@Test
 public class ResolvedBulletPaymentTradeTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1_000);
@@ -34,21 +33,24 @@ public class ResolvedBulletPaymentTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2014, 6, 30));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.of(TRADE_INFO, PRODUCT1);
-    assertEquals(test.getProduct(), PRODUCT1);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT1);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.builder()
         .product(PRODUCT1)
         .build();
-    assertEquals(test.getInfo(), TradeInfo.empty());
-    assertEquals(test.getProduct(), PRODUCT1);
+    assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());
+    assertThat(test.getProduct()).isEqualTo(PRODUCT1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.builder()
         .info(TradeInfo.of(date(2014, 6, 30)))
@@ -61,6 +63,7 @@ public class ResolvedBulletPaymentTradeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedBulletPaymentTrade test = ResolvedBulletPaymentTrade.builder()
         .info(TradeInfo.of(date(2014, 6, 30)))

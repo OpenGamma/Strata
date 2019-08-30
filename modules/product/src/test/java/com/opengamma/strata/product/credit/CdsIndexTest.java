@@ -23,16 +23,15 @@ import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.credit.PaymentOnDefault.ACCRUED_PREMIUM;
 import static com.opengamma.strata.product.credit.ProtectionStartOfDay.BEGINNING;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -47,7 +46,6 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 /**
  * Test {@link CdsIndex}.
  */
-@Test
 public class CdsIndexTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -63,6 +61,7 @@ public class CdsIndexTest {
   private static final CdsIndex PRODUCT = CdsIndex.of(
       BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
 
+  @Test
   public void test_builder() {
     LocalDate startDate = LocalDate.of(2014, 12, 20);
     LocalDate endDate = LocalDate.of(2020, 10, 20);
@@ -82,23 +81,24 @@ public class CdsIndexTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test.getPaymentSchedule(), sch);
-    assertEquals(test.getBuySell(), SELL);
-    assertEquals(test.getCurrency(), JPY);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getFixedRate(), COUPON);
-    assertEquals(test.getCdsIndexId(), INDEX_ID);
-    assertEquals(test.getLegalEntityIds(), LEGAL_ENTITIES);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getPaymentOnDefault(), PaymentOnDefault.NONE);
-    assertEquals(test.getProtectionStart(), ProtectionStartOfDay.NONE);
-    assertEquals(test.getSettlementDateOffset(), SETTLE_DAY_ADJ);
-    assertEquals(test.getStepinDateOffset(), STEPIN_DAY_ADJ);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(JPY));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(JPY));
+    assertThat(test.getPaymentSchedule()).isEqualTo(sch);
+    assertThat(test.getBuySell()).isEqualTo(SELL);
+    assertThat(test.getCurrency()).isEqualTo(JPY);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getFixedRate()).isEqualTo(COUPON);
+    assertThat(test.getCdsIndexId()).isEqualTo(INDEX_ID);
+    assertThat(test.getLegalEntityIds()).isEqualTo(LEGAL_ENTITIES);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getPaymentOnDefault()).isEqualTo(PaymentOnDefault.NONE);
+    assertThat(test.getProtectionStart()).isEqualTo(ProtectionStartOfDay.NONE);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE_DAY_ADJ);
+    assertThat(test.getStepinDateOffset()).isEqualTo(STEPIN_DAY_ADJ);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(JPY);
+    assertThat(test.allCurrencies()).containsOnly(JPY);
   }
 
+  @Test
   public void test_of() {
     BusinessDayAdjustment bussAdj = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     PeriodicSchedule expected = PeriodicSchedule.builder()
@@ -111,22 +111,23 @@ public class CdsIndexTest {
         .rollConvention(RollConventions.NONE)
         .stubConvention(SMART_INITIAL)
         .build();
-    assertEquals(PRODUCT.getPaymentSchedule(), expected);
-    assertEquals(PRODUCT.getBuySell(), BUY);
-    assertEquals(PRODUCT.getCurrency(), USD);
-    assertEquals(PRODUCT.getDayCount(), ACT_360);
-    assertEquals(PRODUCT.getFixedRate(), COUPON);
-    assertEquals(PRODUCT.getCdsIndexId(), INDEX_ID);
-    assertEquals(PRODUCT.getLegalEntityIds(), LEGAL_ENTITIES);
-    assertEquals(PRODUCT.getNotional(), NOTIONAL);
-    assertEquals(PRODUCT.getPaymentOnDefault(), ACCRUED_PREMIUM);
-    assertEquals(PRODUCT.getProtectionStart(), BEGINNING);
-    assertEquals(PRODUCT.getSettlementDateOffset(), SETTLE_DAY_ADJ);
-    assertEquals(PRODUCT.getStepinDateOffset(), STEPIN_DAY_ADJ);
+    assertThat(PRODUCT.getPaymentSchedule()).isEqualTo(expected);
+    assertThat(PRODUCT.getBuySell()).isEqualTo(BUY);
+    assertThat(PRODUCT.getCurrency()).isEqualTo(USD);
+    assertThat(PRODUCT.getDayCount()).isEqualTo(ACT_360);
+    assertThat(PRODUCT.getFixedRate()).isEqualTo(COUPON);
+    assertThat(PRODUCT.getCdsIndexId()).isEqualTo(INDEX_ID);
+    assertThat(PRODUCT.getLegalEntityIds()).isEqualTo(LEGAL_ENTITIES);
+    assertThat(PRODUCT.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(PRODUCT.getPaymentOnDefault()).isEqualTo(ACCRUED_PREMIUM);
+    assertThat(PRODUCT.getProtectionStart()).isEqualTo(BEGINNING);
+    assertThat(PRODUCT.getSettlementDateOffset()).isEqualTo(SETTLE_DAY_ADJ);
+    assertThat(PRODUCT.getStepinDateOffset()).isEqualTo(STEPIN_DAY_ADJ);
     CdsIndex test = CdsIndex.of(BUY, INDEX_ID, LEGAL_ENTITIES, USD, NOTIONAL, START_DATE, END_DATE, P3M, SAT_SUN, COUPON);
-    assertEquals(test, PRODUCT);
+    assertThat(test).isEqualTo(PRODUCT);
   }
 
+  @Test
   public void test_resolve() {
     BusinessDayAdjustment bussAdj = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
     ResolvedCdsIndex test = PRODUCT.resolve(REF_DATA);
@@ -179,10 +180,11 @@ public class CdsIndexTest {
         .settlementDateOffset(SETTLE_DAY_ADJ)
         .stepinDateOffset(STEPIN_DAY_ADJ)
         .build();
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(PRODUCT);
     CdsIndex other = CdsIndex.builder()
@@ -209,6 +211,7 @@ public class CdsIndexTest {
     coverBeanEquals(PRODUCT, other);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(PRODUCT);
   }

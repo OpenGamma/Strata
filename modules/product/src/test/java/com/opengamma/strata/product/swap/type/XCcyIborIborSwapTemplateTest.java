@@ -17,14 +17,14 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -39,7 +39,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link XCcyIborIborSwapTemplate}.
  */
-@Test
 public class XCcyIborIborSwapTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -61,23 +60,26 @@ public class XCcyIborIborSwapTemplateTest {
       ImmutableXCcyIborIborSwapConvention.of("EUR-EURIBOR-3M-USD-LIBOR-3M", EUR3M, USD3M, PLUS_TWO_DAY);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_spot() {
     XCcyIborIborSwapTemplate test = XCcyIborIborSwapTemplate.of(TENOR_10Y, CONV);
-    assertEquals(test.getPeriodToStart(), Period.ZERO);
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getConvention(), CONV);
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ZERO);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getConvention()).isEqualTo(CONV);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
+  @Test
   public void test_of() {
     XCcyIborIborSwapTemplate test = XCcyIborIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
-    assertEquals(test.getPeriodToStart(), Period.ofMonths(3));
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getConvention(), CONV);
-    assertEquals(test.getCurrencyPair(), EUR_USD);
+    assertThat(test.getPeriodToStart()).isEqualTo(Period.ofMonths(3));
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getConvention()).isEqualTo(CONV);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_USD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> XCcyIborIborSwapTemplate.builder()
@@ -86,6 +88,7 @@ public class XCcyIborIborSwapTemplateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     XCcyIborIborSwapTemplate base = XCcyIborIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -95,11 +98,12 @@ public class XCcyIborIborSwapTemplateTest {
     Swap expected = Swap.of(
         EUR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         USD3M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M * FX_EUR_USD));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     XCcyIborIborSwapTemplate test = XCcyIborIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     coverImmutableBean(test);
@@ -110,6 +114,7 @@ public class XCcyIborIborSwapTemplateTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     XCcyIborIborSwapTemplate test = XCcyIborIborSwapTemplate.of(Period.ofMonths(3), TENOR_10Y, CONV);
     assertSerialization(test);

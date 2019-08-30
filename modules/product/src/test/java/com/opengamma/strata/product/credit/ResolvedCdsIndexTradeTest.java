@@ -13,12 +13,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -32,7 +31,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link ResolvedCdsIndexTrade}.
  */
-@Test
 public class ResolvedCdsIndexTradeTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final HolidayCalendarId CALENDAR = HolidayCalendarIds.SAT_SUN;
@@ -54,38 +52,41 @@ public class ResolvedCdsIndexTradeTest {
       .build();
   private static final Payment UPFRONT = Payment.of(USD, NOTIONAL, SETTLE_DATE);
 
+  @Test
   public void test_builder_full() {
     ResolvedCdsIndexTrade test = ResolvedCdsIndexTrade.builder()
         .product(PRODUCT)
         .info(TRADE_INFO)
         .upfrontFee(UPFRONT)
         .build();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getUpfrontFee().get(), UPFRONT);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getUpfrontFee().get()).isEqualTo(UPFRONT);
 
     ResolvedCdsTrade singleName = test.toSingleNameCds();
-    assertEquals(singleName.getProduct(), PRODUCT.toSingleNameCds());
-    assertEquals(singleName.getInfo(), TRADE_INFO);
-    assertEquals(singleName.getUpfrontFee().get(), UPFRONT);
+    assertThat(singleName.getProduct()).isEqualTo(PRODUCT.toSingleNameCds());
+    assertThat(singleName.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(singleName.getUpfrontFee().get()).isEqualTo(UPFRONT);
   }
 
+  @Test
   public void test_builder_min() {
     ResolvedCdsIndexTrade test = ResolvedCdsIndexTrade.builder()
         .product(PRODUCT)
         .info(TRADE_INFO)
         .build();
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertFalse(test.getUpfrontFee().isPresent());
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getUpfrontFee().isPresent()).isFalse();
 
     ResolvedCdsTrade singleName = test.toSingleNameCds();
-    assertEquals(singleName.getProduct(), PRODUCT.toSingleNameCds());
-    assertEquals(singleName.getInfo(), TRADE_INFO);
-    assertFalse(singleName.getUpfrontFee().isPresent());
+    assertThat(singleName.getProduct()).isEqualTo(PRODUCT.toSingleNameCds());
+    assertThat(singleName.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(singleName.getUpfrontFee().isPresent()).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedCdsIndexTrade test1 = ResolvedCdsIndexTrade.builder()
         .product(PRODUCT)
@@ -102,6 +103,7 @@ public class ResolvedCdsIndexTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedCdsIndexTrade test = ResolvedCdsIndexTrade.builder()
         .product(PRODUCT)

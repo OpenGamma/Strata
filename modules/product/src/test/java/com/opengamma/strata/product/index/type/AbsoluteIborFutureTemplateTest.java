@@ -11,12 +11,13 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.SecurityId;
@@ -25,7 +26,6 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 /**
  * Tests {@link AbsoluteIborFutureTemplate}.
  */
-@Test
 public class AbsoluteIborFutureTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -34,14 +34,16 @@ public class AbsoluteIborFutureTemplateTest {
   private static final YearMonth YEAR_MONTH = YearMonth.of(2016, 6);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     AbsoluteIborFutureTemplate test = AbsoluteIborFutureTemplate.of(YEAR_MONTH, CONVENTION);
-    assertEquals(test.getYearMonth(), YEAR_MONTH);
-    assertEquals(test.getConvention(), CONVENTION);
-    assertEquals(test.getIndex(), CONVENTION.getIndex());
+    assertThat(test.getYearMonth()).isEqualTo(YEAR_MONTH);
+    assertThat(test.getConvention()).isEqualTo(CONVENTION);
+    assertThat(test.getIndex()).isEqualTo(CONVENTION.getIndex());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createTrade() {
     IborFutureTemplate base = IborFutureTemplate.of(YEAR_MONTH, CONVENTION);
     LocalDate date = LocalDate.of(2015, 10, 20);
@@ -51,22 +53,25 @@ public class AbsoluteIborFutureTemplateTest {
     SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
     IborFutureTrade trade = base.createTrade(date, secId, quantity, notional, price, REF_DATA);
     IborFutureTrade expected = CONVENTION.createTrade(date, secId, YEAR_MONTH, quantity, notional, price, REF_DATA);
-    assertEquals(trade, expected);
+    assertThat(trade).isEqualTo(expected);
   }
 
+  @Test
   public void test_calculateReferenceDateFromTradeDate() {
     IborFutureTemplate base = IborFutureTemplate.of(YEAR_MONTH, CONVENTION);
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate expected = LocalDate.of(2016, 6, 15);
-    assertEquals(base.calculateReferenceDateFromTradeDate(date, REF_DATA), expected);
+    assertThat(base.calculateReferenceDateFromTradeDate(date, REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_approximateMaturity() {
     IborFutureTemplate base = IborFutureTemplate.of(YEAR_MONTH, CONVENTION);
-    assertEquals(base.approximateMaturity(LocalDate.of(2015, 10, 20)), 8d / 12d, 0.1d);
+    assertThat(base.approximateMaturity(LocalDate.of(2015, 10, 20))).isCloseTo(8d / 12d, offset(0.1d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     AbsoluteIborFutureTemplate test = AbsoluteIborFutureTemplate.of(YEAR_MONTH, CONVENTION);
     coverImmutableBean(test);
@@ -74,6 +79,7 @@ public class AbsoluteIborFutureTemplateTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     AbsoluteIborFutureTemplate test = AbsoluteIborFutureTemplate.of(YEAR_MONTH, CONVENTION);
     assertSerialization(test);

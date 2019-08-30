@@ -14,12 +14,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.FxIndexObservation;
@@ -27,18 +27,19 @@ import com.opengamma.strata.basics.index.FxIndexObservation;
 /**
  * Test.
  */
-@Test
 public class FxResetTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
 
+  @Test
   public void test_of() {
     FxReset test = FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_2014_06_30, REF_DATA), GBP);
-    assertEquals(test.getIndex(), EUR_GBP_ECB);
-    assertEquals(test.getReferenceCurrency(), GBP);
+    assertThat(test.getIndex()).isEqualTo(EUR_GBP_ECB);
+    assertThat(test.getReferenceCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_invalidCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxReset.meta().builder()
@@ -50,6 +51,7 @@ public class FxResetTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxReset test = FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_2014_06_30, REF_DATA), GBP);
     coverImmutableBean(test);
@@ -59,6 +61,7 @@ public class FxResetTest {
     coverBeanEquals(test2, test3);
   }
 
+  @Test
   public void test_serialization() {
     FxReset test = FxReset.of(FxIndexObservation.of(EUR_GBP_ECB, DATE_2014_06_30, REF_DATA), GBP);
     assertSerialization(test);

@@ -13,11 +13,11 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -38,7 +38,6 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 /**
  * Test {@link IborCapFloorTrade}.
  */
-@Test
 public class IborCapFloorTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -83,24 +82,27 @@ public class IborCapFloorTradeTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_full() {
     IborCapFloorTrade test = sut();
-    assertEquals(test.getPremium().get(), PREMIUM);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertThat(test.getPremium().get()).isEqualTo(PREMIUM);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder_min() {
     IborCapFloorTrade test = IborCapFloorTrade.builder()
     .product(PRODUCT)
     .build();
-    assertEquals(test.getPremium().isPresent(), false);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getInfo(), TradeInfo.empty());
+    assertThat(test.getPremium()).isNotPresent();
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     IborCapFloorTrade trade = sut();
     PortfolioItemSummary expected = PortfolioItemSummary.builder()
@@ -110,9 +112,10 @@ public class IborCapFloorTradeTest {
         .currencies(Currency.EUR)
         .description("5Y EUR 1mm Rec EUR-EURIBOR-3M Cap 3.25% / Pay Premium : 17Mar11-17Mar16")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
+  @Test
   public void test_summarize_floor() {
     IborCapFloorTrade trade = IborCapFloorTrade.builder()
         .info(TRADE_INFO)
@@ -125,10 +128,11 @@ public class IborCapFloorTradeTest {
         .currencies(Currency.EUR)
         .description("5Y EUR 1mm Rec EUR-EURIBOR-3M Floor 3.25% : 17Mar11-17Mar16")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     IborCapFloorTrade test = sut();
     ResolvedIborCapFloorTrade expected = ResolvedIborCapFloorTrade.builder()
@@ -136,9 +140,10 @@ public class IborCapFloorTradeTest {
         .product(PRODUCT.resolve(REF_DATA))
         .premium(PREMIUM.resolve(REF_DATA))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_noPremium() {
     IborCapFloorTrade test = IborCapFloorTrade.builder()
         .info(TRADE_INFO)
@@ -148,10 +153,11 @@ public class IborCapFloorTradeTest {
         .info(TRADE_INFO)
         .product(PRODUCT.resolve(REF_DATA))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborCapFloorTrade test1 = sut();
     coverImmutableBean(test1);
@@ -170,6 +176,7 @@ public class IborCapFloorTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborCapFloorTrade test = sut();
     assertSerialization(test);

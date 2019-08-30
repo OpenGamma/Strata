@@ -15,13 +15,14 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -37,7 +38,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link OvernightFutureTrade}.
  */
-@Test
 public class OvernightFutureTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -86,6 +86,7 @@ public class OvernightFutureTradeTest {
   private static final double PRICE2 = 0.98;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     OvernightFutureTrade test = OvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -93,15 +94,16 @@ public class OvernightFutureTradeTest {
         .quantity(QUANTITY)
         .price(PRICE)
         .build();
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.getProduct(), PRODUCT);
-    assertEquals(test.getPrice(), PRICE);
-    assertEquals(test.getQuantity(), QUANTITY);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
-    assertEquals(test.withQuantity(0.9129).getQuantity(), 0.9129d, 1e-10);
-    assertEquals(test.withPrice(0.9129).getPrice(), 0.9129d, 1e-10);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT);
+    assertThat(test.getPrice()).isEqualTo(PRICE);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withQuantity(0.9129).getQuantity()).isCloseTo(0.9129d, offset(1e-10));
+    assertThat(test.withPrice(0.9129).getPrice()).isCloseTo(0.9129d, offset(1e-10));
   }
 
+  @Test
   public void test_builder_badPrice() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightFutureTrade.builder()
@@ -113,6 +115,7 @@ public class OvernightFutureTradeTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     OvernightFutureTrade trade = OvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -127,10 +130,11 @@ public class OvernightFutureTradeTest {
         .currencies(Currency.USD)
         .description("OnFuture x 35")
         .build();
-    assertEquals(trade.summarize(), expected);
+    assertThat(trade.summarize()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     OvernightFutureTrade test = OvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -139,13 +143,14 @@ public class OvernightFutureTradeTest {
         .price(PRICE)
         .build();
     ResolvedOvernightFutureTrade resolved = test.resolve(REF_DATA);
-    assertEquals(resolved.getInfo(), TRADE_INFO);
-    assertEquals(resolved.getProduct(), PRODUCT.resolve(REF_DATA));
-    assertEquals(resolved.getQuantity(), QUANTITY);
-    assertEquals(resolved.getTradedPrice(), Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
+    assertThat(resolved.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(resolved.getProduct()).isEqualTo(PRODUCT.resolve(REF_DATA));
+    assertThat(resolved.getQuantity()).isEqualTo(QUANTITY);
+    assertThat(resolved.getTradedPrice()).isEqualTo(Optional.of(TradedPrice.of(TRADE_DATE, PRICE)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withQuantity() {
     OvernightFutureTrade base = OvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -161,9 +166,10 @@ public class OvernightFutureTradeTest {
         .quantity(quantity)
         .price(PRICE)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_withPrice() {
     OvernightFutureTrade base = OvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -179,10 +185,11 @@ public class OvernightFutureTradeTest {
         .quantity(QUANTITY)
         .price(price)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     OvernightFutureTrade test1 = OvernightFutureTrade.builder()
         .info(TRADE_INFO)
@@ -200,6 +207,7 @@ public class OvernightFutureTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     OvernightFutureTrade test = OvernightFutureTrade.builder()
         .info(TRADE_INFO)

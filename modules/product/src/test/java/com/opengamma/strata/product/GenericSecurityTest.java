@@ -9,18 +9,16 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link GenericSecurity}.
  */
-@Test
 public class GenericSecurityTest {
 
   private static final SecurityPriceInfo PRICE_INFO = SecurityPriceInfo.of(0.1, CurrencyAmount.of(GBP, 25));
@@ -28,38 +26,36 @@ public class GenericSecurityTest {
   private static final SecurityInfo INFO2 = SecurityInfo.of(SecurityId.of("Test", "2"), PRICE_INFO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     GenericSecurity test = sut();
-    assertEquals(test.getInfo(), INFO);
-    assertEquals(test.getSecurityId(), INFO.getId());
-    assertEquals(test.getCurrency(), INFO.getPriceInfo().getCurrency());
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
-    assertEquals(test, GenericSecurity.of(INFO));
-    assertEquals(test.createProduct(ReferenceData.empty()), test);
-    assertEquals(
-        test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()),
-        GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
-    assertEquals(
-        test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty()),
-        GenericSecurityPosition.ofNet(PositionInfo.empty(), GenericSecurity.of(INFO), 1));
-    assertEquals(
-        test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty()),
-        GenericSecurityPosition.ofLongShort(PositionInfo.empty(), GenericSecurity.of(INFO), 1, 2));
+    assertThat(test.getInfo()).isEqualTo(INFO);
+    assertThat(test.getSecurityId()).isEqualTo(INFO.getId());
+    assertThat(test.getCurrency()).isEqualTo(INFO.getPriceInfo().getCurrency());
+    assertThat(test.getUnderlyingIds()).isEmpty();
+    assertThat(test).isEqualTo(GenericSecurity.of(INFO));
+    assertThat(test.createProduct(ReferenceData.empty())).isEqualTo(test);
+    assertThat(test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty())).isEqualTo(GenericSecurityPosition.ofNet(PositionInfo.empty(), GenericSecurity.of(INFO), 1));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(GenericSecurityPosition.ofLongShort(PositionInfo.empty(), GenericSecurity.of(INFO), 1, 2));
   }
 
+  @Test
   public void test_withInfo() {
     GenericSecurity base = sut();
-    assertEquals(base.getInfo(), INFO);
+    assertThat(base.getInfo()).isEqualTo(INFO);
     GenericSecurity test = base.withInfo(INFO2);
-    assertEquals(test.getInfo(), INFO2);
+    assertThat(test.getInfo()).isEqualTo(INFO2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

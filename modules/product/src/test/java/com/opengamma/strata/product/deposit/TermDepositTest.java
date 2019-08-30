@@ -14,14 +14,14 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.product.common.BuySell;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.common.BuySell;
 /**
  * Test {@link TermDeposit}.
  */
-@Test
 public class TermDepositTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -42,6 +41,7 @@ public class TermDepositTest {
   private static final double EPS = 1.0e-14;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     TermDeposit test = TermDeposit.builder()
         .buySell(SELL)
@@ -53,19 +53,20 @@ public class TermDepositTest {
         .currency(GBP)
         .rate(RATE)
         .build();
-    assertEquals(test.getBuySell(), SELL);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), END_DATE);
-    assertEquals(test.getBusinessDayAdjustment().get(), BDA_MOD_FOLLOW);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getRate(), RATE);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(GBP));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertThat(test.getBuySell()).isEqualTo(SELL);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(END_DATE);
+    assertThat(test.getBusinessDayAdjustment().get()).isEqualTo(BDA_MOD_FOLLOW);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getRate()).isEqualTo(RATE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(GBP);
+    assertThat(test.allCurrencies()).containsOnly(GBP);
   }
 
+  @Test
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> TermDeposit.builder()
@@ -81,6 +82,7 @@ public class TermDepositTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     TermDeposit base = TermDeposit.builder()
         .buySell(SELL)
@@ -95,16 +97,17 @@ public class TermDepositTest {
     ResolvedTermDeposit test = base.resolve(REF_DATA);
     LocalDate expectedEndDate = BDA_MOD_FOLLOW.adjust(END_DATE, REF_DATA);
     double expectedYearFraction = ACT_365F.yearFraction(START_DATE, expectedEndDate);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), expectedEndDate);
-    assertEquals(test.getNotional(), -NOTIONAL);
-    assertEquals(test.getYearFraction(), expectedYearFraction, EPS);
-    assertEquals(test.getInterest(), -RATE * expectedYearFraction * NOTIONAL, NOTIONAL * EPS);
-    assertEquals(test.getRate(), RATE);
-    assertEquals(test.getCurrency(), GBP);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(expectedEndDate);
+    assertThat(test.getNotional()).isEqualTo(-NOTIONAL);
+    assertThat(test.getYearFraction()).isCloseTo(expectedYearFraction, offset(EPS));
+    assertThat(test.getInterest()).isCloseTo(-RATE * expectedYearFraction * NOTIONAL, offset(NOTIONAL * EPS));
+    assertThat(test.getRate()).isEqualTo(RATE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TermDeposit test1 = TermDeposit.builder()
         .buySell(SELL)
@@ -129,6 +132,7 @@ public class TermDepositTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     TermDeposit test = TermDeposit.builder()
         .buySell(SELL)

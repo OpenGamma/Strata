@@ -8,20 +8,19 @@ package com.opengamma.strata.product.etd;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link EtdOptionType}.
  */
-@Test
 public class EtdOptionTypeTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {EtdOptionType.AMERICAN, "American"},
@@ -29,40 +28,48 @@ public class EtdOptionTypeTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(EtdOptionType convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(EtdOptionType convention, String name) {
-    assertEquals(EtdOptionType.of(name), convention);
+    assertThat(EtdOptionType.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdOptionType.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> EtdOptionType.of(null));
   }
 
+  @Test
   public void test_getCode() {
-    assertEquals(EtdOptionType.AMERICAN.getCode(), "A");
-    assertEquals(EtdOptionType.EUROPEAN.getCode(), "E");
+    assertThat(EtdOptionType.AMERICAN.getCode()).isEqualTo("A");
+    assertThat(EtdOptionType.EUROPEAN.getCode()).isEqualTo("E");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(EtdOptionType.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(EtdOptionType.EUROPEAN);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(EtdOptionType.class, EtdOptionType.EUROPEAN);
   }

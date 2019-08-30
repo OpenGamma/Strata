@@ -5,28 +5,29 @@
  */
 package com.opengamma.strata.product;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link PortfolioItemType}.
  */
-@Test
 public class PortfolioItemTypeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_constants() {
-    assertEquals(PortfolioItemType.POSITION.getName(), "Position");
-    assertEquals(PortfolioItemType.TRADE.getName(), "Trade");
-    assertEquals(PortfolioItemType.OTHER.getName(), "Other");
+    assertThat(PortfolioItemType.POSITION.getName()).isEqualTo("Position");
+    assertThat(PortfolioItemType.TRADE.getName()).isEqualTo("Trade");
+    assertThat(PortfolioItemType.OTHER.getName()).isEqualTo("Other");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
-    assertEquals(PortfolioItemType.of("Position"), PortfolioItemType.POSITION);
-    assertEquals(PortfolioItemType.of("position"), PortfolioItemType.POSITION);
-    assertEquals(PortfolioItemType.of("POSITION"), PortfolioItemType.POSITION);
+    assertThat(PortfolioItemType.of("Position")).isEqualTo(PortfolioItemType.POSITION);
+    assertThat(PortfolioItemType.of("position")).isEqualTo(PortfolioItemType.POSITION);
+    assertThat(PortfolioItemType.of("POSITION")).isEqualTo(PortfolioItemType.POSITION);
   }
 
 }

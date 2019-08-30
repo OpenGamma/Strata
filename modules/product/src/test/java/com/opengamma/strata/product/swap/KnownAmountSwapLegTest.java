@@ -17,11 +17,11 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.swap.SwapLegType.FIXED;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
@@ -39,7 +39,6 @@ import com.opengamma.strata.basics.value.ValueStep;
 /**
  * Test.
  */
-@Test
 public class KnownAmountSwapLegTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -56,6 +55,7 @@ public class KnownAmountSwapLegTest {
   private static final DaysAdjustment PLUS_TWO_DAYS = DaysAdjustment.ofBusinessDays(2, GBLO);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO);
     PeriodicSchedule accrualSchedule = PeriodicSchedule.builder()
@@ -76,17 +76,18 @@ public class KnownAmountSwapLegTest {
         .amount(amountSchedule)
         .currency(GBP)
         .build();
-    assertEquals(test.getPayReceive(), PAY);
-    assertEquals(test.getStartDate(), AdjustableDate.of(DATE_01_05, bda));
-    assertEquals(test.getEndDate(), AdjustableDate.of(DATE_04_05, bda));
-    assertEquals(test.getAccrualSchedule(), accrualSchedule);
-    assertEquals(test.getPaymentSchedule(), paymentSchedule);
-    assertEquals(test.getAmount(), amountSchedule);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.allCurrencies(), ImmutableSet.of(GBP));
+    assertThat(test.getPayReceive()).isEqualTo(PAY);
+    assertThat(test.getStartDate()).isEqualTo(AdjustableDate.of(DATE_01_05, bda));
+    assertThat(test.getEndDate()).isEqualTo(AdjustableDate.of(DATE_04_05, bda));
+    assertThat(test.getAccrualSchedule()).isEqualTo(accrualSchedule);
+    assertThat(test.getPaymentSchedule()).isEqualTo(paymentSchedule);
+    assertThat(test.getAmount()).isEqualTo(amountSchedule);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.allCurrencies()).containsOnly(GBP);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     KnownAmountSwapLeg test = KnownAmountSwapLeg.builder()
         .payReceive(PAY)
@@ -105,11 +106,12 @@ public class KnownAmountSwapLegTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of());
-    assertEquals(test.allIndices(), ImmutableSet.of());
+    assertThat(builder.build()).isEmpty();
+    assertThat(test.allIndices()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     // test case
     KnownAmountSwapLeg test = KnownAmountSwapLeg.builder()
@@ -149,14 +151,15 @@ public class KnownAmountSwapLegTest {
         .unadjustedEndDate(DATE_04_05)
         .build();
     // assertion
-    assertEquals(test.resolve(REF_DATA), ResolvedSwapLeg.builder()
-        .type(FIXED)
-        .payReceive(PAY)
-        .paymentPeriods(rpp1, rpp2, rpp3)
-        .build());
+    assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
+            .type(FIXED)
+            .payReceive(PAY)
+            .paymentPeriods(rpp1, rpp2, rpp3)
+            .build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     KnownAmountSwapLeg test = KnownAmountSwapLeg.builder()
         .payReceive(PAY)
@@ -192,6 +195,7 @@ public class KnownAmountSwapLegTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     KnownAmountSwapLeg test = KnownAmountSwapLeg.builder()
         .payReceive(PAY)

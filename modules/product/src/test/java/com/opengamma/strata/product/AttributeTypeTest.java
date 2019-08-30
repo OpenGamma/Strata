@@ -9,7 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.joda.convert.RenameHandler;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.product.common.CcpId;
 import com.opengamma.strata.product.common.CcpIds;

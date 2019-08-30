@@ -17,15 +17,16 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -36,7 +37,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link IborIborSwapConvention}.
  */
-@Test
 public class IborIborSwapConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -49,22 +49,25 @@ public class IborIborSwapConventionTest {
   private static final IborRateSwapLegConvention IBOR6M = IborRateSwapLegConvention.of(USD_LIBOR_6M);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ImmutableIborIborSwapConvention test = ImmutableIborIborSwapConvention.of(NAME, IBOR3M, IBOR6M);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), IBOR3M);
-    assertEquals(test.getFlatLeg(), IBOR6M);
-    assertEquals(test.getSpotDateOffset(), USD_LIBOR_3M.getEffectiveDateOffset());
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(IBOR3M);
+    assertThat(test.getFlatLeg()).isEqualTo(IBOR6M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(USD_LIBOR_3M.getEffectiveDateOffset());
   }
 
+  @Test
   public void test_of_spotDateOffset() {
     ImmutableIborIborSwapConvention test = ImmutableIborIborSwapConvention.of(NAME, IBOR1M, IBOR3M, PLUS_ONE_DAY);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), IBOR1M);
-    assertEquals(test.getFlatLeg(), IBOR3M);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(IBOR1M);
+    assertThat(test.getFlatLeg()).isEqualTo(IBOR3M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
+  @Test
   public void test_builder() {
     ImmutableIborIborSwapConvention test = ImmutableIborIborSwapConvention.builder()
         .name(NAME)
@@ -72,13 +75,14 @@ public class IborIborSwapConventionTest {
         .flatLeg(IBOR3M)
         .spotDateOffset(PLUS_ONE_DAY)
         .build();
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getSpreadLeg(), IBOR1M);
-    assertEquals(test.getFlatLeg(), IBOR3M);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getSpreadLeg()).isEqualTo(IBOR1M);
+    assertThat(test.getFlatLeg()).isEqualTo(IBOR3M);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade_tenor() {
     IborIborSwapConvention base = ImmutableIborIborSwapConvention.of(NAME, IBOR3M, IBOR6M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -88,10 +92,11 @@ public class IborIborSwapConventionTest {
     Swap expected = Swap.of(
         IBOR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_periodTenor() {
     IborIborSwapConvention base = ImmutableIborIborSwapConvention.of(NAME, IBOR3M, IBOR6M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -101,10 +106,11 @@ public class IborIborSwapConventionTest {
     Swap expected = Swap.of(
         IBOR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_dates() {
     IborIborSwapConvention base = ImmutableIborIborSwapConvention.of(NAME, IBOR3M, IBOR6M);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -114,12 +120,11 @@ public class IborIborSwapConventionTest {
     Swap expected = Swap.of(
         IBOR3M.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         IBOR6M.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M, "USD-LIBOR-1M-LIBOR-3M"},
@@ -127,39 +132,46 @@ public class IborIborSwapConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(IborIborSwapConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(IborIborSwapConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(IborIborSwapConvention convention, String name) {
-    assertEquals(IborIborSwapConvention.of(name), convention);
+    assertThat(IborIborSwapConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(IborIborSwapConvention convention, String name) {
     IborIborSwapConvention.of(name);  // ensures map is populated
     ImmutableMap<String, IborIborSwapConvention> map = IborIborSwapConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborIborSwapConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborIborSwapConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableIborIborSwapConvention test = ImmutableIborIborSwapConvention.of(NAME, IBOR3M, IBOR6M);
     coverImmutableBean(test);
@@ -169,6 +181,7 @@ public class IborIborSwapConventionTest {
     coverBeanEquals(test, test3);
   }
 
+  @Test
   public void test_serialization() {
     IborIborSwapConvention test = ImmutableIborIborSwapConvention.of(NAME, IBOR3M, IBOR6M);
     assertSerialization(test);

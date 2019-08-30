@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -23,7 +23,6 @@ import com.opengamma.strata.product.ProductType;
 /**
  * Test {@link BillPosition}.
  */
-@Test
 public class BillPositionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -38,6 +37,7 @@ public class BillPositionTest {
   private static final Bill PRODUCT1 = BillTest.US_BILL;
   private static final Bill PRODUCT2 = BillTest.BILL_2;
 
+  @Test
   public void test_builder_of() {
     BillPosition test = BillPosition.builder()
         .info(POSITION_INFO1)
@@ -45,18 +45,19 @@ public class BillPositionTest {
         .longQuantity(QUANTITY1)
         .shortQuantity(QUANTITY2)
         .build();
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getId(), POSITION_INFO1.getId());
-    assertEquals(test.getInfo(), POSITION_INFO1);
-    assertEquals(test.getLongQuantity(), QUANTITY1);
-    assertEquals(test.getShortQuantity(), QUANTITY2);
-    assertEquals(test.getProduct(), PRODUCT1);
-    assertEquals(test.getQuantity(), QUANTITY1 - QUANTITY2);
-    assertEquals(test.getSecurityId(), PRODUCT1.getSecurityId());
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getId()).isEqualTo(POSITION_INFO1.getId());
+    assertThat(test.getInfo()).isEqualTo(POSITION_INFO1);
+    assertThat(test.getLongQuantity()).isEqualTo(QUANTITY1);
+    assertThat(test.getShortQuantity()).isEqualTo(QUANTITY2);
+    assertThat(test.getProduct()).isEqualTo(PRODUCT1);
+    assertThat(test.getQuantity()).isEqualTo(QUANTITY1 - QUANTITY2);
+    assertThat(test.getSecurityId()).isEqualTo(PRODUCT1.getSecurityId());
     BillPosition test1 = BillPosition.ofLongShort(POSITION_INFO1, PRODUCT1, QUANTITY1, QUANTITY2);
-    assertEquals(test, test1);
+    assertThat(test).isEqualTo(test1);
   }
 
+  @Test
   public void test_summarize() {
     BillPosition base = BillPosition.builder()
         .info(POSITION_INFO1)
@@ -70,9 +71,10 @@ public class BillPositionTest {
         .currencies(USD)
         .description("Bill2019-05-23 x 10")
         .build();
-    assertEquals(base.summarize(), expected);
+    assertThat(base.summarize()).isEqualTo(expected);
   }
 
+  @Test
   public void test_withInfo() {
     BillPosition base = BillPosition.builder()
         .info(POSITION_INFO1)
@@ -85,9 +87,10 @@ public class BillPositionTest {
         .product(PRODUCT1)
         .longQuantity(QUANTITY1)
         .build();
-    assertEquals(computed1, expected1);
+    assertThat(computed1).isEqualTo(expected1);
   }
 
+  @Test
   public void test_withQuantity() {
     BillPosition base = BillPosition.builder()
         .info(POSITION_INFO1)
@@ -101,16 +104,17 @@ public class BillPositionTest {
         .product(PRODUCT1)
         .longQuantity(quantity)
         .build();
-    assertEquals(computed1, expected1);
+    assertThat(computed1).isEqualTo(expected1);
     BillPosition computed2 = base.withQuantity(-quantity);
     BillPosition expected2 = BillPosition.builder()
         .info(POSITION_INFO1)
         .product(PRODUCT1)
         .shortQuantity(quantity)
         .build();
-    assertEquals(computed2, expected2);
+    assertThat(computed2).isEqualTo(expected2);
   }
 
+  @Test
   public void test_resolve() {
     BillPosition base = BillPosition.builder()
         .info(POSITION_INFO1)
@@ -123,10 +127,11 @@ public class BillPositionTest {
         .product(PRODUCT1.resolve(REF_DATA))
         .quantity(QUANTITY1)
         .build();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BillPosition test1 = BillPosition.builder()
         .info(POSITION_INFO1)
@@ -142,6 +147,7 @@ public class BillPositionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     BillPosition test = BillPosition.builder()
         .info(POSITION_INFO1)

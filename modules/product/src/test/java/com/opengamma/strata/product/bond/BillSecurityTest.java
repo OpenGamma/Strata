@@ -11,14 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
@@ -39,7 +38,6 @@ import com.opengamma.strata.product.TradeInfo;
 /**
  * Test {@link BillSecurity}.
  */
-@Test
 public class BillSecurityTest {
 
   private static final BusinessDayAdjustment BUSINESS_ADJUST =
@@ -58,6 +56,7 @@ public class BillSecurityTest {
   private static final SecurityPriceInfo PRICE_INFO = SecurityPriceInfo.of(0.1, CurrencyAmount.of(CCY, 25));
   private static final SecurityInfo INFO = SecurityInfo.of(SECURITY_ID, PRICE_INFO);
 
+  @Test
   public void test_builder() {
     BillSecurity test = BillSecurity.builder()
         .dayCount(DAY_COUNT)
@@ -67,17 +66,18 @@ public class BillSecurityTest {
         .settlementDateOffset(SETTLE)
         .yieldConvention(YIELD_CONVENTION)
         .build();
-    assertEquals(test.getCurrency(), CCY);
-    assertEquals(test.getDayCount(), DAY_COUNT);
-    assertEquals(test.getInfo(), INFO);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getSecurityId(), SECURITY_ID);
-    assertEquals(test.getSettlementDateOffset(), SETTLE);
-    assertEquals(test.getUnderlyingIds(), ImmutableSet.of());
-    assertEquals(test.getYieldConvention(), YIELD_CONVENTION);
+    assertThat(test.getCurrency()).isEqualTo(CCY);
+    assertThat(test.getDayCount()).isEqualTo(DAY_COUNT);
+    assertThat(test.getInfo()).isEqualTo(INFO);
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getSecurityId()).isEqualTo(SECURITY_ID);
+    assertThat(test.getSettlementDateOffset()).isEqualTo(SETTLE);
+    assertThat(test.getUnderlyingIds()).isEmpty();
+    assertThat(test.getYieldConvention()).isEqualTo(YIELD_CONVENTION);
   }
 
+  @Test
   public void test_builder_fail() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BillSecurity.builder()
@@ -99,6 +99,7 @@ public class BillSecurityTest {
         .build());
   }
 
+  @Test
   public void test_withInfo() {
     BillSecurity base = BillSecurity.builder()
         .dayCount(DAY_COUNT)
@@ -117,10 +118,11 @@ public class BillSecurityTest {
         .settlementDateOffset(SETTLE)
         .yieldConvention(YIELD_CONVENTION)
         .build();
-    assertEquals(base.withInfo(info), expected);
+    assertThat(base.withInfo(info)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createProduct() {
     BillSecurity base = BillSecurity.builder()
         .dayCount(DAY_COUNT)
@@ -139,7 +141,7 @@ public class BillSecurityTest {
         .settlementDateOffset(SETTLE)
         .yieldConvention(YIELD_CONVENTION)
         .build();
-    assertEquals(base.createProduct(ReferenceData.empty()), expectedProduct);
+    assertThat(base.createProduct(ReferenceData.empty())).isEqualTo(expectedProduct);
     TradeInfo tradeInfo = TradeInfo.of(date(2016, 6, 30));
     BillTrade expectedTrade = BillTrade.builder()
         .info(tradeInfo)
@@ -147,9 +149,10 @@ public class BillSecurityTest {
         .quantity(100)
         .price(1.235)
         .build();
-    assertEquals(base.createTrade(tradeInfo, 100, 1.235, ReferenceData.empty()), expectedTrade);
+    assertThat(base.createTrade(tradeInfo, 100, 1.235, ReferenceData.empty())).isEqualTo(expectedTrade);
   }
 
+  @Test
   public void test_createPosition() {
     BillSecurity test = BillSecurity.builder()
         .dayCount(DAY_COUNT)
@@ -174,17 +177,18 @@ public class BillSecurityTest {
         .product(product)
         .longQuantity(100)
         .build();
-    assertEquals(test.createPosition(positionInfo, 100, ReferenceData.empty()), expectedPosition1);
+    assertThat(test.createPosition(positionInfo, 100, ReferenceData.empty())).isEqualTo(expectedPosition1);
     BillPosition expectedPosition2 = BillPosition.builder()
         .info(positionInfo)
         .product(product)
         .longQuantity(100)
         .shortQuantity(50)
         .build();
-    assertEquals(test.createPosition(positionInfo, 100, 50, ReferenceData.empty()), expectedPosition2);
+    assertThat(test.createPosition(positionInfo, 100, 50, ReferenceData.empty())).isEqualTo(expectedPosition2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BillSecurity test1 = BillSecurity.builder()
         .dayCount(DAY_COUNT)
@@ -206,6 +210,7 @@ public class BillSecurityTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     BillSecurity test = BillSecurity.builder()
         .dayCount(DAY_COUNT)

@@ -25,15 +25,16 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -45,7 +46,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test {@link FixedOvernightSwapConvention}.
  */
-@Test
 public class FixedOvernightSwapConventionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -68,15 +68,17 @@ public class FixedOvernightSwapConventionTest {
       OvernightRateSwapLegConvention.of(GBP_SONIA, P12M, 0);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ImmutableFixedOvernightSwapConvention test =
         ImmutableFixedOvernightSwapConvention.of(NAME, FIXED, FFUND_LEG, PLUS_TWO_DAYS);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED);
-    assertEquals(test.getFloatingLeg(), FFUND_LEG);
-    assertEquals(test.getSpotDateOffset(), PLUS_TWO_DAYS);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getFixedLeg()).isEqualTo(FIXED);
+    assertThat(test.getFloatingLeg()).isEqualTo(FFUND_LEG);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_TWO_DAYS);
   }
 
+  @Test
   public void test_builder() {
     ImmutableFixedOvernightSwapConvention test = ImmutableFixedOvernightSwapConvention.builder()
         .name(NAME)
@@ -84,13 +86,14 @@ public class FixedOvernightSwapConventionTest {
         .floatingLeg(FFUND_LEG)
         .spotDateOffset(PLUS_ONE_DAY)
         .build();
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getFixedLeg(), FIXED);
-    assertEquals(test.getFloatingLeg(), FFUND_LEG);
-    assertEquals(test.getSpotDateOffset(), PLUS_ONE_DAY);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getFixedLeg()).isEqualTo(FIXED);
+    assertThat(test.getFloatingLeg()).isEqualTo(FFUND_LEG);
+    assertThat(test.getSpotDateOffset()).isEqualTo(PLUS_ONE_DAY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toTrade_tenor() {
     FixedOvernightSwapConvention base = ImmutableFixedOvernightSwapConvention.of(NAME, FIXED, FFUND_LEG, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -100,10 +103,11 @@ public class FixedOvernightSwapConventionTest {
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         FFUND_LEG.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_periodTenor() {
     FixedOvernightSwapConvention base = ImmutableFixedOvernightSwapConvention.of(NAME, FIXED, FFUND_LEG, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -113,10 +117,11 @@ public class FixedOvernightSwapConventionTest {
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         FFUND_LEG.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
+  @Test
   public void test_toTrade_dates() {
     FixedOvernightSwapConvention base = ImmutableFixedOvernightSwapConvention.of(NAME, FIXED, FFUND_LEG, PLUS_TWO_DAYS);
     LocalDate tradeDate = LocalDate.of(2015, 5, 5);
@@ -126,12 +131,11 @@ public class FixedOvernightSwapConventionTest {
     Swap expected = Swap.of(
         FIXED.toLeg(startDate, endDate, PAY, NOTIONAL_2M, 0.25d),
         FFUND_LEG.toLeg(startDate, endDate, RECEIVE, NOTIONAL_2M));
-    assertEquals(test.getInfo().getTradeDate(), Optional.of(tradeDate));
-    assertEquals(test.getProduct(), expected);
+    assertThat(test.getInfo().getTradeDate()).isEqualTo(Optional.of(tradeDate));
+    assertThat(test.getProduct()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, "USD-FIXED-1Y-FED-FUND-OIS"},
@@ -139,39 +143,46 @@ public class FixedOvernightSwapConventionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(FixedOvernightSwapConvention convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FixedOvernightSwapConvention convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FixedOvernightSwapConvention convention, String name) {
-    assertEquals(FixedOvernightSwapConvention.of(name), convention);
+    assertThat(FixedOvernightSwapConvention.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(FixedOvernightSwapConvention convention, String name) {
     FixedOvernightSwapConvention.of(name);  // ensures map is populated
     ImmutableMap<String, FixedOvernightSwapConvention> map = FixedOvernightSwapConvention.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedOvernightSwapConvention.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedOvernightSwapConvention.of((String) null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableFixedOvernightSwapConvention test = ImmutableFixedOvernightSwapConvention.of(
         NAME, FIXED, FFUND_LEG, PLUS_TWO_DAYS);
@@ -184,6 +195,7 @@ public class FixedOvernightSwapConventionTest {
     coverBeanEquals(test, test3);
   }
 
+  @Test
   public void test_serialization() {
     ImmutableFixedOvernightSwapConvention test = ImmutableFixedOvernightSwapConvention.of(
         NAME, FIXED, FFUND_LEG, PLUS_TWO_DAYS);

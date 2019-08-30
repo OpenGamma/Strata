@@ -10,14 +10,14 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link CcpId}.
  */
-@Test
 public class CcpIdTest {
 
+  @Test
   public void test_of() {
     CcpId test = CcpId.of("GB");
     assertThat(test.getName()).isEqualTo("GB");
@@ -26,6 +26,7 @@ public class CcpIdTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     CcpId a = CcpId.of("LCH");
     CcpId a2 = CcpIds.LCH;
@@ -40,10 +41,12 @@ public class CcpIdTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(CcpIds.class);
   }
 
+  @Test
   public void test_serialization() {
     CcpId test = CcpId.of("LCH");
     assertSerialization(test);

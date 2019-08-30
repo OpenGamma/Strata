@@ -13,15 +13,14 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
@@ -32,7 +31,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link ResolvedFxSingleBarrierOption}.
  */
-@Test
 public class ResolvedFxSingleBarrierOptionTest {
 
   private static final ZonedDateTime EXPIRY_DATE_TIME = ZonedDateTime.of(2015, 2, 14, 12, 15, 0, 0, ZoneOffset.UTC);
@@ -51,21 +49,24 @@ public class ResolvedFxSingleBarrierOptionTest {
       SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, 1.2);
   private static final CurrencyAmount REBATE = CurrencyAmount.of(USD, 5.0e4);
 
+  @Test
   public void test_of() {
     ResolvedFxSingleBarrierOption test = ResolvedFxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
-    assertEquals(test.getBarrier(), BARRIER);
-    assertEquals(test.getRebate().get(), REBATE);
-    assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
-    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
+    assertThat(test.getBarrier()).isEqualTo(BARRIER);
+    assertThat(test.getRebate().get()).isEqualTo(REBATE);
+    assertThat(test.getUnderlyingOption()).isEqualTo(VANILLA_OPTION);
+    assertThat(test.getCurrencyPair()).isEqualTo(VANILLA_OPTION.getCurrencyPair());
   }
 
+  @Test
   public void test_of_noRebate() {
     ResolvedFxSingleBarrierOption test = ResolvedFxSingleBarrierOption.of(VANILLA_OPTION, BARRIER);
-    assertEquals(test.getBarrier(), BARRIER);
-    assertFalse(test.getRebate().isPresent());
-    assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
+    assertThat(test.getBarrier()).isEqualTo(BARRIER);
+    assertThat(test.getRebate().isPresent()).isFalse();
+    assertThat(test.getUnderlyingOption()).isEqualTo(VANILLA_OPTION);
   }
 
+  @Test
   public void test_of_fail() {
     CurrencyAmount negative = CurrencyAmount.of(USD, -5.0e4);
     assertThatIllegalArgumentException()
@@ -76,6 +77,7 @@ public class ResolvedFxSingleBarrierOptionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedFxSingleBarrierOption test1 = ResolvedFxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
     ResolvedFxSingleBarrierOption test2 = ResolvedFxSingleBarrierOption.of(
@@ -89,6 +91,7 @@ public class ResolvedFxSingleBarrierOptionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedFxSingleBarrierOption test = ResolvedFxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
     assertSerialization(test);

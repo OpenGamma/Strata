@@ -16,10 +16,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -29,14 +30,12 @@ import com.opengamma.strata.basics.schedule.Frequency;
 /**
  * Test {@link CdsConventions}.
  */
-@Test
 public class CdsConventionsTest {
 
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_USNY_JPTO = JPTO.combinedWith(GBLO_USNY);
   private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
 
-  @DataProvider(name = "currency")
   public static Object[][] data_currency() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD, EUR},
@@ -49,13 +48,13 @@ public class CdsConventionsTest {
     };
   }
 
-  @Test(dataProvider = "currency")
+  @ParameterizedTest
+  @MethodSource("data_currency")
   public void test_spot_lag(ImmutableCdsConvention convention, Currency currency) {
-    assertEquals(convention.getCurrency(), currency);
+    assertThat(convention.getCurrency()).isEqualTo(currency);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "common")
   public static Object[][] data_common() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD,},
@@ -68,18 +67,19 @@ public class CdsConventionsTest {
     };
   }
 
-  @Test(dataProvider = "common")
+  @ParameterizedTest
+  @MethodSource("data_common")
   public void test_period(ImmutableCdsConvention convention) {
-    assertEquals(convention.getPaymentFrequency(), Frequency.P3M);
+    assertThat(convention.getPaymentFrequency()).isEqualTo(Frequency.P3M);
   }
 
-  @Test(dataProvider = "common")
+  @ParameterizedTest
+  @MethodSource("data_common")
   public void test_day_count(ImmutableCdsConvention convention) {
-    assertEquals(convention.getDayCount(), ACT_360);
+    assertThat(convention.getDayCount()).isEqualTo(ACT_360);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "businessDayAdjustment")
   public static Object[][] data_businessDayAdjustment() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD, BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA)},
@@ -92,15 +92,15 @@ public class CdsConventionsTest {
     };
   }
 
-  @Test(dataProvider = "businessDayAdjustment")
+  @ParameterizedTest
+  @MethodSource("data_businessDayAdjustment")
   public void test_businessDayAdjustment(ImmutableCdsConvention convention, BusinessDayAdjustment adj) {
-    assertEquals(convention.getBusinessDayAdjustment(), adj);
-    assertEquals(convention.getStartDateBusinessDayAdjustment(), adj);
-    assertEquals(convention.getEndDateBusinessDayAdjustment(), BusinessDayAdjustment.NONE);
+    assertThat(convention.getBusinessDayAdjustment()).isEqualTo(adj);
+    assertThat(convention.getStartDateBusinessDayAdjustment()).isEqualTo(adj);
+    assertThat(convention.getEndDateBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.NONE);
   }
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "string")
   public static Object[][] data_string() {
     return new Object[][] {
         {CdsConventions.EUR_GB_STANDARD, "EUR-GB-STANDARD"},
@@ -113,13 +113,15 @@ public class CdsConventionsTest {
     };
   }
 
-  @Test(dataProvider = "string")
+  @ParameterizedTest
+  @MethodSource("data_string")
   public void test_string(ImmutableCdsConvention convention, String string) {
-    assertEquals(convention.toString(), string);
-    assertEquals(convention.getName(), string);
+    assertThat(convention.toString()).isEqualTo(string);
+    assertThat(convention.getName()).isEqualTo(string);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(CdsConventions.class);
     coverPrivateConstructor(StandardCdsConventions.class);

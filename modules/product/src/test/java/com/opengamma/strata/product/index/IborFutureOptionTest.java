@@ -12,17 +12,16 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.value.Rounding;
 import com.opengamma.strata.product.SecurityId;
@@ -31,7 +30,6 @@ import com.opengamma.strata.product.option.FutureOptionPremiumStyle;
 /**
  * Test {@link IborFutureOption}. 
  */
-@Test
 public class IborFutureOptionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -47,23 +45,25 @@ public class IborFutureOptionTest {
   private static final SecurityId SECURITY_ID2 = SecurityId.of("OG-Test", "IborFutureOption2");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     IborFutureOption test = sut();
-    assertEquals(test.getPutCall(), CALL);
-    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
-    assertEquals(test.getExpiryDate(), EXPIRY_DATE);
-    assertEquals(test.getExpiryTime(), EXPIRY_TIME);
-    assertEquals(test.getExpiryZone(), EXPIRY_ZONE);
-    assertEquals(test.getExpiry(), ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
-    assertEquals(test.getRounding(), Rounding.none());
-    assertEquals(test.getUnderlyingFuture(), FUTURE);
-    assertEquals(test.getCurrency(), FUTURE.getCurrency());
-    assertEquals(test.getIndex(), FUTURE.getIndex());
-    assertEquals(test.isCrossCurrency(), false);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(USD));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(USD));
+    assertThat(test.getPutCall()).isEqualTo(CALL);
+    assertThat(test.getStrikePrice()).isEqualTo(STRIKE_PRICE);
+    assertThat(test.getExpiryDate()).isEqualTo(EXPIRY_DATE);
+    assertThat(test.getExpiryTime()).isEqualTo(EXPIRY_TIME);
+    assertThat(test.getExpiryZone()).isEqualTo(EXPIRY_ZONE);
+    assertThat(test.getExpiry()).isEqualTo(ZonedDateTime.of(EXPIRY_DATE, EXPIRY_TIME, EXPIRY_ZONE));
+    assertThat(test.getRounding()).isEqualTo(Rounding.none());
+    assertThat(test.getUnderlyingFuture()).isEqualTo(FUTURE);
+    assertThat(test.getCurrency()).isEqualTo(FUTURE.getCurrency());
+    assertThat(test.getIndex()).isEqualTo(FUTURE.getIndex());
+    assertThat(test.isCrossCurrency()).isFalse();
+    assertThat(test.allPaymentCurrencies()).containsOnly(USD);
+    assertThat(test.allCurrencies()).containsOnly(USD);
   }
 
+  @Test
   public void test_builder_expiryNotAfterTradeDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFutureOption.builder()
@@ -77,12 +77,14 @@ public class IborFutureOptionTest {
         .build());
   }
 
+  @Test
   public void test_builder_badPrice() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> sut().toBuilder().strikePrice(2.1).build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     IborFutureOption test = sut();
     ResolvedIborFutureOption expected = ResolvedIborFutureOption.builder()
@@ -93,15 +95,17 @@ public class IborFutureOptionTest {
         .premiumStyle(FutureOptionPremiumStyle.DAILY_MARGIN)
         .underlyingFuture(FUTURE.resolve(REF_DATA))
         .build();
-    assertEquals(test.resolve(REF_DATA), expected);
+    assertThat(test.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(sut());
   }

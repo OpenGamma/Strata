@@ -8,16 +8,16 @@ package com.opengamma.strata.product.etd;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.product.common.ExchangeIds;
 
 /**
  * Test {@link EtdContractGroupId}.
  */
-@Test
 public class EtdContractGroupIdTest {
 
+  @Test
   public void test_of_objects() {
     EtdContractGroupId test = EtdContractGroupId.of(ExchangeIds.ECAG, EtdContractGroupCode.of("ABC"));
     assertThat(test.getExchangeId()).isEqualTo(ExchangeIds.ECAG);
@@ -25,6 +25,7 @@ public class EtdContractGroupIdTest {
     assertThat(test).hasToString("ECAG::ABC");
   }
 
+  @Test
   public void test_of_strings() {
     EtdContractGroupId test = EtdContractGroupId.of("ECAG", "ABC");
     assertThat(test.getExchangeId()).isEqualTo(ExchangeIds.ECAG);
@@ -32,6 +33,7 @@ public class EtdContractGroupIdTest {
     assertThat(test).hasToString("ECAG::ABC");
   }
 
+  @Test
   public void test_parse() {
     EtdContractGroupId test = EtdContractGroupId.parse("ECAG::ABC");
     assertThat(test.getExchangeId()).isEqualTo(ExchangeIds.ECAG);
@@ -39,6 +41,7 @@ public class EtdContractGroupIdTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalsHashCode() {
     EtdContractGroupId a = EtdContractGroupId.of(ExchangeIds.ECAG, EtdContractGroupCode.of("ABC"));
     EtdContractGroupId a2 = EtdContractGroupId.of(ExchangeIds.ECAG, EtdContractGroupCode.of("ABC"));
@@ -54,6 +57,7 @@ public class EtdContractGroupIdTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     EtdContractGroupId test = EtdContractGroupId.of("A", "B");
     assertSerialization(test);

@@ -18,13 +18,13 @@ import static com.opengamma.strata.product.swap.NegativeRateMethod.ALLOW_NEGATIV
 import static com.opengamma.strata.product.swap.NegativeRateMethod.NOT_NEGATIVE;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.AVERAGED;
 import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDED;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -43,7 +43,6 @@ import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 /**
  * Test.
  */
-@Test
 public class OvernightRateCalculationTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -69,37 +68,41 @@ public class OvernightRateCalculationTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     OvernightRateCalculation test = OvernightRateCalculation.of(GBP_SONIA);
-    assertEquals(test.getType(), SwapLegType.OVERNIGHT);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getAccrualMethod(), COMPOUNDED);
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
-    assertEquals(test.getRateCutOffDays(), 0);
-    assertEquals(test.getGearing(), Optional.empty());
-    assertEquals(test.getSpread(), Optional.empty());
+    assertThat(test.getType()).isEqualTo(SwapLegType.OVERNIGHT);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getIndex()).isEqualTo(GBP_SONIA);
+    assertThat(test.getAccrualMethod()).isEqualTo(COMPOUNDED);
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
+    assertThat(test.getRateCutOffDays()).isEqualTo(0);
+    assertThat(test.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test.getSpread()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_ensureDefaults() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .index(GBP_SONIA)
         .build();
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getAccrualMethod(), COMPOUNDED);
-    assertEquals(test.getNegativeRateMethod(), ALLOW_NEGATIVE);
-    assertEquals(test.getRateCutOffDays(), 0);
-    assertEquals(test.getGearing(), Optional.empty());
-    assertEquals(test.getSpread(), Optional.empty());
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getIndex()).isEqualTo(GBP_SONIA);
+    assertThat(test.getAccrualMethod()).isEqualTo(COMPOUNDED);
+    assertThat(test.getNegativeRateMethod()).isEqualTo(ALLOW_NEGATIVE);
+    assertThat(test.getRateCutOffDays()).isEqualTo(0);
+    assertThat(test.getGearing()).isEqualTo(Optional.empty());
+    assertThat(test.getSpread()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightRateCalculation.builder().build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -107,10 +110,11 @@ public class OvernightRateCalculationTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of(GBP_SONIA));
+    assertThat(builder.build()).containsOnly(GBP_SONIA);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_expand_simple() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -129,9 +133,10 @@ public class OvernightRateCalculationTest {
         .rateComputation(OvernightCompoundedRateComputation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 0, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   @SuppressWarnings("deprecation")
   public void test_expand_tomNext() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
@@ -151,9 +156,10 @@ public class OvernightRateCalculationTest {
         .rateComputation(OvernightCompoundedRateComputation.of(CHF_TOIS, DATE_03_05, DATE_04_07, 0, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_rateCutOffDays_accrualIsPaymentPeriod() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -173,9 +179,10 @@ public class OvernightRateCalculationTest {
         .rateComputation(OvernightCompoundedRateComputation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_rateCutOffDays_threeAccrualsInPaymentPeriod() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -195,9 +202,10 @@ public class OvernightRateCalculationTest {
         .rateComputation(OvernightCompoundedRateComputation.of(GBP_SONIA, DATE_03_05, DATE_04_07, 2, REF_DATA))
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
   public void test_expand_gearingSpreadEverythingElse() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -227,10 +235,11 @@ public class OvernightRateCalculationTest {
         .spread(-0.025d)
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, PAYMENT_SCHEDULE, REF_DATA);
-    assertEquals(periods, ImmutableList.of(rap1, rap2, rap3));
+    assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)
@@ -249,6 +258,7 @@ public class OvernightRateCalculationTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     OvernightRateCalculation test = OvernightRateCalculation.builder()
         .dayCount(ACT_365F)

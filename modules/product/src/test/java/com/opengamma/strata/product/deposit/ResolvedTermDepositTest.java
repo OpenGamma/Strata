@@ -10,17 +10,17 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ResolvedTermDeposit}.
  */
-@Test
 public class ResolvedTermDepositTest {
 
   private static final LocalDate START_DATE = LocalDate.of(2015, 1, 19);
@@ -31,6 +31,7 @@ public class ResolvedTermDepositTest {
   private static final double EPS = 1.0e-14;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedTermDeposit test = ResolvedTermDeposit.builder()
         .currency(GBP)
@@ -40,15 +41,16 @@ public class ResolvedTermDepositTest {
         .yearFraction(YEAR_FRACTION)
         .rate(RATE)
         .build();
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), PRINCIPAL);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), END_DATE);
-    assertEquals(test.getYearFraction(), YEAR_FRACTION);
-    assertEquals(test.getRate(), RATE);
-    assertEquals(test.getInterest(), RATE * YEAR_FRACTION * PRINCIPAL, PRINCIPAL * EPS);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isEqualTo(PRINCIPAL);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(END_DATE);
+    assertThat(test.getYearFraction()).isEqualTo(YEAR_FRACTION);
+    assertThat(test.getRate()).isEqualTo(RATE);
+    assertThat(test.getInterest()).isCloseTo(RATE * YEAR_FRACTION * PRINCIPAL, offset(PRINCIPAL * EPS));
   }
 
+  @Test
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedTermDeposit.builder()
@@ -62,6 +64,7 @@ public class ResolvedTermDepositTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedTermDeposit test1 = ResolvedTermDeposit.builder()
         .currency(GBP)
@@ -83,6 +86,7 @@ public class ResolvedTermDepositTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedTermDeposit test = ResolvedTermDeposit.builder()
         .currency(GBP)

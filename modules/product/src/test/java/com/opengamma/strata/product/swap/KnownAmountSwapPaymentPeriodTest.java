@@ -10,13 +10,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -27,7 +27,6 @@ import com.opengamma.strata.basics.schedule.SchedulePeriod;
 /**
  * Test {@link KnownAmountSwapPaymentPeriod}.
  */
-@Test
 public class KnownAmountSwapPaymentPeriodTest {
 
   private static final CurrencyAmount GBP_P1000 = CurrencyAmount.of(GBP, 1000);
@@ -40,33 +39,36 @@ public class KnownAmountSwapPaymentPeriodTest {
   private static final Payment PAYMENT_2014_10_03 = Payment.of(GBP_P1000, DATE_2014_10_03);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     SchedulePeriod sched = SchedulePeriod.of(DATE_2014_03_30, DATE_2014_09_30);
     KnownAmountSwapPaymentPeriod test = KnownAmountSwapPaymentPeriod.of(PAYMENT_2014_10_03, sched);
-    assertEquals(test.getPayment(), PAYMENT_2014_10_03);
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_09_30);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_09_30);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_03);
-    assertEquals(test.getCurrency(), GBP);
+    assertThat(test.getPayment()).isEqualTo(PAYMENT_2014_10_03);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_09_30);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_03);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_builder_defaultDates() {
     KnownAmountSwapPaymentPeriod test = KnownAmountSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
         .startDate(DATE_2014_03_30)
         .endDate(DATE_2014_10_01)
         .build();
-    assertEquals(test.getPayment(), PAYMENT_2014_10_03);
-    assertEquals(test.getStartDate(), DATE_2014_03_30);
-    assertEquals(test.getUnadjustedStartDate(), DATE_2014_03_30);
-    assertEquals(test.getEndDate(), DATE_2014_10_01);
-    assertEquals(test.getUnadjustedEndDate(), DATE_2014_10_01);
-    assertEquals(test.getPaymentDate(), DATE_2014_10_03);
-    assertEquals(test.getCurrency(), GBP);
+    assertThat(test.getPayment()).isEqualTo(PAYMENT_2014_10_03);
+    assertThat(test.getStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getUnadjustedStartDate()).isEqualTo(DATE_2014_03_30);
+    assertThat(test.getEndDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getUnadjustedEndDate()).isEqualTo(DATE_2014_10_01);
+    assertThat(test.getPaymentDate()).isEqualTo(DATE_2014_10_03);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_builder_invalid() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountSwapPaymentPeriod.builder()
@@ -87,6 +89,7 @@ public class KnownAmountSwapPaymentPeriodTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_adjustPaymentDate() {
     KnownAmountSwapPaymentPeriod test = KnownAmountSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_01)
@@ -102,11 +105,12 @@ public class KnownAmountSwapPaymentPeriodTest {
         .endDate(DATE_2014_10_01)
         .unadjustedEndDate(DATE_2014_09_30)
         .build();
-    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0))), test);
-    assertEquals(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2))), expected);
+    assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0)))).isEqualTo(test);
+    assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2)))).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_collectIndices_simple() {
     KnownAmountSwapPaymentPeriod test = KnownAmountSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
@@ -117,10 +121,11 @@ public class KnownAmountSwapPaymentPeriodTest {
         .build();
     ImmutableSet.Builder<Index> builder = ImmutableSet.builder();
     test.collectIndices(builder);
-    assertEquals(builder.build(), ImmutableSet.of());
+    assertThat(builder.build()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     KnownAmountSwapPaymentPeriod test = KnownAmountSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)
@@ -138,6 +143,7 @@ public class KnownAmountSwapPaymentPeriodTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     KnownAmountSwapPaymentPeriod test = KnownAmountSwapPaymentPeriod.builder()
         .payment(PAYMENT_2014_10_03)

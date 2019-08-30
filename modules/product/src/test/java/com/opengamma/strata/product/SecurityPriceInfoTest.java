@@ -11,89 +11,97 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 
 /**
  * Test {@link SecurityPriceInfo}.
  */
-@Test
 public class SecurityPriceInfoTest {
 
+  @Test
   public void test_of() {
     SecurityPriceInfo test = SecurityPriceInfo.of(0.01, CurrencyAmount.of(GBP, 0.01));
-    assertEquals(test.getTickSize(), 0.01);
-    assertEquals(test.getTickValue(), CurrencyAmount.of(GBP, 0.01));
-    assertEquals(test.getContractSize(), 1d);
-    assertEquals(test.getCurrency(), GBP);
+    assertThat(test.getTickSize()).isEqualTo(0.01);
+    assertThat(test.getTickValue()).isEqualTo(CurrencyAmount.of(GBP, 0.01));
+    assertThat(test.getContractSize()).isEqualTo(1d);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_of_withContractSize() {
     SecurityPriceInfo test = SecurityPriceInfo.of(0.01, CurrencyAmount.of(GBP, 0.01), 20);
-    assertEquals(test.getTickSize(), 0.01);
-    assertEquals(test.getTickValue(), CurrencyAmount.of(GBP, 0.01));
-    assertEquals(test.getContractSize(), 20d);
-    assertEquals(test.getCurrency(), GBP);
+    assertThat(test.getTickSize()).isEqualTo(0.01);
+    assertThat(test.getTickValue()).isEqualTo(CurrencyAmount.of(GBP, 0.01));
+    assertThat(test.getContractSize()).isEqualTo(20d);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_ofCurrencyMinorUnit_GBP() {
     SecurityPriceInfo test = SecurityPriceInfo.ofCurrencyMinorUnit(GBP);
-    assertEquals(test.getTickSize(), 0.01);
-    assertEquals(test.getTickValue(), CurrencyAmount.of(GBP, 0.01));
-    assertEquals(test.getContractSize(), 1d);
-    assertEquals(test.getCurrency(), GBP);
+    assertThat(test.getTickSize()).isEqualTo(0.01);
+    assertThat(test.getTickValue()).isEqualTo(CurrencyAmount.of(GBP, 0.01));
+    assertThat(test.getContractSize()).isEqualTo(1d);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_ofCurrencyMinorUnit_JPY() {
     SecurityPriceInfo test = SecurityPriceInfo.ofCurrencyMinorUnit(JPY);
-    assertEquals(test.getTickSize(), 1d);
-    assertEquals(test.getTickValue(), CurrencyAmount.of(JPY, 1));
-    assertEquals(test.getContractSize(), 1d);
-    assertEquals(test.getCurrency(), JPY);
+    assertThat(test.getTickSize()).isEqualTo(1d);
+    assertThat(test.getTickValue()).isEqualTo(CurrencyAmount.of(JPY, 1));
+    assertThat(test.getContractSize()).isEqualTo(1d);
+    assertThat(test.getCurrency()).isEqualTo(JPY);
   }
 
+  @Test
   public void test_ofTradeUnitValue() {
     SecurityPriceInfo priceInfo = SecurityPriceInfo.of(USD, 2000);
     double value = priceInfo.calculateMonetaryValue(3, 2);
-    assertEquals(value, 12_000d);
+    assertThat(value).isEqualTo(12_000d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_calculateMonetaryAmount1() {
     // CME-ED, 1bp = $25
     SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 1);
-    assertEquals(test.calculateMonetaryAmount(1, 98), CurrencyAmount.of(USD, 245_000));
-    assertEquals(test.calculateMonetaryAmount(1, 98.02), CurrencyAmount.of(USD, 245_050));
+    assertThat(test.calculateMonetaryAmount(1, 98)).isEqualTo(CurrencyAmount.of(USD, 245_000));
+    assertThat(test.calculateMonetaryAmount(1, 98.02)).isEqualTo(CurrencyAmount.of(USD, 245_050));
     // quantity is simple multiplier
-    assertEquals(test.calculateMonetaryAmount(2, 98), CurrencyAmount.of(USD, 2 * 245_000));
-    assertEquals(test.calculateMonetaryAmount(3, 98), CurrencyAmount.of(USD, 3 * 245_000));
+    assertThat(test.calculateMonetaryAmount(2, 98)).isEqualTo(CurrencyAmount.of(USD, 2 * 245_000));
+    assertThat(test.calculateMonetaryAmount(3, 98)).isEqualTo(CurrencyAmount.of(USD, 3 * 245_000));
     // contract size is simple multiplier
     SecurityPriceInfo test2 = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
-    assertEquals(test2.calculateMonetaryAmount(1, 98), CurrencyAmount.of(USD, 2 * 245_000));
+    assertThat(test2.calculateMonetaryAmount(1, 98)).isEqualTo(CurrencyAmount.of(USD, 2 * 245_000));
   }
 
+  @Test
   public void test_calculateMonetaryValue() {
     // CME-ED, 1bp = $25
     SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 1);
-    assertEquals(test.calculateMonetaryValue(1, 98), 245_000d);
-    assertEquals(test.calculateMonetaryValue(1, 98.02), 245_050d);
+    assertThat(test.calculateMonetaryValue(1, 98)).isEqualTo(245_000d);
+    assertThat(test.calculateMonetaryValue(1, 98.02)).isEqualTo(245_050d);
     // quantity is simple multiplier
-    assertEquals(test.calculateMonetaryValue(2, 98), 2 * 245_000d);
-    assertEquals(test.calculateMonetaryValue(3, 98), 3 * 245_000d);
+    assertThat(test.calculateMonetaryValue(2, 98)).isEqualTo(2 * 245_000d);
+    assertThat(test.calculateMonetaryValue(3, 98)).isEqualTo(3 * 245_000d);
     // contract size is simple multiplier
     SecurityPriceInfo test2 = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
-    assertEquals(test2.calculateMonetaryValue(1, 98), 2 * 245_000d);
+    assertThat(test2.calculateMonetaryValue(1, 98)).isEqualTo(2 * 245_000d);
   }
 
+  @Test
   public void test_getTradeUnitValue() {
     SecurityPriceInfo test = SecurityPriceInfo.of(0.005, CurrencyAmount.of(USD, 12.50), 2);
-    assertEquals(test.getTradeUnitValue(), 5000d);
+    assertThat(test.getTradeUnitValue()).isEqualTo(5000d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SecurityPriceInfo test = SecurityPriceInfo.of(0.01, CurrencyAmount.of(GBP, 0.01));
     coverImmutableBean(test);
@@ -101,6 +109,7 @@ public class SecurityPriceInfoTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     SecurityPriceInfo test = SecurityPriceInfo.of(0.01, CurrencyAmount.of(GBP, 0.01));
     assertSerialization(test);

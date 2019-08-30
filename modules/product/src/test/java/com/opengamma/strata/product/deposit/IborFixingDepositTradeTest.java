@@ -12,11 +12,11 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -26,7 +26,6 @@ import com.opengamma.strata.product.common.BuySell;
 /**
  * Test {@link IborFixingDepositTrade}.
  */
-@Test
 public class IborFixingDepositTradeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,30 +42,34 @@ public class IborFixingDepositTradeTest {
   private static final TradeInfo TRADE_INFO = TradeInfo.of(date(2015, 1, 15));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
-    assertEquals(test.withInfo(TRADE_INFO).getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
   }
 
+  @Test
   public void test_builder() {
     IborFixingDepositTrade test = IborFixingDepositTrade.builder()
         .product(DEPOSIT)
         .info(TRADE_INFO)
         .build();
-    assertEquals(test.getProduct(), DEPOSIT);
-    assertEquals(test.getInfo(), TRADE_INFO);
+    assertThat(test.getProduct()).isEqualTo(DEPOSIT);
+    assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     IborFixingDepositTrade test = IborFixingDepositTrade.of(TRADE_INFO, DEPOSIT);
-    assertEquals(test.resolve(REF_DATA).getInfo(), TRADE_INFO);
-    assertEquals(test.resolve(REF_DATA).getProduct(), DEPOSIT.resolve(REF_DATA));
+    assertThat(test.resolve(REF_DATA).getInfo()).isEqualTo(TRADE_INFO);
+    assertThat(test.resolve(REF_DATA).getProduct()).isEqualTo(DEPOSIT.resolve(REF_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborFixingDepositTrade test1 = IborFixingDepositTrade.builder()
         .product(DEPOSIT)
@@ -79,6 +82,7 @@ public class IborFixingDepositTradeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborFixingDepositTrade test = IborFixingDepositTrade.builder()
         .product(DEPOSIT)

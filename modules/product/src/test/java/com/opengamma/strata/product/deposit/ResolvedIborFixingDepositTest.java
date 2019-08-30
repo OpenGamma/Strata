@@ -12,12 +12,12 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.product.rate.IborRateComputation;
@@ -25,7 +25,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link ResolvedTermDeposit}.
  */
-@Test
 public class ResolvedIborFixingDepositTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -38,6 +37,7 @@ public class ResolvedIborFixingDepositTest {
   private static final double RATE = 0.0250;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ResolvedIborFixingDeposit test = ResolvedIborFixingDeposit.builder()
         .currency(GBP)
@@ -48,15 +48,16 @@ public class ResolvedIborFixingDepositTest {
         .floatingRate(RATE_COMP)
         .fixedRate(RATE)
         .build();
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getNotional(), NOTIONAL);
-    assertEquals(test.getStartDate(), START_DATE);
-    assertEquals(test.getEndDate(), END_DATE);
-    assertEquals(test.getYearFraction(), YEAR_FRACTION);
-    assertEquals(test.getFloatingRate(), RATE_COMP);
-    assertEquals(test.getFixedRate(), RATE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getNotional()).isEqualTo(NOTIONAL);
+    assertThat(test.getStartDate()).isEqualTo(START_DATE);
+    assertThat(test.getEndDate()).isEqualTo(END_DATE);
+    assertThat(test.getYearFraction()).isEqualTo(YEAR_FRACTION);
+    assertThat(test.getFloatingRate()).isEqualTo(RATE_COMP);
+    assertThat(test.getFixedRate()).isEqualTo(RATE);
   }
 
+  @Test
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedIborFixingDeposit.builder()
@@ -71,6 +72,7 @@ public class ResolvedIborFixingDepositTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedIborFixingDeposit test1 = ResolvedIborFixingDeposit.builder()
         .currency(GBP)
@@ -94,6 +96,7 @@ public class ResolvedIborFixingDepositTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedIborFixingDeposit test = ResolvedIborFixingDeposit.builder()
         .currency(GBP)

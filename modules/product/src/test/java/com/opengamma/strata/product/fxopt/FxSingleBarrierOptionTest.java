@@ -13,17 +13,15 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -34,7 +32,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link FxSingleBarrierOption}.
  */
-@Test
 public class FxSingleBarrierOptionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -57,36 +54,40 @@ public class FxSingleBarrierOptionTest {
       SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, 1.2);
   private static final CurrencyAmount REBATE = CurrencyAmount.of(USD, 5.0e4);
 
+  @Test
   public void test_of() {
     FxSingleBarrierOption test = FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
-    assertEquals(test.getBarrier(), BARRIER);
-    assertEquals(test.getRebate().get(), REBATE);
-    assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
-    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
-    assertEquals(test.isCrossCurrency(), true);
-    assertEquals(test.allPaymentCurrencies(), ImmutableSet.of(EUR, USD));
-    assertEquals(test.allCurrencies(), ImmutableSet.of(EUR, USD));
+    assertThat(test.getBarrier()).isEqualTo(BARRIER);
+    assertThat(test.getRebate().get()).isEqualTo(REBATE);
+    assertThat(test.getUnderlyingOption()).isEqualTo(VANILLA_OPTION);
+    assertThat(test.getCurrencyPair()).isEqualTo(VANILLA_OPTION.getCurrencyPair());
+    assertThat(test.isCrossCurrency()).isTrue();
+    assertThat(test.allPaymentCurrencies()).containsOnly(EUR, USD);
+    assertThat(test.allCurrencies()).containsOnly(EUR, USD);
   }
 
+  @Test
   public void test_builder() {
     FxSingleBarrierOption test = FxSingleBarrierOption.builder()
         .underlyingOption(VANILLA_OPTION)
         .barrier(BARRIER)
         .rebate(REBATE)
         .build();
-    assertEquals(test.getBarrier(), BARRIER);
-    assertEquals(test.getRebate().get(), REBATE);
-    assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
-    assertEquals(test.getCurrencyPair(), VANILLA_OPTION.getCurrencyPair());
+    assertThat(test.getBarrier()).isEqualTo(BARRIER);
+    assertThat(test.getRebate().get()).isEqualTo(REBATE);
+    assertThat(test.getUnderlyingOption()).isEqualTo(VANILLA_OPTION);
+    assertThat(test.getCurrencyPair()).isEqualTo(VANILLA_OPTION.getCurrencyPair());
   }
 
+  @Test
   public void test_of_noRebate() {
     FxSingleBarrierOption test = FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER);
-    assertEquals(test.getBarrier(), BARRIER);
-    assertFalse(test.getRebate().isPresent());
-    assertEquals(test.getUnderlyingOption(), VANILLA_OPTION);
+    assertThat(test.getBarrier()).isEqualTo(BARRIER);
+    assertThat(test.getRebate().isPresent()).isFalse();
+    assertThat(test.getUnderlyingOption()).isEqualTo(VANILLA_OPTION);
   }
 
+  @Test
   public void test_of_fail() {
     CurrencyAmount negative = CurrencyAmount.of(USD, -5.0e4);
     assertThatIllegalArgumentException()
@@ -96,21 +97,24 @@ public class FxSingleBarrierOptionTest {
         .isThrownBy(() -> FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, other));
   }
 
+  @Test
   public void test_resolve() {
     FxSingleBarrierOption base = FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
     ResolvedFxSingleBarrierOption expected =
         ResolvedFxSingleBarrierOption.of(VANILLA_OPTION.resolve(REF_DATA), BARRIER, REBATE);
-    assertEquals(base.resolve(REF_DATA), expected);
+    assertThat(base.resolve(REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
   public void test_resolve_noRebate() {
     FxSingleBarrierOption base = FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER);
     ResolvedFxSingleBarrierOption expected =
         ResolvedFxSingleBarrierOption.of(VANILLA_OPTION.resolve(REF_DATA), BARRIER);
-    assertEquals(base.resolve(REF_DATA), expected);
+    assertThat(base.resolve(REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxSingleBarrierOption test1 = FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
     FxSingleBarrierOption test2 = FxSingleBarrierOption.of(
@@ -126,6 +130,7 @@ public class FxSingleBarrierOptionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxSingleBarrierOption test = FxSingleBarrierOption.of(VANILLA_OPTION, BARRIER, REBATE);
     assertSerialization(test);
