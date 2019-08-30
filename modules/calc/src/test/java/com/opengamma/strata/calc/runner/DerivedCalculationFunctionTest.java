@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -34,12 +34,12 @@ import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
-@Test
 public class DerivedCalculationFunctionTest {
 
   /**
    * Tests all measures are calculated by the derived function and the underlying function.
    */
+  @Test
   public void calculateMeasure() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -70,6 +70,7 @@ public class DerivedCalculationFunctionTest {
   /**
    * Test two derived function composed together
    */
+  @Test
   public void calculateMeasuresNestedDerivedClasses() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -104,6 +105,7 @@ public class DerivedCalculationFunctionTest {
   /**
    * Test that the derived measure isn't calculated unless it is requested.
    */
+  @Test
   public void derivedMeasureNotRequested() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -130,6 +132,7 @@ public class DerivedCalculationFunctionTest {
    * Test that measures aren't returned if they are needed to calculate the derived measure but aren't
    * requested by the user.
    */
+  @Test
   public void requiredMeasureNotReturned() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -155,6 +158,7 @@ public class DerivedCalculationFunctionTest {
   /**
    * Test the behaviour when the underlying function doesn't support the measures required by the derived function.
    */
+  @Test
   public void requiredMeasuresNotSupported() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -182,6 +186,7 @@ public class DerivedCalculationFunctionTest {
   /**
    * Test the derived measure result is a failure if any of the required measures are failures
    */
+  @Test
   public void requiredMeasureFails() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -209,6 +214,7 @@ public class DerivedCalculationFunctionTest {
    * This is a bug in the function, it should always return a result for all measures that are supported and
    * were requested.
    */
+  @Test
   public void supportedMeasureNotReturned() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
@@ -245,6 +251,7 @@ public class DerivedCalculationFunctionTest {
     assertThat(results.get(BUCKETED_PV01)).hasFailureMessageMatching(".*did not return the expected measures.*");
   }
 
+  @Test
   public void requirements() {
     TestTarget target = new TestTarget(10);
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of();
@@ -279,6 +286,7 @@ final class TestTarget implements CalculationTarget {
     this.value = value;
   }
 
+  @Test
   public int getValue() {
     return value;
   }
@@ -332,11 +340,13 @@ class DelegateFn implements CalculationFunction<TestTarget> {
     this.results = results;
   }
 
+  @Test
   @Override
   public Class<TestTarget> targetType() {
     return TestTarget.class;
   }
 
+  @Test
   @Override
   public Set<Measure> supportedMeasures() {
     return results.keySet();

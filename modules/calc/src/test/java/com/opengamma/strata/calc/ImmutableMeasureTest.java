@@ -7,14 +7,14 @@ package com.opengamma.strata.calc;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-@Test
 public class ImmutableMeasureTest {
 
   /**
    * Tests that measure names are validated
    */
+  @Test
   public void namePattern() {
     assertThatIllegalArgumentException().isThrownBy(() -> ImmutableMeasure.of(null));
     assertThatIllegalArgumentException().isThrownBy(() -> ImmutableMeasure.of(""));

@@ -7,11 +7,10 @@ package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
@@ -19,7 +18,6 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Test {@link CalculationResult}.
  */
-@Test
 public class CalculationResultTest {
 
   private static final Result<String> RESULT = Result.success("OK");
@@ -27,31 +25,34 @@ public class CalculationResultTest {
   private static final Result<String> FAILURE = Result.failure(FailureReason.NOT_APPLICABLE, "N/A");
 
   //-------------------------------------------------------------------------
+  @Test
   public void of() {
     CalculationResult test = CalculationResult.of(1, 2, RESULT);
-    assertEquals(test.getRowIndex(), 1);
-    assertEquals(test.getColumnIndex(), 2);
-    assertEquals(test.getResult(), RESULT);
-    assertEquals(test.getResult(String.class), RESULT);
+    assertThat(test.getRowIndex()).isEqualTo(1);
+    assertThat(test.getColumnIndex()).isEqualTo(2);
+    assertThat(test.getResult()).isEqualTo(RESULT);
+    assertThat(test.getResult(String.class)).isEqualTo(RESULT);
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.getResult(Integer.class));
   }
 
+  @Test
   public void of_failure() {
     CalculationResult test = CalculationResult.of(1, 2, FAILURE);
-    assertEquals(test.getRowIndex(), 1);
-    assertEquals(test.getColumnIndex(), 2);
-    assertEquals(test.getResult(), FAILURE);
-    assertEquals(test.getResult(String.class), FAILURE);
-    assertEquals(test.getResult(Integer.class), FAILURE);  // cannot throw exception as generic type not known
+    assertThat(test.getRowIndex()).isEqualTo(1);
+    assertThat(test.getColumnIndex()).isEqualTo(2);
+    assertThat(test.getResult()).isEqualTo(FAILURE);
+    assertThat(test.getResult(String.class)).isEqualTo(FAILURE);
+    assertThat(test.getResult(Integer.class)).isEqualTo(FAILURE);  // cannot throw exception as generic type not known
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CalculationResult test = CalculationResult.of(1, 2, RESULT);
     coverImmutableBean(test);
     CalculationResult test2 = CalculationResult.of(0, 3, RESULT2);
     coverBeanEquals(test, test2);
-    assertNotNull(CalculationResult.meta());
+    assertThat(CalculationResult.meta()).isNotNull();
   }
 
 }

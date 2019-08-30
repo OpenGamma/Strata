@@ -10,13 +10,13 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 
-@Test
 public class SingleTypeMarketDataConfigTest {
 
+  @Test
   public void getValues() {
     Map<String, Object> values = ImmutableMap.of("foo", 1, "bar", 2);
     SingleTypeMarketDataConfig configs = SingleTypeMarketDataConfig.builder()
@@ -31,6 +31,7 @@ public class SingleTypeMarketDataConfigTest {
         .withMessage("No configuration found with type java.lang.Integer and name baz");
   }
 
+  @Test
   public void addValue() {
     Map<String, Object> values = ImmutableMap.of("foo", 1, "bar", 2);
     SingleTypeMarketDataConfig configs = SingleTypeMarketDataConfig.builder()
@@ -44,6 +45,7 @@ public class SingleTypeMarketDataConfigTest {
     assertThat(configs.get("baz")).isEqualTo(3);
   }
 
+  @Test
   public void addValueWrongType() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> SingleTypeMarketDataConfig.builder().configType(Integer.class).build().withConfig("baz", "3"))

@@ -13,16 +13,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.collect.result.Result;
 
-@Test
 public class DefaultCalculationFunctionsTest {
 
+  @Test
   public void oneDerivedFunction() {
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),
@@ -41,6 +41,7 @@ public class DefaultCalculationFunctionsTest {
   /**
    * Test that multiple derived functions for the same target type are correctly combined.
    */
+  @Test
   public void multipleDerivedFunctionsForSameTargetType() {
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),
@@ -62,6 +63,7 @@ public class DefaultCalculationFunctionsTest {
    * Test that multiple derived functions for the same target type are correctly combined when one derived function
    * depends on another.
    */
+  @Test
   public void multipleDerivedFunctionsForSameTargetTypeWithDependencyBetweenDerivedFunctions() {
     Map<Measure, Result<?>> delegateResults = ImmutableMap.of(
         CASH_FLOWS, Result.success(3),

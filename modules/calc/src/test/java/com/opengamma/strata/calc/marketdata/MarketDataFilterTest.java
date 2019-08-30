@@ -6,12 +6,10 @@
 package com.opengamma.strata.calc.marketdata;
 
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.data.MarketDataId;
@@ -20,33 +18,36 @@ import com.opengamma.strata.data.NamedMarketDataId;
 /**
  * Test {@link MarketDataFilter}.
  */
-@Test
 public class MarketDataFilterTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofIdType() {
     MarketDataFilter<String, MarketDataId<String>> test = MarketDataFilter.ofIdType(TestId.class);
-    assertEquals(test.getMarketDataIdType(), TestId.class);
-    assertTrue(test.matches(new TestId("a"), null, REF_DATA));
+    assertThat(test.getMarketDataIdType()).isEqualTo(TestId.class);
+    assertThat(test.matches(new TestId("a"), null, REF_DATA)).isTrue();
   }
 
+  @Test
   public void test_ofId() {
     MarketDataFilter<String, MarketDataId<String>> test = MarketDataFilter.ofId(new TestId("a"));
-    assertEquals(test.getMarketDataIdType(), TestId.class);
-    assertTrue(test.matches(new TestId("a"), null, REF_DATA));
-    assertFalse(test.matches(new TestId("b"), null, REF_DATA));
+    assertThat(test.getMarketDataIdType()).isEqualTo(TestId.class);
+    assertThat(test.matches(new TestId("a"), null, REF_DATA)).isTrue();
+    assertThat(test.matches(new TestId("b"), null, REF_DATA)).isFalse();
   }
 
+  @Test
   public void test_ofName() {
     MarketDataFilter<String, NamedMarketDataId<String>> test = MarketDataFilter.ofName(new TestingName("a"));
-    assertEquals(test.getMarketDataIdType(), NamedMarketDataId.class);
-    assertTrue(test.matches(new TestingNamedId("a"), null, REF_DATA));
-    assertFalse(test.matches(new TestingNamedId("b"), null, REF_DATA));
+    assertThat(test.getMarketDataIdType()).isEqualTo(NamedMarketDataId.class);
+    assertThat(test.matches(new TestingNamedId("a"), null, REF_DATA)).isTrue();
+    assertThat(test.matches(new TestingNamedId("b"), null, REF_DATA)).isFalse();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     MarketDataFilter<String, MarketDataId<String>> test1 = MarketDataFilter.ofIdType(TestId.class);
     coverImmutableBean((ImmutableBean) test1);

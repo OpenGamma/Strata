@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -25,12 +25,12 @@ import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 
-@Test
 public class MarketDataNodeTest {
 
   /**
    * Tests removing the leaf dependencies from the tree to decide which market data can be built.
    */
+  @Test
   public void withLeavesRemoved() {
     MarketDataNode root =
         rootNode(
@@ -103,6 +103,7 @@ public class MarketDataNodeTest {
   /**
    * Tests building a tree of requirements using market data functions.
    */
+  @Test
   public void buildDependencyTree() {
     MarketDataNode expected =
         rootNode(
@@ -160,6 +161,7 @@ public class MarketDataNodeTest {
   /**
    * Tests that supplied data is in a leaf node and the functions aren't asked for dependencies for supplied data.
    */
+  @Test
   public void noDependenciesForSuppliedData() {
     MarketDataNode expected1 =
         rootNode(
@@ -229,6 +231,7 @@ public class MarketDataNodeTest {
   /**
    * Test a node with no children is added when there is no market data function for an ID.
    */
+  @Test
   public void noMarketDataBuilder() {
     MarketDataNode expected =
         rootNode(

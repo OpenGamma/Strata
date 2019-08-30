@@ -7,10 +7,9 @@ package com.opengamma.strata.calc.runner;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
@@ -19,7 +18,6 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Test {@link CalculationResults}.
  */
-@Test
 public class CalculationResultsTest {
 
   private static final CalculationTarget TARGET = new CalculationTarget() {};
@@ -29,19 +27,21 @@ public class CalculationResultsTest {
   private static final CalculationResult CALC_RESULT2 = CalculationResult.of(1, 2, RESULT);
 
   //-------------------------------------------------------------------------
+  @Test
   public void of() {
     CalculationResults test = CalculationResults.of(TARGET, ImmutableList.of(CALC_RESULT));
-    assertEquals(test.getTarget(), TARGET);
-    assertEquals(test.getCells(), ImmutableList.of(CALC_RESULT));
+    assertThat(test.getTarget()).isEqualTo(TARGET);
+    assertThat(test.getCells()).containsExactly(CALC_RESULT);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CalculationResults test = CalculationResults.of(TARGET, ImmutableList.of(CALC_RESULT));
     coverImmutableBean(test);
     CalculationResults test2 = CalculationResults.of(TARGET2, ImmutableList.of(CALC_RESULT2));
     coverBeanEquals(test, test2);
-    assertNotNull(CalculationResults.meta());
+    assertThat(CalculationResults.meta()).isNotNull();
   }
 
 }

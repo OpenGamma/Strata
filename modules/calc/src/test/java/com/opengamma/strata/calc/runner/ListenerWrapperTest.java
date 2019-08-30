@@ -16,18 +16,18 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
 
-@Test
 public class ListenerWrapperTest {
 
   // Tests that a listener is only invoked by a single thread at any time even if multiple threads are
   // invoking the wrapper concurrently.
+  @Test
   public void concurrentExecution() throws InterruptedException {
     int nThreads = Runtime.getRuntime().availableProcessors();
     int resultsPerThread = 10;

@@ -8,12 +8,11 @@ package com.opengamma.strata.calc.runner;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertNotNull;
 
 import java.util.List;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -33,7 +32,6 @@ import com.opengamma.strata.data.ObservableId;
 /**
  * Test {@link CalculationTasks}.
  */
-@Test
 public class CalculationTasksTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -42,6 +40,7 @@ public class CalculationTasksTest {
   private static final CalculationFunctions CALC_FUNCTIONS = CalculationFunctions.empty();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     CalculationFunctions functions = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, new TestFunction()));
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET2);
@@ -73,10 +72,11 @@ public class CalculationTasksTest {
     assertThat(test.getTasks().get(1).getCells().get(1).getMeasure()).isEqualTo(TestingMeasures.PAR_RATE);
 
     coverImmutableBean(test);
-    assertNotNull(CalculationTasks.meta());
+    assertThat(CalculationTasks.meta()).isNotNull();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirements() {
     CalculationFunctions functions = CalculationFunctions.of(ImmutableMap.of(TestTarget.class, new TestFunction()));
     CalculationRules calculationRules = CalculationRules.of(functions, USD);
@@ -103,6 +103,7 @@ public class CalculationTasksTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void testToString() {
     List<TestTarget> targets = ImmutableList.of(TARGET1, TARGET1);
     List<Column> columns = ImmutableList.of(

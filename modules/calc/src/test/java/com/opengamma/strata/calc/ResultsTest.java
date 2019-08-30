@@ -8,14 +8,14 @@ package com.opengamma.strata.calc;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.result.Result;
@@ -23,7 +23,6 @@ import com.opengamma.strata.collect.result.Result;
 /**
  * Test {@link Results}.
  */
-@Test
 public class ResultsTest {
 
   private static final ColumnName NAME_A = ColumnName.of("A");
@@ -33,11 +32,12 @@ public class ResultsTest {
   private static final ColumnHeader HEADER2 = ColumnHeader.of(NAME_B, TestingMeasures.PRESENT_VALUE);
   private static final ColumnHeader HEADER3 = ColumnHeader.of(NAME_C, TestingMeasures.PRESENT_VALUE);
 
+  @Test
   public void test_empty() {
     Results test = Results.of(ImmutableList.of(), ImmutableList.of());
-    assertEquals(test.getColumns(), ImmutableList.of());
-    assertEquals(test.getRowCount(), 0);
-    assertEquals(test.getColumnCount(), 0);
+    assertThat(test.getColumns()).isEmpty();
+    assertThat(test.getRowCount()).isEqualTo(0);
+    assertThat(test.getColumnCount()).isEqualTo(0);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.get(0, 0))
         .withMessageStartingWith("Row index must be greater than or");
@@ -52,18 +52,19 @@ public class ResultsTest {
         .withMessageStartingWith("Column name not found");
   }
 
+  @Test
   public void nonEmpty() {
     Results test = Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results("1", "2", "3", "4", "5", "6"));
-    assertEquals(test.getColumns(), ImmutableList.of(HEADER1, HEADER2, HEADER3));
-    assertEquals(test.getRowCount(), 2);
-    assertEquals(test.getColumnCount(), 3);
-    assertEquals(test.get(0, 0).getValue(), "1");
-    assertEquals(test.get(0, 0, String.class).getValue(), "1");
-    assertEquals(test.get(0, NAME_A).getValue(), "1");
-    assertEquals(test.get(0, NAME_A, String.class).getValue(), "1");
-    assertEquals(test.get(0, NAME_B).getValue(), "2");
-    assertEquals(test.get(0, NAME_B, String.class).getValue(), "2");
-    assertEquals(test.get(1, 2).getValue(), "6");
+    assertThat(test.getColumns()).containsExactly(HEADER1, HEADER2, HEADER3);
+    assertThat(test.getRowCount()).isEqualTo(2);
+    assertThat(test.getColumnCount()).isEqualTo(3);
+    assertThat(test.get(0, 0).getValue()).isEqualTo("1");
+    assertThat(test.get(0, 0, String.class).getValue()).isEqualTo("1");
+    assertThat(test.get(0, NAME_A).getValue()).isEqualTo("1");
+    assertThat(test.get(0, NAME_A, String.class).getValue()).isEqualTo("1");
+    assertThat(test.get(0, NAME_B).getValue()).isEqualTo("2");
+    assertThat(test.get(0, NAME_B, String.class).getValue()).isEqualTo("2");
+    assertThat(test.get(1, 2).getValue()).isEqualTo("6");
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.get(-1, 0))
         .withMessageStartingWith("Row index must be greater than or");
@@ -86,6 +87,7 @@ public class ResultsTest {
    * Tests that it's not possible to create results with invalid combinations of row and column
    * count and number of items
    */
+  @Test
   public void createInvalid() {
     // Zero columns, non-zero cells
     assertThatIllegalArgumentException()
@@ -103,6 +105,7 @@ public class ResultsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     Results test = Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results(1, 2, 3, 4, 5, 6));
     coverImmutableBean(test);

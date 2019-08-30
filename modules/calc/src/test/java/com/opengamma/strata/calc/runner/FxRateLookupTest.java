@@ -12,12 +12,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -30,68 +30,74 @@ import com.opengamma.strata.data.ObservableSource;
 /**
  * Test {@link FxRateLookup}.
  */
-@Test
 public class FxRateLookupTest {
 
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
   private static final LocalDate VAL_DATE = date(2016, 6, 30);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofRates() {
     FxRateLookup test = FxRateLookup.ofRates();
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(FxRateId.of(GBP, USD), FxRate.of(GBP, USD, 1.5d))
         .build();
 
-    assertEquals(test.fxRateProvider(marketData).fxRate(GBP, USD), 1.5d);
+    assertThat(test.fxRateProvider(marketData).fxRate(GBP, USD)).isEqualTo(1.5d);
   }
 
+  @Test
   public void test_ofRates_source() {
     FxRateLookup test = FxRateLookup.ofRates(OBS_SOURCE);
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(FxRateId.of(GBP, USD, OBS_SOURCE), FxRate.of(GBP, USD, 1.5d))
         .build();
 
-    assertEquals(test.fxRateProvider(marketData).fxRate(GBP, USD), 1.5d);
+    assertThat(test.fxRateProvider(marketData).fxRate(GBP, USD)).isEqualTo(1.5d);
   }
 
+  @Test
   public void test_ofRates_currency() {
     FxRateLookup test = FxRateLookup.ofRates(EUR);
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(FxRateId.of(GBP, USD), FxRate.of(GBP, USD, 1.5d))
         .build();
 
-    assertEquals(test.fxRateProvider(marketData).fxRate(GBP, USD), 1.5d);
+    assertThat(test.fxRateProvider(marketData).fxRate(GBP, USD)).isEqualTo(1.5d);
   }
 
+  @Test
   public void test_ofRates_currency_source() {
     FxRateLookup test = FxRateLookup.ofRates(EUR, OBS_SOURCE);
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(FxRateId.of(GBP, USD, OBS_SOURCE), FxRate.of(GBP, USD, 1.5d))
         .build();
 
-    assertEquals(test.fxRateProvider(marketData).fxRate(GBP, USD), 1.5d);
+    assertThat(test.fxRateProvider(marketData).fxRate(GBP, USD)).isEqualTo(1.5d);
   }
 
+  @Test
   public void test_ofMatrix() {
     FxRateLookup test = FxRateLookup.ofMatrix();
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(FxMatrixId.standard(), FxMatrix.of(GBP, USD, 1.5d))
         .build();
 
-    assertEquals(test.fxRateProvider(marketData).fxRate(GBP, USD), 1.5d);
+    assertThat(test.fxRateProvider(marketData).fxRate(GBP, USD)).isEqualTo(1.5d);
   }
 
+  @Test
   public void test_ofMatrix_source() {
     FxRateLookup test = FxRateLookup.ofMatrix(FxMatrixId.of(OBS_SOURCE));
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE)
         .addValue(FxMatrixId.of(OBS_SOURCE), FxMatrix.of(GBP, USD, 1.5d))
         .build();
 
-    assertEquals(test.fxRateProvider(marketData).fxRate(GBP, USD), 1.5d);
+    assertThat(test.fxRateProvider(marketData).fxRate(GBP, USD)).isEqualTo(1.5d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage_rates() {
     FxRateLookup test = FxRateLookup.ofRates();
     coverImmutableBean((ImmutableBean) test);
@@ -99,6 +105,7 @@ public class FxRateLookupTest {
     coverBeanEquals((ImmutableBean) test, (ImmutableBean) test2);
   }
 
+  @Test
   public void coverage_matrix() {
     FxRateLookup test = FxRateLookup.ofMatrix();
     coverImmutableBean((ImmutableBean) test);
@@ -106,6 +113,7 @@ public class FxRateLookupTest {
     coverBeanEquals((ImmutableBean) test, (ImmutableBean) test2);
   }
 
+  @Test
   public void test_serialization() {
     FxRateLookup test1 = FxRateLookup.ofRates();
     assertSerialization((ImmutableBean) test1);
