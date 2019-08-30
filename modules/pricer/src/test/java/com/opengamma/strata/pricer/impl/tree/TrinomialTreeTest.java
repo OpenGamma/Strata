@@ -5,13 +5,14 @@
  */
 package com.opengamma.strata.pricer.impl.tree;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -24,7 +25,6 @@ import com.opengamma.strata.product.common.PutCall;
  * <p>
  * Further tests are done for implementations of {@code OptionFunction}. See their test classes.
  */
-@Test
 public class TrinomialTreeTest {
 
   private static final TrinomialTree TRINOMIAL_TREE = new TrinomialTree();
@@ -38,6 +38,7 @@ public class TrinomialTreeTest {
   /**
    * Test consistency between price methods, and Greek via finite difference.
    */
+  @Test
   public void test_trinomialTree() {
     int nSteps = 135;
     double dt = TIME / nSteps;
@@ -68,13 +69,13 @@ public class TrinomialTreeTest {
                   RecombiningTrinomialTreeData.of(DoubleMatrix.ofUnsafe(stateValue), prob, df, time);
               double priceData = TRINOMIAL_TREE.optionPrice(function, treeData);
               double priceParams = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
-              assertEquals(priceData, priceParams);
+              assertThat(priceData).isEqualTo(priceParams);
               ValueDerivatives priceDeriv = TRINOMIAL_TREE.optionPriceAdjoint(function, treeData);
-              assertEquals(priceDeriv.getValue(), priceData);
+              assertThat(priceDeriv.getValue()).isEqualTo(priceData);
               double priceUp = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT + fdEps, vol, interest, dividend);
               double priceDw = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT - fdEps, vol, interest, dividend);
               double fdDelta = 0.5 * (priceUp - priceDw) / fdEps;
-              assertEquals(priceDeriv.getDerivative(0), fdDelta, 3.0e-2);
+              assertThat(priceDeriv.getDerivative(0)).isCloseTo(fdDelta, offset(3.0e-2));
             }
           }
         }

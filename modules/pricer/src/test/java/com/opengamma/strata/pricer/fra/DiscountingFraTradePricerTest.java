@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.fra;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_TRADE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -39,7 +39,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
  * Some of the methods in the trade pricer are comparable to the product pricer methods, thus tested in  
  * {@link DiscountingFraProductPricerTest}.
  */
-@Test
 public class DiscountingFraTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -65,20 +64,23 @@ public class DiscountingFraTradePricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getters() {
-    assertEquals(DiscountingFraTradePricer.DEFAULT.getProductPricer(), DiscountingFraProductPricer.DEFAULT);
+    assertThat(DiscountingFraTradePricer.DEFAULT.getProductPricer()).isEqualTo(DiscountingFraProductPricer.DEFAULT);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
-    assertEquals(PRICER_TRADE.currencyExposure(RFRA_TRADE, RATES_PROVIDER),
-        MultiCurrencyAmount.of(PRICER_TRADE.presentValue(RFRA_TRADE, RATES_PROVIDER)));
+    assertThat(PRICER_TRADE.currencyExposure(RFRA_TRADE, RATES_PROVIDER)).isEqualTo(MultiCurrencyAmount.of(PRICER_TRADE.presentValue(RFRA_TRADE, RATES_PROVIDER)));
   }
 
+  @Test
   public void test_currentCash_zero() {
-    assertEquals(PRICER_TRADE.currentCash(RFRA_TRADE, RATES_PROVIDER), CurrencyAmount.zero(FRA.getCurrency()));
+    assertThat(PRICER_TRADE.currentCash(RFRA_TRADE, RATES_PROVIDER)).isEqualTo(CurrencyAmount.zero(FRA.getCurrency()));
   }
 
+  @Test
   public void test_currentCash_onPaymentDate() {
     LocalDate paymentDate = RFRA.getPaymentDate();
     double publishedRate = 0.025;
@@ -90,7 +92,7 @@ public class DiscountingFraTradePricerTest {
     ImmutableRatesProvider ratesProvider = RatesProviderDataSets.multiGbp(paymentDate).toBuilder()
         .timeSeries(GBP_LIBOR_3M, LocalDateDoubleTimeSeries.of(paymentDate, publishedRate))
         .build();
-    assertEquals(PRICER_TRADE.currentCash(trade, ratesProvider), CurrencyAmount.of(FRA.getCurrency(),
+    assertThat(PRICER_TRADE.currentCash(trade, ratesProvider)).isEqualTo(CurrencyAmount.of(FRA.getCurrency(),
         (publishedRate - FRA.getFixedRate()) / (1d + publishedRate * RFRA.getYearFraction()) *
             RFRA.getYearFraction() * RFRA.getNotional()));
   }

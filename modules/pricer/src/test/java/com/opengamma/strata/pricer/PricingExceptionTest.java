@@ -5,26 +5,27 @@
  */
 package com.opengamma.strata.pricer;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class PricingExceptionTest {
 
+  @Test
   public void test_constructor_message() {
     PricingException test = new PricingException("Hello");
-    assertEquals(test.getMessage(), "Hello");
+    assertThat(test.getMessage()).isEqualTo("Hello");
   }
 
+  @Test
   public void test_constructor_messageCause() {
     IllegalArgumentException cause = new IllegalArgumentException("Under");
     PricingException test = new PricingException("Hello", cause);
-    assertEquals(test.getMessage(), "Hello");
-    assertEquals(test.getCause(), cause);
+    assertThat(test.getMessage()).isEqualTo("Hello");
+    assertThat(test.getCause()).isEqualTo(cause);
   }
 
 }

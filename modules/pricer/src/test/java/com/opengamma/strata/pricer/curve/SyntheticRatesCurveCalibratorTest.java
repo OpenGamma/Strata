@@ -7,17 +7,17 @@ package com.opengamma.strata.pricer.curve;
 
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_6M;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -45,7 +45,6 @@ import com.opengamma.strata.product.swap.SwapLegType;
 /**
  * Tests {@link SyntheticRatesCurveCalibrator}.
  */
-@Test 
 public class SyntheticRatesCurveCalibratorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -136,57 +135,59 @@ public class SyntheticRatesCurveCalibratorTest {
   private static final double TOLERANCE_MQ = 1.0E-8;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     SyntheticRatesCurveCalibrator test = SyntheticRatesCurveCalibrator.of(CALIBRATOR, MQ_MEASURES);
-    assertEquals(test.getMeasures(), MQ_MEASURES);
-    assertEquals(test.getCalibrator(), CALIBRATOR);
-    assertEquals(test.toString(), "SyntheticCurveCalibrator[CurveCalibrator[ParSpread], MarketQuote]");
+    assertThat(test.getMeasures()).isEqualTo(MQ_MEASURES);
+    assertThat(test.getCalibrator()).isEqualTo(CALIBRATOR);
+    assertThat(test.toString()).isEqualTo("SyntheticCurveCalibrator[CurveCalibrator[ParSpread], MarketQuote]");
   }
 
   //-------------------------------------------------------------------------
   // Check market data computation
+  @Test
   public void market_data() {
     RatesCurveGroupDefinition group = GROUPS_SYN_EUR;
     RatesProvider multicurveTsLarge = MULTICURVE_INPUT_EUR_TSEMPTY.toBuilder().timeSeries(TS_LARGE).build();
     MarketData madTsEmpty = CALIBRATOR_SYNTHETIC.marketData(group, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
     MarketData madTsLarge = CALIBRATOR_SYNTHETIC.marketData(group, multicurveTsLarge, REF_DATA);
-    assertEquals(madTsEmpty.getValuationDate(), VALUATION_DATE);
+    assertThat(madTsEmpty.getValuationDate()).isEqualTo(VALUATION_DATE);
     for (CurveDefinition entry : group.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
         ResolvedTrade tradeTsEmpty = node.resolvedTrade(1d, madTsEmpty, REF_DATA);
         double mqTsEmpty = MQ_MEASURES.value(tradeTsEmpty, MULTICURVE_INPUT_EUR_TSEMPTY);
-        assertEquals(mqTsEmpty, (Double) madTsEmpty.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
+        assertThat(mqTsEmpty).isCloseTo((Double) madTsEmpty.getValue(node.requirements().iterator().next()), offset(TOLERANCE_MQ));
         ResolvedTrade tradeTsLarge = node.resolvedTrade(1d, madTsLarge, REF_DATA);
         double mqTsLarge = MQ_MEASURES.value(tradeTsLarge, multicurveTsLarge);
-        assertEquals(mqTsLarge, (Double) madTsLarge.getValue(node.requirements().iterator().next()), TOLERANCE_MQ);
+        assertThat(mqTsLarge).isCloseTo((Double) madTsLarge.getValue(node.requirements().iterator().next()), offset(TOLERANCE_MQ));
         // Market Quote for Fixed v ibor swaps should have changed with the fixing
         if ((tradeTsLarge instanceof ResolvedSwapTrade) && // Swap Fixed v Ibor
             (((ResolvedSwapTrade) tradeTsLarge)).getProduct().getLegs(SwapLegType.IBOR).size() == 1) {
-          assertTrue(Math.abs(mqTsEmpty - mqTsLarge) > TOLERANCE_MQ);
+          assertThat(Math.abs(mqTsEmpty - mqTsLarge) > TOLERANCE_MQ).isTrue();
         }
       }
     }
-    assertEquals(madTsEmpty.getTimeSeriesIds(), ImmutableSet.of());
-    assertEquals(
-        madTsLarge.getTimeSeriesIds(),
-        ImmutableSet.of(IndexQuoteId.of(EUR_EURIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_6M)));
+    assertThat(madTsEmpty.getTimeSeriesIds()).isEmpty();
+    assertThat(madTsLarge.getTimeSeriesIds()).containsOnly(IndexQuoteId.of(EUR_EURIBOR_3M), IndexQuoteId.of(EUR_EURIBOR_6M));
   }
 
   // Check synthetic calibration in case no definitions
+  @Test
   public void calibrate_noDefinitions() {
     RatesCurveGroupDefinition empty =
         RatesCurveGroupDefinition.of(CurveGroupName.of("Group"), ImmutableList.of(), ImmutableList.of());
     MarketData mad = CALIBRATOR_SYNTHETIC.marketData(empty, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(empty, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
-    assertEquals(multicurveSyn.getDiscountCurrencies(), ImmutableSet.of());
-    assertEquals(multicurveSyn.getIborIndices(), ImmutableSet.of());
-    assertEquals(multicurveSyn.getOvernightIndices(), ImmutableSet.of());
-    assertEquals(multicurveSyn.getPriceIndices(), ImmutableSet.of());
-    assertEquals(mad.getTimeSeriesIds(), ImmutableSet.of());
+    assertThat(multicurveSyn.getDiscountCurrencies()).isEmpty();
+    assertThat(multicurveSyn.getIborIndices()).isEmpty();
+    assertThat(multicurveSyn.getOvernightIndices()).isEmpty();
+    assertThat(multicurveSyn.getPriceIndices()).isEmpty();
+    assertThat(mad.getTimeSeriesIds()).isEmpty();
   }
 
   // Check synthetic calibration in case no time-series is present
+  @Test
   public void calibrate_ts_empty() {
     MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSEMPTY, REF_DATA);
@@ -196,13 +197,14 @@ public class SyntheticRatesCurveCalibratorTest {
         ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_EUR_TSEMPTY);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
-        assertEquals(mqIn, mqSy, TOLERANCE_MQ);
+        assertThat(mqIn).isCloseTo(mqSy, offset(TOLERANCE_MQ));
       }
     }
-    assertEquals(mad.getTimeSeriesIds(), ImmutableSet.of());
+    assertThat(mad.getTimeSeriesIds()).isEmpty();
   }
 
   // Check synthetic calibration in the case of existing time-series with fixing on the valuation date
+  @Test
   public void calibrate_ts_vd() {
     SyntheticRatesCurveCalibrator calibratorDefault = SyntheticRatesCurveCalibrator.standard();
     MarketData mad = calibratorDefault.marketData(GROUPS_SYN_EUR, MULTICURVE_INPUT_EUR_TSLARGE, REF_DATA);
@@ -213,25 +215,27 @@ public class SyntheticRatesCurveCalibratorTest {
         ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_EUR_TSLARGE);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
-        assertEquals(mqIn, mqSy, TOLERANCE_MQ);
+        assertThat(mqIn).isCloseTo(mqSy, offset(TOLERANCE_MQ));
       }
     }
   }
 
   // Check FX rates are transfered in multi-currency cases.
+  @Test
   public void calibrate_xccy_curves_fx() {
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_SYN_USDEUR, MULTICURVE_INPUT_USDEUR_TSEMPTY, REF_DATA);
     double eurUsdInput = MULTICURVE_INPUT_USDEUR_TSEMPTY.fxRate(Currency.EUR, Currency.USD);
     double eurUsdSynthetic = multicurveSyn.fxRate(Currency.EUR, Currency.USD);
-    assertEquals(eurUsdInput, eurUsdSynthetic, TOLERANCE_MQ);
+    assertThat(eurUsdInput).isCloseTo(eurUsdSynthetic, offset(TOLERANCE_MQ));
   }
 
   // XCcy swap in target group
+  @Test
   public void calibrate_xccy_intarget() {
     RatesProvider multicurveSyn = CALIBRATOR_SYNTHETIC.calibrate(GROUPS_IN_USDEUR_2, MULTICURVE_INPUT_USDEUR_TSEMPTY, REF_DATA);
     double eurUsdInput = MULTICURVE_INPUT_USDEUR_TSEMPTY.fxRate(Currency.EUR, Currency.USD);
     double eurUsdSynthetic = multicurveSyn.fxRate(Currency.EUR, Currency.USD);
-    assertEquals(eurUsdInput, eurUsdSynthetic, TOLERANCE_MQ);
+    assertThat(eurUsdInput).isCloseTo(eurUsdSynthetic, offset(TOLERANCE_MQ));
     MarketData mad = CALIBRATOR_SYNTHETIC.marketData(GROUPS_IN_USDEUR_2, MULTICURVE_INPUT_USDEUR_TSEMPTY, REF_DATA);
     for (CurveDefinition entry : GROUPS_IN_USDEUR_2.getCurveDefinitions()) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
@@ -239,13 +243,13 @@ public class SyntheticRatesCurveCalibratorTest {
         ResolvedTrade trade = node.resolvedTrade(1d, mad, REF_DATA);
         double mqIn = MQ_MEASURES.value(trade, MULTICURVE_INPUT_USDEUR_TSEMPTY);
         double mqSy = MQ_MEASURES.value(trade, multicurveSyn);
-        assertEquals(mqIn, mqSy, TOLERANCE_MQ);
+        assertThat(mqIn).isCloseTo(mqSy, offset(TOLERANCE_MQ));
       }
     }
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false) // enabled = false for standard testing. Used only to assess the performance
+  @Disabled // enabled = false for standard testing. Used only to assess the performance
   public void performance() {
     long start, end;
     int nbReps = 4;

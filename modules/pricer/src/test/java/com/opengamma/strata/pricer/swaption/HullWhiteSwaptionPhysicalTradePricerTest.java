@@ -8,15 +8,15 @@ package com.opengamma.strata.pricer.swaption;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.product.common.BuySell.SELL;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneId;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -45,7 +45,6 @@ import com.opengamma.strata.product.swaption.SwaptionSettlement;
 /**
  * Test {@link HullWhiteSwaptionPhysicalTradePricer}.
  */
-@Test
 public class HullWhiteSwaptionPhysicalTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -105,50 +104,58 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
   private static final double TOL = 1.0E-12;
 
   //-------------------------------------------------------------------------
+  @Test
   public void present_value_premium_forward() {
     CurrencyAmount pvTrade = PRICER_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_FWD_PAY, MULTI_USD);
-    assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOL * NOTIONAL);
+    assertThat(pvTrade.getAmount()).isCloseTo(pvProduct.getAmount() + pvPremium.getAmount(), offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void present_value_premium_valuedate() {
     CurrencyAmount pvTrade = PRICER_TRADE.presentValue(SWAPTION_PRETOD_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_TRA_PAY, MULTI_USD);
-    assertEquals(pvTrade.getAmount(), pvProduct.getAmount() + pvPremium.getAmount(), TOL * NOTIONAL);
+    assertThat(pvTrade.getAmount()).isCloseTo(pvProduct.getAmount() + pvPremium.getAmount(), offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void present_value_premium_past() {
     CurrencyAmount pvTrade = PRICER_TRADE.presentValue(SWAPTION_PREPAST_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
-    assertEquals(pvTrade.getAmount(), pvProduct.getAmount(), TOL * NOTIONAL);
+    assertThat(pvTrade.getAmount()).isCloseTo(pvProduct.getAmount(), offset(TOL * NOTIONAL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void currency_exposure_premium_forward() {
     CurrencyAmount pv = PRICER_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
     MultiCurrencyAmount ce = PRICER_TRADE.currencyExposure(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
-    assertEquals(pv.getAmount(), ce.getAmount(USD).getAmount(), TOL * NOTIONAL);
+    assertThat(pv.getAmount()).isCloseTo(ce.getAmount(USD).getAmount(), offset(TOL * NOTIONAL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void current_cash_forward() {
     CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VAL_DATE);
-    assertEquals(ccTrade.getAmount(), 0, TOL * NOTIONAL);
+    assertThat(ccTrade.getAmount()).isCloseTo(0, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void current_cash_vd() {
     CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VAL_DATE);
-    assertEquals(ccTrade.getAmount(), -PREMIUM_AMOUNT, TOL * NOTIONAL);
+    assertThat(ccTrade.getAmount()).isCloseTo(-PREMIUM_AMOUNT, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void current_cash_past() {
     CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VAL_DATE);
-    assertEquals(ccTrade.getAmount(), 0, TOL * NOTIONAL);
+    assertThat(ccTrade.getAmount()).isCloseTo(0, offset(TOL * NOTIONAL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void present_value_sensitivity_premium_forward() {
     PointSensitivities pvcsTrade = PRICER_TRADE
         .presentValueSensitivityRates(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
@@ -158,9 +165,10 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
     CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct =
         MULTI_USD.parameterSensitivity(pvcsProduct.combinedWith(pvcsPremium).build());
-    assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL));
+    assertThat(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void present_value_sensitivity_premium_valuedate() {
     PointSensitivities pvcsTrade = PRICER_TRADE
         .presentValueSensitivityRates(SWAPTION_PRETOD_LONG_REC, MULTI_USD, HW_PROVIDER);
@@ -168,9 +176,10 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
         .presentValueSensitivityRates(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct = MULTI_USD.parameterSensitivity(pvcsProduct.build());
-    assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL));
+    assertThat(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void present_value_sensitivity_premium_past() {
     PointSensitivities pvcsTrade = PRICER_TRADE
         .presentValueSensitivityRates(SWAPTION_PREPAST_LONG_REC, MULTI_USD, HW_PROVIDER);
@@ -178,16 +187,17 @@ public class HullWhiteSwaptionPhysicalTradePricerTest {
         .presentValueSensitivityRates(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
     CurrencyParameterSensitivities pvpsTrade = MULTI_USD.parameterSensitivity(pvcsTrade);
     CurrencyParameterSensitivities pvpsProduct = MULTI_USD.parameterSensitivity(pvcsProduct.build());
-    assertTrue(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL));
+    assertThat(pvpsTrade.equalWithTolerance(pvpsProduct, TOL * NOTIONAL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void present_value_hw_param_sensitivity_premium_forward() {
     DoubleArray hwTrade = PRICER_TRADE
         .presentValueSensitivityModelParamsHullWhite(SWAPTION_PREFWD_LONG_REC, MULTI_USD, HW_PROVIDER);
     DoubleArray hwProduct = PRICER_PRODUCT
         .presentValueSensitivityModelParamsHullWhite(SWAPTION_LONG_REC, MULTI_USD, HW_PROVIDER);
-    assertTrue(DoubleArrayMath.fuzzyEquals(hwTrade.toArray(), hwProduct.toArray(), TOL * NOTIONAL));
+    assertThat(DoubleArrayMath.fuzzyEquals(hwTrade.toArray(), hwProduct.toArray(), TOL * NOTIONAL)).isTrue();
   }
 
 }

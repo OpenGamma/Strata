@@ -13,14 +13,14 @@ import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_NONE;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_PAID;
 import static com.opengamma.strata.pricer.fra.FraDummyData.FRA_TRADE;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -64,7 +64,6 @@ import com.opengamma.strata.product.rate.RateComputation;
 /**
  * Tests {@link DiscountingFraProductPricer}.
  */
-@Test
 public class DiscountingFraProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -82,6 +81,7 @@ public class DiscountingFraProductPricerTest {
   /**
    * Test forecast value for ISDA FRA Discounting method.
    */
+  @Test
   public void test_forecastValue_ISDA() {
     SimpleRatesProvider prov = createProvider(RFRA);
 
@@ -92,16 +92,17 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount computed = test.forecastValue(RFRA, prov);
-    assertEquals(computed.getAmount(), expected, TOLERANCE);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.forecastValue(RFRA_TRADE, prov), test.forecastValue(RFRA, prov));
+    assertThat(testTrade.forecastValue(RFRA_TRADE, prov)).isEqualTo(test.forecastValue(RFRA, prov));
   }
 
   /**
    * Test forecast value for NONE FRA Discounting method.
    */
+  @Test
   public void test_forecastValue_NONE() {
     SimpleRatesProvider prov = createProvider(RFRA_NONE);
 
@@ -112,12 +113,13 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount computed = test.forecastValue(RFRA_NONE, prov);
-    assertEquals(computed.getAmount(), expected, TOLERANCE);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE));
   }
 
   /**
    * Test forecast value for AFMA FRA Discounting method.
    */
+  @Test
   public void test_forecastValue_AFMA() {
     SimpleRatesProvider prov = createProvider(RFRA_AFMA);
 
@@ -128,77 +130,83 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount computed = test.forecastValue(RFRA_AFMA, prov);
-    assertEquals(computed.getAmount(), expected, TOLERANCE);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE));
   }
 
   /**
    * Test FRA paying in the past.
    */
+  @Test
   public void test_forecastValue_inPast() {
     SimpleRatesProvider prov = createProvider(RFRA.toBuilder().paymentDate(VAL_DATE.minusDays(1)).build());
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount computed = test.forecastValue(RFRA.toBuilder().paymentDate(VAL_DATE.minusDays(1)).build(), prov);
-    assertEquals(computed.getAmount(), 0d, TOLERANCE);
+    assertThat(computed.getAmount()).isCloseTo(0d, offset(TOLERANCE));
   }
 
   //-------------------------------------------------------------------------
   /**
    * Test present value for ISDA FRA Discounting method.
    */
+  @Test
   public void test_presentValue_ISDA() {
     SimpleRatesProvider prov = createProvider(RFRA);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount pvComputed = test.presentValue(RFRA, prov);
     CurrencyAmount pvExpected = test.forecastValue(RFRA, prov).multipliedBy(DISCOUNT_FACTOR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.presentValue(RFRA_TRADE, prov), test.presentValue(RFRA, prov));
+    assertThat(testTrade.presentValue(RFRA_TRADE, prov)).isEqualTo(test.presentValue(RFRA, prov));
   }
 
   /**
    * Test present value for NONE FRA Discounting method.
    */
+  @Test
   public void test_presentValue_NONE() {
     SimpleRatesProvider prov = createProvider(RFRA_NONE);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount pvComputed = test.presentValue(RFRA_NONE, prov);
     CurrencyAmount pvExpected = test.forecastValue(RFRA_NONE, prov).multipliedBy(DISCOUNT_FACTOR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE));
   }
 
   /**
    * Test present value for ISDA FRA Discounting method.
    */
+  @Test
   public void test_presentValue_AFMA() {
     SimpleRatesProvider prov = createProvider(RFRA_AFMA);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount pvComputed = test.presentValue(RFRA_AFMA, prov);
     CurrencyAmount pvExpected = test.forecastValue(RFRA_AFMA, prov).multipliedBy(DISCOUNT_FACTOR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE));
   }
 
   /**
    * Test FRA paying in the past.
    */
+  @Test
   public void test_presentValue_inPast() {
     ResolvedFra fra = FRA_PAID.resolve(REF_DATA);
     SimpleRatesProvider prov = createProvider(fra);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CurrencyAmount computed = test.presentValue(fra, prov);
-    assertEquals(computed.getAmount(), 0d, TOLERANCE);
+    assertThat(computed.getAmount()).isCloseTo(0d, offset(TOLERANCE));
   }
 
   //-------------------------------------------------------------------------
   /**
    * Test forecast value sensitivity for ISDA FRA discounting method.
    */
+  @Test
   public void test_forecastValueSensitivity_ISDA() {
     SimpleRatesProvider prov = createProvider(RFRA);
 
@@ -208,20 +216,21 @@ public class DiscountingFraProductPricerTest {
     double fdSense = forecastValueFwdSensitivity(RFRA, FORWARD_RATE, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
-    assertEquals(sensitivities.size(), 1);
+    assertThat(sensitivities).hasSize(1);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
-    assertEquals(sensitivity0.getIndex(), FRA.getIndex());
-    assertEquals(sensitivity0.getObservation().getFixingDate(), FRA.getStartDate());
-    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
+    assertThat(sensitivity0.getIndex()).isEqualTo(FRA.getIndex());
+    assertThat(sensitivity0.getObservation().getFixingDate()).isEqualTo(FRA.getStartDate());
+    assertThat(sensitivity0.getSensitivity()).isCloseTo(fdSense, offset(FRA.getNotional() * eps));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.forecastValueSensitivity(RFRA_TRADE, prov), test.forecastValueSensitivity(RFRA, prov));
+    assertThat(testTrade.forecastValueSensitivity(RFRA_TRADE, prov)).isEqualTo(test.forecastValueSensitivity(RFRA, prov));
   }
 
   /**
    * Test forecast value sensitivity for NONE FRA discounting method.
    */
+  @Test
   public void test_forecastValueSensitivity_NONE() {
     SimpleRatesProvider prov = createProvider(RFRA_NONE);
 
@@ -231,16 +240,17 @@ public class DiscountingFraProductPricerTest {
     double fdSense = forecastValueFwdSensitivity(RFRA_NONE, FORWARD_RATE, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
-    assertEquals(sensitivities.size(), 1);
+    assertThat(sensitivities).hasSize(1);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
-    assertEquals(sensitivity0.getIndex(), FRA_NONE.getIndex());
-    assertEquals(sensitivity0.getObservation().getFixingDate(), FRA_NONE.getStartDate());
-    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
+    assertThat(sensitivity0.getIndex()).isEqualTo(FRA_NONE.getIndex());
+    assertThat(sensitivity0.getObservation().getFixingDate()).isEqualTo(FRA_NONE.getStartDate());
+    assertThat(sensitivity0.getSensitivity()).isCloseTo(fdSense, offset(FRA_NONE.getNotional() * eps));
   }
 
   /**
    * Test forecast value sensitivity for AFMA FRA discounting method.
    */
+  @Test
   public void test_forecastValueSensitivity_AFMA() {
     SimpleRatesProvider prov = createProvider(RFRA_AFMA);
 
@@ -250,29 +260,31 @@ public class DiscountingFraProductPricerTest {
     double fdSense = forecastValueFwdSensitivity(RFRA_AFMA, FORWARD_RATE, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
-    assertEquals(sensitivities.size(), 1);
+    assertThat(sensitivities).hasSize(1);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
-    assertEquals(sensitivity0.getIndex(), FRA_AFMA.getIndex());
-    assertEquals(sensitivity0.getObservation().getFixingDate(), FRA_AFMA.getStartDate());
-    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
+    assertThat(sensitivity0.getIndex()).isEqualTo(FRA_AFMA.getIndex());
+    assertThat(sensitivity0.getObservation().getFixingDate()).isEqualTo(FRA_AFMA.getStartDate());
+    assertThat(sensitivity0.getSensitivity()).isCloseTo(fdSense, offset(FRA_AFMA.getNotional() * eps));
   }
 
   /**
    * Test FRA paying in the past.
    */
+  @Test
   public void test_forecastValueSensitivity_inPast() {
     ResolvedFra fra = FRA_PAID.resolve(REF_DATA);
     SimpleRatesProvider prov = createProvider(fra);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     PointSensitivities computed = test.forecastValueSensitivity(fra, prov);
-    assertEquals(computed.size(), 0);
+    assertThat(computed.size()).isEqualTo(0);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Test present value sensitivity for ISDA  
    */
+  @Test
   public void test_presentValueSensitivity_ISDA() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
@@ -301,24 +313,25 @@ public class DiscountingFraProductPricerTest {
     double fdSense = presentValueFwdSensitivity(RFRA, forwardRate, discountFactor, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
-    assertEquals(sensitivities.size(), 2);
+    assertThat(sensitivities).hasSize(2);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
-    assertEquals(sensitivity0.getIndex(), FRA.getIndex());
-    assertEquals(sensitivity0.getObservation().getFixingDate(), fixingDate);
-    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA.getNotional() * eps);
+    assertThat(sensitivity0.getIndex()).isEqualTo(FRA.getIndex());
+    assertThat(sensitivity0.getObservation().getFixingDate()).isEqualTo(fixingDate);
+    assertThat(sensitivity0.getSensitivity()).isCloseTo(fdSense, offset(FRA.getNotional() * eps));
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
-    assertEquals(sensitivity1.getCurrency(), FRA.getCurrency());
-    assertEquals(sensitivity1.getYearFraction(), paymentTime);
-    assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA.getNotional() * eps);
+    assertThat(sensitivity1.getCurrency()).isEqualTo(FRA.getCurrency());
+    assertThat(sensitivity1.getYearFraction()).isEqualTo(paymentTime);
+    assertThat(sensitivity1.getSensitivity()).isCloseTo(fdDscSense, offset(FRA.getNotional() * eps));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.presentValueSensitivity(RFRA_TRADE, simpleProv), test.presentValueSensitivity(fraExp, simpleProv));
+    assertThat(testTrade.presentValueSensitivity(RFRA_TRADE, simpleProv)).isEqualTo(test.presentValueSensitivity(fraExp, simpleProv));
   }
 
   /**
    * Test present value sensitivity for NONE FRA discounting method.
    */
+  @Test
   public void test_presentValueSensitivity_NONE() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
@@ -347,20 +360,21 @@ public class DiscountingFraProductPricerTest {
     double fdSense = presentValueFwdSensitivity(RFRA_NONE, forwardRate, discountFactor, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
-    assertEquals(sensitivities.size(), 2);
+    assertThat(sensitivities).hasSize(2);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
-    assertEquals(sensitivity0.getIndex(), FRA_NONE.getIndex());
-    assertEquals(sensitivity0.getObservation().getFixingDate(), fixingDate);
-    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_NONE.getNotional() * eps);
+    assertThat(sensitivity0.getIndex()).isEqualTo(FRA_NONE.getIndex());
+    assertThat(sensitivity0.getObservation().getFixingDate()).isEqualTo(fixingDate);
+    assertThat(sensitivity0.getSensitivity()).isCloseTo(fdSense, offset(FRA_NONE.getNotional() * eps));
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
-    assertEquals(sensitivity1.getCurrency(), FRA_NONE.getCurrency());
-    assertEquals(sensitivity1.getYearFraction(), paymentTime);
-    assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_NONE.getNotional() * eps);
+    assertThat(sensitivity1.getCurrency()).isEqualTo(FRA_NONE.getCurrency());
+    assertThat(sensitivity1.getYearFraction()).isEqualTo(paymentTime);
+    assertThat(sensitivity1.getSensitivity()).isCloseTo(fdDscSense, offset(FRA_NONE.getNotional() * eps));
   }
 
   /**
    * Test present value sensitivity for AFMA FRA discounting method.
    */
+  @Test
   public void test_presentValueSensitivity_AFMA() {
     RateComputationFn<RateComputation> mockObs = mock(RateComputationFn.class);
     DiscountFactors mockDf = mock(DiscountFactors.class);
@@ -389,82 +403,87 @@ public class DiscountingFraProductPricerTest {
     double fdSense = presentValueFwdSensitivity(RFRA_AFMA, forwardRate, discountFactor, eps);
 
     ImmutableList<PointSensitivity> sensitivities = sensitivity.getSensitivities();
-    assertEquals(sensitivities.size(), 2);
+    assertThat(sensitivities).hasSize(2);
     IborRateSensitivity sensitivity0 = (IborRateSensitivity) sensitivities.get(0);
-    assertEquals(sensitivity0.getIndex(), FRA_AFMA.getIndex());
-    assertEquals(sensitivity0.getObservation().getFixingDate(), fixingDate);
-    assertEquals(sensitivity0.getSensitivity(), fdSense, FRA_AFMA.getNotional() * eps);
+    assertThat(sensitivity0.getIndex()).isEqualTo(FRA_AFMA.getIndex());
+    assertThat(sensitivity0.getObservation().getFixingDate()).isEqualTo(fixingDate);
+    assertThat(sensitivity0.getSensitivity()).isCloseTo(fdSense, offset(FRA_AFMA.getNotional() * eps));
     ZeroRateSensitivity sensitivity1 = (ZeroRateSensitivity) sensitivities.get(1);
-    assertEquals(sensitivity1.getCurrency(), FRA_AFMA.getCurrency());
-    assertEquals(sensitivity1.getYearFraction(), paymentTime);
-    assertEquals(sensitivity1.getSensitivity(), fdDscSense, FRA_AFMA.getNotional() * eps);
+    assertThat(sensitivity1.getCurrency()).isEqualTo(FRA_AFMA.getCurrency());
+    assertThat(sensitivity1.getYearFraction()).isEqualTo(paymentTime);
+    assertThat(sensitivity1.getSensitivity()).isCloseTo(fdDscSense, offset(FRA_AFMA.getNotional() * eps));
   }
 
   /**
    * Test FRA paying in the past.
    */
+  @Test
   public void test_presentValueSensitivity_inPast() {
     ResolvedFra fra = FRA_PAID.resolve(REF_DATA);
     SimpleRatesProvider prov = createProvider(fra);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     PointSensitivities computed = test.presentValueSensitivity(fra, prov);
-    assertEquals(computed.size(), 0);
+    assertThat(computed.size()).isEqualTo(0);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Test par rate for ISDA FRA Discounting method.
    */
+  @Test
   public void test_parRate_ISDA() {
     ResolvedFra fraExp = RFRA;
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     double parRate = test.parRate(fraExp, prov);
-    assertEquals(parRate, FORWARD_RATE);
+    assertThat(parRate).isEqualTo(FORWARD_RATE);
     ResolvedFra fra = createNewFra(FRA, parRate);
     CurrencyAmount pv = test.presentValue(fra, prov);
-    assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+    assertThat(pv.getAmount()).isCloseTo(0.0, offset(TOLERANCE));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.parRate(RFRA_TRADE, prov), test.parRate(RFRA, prov));
+    assertThat(testTrade.parRate(RFRA_TRADE, prov)).isEqualTo(test.parRate(RFRA, prov));
   }
 
   /**
    * Test par rate for NONE FRA Discounting method.
    */
+  @Test
   public void test_parRate_NONE() {
     ResolvedFra fraExp = RFRA_NONE;
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     double parRate = test.parRate(fraExp, prov);
-    assertEquals(parRate, FORWARD_RATE);
+    assertThat(parRate).isEqualTo(FORWARD_RATE);
     ResolvedFra fra = createNewFra(FRA_NONE, parRate);
     CurrencyAmount pv = test.presentValue(fra, prov);
-    assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+    assertThat(pv.getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
 
   /**
    * Test par rate for AFMA FRA Discounting method.
    */
+  @Test
   public void test_parRate_AFMA() {
     ResolvedFra fraExp = RFRA_AFMA;
     SimpleRatesProvider prov = createProvider(fraExp);
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     double parRate = test.parRate(fraExp, prov);
-    assertEquals(parRate, FORWARD_RATE);
+    assertThat(parRate).isEqualTo(FORWARD_RATE);
     ResolvedFra fra = createNewFra(FRA_AFMA, parRate);
     CurrencyAmount pv = test.presentValue(fra, prov);
-    assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+    assertThat(pv.getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
 
   /**
    * Test par spread for ISDA FRA Discounting method.
    */
+  @Test
   public void test_parSpread_ISDA() {
     ResolvedFra fraExp = RFRA;
     SimpleRatesProvider prov = createProvider(fraExp);
@@ -473,16 +492,17 @@ public class DiscountingFraProductPricerTest {
     double parSpread = test.parSpread(fraExp, prov);
     ResolvedFra fra = createNewFra(FRA, FRA.getFixedRate() + parSpread);
     CurrencyAmount pv = test.presentValue(fra, prov);
-    assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+    assertThat(pv.getAmount()).isCloseTo(0.0, offset(TOLERANCE));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.parSpread(RFRA_TRADE, prov), test.parSpread(RFRA, prov));
+    assertThat(testTrade.parSpread(RFRA_TRADE, prov)).isEqualTo(test.parSpread(RFRA, prov));
   }
 
   /**
    * Test par spread for NONE FRA Discounting method.
    */
+  @Test
   public void test_parSpread_NONE() {
     ResolvedFra fraExp = RFRA_NONE;
     SimpleRatesProvider prov = createProvider(fraExp);
@@ -491,12 +511,13 @@ public class DiscountingFraProductPricerTest {
     double parSpread = test.parSpread(fraExp, prov);
     ResolvedFra fra = createNewFra(FRA_NONE, FRA_NONE.getFixedRate() + parSpread);
     CurrencyAmount pv = test.presentValue(fra, prov);
-    assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+    assertThat(pv.getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
 
   /**
    * Test par spread for AFMA FRA Discounting method.
    */
+  @Test
   public void test_parSpread_AFMA() {
     ResolvedFra fraExp = RFRA_AFMA;
     SimpleRatesProvider prov = createProvider(fraExp);
@@ -505,7 +526,7 @@ public class DiscountingFraProductPricerTest {
     double parSpread = test.parSpread(fraExp, prov);
     ResolvedFra fra = createNewFra(FRA_AFMA, FRA_AFMA.getFixedRate() + parSpread);
     CurrencyAmount pv = test.presentValue(fra, prov);
-    assertEquals(pv.getAmount(), 0.0, TOLERANCE);
+    assertThat(pv.getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
 
   private static final double EPS_FD = 1E-7;
@@ -533,48 +554,47 @@ public class DiscountingFraProductPricerTest {
   /**
    * Test par spread sensitivity for ISDA FRA Discounting method.
    */
+  @Test
   public void test_parSpreadSensitivity_ISDA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV);
     CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
     CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA.getCurrency(), DEFAULT_PRICER.parSpread(RFRA, (p))));
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD)).isTrue();
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV);
-    assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
+    assertThat(sensiSpread.equalWithTolerance(sensiRate, EPS_FD)).isTrue();
 
     // test via FraTrade
-    assertEquals(
-        DEFAULT_TRADE_PRICER.parRateSensitivity(RFRA_TRADE, IMM_PROV),
-        DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV));
-    assertEquals(
-        DEFAULT_TRADE_PRICER.parSpreadSensitivity(RFRA_TRADE, IMM_PROV),
-        DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV));
+    assertThat(DEFAULT_TRADE_PRICER.parRateSensitivity(RFRA_TRADE, IMM_PROV)).isEqualTo(DEFAULT_PRICER.parRateSensitivity(RFRA, IMM_PROV));
+    assertThat(DEFAULT_TRADE_PRICER.parSpreadSensitivity(RFRA_TRADE, IMM_PROV)).isEqualTo(DEFAULT_PRICER.parSpreadSensitivity(RFRA, IMM_PROV));
   }
 
   /**
    * Test par spread sensitivity for NONE FRA Discounting method.
    */
+  @Test
   public void test_parSpreadSensitivity_NONE() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_NONE, IMM_PROV);
     CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
     CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_NONE.getCurrency(), DEFAULT_PRICER.parSpread(RFRA_NONE, (p))));
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD)).isTrue();
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA_NONE, IMM_PROV);
-    assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
+    assertThat(sensiSpread.equalWithTolerance(sensiRate, EPS_FD)).isTrue();
   }
 
   /**
    * Test par spread sensitivity for AFMA FRA Discounting method.
    */
+  @Test
   public void test_parSpreadSensitivity_AFMA() {
     PointSensitivities sensiSpread = DEFAULT_PRICER.parSpreadSensitivity(RFRA_AFMA, IMM_PROV);
     CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(sensiSpread);
     CurrencyParameterSensitivities sensiExpected = CAL_FD.sensitivity(IMM_PROV,
         (p) -> CurrencyAmount.of(FRA_AFMA.getCurrency(), DEFAULT_PRICER.parSpread(RFRA_AFMA, (p))));
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, EPS_FD)).isTrue();
     PointSensitivities sensiRate = DEFAULT_PRICER.parRateSensitivity(RFRA_AFMA, IMM_PROV);
-    assertTrue(sensiSpread.equalWithTolerance(sensiRate, EPS_FD));
+    assertThat(sensiSpread.equalWithTolerance(sensiRate, EPS_FD)).isTrue();
   }
 
   private ResolvedFra createNewFra(Fra product, double newFixedRate) {
@@ -594,6 +614,7 @@ public class DiscountingFraProductPricerTest {
   /**
    * Test cash flow for ISDA FRA Discounting method.
    */
+  @Test
   public void test_cashFlows_ISDA() {
     ResolvedFra fraExp = RFRA;
     SimpleRatesProvider prov = createProvider(fraExp);
@@ -605,21 +626,21 @@ public class DiscountingFraProductPricerTest {
 
     DiscountingFraProductPricer test = DiscountingFraProductPricer.DEFAULT;
     CashFlows computed = test.cashFlows(fraExp, prov);
-    assertEquals(computed.getCashFlows().size(), 1);
-    assertEquals(computed.getCashFlows().size(), 1);
-    assertEquals(computed.getCashFlows().get(0).getPaymentDate(), fraExp.getPaymentDate());
-    assertEquals(computed.getCashFlows().get(0).getForecastValue().getCurrency(), fraExp.getCurrency());
-    assertEquals(computed.getCashFlows().get(0).getForecastValue().getAmount(), expected, TOLERANCE);
+    assertThat(computed.getCashFlows()).hasSize(1);
+    assertThat(computed.getCashFlows().get(0).getPaymentDate()).isEqualTo(fraExp.getPaymentDate());
+    assertThat(computed.getCashFlows().get(0).getForecastValue().getCurrency()).isEqualTo(fraExp.getCurrency());
+    assertThat(computed.getCashFlows().get(0).getForecastValue().getAmount()).isCloseTo(expected, offset(TOLERANCE));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.cashFlows(RFRA_TRADE, prov), test.cashFlows(fraExp, prov));
+    assertThat(testTrade.cashFlows(RFRA_TRADE, prov)).isEqualTo(test.cashFlows(fraExp, prov));
   }
 
   //-------------------------------------------------------------------------
   /**
    * Test explain.
    */
+  @Test
   public void test_explainPresentValue_ISDA() {
     ResolvedFra fraExp = RFRA;
     SimpleRatesProvider prov = createProvider(fraExp);
@@ -631,36 +652,36 @@ public class DiscountingFraProductPricerTest {
     ExplainMap explain = test.explainPresentValue(fraExp, prov);
     Currency currency = fraExp.getCurrency();
     int daysBetween = (int) DAYS.between(fraExp.getStartDate(), fraExp.getEndDate());
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FRA");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), fraExp.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), fraExp.getStartDate());
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), fraExp.getEndDate());
-    assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), fraExp.getYearFraction());
-    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) (int) daysBetween);
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
-    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), fraExp.getNotional(), TOLERANCE);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FRA");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(fraExp.getPaymentDate());
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(fraExp.getStartDate());
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(fraExp.getEndDate());
+    assertThat(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get()).isEqualTo(fraExp.getYearFraction());
+    assertThat(explain.get(ExplainKey.DAYS).get()).isEqualTo((Integer) (int) daysBetween);
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.NOTIONAL).get().getAmount()).isCloseTo(fraExp.getNotional(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount()).isCloseTo(fraExp.getNotional(), offset(TOLERANCE));
 
-    assertEquals(explain.get(ExplainKey.OBSERVATIONS).get().size(), 1);
+    assertThat(explain.get(ExplainKey.OBSERVATIONS).get()).hasSize(1);
     ExplainMap explainObs = explain.get(ExplainKey.OBSERVATIONS).get().get(0);
     IborRateComputation floatingRate = (IborRateComputation) fraExp.getFloatingRate();
-    assertEquals(explainObs.get(ExplainKey.INDEX).get(), floatingRate.getIndex());
-    assertEquals(explainObs.get(ExplainKey.FIXING_DATE).get(), floatingRate.getFixingDate());
-    assertEquals(explainObs.get(ExplainKey.INDEX_VALUE).get(), FORWARD_RATE, TOLERANCE);
-    assertEquals(explainObs.get(ExplainKey.FROM_FIXING_SERIES).isPresent(), false);
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FIXED_RATE).get(), fraExp.getFixedRate(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.PAY_OFF_RATE).get(), FORWARD_RATE, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.COMBINED_RATE).get(), FORWARD_RATE, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.UNIT_AMOUNT).get(), fvExpected.getAmount() / fraExp.getNotional(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fvExpected.getAmount(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOLERANCE);
+    assertThat(explainObs.get(ExplainKey.INDEX).get()).isEqualTo(floatingRate.getIndex());
+    assertThat(explainObs.get(ExplainKey.FIXING_DATE).get()).isEqualTo(floatingRate.getFixingDate());
+    assertThat(explainObs.get(ExplainKey.INDEX_VALUE).get()).isCloseTo(FORWARD_RATE, offset(TOLERANCE));
+    assertThat(explainObs.get(ExplainKey.FROM_FIXING_SERIES)).isNotPresent();
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isCloseTo(DISCOUNT_FACTOR, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.FIXED_RATE).get()).isCloseTo(fraExp.getFixedRate(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.PAY_OFF_RATE).get()).isCloseTo(FORWARD_RATE, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.COMBINED_RATE).get()).isCloseTo(FORWARD_RATE, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.UNIT_AMOUNT).get()).isCloseTo(fvExpected.getAmount() / fraExp.getNotional(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(fvExpected.getAmount(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE));
 
     // test via FraTrade
     DiscountingFraTradePricer testTrade = new DiscountingFraTradePricer(test);
-    assertEquals(testTrade.explainPresentValue(RFRA_TRADE, prov), test.explainPresentValue(RFRA, prov));
+    assertThat(testTrade.explainPresentValue(RFRA_TRADE, prov)).isEqualTo(test.explainPresentValue(RFRA, prov));
   }
 
   //-------------------------------------------------------------------------
@@ -677,6 +698,7 @@ public class DiscountingFraProductPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_zeroCurve_FD() {
     double eps = 1.0e-6;
     ImmutableRatesProvider prov = RatesProviderDataSets.MULTI_GBP_USD;
@@ -686,9 +708,10 @@ public class DiscountingFraProductPricerTest {
     PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
     CurrencyParameterSensitivities computed = prov.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
-    assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
+    assertThat(computed.equalWithTolerance(expected, eps * FRA.getNotional())).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_dfCurve_FD() {
     double eps = 1.0e-6;
     ImmutableRatesProvider prov = RatesProviderDataSets.MULTI_GBP_USD_SIMPLE;
@@ -698,7 +721,7 @@ public class DiscountingFraProductPricerTest {
     PointSensitivities point = pricer.presentValueSensitivity(fraExp, prov);
     CurrencyParameterSensitivities computed = prov.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = cal.sensitivity(prov, p -> pricer.presentValue(fraExp, p));
-    assertTrue(computed.equalWithTolerance(expected, eps * FRA.getNotional()));
+    assertThat(computed.equalWithTolerance(expected, eps * FRA.getNotional())).isTrue();
   }
 
   //-------------------------------------------------------------------------

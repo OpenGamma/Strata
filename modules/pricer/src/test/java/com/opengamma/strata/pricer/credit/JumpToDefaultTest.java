@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
@@ -19,19 +19,20 @@ import com.opengamma.strata.basics.StandardId;
 /**
  * Test {@link JumpToDefault}.
  */
-@Test
 public class JumpToDefaultTest {
 
   private static final StandardId ID_ABC = StandardId.of("OG", "ABC");
   private static final StandardId ID_DEF = StandardId.of("OG", "DEF");
 
+  @Test
   public void test_of() {
     JumpToDefault test = JumpToDefault.of(GBP, ImmutableMap.of(ID_ABC, 1.1d, ID_DEF, 2.2d));
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getAmounts().size(), 2);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getAmounts()).hasSize(2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     JumpToDefault test = JumpToDefault.of(GBP, ImmutableMap.of(ID_ABC, 1.1d, ID_DEF, 2.2d));
     coverImmutableBean(test);

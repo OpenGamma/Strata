@@ -8,16 +8,14 @@ package com.opengamma.strata.pricer.impl.volatility.smile;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SabrFormulaData}.
  */
-@Test
 public class SabrFormulaDataTest {
 
   private static final double NU = 0.8;
@@ -28,27 +26,27 @@ public class SabrFormulaDataTest {
 
   @Test
   public void test() {
-    assertEquals(DATA.getAlpha(), ALPHA, 0);
-    assertEquals(DATA.getBeta(), BETA, 0);
-    assertEquals(DATA.getNu(), NU, 0);
-    assertEquals(DATA.getRho(), RHO, 0);
-    assertEquals(DATA.getParameter(0), ALPHA, 0);
-    assertEquals(DATA.getParameter(1), BETA, 0);
-    assertEquals(DATA.getParameter(2), RHO, 0);
-    assertEquals(DATA.getParameter(3), NU, 0);
-    assertEquals(DATA.getNumberOfParameters(), 4);
+    assertThat(DATA.getAlpha()).isEqualTo(ALPHA);
+    assertThat(DATA.getBeta()).isEqualTo(BETA);
+    assertThat(DATA.getNu()).isEqualTo(NU);
+    assertThat(DATA.getRho()).isEqualTo(RHO);
+    assertThat(DATA.getParameter(0)).isEqualTo(ALPHA);
+    assertThat(DATA.getParameter(1)).isEqualTo(BETA);
+    assertThat(DATA.getParameter(2)).isEqualTo(RHO);
+    assertThat(DATA.getParameter(3)).isEqualTo(NU);
+    assertThat(DATA.getNumberOfParameters()).isEqualTo(4);
     SabrFormulaData other = SabrFormulaData.of(new double[] {ALPHA, BETA, RHO, NU});
-    assertEquals(other, DATA);
-    assertEquals(other.hashCode(), DATA.hashCode());
+    assertThat(other).isEqualTo(DATA);
+    assertThat(other.hashCode()).isEqualTo(DATA.hashCode());
 
     other = other.with(0, ALPHA - 0.01);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
     other = SabrFormulaData.of(ALPHA, BETA * 0.5, RHO, NU);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
     other = SabrFormulaData.of(ALPHA, BETA, RHO, NU * 0.5);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
     other = SabrFormulaData.of(ALPHA, BETA, RHO * 0.5, NU);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
   }
 
   //-------------------------------------------------------------------------
@@ -89,12 +87,14 @@ public class SabrFormulaDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(DATA);
     SabrFormulaData another = SabrFormulaData.of(1.2, 0.4, 0.0, 0.2);
     coverBeanEquals(DATA, another);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(DATA);
   }

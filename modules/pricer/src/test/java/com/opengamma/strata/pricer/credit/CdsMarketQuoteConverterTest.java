@@ -9,15 +9,15 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -40,7 +40,6 @@ import com.opengamma.strata.product.credit.type.CdsQuoteConvention;
 /**
  * Test {@link CdsMarketQuoteConverter}.
  */
-@Test
 public class CdsMarketQuoteConverterTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -84,6 +83,7 @@ public class CdsMarketQuoteConverterTest {
   private static final double ONE_BP = 1.0e-4;
   private static final double TOL = 1.e-15;
 
+  @Test
   public void standardQuoteTest() {
     double pointsUpFront = 0.007;
     double expectedParSpread = 0.011112592882846; // taken from Excel-ISDA 1.8.2
@@ -94,13 +94,14 @@ public class CdsMarketQuoteConverterTest {
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
     CdsQuote pufQuote = CdsQuote.of(CdsQuoteConvention.POINTS_UPFRONT, pointsUpFront);
     CdsQuote quotedSpread = CONV.quotedSpreadFromPointsUpfront(trade, pufQuote, RATES_PROVIDER, REF_DATA);
-    assertEquals(quotedSpread.getQuotedValue(), expectedParSpread, 1e-14);
-    assertTrue(quotedSpread.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD));
+    assertThat(quotedSpread.getQuotedValue()).isCloseTo(expectedParSpread, offset(1e-14));
+    assertThat(quotedSpread.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD)).isTrue();
     CdsQuote derivedPuf = CONV.pointsUpFrontFromQuotedSpread(trade, quotedSpread, RATES_PROVIDER, REF_DATA);
-    assertEquals(derivedPuf.getQuotedValue(), pointsUpFront, 1e-15);
-    assertTrue(derivedPuf.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT));
+    assertThat(derivedPuf.getQuotedValue()).isCloseTo(pointsUpFront, offset(1e-15));
+    assertThat(derivedPuf.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)).isTrue();
   }
 
+  @Test
   public void standardQuoteTest2() {
     double quotedSpread = 143.4 * ONE_BP;
     double expectedPuf = -0.2195134271137960; // taken from Excel-ISDA 1.8.2
@@ -111,13 +112,14 @@ public class CdsMarketQuoteConverterTest {
     ResolvedCdsTrade trade = CdsTrade.builder().product(product).info(info).build().resolve(REF_DATA);
     CdsQuote quotedSpreadQuoted = CdsQuote.of(CdsQuoteConvention.QUOTED_SPREAD, quotedSpread);
     CdsQuote derivedPuf = CONV.pointsUpFrontFromQuotedSpread(trade, quotedSpreadQuoted, RATES_PROVIDER, REF_DATA);
-    assertEquals(derivedPuf.getQuotedValue(), expectedPuf, 5e-13);
-    assertTrue(derivedPuf.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT));
+    assertThat(derivedPuf.getQuotedValue()).isCloseTo(expectedPuf, offset(5e-13));
+    assertThat(derivedPuf.getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)).isTrue();
     CdsQuote derivedQuotedSpread = CONV.quotedSpreadFromPointsUpfront(trade, derivedPuf, RATES_PROVIDER, REF_DATA);
-    assertEquals(derivedQuotedSpread.getQuotedValue(), quotedSpread, 1e-15);
-    assertTrue(derivedQuotedSpread.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD));
+    assertThat(derivedQuotedSpread.getQuotedValue()).isCloseTo(quotedSpread, offset(1e-15));
+    assertThat(derivedQuotedSpread.getQuoteConvention().equals(CdsQuoteConvention.QUOTED_SPREAD)).isTrue();
   }
 
+  @Test
   public void parSpreadQuoteTest() {
     int nPillars = MATURITIES.length;
     List<Cds> products = new ArrayList<>(nPillars);
@@ -145,19 +147,20 @@ public class CdsMarketQuoteConverterTest {
     List<CdsQuote> qssMfComp =
         CONV_MARKIT_FIX.quotesFromParSpread(trades, quotes, RATES_PROVIDER, CdsQuoteConvention.QUOTED_SPREAD, REF_DATA);
     for (int i = 0; i < nPillars; ++i) {
-      assertEquals(pufsComp.get(i).getQuotedValue(), 0d, TOL);
-      assertTrue(pufsComp.get(i).getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT));
-      assertEquals(pufsMfComp.get(i).getQuotedValue(), 0d, TOL);
-      assertTrue(pufsMfComp.get(i).getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT));
+      assertThat(pufsComp.get(i).getQuotedValue()).isCloseTo(0d, offset(TOL));
+      assertThat(pufsComp.get(i).getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)).isTrue();
+      assertThat(pufsMfComp.get(i).getQuotedValue()).isCloseTo(0d, offset(TOL));
+      assertThat(pufsMfComp.get(i).getQuoteConvention().equals(CdsQuoteConvention.POINTS_UPFRONT)).isTrue();
     }
     for (int i = 0; i < nPillars; ++i) {
       CdsQuote qsRe = CONV.quotedSpreadFromPointsUpfront(trades.get(i), pufsComp.get(i), RATES_PROVIDER, REF_DATA);
       CdsQuote qsMfRe = CONV_MARKIT_FIX.quotedSpreadFromPointsUpfront(trades.get(i), pufsMfComp.get(i), RATES_PROVIDER, REF_DATA);
-      assertEquals(qsRe.getQuotedValue(), qssComp.get(i).getQuotedValue(), TOL);
-      assertEquals(qsMfRe.getQuotedValue(), qssMfComp.get(i).getQuotedValue(), TOL);
+      assertThat(qsRe.getQuotedValue()).isCloseTo(qssComp.get(i).getQuotedValue(), offset(TOL));
+      assertThat(qsMfRe.getQuotedValue()).isCloseTo(qssMfComp.get(i).getQuotedValue(), offset(TOL));
     }
   }
 
+  @Test
   public void pricePufTest() {
     double premium = 150d * ONE_BP;
     Cds product = Cds.of(BUY, LEGAL_ENTITY, GBP, 1.0e6, START_DATE, END_DATE, Frequency.P3M, DEFAULT_CALENDAR, premium);
@@ -174,7 +177,7 @@ public class CdsMarketQuoteConverterTest {
     double pointsUpFront = CONV.pointsUpfront(trade, rates, REF_DATA);
     double cleanPrice = CONV.cleanPrice(trade, rates, REF_DATA);
     double cleanPriceRe = CONV.cleanPriceFromPointsUpfront(pointsUpFront);
-    assertEquals(cleanPrice, cleanPriceRe, TOL);
+    assertThat(cleanPrice).isCloseTo(cleanPriceRe, offset(TOL));
   }
 
 }

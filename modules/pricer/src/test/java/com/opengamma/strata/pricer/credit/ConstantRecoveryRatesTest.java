@@ -7,13 +7,13 @@ package com.opengamma.strata.pricer.credit;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.market.ValueType;
@@ -25,7 +25,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link ConstantRecoveryRates}.
  */
-@Test
 public class ConstantRecoveryRatesTest {
 
   private static final LocalDate VALUATION = LocalDate.of(2016, 5, 6);
@@ -33,19 +32,21 @@ public class ConstantRecoveryRatesTest {
   private static final StandardId LEGAL_ENTITY = StandardId.of("OG", "ABC");
   private static final LocalDate DATE_AFTER = LocalDate.of(2017, 2, 24);
 
+  @Test
   public void test_of() {
     ConstantRecoveryRates test = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, RECOVERY_RATE);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getRecoveryRate(), RECOVERY_RATE);
-    assertEquals(test.getValuationDate(), VALUATION);
-    assertEquals(test.recoveryRate(DATE_AFTER), RECOVERY_RATE);
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.getParameter(0), RECOVERY_RATE);
-    assertEquals(test.getParameterCount(), 1);
-    assertEquals(test.getParameterMetadata(0), ParameterMetadata.empty());
-    assertEquals(test.withParameter(0, 0.5), ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 0.5));
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getRecoveryRate()).isEqualTo(RECOVERY_RATE);
+    assertThat(test.getValuationDate()).isEqualTo(VALUATION);
+    assertThat(test.recoveryRate(DATE_AFTER)).isEqualTo(RECOVERY_RATE);
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameter(0)).isEqualTo(RECOVERY_RATE);
+    assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.withParameter(0, 0.5)).isEqualTo(ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 0.5));
   }
 
+  @Test
   public void test_of_interface() {
     ConstantCurve curve = ConstantCurve.of(
         DefaultCurveMetadata.builder()
@@ -54,17 +55,18 @@ public class ConstantRecoveryRatesTest {
             .build(),
         RECOVERY_RATE);
     ConstantRecoveryRates test = (ConstantRecoveryRates) RecoveryRates.of(LEGAL_ENTITY, VALUATION, curve);
-    assertEquals(test.getLegalEntityId(), LEGAL_ENTITY);
-    assertEquals(test.getRecoveryRate(), RECOVERY_RATE);
-    assertEquals(test.getValuationDate(), VALUATION);
-    assertEquals(test.recoveryRate(DATE_AFTER), RECOVERY_RATE);
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.getParameter(0), RECOVERY_RATE);
-    assertEquals(test.getParameterCount(), 1);
-    assertEquals(test.getParameterMetadata(0), ParameterMetadata.empty());
-    assertEquals(test.withParameter(0, 0.5), ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 0.5));
+    assertThat(test.getLegalEntityId()).isEqualTo(LEGAL_ENTITY);
+    assertThat(test.getRecoveryRate()).isEqualTo(RECOVERY_RATE);
+    assertThat(test.getValuationDate()).isEqualTo(VALUATION);
+    assertThat(test.recoveryRate(DATE_AFTER)).isEqualTo(RECOVERY_RATE);
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameter(0)).isEqualTo(RECOVERY_RATE);
+    assertThat(test.getParameterCount()).isEqualTo(1);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(ParameterMetadata.empty());
+    assertThat(test.withParameter(0, 0.5)).isEqualTo(ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, 0.5));
   }
 
+  @Test
   public void test_of_rateOutOfRange() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, -0.5));
@@ -78,6 +80,7 @@ public class ConstantRecoveryRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ConstantRecoveryRates test1 = ConstantRecoveryRates.of(LEGAL_ENTITY, VALUATION, RECOVERY_RATE);
     coverImmutableBean(test1);

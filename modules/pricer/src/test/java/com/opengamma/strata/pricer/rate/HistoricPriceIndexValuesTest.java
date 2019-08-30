@@ -10,15 +10,15 @@ import static com.opengamma.strata.basics.index.PriceIndices.GB_HICP;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -31,7 +31,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 /**
  * Tests {@link HistoricPriceIndexValues}.
  */
-@Test
 public class HistoricPriceIndexValuesTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 5, 3);
@@ -68,52 +67,58 @@ public class HistoricPriceIndexValuesTest {
   private static final double TOLERANCE_VALUE = 1.0E-10;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     HistoricPriceIndexValues test = HistoricPriceIndexValues.of(US_CPI_U, VAL_DATE, USCPI_TS);
-    assertEquals(test.getIndex(), US_CPI_U);
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getFixings(), USCPI_TS);
-    assertEquals(test.getParameterCount(), 0);
-    assertThrows(IndexOutOfBoundsException.class, () -> test.getParameter(0));
-    assertThrows(IndexOutOfBoundsException.class, () -> test.getParameterMetadata(0));
-    assertThrows(IndexOutOfBoundsException.class, () -> test.withParameter(0, 1d));
-    assertSame(test.withPerturbation((i, v, m) -> v + 1d), test);
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getIndex()).isEqualTo(US_CPI_U);
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(test.getFixings()).isEqualTo(USCPI_TS);
+    assertThat(test.getParameterCount()).isEqualTo(0);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getParameter(0));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getParameterMetadata(0));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.withParameter(0, 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d)).isSameAs(test);
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_valuePointSensitivity_fixing() {
     HistoricPriceIndexValues test = HistoricPriceIndexValues.of(US_CPI_U, VAL_DATE, USCPI_TS);
     PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, VAL_MONTH.minusMonths(3));
-    assertEquals(test.value(obs), 234.722d, TOLERANCE_VALUE);
-    assertEquals(test.valuePointSensitivity(obs), PointSensitivityBuilder.none());
+    assertThat(test.value(obs)).isCloseTo(234.722d, offset(TOLERANCE_VALUE));
+    assertThat(test.valuePointSensitivity(obs)).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_valuePointSensitivity_forward() {
     YearMonth month = VAL_MONTH.plusMonths(3);
     HistoricPriceIndexValues test = HistoricPriceIndexValues.of(US_CPI_U, VAL_DATE, USCPI_TS);
     PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, month);
-    assertThrows(MarketDataNotFoundException.class, () -> test.value(obs));
-    assertThrows(MarketDataNotFoundException.class, () -> test.valuePointSensitivity(obs));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.value(obs));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.valuePointSensitivity(obs));
   }
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
+  @Test
   public void test_parameterSensitivity() {
     HistoricPriceIndexValues test = HistoricPriceIndexValues.of(US_CPI_U, VAL_DATE, USCPI_TS);
     InflationRateSensitivity point =
         InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
-    assertThrows(MarketDataNotFoundException.class, () -> test.parameterSensitivity(point));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.parameterSensitivity(point));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createParameterSensitivity() {
     HistoricPriceIndexValues test = HistoricPriceIndexValues.of(US_CPI_U, VAL_DATE, USCPI_TS);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15, 0.16, 0.17);
-    assertThrows(MarketDataNotFoundException.class, () -> test.createParameterSensitivity(USD, sensitivities));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     HistoricPriceIndexValues instance1 = HistoricPriceIndexValues.of(US_CPI_U, VAL_DATE, USCPI_TS);
     coverImmutableBean(instance1);

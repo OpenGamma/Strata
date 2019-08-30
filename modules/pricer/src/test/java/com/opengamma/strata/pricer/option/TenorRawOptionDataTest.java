@@ -9,18 +9,16 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_3M;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_6M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.date.Tenor;
 
 /**
  * Tests {@link TenorRawOptionData}.
  */
-@Test
 public class TenorRawOptionDataTest {
 
   private static final RawOptionData DATA1 = RawOptionDataTest.sut();
@@ -30,19 +28,22 @@ public class TenorRawOptionDataTest {
       ImmutableMap.of(TENOR_3M, DATA1, TENOR_6M, DATA2);
 
   //-------------------------------------------------------------------------
+  @Test
   public void of() {
     TenorRawOptionData test = TenorRawOptionData.of(DATA_MAP);
-    assertEquals(test.getData(), DATA_MAP);
-    assertEquals(test.getData(TENOR_3M), DATA1);
-    assertEquals(test.getTenors(), ImmutableList.of(TENOR_3M, TENOR_6M));
+    assertThat(test.getData()).isEqualTo(DATA_MAP);
+    assertThat(test.getData(TENOR_3M)).isEqualTo(DATA1);
+    assertThat(test.getTenors()).containsExactly(TENOR_3M, TENOR_6M);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TenorRawOptionData test = TenorRawOptionData.of(DATA_MAP);
     coverImmutableBean(test);
   }
 
+  @Test
   public void test_serialization() {
     TenorRawOptionData test = TenorRawOptionData.of(DATA_MAP);
     assertSerialization(test);

@@ -8,8 +8,8 @@ package com.opengamma.strata.pricer.curve;
 import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.BRBD;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -78,7 +78,6 @@ import com.opengamma.strata.product.swap.type.OvernightRateSwapLegConvention;
 /**
  * Test for curve calibration with 1 curves in BRL.
  */
-@Test
 public class CalibrationDiscountingBrlTest {
   
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
@@ -221,6 +220,7 @@ public class CalibrationDiscountingBrlTest {
   private static final double TOLERANCE_DELTA = 1.0E3;
   
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_present_value() {
     RatesProvider result2 =
         CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA);
@@ -234,11 +234,12 @@ public class CalibrationDiscountingBrlTest {
     for (int i = 0; i < OIS_NB_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
           ((ResolvedSwapTrade) dscTrades.get(i)).getProduct(), result2);
-      assertEquals(pvIrs.getAmount(BRL).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount(BRL).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
   }
   
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_transition_coherence_par_rate() {
     RatesProvider provider =
         CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA);
@@ -249,19 +250,20 @@ public class CalibrationDiscountingBrlTest {
           ((ResolvedSwapTrade) dscTrades.get(loopnode)).getProduct(), provider).build();
       CurrencyParameterSensitivities ps = provider.parameterSensitivity(pts);
       CurrencyParameterSensitivities mqs = MQC.sensitivity(ps, provider);
-      assertEquals(mqs.size(), 1);
+      assertThat(mqs.size()).isEqualTo(1);
       CurrencyParameterSensitivity mqsDsc = mqs.getSensitivity(ALL_CURVE_NAME, BRL);
-      assertTrue(mqsDsc.getMarketDataName().equals(ALL_CURVE_NAME));
-      assertTrue(mqsDsc.getCurrency().equals(BRL));
+      assertThat(mqsDsc.getMarketDataName().equals(ALL_CURVE_NAME)).isTrue();
+      assertThat(mqsDsc.getCurrency().equals(BRL)).isTrue();
       DoubleArray mqsData = mqsDsc.getSensitivity();
-      assertEquals(mqsData.size(), dscTrades.size());
+      assertThat(mqsData.size()).isEqualTo(dscTrades.size());
       for (int i = 0; i < mqsData.size(); i++) {
-        assertEquals(mqsData.get(i), (i == loopnode) ? 1.0 : 0.0, TOLERANCE_DELTA);
+        assertThat(mqsData.get(i)).isCloseTo((i == loopnode) ? 1.0 : 0.0, offset(TOLERANCE_DELTA));
       }
     }
   }
   
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_market_quote_sensitivity() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
@@ -291,7 +293,7 @@ public class CalibrationDiscountingBrlTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(product, rpShifted).getAmount(BRL).getAmount();
-      assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, TOLERANCE_DELTA, "DSC - node " + i);
+      assertThat(mqsDscComputed[i]).as("DSC - node " + i).isCloseTo((pvS - pv0) / shift, offset(TOLERANCE_DELTA));
     }
   }
 }

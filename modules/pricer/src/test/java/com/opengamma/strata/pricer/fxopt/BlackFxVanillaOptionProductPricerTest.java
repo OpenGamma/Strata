@@ -9,16 +9,16 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -37,7 +37,6 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
 /**
  * Test {@link BlackFxVanillaOptionProductPricer}.
  */
-@Test
 public class BlackFxVanillaOptionProductPricerTest {
 
   private static final ZoneId ZONE = ZoneId.of("Z");
@@ -98,6 +97,7 @@ public class BlackFxVanillaOptionProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(FD_EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_price_presentValue() {
     double priceCallOtm = PRICER.price(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvCallOtm = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -117,43 +117,46 @@ public class BlackFxVanillaOptionProductPricerTest {
         BlackFormulaRepository.price(forward, STRIKE_RATE_HIGH, timeToExpiry, volHigh, true);
     double expectedPvPutOtm = -NOTIONAL * df *
         BlackFormulaRepository.price(forward, STRIKE_RATE_LOW, timeToExpiry, volLow, false);
-    assertEquals(priceCallOtm, expectedPriceCallOtm, TOL);
-    assertEquals(pvCallOtm.getCurrency(), USD);
-    assertEquals(pvCallOtm.getAmount(), expectedPvCallOtm, NOTIONAL * TOL);
-    assertEquals(pricePutOtm, expectedPricePutOtm, TOL);
-    assertEquals(pvPutOtm.getCurrency(), USD);
-    assertEquals(pvPutOtm.getAmount(), expectedPvPutOtm, NOTIONAL * TOL);
+    assertThat(priceCallOtm).isCloseTo(expectedPriceCallOtm, offset(TOL));
+    assertThat(pvCallOtm.getCurrency()).isEqualTo(USD);
+    assertThat(pvCallOtm.getAmount()).isCloseTo(expectedPvCallOtm, offset(NOTIONAL * TOL));
+    assertThat(pricePutOtm).isCloseTo(expectedPricePutOtm, offset(TOL));
+    assertThat(pvPutOtm.getCurrency()).isEqualTo(USD);
+    assertThat(pvPutOtm.getAmount()).isCloseTo(expectedPvPutOtm, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_price_presentValue_atExpiry() {
     double df = RATES_PROVIDER_EXPIRY.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer()
         .forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER_EXPIRY).fxRate(CURRENCY_PAIR);
     double priceCallOtm = PRICER.price(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvCallOtm = PRICER.presentValue(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(priceCallOtm, 0d, TOL);
-    assertEquals(pvCallOtm.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(priceCallOtm).isCloseTo(0d, offset(TOL));
+    assertThat(pvCallOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
     double priceCallItm = PRICER.price(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvCallItm = PRICER.presentValue(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(priceCallItm, df * (forward - STRIKE_RATE_LOW), TOL);
-    assertEquals(pvCallItm.getAmount(), df * (forward - STRIKE_RATE_LOW) * NOTIONAL, NOTIONAL * TOL);
+    assertThat(priceCallItm).isCloseTo(df * (forward - STRIKE_RATE_LOW), offset(TOL));
+    assertThat(pvCallItm.getAmount()).isCloseTo(df * (forward - STRIKE_RATE_LOW) * NOTIONAL, offset(NOTIONAL * TOL));
     double pricePutOtm = PRICER.price(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvPutOtm = PRICER.presentValue(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(pricePutOtm, 0d, TOL);
-    assertEquals(pvPutOtm.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(pricePutOtm).isCloseTo(0d, offset(TOL));
+    assertThat(pvPutOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
     double pricePutItm = PRICER.price(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvPutItm = PRICER.presentValue(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(pricePutItm, df * (STRIKE_RATE_HIGH - forward), TOL);
-    assertEquals(pvPutItm.getAmount(), df * (STRIKE_RATE_HIGH - forward) * NOTIONAL, NOTIONAL * TOL);
+    assertThat(pricePutItm).isCloseTo(df * (STRIKE_RATE_HIGH - forward), offset(TOL));
+    assertThat(pvPutItm.getAmount()).isCloseTo(df * (STRIKE_RATE_HIGH - forward) * NOTIONAL, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_price_presentValue_afterExpiry() {
     double price = PRICER.price(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(price, 0d, NOTIONAL * TOL);
-    assertEquals(pv.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(price).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(pv.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_price_presentValue_parity() {
     double df = RATES_PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double forward = PRICER.getDiscountingFxSingleProductPricer()
@@ -162,12 +165,12 @@ public class BlackFxVanillaOptionProductPricerTest {
     CurrencyAmount pvCallOtm = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
     double pricePutItm = PRICER.price(PUT_ITM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvPutItm = PRICER.presentValue(PUT_ITM, RATES_PROVIDER, VOLS);
-    assertEquals(priceCallOtm - pricePutItm, df * (forward - STRIKE_RATE_HIGH), TOL);
-    assertEquals(-pvCallOtm.getAmount() - pvPutItm.getAmount(),
-        df * (forward - STRIKE_RATE_HIGH) * NOTIONAL, NOTIONAL * TOL);
+    assertThat(priceCallOtm - pricePutItm).isCloseTo(df * (forward - STRIKE_RATE_HIGH), offset(TOL));
+    assertThat(-pvCallOtm.getAmount() - pvPutItm.getAmount()).isCloseTo(df * (forward - STRIKE_RATE_HIGH) * NOTIONAL, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_delta_presentValueDelta() {
     double deltaCall = PRICER.delta(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvDeltaCall = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -184,42 +187,45 @@ public class BlackFxVanillaOptionProductPricerTest {
         * BlackFormulaRepository.delta(forward, STRIKE_RATE_HIGH, timeToExpiry, vol, true);
     double expectedPvDeltaPut = NOTIONAL * dfFor
         * BlackFormulaRepository.delta(forward, STRIKE_RATE_HIGH, timeToExpiry, vol, false);
-    assertEquals(deltaCall, expectedDeltaCall, TOL);
-    assertEquals(pvDeltaCall.getCurrency(), USD);
-    assertEquals(pvDeltaCall.getAmount(), expectedPvDeltaCall, NOTIONAL * TOL);
-    assertEquals(deltaPut, expectedDeltaPut, TOL);
-    assertEquals(pvDeltaPut.getCurrency(), USD);
-    assertEquals(pvDeltaPut.getAmount(), expectedPvDeltaPut, NOTIONAL * TOL);
+    assertThat(deltaCall).isCloseTo(expectedDeltaCall, offset(TOL));
+    assertThat(pvDeltaCall.getCurrency()).isEqualTo(USD);
+    assertThat(pvDeltaCall.getAmount()).isCloseTo(expectedPvDeltaCall, offset(NOTIONAL * TOL));
+    assertThat(deltaPut).isCloseTo(expectedDeltaPut, offset(TOL));
+    assertThat(pvDeltaPut.getCurrency()).isEqualTo(USD);
+    assertThat(pvDeltaPut.getAmount()).isCloseTo(expectedPvDeltaPut, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_delta_presentValueDelta_atExpiry() {
     double dfFor = RATES_PROVIDER_EXPIRY.discountFactor(EUR, PAYMENT_DATE);
     double deltaCallOtm = PRICER.delta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaCallOtm = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(deltaCallOtm, 0d, TOL);
-    assertEquals(pvDeltaCallOtm.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(deltaCallOtm).isCloseTo(0d, offset(TOL));
+    assertThat(pvDeltaCallOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
     double deltaCallItm = PRICER.delta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaCallItm = PRICER.presentValueDelta(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(deltaCallItm, dfFor, TOL);
-    assertEquals(pvDeltaCallItm.getAmount(), NOTIONAL * dfFor, NOTIONAL * TOL);
+    assertThat(deltaCallItm).isCloseTo(dfFor, offset(TOL));
+    assertThat(pvDeltaCallItm.getAmount()).isCloseTo(NOTIONAL * dfFor, offset(NOTIONAL * TOL));
     double deltaPutItm = PRICER.delta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaPutItm = PRICER.presentValueDelta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(deltaPutItm, -dfFor, TOL);
-    assertEquals(pvDeltaPutItm.getAmount(), -NOTIONAL * dfFor, NOTIONAL * TOL);
+    assertThat(deltaPutItm).isCloseTo(-dfFor, offset(TOL));
+    assertThat(pvDeltaPutItm.getAmount()).isCloseTo(-NOTIONAL * dfFor, offset(NOTIONAL * TOL));
     double deltaPutOtm = PRICER.delta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvDeltaPutOtm = PRICER.presentValueDelta(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(deltaPutOtm, 0d, TOL);
-    assertEquals(pvDeltaPutOtm.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(deltaPutOtm).isCloseTo(0d, offset(TOL));
+    assertThat(pvDeltaPutOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_delta_presentValueDelta_afterExpiry() {
     double delta = PRICER.delta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvDelta = PRICER.presentValueDelta(CALL_OTM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(delta, 0d, TOL);
-    assertEquals(pvDelta.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(delta).isCloseTo(0d, offset(TOL));
+    assertThat(pvDelta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     // call
     PointSensitivities pointCall = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -232,7 +238,7 @@ public class BlackFxVanillaOptionProductPricerTest {
         FD_CAL.sensitivity(RATES_PROVIDER,
             (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(CALL_OTM, (p), VOLS)))
             .multipliedBy(-pvVegaCall.getAmount());
-    assertTrue(computedCall.equalWithTolerance(expectedCall.combinedWith(impliedVolSenseCall), NOTIONAL * FD_EPS));
+    assertThat(computedCall.equalWithTolerance(expectedCall.combinedWith(impliedVolSenseCall), NOTIONAL * FD_EPS)).isTrue();
     // put
     PointSensitivities pointPut = PRICER.presentValueSensitivityRatesStickyStrike(PUT_OTM, RATES_PROVIDER, VOLS);
     CurrencyParameterSensitivities computedPut = RATES_PROVIDER.parameterSensitivity(pointPut);
@@ -243,30 +249,33 @@ public class BlackFxVanillaOptionProductPricerTest {
     CurrencyParameterSensitivities impliedVolSensePut = FD_CAL.sensitivity(
         RATES_PROVIDER, (p) -> CurrencyAmount.of(USD, PRICER.impliedVolatility(PUT_OTM, (p), VOLS)))
         .multipliedBy(-pvVegaPut.getAmount());
-    assertTrue(computedPut.equalWithTolerance(expectedPut.combinedWith(impliedVolSensePut), NOTIONAL * FD_EPS));
+    assertThat(computedPut.equalWithTolerance(expectedPut.combinedWith(impliedVolSensePut), NOTIONAL * FD_EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_atExpiry() {
     // call
     PointSensitivities pointCall = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyParameterSensitivities computedCall = RATES_PROVIDER_EXPIRY.parameterSensitivity(pointCall);
     CurrencyParameterSensitivities expectedCall = FD_CAL.sensitivity(
         RATES_PROVIDER_EXPIRY, (p) -> PRICER.presentValue(CALL_OTM, (p), VOLS_EXPIRY));
-    assertTrue(computedCall.equalWithTolerance(expectedCall, NOTIONAL * FD_EPS));
+    assertThat(computedCall.equalWithTolerance(expectedCall, NOTIONAL * FD_EPS)).isTrue();
     // put
     PointSensitivities pointPut = PRICER.presentValueSensitivityRatesStickyStrike(PUT_OTM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyParameterSensitivities computedPut = RATES_PROVIDER_EXPIRY.parameterSensitivity(pointPut);
     CurrencyParameterSensitivities expectedPut = FD_CAL.sensitivity(
         RATES_PROVIDER_EXPIRY, (p) -> PRICER.presentValue(PUT_OTM, (p), VOLS_EXPIRY));
-    assertTrue(computedPut.equalWithTolerance(expectedPut, NOTIONAL * FD_EPS));
+    assertThat(computedPut.equalWithTolerance(expectedPut, NOTIONAL * FD_EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_afterExpiry() {
     PointSensitivities point = PRICER.presentValueSensitivityRatesStickyStrike(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(point, PointSensitivities.empty());
+    assertThat(point).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_gamma_presentValueGamma() {
     double gammaCall = PRICER.gamma(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvGammaCall = PRICER.presentValueGamma(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -282,29 +291,32 @@ public class BlackFxVanillaOptionProductPricerTest {
         BlackFormulaRepository.gamma(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
     double expectedPvGamma = -NOTIONAL * dfFor * dfFor / dfDom *
         BlackFormulaRepository.gamma(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
-    assertEquals(gammaCall, expectedGamma, TOL);
-    assertEquals(pvGammaCall.getCurrency(), USD);
-    assertEquals(pvGammaCall.getAmount(), expectedPvGamma, NOTIONAL * TOL);
-    assertEquals(gammaPut, expectedGamma, TOL);
-    assertEquals(pvGammaPut.getCurrency(), USD);
-    assertEquals(pvGammaPut.getAmount(), -expectedPvGamma, NOTIONAL * TOL);
+    assertThat(gammaCall).isCloseTo(expectedGamma, offset(TOL));
+    assertThat(pvGammaCall.getCurrency()).isEqualTo(USD);
+    assertThat(pvGammaCall.getAmount()).isCloseTo(expectedPvGamma, offset(NOTIONAL * TOL));
+    assertThat(gammaPut).isCloseTo(expectedGamma, offset(TOL));
+    assertThat(pvGammaPut.getCurrency()).isEqualTo(USD);
+    assertThat(pvGammaPut.getAmount()).isCloseTo(-expectedPvGamma, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_gamma_presentValueGamma_atExpiry() {
     double gamma = PRICER.gamma(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvGamma = PRICER.presentValueGamma(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(gamma, 0d, TOL);
-    assertEquals(pvGamma.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(gamma).isCloseTo(0d, offset(TOL));
+    assertThat(pvGamma.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_gamma_presentValueGamma_afterExpiry() {
     double gamma = PRICER.gamma(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvGamma = PRICER.presentValueGamma(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(gamma, 0d, TOL);
-    assertEquals(pvGamma.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(gamma).isCloseTo(0d, offset(TOL));
+    assertThat(pvGamma.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_vega_presentValueVega() {
     double vegaCall = PRICER.vega(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvVegaCall = PRICER.presentValueVega(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -318,29 +330,32 @@ public class BlackFxVanillaOptionProductPricerTest {
     double expectedVega = dfDom * BlackFormulaRepository.vega(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
     double expectedPvVega = -NOTIONAL * dfDom *
         BlackFormulaRepository.vega(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
-    assertEquals(vegaCall, expectedVega, TOL);
-    assertEquals(pvVegaCall.getCurrency(), USD);
-    assertEquals(pvVegaCall.getAmount(), expectedPvVega, NOTIONAL * TOL);
-    assertEquals(vegaPut, expectedVega, TOL);
-    assertEquals(pvVegaPut.getCurrency(), USD);
-    assertEquals(pvVegaPut.getAmount(), -expectedPvVega, NOTIONAL * TOL);
+    assertThat(vegaCall).isCloseTo(expectedVega, offset(TOL));
+    assertThat(pvVegaCall.getCurrency()).isEqualTo(USD);
+    assertThat(pvVegaCall.getAmount()).isCloseTo(expectedPvVega, offset(NOTIONAL * TOL));
+    assertThat(vegaPut).isCloseTo(expectedVega, offset(TOL));
+    assertThat(pvVegaPut.getCurrency()).isEqualTo(USD);
+    assertThat(pvVegaPut.getAmount()).isCloseTo(-expectedPvVega, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_vega_presentValueVega_atExpiry() {
     double vega = PRICER.vega(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvVega = PRICER.presentValueVega(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(vega, 0d, TOL);
-    assertEquals(pvVega.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(vega).isCloseTo(0d, offset(TOL));
+    assertThat(pvVega.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_vega_presentValueVega_afterExpiry() {
     double vega = PRICER.vega(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvVega = PRICER.presentValueVega(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(vega, 0d, TOL);
-    assertEquals(pvVega.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(vega).isCloseTo(0d, offset(TOL));
+    assertThat(pvVega.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityBlackVolatility() {
     FxOptionSensitivity computedCall = (FxOptionSensitivity)
         PRICER.presentValueSensitivityModelParamsVolatility(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -354,23 +369,26 @@ public class BlackFxVanillaOptionProductPricerTest {
     FxOptionSensitivity expected = FxOptionSensitivity.of(
         VOLS.getName(), CURRENCY_PAIR, timeToExpiry, STRIKE_RATE_HIGH, forward, USD,
         -NOTIONAL * df * BlackFormulaRepository.vega(forward, STRIKE_RATE_HIGH, timeToExpiry, vol));
-    assertTrue(computedCall.build().equalWithTolerance(expected.build(), NOTIONAL * TOL));
-    assertTrue(computedPut.build().equalWithTolerance(expected.build().multipliedBy(-1d), NOTIONAL * TOL));
+    assertThat(computedCall.build().equalWithTolerance(expected.build(), NOTIONAL * TOL)).isTrue();
+    assertThat(computedPut.build().equalWithTolerance(expected.build().multipliedBy(-1d), NOTIONAL * TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityBlackVolatility_atExpiry() {
     PointSensitivityBuilder point =
         PRICER.presentValueSensitivityModelParamsVolatility(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(point, PointSensitivityBuilder.none());
+    assertThat(point).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_presentValueSensitivityBlackVolatility_afterExpiry() {
     PointSensitivityBuilder point =
         PRICER.presentValueSensitivityModelParamsVolatility(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(point, PointSensitivityBuilder.none());
+    assertThat(point).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_theta_presentValueTheta() {
     double theta = PRICER.theta(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pvTheta = PRICER.presentValueTheta(CALL_OTM, RATES_PROVIDER, VOLS);
@@ -380,28 +398,31 @@ public class BlackFxVanillaOptionProductPricerTest {
         .fxRate(CURRENCY_PAIR);
     double vol = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
     double expectedTheta = dfDom * BlackFormulaRepository.driftlessTheta(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
-    assertEquals(theta, expectedTheta, TOL);
+    assertThat(theta).isCloseTo(expectedTheta, offset(TOL));
     double expectedPvTheta = -NOTIONAL * dfDom *
         BlackFormulaRepository.driftlessTheta(forward, STRIKE_RATE_HIGH, timeToExpiry, vol);
-    assertEquals(pvTheta.getCurrency(), USD);
-    assertEquals(pvTheta.getAmount(), expectedPvTheta, NOTIONAL * TOL);
+    assertThat(pvTheta.getCurrency()).isEqualTo(USD);
+    assertThat(pvTheta.getAmount()).isCloseTo(expectedPvTheta, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_theta_presentValueTheta_atExpiry() {
     double theta = PRICER.theta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
     CurrencyAmount pvTheta = PRICER.presentValueTheta(PUT_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY);
-    assertEquals(theta, 0d, TOL);
-    assertEquals(pvTheta.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(theta).isCloseTo(0d, offset(TOL));
+    assertThat(pvTheta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_theta_presentValueTheta_afterExpiry() {
     double theta = PRICER.theta(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     CurrencyAmount pvTheta = PRICER.presentValueTheta(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
-    assertEquals(theta, 0d, TOL);
-    assertEquals(pvTheta.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(theta).isCloseTo(0d, offset(TOL));
+    assertThat(pvTheta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_impliedVolatility() {
     double computedCall = PRICER.impliedVolatility(CALL_OTM, RATES_PROVIDER, VOLS);
     double computedPut = PRICER.impliedVolatility(PUT_ITM, RATES_PROVIDER, VOLS);
@@ -409,28 +430,31 @@ public class BlackFxVanillaOptionProductPricerTest {
     double forward = PRICER.getDiscountingFxSingleProductPricer().forwardFxRate(FX_PRODUCT_HIGH, RATES_PROVIDER)
         .fxRate(CURRENCY_PAIR);
     double expected = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE_HIGH, forward);
-    assertEquals(computedCall, expected);
-    assertEquals(computedPut, expected);
+    assertThat(computedCall).isEqualTo(expected);
+    assertThat(computedPut).isEqualTo(expected);
   }
 
+  @Test
   public void test_impliedVolatility_atExpiry() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.impliedVolatility(CALL_ITM, RATES_PROVIDER_EXPIRY, VOLS_EXPIRY));
   }
 
+  @Test
   public void test_impliedVolatility_afterExpiry() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.impliedVolatility(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computedPricer = PRICER.currencyExposure(CALL_OTM, RATES_PROVIDER, VOLS);
     CurrencyAmount pv = PRICER.presentValue(CALL_OTM, RATES_PROVIDER, VOLS);
     PointSensitivities point = PRICER.presentValueSensitivityRatesStickyStrike(CALL_OTM, RATES_PROVIDER, VOLS);
     MultiCurrencyAmount computedPoint = RATES_PROVIDER.currencyExposure(point).plus(pv);
-    assertEquals(computedPricer.getAmount(EUR).getAmount(), computedPoint.getAmount(EUR).getAmount(), NOTIONAL * TOL);
-    assertEquals(computedPricer.getAmount(USD).getAmount(), computedPoint.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertThat(computedPricer.getAmount(EUR).getAmount()).isCloseTo(computedPoint.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
+    assertThat(computedPricer.getAmount(USD).getAmount()).isCloseTo(computedPoint.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 
 }

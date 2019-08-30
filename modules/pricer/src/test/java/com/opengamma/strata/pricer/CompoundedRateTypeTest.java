@@ -8,20 +8,19 @@ package com.opengamma.strata.pricer;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link CompoundedRateType}.
  */
-@Test
 public class CompoundedRateTypeTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {CompoundedRateType.PERIODIC, "Periodic"},
@@ -29,35 +28,42 @@ public class CompoundedRateTypeTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(CompoundedRateType convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(CompoundedRateType convention, String name) {
-    assertEquals(CompoundedRateType.of(name), convention);
+    assertThat(CompoundedRateType.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CompoundedRateType.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CompoundedRateType.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(CompoundedRateType.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(CompoundedRateType.CONTINUOUS);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(CompoundedRateType.class, CompoundedRateType.CONTINUOUS);
   }

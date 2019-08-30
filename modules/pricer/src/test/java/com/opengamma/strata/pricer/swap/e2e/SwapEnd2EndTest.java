@@ -18,13 +18,14 @@ import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.basics.schedule.Frequency.TERM;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
@@ -66,7 +67,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test end to end.
  */
-@Test
 public class SwapEnd2EndTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard()
@@ -108,6 +108,7 @@ public class SwapEnd2EndTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_VanillaFixedVsLibor1mSwap() {
     SwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 9, 12), P6M, PAY, NOTIONAL, 0.0125, null);
@@ -139,10 +140,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -1003684.8402, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-1003684.8402, offset(TOLERANCE_PV));
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_VanillaFixedVsLibor3mSwap() {
     SwapLeg payLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
@@ -157,19 +159,20 @@ public class SwapEnd2EndTest {
     // test pv
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 7170391.798257509, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(7170391.798257509, offset(TOLERANCE_PV));
     // test par rate
     double parRate = PRICER_PRODUCT.parRate(trade.getProduct(), provider());
-    assertEquals(parRate, 0.02589471566819517, TOLERANCE_RATE);
+    assertThat(parRate).isCloseTo(0.02589471566819517, offset(TOLERANCE_RATE));
     // test par rate vs pv
     ResolvedSwap swapPV0 =
         Swap.of(fixedLeg(LocalDate.of(2014, 9, 12), LocalDate.of(2021, 9, 12), P6M, PAY, NOTIONAL, parRate, null), receiveLeg)
             .resolve(REF_DATA);
     CurrencyAmount pv0 = PRICER_PRODUCT.presentValue(swapPV0, provider()).getAmount(USD);
-    assertEquals(pv0.getAmount(), 0, TOLERANCE_PV); // PV at par rate should be 0
+    assertThat(pv0.getAmount()).isCloseTo(0, offset(TOLERANCE_PV)); // PV at par rate should be 0
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_VanillaFixedVsLibor3mSwapWithFixing() {
     SwapLeg payLeg = fixedLeg(
         LocalDate.of(2013, 9, 12), LocalDate.of(2020, 9, 12), P6M, PAY, NOTIONAL, 0.015, null);
@@ -201,10 +204,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 3588376.471608199, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(3588376.471608199, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_BasisLibor3mVsLibor6mSwapWithSpread() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -253,10 +257,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -21875.376339152455, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-21875.376339152455, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_BasisCompoundedLibor1mVsLibor3mSwap() {
     SwapLeg receiveLeg = RateCalculationSwapLeg.builder()
         .payReceive(RECEIVE)
@@ -305,10 +310,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -342874.98367929866, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-342874.98367929866, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_Stub3mFixed6mVsLibor3mSwap() {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 6, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
@@ -341,10 +347,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 502890.9443281095, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(502890.9443281095, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_Stub1mFixed6mVsLibor3mSwap() {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 7, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
@@ -377,10 +384,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 463962.5517136799, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(463962.5517136799, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_InterpolatedStub3mFixed6mVsLibor6mSwap() {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 6, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
@@ -414,10 +422,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 364832.4284058402, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(364832.4284058402, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_InterpolatedStub4mFixed6mVsLibor6mSwap() {
     SwapLeg receiveLeg = fixedLeg(
         LocalDate.of(2014, 9, 12), LocalDate.of(2016, 7, 12), P6M, RECEIVE, NOTIONAL, 0.01, StubConvention.SHORT_INITIAL);
@@ -451,10 +460,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 314215.2347116342, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(314215.2347116342, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ZeroCouponFixedVsLibor3mSwap() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -505,10 +515,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), 7850279.042216873, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(7850279.042216873, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_AmortizingFixedVsLibor3mSwap() {
     ValueAdjustment stepReduction = ValueAdjustment.ofDeltaAmount(-3_000_000);
     List<ValueStep> steps = new ArrayList<>();
@@ -563,10 +574,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -1850080.2895532502, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-1850080.2895532502, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_CompoundingOisFixed2mVsFedFund12mSwap() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -615,10 +627,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -9723.264518929138, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-9723.264518929138, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_CompoundingOisFixed2mVsFedFund12mSwapWithFixing() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -667,10 +680,11 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -7352.973875972721, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-7352.973875972721, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_OnAASpreadVsLibor3MSwap() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -721,7 +735,7 @@ public class SwapEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     CurrencyAmount pv = pricer.presentValue(trade, provider()).getAmount(USD);
-    assertEquals(pv.getAmount(), -160663.8362, TOLERANCE_PV);
+    assertThat(pv.getAmount()).isCloseTo(-160663.8362, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------

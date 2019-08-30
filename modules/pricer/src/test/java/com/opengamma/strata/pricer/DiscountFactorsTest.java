@@ -8,12 +8,12 @@ package com.opengamma.strata.pricer;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
@@ -29,7 +29,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 /**
  * Test {@link DiscountFactors}.
  */
-@Test
 public class DiscountFactorsTest {
 
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
@@ -53,27 +52,31 @@ public class DiscountFactorsTest {
       Curves.prices(NAME), DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_discountFactors() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_DF);
-    assertEquals(test instanceof SimpleDiscountFactors, true);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getValuationDate(), DATE_VAL);
+    assertThat(test instanceof SimpleDiscountFactors).isTrue();
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
   }
 
+  @Test
   public void test_of_zeroRate() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_ZERO);
-    assertEquals(test instanceof ZeroRateDiscountFactors, true);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getValuationDate(), DATE_VAL);
+    assertThat(test instanceof ZeroRateDiscountFactors).isTrue();
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
   }
 
+  @Test
   public void test_of_zeroRatePeriodic() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE_ZERO_PERIODIC);
-    assertEquals(test instanceof ZeroRatePeriodicDiscountFactors, true);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getValuationDate(), DATE_VAL);
+    assertThat(test instanceof ZeroRatePeriodicDiscountFactors).isTrue();
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
   }
 
+  @Test
   public void test_of_prices() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DiscountFactors.of(GBP, DATE_VAL, CURVE_PRICES));

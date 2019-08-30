@@ -8,12 +8,13 @@ package com.opengamma.strata.pricer.impl.swap;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.ignoreThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -31,22 +32,23 @@ import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 /**
  * Test.
  */
-@Test
 public class DispatchingSwapPaymentPeriodPricerTest {
 
   private static final RatesProvider MOCK_PROV = new MockRatesProvider();
   private static final SwapPaymentPeriodPricer<RatePaymentPeriod> MOCK_RATE = mock(SwapPaymentPeriodPricer.class);
   private static final SwapPaymentPeriodPricer<KnownAmountSwapPaymentPeriod> MOCK_KNOWN = mock(SwapPaymentPeriodPricer.class);
 
+  @Test
   public void test_presentValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     SwapPaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(SwapPaymentPeriodPricer.class);
     when(mockNotionalExchangeFn.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingSwapPaymentPeriodPricer test = new DispatchingSwapPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
-    assertEquals(test.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
+    assertThat(test.presentValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV)).isCloseTo(expected, offset(0d));
   }
 
+  @Test
   public void test_presentValue_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
@@ -55,15 +57,17 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValue_RatePaymentPeriod() {
     double expected = 0.0123d;
     SwapPaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(SwapPaymentPeriodPricer.class);
     when(mockNotionalExchangeFn.forecastValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingSwapPaymentPeriodPricer test = new DispatchingSwapPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
-    assertEquals(test.forecastValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
+    assertThat(test.forecastValue(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV)).isCloseTo(expected, offset(0d));
   }
 
+  @Test
   public void test_forecastValue_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
@@ -72,6 +76,7 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
@@ -80,6 +85,7 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValueSensitivity_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
@@ -88,15 +94,17 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure_RatePaymentPeriod() {
     MultiCurrencyAmount expected = MultiCurrencyAmount.of(GBP, 0.0123d);
     SwapPaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(SwapPaymentPeriodPricer.class);
     when(mockNotionalExchangeFn.currencyExposure(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingSwapPaymentPeriodPricer test = new DispatchingSwapPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
-    assertEquals(test.currencyExposure(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected);
+    assertThat(test.currencyExposure(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV)).isEqualTo(expected);
   }
 
+  @Test
   public void test_currencyExposure_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
@@ -105,15 +113,17 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currentCash_RatePaymentPeriod() {
     double expected = 0.0123d;
     SwapPaymentPeriodPricer<RatePaymentPeriod> mockNotionalExchangeFn = mock(SwapPaymentPeriodPricer.class);
     when(mockNotionalExchangeFn.currentCash(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV))
         .thenReturn(expected);
     DispatchingSwapPaymentPeriodPricer test = new DispatchingSwapPaymentPeriodPricer(mockNotionalExchangeFn, MOCK_KNOWN);
-    assertEquals(test.currentCash(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV), expected, 0d);
+    assertThat(test.currentCash(SwapDummyData.FIXED_RATE_PAYMENT_PERIOD_REC_GBP, MOCK_PROV)).isCloseTo(expected, offset(0d));
   }
 
+  @Test
   public void test_currentCash_unknownType() {
     SwapPaymentPeriod mockPaymentPeriod = mock(SwapPaymentPeriod.class);
     DispatchingSwapPaymentPeriodPricer test = DispatchingSwapPaymentPeriodPricer.DEFAULT;
@@ -122,6 +132,7 @@ public class DispatchingSwapPaymentPeriodPricerTest {
   }
 
   //------------------------------------------------------------------------- 
+  @Test
   public void coverage() {
     DispatchingSwapPaymentPeriodPricer test = new DispatchingSwapPaymentPeriodPricer(
         MOCK_RATE,

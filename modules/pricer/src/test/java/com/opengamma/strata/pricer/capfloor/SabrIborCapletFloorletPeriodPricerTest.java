@@ -10,16 +10,16 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.product.common.PutCall.CALL;
 import static com.opengamma.strata.product.common.PutCall.PUT;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
-import static org.testng.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -46,7 +46,6 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 /**
  * Test {@link SabrIborCapletFloorletPeriodPricer}.
  */
-@Test
 public class SabrIborCapletFloorletPeriodPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -164,6 +163,7 @@ public class SabrIborCapletFloorletPeriodPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES, VOLS);
@@ -175,10 +175,10 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         forward + SHIFT, STRIKE + SHIFT, expiry, volatility, CALL.isCall());
     double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() * BlackFormulaRepository.price(
         forward + SHIFT, STRIKE + SHIFT, expiry, volatility, PUT.isCall());
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
     // consistency with shifted Black
     ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities vols = ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
         EUR_EURIBOR_3M, VALUATION, ConstantSurface.of("constVol", volatility)
@@ -186,10 +186,11 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         IborCapletFloorletSabrRateVolatilityDataSet.CURVE_CONST_SHIFT);
     CurrencyAmount computedCapletBlack = PRICER_BASE.presentValue(CAPLET_LONG, RATES, vols);
     CurrencyAmount computedFloorletBlack = PRICER_BASE.presentValue(FLOORLET_SHORT, RATES, vols);
-    assertEquals(computedCaplet.getAmount(), computedCapletBlack.getAmount(), NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getAmount(), computedFloorletBlack.getAmount(), NOTIONAL * TOL);
+    assertThat(computedCaplet.getAmount()).isCloseTo(computedCapletBlack.getAmount(), offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getAmount()).isCloseTo(computedFloorletBlack.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_parity() {
     double capletLong = PRICER.presentValue(CAPLET_LONG, RATES, VOLS).getAmount();
     double capletShort = PRICER.presentValue(CAPLET_SHORT, RATES, VOLS).getAmount();
@@ -197,64 +198,71 @@ public class SabrIborCapletFloorletPeriodPricerTest {
     double floorletShort = PRICER.presentValue(FLOORLET_SHORT, RATES, VOLS).getAmount();
     double iborCoupon = PRICER_COUPON.presentValue(IBOR_COUPON, RATES);
     double fixedCoupon = PRICER_COUPON.presentValue(FIXED_COUPON, RATES);
-    assertEquals(capletLong, -capletShort, NOTIONAL * TOL);
-    assertEquals(floorletLong, -floorletShort, NOTIONAL * TOL);
-    assertEquals(capletLong - floorletLong, iborCoupon - fixedCoupon, NOTIONAL * TOL);
-    assertEquals(capletShort - floorletShort, -iborCoupon + fixedCoupon, NOTIONAL * TOL);
+    assertThat(capletLong).isCloseTo(-capletShort, offset(NOTIONAL * TOL));
+    assertThat(floorletLong).isCloseTo(-floorletShort, offset(NOTIONAL * TOL));
+    assertThat(capletLong - floorletLong).isCloseTo(iborCoupon - fixedCoupon, offset(NOTIONAL * TOL));
+    assertThat(capletShort - floorletShort).isCloseTo(-iborCoupon + fixedCoupon, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_onFix() {
     CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
     double expectedCaplet = PRICER_COUPON.presentValue(FIXED_COUPON_UNIT, RATES_ON_FIX) * (OBS_INDEX - STRIKE);
     double expectedFloorlet = 0d;
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_afterFix() {
     CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     double payoff = (OBS_INDEX - STRIKE) * PRICER_COUPON.presentValue(FIXED_COUPON_UNIT, RATES_AFTER_FIX);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), payoff, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(payoff, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_afterPay() {
     CurrencyAmount computedCaplet = PRICER.presentValue(CAPLET_LONG, RATES_AFTER_PAY, VOLS_AFTER_PAY);
     CurrencyAmount computedFloorlet = PRICER.presentValue(FLOORLET_SHORT, RATES_AFTER_PAY, VOLS_AFTER_PAY);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_impliedVolatility() {
     double computed = PRICER.impliedVolatility(CAPLET_LONG, RATES, VOLS);
     double expiry = VOLS.relativeTime(CAPLET_LONG.getFixingDateTime());
     double forward = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
     double expected = VOLS.volatility(expiry, STRIKE, forward);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_impliedVolatility_onFix() {
     double computed = PRICER.impliedVolatility(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     double forward = RATES_ON_FIX.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
     double expected = VOLS.volatility(0d, STRIKE, forward);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_impliedVolatility_afterFix() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.impliedVolatility(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueDelta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES, VOLS);
@@ -266,45 +274,49 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         BlackFormulaRepository.delta(forward + SHIFT, STRIKE + SHIFT, expiry, volatility, CALL.isCall());
     double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.delta(forward + SHIFT, STRIKE + SHIFT, expiry, volatility, PUT.isCall());
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueDelta_parity() {
     double capletLong = PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS).getAmount();
     double capletShort = PRICER.presentValueDelta(CAPLET_SHORT, RATES, VOLS).getAmount();
     double floorletLong = PRICER.presentValueDelta(FLOORLET_LONG, RATES, VOLS).getAmount();
     double floorletShort = PRICER.presentValueDelta(FLOORLET_SHORT, RATES, VOLS).getAmount();
     double unitCoupon = PRICER_COUPON.presentValue(FIXED_COUPON_UNIT, RATES);
-    assertEquals(capletLong, -capletShort, NOTIONAL * TOL);
-    assertEquals(floorletLong, -floorletShort, NOTIONAL * TOL);
-    assertEquals(capletLong - floorletLong, unitCoupon, NOTIONAL * TOL);
-    assertEquals(capletShort - floorletShort, -unitCoupon, NOTIONAL * TOL);
+    assertThat(capletLong).isCloseTo(-capletShort, offset(NOTIONAL * TOL));
+    assertThat(floorletLong).isCloseTo(-floorletShort, offset(NOTIONAL * TOL));
+    assertThat(capletLong - floorletLong).isCloseTo(unitCoupon, offset(NOTIONAL * TOL));
+    assertThat(capletShort - floorletShort).isCloseTo(-unitCoupon, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueDelta_onFix() {
     CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
     double expectedCaplet = PRICER_COUPON.presentValue(FIXED_COUPON_UNIT, RATES_ON_FIX);
     double expectedFloorlet = 0d;
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(TOL));
   }
 
+  @Test
   public void test_presentValueDelta_afterFix() {
     CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), 0d, TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), 0d, TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(0d, offset(TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(0d, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueGamma_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueGamma(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueGamma(FLOORLET_SHORT, RATES, VOLS);
@@ -316,33 +328,36 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         BlackFormulaRepository.gamma(forward + SHIFT, STRIKE + SHIFT, expiry, volatility);
     double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.gamma(forward + SHIFT, STRIKE + SHIFT, expiry, volatility);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueGamma_onFix() {
     CurrencyAmount computedCaplet = PRICER.presentValueGamma(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValueGamma(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
     double expectedCaplet = 0d;
     double expectedFloorlet = 0d;
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(TOL));
   }
 
+  @Test
   public void test_presentValueGamma_afterFix() {
     CurrencyAmount computedCaplet = PRICER.presentValueGamma(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValueGamma(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), 0d, TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), 0d, TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(0d, offset(TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(0d, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueTheta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueTheta(FLOORLET_SHORT, RATES, VOLS);
@@ -354,44 +369,48 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         BlackFormulaRepository.driftlessTheta(forward + SHIFT, STRIKE + SHIFT, expiry, volatility);
     double expectedFloorlet = -NOTIONAL * df * FLOORLET_SHORT.getYearFraction() *
         BlackFormulaRepository.driftlessTheta(forward + SHIFT, STRIKE + SHIFT, expiry, volatility);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, NOTIONAL * TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, NOTIONAL * TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(NOTIONAL * TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueTheta_parity() {
     double capletLong = PRICER.presentValueTheta(CAPLET_LONG, RATES, VOLS).getAmount();
     double capletShort = PRICER.presentValueTheta(CAPLET_SHORT, RATES, VOLS).getAmount();
     double floorletLong = PRICER.presentValueTheta(FLOORLET_LONG, RATES, VOLS).getAmount();
     double floorletShort = PRICER.presentValueTheta(FLOORLET_SHORT, RATES, VOLS).getAmount();
-    assertEquals(capletLong, -capletShort, NOTIONAL * TOL);
-    assertEquals(floorletLong, -floorletShort, NOTIONAL * TOL);
-    assertEquals(capletLong, floorletLong, NOTIONAL * TOL);
-    assertEquals(capletShort, floorletShort, NOTIONAL * TOL);
+    assertThat(capletLong).isCloseTo(-capletShort, offset(NOTIONAL * TOL));
+    assertThat(floorletLong).isCloseTo(-floorletShort, offset(NOTIONAL * TOL));
+    assertThat(capletLong).isCloseTo(floorletLong, offset(NOTIONAL * TOL));
+    assertThat(capletShort).isCloseTo(floorletShort, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueTheta_onFix() {
     CurrencyAmount computedCaplet = PRICER.presentValueTheta(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValueTheta(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
     double expectedCaplet = 0d;
     double expectedFloorlet = 0d;
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), expectedCaplet, TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), expectedFloorlet, TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(expectedCaplet, offset(TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(expectedFloorlet, offset(TOL));
   }
 
+  @Test
   public void test_presentValueTheta_afterFix() {
     CurrencyAmount computedCaplet = PRICER.presentValueTheta(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     CurrencyAmount computedFloorlet = PRICER.presentValueTheta(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
-    assertEquals(computedCaplet.getCurrency(), EUR);
-    assertEquals(computedCaplet.getAmount(), 0d, TOL);
-    assertEquals(computedFloorlet.getCurrency(), EUR);
-    assertEquals(computedFloorlet.getAmount(), 0d, TOL);
+    assertThat(computedCaplet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedCaplet.getAmount()).isCloseTo(0d, offset(TOL));
+    assertThat(computedFloorlet.getCurrency()).isEqualTo(EUR);
+    assertThat(computedFloorlet.getAmount()).isCloseTo(0d, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityRatesStickyModel(CAPLET_LONG, RATES, VOLS);
     CurrencyParameterSensitivities computedCaplet = RATES.parameterSensitivity(pointCaplet.build());
@@ -401,8 +420,8 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         FD_CAL.sensitivity(RATES, p -> PRICER_BASE.presentValue(CAPLET_LONG, p, VOLS));
     CurrencyParameterSensitivities expectedFloorlet =
         FD_CAL.sensitivity(RATES, p -> PRICER_BASE.presentValue(FLOORLET_SHORT, p, VOLS));
-    assertTrue(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL * 50d));
-    assertTrue(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL * 50d));
+    assertThat(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL * 50d)).isTrue();
+    assertThat(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL * 50d)).isTrue();
     // consistency with shifted Black
     PointSensitivityBuilder pointCapletBase = PRICER.presentValueSensitivityRates(CAPLET_LONG, RATES, VOLS);
     PointSensitivityBuilder pointFloorletBase = PRICER.presentValueSensitivityRates(FLOORLET_SHORT, RATES, VOLS);
@@ -415,10 +434,11 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         IborCapletFloorletSabrRateVolatilityDataSet.CURVE_CONST_SHIFT);
     PointSensitivityBuilder pointCapletExp = PRICER_BASE.presentValueSensitivityRates(CAPLET_LONG, RATES, vols);
     PointSensitivityBuilder pointFloorletExp = PRICER_BASE.presentValueSensitivityRates(FLOORLET_SHORT, RATES, vols);
-    assertEquals(pointCapletBase, pointCapletExp);
-    assertEquals(pointFloorletBase, pointFloorletExp);
+    assertThat(pointCapletBase).isEqualTo(pointCapletExp);
+    assertThat(pointFloorletBase).isEqualTo(pointFloorletExp);
   }
 
+  @Test
   public void test_presentValueSensitivity_onFix() {
     PointSensitivityBuilder pointCaplet = PRICER.presentValueSensitivityRatesStickyModel(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     CurrencyParameterSensitivities computedCaplet = RATES_ON_FIX.parameterSensitivity(pointCaplet.build());
@@ -430,10 +450,11 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         FD_CAL.sensitivity(RATES_ON_FIX, p -> PRICER_BASE.presentValue(CAPLET_LONG, p, VOLS_ON_FIX));
     CurrencyParameterSensitivities expectedFloorlet =
         FD_CAL.sensitivity(RATES_ON_FIX, p -> PRICER_BASE.presentValue(FLOORLET_SHORT, p, VOLS_ON_FIX));
-    assertTrue(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL));
-    assertTrue(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL));
+    assertThat(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL)).isTrue();
+    assertThat(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_afterFix() {
     PointSensitivityBuilder pointCaplet =
         PRICER.presentValueSensitivityRatesStickyModel(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
@@ -446,20 +467,22 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         FD_CAL.sensitivity(RATES_AFTER_FIX, p -> PRICER_BASE.presentValue(CAPLET_LONG, p, VOLS_AFTER_FIX));
     CurrencyParameterSensitivities expectedFloorlet =
         FD_CAL.sensitivity(RATES_AFTER_FIX, p -> PRICER_BASE.presentValue(FLOORLET_SHORT, p, VOLS_AFTER_FIX));
-    assertTrue(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL));
-    assertTrue(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL));
+    assertThat(computedCaplet.equalWithTolerance(expectedCaplet, EPS_FD * NOTIONAL)).isTrue();
+    assertThat(computedFloorlet.equalWithTolerance(expectedFloorlet, EPS_FD * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder computedCaplet =
         PRICER.presentValueSensitivityRatesStickyModel(CAPLET_LONG, RATES_AFTER_PAY, VOLS_AFTER_PAY);
     PointSensitivityBuilder computedFloorlet =
         PRICER.presentValueSensitivityRatesStickyModel(FLOORLET_SHORT, RATES_AFTER_PAY, VOLS_AFTER_PAY);
-    assertEquals(computedCaplet, PointSensitivityBuilder.none());
-    assertEquals(computedFloorlet, PointSensitivityBuilder.none());
+    assertThat(computedCaplet).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(computedFloorlet).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityVolatility() {
     PointSensitivities pointCaplet = PRICER.presentValueSensitivityModelParamsSabr(CAPLET_LONG, RATES, VOLS).build();
     PointSensitivities pointFloorlet = PRICER.presentValueSensitivityModelParamsSabr(FLOORLET_SHORT, RATES, VOLS).build();
@@ -487,43 +510,46 @@ public class SabrIborCapletFloorletPeriodPricerTest {
         IborCapletFloorletSensitivity.of(VOLS.getName(), expiry, STRIKE, forward, EUR, vegaCaplet);
     IborCapletFloorletSensitivity pointFloorletVolExp =
         IborCapletFloorletSensitivity.of(VOLS.getName(), expiry, STRIKE, forward, EUR, vegaFloorlet);
-    assertEquals(pointCapletVol.getSensitivities().get(0), pointCapletVolExp);
-    assertEquals(pointFloorletVol.getSensitivities().get(0), pointFloorletVolExp);
+    assertThat(pointCapletVol.getSensitivities().get(0)).isEqualTo(pointCapletVolExp);
+    assertThat(pointFloorletVol.getSensitivities().get(0)).isEqualTo(pointFloorletVolExp);
   }
 
   private void assertSensitivity(PointSensitivities points, SabrParameterType type, double expected, double tol) {
     for (PointSensitivity point : points.getSensitivities()) {
       IborCapletFloorletSabrSensitivity sens = (IborCapletFloorletSabrSensitivity) point;
-      assertEquals(sens.getCurrency(), EUR);
-      assertEquals(sens.getVolatilitiesName(), VOLS.getName());
+      assertThat(sens.getCurrency()).isEqualTo(EUR);
+      assertThat(sens.getVolatilitiesName()).isEqualTo(VOLS.getName());
       if (sens.getSensitivityType() == type) {
-        assertEquals(sens.getSensitivity(), expected, NOTIONAL * tol);
+        assertThat(sens.getSensitivity()).isCloseTo(expected, offset(NOTIONAL * tol));
         return;
       }
     }
     fail("Did not find sensitivity: " + type + " in " + points);
   }
 
+  @Test
   public void test_presentValueSensitivityVolatility_onFix() {
     PointSensitivityBuilder computedCaplet =
         PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES_ON_FIX, VOLS_ON_FIX);
     PointSensitivityBuilder computedFloorlet =
         PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES_ON_FIX, VOLS_ON_FIX);
-    assertEquals(computedCaplet, PointSensitivityBuilder.none());
-    assertEquals(computedFloorlet, PointSensitivityBuilder.none());
+    assertThat(computedCaplet).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(computedFloorlet).isEqualTo(PointSensitivityBuilder.none());
 
   }
 
+  @Test
   public void test_presentValueSensitivityVolatility_afterFix() {
     PointSensitivityBuilder computedCaplet =
         PRICER.presentValueSensitivityModelParamsVolatility(CAPLET_LONG, RATES_AFTER_FIX, VOLS_AFTER_FIX);
     PointSensitivityBuilder computedFloorlet =
         PRICER.presentValueSensitivityModelParamsVolatility(FLOORLET_SHORT, RATES_AFTER_FIX, VOLS_AFTER_FIX);
-    assertEquals(computedCaplet, PointSensitivityBuilder.none());
-    assertEquals(computedFloorlet, PointSensitivityBuilder.none());
+    assertThat(computedCaplet).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(computedFloorlet).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_fail_Black() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValue(CAPLET_LONG, RATES, VOLS_BLACK));

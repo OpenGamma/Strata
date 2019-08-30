@@ -13,12 +13,13 @@ import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.common.PutCall.CALL;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -38,7 +39,6 @@ import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 /**
  * Test {@link BlackIborCapFloorTradePricer}.
  */
-@Test
 public class BlackIborCapFloorTradePricerTest {
 
   private static final double NOTIONAL_VALUE = 1.0e6;
@@ -89,26 +89,29 @@ public class BlackIborCapFloorTradePricerTest {
   private static final BlackIborCapFloorProductPricer PRICER_PRODUCT = BlackIborCapFloorProductPricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PREMIUM = DiscountingPaymentPricer.DEFAULT;
 
+  @Test
   public void test_presentValue() {
     MultiCurrencyAmount computedWithPayLeg = PRICER.presentValue(TRADE_PAYLEG, RATES, VOLS);
     MultiCurrencyAmount computedWithPremium = PRICER.presentValue(TRADE_PREMIUM, RATES, VOLS);
     MultiCurrencyAmount pvOneLeg = PRICER_PRODUCT.presentValue(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount pvTwoLegs = PRICER_PRODUCT.presentValue(CAP_TWO_LEGS, RATES, VOLS);
     CurrencyAmount pvPrem = PRICER_PREMIUM.presentValue(PREMIUM, RATES);
-    assertEquals(computedWithPayLeg, pvTwoLegs);
-    assertEquals(computedWithPremium, pvOneLeg.plus(pvPrem));
+    assertThat(computedWithPayLeg).isEqualTo(pvTwoLegs);
+    assertThat(computedWithPremium).isEqualTo(pvOneLeg.plus(pvPrem));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities computedWithPayLeg = PRICER.presentValueSensitivityRates(TRADE_PAYLEG, RATES, VOLS);
     PointSensitivities computedWithPremium = PRICER.presentValueSensitivityRates(TRADE_PREMIUM, RATES, VOLS);
     PointSensitivityBuilder pvOneLeg = PRICER_PRODUCT.presentValueSensitivityRates(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder pvTwoLegs = PRICER_PRODUCT.presentValueSensitivityRates(CAP_TWO_LEGS, RATES, VOLS);
     PointSensitivityBuilder pvPrem = PRICER_PREMIUM.presentValueSensitivity(PREMIUM, RATES);
-    assertEquals(computedWithPayLeg, pvTwoLegs.build());
-    assertEquals(computedWithPremium, pvOneLeg.combinedWith(pvPrem).build());
+    assertThat(computedWithPayLeg).isEqualTo(pvTwoLegs.build());
+    assertThat(computedWithPremium).isEqualTo(pvOneLeg.combinedWith(pvPrem).build());
   }
 
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computedWithPayLeg = PRICER.currencyExposure(TRADE_PAYLEG, RATES, VOLS);
     MultiCurrencyAmount computedWithPremium = PRICER.currencyExposure(TRADE_PREMIUM, RATES, VOLS);
@@ -118,26 +121,26 @@ public class BlackIborCapFloorTradePricerTest {
     PointSensitivities pointWithPremium = PRICER.presentValueSensitivityRates(TRADE_PREMIUM, RATES, VOLS);
     MultiCurrencyAmount expectedWithPayLeg = RATES.currencyExposure(pointWithPayLeg).plus(pvWithPayLeg);
     MultiCurrencyAmount expectedWithPremium = RATES.currencyExposure(pointWithPremium).plus(pvWithPremium);
-    assertEquals(computedWithPayLeg.getAmount(EUR).getAmount(),
-        expectedWithPayLeg.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
-    assertEquals(computedWithPremium.getAmount(EUR).getAmount(),
-        expectedWithPremium.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
+    assertThat(computedWithPayLeg.getAmount(EUR).getAmount()).isCloseTo(expectedWithPayLeg.getAmount(EUR).getAmount(), offset(NOTIONAL_VALUE * TOL));
+    assertThat(computedWithPremium.getAmount(EUR).getAmount()).isCloseTo(expectedWithPremium.getAmount(EUR).getAmount(), offset(NOTIONAL_VALUE * TOL));
   }
 
+  @Test
   public void test_currentCash() {
     MultiCurrencyAmount computedWithPayLeg = PRICER.currentCash(TRADE_PAYLEG, RATES, VOLS);
     MultiCurrencyAmount computedWithPremium = PRICER.currentCash(TRADE_PREMIUM, RATES, VOLS);
-    assertEquals(computedWithPayLeg, MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
-    assertEquals(computedWithPremium, MultiCurrencyAmount.of(PREMIUM.getValue()));
+    assertThat(computedWithPayLeg).isEqualTo(MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
+    assertThat(computedWithPremium).isEqualTo(MultiCurrencyAmount.of(PREMIUM.getValue()));
   }
 
+  @Test
   public void test_currentCash_onPay() {
     MultiCurrencyAmount computedWithPayLeg = PRICER.currentCash(TRADE_PAYLEG, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount computedWithPremium = PRICER.currentCash(TRADE_PREMIUM, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount expectedWithPayLeg = PRICER_PRODUCT.currentCash(CAP_TWO_LEGS, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount expectedWithPremium = PRICER_PRODUCT.currentCash(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
-    assertEquals(computedWithPayLeg, expectedWithPayLeg);
-    assertEquals(computedWithPremium, expectedWithPremium);
+    assertThat(computedWithPayLeg).isEqualTo(expectedWithPayLeg);
+    assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
   }
 
 }

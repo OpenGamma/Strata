@@ -14,7 +14,8 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,7 +23,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Iterator;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -34,7 +35,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link BlackFxOptionSmileVolatilities}.
  */
-@Test
 public class BlackFxOptionSmileVolatilitiesTest {
 
   private static final FxOptionVolatilitiesName NAME = FxOptionVolatilitiesName.of("Test");
@@ -70,6 +70,7 @@ public class BlackFxOptionSmileVolatilitiesTest {
   private static final double EPS = 1.0E-7;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     BlackFxOptionSmileVolatilities test = BlackFxOptionSmileVolatilities.builder()
         .name(NAME)
@@ -77,25 +78,27 @@ public class BlackFxOptionSmileVolatilitiesTest {
         .smile(SMILE_TERM)
         .valuationDateTime(VAL_DATE_TIME)
         .build();
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getSmile(), SMILE_TERM);
-    assertEquals(VOLS, test);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getValuationDateTime()).isEqualTo(VAL_DATE_TIME);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getSmile()).isEqualTo(SMILE_TERM);
+    assertThat(VOLS).isEqualTo(test);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_volatility() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = SMILE_TERM.volatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
         double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
-        assertEquals(volComputed, volExpected, TOLERANCE);
+        assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
       }
     }
   }
 
+  @Test
   public void test_volatility_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
@@ -103,12 +106,13 @@ public class BlackFxOptionSmileVolatilitiesTest {
         double volExpected = SMILE_TERM.volatility(expiryTime, TEST_STRIKE[j], FORWARD[i]);
         double volComputed = VOLS.volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j],
             1d / FORWARD[i]);
-        assertEquals(volComputed, volExpected, TOLERANCE);
+        assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_surfaceParameterSensitivity() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
@@ -123,13 +127,14 @@ public class BlackFxOptionSmileVolatilitiesTest {
           double nodeDelta = meta.getStrike().getValue();
           double expected = nodeSensitivity(
               VOLS, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry, nodeDelta);
-          assertEquals(value, expected, EPS);
+          assertThat(value).isCloseTo(expected, offset(EPS));
         }
 
       }
     }
   }
 
+  @Test
   public void test_surfaceParameterSensitivity_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
@@ -144,13 +149,14 @@ public class BlackFxOptionSmileVolatilitiesTest {
           double nodeDelta = meta.getStrike().getValue();
           double expected = nodeSensitivity(VOLS, CURRENCY_PAIR.inverse(),
               TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], nodeExpiry, nodeDelta);
-          assertEquals(value, expected, EPS);
+          assertThat(value).isCloseTo(expected, offset(EPS));
         }
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BlackFxOptionSmileVolatilities test1 =
         BlackFxOptionSmileVolatilities.of(NAME, CURRENCY_PAIR, VAL_DATE_TIME, SMILE_TERM);

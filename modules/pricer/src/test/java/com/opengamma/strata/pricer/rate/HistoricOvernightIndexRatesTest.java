@@ -12,14 +12,14 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.OvernightIndexObservation;
@@ -32,7 +32,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 /**
  * Tests {@link HistoricOvernightIndexRates}.
  */
-@Test
 public class HistoricOvernightIndexRatesTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -57,101 +56,113 @@ public class HistoricOvernightIndexRatesTest {
   private static final LocalDateDoubleTimeSeries SERIES_EMPTY = LocalDateDoubleTimeSeries.empty();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertEquals(test.getIndex(), GBP_SONIA);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES);
-    assertEquals(test.getParameterCount(), 0);
-    assertThrows(IndexOutOfBoundsException.class, () -> test.getParameter(0));
-    assertThrows(IndexOutOfBoundsException.class, () -> test.getParameterMetadata(0));
-    assertThrows(IndexOutOfBoundsException.class, () -> test.withParameter(0, 1d));
-    assertSame(test.withPerturbation((i, v, m) -> v + 1d), test);
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getIndex()).isEqualTo(GBP_SONIA);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
+    assertThat(test.getFixings()).isEqualTo(SERIES);
+    assertThat(test.getParameterCount()).isEqualTo(0);
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getParameter(0));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getParameterMetadata(0));
+    assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.withParameter(0, 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d)).isSameAs(test);
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rate_beforeValuation_fixing() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertEquals(test.rate(GBP_SONIA_BEFORE), RATE_BEFORE);
+    assertThat(test.rate(GBP_SONIA_BEFORE)).isEqualTo(RATE_BEFORE);
   }
 
+  @Test
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES_EMPTY);
-    assertThrows(IllegalArgumentException.class, () -> test.rate(GBP_SONIA_BEFORE));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.rate(GBP_SONIA_BEFORE));
   }
 
+  @Test
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES_MINIMAL);
-    assertThrows(IllegalArgumentException.class, () -> test.rate(GBP_SONIA_BEFORE));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.rate(GBP_SONIA_BEFORE));
   }
 
+  @Test
   public void test_rate_onValuation_fixing() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertEquals(test.rate(GBP_SONIA_VAL), RATE_VAL);
+    assertThat(test.rate(GBP_SONIA_VAL)).isEqualTo(RATE_VAL);
   }
 
+  @Test
   public void test_rate_onValuation_noFixing() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES_EMPTY);
-    assertThrows(MarketDataNotFoundException.class, () -> test.rate(GBP_SONIA_VAL));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rate(GBP_SONIA_VAL));
   }
 
+  @Test
   public void test_rate_afterValuation() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertThrows(MarketDataNotFoundException.class, () -> test.rate(GBP_SONIA_AFTER));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rate(GBP_SONIA_AFTER));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ratePointSensitivity_fixing() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertEquals(test.ratePointSensitivity(GBP_SONIA_BEFORE), PointSensitivityBuilder.none());
-    assertEquals(test.ratePointSensitivity(GBP_SONIA_VAL), PointSensitivityBuilder.none());
+    assertThat(test.ratePointSensitivity(GBP_SONIA_BEFORE)).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(test.ratePointSensitivity(GBP_SONIA_VAL)).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_ratePointSensitivity_onValuation_noFixing() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES_EMPTY);
-    assertThrows(MarketDataNotFoundException.class, () -> test.ratePointSensitivity(GBP_SONIA_AFTER));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.ratePointSensitivity(GBP_SONIA_AFTER));
   }
 
+  @Test
   public void test_ratePointSensitivity_afterValuation() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertThrows(MarketDataNotFoundException.class, () -> test.ratePointSensitivity(GBP_SONIA_AFTER));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.ratePointSensitivity(GBP_SONIA_AFTER));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rateIgnoringFixings() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertThrows(MarketDataNotFoundException.class, () -> test.rateIgnoringFixings(GBP_SONIA_BEFORE));
-    assertThrows(MarketDataNotFoundException.class, () -> test.rateIgnoringFixings(GBP_SONIA_VAL));
-    assertThrows(MarketDataNotFoundException.class, () -> test.rateIgnoringFixings(GBP_SONIA_AFTER));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rateIgnoringFixings(GBP_SONIA_BEFORE));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rateIgnoringFixings(GBP_SONIA_VAL));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rateIgnoringFixings(GBP_SONIA_AFTER));
   }
 
+  @Test
   public void test_rateIgnoringFixingsPointSensitivity() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
-    assertThrows(MarketDataNotFoundException.class,
-        () -> test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_BEFORE));
-    assertThrows(MarketDataNotFoundException.class,
-        () -> test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_VAL));
-    assertThrows(MarketDataNotFoundException.class,
-        () -> test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_AFTER));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_BEFORE));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_VAL));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.rateIgnoringFixingsPointSensitivity(GBP_SONIA_AFTER));
   }
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
+  @Test
   public void test_parameterSensitivity() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
     OvernightRateSensitivity point = OvernightRateSensitivity.of(GBP_SONIA_AFTER, GBP, 1d);
-    assertThrows(MarketDataNotFoundException.class, () -> test.parameterSensitivity(point));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.parameterSensitivity(point));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createParameterSensitivity() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15);
-    assertThrows(MarketDataNotFoundException.class, () -> test.createParameterSensitivity(USD, sensitivities));
+    assertThatExceptionOfType(MarketDataNotFoundException.class).isThrownBy(() -> test.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     HistoricOvernightIndexRates test = HistoricOvernightIndexRates.of(GBP_SONIA, DATE_VAL, SERIES);
     coverImmutableBean(test);

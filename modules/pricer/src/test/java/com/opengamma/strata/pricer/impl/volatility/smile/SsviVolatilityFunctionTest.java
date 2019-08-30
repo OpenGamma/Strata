@@ -7,12 +7,13 @@ package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -22,7 +23,6 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFieldFirstOrderDiffe
 /**
  * Test {@link SsviVolatilityFunction}.
  */
-@Test
 public class SsviVolatilityFunctionTest {
   
   private static final double VOL_ATM = 0.20;
@@ -52,7 +52,7 @@ public class SsviVolatilityFunctionTest {
       double w = 0.5 * theta * (1.0d + RHO * phi * k + Math.sqrt(Math.pow(phi * k + RHO, 2) + (1.0d - RHO * RHO)));
       double sigmaExpected = Math.sqrt(w / TIME_EXP);
       double sigmaComputed = SSVI_FUNCTION.volatility(FORWARD, STRIKES[i], TIME_EXP, DATA);
-      assertEquals(sigmaExpected, sigmaComputed, TOLERANCE_VOL);
+      assertThat(sigmaExpected).isCloseTo(sigmaComputed, offset(TOLERANCE_VOL));
     }
   }
 
@@ -73,7 +73,7 @@ public class SsviVolatilityFunctionTest {
       ValueDerivatives ad = 
           SSVI_FUNCTION.volatilityAdjoint(FORWARD, STRIKES[i], TIME_EXP, DATA);
       for (int j = 0; j < 6; j++) {
-        assertEquals(fd.get(j), ad.getDerivatives().get(j), TOLERANCE_AD);
+        assertThat(fd.get(j)).isCloseTo(ad.getDerivatives().get(j), offset(TOLERANCE_AD));
       }
     }   
   }
@@ -84,10 +84,12 @@ public class SsviVolatilityFunctionTest {
         .isThrownBy(() -> SSVI_FUNCTION.volatility(FORWARD, STRIKES[0], 0.0, DATA));
   }
 
+  @Test
   public void coverage() {
     coverImmutableBean(SSVI_FUNCTION);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(SSVI_FUNCTION);
   }

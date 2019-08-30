@@ -7,12 +7,12 @@ package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.data.MarketDataName;
@@ -26,16 +26,16 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link IborCapletFloorletVolatilities}.
  */
-@Test
 public class IborCapletFloorletVolatilitiesTest {
 
   private static final ZonedDateTime DATE_TIME = dateUtc(2015, 8, 27);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_defaultMethods() {
     IborCapletFloorletVolatilities test = new TestingIborCapletFloorletVolatilities();
-    assertEquals(test.getValuationDate(), DATE_TIME.toLocalDate());
-    assertEquals(test.volatility(DATE_TIME, 1, 2), 6d);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_TIME.toLocalDate());
+    assertThat(test.volatility(DATE_TIME, 1, 2)).isEqualTo(6d);
   }
 
   static class TestingIborCapletFloorletVolatilities implements IborCapletFloorletVolatilities {

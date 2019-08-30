@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.sensitivity;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
@@ -30,7 +30,6 @@ import com.opengamma.strata.market.param.TenorParameterMetadata;
 /**
  * Tests {@link CurveSensitivityUtils}.
  */
-@Test
 public class CurveSensitivityUtilsTest {
 
   private static final CurveName NAME_1 = CurveName.of("CURVE 1");
@@ -65,6 +64,7 @@ public class CurveSensitivityUtilsTest {
   private static final int[] WEIGHTS_START = {0, 0, 0, 0, 0, 1, 1, 2, 2, 2, 2 };
   private static final double TOLERANCE_SENSI = 1.0E-5;
 
+  @Test
   public void hard_coded_value_one_curve_one_date_dated() {
     Function<LocalDate, ParameterMetadata> parameterMetadataFunction =
         (d) -> LabelDateParameterMetadata.of(d, "test");
@@ -73,6 +73,7 @@ public class CurveSensitivityUtilsTest {
     test_from_functions_one_curve_one_date(parameterMetadataFunction, rebucketFunction);
   }
 
+  @Test
   public void hard_coded_value_one_curve_one_date_tenor() {
     final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
     Function<LocalDate, ParameterMetadata> parameterMetadataFunction =
@@ -83,6 +84,7 @@ public class CurveSensitivityUtilsTest {
     test_from_functions_one_curve_one_date(parameterMetadataFunction, rebucketFunction);
   }
 
+  @Test
   public void hard_coded_value_one_curve_one_date_dated_sd() {
     final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
     Function<LocalDate, ParameterMetadata> parameterMetadataFunction =
@@ -102,18 +104,17 @@ public class CurveSensitivityUtilsTest {
           CurrencyParameterSensitivity.of(NAME_1, pmdInput, CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
       CurrencyParameterSensitivities s2 = CurrencyParameterSensitivities.of(s);
       CurrencyParameterSensitivities sTarget = rebucketFunction.apply(s2);
-      assertTrue(sTarget.getSensitivities().size() == 1);
+      assertThat(sTarget.getSensitivities().size() == 1).isTrue();
       CurrencyParameterSensitivity sTarget1 = sTarget.getSensitivities().get(0);
-      assertTrue(sTarget1.getMarketDataName().equals(NAME_1));
-      assertTrue(sTarget1.getCurrency().equals(CCY_1));
-      assertTrue(sTarget1.getSensitivity().size() == TARGET_DATES.size());
-      assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate]),
-          WEIGHTS_HC[loopdate] * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
-      assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate] + 1),
-          (1.0d - WEIGHTS_HC[loopdate]) * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
+      assertThat(sTarget1.getMarketDataName().equals(NAME_1)).isTrue();
+      assertThat(sTarget1.getCurrency().equals(CCY_1)).isTrue();
+      assertThat(sTarget1.getSensitivity().size() == TARGET_DATES.size()).isTrue();
+      assertThat(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate])).isCloseTo(WEIGHTS_HC[loopdate] * SENSITIVITY_AMOUNT, offset(TOLERANCE_SENSI));
+      assertThat(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate] + 1)).isCloseTo((1.0d - WEIGHTS_HC[loopdate]) * SENSITIVITY_AMOUNT, offset(TOLERANCE_SENSI));
     }
   }
 
+  @Test
   public void hard_coded_value_one_curve_all_dates() {
     Function<LocalDate, ParameterMetadata> parameterMetadataFunction =
         (d) -> LabelDateParameterMetadata.of(d, "test");
@@ -122,6 +123,7 @@ public class CurveSensitivityUtilsTest {
     test_from_functions_one_curve_all_dates(parameterMetadataFunction, rebucketFunction);
   }
 
+  @Test
   public void hard_coded_value_one_curve_all_dates_tenor() {
     final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
     Function<LocalDate, ParameterMetadata> parameterMetadataFunction =
@@ -132,6 +134,7 @@ public class CurveSensitivityUtilsTest {
     test_from_functions_one_curve_all_dates(parameterMetadataFunction, rebucketFunction);
   }
 
+  @Test
   public void hard_coded_value_one_curve_all_dates_dated_sd() {
     final LocalDate sensitivityDate = LocalDate.of(2015, 8, 18);
     Function<LocalDate, ParameterMetadata> parameterMetadataFunction =
@@ -155,16 +158,17 @@ public class CurveSensitivityUtilsTest {
     CurrencyParameterSensitivity s = CurrencyParameterSensitivity.of(NAME_1, pmdInput, CCY_1, sens);
     CurrencyParameterSensitivities s2 = CurrencyParameterSensitivities.of(s);
     CurrencyParameterSensitivities sTarget = rebucketFunction.apply(s2);
-    assertTrue(sTarget.getSensitivities().size() == 1);
+    assertThat(sTarget.getSensitivities().size() == 1).isTrue();
     CurrencyParameterSensitivity sTarget1 = sTarget.getSensitivities().get(0);
-    assertTrue(sTarget1.getMarketDataName().equals(NAME_1));
-    assertTrue(sTarget1.getCurrency().equals(CCY_1));
-    assertTrue(sTarget1.getSensitivity().size() == TARGET_DATES.size());
+    assertThat(sTarget1.getMarketDataName().equals(NAME_1)).isTrue();
+    assertThat(sTarget1.getCurrency().equals(CCY_1)).isTrue();
+    assertThat(sTarget1.getSensitivity().size() == TARGET_DATES.size()).isTrue();
     for (int looptarget = 0; looptarget < TARGET_DATES.size(); looptarget++) {
-      assertEquals(sTarget1.getSensitivity().get(looptarget), sensiExpected[looptarget], TOLERANCE_SENSI);
+      assertThat(sTarget1.getSensitivity().get(looptarget)).isCloseTo(sensiExpected[looptarget], offset(TOLERANCE_SENSI));
     }
   }
 
+  @Test
   public void hard_coded_value_two_curves_one_date() {
     for (int loopdate = 0; loopdate < SENSITIVITY_DATES.size() - 1; loopdate++) {
       List<ParameterMetadata> pmdInput1 = new ArrayList<>();
@@ -177,26 +181,23 @@ public class CurveSensitivityUtilsTest {
           CurrencyParameterSensitivity.of(NAME_2, pmdInput2, CCY_2, DoubleArray.of(SENSITIVITY_AMOUNT));
       CurrencyParameterSensitivities sList = CurrencyParameterSensitivities.of(s1, s2);
       CurrencyParameterSensitivities sTarget = CurveSensitivityUtils.linearRebucketing(sList, TARGET_DATES);
-      assertTrue(sTarget.getSensitivities().size() == 2);
+      assertThat(sTarget.getSensitivities().size() == 2).isTrue();
       CurrencyParameterSensitivity sTarget1 = sTarget.getSensitivities().get(0);
-      assertTrue(sTarget1.getMarketDataName().equals(NAME_1));
-      assertTrue(sTarget1.getCurrency().equals(CCY_1));
-      assertTrue(sTarget1.getSensitivity().size() == TARGET_DATES.size());
-      assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate]),
-          WEIGHTS_HC[loopdate] * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
-      assertEquals(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate] + 1),
-          (1.0d - WEIGHTS_HC[loopdate]) * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
+      assertThat(sTarget1.getMarketDataName().equals(NAME_1)).isTrue();
+      assertThat(sTarget1.getCurrency().equals(CCY_1)).isTrue();
+      assertThat(sTarget1.getSensitivity().size() == TARGET_DATES.size()).isTrue();
+      assertThat(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate])).isCloseTo(WEIGHTS_HC[loopdate] * SENSITIVITY_AMOUNT, offset(TOLERANCE_SENSI));
+      assertThat(sTarget1.getSensitivity().get(WEIGHTS_START[loopdate] + 1)).isCloseTo((1.0d - WEIGHTS_HC[loopdate]) * SENSITIVITY_AMOUNT, offset(TOLERANCE_SENSI));
       CurrencyParameterSensitivity sTarget2 = sTarget.getSensitivities().get(1);
-      assertTrue(sTarget2.getMarketDataName().equals(NAME_2));
-      assertTrue(sTarget2.getCurrency().equals(CCY_2));
-      assertTrue(sTarget2.getSensitivity().size() == TARGET_DATES.size());
-      assertEquals(sTarget2.getSensitivity().get(WEIGHTS_START[loopdate + 1]),
-          WEIGHTS_HC[loopdate + 1] * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
-      assertEquals(sTarget2.getSensitivity().get(WEIGHTS_START[loopdate + 1] + 1),
-          (1.0d - WEIGHTS_HC[loopdate + 1]) * SENSITIVITY_AMOUNT, TOLERANCE_SENSI);
+      assertThat(sTarget2.getMarketDataName().equals(NAME_2)).isTrue();
+      assertThat(sTarget2.getCurrency().equals(CCY_2)).isTrue();
+      assertThat(sTarget2.getSensitivity().size() == TARGET_DATES.size()).isTrue();
+      assertThat(sTarget2.getSensitivity().get(WEIGHTS_START[loopdate + 1])).isCloseTo(WEIGHTS_HC[loopdate + 1] * SENSITIVITY_AMOUNT, offset(TOLERANCE_SENSI));
+      assertThat(sTarget2.getSensitivity().get(WEIGHTS_START[loopdate + 1] + 1)).isCloseTo((1.0d - WEIGHTS_HC[loopdate + 1]) * SENSITIVITY_AMOUNT, offset(TOLERANCE_SENSI));
     }
   }
 
+  @Test
   public void missing_metadata() {
     CurrencyParameterSensitivity s1 =
         CurrencyParameterSensitivity.of(NAME_1, CCY_1, DoubleArray.of(SENSITIVITY_AMOUNT));
@@ -208,6 +209,7 @@ public class CurveSensitivityUtilsTest {
         .isThrownBy(() -> CurveSensitivityUtils.linearRebucketing(s2, TARGET_DATES, sensitivityDate));
   }
 
+  @Test
   public void wrong_metadata() {
     List<ParameterMetadata> pmdInput = new ArrayList<>();
     pmdInput.add(TenorParameterMetadata.of(Tenor.TENOR_10M));

@@ -12,14 +12,15 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.PRECEDING;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ImmutableReferenceData;
@@ -54,7 +55,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test end to end for cross currency swaps.
  */
-@Test
 public class SwapCrossCurrencyEnd2EndTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard()
@@ -72,6 +72,7 @@ public class SwapCrossCurrencyEnd2EndTest {
 
   //-----------------------------------------------------------------------
   // XCcy swap with exchange of notional
+  @Test
   public void test_XCcyEur3MSpreadVsUSD3M() {
     SwapLeg payLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
@@ -133,11 +134,12 @@ public class SwapCrossCurrencyEnd2EndTest {
 
     DiscountingSwapTradePricer pricer = swapPricer();
     MultiCurrencyAmount pv = pricer.presentValue(trade, provider());
-    assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
-    assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
+    assertThat(pv.getAmount(USD).getAmount()).isCloseTo(pvUsdExpected, offset(TOLERANCE_PV));
+    assertThat(pv.getAmount(EUR).getAmount()).isCloseTo(pvEurExpected, offset(TOLERANCE_PV));
   }
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
+  @Test
   public void test_XCcyEur3MSpreadVsUSD3MFxReset() {
     //Test all possible combinations of exchange flags
     boolean[] allBoolean = {true, false};
@@ -154,6 +156,7 @@ public class SwapCrossCurrencyEnd2EndTest {
   }
 
   // XCcy swap with exchange of notional and FX Reset on the USD leg
+  @Test
   public void test_XCcyFixedInitialNotional() {
 
     DiscountingSwapTradePricer pricer = swapPricer();
@@ -176,8 +179,8 @@ public class SwapCrossCurrencyEnd2EndTest {
 
     //First coupon also uses fixed notional
     ExplainMap firstCoupon = fixedNotionalMtmLeg.get(ExplainKey.PAYMENT_PERIODS).get().get(0);
-    assertEquals(firstCoupon.get(ExplainKey.TRADE_NOTIONAL), Optional.of(fixedNotional));
-    assertEquals(firstCoupon.get(ExplainKey.NOTIONAL), Optional.of(fixedNotional));
+    assertThat(firstCoupon.get(ExplainKey.TRADE_NOTIONAL)).isEqualTo(Optional.of(fixedNotional));
+    assertThat(firstCoupon.get(ExplainKey.NOTIONAL)).isEqualTo(Optional.of(fixedNotional));
 
     //Sum of all pv amounts which are impacted by overriding the first period with a  fixed notional
     CurrencyAmount firstPaymentPv = firstPaymentEvent.get(ExplainKey.PRESENT_VALUE).get();
@@ -213,34 +216,32 @@ public class SwapCrossCurrencyEnd2EndTest {
     MultiCurrencyAmount noFixedNotionalLegPv = pricer.presentValue(noFixedNotionalMtmTrade, provider());
 
     //EUR PV should not have changed
-    assertEquals(
-        fixedNotionalLegPv.getAmount(Currency.EUR).getAmount(),
-        noFixedNotionalLegPv.getAmount(Currency.EUR).getAmount(),
-        TOLERANCE_PV);
+    assertThat(fixedNotionalLegPv.getAmount(Currency.EUR).getAmount()).isCloseTo(noFixedNotionalLegPv.getAmount(Currency.EUR).getAmount(), offset(TOLERANCE_PV));
 
     //Difference in USD PV should be equal the difference in PV of the three events impacted by the initial notional
     //All else should remain equal
     CurrencyAmount tradePvDifference =
         fixedNotionalLegPv.getAmount(Currency.USD).minus(noFixedNotionalLegPv.getAmount(Currency.USD));
-    assertEquals(tradePvDifference.getAmount(), paymentsPvDifference.getAmount(), TOLERANCE_PV);
+    assertThat(tradePvDifference.getAmount()).isCloseTo(paymentsPvDifference.getAmount(), offset(TOLERANCE_PV));
   }
 
   private void assertFixedNotionalPaymentEvent(ExplainMap paymentEvent, CurrencyAmount expectedNotional) {
 
-    assertEquals(paymentEvent.get(ExplainKey.TRADE_NOTIONAL), Optional.of(expectedNotional));
-    assertEquals(paymentEvent.get(ExplainKey.FORECAST_VALUE), Optional.of(expectedNotional));
+    assertThat(paymentEvent.get(ExplainKey.TRADE_NOTIONAL)).isEqualTo(Optional.of(expectedNotional));
+    assertThat(paymentEvent.get(ExplainKey.FORECAST_VALUE)).isEqualTo(Optional.of(expectedNotional));
     double firstDiscountFactor = paymentEvent.get(ExplainKey.DISCOUNT_FACTOR).get();
 
     //Fixed notional, so PV is notional * DCF
     CurrencyAmount expectedPv = expectedNotional.multipliedBy(firstDiscountFactor);
-    assertEquals(paymentEvent.get(ExplainKey.PRESENT_VALUE), Optional.of(expectedPv));
+    assertThat(paymentEvent.get(ExplainKey.PRESENT_VALUE)).isEqualTo(Optional.of(expectedPv));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "FxResetCalculation index EUR/USD-WM was specified but schedule does not include any notional exchanges")
+  @Test
   public void test_FxResetWithNoExchanges() {
     //specifying an FX reset with no exchanges throws an exception
-    test_XCcyEurUSDFxReset(false, false, false);
+    assertThatIllegalArgumentException()
+    .isThrownBy(() -> test_XCcyEurUSDFxReset(false, false, false))
+    .withMessage("FxResetCalculation index EUR/USD-WM was specified but schedule does not include any notional exchanges");
   }
 
   private void test_XCcyEurUSDFxReset(boolean initialExchange, boolean intermediateExchange, boolean finalExchange) {
@@ -276,8 +277,8 @@ public class SwapCrossCurrencyEnd2EndTest {
       ++eurExpectedPaymentEvents;
     }
 
-    assertEquals(pv.getAmount(USD).getAmount(), pvUsdExpected, TOLERANCE_PV);
-    assertEquals(pv.getAmount(EUR).getAmount(), pvEurExpected, TOLERANCE_PV);
+    assertThat(pv.getAmount(USD).getAmount()).isCloseTo(pvUsdExpected, offset(TOLERANCE_PV));
+    assertThat(pv.getAmount(EUR).getAmount()).isCloseTo(pvEurExpected, offset(TOLERANCE_PV));
 
     //Assert the payment event (exchange) count on each leg
     List<ExplainMap> legs = pricer.explainPresentValue(trade, provider()).get(ExplainKey.LEGS).get();

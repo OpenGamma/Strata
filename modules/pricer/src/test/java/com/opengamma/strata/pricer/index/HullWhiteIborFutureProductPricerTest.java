@@ -7,12 +7,12 @@ package com.opengamma.strata.pricer.index;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.index.ResolvedIborFuture;
 /**
  * Test {@link HullWhiteIborFutureProductPricer}.
  */
-@Test
 public class HullWhiteIborFutureProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -46,6 +45,7 @@ public class HullWhiteIborFutureProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(TOL_FD);
 
+  @Test
   public void test_price() {
     double computed = PRICER.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     LocalDate start = FUTURE.getIborRate().getObservation().getEffectiveDate();
@@ -54,30 +54,34 @@ public class HullWhiteIborFutureProductPricerTest {
     double convexity = HW_PROVIDER.futuresConvexityFactor(FUTURE.getLastTradeDate(), start, end);
     double forward = RATE_PROVIDER.iborIndexRates(EUR_EURIBOR_3M).rate(FUTURE.getIborRate().getObservation());
     double expected = 1d - convexity * forward + (1d - convexity) / fixingYearFraction;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_parRate() {
     double computed = PRICER.parRate(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     double price = PRICER.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(computed, 1d - price, TOL);
+    assertThat(computed).isCloseTo(1d - price, offset(TOL));
   }
 
+  @Test
   public void test_convexityAdjustment() {
     double computed = PRICER.convexityAdjustment(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     double priceHw = PRICER.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     double priceDsc = PRICER_DSC.price(FUTURE, RATE_PROVIDER); // no convexity adjustment
-    assertEquals(priceDsc + computed, priceHw, TOL);
+    assertThat(priceDsc + computed).isCloseTo(priceHw, offset(TOL));
   }
 
+  @Test
   public void test_priceSensitivity() {
     PointSensitivities point = PRICER.priceSensitivityRates(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> CurrencyAmount.of(EUR, PRICER.price(FUTURE, (p), HW_PROVIDER)));
-    assertTrue(computed.equalWithTolerance(expected, TOL_FD));
+    assertThat(computed.equalWithTolerance(expected, TOL_FD)).isTrue();
   }
 
+  @Test
   public void test_priceSensitivityHullWhiteParameter() {
     DoubleArray computed = PRICER.priceSensitivityModelParamsHullWhite(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     DoubleArray vols = HW_PROVIDER.getParameters().getVolatility();
@@ -102,25 +106,27 @@ public class HullWhiteIborFutureProductPricerTest {
       double priceDw = PRICER.price(FUTURE, RATE_PROVIDER, provDw);
       expected[i] = 0.5 * (priceUp - priceDw) / TOL_FD;
     }
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, TOL_FD));
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, TOL_FD)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void regression_value() {
     double price = PRICER.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(price, 0.9802338355115904, TOL);
+    assertThat(price).isCloseTo(0.9802338355115904, offset(TOL));
     double parRate = PRICER.parRate(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(parRate, 0.01976616448840962, TOL);
+    assertThat(parRate).isCloseTo(0.01976616448840962, offset(TOL));
     double adjustment = PRICER.convexityAdjustment(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(adjustment, -1.3766374738599652E-4, TOL);
+    assertThat(adjustment).isCloseTo(-1.3766374738599652E-4, offset(TOL));
   }
 
+  @Test
   public void regression_sensitivity() {
     PointSensitivities point = PRICER.priceSensitivityRates(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double[] expected = new double[] {0.0, 0.0, 0.9514709785770106, -1.9399920741192112, 0.0, 0.0, 0.0, 0.0 };
-    assertEquals(computed.size(), 1);
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD3_NAME, EUR)
-        .getSensitivity().toArray(), expected, TOL));
+    assertThat(computed.size()).isEqualTo(1);
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD3_NAME, EUR)
+        .getSensitivity().toArray(), expected, TOL)).isTrue();
   }
 }

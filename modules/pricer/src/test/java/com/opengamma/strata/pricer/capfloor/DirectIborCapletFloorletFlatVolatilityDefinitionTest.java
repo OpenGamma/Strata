@@ -19,12 +19,12 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.Period;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -38,7 +38,6 @@ import com.opengamma.strata.pricer.option.RawOptionData;
 /**
  * Test {@link DirectIborCapletFloorletFlatVolatilityDefinition}.
  */
-@Test
 public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
 
   private static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("test");
@@ -49,30 +48,33 @@ public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
   private static final RawOptionData SAMPLE_BLACK = RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, BLACK_VOLATILITY);
   private static final RawOptionData SAMPLE_NORMAL = RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, NORMAL_VOLATILITY);
 
+  @Test
   public void test_of() {
     DirectIborCapletFloorletFlatVolatilityDefinition test = DirectIborCapletFloorletFlatVolatilityDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), TIME_SQUARE);
-    assertEquals(test.getExtrapolatorLeft(), FLAT);
-    assertEquals(test.getExtrapolatorRight(), FLAT);
-    assertEquals(test.getLambda(), LAMBDA_EXPIRY);
-    assertEquals(test.getName(), NAME);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(TIME_SQUARE);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(FLAT);
+    assertThat(test.getLambda()).isEqualTo(LAMBDA_EXPIRY);
+    assertThat(test.getName()).isEqualTo(NAME);
   }
 
+  @Test
   public void test_of_shift() {
     DirectIborCapletFloorletFlatVolatilityDefinition test = DirectIborCapletFloorletFlatVolatilityDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE, LINEAR, INTERPOLATOR);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), TIME_SQUARE);
-    assertEquals(test.getExtrapolatorLeft(), LINEAR);
-    assertEquals(test.getExtrapolatorRight(), INTERPOLATOR);
-    assertEquals(test.getLambda(), LAMBDA_EXPIRY);
-    assertEquals(test.getName(), NAME);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(TIME_SQUARE);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(LINEAR);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(INTERPOLATOR);
+    assertThat(test.getLambda()).isEqualTo(LAMBDA_EXPIRY);
+    assertThat(test.getName()).isEqualTo(NAME);
   }
 
+  @Test
   public void test_builder() {
     DirectIborCapletFloorletFlatVolatilityDefinition test = DirectIborCapletFloorletFlatVolatilityDefinition.builder()
         .name(NAME)
@@ -83,26 +85,28 @@ public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
         .extrapolatorLeft(LINEAR)
         .extrapolatorRight(INTERPOLATOR)
         .build();
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), TIME_SQUARE);
-    assertEquals(test.getExtrapolatorLeft(), LINEAR);
-    assertEquals(test.getExtrapolatorRight(), INTERPOLATOR);
-    assertEquals(test.getLambda(), LAMBDA_EXPIRY);
-    assertEquals(test.getName(), NAME);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(TIME_SQUARE);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(LINEAR);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(INTERPOLATOR);
+    assertThat(test.getLambda()).isEqualTo(LAMBDA_EXPIRY);
+    assertThat(test.getName()).isEqualTo(NAME);
   }
 
+  @Test
   public void test_createMetadata() {
     DirectIborCapletFloorletFlatVolatilityDefinition base = DirectIborCapletFloorletFlatVolatilityDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE);
-    assertEquals(base.createCurveMetadata(SAMPLE_BLACK), Curves.blackVolatilityByExpiry(NAME.getName(), ACT_ACT_ISDA));
-    assertEquals(base.createCurveMetadata(SAMPLE_NORMAL), Curves.normalVolatilityByExpiry(NAME.getName(), ACT_ACT_ISDA));
+    assertThat(base.createCurveMetadata(SAMPLE_BLACK)).isEqualTo(Curves.blackVolatilityByExpiry(NAME.getName(), ACT_ACT_ISDA));
+    assertThat(base.createCurveMetadata(SAMPLE_NORMAL)).isEqualTo(Curves.normalVolatilityByExpiry(NAME.getName(), ACT_ACT_ISDA));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> base.createCurveMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> base.createMetadata(SAMPLE_NORMAL));
   }
 
+  @Test
   public void test_computePenaltyMatrix() {
     DirectIborCapletFloorletFlatVolatilityDefinition base = DirectIborCapletFloorletFlatVolatilityDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE);
@@ -110,13 +114,14 @@ public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
     DoubleMatrix computed = base.computePenaltyMatrix(expiries1);
     DoubleMatrix expected = PenaltyMatrixGenerator.getPenaltyMatrix(
         expiries1.toArray(), 2).multipliedBy(LAMBDA_EXPIRY);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
     DoubleArray expiries2 = DoubleArray.of(2d);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> base.computePenaltyMatrix(expiries2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DirectIborCapletFloorletFlatVolatilityDefinition test1 = DirectIborCapletFloorletFlatVolatilityDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE);
@@ -132,6 +137,7 @@ public class DirectIborCapletFloorletFlatVolatilityDefinitionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     DirectIborCapletFloorletFlatVolatilityDefinition test = DirectIborCapletFloorletFlatVolatilityDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LAMBDA_EXPIRY, TIME_SQUARE);

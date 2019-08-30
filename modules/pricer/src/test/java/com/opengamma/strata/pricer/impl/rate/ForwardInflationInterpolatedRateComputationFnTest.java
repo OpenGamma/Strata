@@ -8,14 +8,14 @@ package com.opengamma.strata.pricer.impl.rate;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPIX;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -35,7 +35,6 @@ import com.opengamma.strata.product.rate.InflationInterpolatedRateComputation;
 /**
  * Test {@link ForwardInflationInterpolatedRateComputationFn}.
  */
-@Test
 public class ForwardInflationInterpolatedRateComputationFnTest {
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -57,6 +56,7 @@ public class ForwardInflationInterpolatedRateComputationFnTest {
   private static final double EPS_FD = 1.0e-4;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rate() {
     ImmutableRatesProvider prov = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
 
@@ -66,39 +66,40 @@ public class ForwardInflationInterpolatedRateComputationFnTest {
 
     double rateExpected = (WEIGHT * RATE_END + (1.0 - WEIGHT) * RATE_END_INTERP) /
         (WEIGHT * RATE_START + (1.0 - WEIGHT) * RATE_START_INTERP) - 1.0;
-    assertEquals(obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov), rateExpected, EPS);
+    assertThat(obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov)).isCloseTo(rateExpected, offset(EPS));
 
     // explain
     ExplainMapBuilder builder = ExplainMap.builder();
-    assertEquals(obsFn.explainRate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov, builder), rateExpected, EPS);
+    assertThat(obsFn.explainRate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov, builder)).isCloseTo(rateExpected, offset(EPS));
 
     ExplainMap built = builder.build();
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), true);
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).get().size(), 4);
+    assertThat(built.get(ExplainKey.OBSERVATIONS)).isPresent();
+    assertThat(built.get(ExplainKey.OBSERVATIONS).get()).hasSize(4);
     ExplainMap explain0 = built.get(ExplainKey.OBSERVATIONS).get().get(0);
-    assertEquals(explain0.get(ExplainKey.FIXING_DATE), Optional.of(REF_START_MONTH.atEndOfMonth()));
-    assertEquals(explain0.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
-    assertEquals(explain0.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_START));
-    assertEquals(explain0.get(ExplainKey.WEIGHT), Optional.of(WEIGHT));
+    assertThat(explain0.get(ExplainKey.FIXING_DATE)).isEqualTo(Optional.of(REF_START_MONTH.atEndOfMonth()));
+    assertThat(explain0.get(ExplainKey.INDEX)).isEqualTo(Optional.of(GB_RPIX));
+    assertThat(explain0.get(ExplainKey.INDEX_VALUE)).isEqualTo(Optional.of(RATE_START));
+    assertThat(explain0.get(ExplainKey.WEIGHT)).isEqualTo(Optional.of(WEIGHT));
     ExplainMap explain1 = built.get(ExplainKey.OBSERVATIONS).get().get(1);
-    assertEquals(explain1.get(ExplainKey.FIXING_DATE), Optional.of(REF_START_MONTH_INTERP.atEndOfMonth()));
-    assertEquals(explain1.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
-    assertEquals(explain1.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_START_INTERP));
-    assertEquals(explain1.get(ExplainKey.WEIGHT), Optional.of(1d - WEIGHT));
+    assertThat(explain1.get(ExplainKey.FIXING_DATE)).isEqualTo(Optional.of(REF_START_MONTH_INTERP.atEndOfMonth()));
+    assertThat(explain1.get(ExplainKey.INDEX)).isEqualTo(Optional.of(GB_RPIX));
+    assertThat(explain1.get(ExplainKey.INDEX_VALUE)).isEqualTo(Optional.of(RATE_START_INTERP));
+    assertThat(explain1.get(ExplainKey.WEIGHT)).isEqualTo(Optional.of(1d - WEIGHT));
     ExplainMap explain2 = built.get(ExplainKey.OBSERVATIONS).get().get(2);
-    assertEquals(explain2.get(ExplainKey.FIXING_DATE), Optional.of(REF_END_MONTH.atEndOfMonth()));
-    assertEquals(explain2.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
-    assertEquals(explain2.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_END));
-    assertEquals(explain2.get(ExplainKey.WEIGHT), Optional.of(WEIGHT));
+    assertThat(explain2.get(ExplainKey.FIXING_DATE)).isEqualTo(Optional.of(REF_END_MONTH.atEndOfMonth()));
+    assertThat(explain2.get(ExplainKey.INDEX)).isEqualTo(Optional.of(GB_RPIX));
+    assertThat(explain2.get(ExplainKey.INDEX_VALUE)).isEqualTo(Optional.of(RATE_END));
+    assertThat(explain2.get(ExplainKey.WEIGHT)).isEqualTo(Optional.of(WEIGHT));
     ExplainMap explain3 = built.get(ExplainKey.OBSERVATIONS).get().get(3);
-    assertEquals(explain3.get(ExplainKey.FIXING_DATE), Optional.of(REF_END_MONTH_INTERP.atEndOfMonth()));
-    assertEquals(explain3.get(ExplainKey.INDEX), Optional.of(GB_RPIX));
-    assertEquals(explain3.get(ExplainKey.INDEX_VALUE), Optional.of(RATE_END_INTERP));
-    assertEquals(explain3.get(ExplainKey.WEIGHT), Optional.of(1d - WEIGHT));
-    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, EPS);
+    assertThat(explain3.get(ExplainKey.FIXING_DATE)).isEqualTo(Optional.of(REF_END_MONTH_INTERP.atEndOfMonth()));
+    assertThat(explain3.get(ExplainKey.INDEX)).isEqualTo(Optional.of(GB_RPIX));
+    assertThat(explain3.get(ExplainKey.INDEX_VALUE)).isEqualTo(Optional.of(RATE_END_INTERP));
+    assertThat(explain3.get(ExplainKey.WEIGHT)).isEqualTo(Optional.of(1d - WEIGHT));
+    assertThat(built.get(ExplainKey.COMBINED_RATE).get().doubleValue()).isCloseTo(rateExpected, offset(EPS));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rateSensitivity() {
     ImmutableRatesProvider prov = createProvider(RATE_START, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
     ImmutableRatesProvider provSrtUp = createProvider(RATE_START + EPS_FD, RATE_START_INTERP, RATE_END, RATE_END_INTERP);
@@ -136,7 +137,7 @@ public class ForwardInflationInterpolatedRateComputationFnTest {
 
     PointSensitivityBuilder sensiComputed =
         obsFn.rateSensitivity(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, prov);
-    assertTrue(sensiComputed.build().normalized().equalWithTolerance(sensiExpected.build().normalized(), EPS_FD));
+    assertThat(sensiComputed.build().normalized().equalWithTolerance(sensiExpected.build().normalized(), EPS_FD)).isTrue();
   }
 
   private ImmutableRatesProvider createProvider(

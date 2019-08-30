@@ -11,12 +11,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -25,7 +23,6 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
 /**
  * Test {@link FxOptionSensitivity}.
  */
-@Test
 public class FxOptionSensitivityTest {
 
   private static final double EXPIRY = 2d;
@@ -36,41 +33,45 @@ public class FxOptionSensitivityTest {
   private static final FxOptionVolatilitiesName NAME = FxOptionVolatilitiesName.of("Test");
   private static final FxOptionVolatilitiesName NAME2 = FxOptionVolatilitiesName.of("Test2");
 
+  @Test
   public void test_of() {
     FxOptionSensitivity test = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiry(), EXPIRY);
-    assertEquals(test.getForward(), FORWARD);
-    assertEquals(test.getCurrencyPair(), PAIR);
-    assertEquals(test.getSensitivity(), SENSI_VALUE);
-    assertEquals(test.getStrike(), STRIKE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getExpiry()).isEqualTo(EXPIRY);
+    assertThat(test.getForward()).isEqualTo(FORWARD);
+    assertThat(test.getCurrencyPair()).isEqualTo(PAIR);
+    assertThat(test.getSensitivity()).isEqualTo(SENSI_VALUE);
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
   }
 
+  @Test
   public void test_withCurrency() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     FxOptionSensitivity test1 = base.withCurrency(EUR);
-    assertEquals(test1.getCurrency(), EUR);
-    assertEquals(test1.getExpiry(), EXPIRY);
-    assertEquals(test1.getForward(), FORWARD);
-    assertEquals(test1.getCurrencyPair(), PAIR);
-    assertEquals(test1.getSensitivity(), SENSI_VALUE);
-    assertEquals(test1.getStrike(), STRIKE);
+    assertThat(test1.getCurrency()).isEqualTo(EUR);
+    assertThat(test1.getExpiry()).isEqualTo(EXPIRY);
+    assertThat(test1.getForward()).isEqualTo(FORWARD);
+    assertThat(test1.getCurrencyPair()).isEqualTo(PAIR);
+    assertThat(test1.getSensitivity()).isEqualTo(SENSI_VALUE);
+    assertThat(test1.getStrike()).isEqualTo(STRIKE);
     FxOptionSensitivity test2 = base.withCurrency(GBP);
-    assertEquals(test2, base);
+    assertThat(test2).isEqualTo(base);
   }
 
+  @Test
   public void test_withSensitivity() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     double newSensi = 22.5;
     FxOptionSensitivity test = base.withSensitivity(newSensi);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiry(), EXPIRY);
-    assertEquals(test.getForward(), FORWARD);
-    assertEquals(test.getCurrencyPair(), PAIR);
-    assertEquals(test.getSensitivity(), newSensi);
-    assertEquals(test.getStrike(), STRIKE);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getExpiry()).isEqualTo(EXPIRY);
+    assertThat(test.getForward()).isEqualTo(FORWARD);
+    assertThat(test.getCurrencyPair()).isEqualTo(PAIR);
+    assertThat(test.getSensitivity()).isEqualTo(newSensi);
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
   }
 
+  @Test
   public void test_compareExcludingSensitivity() {
     FxOptionSensitivity a1 = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     FxOptionSensitivity a2 = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
@@ -81,64 +82,71 @@ public class FxOptionSensitivityTest {
     FxOptionSensitivity e = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, 0.81, GBP, SENSI_VALUE);
     FxOptionSensitivity f = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, EUR, SENSI_VALUE);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
-    assertEquals(a1.compareKey(a2), 0);
-    assertEquals(a1.compareKey(b) < 0, true);
-    assertEquals(b.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(c) < 0, true);
-    assertEquals(c.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(d) < 0, true);
-    assertEquals(d.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(e) < 0, true);
-    assertEquals(e.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(f) > 0, true);
-    assertEquals(f.compareKey(a1) < 0, true);
-    assertEquals(a1.compareKey(other) < 0, true);
-    assertEquals(other.compareKey(a1) > 0, true);
+    assertThat(a1.compareKey(a2)).isEqualTo(0);
+    assertThat(a1.compareKey(b) < 0).isTrue();
+    assertThat(b.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(c) < 0).isTrue();
+    assertThat(c.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(d) < 0).isTrue();
+    assertThat(d.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(e) < 0).isTrue();
+    assertThat(e.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(f) > 0).isTrue();
+    assertThat(f.compareKey(a1) < 0).isTrue();
+    assertThat(a1.compareKey(other) < 0).isTrue();
+    assertThat(other.compareKey(a1) > 0).isTrue();
   }
 
+  @Test
   public void test_multipliedBy() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     double factor = 5.2d;
     FxOptionSensitivity expected = FxOptionSensitivity.of(
         NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE * factor);
     FxOptionSensitivity test = base.multipliedBy(factor);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_mapSensitivity() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     FxOptionSensitivity expected = FxOptionSensitivity.of(
         NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, 1.0 / SENSI_VALUE);
     FxOptionSensitivity test = base.mapSensitivity(s -> 1 / s);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_normalize() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     FxOptionSensitivity test = base.normalize();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
+  @Test
   public void test_buildInto() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
-    assertSame(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test).isSameAs(combo);
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
+  @Test
   public void test_build() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     PointSensitivities test = base.build();
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
+  @Test
   public void test_cloned() {
     FxOptionSensitivity base = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     FxOptionSensitivity test = base.cloned();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
+  @Test
   public void coverage() {
     FxOptionSensitivity test1 = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     coverImmutableBean(test1);
@@ -146,6 +154,7 @@ public class FxOptionSensitivityTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxOptionSensitivity test = FxOptionSensitivity.of(NAME, PAIR, EXPIRY, STRIKE, FORWARD, GBP, SENSI_VALUE);
     assertSerialization(test);

@@ -12,7 +12,8 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -384,7 +385,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       double[] expected =
           builder.getAccrualOnDefaultFormula() == AccrualOnDefaultFormula.MARKIT_FIX ? EXP_PROB_MARKIT_FIX[i] : EXP_PROB_ISDA[i];
       for (int k = 0; k < N_OBS; k++) {
-        assertEquals(creditCurve.getSurvivalProbabilities().discountFactor(OBS_TIMES[k]), expected[k], tol);
+        assertThat(creditCurve.getSurvivalProbabilities().discountFactor(OBS_TIMES[k])).isCloseTo(expected[k], offset(tol));
       }
       int m = expectedCds.length;
       for (int j = 0; j < m; j++) {
@@ -392,7 +393,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
             .trade(1d, CDS_MARKET_DATA[i], REF_DATA)
             .getUnderlyingTrade()
             .resolve(REF_DATA);
-        assertEquals(cdsFromNode.getProduct(), expectedCds[j].getProduct());
+        assertThat(cdsFromNode.getProduct()).isEqualTo(expectedCds[j].getProduct());
         double price1 = pricer.price(
             cdsFromNode.getProduct(),
             provider,
@@ -400,7 +401,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
             cdsFromNode.getInfo().getSettlementDate().get(),
             PriceType.CLEAN,
             REF_DATA);
-        assertEquals(price1, 0.0, 5e-16);
+        assertThat(price1).isCloseTo(0.0, offset(5e-16));
       }
     }
   }
@@ -441,7 +442,7 @@ public class IsdaCompliantCreditCurveCalibratorBase {
       for (int j = 0; j < nNode; ++j) {
         double computed = df.getCurve().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix().get(j, i);
         double expected = 0.5 * (ccUp.getCurve().getYValues().get(j) - ccDw.getCurve().getYValues().get(j)) / eps;
-        assertEquals(computed, expected, eps * 10d);
+        assertThat(computed).isCloseTo(expected, offset(eps * 10d));
       }
     }
   }

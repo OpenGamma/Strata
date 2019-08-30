@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.impl.rate;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCounts;
@@ -36,7 +36,6 @@ import com.opengamma.strata.product.rate.OvernightAveragedDailyRateComputation;
 /**
  * Test {@link ForwardOvernightAveragedDailyRateComputationFn}.
  */
-@Test
 public class ForwardOvernightAveragedDailyRateComputationFnTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -84,6 +83,7 @@ public class ForwardOvernightAveragedDailyRateComputationFnTest {
 
   private static final double TOL = 1.0e-14;
 
+  @Test
   public void test_before() {
     LocalDate startDate = date(2018, 2, 1);
     LocalDate endDate = date(2018, 2, 28);
@@ -110,12 +110,13 @@ public class ForwardOvernightAveragedDailyRateComputationFnTest {
     double nDays = 28d;
     expectedRate /= nDays;
     sensiExpected = sensiExpected.multipliedBy(1d / nDays);
-    assertEquals(computedRate, expectedRate, TOL);
-    assertTrue(sensiComputed.build().equalWithTolerance(sensiExpected.build(), TOL));
-    assertEquals(explainRate, computedRate, TOL);
-    assertEquals(builder.build().get(ExplainKey.COMBINED_RATE).get(), expectedRate, TOL);
+    assertThat(computedRate).isCloseTo(expectedRate, offset(TOL));
+    assertThat(sensiComputed.build().equalWithTolerance(sensiExpected.build(), TOL)).isTrue();
+    assertThat(explainRate).isCloseTo(computedRate, offset(TOL));
+    assertThat(builder.build().get(ExplainKey.COMBINED_RATE).get()).isCloseTo(expectedRate, offset(TOL));
   }
 
+  @Test
   public void test_between() {
     LocalDate startDate = date(2018, 3, 1);
     LocalDate endDate = date(2018, 3, 31);
@@ -142,12 +143,13 @@ public class ForwardOvernightAveragedDailyRateComputationFnTest {
     double nDays = 31d;
     expectedRate /= nDays;
     sensiExpected = sensiExpected.multipliedBy(1d / nDays);
-    assertEquals(computedRate, expectedRate, TOL);
-    assertTrue(sensiComputed.build().equalWithTolerance(sensiExpected.build(), TOL));
-    assertEquals(explainRate, computedRate, TOL);
-    assertEquals(builder.build().get(ExplainKey.COMBINED_RATE).get(), expectedRate, TOL);
+    assertThat(computedRate).isCloseTo(expectedRate, offset(TOL));
+    assertThat(sensiComputed.build().equalWithTolerance(sensiExpected.build(), TOL)).isTrue();
+    assertThat(explainRate).isCloseTo(computedRate, offset(TOL));
+    assertThat(builder.build().get(ExplainKey.COMBINED_RATE).get()).isCloseTo(expectedRate, offset(TOL));
   }
 
+  @Test
   public void test_after_regression() {
     LocalDate startDate = date(2018, 3, 1);
     LocalDate endDate = date(2018, 3, 31);
@@ -156,8 +158,8 @@ public class ForwardOvernightAveragedDailyRateComputationFnTest {
     ImmutableRatesProvider rates = getRatesProvider(date(2018, 4, 28));
     double computed = FUNCTION.rate(cmp, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, rates);
     double expected = 0.0150612903225806;
-    assertEquals(computed, expected, TOL);
-    assertEquals(FUNCTION.rateSensitivity(cmp, startDate, endDate, rates), PointSensitivityBuilder.none());
+    assertThat(computed).isCloseTo(expected, offset(TOL));
+    assertThat(FUNCTION.rateSensitivity(cmp, startDate, endDate, rates)).isEqualTo(PointSensitivityBuilder.none());
   }
 
   private static ImmutableRatesProvider getRatesProvider(LocalDate valuationDate) {

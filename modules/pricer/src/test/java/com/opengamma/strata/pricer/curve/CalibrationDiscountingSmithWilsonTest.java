@@ -9,7 +9,8 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GBP_FIXED_6M_LIBOR_6M;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -21,7 +22,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -35,13 +36,13 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.ParameterizedFunctionalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.node.FixedIborSwapCurveNode;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.math.impl.interpolation.SmithWilsonCurveFunction;
@@ -55,7 +56,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 /**
  * Curve calibration example with {@link SmithWilsonCurveFunction}.
  */
-@Test
 public class CalibrationDiscountingSmithWilsonTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
@@ -201,6 +201,7 @@ public class CalibrationDiscountingSmithWilsonTest {
   private static final double ONE_PC = 1.0e-2;
 
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_test() {
     RatesProvider result2 = CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA);
     // pv test
@@ -211,7 +212,7 @@ public class CalibrationDiscountingSmithWilsonTest {
     }
     for (int i = 0; i < FWD6_NB_NODES; i++) {
       MultiCurrencyAmount pvIrs2 = SWAP_PRICER.presentValue(((ResolvedSwapTrade) fwd3Trades.get(i)).getProduct(), result2);
-      assertEquals(pvIrs2.getAmount(GBP).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs2.getAmount(GBP).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // regression test for curve
     DiscountFactors dsc = result2.discountFactors(GBP);
@@ -221,9 +222,9 @@ public class CalibrationDiscountingSmithWilsonTest {
       double curDsc = dsc.discountFactor(time);
       if (i > 59) {
         double fwd = prevDsc / curDsc - 1d;
-        assertEquals(fwd, 0.042, 2d * ONE_BP);
+        assertThat(fwd).isCloseTo(0.042, offset(2d * ONE_BP));
       }
-      assertEquals(curDsc, DSC_EXP.get(i), ONE_PC);
+      assertThat(curDsc).isCloseTo(DSC_EXP.get(i), offset(ONE_PC));
       prevDsc = curDsc;
     }
   }

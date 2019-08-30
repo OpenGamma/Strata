@@ -7,7 +7,8 @@ package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -15,7 +16,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.BitSet;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -32,7 +33,6 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Tests {@link SabrSwaptionCalibrator} with single smile.
  */
-@Test
 public class SabrSwaptionCalibratorSmileTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -67,6 +67,7 @@ public class SabrSwaptionCalibratorSmileTest {
   private static final double TOLERANCE_PRICE_CALIBRATION_LS = 1.0E-4; // Calibration Least Square; result not exact
   private static final double TOLERANCE_PRICE_CALIBRATION_EX = 1.0E-6; // With 3 points, calibration should be almost exact
 
+  @Test
   public void calibrate_smile_normal_beta_fixed_5() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
@@ -76,6 +77,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationNormal(MONEYNESS_5, VOLATILITY_NORMAL_5, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_LS);
   }
 
+  @Test
   public void calibrate_smile_normal_beta_fixed_3() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
@@ -85,6 +87,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationNormal(MONEYNESS_3, VOLATILITY_NORMAL_3, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_EX);
   }
 
+  @Test
   public void calibrate_smile_normal_rho_fixed_5() {
     double rho = 0.25;
     double shift = 0.0100; // 100 bps
@@ -94,6 +97,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationNormal(MONEYNESS_5, VOLATILITY_NORMAL_5, startParameters, fixed, shift, 20 * TOLERANCE_PRICE_CALIBRATION_LS);
   }
 
+  @Test
   public void calibrate_smile_black_no_shift_beta_fixed_5() {
     double beta = 0.50;
     DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
@@ -102,6 +106,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationBlack(MONEYNESS_5, VOLATILITY_BLACK_5, startParameters, fixed, 0.0, TOLERANCE_PRICE_CALIBRATION_LS);
   }
 
+  @Test
   public void calibrate_smile_black_no_shift_beta_fixed_3() {
     double beta = 0.50;
     DoubleArray startParameters = DoubleArray.of(0.05, beta, 0.0, 0.1);
@@ -110,6 +115,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationBlack(MONEYNESS_3, VOLATILITY_BLACK_3, startParameters, fixed, 0.0, TOLERANCE_PRICE_CALIBRATION_EX);
   }
 
+  @Test
   public void calibrate_smile_price_beta_fixed_5() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
@@ -119,6 +125,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationPrice(MONEYNESS_5, VOLATILITY_BLACK_5, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_LS);
   }
 
+  @Test
   public void calibrate_smile_price_beta_fixed_3() {
     double beta = 0.50;
     double shift = 0.0100; // 100 bps
@@ -128,6 +135,7 @@ public class SabrSwaptionCalibratorSmileTest {
     checkCalibrationPrice(MONEYNESS_3, VOLATILITY_BLACK_3, startParameters, fixed, shift, TOLERANCE_PRICE_CALIBRATION_EX);
   }
 
+  @Test
   public void calibrate_smile_price_rho_fixed_5() {
     double rho = 0.25;
     double shift = 0.0100; // 100 bps
@@ -161,7 +169,7 @@ public class SabrSwaptionCalibratorSmileTest {
           TIME_EXPIRY, ivComputed, true);
       double priceNormal = NormalFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i),
           TIME_EXPIRY, normalVol.get(i), PutCall.CALL);
-      assertEquals(priceComputed, priceNormal, tolerance);
+      assertThat(priceComputed).isCloseTo(priceNormal, offset(tolerance));
     }
   }
 
@@ -189,7 +197,7 @@ public class SabrSwaptionCalibratorSmileTest {
           TIME_EXPIRY, ivComputed, true);
       double priceBlack = BlackFormulaRepository.price(FORWARD, FORWARD + moneyness.get(i),
           TIME_EXPIRY, blackVol.get(i), true);
-      assertEquals(priceComputed, priceBlack, tolerance);
+      assertThat(priceComputed).isCloseTo(priceBlack, offset(tolerance));
 //      System.out.println("Black: " + priceComputed + " / " + priceBlack);
     }
   }
@@ -222,7 +230,7 @@ public class SabrSwaptionCalibratorSmileTest {
           sabrComputed.getNu());
       double priceComputed = BlackFormulaRepository.price(FORWARD + shift, FORWARD + moneyness.get(i) + shift,
           TIME_EXPIRY, ivComputed, true);
-      assertEquals(priceComputed, prices[i], tolerance);
+      assertThat(priceComputed).isCloseTo(prices[i], offset(tolerance));
     }
   }
 

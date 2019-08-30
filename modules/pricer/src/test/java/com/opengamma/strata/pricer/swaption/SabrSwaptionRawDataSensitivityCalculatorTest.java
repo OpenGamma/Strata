@@ -21,7 +21,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -40,8 +40,8 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -65,7 +65,6 @@ import com.opengamma.strata.product.swap.SwapIndices;
 /**
  * Tests {@link SabrSwaptionRawDataSensitivityCalculator}.
  */
-@Test
 public class SabrSwaptionRawDataSensitivityCalculatorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -155,6 +154,7 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
    * Compare the AD version of the sensitivity to a finite difference parallel bump of the smile.
    * Full data set, no missing data.
    */
+  @Test
   public void presentValueSensitivityRawDataParallelSensitivity_full() {
     presentValueSensitivityRawDataParallelSensitivity(SABR_CALIBRATED_FULL, DATA_RAW_FULL);
   }
@@ -163,6 +163,7 @@ public class SabrSwaptionRawDataSensitivityCalculatorTest {
    * Compare the AD version of the sensitivity to a finite difference parallel bump of the smile.
    * Sparse data set, some raw data are missing in some smiles.
    */
+  @Test
   public void presentValueSensitivityRawDataParallelSensitivity_sparse() {
     presentValueSensitivityRawDataParallelSensitivity(SABR_CALIBRATED_SPARSE, DATA_RAW_SPARSE);
   }

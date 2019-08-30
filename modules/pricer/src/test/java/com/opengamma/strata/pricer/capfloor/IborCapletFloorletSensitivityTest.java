@@ -10,12 +10,10 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
@@ -25,7 +23,6 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
 /**
  * Test {@link IborCapletFloorletSensitivity}.
  */
-@Test
 public class IborCapletFloorletSensitivityTest {
 
   private static final double EXPIRY = 1d;
@@ -35,28 +32,31 @@ public class IborCapletFloorletSensitivityTest {
   private static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("Test");
   private static final IborCapletFloorletVolatilitiesName NAME2 = IborCapletFloorletVolatilitiesName.of("Test2");
 
+  @Test
   public void test_of() {
     IborCapletFloorletSensitivity test =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
-    assertEquals(test.getVolatilitiesName(), NAME);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiry(), EXPIRY);
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getForward(), FORWARD);
-    assertEquals(test.getSensitivity(), SENSITIVITY);
+    assertThat(test.getVolatilitiesName()).isEqualTo(NAME);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getExpiry()).isEqualTo(EXPIRY);
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getForward()).isEqualTo(FORWARD);
+    assertThat(test.getSensitivity()).isEqualTo(SENSITIVITY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withCurrency() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
     IborCapletFloorletSensitivity expected =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, USD, SENSITIVITY);
     IborCapletFloorletSensitivity test = base.withCurrency(USD);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withSensitivity() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
@@ -64,10 +64,11 @@ public class IborCapletFloorletSensitivityTest {
     IborCapletFloorletSensitivity expected =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, sensi);
     IborCapletFloorletSensitivity test = base.withSensitivity(sensi);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareKey() {
     IborCapletFloorletSensitivity a1 =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
@@ -84,22 +85,23 @@ public class IborCapletFloorletSensitivityTest {
     IborCapletFloorletSensitivity f =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, USD, SENSITIVITY);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
-    assertEquals(a1.compareKey(a2), 0);
-    assertEquals(a1.compareKey(b) < 0, true);
-    assertEquals(b.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(c) < 0, true);
-    assertEquals(c.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(d) < 0, true);
-    assertEquals(d.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(e) > 0, true);
-    assertEquals(e.compareKey(a1) < 0, true);
-    assertEquals(a1.compareKey(f) < 0, true);
-    assertEquals(f.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(other) < 0, true);
-    assertEquals(other.compareKey(a1) > 0, true);
+    assertThat(a1.compareKey(a2)).isEqualTo(0);
+    assertThat(a1.compareKey(b) < 0).isTrue();
+    assertThat(b.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(c) < 0).isTrue();
+    assertThat(c.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(d) < 0).isTrue();
+    assertThat(d.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(e) > 0).isTrue();
+    assertThat(e.compareKey(a1) < 0).isTrue();
+    assertThat(a1.compareKey(f) < 0).isTrue();
+    assertThat(f.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(other) < 0).isTrue();
+    assertThat(other.compareKey(a1) > 0).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
@@ -108,12 +110,13 @@ public class IborCapletFloorletSensitivityTest {
     IborCapletFloorletSensitivity test1 = base.convertedTo(USD, matrix);
     IborCapletFloorletSensitivity expected =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, USD, SENSITIVITY * rate);
-    assertEquals(test1, expected);
+    assertThat(test1).isEqualTo(expected);
     IborCapletFloorletSensitivity test2 = base.convertedTo(GBP, matrix);
-    assertEquals(test2, base);
+    assertThat(test2).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
@@ -121,54 +124,60 @@ public class IborCapletFloorletSensitivityTest {
     IborCapletFloorletSensitivity expected =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY * factor);
     IborCapletFloorletSensitivity test = base.multipliedBy(3.5d);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapSensitivity() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
     IborCapletFloorletSensitivity expected =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, 1d / SENSITIVITY);
     IborCapletFloorletSensitivity test = base.mapSensitivity(s -> 1 / s);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalize() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
     IborCapletFloorletSensitivity test = base.normalize();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_buildInto() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
-    assertSame(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test).isSameAs(combo);
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_build() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
     PointSensitivities test = base.build();
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cloned() {
     IborCapletFloorletSensitivity base =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
     IborCapletFloorletSensitivity test = base.cloned();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborCapletFloorletSensitivity test1 =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);
@@ -178,6 +187,7 @@ public class IborCapletFloorletSensitivityTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborCapletFloorletSensitivity test =
         IborCapletFloorletSensitivity.of(NAME, EXPIRY, STRIKE, FORWARD, GBP, SENSITIVITY);

@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -21,7 +21,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 /**
  * Test {@link DiscountingFxSwapProductPricer}.
  */
-@Test
 public class DiscountingFxSwapTradePricerTest {
 
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
@@ -41,40 +40,34 @@ public class DiscountingFxSwapTradePricerTest {
   private static final DiscountingFxSwapTradePricer TRADE_PRICER = DiscountingFxSwapTradePricer.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
-    assertEquals(
-        TRADE_PRICER.presentValue(TRADE, PROVIDER),
-        PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.presentValue(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
-    assertEquals(
-        TRADE_PRICER.presentValueSensitivity(TRADE, PROVIDER),
-        PRODUCT_PRICER.presentValueSensitivity(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.presentValueSensitivity(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.presentValueSensitivity(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_parSpread() {
-    assertEquals(
-        TRADE_PRICER.parSpread(TRADE, PROVIDER),
-        PRODUCT_PRICER.parSpread(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.parSpread(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.parSpread(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_parSpreadSensitivity() {
-    assertEquals(
-        TRADE_PRICER.parSpreadSensitivity(TRADE, PROVIDER),
-        PRODUCT_PRICER.parSpreadSensitivity(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.parSpreadSensitivity(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.parSpreadSensitivity(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_currencyExposure() {
-    assertEquals(
-        TRADE_PRICER.currencyExposure(TRADE, PROVIDER),
-        PRODUCT_PRICER.currencyExposure(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.currencyExposure(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.currencyExposure(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_currentCash() {
-    assertEquals(
-        TRADE_PRICER.currentCash(TRADE, PROVIDER),
-        PRODUCT_PRICER.currentCash(PRODUCT, PROVIDER.getValuationDate()));
+    assertThat(TRADE_PRICER.currentCash(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.currentCash(PRODUCT, PROVIDER.getValuationDate()));
   }
 
 }

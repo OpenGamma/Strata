@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.pricer.impl.volatility.smile.SabrFormulaData;
@@ -19,7 +19,6 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link SabrExtrapolationRightFunction}.
  */
-@Test
 public class SabrExtrapolationRightFunctionTest {
 
   private static final double NU = 0.50;
@@ -39,18 +38,20 @@ public class SabrExtrapolationRightFunctionTest {
   /**
    * Tests getter.
    */
+  @Test
   public void getter() {
     SabrExtrapolationRightFunction func = SabrExtrapolationRightFunction.of(
         FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU, SabrHaganVolatilityFunctionProvider.DEFAULT);
-    assertEquals(func.getCutOffStrike(), CUT_OFF_STRIKE);
-    assertEquals(func.getMu(), MU);
-    assertEquals(func.getSabrData(), SABR_DATA);
-    assertEquals(func.getTimeToExpiry(), TIME_TO_EXPIRY);
+    assertThat(func.getCutOffStrike()).isEqualTo(CUT_OFF_STRIKE);
+    assertThat(func.getMu()).isEqualTo(MU);
+    assertThat(func.getSabrData()).isEqualTo(SABR_DATA);
+    assertThat(func.getTimeToExpiry()).isEqualTo(TIME_TO_EXPIRY);
   }
 
   /**
    * Tests the price for options in SABR model with extrapolation.
    */
+  @Test
   public void price() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -58,19 +59,20 @@ public class SabrExtrapolationRightFunctionTest {
     double volatilityIn = SABR_FUNCTION.volatility(FORWARD, strikeIn, TIME_TO_EXPIRY, SABR_DATA);
     double priceExpectedIn = BlackFormulaRepository.price(FORWARD, strikeIn, TIME_TO_EXPIRY, volatilityIn, true);
     double priceIn = SABR_EXTRAPOLATION.price(strikeIn, PutCall.CALL);
-    assertEquals(priceExpectedIn, priceIn, TOLERANCE_PRICE);
+    assertThat(priceExpectedIn).isCloseTo(priceIn, offset(TOLERANCE_PRICE));
     double volatilityAt = SABR_FUNCTION.volatility(FORWARD, strikeAt, TIME_TO_EXPIRY, SABR_DATA);
     double priceExpectedAt = BlackFormulaRepository.price(FORWARD, strikeAt, TIME_TO_EXPIRY, volatilityAt, true);
     double priceAt = SABR_EXTRAPOLATION.price(strikeAt, PutCall.CALL);
-    assertEquals(priceExpectedAt, priceAt, TOLERANCE_PRICE);
+    assertThat(priceExpectedAt).isCloseTo(priceAt, offset(TOLERANCE_PRICE));
     double priceOut = SABR_EXTRAPOLATION.price(strikeOut, PutCall.CALL);
     double priceExpectedOut = 5.427104E-5; // From previous run
-    assertEquals(priceExpectedOut, priceOut, TOLERANCE_PRICE);
+    assertThat(priceExpectedOut).isCloseTo(priceOut, offset(TOLERANCE_PRICE));
   }
 
   /**
    * Tests the price for options in SABR model with extrapolation.
    */
+  @Test
   public void priceCloseToExpiry() {
     double[] timeToExpiry = {1.0 / 365, 0.0}; // One day and on expiry day.
     double strikeIn = 0.08;
@@ -82,20 +84,21 @@ public class SabrExtrapolationRightFunctionTest {
       double volatilityIn = SABR_FUNCTION.volatility(FORWARD, strikeIn, timeToExpiry[loopexp], SABR_DATA);
       double priceExpectedIn = BlackFormulaRepository.price(FORWARD, strikeIn, timeToExpiry[loopexp], volatilityIn, true);
       double priceIn = sabrExtra.price(strikeIn, PutCall.CALL);
-      assertEquals(priceExpectedIn, priceIn, TOLERANCE_PRICE);
+      assertThat(priceExpectedIn).isCloseTo(priceIn, offset(TOLERANCE_PRICE));
       double volatilityAt = SABR_FUNCTION.volatility(FORWARD, strikeAt, timeToExpiry[loopexp], SABR_DATA);
       double priceExpectedAt = BlackFormulaRepository.price(FORWARD, strikeAt, timeToExpiry[loopexp], volatilityAt, true);
       double priceAt = sabrExtra.price(strikeAt, PutCall.CALL);
-      assertEquals(priceExpectedAt, priceAt, TOLERANCE_PRICE);
+      assertThat(priceExpectedAt).isCloseTo(priceAt, offset(TOLERANCE_PRICE));
       double priceOut = sabrExtra.price(strikeOut, PutCall.CALL);
       double priceExpectedOut = 0.0; // From previous run
-      assertEquals(priceExpectedOut, priceOut, TOLERANCE_PRICE);
+      assertThat(priceExpectedOut).isCloseTo(priceOut, offset(TOLERANCE_PRICE));
     }
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
+  @Test
   public void priceDerivativeForwardCall() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -112,13 +115,13 @@ public class SabrExtrapolationRightFunctionTest {
     double priceInFP = sabrExtrapolationFP.price(optionIn.getStrike(), optionIn.getPutCall());
     double priceInDF = SABR_EXTRAPOLATION.priceDerivativeForward(optionIn.getStrike(), optionIn.getPutCall());
     double priceInDFExpected = (priceInFP - priceIn) / shiftF;
-    assertEquals(priceInDFExpected, priceInDF, 1E-5);
+    assertThat(priceInDFExpected).isCloseTo(priceInDF, offset(1E-5));
     // At cut-off strike
     double priceAt = SABR_EXTRAPOLATION.price(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtFP = sabrExtrapolationFP.price(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtDF = SABR_EXTRAPOLATION.priceDerivativeForward(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtDFExpected = (priceAtFP - priceAt) / shiftF;
-    assertEquals(priceAtDFExpected, priceAtDF, 1E-6);
+    assertThat(priceAtDFExpected).isCloseTo(priceAtDF, offset(1E-6));
     // Above cut-off strike
     double[] abc = SABR_EXTRAPOLATION.getParameter();
     double[] abcDF = SABR_EXTRAPOLATION.getParameterDerivativeForward();
@@ -126,18 +129,19 @@ public class SabrExtrapolationRightFunctionTest {
     double[] abcDFExpected = new double[3];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       abcDFExpected[loopparam] = (abcFP[loopparam] - abc[loopparam]) / shiftF;
-      assertEquals(1.0, abcDFExpected[loopparam] / abcDF[loopparam], 5E-2);
+      assertThat(1.0).isCloseTo(abcDFExpected[loopparam] / abcDF[loopparam], offset(5E-2));
     }
     double priceOut = SABR_EXTRAPOLATION.price(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutFP = sabrExtrapolationFP.price(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutDF = SABR_EXTRAPOLATION.priceDerivativeForward(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutDFExpected = (priceOutFP - priceOut) / shiftF;
-    assertEquals(priceOutDFExpected, priceOutDF, 1E-5);
+    assertThat(priceOutDFExpected).isCloseTo(priceOutDF, offset(1E-5));
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
+  @Test
   public void priceDerivativeForwardPut() {
     SabrExtrapolationRightFunction func = SabrExtrapolationRightFunction.of(
         FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU, SabrHaganVolatilityFunctionProvider.DEFAULT);
@@ -156,32 +160,33 @@ public class SabrExtrapolationRightFunctionTest {
     double priceInFP = sabrExtrapolationFP.price(optionIn.getStrike(), optionIn.getPutCall());
     double priceInDF = func.priceDerivativeForward(optionIn.getStrike(), optionIn.getPutCall());
     double priceInDFExpected = (priceInFP - priceIn) / shiftF;
-    assertEquals(priceInDFExpected, priceInDF, 1E-5);
+    assertThat(priceInDFExpected).isCloseTo(priceInDF, offset(1E-5));
     // At cut-off strike
     double priceAt = func.price(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtFP = sabrExtrapolationFP.price(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtDF = func.priceDerivativeForward(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtDFExpected = (priceAtFP - priceAt) / shiftF;
-    assertEquals(priceAtDFExpected, priceAtDF, 1E-6);
+    assertThat(priceAtDFExpected).isCloseTo(priceAtDF, offset(1E-6));
     // Above cut-off strike
     double priceOut = func.price(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutFP = sabrExtrapolationFP.price(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutDF = func.priceDerivativeForward(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutDFExpected = (priceOutFP - priceOut) / shiftF;
-    assertEquals(priceOutDFExpected, priceOutDF, 1E-5);
+    assertThat(priceOutDFExpected).isCloseTo(priceOutDF, offset(1E-5));
     double[] abc = func.getParameter();
     double[] abcDF = func.getParameterDerivativeForward();
     double[] abcFP = sabrExtrapolationFP.getParameter();
     double[] abcDFExpected = new double[3];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       abcDFExpected[loopparam] = (abcFP[loopparam] - abc[loopparam]) / shiftF;
-      assertEquals(1.0, abcDFExpected[loopparam] / abcDF[loopparam], 5E-2);
+      assertThat(1.0).isCloseTo(abcDFExpected[loopparam] / abcDF[loopparam], offset(5E-2));
     }
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
+  @Test
   public void priceDerivativeStrikeCall() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -198,24 +203,25 @@ public class SabrExtrapolationRightFunctionTest {
     double priceInKP = SABR_EXTRAPOLATION.price(optionInKP.getStrike(), optionInKP.getPutCall());
     double priceInDK = SABR_EXTRAPOLATION.priceDerivativeStrike(optionIn.getStrike(), optionIn.getPutCall());
     double priceInDFExpected = (priceInKP - priceIn) / shiftK;
-    assertEquals(priceInDFExpected, priceInDK, 1E-5);
+    assertThat(priceInDFExpected).isCloseTo(priceInDK, offset(1E-5));
     // At cut-off strike
     double priceAt = SABR_EXTRAPOLATION.price(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtKP = SABR_EXTRAPOLATION.price(optionAtKP.getStrike(), optionAtKP.getPutCall());
     double priceAtDK = SABR_EXTRAPOLATION.priceDerivativeStrike(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtDFExpected = (priceAtKP - priceAt) / shiftK;
-    assertEquals(priceAtDFExpected, priceAtDK, 1E-5);
+    assertThat(priceAtDFExpected).isCloseTo(priceAtDK, offset(1E-5));
     // At cut-off strike
     double priceOut = SABR_EXTRAPOLATION.price(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutKP = SABR_EXTRAPOLATION.price(optionOutKP.getStrike(), optionOutKP.getPutCall());
     double priceOutDK = SABR_EXTRAPOLATION.priceDerivativeStrike(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutDFExpected = (priceOutKP - priceOut) / shiftK;
-    assertEquals(priceOutDFExpected, priceOutDK, 1E-5);
+    assertThat(priceOutDFExpected).isCloseTo(priceOutDK, offset(1E-5));
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
+  @Test
   public void priceDerivativeStrikePut() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -232,24 +238,25 @@ public class SabrExtrapolationRightFunctionTest {
     double priceInKP = SABR_EXTRAPOLATION.price(optionInKP.getStrike(), optionInKP.getPutCall());
     double priceInDK = SABR_EXTRAPOLATION.priceDerivativeStrike(optionIn.getStrike(), optionIn.getPutCall());
     double priceInDFExpected = (priceInKP - priceIn) / shiftK;
-    assertEquals(priceInDFExpected, priceInDK, 1E-5);
+    assertThat(priceInDFExpected).isCloseTo(priceInDK, offset(1E-5));
     // At cut-off strike
     double priceAt = SABR_EXTRAPOLATION.price(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtKP = SABR_EXTRAPOLATION.price(optionAtKP.getStrike(), optionAtKP.getPutCall());
     double priceAtDK = SABR_EXTRAPOLATION.priceDerivativeStrike(optionAt.getStrike(), optionAt.getPutCall());
     double priceAtDFExpected = (priceAtKP - priceAt) / shiftK;
-    assertEquals(priceAtDFExpected, priceAtDK, 1E-5);
+    assertThat(priceAtDFExpected).isCloseTo(priceAtDK, offset(1E-5));
     // At cut-off strike
     double priceOut = SABR_EXTRAPOLATION.price(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutKP = SABR_EXTRAPOLATION.price(optionOutKP.getStrike(), optionOutKP.getPutCall());
     double priceOutDK = SABR_EXTRAPOLATION.priceDerivativeStrike(optionOut.getStrike(), optionOut.getPutCall());
     double priceOutDFExpected = (priceOutKP - priceOut) / shiftK;
-    assertEquals(priceOutDFExpected, priceOutDK, 1E-5);
+    assertThat(priceOutDFExpected).isCloseTo(priceOutDK, offset(1E-5));
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
+  @Test
   public void priceDerivativeSabrCall() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -280,11 +287,11 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resIn = SABR_EXTRAPOLATION.priceAdjointSabr(optionIn.getStrike(), optionIn.getPutCall());
     double priceIn = resIn.getValue();
     double[] priceInDsabr = resIn.getDerivatives().toArray();
-    assertEquals(priceInExpected, priceIn, TOLERANCE_PRICE);
+    assertThat(priceInExpected).isCloseTo(priceIn, offset(TOLERANCE_PRICE));
     double[] priceInDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       priceInDsabrExpected[loopparam] = (priceInPP[loopparam] - priceIn) / shift;
-      assertEquals(priceInDsabrExpected[loopparam], priceInDsabr[loopparam], 1E-5);
+      assertThat(priceInDsabrExpected[loopparam]).isCloseTo(priceInDsabr[loopparam], offset(1E-5));
     }
     // At cut-off strike
     double priceAtExpected = SABR_EXTRAPOLATION.price(optionAt.getStrike(), optionAt.getPutCall());
@@ -296,11 +303,11 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resAt = SABR_EXTRAPOLATION.priceAdjointSabr(optionAt.getStrike(), optionAt.getPutCall());
     double priceAt = resAt.getValue();
     double[] priceAtDsabr = resAt.getDerivatives().toArray();
-    assertEquals(priceAtExpected, priceAt, TOLERANCE_PRICE);
+    assertThat(priceAtExpected).isCloseTo(priceAt, offset(TOLERANCE_PRICE));
     double[] priceAtDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       priceAtDsabrExpected[loopparam] = (priceAtPP[loopparam] - priceAt) / shift;
-      assertEquals(priceAtDsabrExpected[loopparam], priceAtDsabr[loopparam], 1E-5);
+      assertThat(priceAtDsabrExpected[loopparam]).isCloseTo(priceAtDsabr[loopparam], offset(1E-5));
     }
     // Above cut-off strike
     double[] abc = SABR_EXTRAPOLATION.getParameter();
@@ -314,7 +321,7 @@ public class SabrExtrapolationRightFunctionTest {
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       for (int loopabc = 0; loopabc < 3; loopabc++) {
         abcDPExpected[loopparam][loopabc] = (abcPP[loopparam][loopabc] - abc[loopabc]) / shift;
-        assertEquals(1.0, abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], 5.0E-2);
+        assertThat(1.0).isCloseTo(abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], offset(5.0E-2));
       }
     }
     double priceOutExpected = SABR_EXTRAPOLATION.price(optionOut.getStrike(), optionOut.getPutCall());
@@ -326,17 +333,18 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resOut = SABR_EXTRAPOLATION.priceAdjointSabr(optionOut.getStrike(), optionOut.getPutCall());
     double priceOut = resOut.getValue();
     double[] priceOutDsabr = resOut.getDerivatives().toArray();
-    assertEquals(priceOutExpected, priceOut, TOLERANCE_PRICE);
+    assertThat(priceOutExpected).isCloseTo(priceOut, offset(TOLERANCE_PRICE));
     double[] priceOutDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       priceOutDsabrExpected[loopparam] = (priceOutPP[loopparam] - priceOut) / shift;
-      assertEquals(1.0, priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], 4.0E-4);
+      assertThat(1.0).isCloseTo(priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], offset(4.0E-4));
     }
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation.
    */
+  @Test
   public void priceDerivativeSabrPut() {
     SabrExtrapolationRightFunction func = SabrExtrapolationRightFunction.of(
         FORWARD, SABR_DATA, CUT_OFF_STRIKE, TIME_TO_EXPIRY, MU, SabrHaganVolatilityFunctionProvider.DEFAULT);
@@ -369,11 +377,11 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resIn = func.priceAdjointSabr(optionIn.getStrike(), optionIn.getPutCall());
     double priceIn = resIn.getValue();
     double[] priceInDsabr = resIn.getDerivatives().toArray();
-    assertEquals(priceInExpected, priceIn, TOLERANCE_PRICE);
+    assertThat(priceInExpected).isCloseTo(priceIn, offset(TOLERANCE_PRICE));
     double[] priceInDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       priceInDsabrExpected[loopparam] = (priceInPP[loopparam] - priceIn) / shift;
-      assertEquals(priceInDsabrExpected[loopparam], priceInDsabr[loopparam], 1E-5);
+      assertThat(priceInDsabrExpected[loopparam]).isCloseTo(priceInDsabr[loopparam], offset(1E-5));
     }
     // At cut-off strike
     double priceAtExpected = func.price(optionAt.getStrike(), optionAt.getPutCall());
@@ -385,11 +393,11 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resAt = func.priceAdjointSabr(optionAt.getStrike(), optionAt.getPutCall());
     double priceAt = resAt.getValue();
     double[] priceAtDsabr = resAt.getDerivatives().toArray();
-    assertEquals(priceAtExpected, priceAt, TOLERANCE_PRICE);
+    assertThat(priceAtExpected).isCloseTo(priceAt, offset(TOLERANCE_PRICE));
     double[] priceAtDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 3; loopparam++) {
       priceAtDsabrExpected[loopparam] = (priceAtPP[loopparam] - priceAt) / shift;
-      assertEquals(priceAtDsabrExpected[loopparam], priceAtDsabr[loopparam], 1E-5);
+      assertThat(priceAtDsabrExpected[loopparam]).isCloseTo(priceAtDsabr[loopparam], offset(1E-5));
     }
     // Above cut-off strike
     double priceOutExpected = func.price(optionOut.getStrike(), optionOut.getPutCall());
@@ -401,7 +409,7 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resOut = func.priceAdjointSabr(optionOut.getStrike(), optionOut.getPutCall());
     double priceOut = resOut.getValue();
     double[] priceOutDsabr = resOut.getDerivatives().toArray();
-    assertEquals(priceOutExpected, priceOut, TOLERANCE_PRICE);
+    assertThat(priceOutExpected).isCloseTo(priceOut, offset(TOLERANCE_PRICE));
     double[] abc = func.getParameter();
     double[][] abcDP = func.getParameterDerivativeSabr();
     double[][] abcPP = new double[4][3];
@@ -413,19 +421,20 @@ public class SabrExtrapolationRightFunctionTest {
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       for (int loopabc = 0; loopabc < 3; loopabc++) {
         abcDPExpected[loopparam][loopabc] = (abcPP[loopparam][loopabc] - abc[loopabc]) / shift;
-        assertEquals(1.0, abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], 5.0E-2);
+        assertThat(1.0).isCloseTo(abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], offset(5.0E-2));
       }
     }
     double[] priceOutDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       priceOutDsabrExpected[loopparam] = (priceOutPP[loopparam] - priceOut) / shift;
-      assertEquals(1.0, priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], 4.0E-4);
+      assertThat(1.0).isCloseTo(priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], offset(4.0E-4));
     }
   }
 
   /**
    * Tests the price derivative with respect to forward for options in SABR model with extrapolation. Other data.
    */
+  @Test
   public void priceDerivativeSABR2() {
     double alpha = 0.06;
     double beta = 0.5;
@@ -465,7 +474,7 @@ public class SabrExtrapolationRightFunctionTest {
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       for (int loopabc = 0; loopabc < 3; loopabc++) {
         abcDPExpected[loopparam][loopabc] = (abcPP[loopparam][loopabc] - abc[loopabc]) / shift;
-        assertEquals(1.0, abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], 5.0E-2);
+        assertThat(1.0).isCloseTo(abcDPExpected[loopparam][loopabc] / abcDP[loopparam][loopabc], offset(5.0E-2));
       }
     }
     double priceOutExpected = sabrExtrapolation.price(option.getStrike(), option.getPutCall());
@@ -477,17 +486,18 @@ public class SabrExtrapolationRightFunctionTest {
     ValueDerivatives resOut = sabrExtrapolation.priceAdjointSabr(option.getStrike(), option.getPutCall());
     double priceOut = resOut.getValue();
     double[] priceOutDsabr = resOut.getDerivatives().toArray();
-    assertEquals(priceOutExpected, priceOut, 1E-5);
+    assertThat(priceOutExpected).isCloseTo(priceOut, offset(1E-5));
     double[] priceOutDsabrExpected = new double[4];
     for (int loopparam = 0; loopparam < 4; loopparam++) {
       priceOutDsabrExpected[loopparam] = (priceOutPP[loopparam] - priceOut) / shift;
-      assertEquals(1.0, priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], 4.0E-4);
+      assertThat(1.0).isCloseTo(priceOutDsabrExpected[loopparam] / priceOutDsabr[loopparam], offset(4.0E-4));
     }
   }
 
   /**
    * Tests the price put/call parity for options in SABR model with extrapolation.
    */
+  @Test
   public void pricePutCallParity() {
     double strikeIn = 0.08;
     double strikeAt = CUT_OFF_STRIKE;
@@ -500,18 +510,19 @@ public class SabrExtrapolationRightFunctionTest {
     EuropeanVanillaOption putOut = EuropeanVanillaOption.of(strikeOut, TIME_TO_EXPIRY, PutCall.PUT);
     double priceCallIn = SABR_EXTRAPOLATION.price(callIn.getStrike(), callIn.getPutCall());
     double pricePutIn = SABR_EXTRAPOLATION.price(putIn.getStrike(), putIn.getPutCall());
-    assertEquals(FORWARD - strikeIn, priceCallIn - pricePutIn, TOLERANCE_PRICE);
+    assertThat(FORWARD - strikeIn).isCloseTo(priceCallIn - pricePutIn, offset(TOLERANCE_PRICE));
     double priceCallAt = SABR_EXTRAPOLATION.price(callAt.getStrike(), callAt.getPutCall());
     double pricePutAt = SABR_EXTRAPOLATION.price(putAt.getStrike(), putAt.getPutCall());
-    assertEquals(FORWARD - strikeAt, priceCallAt - pricePutAt, TOLERANCE_PRICE);
+    assertThat(FORWARD - strikeAt).isCloseTo(priceCallAt - pricePutAt, offset(TOLERANCE_PRICE));
     double priceCallOut = SABR_EXTRAPOLATION.price(callOut.getStrike(), callOut.getPutCall());
     double pricePutOut = SABR_EXTRAPOLATION.price(putOut.getStrike(), putOut.getPutCall());
-    assertEquals(FORWARD - strikeOut, priceCallOut - pricePutOut, TOLERANCE_PRICE);
+    assertThat(FORWARD - strikeOut).isCloseTo(priceCallOut - pricePutOut, offset(TOLERANCE_PRICE));
   }
 
   /**
    * Tests that the smile and its derivatives are smooth enough in SABR model with extrapolation.
    */
+  @Test
   public void smileSmooth() {
     int nbPts = 100;
     double rangeStrike = 0.02;
@@ -530,8 +541,8 @@ public class SabrExtrapolationRightFunctionTest {
           ((strike[looppts + 1] - strike[looppts]) * (strike[looppts + 1] - strike[looppts]));
     }
     for (int looppts = 2; looppts < nbPts; looppts++) {
-      assertEquals(priceD[looppts - 1], priceD[looppts], 1.5E-3);
-      assertEquals(priceD2[looppts - 1], priceD2[looppts], 1.5E-1);
+      assertThat(priceD[looppts - 1]).isCloseTo(priceD[looppts], offset(1.5E-3));
+      assertThat(priceD2[looppts - 1]).isCloseTo(priceD2[looppts], offset(1.5E-1));
     }
   }
 
@@ -539,6 +550,7 @@ public class SabrExtrapolationRightFunctionTest {
    * Tests that the smile and its derivatives are smooth enough in SABR model with extrapolation 
    * for different time to maturity (in particular close to maturity).
    */
+  @Test
   public void smileSmoothMaturity() {
     int nbPts = 100;
     double[] timeToExpiry = new double[] {2.0, 1.0, 0.50, 0.25, 1.0d / 12.0d, 1.0d / 52.0d, 1.0d / 365d};
@@ -573,11 +585,11 @@ public class SabrExtrapolationRightFunctionTest {
     double epsDensity = 1.0E-20; // Conditions are not checked when the density is very small.
     for (int loopmat = 0; loopmat < nbTTM; loopmat++) {
       for (int looppts = 1; looppts < nbPts - 1; looppts++) {
-        assertTrue(((priceD[loopmat][looppts] / priceD[loopmat][looppts - 1] < 1) && (priceD[loopmat][looppts] /
-            priceD[loopmat][looppts - 1] > 0.50)) || Math.abs(priceD2[loopmat][looppts]) < epsDensity);
-        assertTrue(priceD2[loopmat][looppts] > 0 || Math.abs(priceD2[loopmat][looppts]) < epsDensity);
-        assertTrue((priceD2[loopmat][looppts] / priceD2[loopmat][looppts - 1] < 1 && priceD2[loopmat][looppts] /
-            priceD2[loopmat][looppts - 1] > 0.50) || Math.abs(priceD2[loopmat][looppts]) < epsDensity);
+        assertThat(((priceD[loopmat][looppts] / priceD[loopmat][looppts - 1] < 1) && (priceD[loopmat][looppts] /
+            priceD[loopmat][looppts - 1] > 0.50)) || Math.abs(priceD2[loopmat][looppts]) < epsDensity).isTrue();
+        assertThat(priceD2[loopmat][looppts] > 0 || Math.abs(priceD2[loopmat][looppts]) < epsDensity).isTrue();
+        assertThat((priceD2[loopmat][looppts] / priceD2[loopmat][looppts - 1] < 1 && priceD2[loopmat][looppts] /
+            priceD2[loopmat][looppts - 1] > 0.50) || Math.abs(priceD2[loopmat][looppts]) < epsDensity).isTrue();
       }
     }
   }
@@ -600,21 +612,21 @@ public class SabrExtrapolationRightFunctionTest {
         double priceBase = extrapolation.price(CUT_OFF_STRIKE, isCall);
         double priceUp = extrapolation.price(CUT_OFF_STRIKE + EPS, isCall);
         double priceDw = extrapolation.price(CUT_OFF_STRIKE - EPS, isCall);
-        assertEquals(priceBase, priceUp, EPS);
-        assertEquals(priceBase, priceDw, EPS);
+        assertThat(priceBase).isCloseTo(priceUp, offset(EPS));
+        assertThat(priceBase).isCloseTo(priceDw, offset(EPS));
         double priceUpUp = extrapolation.price(CUT_OFF_STRIKE + 2.0 * EPS, isCall);
         double priceDwDw = extrapolation.price(CUT_OFF_STRIKE - 2.0 * EPS, isCall);
         double firstUp = (-0.5 * priceUpUp + 2.0 * priceUp - 1.5 * priceBase) / EPS;
         double firstDw = (-2.0 * priceDw + 0.5 * priceDwDw + 1.5 * priceBase) / EPS;
-        assertEquals(firstDw, firstUp, EPS);
+        assertThat(firstDw).isCloseTo(firstUp, offset(EPS));
         // The second derivative values are poorly connected due to finite difference approximation 
         double firstUpUp = 0.5 * (priceUpUp - priceBase) / EPS;
         double firstDwDw = 0.5 * (priceBase - priceDwDw) / EPS;
         double secondUp = (firstUpUp - firstUp) / EPS;
         double secondDw = (firstDw - firstDwDw) / EPS;
         double secondRef = 0.5 * (firstUpUp - firstDwDw) / EPS;
-        assertEquals(secondRef, secondUp, secondRef * 0.15);
-        assertEquals(secondRef, secondDw, secondRef * 0.15);
+        assertThat(secondRef).isCloseTo(secondUp, offset(secondRef * 0.15));
+        assertThat(secondRef).isCloseTo(secondDw, offset(secondRef * 0.15));
       }
     }
   }
@@ -633,8 +645,8 @@ public class SabrExtrapolationRightFunctionTest {
         double priceBase = right.price(smallCutoff, isCall);
         double priceUp = right.price(smallCutoff + EPS * 0.1, isCall);
         double priceDw = right.price(smallCutoff - EPS * 0.1, isCall);
-        assertEquals(priceBase, priceUp, EPS * 10.0);
-        assertEquals(priceBase, priceDw, EPS * 10.0);
+        assertThat(priceBase).isCloseTo(priceUp, offset(EPS * 10.0));
+        assertThat(priceBase).isCloseTo(priceDw, offset(EPS * 10.0));
       }
     }
   }
@@ -652,11 +664,11 @@ public class SabrExtrapolationRightFunctionTest {
         double priceBase = right.price(CUT_OFF_STRIKE, isCall);
         double priceUp = right.price(CUT_OFF_STRIKE + EPS * 0.1, isCall);
         double priceDw = right.price(CUT_OFF_STRIKE - EPS * 0.1, isCall);
-        assertEquals(priceBase, priceUp, EPS);
-        assertEquals(priceBase, priceDw, EPS);
-        assertEquals(right.getParameter()[0], -1.0E4, 1.e-12);
-        assertEquals(right.getParameter()[1], 0.0, 1.e-12);
-        assertEquals(right.getParameter()[2], 0.0, 1.e-12);
+        assertThat(priceBase).isCloseTo(priceUp, offset(EPS));
+        assertThat(priceBase).isCloseTo(priceDw, offset(EPS));
+        assertThat(right.getParameter()[0]).isCloseTo(-1.0E4, offset(1.e-12));
+        assertThat(right.getParameter()[1]).isCloseTo(0.0, offset(1.e-12));
+        assertThat(right.getParameter()[2]).isCloseTo(0.0, offset(1.e-12));
       }
     }
   }

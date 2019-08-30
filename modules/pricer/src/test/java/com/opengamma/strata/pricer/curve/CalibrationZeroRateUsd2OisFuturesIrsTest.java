@@ -14,7 +14,8 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -26,7 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -44,13 +46,13 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -93,7 +95,6 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
  * One curve is Discounting and Fed Fund forward and the other one is Libor 3M forward.
  * The Forward 3M curve is calibrated in part to Ibor futures without convexity adjustment.
  */
-@Test
 public class CalibrationZeroRateUsd2OisFuturesIrsTest {
   
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -282,11 +283,13 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
           .addForwardCurve(FWD3_CURVE_DEFN, USD_LIBOR_3M).build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_present_value_oneGroup() {
     RatesProvider result = CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
     assertPresentValue(result);
   }
   
+  @Test
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
@@ -314,7 +317,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(product, rpShifted).getAmount(USD).getAmount();
-      assertEquals(mqsDscComputed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA, "DSC - node " + i);
+      assertThat(mqsDscComputed[i]).as("DSC - node " + i).isCloseTo((pvS - pv0) / shift, offset(TOLERANCE_PV_DELTA));
     }
     double[] mqsFwd3Computed = mqs.getSensitivity(FWD3_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < FWD3_NB_NODES; i++) {
@@ -323,7 +326,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = SWAP_PRICER.presentValue(product, rpShifted).getAmount(USD).getAmount();
-      assertEquals(mqsFwd3Computed[i], (pvS - pv0) / shift, TOLERANCE_PV_DELTA, "FWD3 - node " + i);
+      assertThat(mqsFwd3Computed[i]).as("FWD3 - node " + i).isCloseTo((pvS - pv0) / shift, offset(TOLERANCE_PV_DELTA));
     }
   }
 
@@ -338,13 +341,13 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       CurrencyAmount pvIrs = DEPO_PRICER.presentValue(
           ((ResolvedTermDepositTrade) dscTrades.get(i)).getProduct(), result);
-      assertEquals(pvIrs.getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // OIS
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
           ((ResolvedSwapTrade) dscTrades.get(DSC_NB_DEPO_NODES + i)).getProduct(), result);
-      assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount(USD).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // Test PV Fwd3
     CurveNode[] fwd3Nodes = CURVES_NODES.get(1).get(0);
@@ -355,24 +358,24 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
     // Fixing 
     CurrencyAmount pvFixing3 = FIXING_PRICER.presentValue(
         ((ResolvedIborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result);
-    assertEquals(pvFixing3.getAmount(), 0.0, TOLERANCE_PV);
+    assertThat(pvFixing3.getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     // Futures
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
       CurrencyAmount pvFut = FUT_PRICER.presentValue(
           ((ResolvedIborFutureTrade) fwd3Trades.get(i + 1)), result, 0.0);
-      assertEquals(pvFut.getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvFut.getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER.presentValue(
           ((ResolvedSwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FUT_NODES)).getProduct(), result);
-      assertEquals(pvIrs.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount(USD).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
   }
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unused")
-  @Test(enabled = false)
+  @Disabled
   void performance() {
     long startTime, endTime;
     int nbTests = 100;

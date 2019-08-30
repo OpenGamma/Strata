@@ -7,11 +7,12 @@ package com.opengamma.strata.pricer.impl.volatility.local;
 
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
@@ -26,7 +27,6 @@ import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 /**
  * Test {@link DupireLocalVolatilityCalculator}.
  */
-@Test
 public class DupireLocalVolatilityCalculatorTest {
 
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(
@@ -53,6 +53,7 @@ public class DupireLocalVolatilityCalculatorTest {
 
   private static final DupireLocalVolatilityCalculator CALC = new DupireLocalVolatilityCalculator();
 
+  @Test
   public void flatVolTest() {
     double constantVol = 0.15;
     ConstantSurface impliedVolSurface = ConstantSurface.of("impliedVol", constantVol);
@@ -73,11 +74,12 @@ public class DupireLocalVolatilityCalculatorTest {
       for (double time : TEST_TIMES) {
         DeformedSurface localVolSurface =
             CALC.localVolatilityFromImpliedVolatility(impliedVolSurface, 100d, zeroRate, zeroRate1);
-        assertEquals(localVolSurface.zValue(time, strike), constantVol);
+        assertThat(localVolSurface.zValue(time, strike)).isEqualTo(constantVol);
       }
     }
   }
 
+  @Test
   public void test_localVolatilityFromImpliedVolatility() {
     double r = 0.05;
     double q = 0.01;
@@ -99,7 +101,7 @@ public class DupireLocalVolatilityCalculatorTest {
             .localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
             .zValue(time, strike);
         double expectedVol = volFromFormula(r, q, time, strike, VOL_SURFACE);
-        assertEquals(computedVol, expectedVol, FD_EPS);
+        assertThat(computedVol).isCloseTo(expectedVol, offset(FD_EPS));
         UnitParameterSensitivity computedSensi =
             CALC.localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
             .zValueParameterSensitivity(time, strike);
@@ -111,12 +113,13 @@ public class DupireLocalVolatilityCalculatorTest {
           double volDw = CALC.localVolatilityFromImpliedVolatility(
               surfaceDw, SPOT, interestRate, dividendRate).zValue(time, strike);
           double expectedSensi = 0.5 * (volUp - volDw) / FD_EPS;
-          assertEquals(computedSensi.getSensitivity().get(i), expectedSensi, FD_EPS * 10d);
+          assertThat(computedSensi.getSensitivity().get(i)).isCloseTo(expectedSensi, offset(FD_EPS * 10d));
         }
       }
     }
   }
 
+  @Test
   public void test_localVolatilityFromImpliedVolatility_smallStrike() {
     double r = 0.05;
     double q = 0.01;
@@ -138,7 +141,7 @@ public class DupireLocalVolatilityCalculatorTest {
           .localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
           .zValue(time, strike);
       double expectedVol = volFromFormula(r, q, time, strike, VOL_SURFACE);
-      assertEquals(computedVol, expectedVol, FD_EPS);
+      assertThat(computedVol).isCloseTo(expectedVol, offset(FD_EPS));
       UnitParameterSensitivity computedSensi =
           CALC.localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
               .zValueParameterSensitivity(time, strike);
@@ -150,11 +153,12 @@ public class DupireLocalVolatilityCalculatorTest {
         double volDw = CALC.localVolatilityFromImpliedVolatility(
             surfaceDw, SPOT, interestRate, dividendRate).zValue(time, strike);
         double expectedSensi = 0.5 * (volUp - volDw) / FD_EPS;
-        assertEquals(computedSensi.getSensitivity().get(i), expectedSensi, FD_EPS * 10d);
+        assertThat(computedSensi.getSensitivity().get(i)).isCloseTo(expectedSensi, offset(FD_EPS * 10d));
       }
     }
   }
 
+  @Test
   public void test_localVolatilityFromPrice() {
     double r = 0.03;
     double q = 0.02;
@@ -176,7 +180,7 @@ public class DupireLocalVolatilityCalculatorTest {
             .localVolatilityFromPrice(PRICE_SURFACE, SPOT, interestRate, dividendRate)
             .zValue(time, strike);
         double expectedVol = volFromFormulaPrice(r, q, time, strike, PRICE_SURFACE);
-        assertEquals(computedVol, expectedVol, FD_EPS);
+        assertThat(computedVol).isCloseTo(expectedVol, offset(FD_EPS));
         UnitParameterSensitivity computedSensi =
             CALC.localVolatilityFromPrice(PRICE_SURFACE, SPOT, interestRate, dividendRate)
                 .zValueParameterSensitivity(time, strike);
@@ -188,7 +192,7 @@ public class DupireLocalVolatilityCalculatorTest {
           double priceDw = CALC.localVolatilityFromPrice(
               surfaceDw, SPOT, interestRate, dividendRate).zValue(time, strike);
           double expectedSensi = 0.5 * (priceUp - priceDw) / FD_EPS;
-          assertEquals(computedSensi.getSensitivity().get(i), expectedSensi, FD_EPS * 100d); // tiny call price
+          assertThat(computedSensi.getSensitivity().get(i)).isCloseTo(expectedSensi, offset(FD_EPS * 100d)); // tiny call price
         }
       }
     }

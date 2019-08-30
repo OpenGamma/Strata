@@ -12,12 +12,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -59,7 +59,6 @@ import com.opengamma.strata.product.credit.type.ImmutableCdsConvention;
 /**
  * Test {@link AnalyticSpreadSensitivityCalculator} and {@link FiniteDifferenceSpreadSensitivityCalculator}.
  */
-@Test
 public class SpreadSensitivityCalculatorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -190,40 +189,43 @@ public class SpreadSensitivityCalculatorTest {
       .build();
   private static final double TOL = 1.0e-13;
 
+  @Test
   public void parellelCs01Test() {
     double fromExcel = 4238.557409;
     CurrencyAmount fd = CS01_FD.parallelCs01(CDS1, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
     CurrencyAmount analytic = CS01_AN.parallelCs01(CDS1, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getAmount() * ONE_BP, fromExcel, TOL * NOTIONAL);
-    assertEquals(analytic.getCurrency(), USD);
-    assertEquals(analytic.getAmount() * ONE_BP, fd.getAmount() * ONE_BP, ONE_BP * NOTIONAL);
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getAmount() * ONE_BP).isCloseTo(fromExcel, offset(TOL * NOTIONAL));
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
+    assertThat(analytic.getAmount() * ONE_BP).isCloseTo(fd.getAmount() * ONE_BP, offset(ONE_BP * NOTIONAL));
     // equivalence to market quote sensitivity for par spread quote
     PointSensitivities point = PRICER.presentValueOnSettleSensitivity(CDS1, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, LEGAL_ENTITY, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
-    assertEquals(cs01FromQuoteSensi * ONE_BP, analytic.getAmount() * ONE_BP, TOL * NOTIONAL);
+    assertThat(cs01FromQuoteSensi * ONE_BP).isCloseTo(analytic.getAmount() * ONE_BP, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void parellelCs01FromNodesTest() {
     double fromExcel = 4238.557409;
     CurrencyAmount fd = CS01_FD.parallelCs01(CDS1, RATES_PROVIDER, REF_DATA);
     CurrencyAmount analytic = CS01_AN.parallelCs01(CDS1, RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getAmount() * ONE_BP, fromExcel, TOL * NOTIONAL);
-    assertEquals(analytic.getCurrency(), USD);
-    assertEquals(analytic.getAmount() * ONE_BP, fd.getAmount() * ONE_BP, ONE_BP * NOTIONAL);
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getAmount() * ONE_BP).isCloseTo(fromExcel, offset(TOL * NOTIONAL));
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
+    assertThat(analytic.getAmount() * ONE_BP).isCloseTo(fd.getAmount() * ONE_BP, offset(ONE_BP * NOTIONAL));
     // equivalence to market quote sensitivity for par spread quote
     PointSensitivities point = PRICER.presentValueOnSettleSensitivity(CDS1, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, LEGAL_ENTITY, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
-    assertEquals(cs01FromQuoteSensi * ONE_BP, analytic.getAmount() * ONE_BP, TOL * NOTIONAL);
+    assertThat(cs01FromQuoteSensi * ONE_BP).isCloseTo(analytic.getAmount() * ONE_BP, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void bucketedCs01Test() {
     double[] expectedFd = new double[] {
         0.02446907003406107, 0.1166137422736746, 0.5196553952424576, 1.4989046391578054, 3.5860718603647483, 4233.77162264947,
@@ -231,25 +233,26 @@ public class SpreadSensitivityCalculatorTest {
     CurrencyParameterSensitivity fd = CS01_FD.bucketedCs01(CDS1, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity analytic =
         CS01_AN.bucketedCs01(CDS1, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), CDS_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(fd.getSensitivity().multipliedBy(ONE_BP).toArray(), expectedFd, NOTIONAL * TOL));
-    assertEquals(analytic.getCurrency(), USD);
-    assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), CDS_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        analytic.getSensitivity().toArray(), fd.getSensitivity().toArray(), NOTIONAL * ONE_BP * 10d));
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(fd.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(fd.getParameterMetadata()).isEqualTo(CDS_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(fd.getSensitivity().multipliedBy(ONE_BP).toArray(), expectedFd, NOTIONAL * TOL)).isTrue();
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
+    assertThat(analytic.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(analytic.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(analytic.getParameterMetadata()).isEqualTo(CDS_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(
+        analytic.getSensitivity().toArray(), fd.getSensitivity().toArray(), NOTIONAL * ONE_BP * 10d)).isTrue();
     PointSensitivities point = PRICER.presentValueOnSettleSensitivity(CDS1, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, LEGAL_ENTITY, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        quoteSensi.getSensitivities().get(0).getSensitivity().toArray(), analytic.getSensitivity().toArray(), NOTIONAL * TOL));
+    assertThat(DoubleArrayMath.fuzzyEquals(
+        quoteSensi.getSensitivities().get(0).getSensitivity().toArray(), analytic.getSensitivity().toArray(), NOTIONAL * TOL)).isTrue();
   }
 
+  @Test
   public void bucketedCs01SingleNodeCurveTest() {
     ImmutableCreditRatesProvider ratesProviderNoCredit = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION_DATE)
@@ -274,56 +277,59 @@ public class SpreadSensitivityCalculatorTest {
         2429.636217554099, 3101.303324461041};
     CurrencyParameterSensitivity analytic = CS01_AN.bucketedCs01(CDS2, ImmutableList.copyOf(MARKET_CDS), ratesProvider, REF_DATA);
     CurrencyParameterSensitivity fd = CS01_FD.bucketedCs01(CDS2, ImmutableList.copyOf(MARKET_CDS), ratesProvider, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), CDS_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(fd.getSensitivity().multipliedBy(ONE_BP).toArray(), expectedFd, NOTIONAL * TOL));
-    assertEquals(analytic.getCurrency(), USD);
-    assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), CDS_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        analytic.getSensitivity().toArray(), fd.getSensitivity().toArray(), NOTIONAL * ONE_BP * 10d));
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(fd.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(fd.getParameterMetadata()).isEqualTo(CDS_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(fd.getSensitivity().multipliedBy(ONE_BP).toArray(), expectedFd, NOTIONAL * TOL)).isTrue();
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
+    assertThat(analytic.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(analytic.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(analytic.getParameterMetadata()).isEqualTo(CDS_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(
+        analytic.getSensitivity().toArray(), fd.getSensitivity().toArray(), NOTIONAL * ONE_BP * 10d)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void parellelCs01IndexTest() {
     CurrencyAmount fdSingle = CS01_FD.parallelCs01(CDS2, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
     CurrencyAmount analyticSingle = CS01_AN.parallelCs01(CDS2, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
     CurrencyAmount fd = CS01_FD.parallelCs01(CDS_INDEX, ImmutableList.copyOf(MARKET_CDS_INDEX), RATES_PROVIDER, REF_DATA);
     CurrencyAmount analytic = CS01_AN.parallelCs01(CDS_INDEX, ImmutableList.copyOf(MARKET_CDS_INDEX), RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getAmount(), fdSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
-    assertEquals(analytic.getAmount(), analyticSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
-    assertEquals(analytic.getCurrency(), USD);
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getAmount()).isCloseTo(fdSingle.getAmount() * INDEX_FACTOR, offset(TOL * NOTIONAL));
+    assertThat(analytic.getAmount()).isCloseTo(analyticSingle.getAmount() * INDEX_FACTOR, offset(TOL * NOTIONAL));
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
     // equivalence to market quote sensitivity for par spread quote
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
-    assertEquals(cs01FromQuoteSensi, analytic.getAmount(), TOL * NOTIONAL);
+    assertThat(cs01FromQuoteSensi).isCloseTo(analytic.getAmount(), offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void parellelCs01WithNodesIndexTest() {
     CurrencyAmount fdSingle = CS01_FD.parallelCs01(CDS2, RATES_PROVIDER, REF_DATA);
     CurrencyAmount analyticSingle = CS01_AN.parallelCs01(CDS2, RATES_PROVIDER, REF_DATA);
     CurrencyAmount fd = CS01_FD.parallelCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyAmount analytic = CS01_AN.parallelCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getAmount(), fdSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
-    assertEquals(analytic.getAmount(), analyticSingle.getAmount() * INDEX_FACTOR, TOL * NOTIONAL);
-    assertEquals(analytic.getCurrency(), USD);
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getAmount()).isCloseTo(fdSingle.getAmount() * INDEX_FACTOR, offset(TOL * NOTIONAL));
+    assertThat(analytic.getAmount()).isCloseTo(analyticSingle.getAmount() * INDEX_FACTOR, offset(TOL * NOTIONAL));
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
     // equivalence to market quote sensitivity for par spread quote
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
     double cs01FromQuoteSensi = quoteSensi.getSensitivities().get(0).getSensitivity().sum();
-    assertEquals(cs01FromQuoteSensi, analytic.getAmount(), TOL * NOTIONAL);
+    assertThat(cs01FromQuoteSensi).isCloseTo(analytic.getAmount(), offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void bucketedCs01IndexTest() {
     CurrencyParameterSensitivity fdSingle = CS01_FD.bucketedCs01(
         CDS2, ImmutableList.copyOf(MARKET_CDS), RATES_PROVIDER, REF_DATA);
@@ -333,61 +339,62 @@ public class SpreadSensitivityCalculatorTest {
         CDS_INDEX, ImmutableList.copyOf(MARKET_CDS_INDEX), RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity analytic = CS01_AN.bucketedCs01(
         CDS_INDEX, ImmutableList.copyOf(MARKET_CDS_INDEX), RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), CDS_INDEX_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(fd.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(fd.getParameterMetadata()).isEqualTo(CDS_INDEX_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(
         fd.getSensitivity().toArray(),
         fdSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
-        NOTIONAL * TOL));
-    assertEquals(analytic.getCurrency(), USD);
-    assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), CDS_INDEX_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
+        NOTIONAL * TOL)).isTrue();
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
+    assertThat(analytic.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(analytic.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(analytic.getParameterMetadata()).isEqualTo(CDS_INDEX_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(
         analytic.getSensitivity().toArray(),
         analyticSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
-        NOTIONAL * TOL));
+        NOTIONAL * TOL)).isTrue();
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
+    assertThat(DoubleArrayMath.fuzzyEquals(
         quoteSensi.getSensitivities().get(0).getSensitivity().toArray(),
         analytic.getSensitivity().toArray(),
-        NOTIONAL * TOL));
+        NOTIONAL * TOL)).isTrue();
   }
 
+  @Test
   public void bucketedCs01WithNodesIndexTest() {
     CurrencyParameterSensitivity fdSingle = CS01_FD.bucketedCs01(CDS2, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity analyticSingle = CS01_AN.bucketedCs01(CDS2, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity fd = CS01_FD.bucketedCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity analytic = CS01_AN.bucketedCs01(CDS_INDEX, RATES_PROVIDER, REF_DATA);
-    assertEquals(fd.getCurrency(), USD);
-    assertEquals(fd.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(fd.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(fd.getParameterMetadata(), CDS_INDEX_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
+    assertThat(fd.getCurrency()).isEqualTo(USD);
+    assertThat(fd.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(fd.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(fd.getParameterMetadata()).isEqualTo(CDS_INDEX_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(
         fd.getSensitivity().toArray(),
         fdSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
-        NOTIONAL * TOL));
-    assertEquals(analytic.getCurrency(), USD);
-    assertEquals(analytic.getMarketDataName(), CurveName.of("impliedSpreads"));
-    assertEquals(analytic.getParameterCount(), NUM_MARKET_CDS);
-    assertEquals(analytic.getParameterMetadata(), CDS_INDEX_METADATA);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
+        NOTIONAL * TOL)).isTrue();
+    assertThat(analytic.getCurrency()).isEqualTo(USD);
+    assertThat(analytic.getMarketDataName()).isEqualTo(CurveName.of("impliedSpreads"));
+    assertThat(analytic.getParameterCount()).isEqualTo(NUM_MARKET_CDS);
+    assertThat(analytic.getParameterMetadata()).isEqualTo(CDS_INDEX_METADATA);
+    assertThat(DoubleArrayMath.fuzzyEquals(
         analytic.getSensitivity().toArray(),
         analyticSingle.getSensitivity().multipliedBy(INDEX_FACTOR).toArray(),
-        NOTIONAL * TOL));
+        NOTIONAL * TOL)).isTrue();
     PointSensitivities point = PRICER_INDEX.presentValueOnSettleSensitivity(CDS_INDEX, RATES_PROVIDER, REF_DATA);
     CurrencyParameterSensitivity paramSensi = RATES_PROVIDER.singleCreditCurveParameterSensitivity(point, INDEX_ID, USD);
     CurrencyParameterSensitivities quoteSensi =
         QUOTE_CAL.sensitivity(CurrencyParameterSensitivities.of(paramSensi), RATES_PROVIDER);
-    assertTrue(DoubleArrayMath.fuzzyEquals(
+    assertThat(DoubleArrayMath.fuzzyEquals(
         quoteSensi.getSensitivities().get(0).getSensitivity().toArray(),
         analytic.getSensitivity().toArray(),
-        NOTIONAL * TOL));
+        NOTIONAL * TOL)).isTrue();
   }
 
 }

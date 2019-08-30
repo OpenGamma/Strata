@@ -13,14 +13,15 @@ import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -33,11 +34,11 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -55,7 +56,6 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
 /**
  * Test curve calibration
  */
-@Test
 public class CalibrationDiscountingSimpleEurStdTenorsTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 24);
@@ -205,6 +205,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
           .addForwardCurve(FWD6_CURVE_DEFN, EUR_EURIBOR_6M).build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_present_value() {
     RatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
@@ -220,7 +221,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
           .presentValue(((ResolvedSwapTrade) dscTrades.get(i)).getProduct(), result);
-      assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount(EUR).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // Test PV Fwd3
     ImmutableList<CurveNode> fwd3Nodes = definitions.get(1).getNodes();
@@ -232,7 +233,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
           .presentValue(((ResolvedSwapTrade) fwd3Trades.get(i)).getProduct(), result);
-      assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount(EUR).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // Test PV Fwd6
     ImmutableList<CurveNode> fwd6Nodes = definitions.get(2).getNodes();
@@ -244,7 +245,7 @@ public class CalibrationDiscountingSimpleEurStdTenorsTest {
     for (int i = 0; i < FWD6_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs = SWAP_PRICER
           .presentValue(((ResolvedSwapTrade) fwd6Trades.get(i)).getProduct(), result);
-      assertEquals(pvIrs.getAmount(EUR).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs.getAmount(EUR).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
   }
 

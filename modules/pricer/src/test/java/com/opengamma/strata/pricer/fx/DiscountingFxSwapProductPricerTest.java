@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -24,7 +24,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSwap;
 /**
  * Test {@link DiscountingFxSwapProductPricer}.
  */
-@Test
 public class DiscountingFxSwapProductPricerTest {
 
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
@@ -47,6 +46,7 @@ public class DiscountingFxSwapProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_beforeStart() {
     MultiCurrencyAmount computed = PRICER.presentValue(SWAP_PRODUCT, PROVIDER);
     double expected_usd = NOMINAL_USD *
@@ -54,48 +54,52 @@ public class DiscountingFxSwapProductPricerTest {
     double expected_krw = NOMINAL_USD *
         (-FX_RATE * PROVIDER.discountFactor(KRW, PAYMENT_DATE_NEAR)
         + (FX_RATE + FX_FWD_POINTS) * PROVIDER.discountFactor(KRW, PAYMENT_DATE_FAR));
-    assertEquals(computed.getAmount(USD).getAmount(), expected_usd, NOMINAL_USD * TOL);
-    assertEquals(computed.getAmount(KRW).getAmount(), expected_krw, NOMINAL_USD * FX_RATE * TOL);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected_usd, offset(NOMINAL_USD * TOL));
+    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expected_krw, offset(NOMINAL_USD * FX_RATE * TOL));
 
     // currency exposure
     MultiCurrencyAmount exposure = PRICER.currencyExposure(SWAP_PRODUCT, PROVIDER);
-    assertEquals(exposure, computed);
+    assertThat(exposure).isEqualTo(computed);
   }
 
+  @Test
   public void test_presentValue_started() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     MultiCurrencyAmount computed = PRICER.presentValue(product, PROVIDER);
     double expected_usd = -NOMINAL_USD * PROVIDER.discountFactor(USD, PAYMENT_DATE_NEAR);
     double expected_krw = NOMINAL_USD * (FX_RATE + FX_FWD_POINTS) * PROVIDER.discountFactor(KRW, PAYMENT_DATE_NEAR);
-    assertEquals(computed.getAmount(USD).getAmount(), expected_usd, NOMINAL_USD * TOL);
-    assertEquals(computed.getAmount(KRW).getAmount(), expected_krw, NOMINAL_USD * FX_RATE * TOL);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected_usd, offset(NOMINAL_USD * TOL));
+    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expected_krw, offset(NOMINAL_USD * FX_RATE * TOL));
 
     // currency exposure
     MultiCurrencyAmount exposure = PRICER.currencyExposure(product, PROVIDER);
-    assertEquals(exposure, computed);
+    assertThat(exposure).isEqualTo(computed);
   }
 
+  @Test
   public void test_presentValue_ended() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     MultiCurrencyAmount computed = PRICER.presentValue(product, PROVIDER);
-    assertEquals(computed, MultiCurrencyAmount.empty());
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.empty());
 
     // currency exposure
     MultiCurrencyAmount exposure = PRICER.currencyExposure(product, PROVIDER);
-    assertEquals(exposure, computed);
+    assertThat(exposure).isEqualTo(computed);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parSpread_beforeStart() {
     double parSpread = PRICER.parSpread(SWAP_PRODUCT, PROVIDER);
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS + parSpread, PAYMENT_DATE_NEAR, PAYMENT_DATE_FAR);
     MultiCurrencyAmount pv = PRICER.presentValue(product, PROVIDER);
-    assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
+    assertThat(pv.convertedTo(USD, PROVIDER).getAmount()).isCloseTo(0d, offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_parSpread_started() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
@@ -103,17 +107,19 @@ public class DiscountingFxSwapProductPricerTest {
     ResolvedFxSwap productPar = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS + parSpread, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     MultiCurrencyAmount pv = PRICER.presentValue(productPar, PROVIDER);
-    assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
+    assertThat(pv.convertedTo(USD, PROVIDER).getAmount()).isCloseTo(0d, offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_parSpread_ended() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     double parSpread = PRICER.parSpread(product, PROVIDER);
-    assertEquals(parSpread, 0d, TOL);
+    assertThat(parSpread).isCloseTo(0d, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_beforeStart() {
     PointSensitivities point = PRICER.presentValueSensitivity(SWAP_PRODUCT, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
@@ -121,9 +127,10 @@ public class DiscountingFxSwapProductPricerTest {
         PROVIDER, (p) -> PRICER.presentValue(SWAP_PRODUCT, (p)).getAmount(USD));
     CurrencyParameterSensitivities expectedKrw = CAL_FD.sensitivity(
         PROVIDER, (p) -> PRICER.presentValue(SWAP_PRODUCT, (p)).getAmount(KRW));
-    assertTrue(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD));
+    assertThat(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_started() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(CurrencyAmount.of(
         USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
@@ -133,25 +140,28 @@ public class DiscountingFxSwapProductPricerTest {
         PROVIDER, (p) -> PRICER.presentValue(product, (p)).getAmount(USD));
     CurrencyParameterSensitivities expectedKrw = CAL_FD.sensitivity(
         PROVIDER, (p) -> PRICER.presentValue(product, (p)).getAmount(KRW));
-    assertTrue(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD));
+    assertThat(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_ended() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     PointSensitivities computed = PRICER.presentValueSensitivity(product, PROVIDER);
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parSpreadSensitivity_beforeStart() {
     PointSensitivities pts = PRICER.parSpreadSensitivity(SWAP_PRODUCT, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(pts);
     CurrencyParameterSensitivities expected = CAL_FD.sensitivity(
         PROVIDER, (p) -> CurrencyAmount.of(KRW, PRICER.parSpread(SWAP_PRODUCT, p)));
-    assertTrue(computed.equalWithTolerance(expected, TOLERANCE_SPREAD_DELTA));
+    assertThat(computed.equalWithTolerance(expected, TOLERANCE_SPREAD_DELTA)).isTrue();
   }
 
+  @Test
   public void test_parSpreadSensitivity_started() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
@@ -159,33 +169,37 @@ public class DiscountingFxSwapProductPricerTest {
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(pts);
     CurrencyParameterSensitivities expected = CAL_FD.sensitivity(
         PROVIDER, (p) -> CurrencyAmount.of(KRW, PRICER.parSpread(product, p)));
-    assertTrue(computed.equalWithTolerance(expected, TOLERANCE_SPREAD_DELTA));
+    assertThat(computed.equalWithTolerance(expected, TOLERANCE_SPREAD_DELTA)).isTrue();
   }
 
+  @Test
   public void test_parSpreadSensitivity_ended() {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_LONG_PAST, PAYMENT_DATE_PAST);
     PointSensitivities pts = PRICER.parSpreadSensitivity(product, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(pts);
-    assertTrue(computed.equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_SPREAD_DELTA));
+    assertThat(computed.equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERANCE_SPREAD_DELTA)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currentCash_zero() {
     MultiCurrencyAmount computed = PRICER.currentCash(SWAP_PRODUCT, PROVIDER.getValuationDate());
-    assertEquals(computed, MultiCurrencyAmount.empty());
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.empty());
   }
 
+  @Test
   public void test_currentCash_firstPayment() {
     MultiCurrencyAmount computed = PRICER.currentCash(SWAP_PRODUCT, PAYMENT_DATE_NEAR);
-    assertEquals(computed, MultiCurrencyAmount.of(
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.of(
         SWAP_PRODUCT.getNearLeg().getBaseCurrencyPayment().getValue(),
         SWAP_PRODUCT.getNearLeg().getCounterCurrencyPayment().getValue()));
   }
 
+  @Test
   public void test_currentCash_secondPayment() {
     MultiCurrencyAmount computed = PRICER.currentCash(SWAP_PRODUCT, PAYMENT_DATE_FAR);
-    assertEquals(computed, MultiCurrencyAmount.of(
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.of(
         SWAP_PRODUCT.getFarLeg().getBaseCurrencyPayment().getValue(),
         SWAP_PRODUCT.getFarLeg().getCounterCurrencyPayment().getValue()));
   }

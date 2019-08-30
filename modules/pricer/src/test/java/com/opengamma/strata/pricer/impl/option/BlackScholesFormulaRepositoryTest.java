@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link BlackScholesFormulaRepository}.
  */
-@Test
 public class BlackScholesFormulaRepositoryTest {
 
   private static final double EPS = 1.e-14;
@@ -178,6 +178,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Check call price against the pre-computed values and put price via call-put parity
    */
+  @Test
   public void priceTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -189,7 +190,7 @@ public class BlackScholesFormulaRepositoryTest {
           double price =
               BlackScholesFormulaRepository.price(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k],
                   COST_OF_CARRY, true);
-          assertEquals(price, PrecomputedCallPrice[i][j][k], Math.max(PrecomputedCallPrice[i][j][k] * EPS, EPS));
+          assertThat(price).isCloseTo(PrecomputedCallPrice[i][j][k], offset(Math.max(PrecomputedCallPrice[i][j][k] * EPS, EPS)));
         }
       }
     }
@@ -206,7 +207,7 @@ public class BlackScholesFormulaRepositoryTest {
           double ref =
               SPOT * Math.exp((COST_OF_CARRY - INTEREST_RATES[k]) * TIME_TO_EXPIRY) - STRIKES_INPUT[i] *
                   Math.exp(-INTEREST_RATES[k] * TIME_TO_EXPIRY);
-          assertEquals(call - put, ref, Math.max(EPS * Math.abs(ref), EPS));
+          assertThat(call - put).isCloseTo(ref, offset(Math.max(EPS * Math.abs(ref), EPS)));
         }
       }
     }
@@ -215,6 +216,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Test all of the greeks by the finite difference method
    */
+  @Test
   public void greeksFiniteDiffTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -260,10 +262,10 @@ public class BlackScholesFormulaRepositoryTest {
               BlackScholesFormulaRepository.price(
                   dwSpot, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false)) /
               2. / SPOT / DELTA;
-          assertEquals(BlackScholesFormulaRepository.delta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, true), finDeltaC, Math.abs(finDeltaC) * DELTA);
-          assertEquals(BlackScholesFormulaRepository.delta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, false), finDeltaP, Math.abs(finDeltaP) * DELTA);
+          assertThat(BlackScholesFormulaRepository.delta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finDeltaC, offset(Math.abs(finDeltaC) * DELTA));
+          assertThat(BlackScholesFormulaRepository.delta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finDeltaP, offset(Math.abs(finDeltaP) * DELTA));
 
           double finDualDeltaC = (BlackScholesFormulaRepository.price(
               SPOT, upStrikes[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
@@ -275,36 +277,35 @@ public class BlackScholesFormulaRepositoryTest {
               BlackScholesFormulaRepository.price(
                   SPOT, dwStrikes[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false)) /
               2. / STRIKES_INPUT[i] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.dualDelta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, true), finDualDeltaC, Math.abs(finDualDeltaC) * DELTA);
-          assertEquals(BlackScholesFormulaRepository.dualDelta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, false), finDualDeltaP,
-              Math.abs(finDualDeltaP) *
-                  DELTA);
+          assertThat(BlackScholesFormulaRepository.dualDelta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finDualDeltaC, offset(Math.abs(finDualDeltaC) * DELTA));
+          assertThat(BlackScholesFormulaRepository.dualDelta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finDualDeltaP, offset(Math.abs(finDualDeltaP) *
+              DELTA));
 
           double finGamma = (BlackScholesFormulaRepository.delta(
               upSpot, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.delta(
                   dwSpot, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / SPOT / DELTA;
-          assertEquals(BlackScholesFormulaRepository.gamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finGamma, Math.abs(finGamma) * DELTA);
+          assertThat(BlackScholesFormulaRepository.gamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finGamma, offset(Math.abs(finGamma) * DELTA));
 
           double finDualGamma = (BlackScholesFormulaRepository.dualDelta(
               SPOT, upStrikes[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.dualDelta(
                   SPOT, dwStrikes[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / STRIKES_INPUT[i] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.dualGamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finDualGamma, Math.abs(finDualGamma) * DELTA);
+          assertThat(BlackScholesFormulaRepository.dualGamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finDualGamma, offset(Math.abs(finDualGamma) * DELTA));
 
           double finCrossGamma = (BlackScholesFormulaRepository.dualDelta(
               upSpot, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.dualDelta(
                   dwSpot, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / SPOT / DELTA;
-          assertEquals(BlackScholesFormulaRepository.crossGamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finCrossGamma, Math.abs(finCrossGamma) * DELTA);
+          assertThat(BlackScholesFormulaRepository.crossGamma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finCrossGamma, offset(Math.abs(finCrossGamma) * DELTA));
 
           double finThetaC = -(BlackScholesFormulaRepository.price(
               SPOT, STRIKES_INPUT[i], upTime, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
@@ -316,11 +317,10 @@ public class BlackScholesFormulaRepositoryTest {
               BlackScholesFormulaRepository.price(
                   SPOT, STRIKES_INPUT[i], dwTime, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false)) /
               2. / TIME_TO_EXPIRY / DELTA;
-          assertEquals(BlackScholesFormulaRepository.theta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, true), finThetaC, Math.abs(finThetaC) * DELTA);
-          assertEquals(BlackScholesFormulaRepository.theta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, false), finThetaP,
-              Math.max(Math.abs(finThetaP) * DELTA, DELTA));
+          assertThat(BlackScholesFormulaRepository.theta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finThetaC, offset(Math.abs(finThetaC) * DELTA));
+          assertThat(BlackScholesFormulaRepository.theta(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finThetaP, offset(Math.max(Math.abs(finThetaP) * DELTA, DELTA)));
 
           double finCharmC = -(BlackScholesFormulaRepository.delta(
               SPOT, STRIKES_INPUT[i], upTime, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
@@ -332,10 +332,10 @@ public class BlackScholesFormulaRepositoryTest {
               BlackScholesFormulaRepository.delta(
                   SPOT, STRIKES_INPUT[i], dwTime, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false)) /
               2. / TIME_TO_EXPIRY / DELTA;
-          assertEquals(BlackScholesFormulaRepository.charm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, true), finCharmC, Math.abs(finCharmC) * DELTA);
-          assertEquals(BlackScholesFormulaRepository.charm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, false), finCharmP, Math.abs(finCharmP) * DELTA);
+          assertThat(BlackScholesFormulaRepository.charm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finCharmC, offset(Math.abs(finCharmC) * DELTA));
+          assertThat(BlackScholesFormulaRepository.charm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finCharmP, offset(Math.abs(finCharmP) * DELTA));
 
           double finDualCharmC = -(BlackScholesFormulaRepository.dualDelta(
               SPOT, STRIKES_INPUT[i], upTime, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
@@ -347,44 +347,43 @@ public class BlackScholesFormulaRepositoryTest {
               BlackScholesFormulaRepository.dualDelta(
                   SPOT, STRIKES_INPUT[i], dwTime, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false)) /
               2. / TIME_TO_EXPIRY / DELTA;
-          assertEquals(BlackScholesFormulaRepository.dualCharm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, true), finDualCharmC, Math.abs(finDualCharmC) * DELTA);
-          assertEquals(BlackScholesFormulaRepository.dualCharm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, false), finDualCharmP,
-              Math.abs(finDualCharmP) *
-                  DELTA);
+          assertThat(BlackScholesFormulaRepository.dualCharm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finDualCharmC, offset(Math.abs(finDualCharmC) * DELTA));
+          assertThat(BlackScholesFormulaRepository.dualCharm(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finDualCharmP, offset(Math.abs(finDualCharmP) *
+              DELTA));
 
           double finVega = (BlackScholesFormulaRepository.price(
               SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.price(
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, dwVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / VOLS[j] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.vega(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finVega, Math.abs(finVega) * DELTA);
+          assertThat(BlackScholesFormulaRepository.vega(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finVega, offset(Math.abs(finVega) * DELTA));
 
           double finVanna = (BlackScholesFormulaRepository.delta(
               SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.delta(
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, dwVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / VOLS[j] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.vanna(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finVanna, Math.abs(finVanna) * DELTA);
+          assertThat(BlackScholesFormulaRepository.vanna(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finVanna, offset(Math.abs(finVanna) * DELTA));
 
           double finDualVanna = (BlackScholesFormulaRepository.dualDelta(
               SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.dualDelta(
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, dwVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / VOLS[j] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.dualVanna(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finDualVanna, Math.abs(finDualVanna) * DELTA);
+          assertThat(BlackScholesFormulaRepository.dualVanna(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finDualVanna, offset(Math.abs(finDualVanna) * DELTA));
 
           double finVomma = (BlackScholesFormulaRepository.vega(
               SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], INTEREST_RATES[k], COST_OF_CARRY) -
               BlackScholesFormulaRepository.vega(
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, dwVOLS[j], INTEREST_RATES[k], COST_OF_CARRY)) /
               2. / VOLS[j] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.vomma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finVomma, Math.abs(finVomma) * DELTA);
+          assertThat(BlackScholesFormulaRepository.vomma(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finVomma, offset(Math.abs(finVomma) * DELTA));
 
           double irDelta = INTEREST_RATES[k] * DELTA;
           double finRhoC = (BlackScholesFormulaRepository.price(
@@ -398,16 +397,10 @@ public class BlackScholesFormulaRepositoryTest {
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], dwInt[k], COST_OF_CARRY - irDelta, false)) /
               2. / INTEREST_RATES[k] / DELTA;
           if (INTEREST_RATES[k] != 0.) {
-            assertEquals(
-                BlackScholesFormulaRepository.rho(
-                    SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true),
-                finRhoC,
-                Math.abs(finRhoC) * DELTA);
-            assertEquals(
-                BlackScholesFormulaRepository.rho(
-                    SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false),
-                finRhoP,
-                Math.abs(finRhoP) * DELTA);
+            assertThat(BlackScholesFormulaRepository.rho(
+                SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finRhoC, offset(Math.abs(finRhoC) * DELTA));
+            assertThat(BlackScholesFormulaRepository.rho(
+                SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finRhoP, offset(Math.abs(finRhoP) * DELTA));
           }
 
           double finCarryRhoC = (BlackScholesFormulaRepository.price(
@@ -420,18 +413,18 @@ public class BlackScholesFormulaRepositoryTest {
               BlackScholesFormulaRepository.price(
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], dwCost, false)) /
               2. / COST_OF_CARRY / DELTA;
-          assertEquals(BlackScholesFormulaRepository.carryRho(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, true), finCarryRhoC, Math.abs(finCarryRhoC) * DELTA);
-          assertEquals(BlackScholesFormulaRepository.carryRho(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY, false), finCarryRhoP, Math.abs(finCarryRhoP) * DELTA);
+          assertThat(BlackScholesFormulaRepository.carryRho(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, true)).isCloseTo(finCarryRhoC, offset(Math.abs(finCarryRhoC) * DELTA));
+          assertThat(BlackScholesFormulaRepository.carryRho(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY, false)).isCloseTo(finCarryRhoP, offset(Math.abs(finCarryRhoP) * DELTA));
 
           double finVegaBleed = (BlackScholesFormulaRepository.theta(
               SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, upVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true) -
               BlackScholesFormulaRepository.theta(
                   SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, dwVOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true)) /
               2. / VOLS[j] / DELTA;
-          assertEquals(BlackScholesFormulaRepository.vegaBleed(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
-              INTEREST_RATES[k], COST_OF_CARRY), finVegaBleed, Math.abs(finVegaBleed) * DELTA);
+          assertThat(BlackScholesFormulaRepository.vegaBleed(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j],
+              INTEREST_RATES[k], COST_OF_CARRY)).isCloseTo(finVegaBleed, offset(Math.abs(finVegaBleed) * DELTA));
         }
       }
     }
@@ -441,6 +434,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    *
    */
+  @Test
   public void strikeForDeltaRecoveryTest() {
 
     int nStrikes = STRIKES_INPUT.length;
@@ -457,8 +451,8 @@ public class BlackScholesFormulaRepositoryTest {
               SPOT, deltaC, TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, true);
           double resP = BlackScholesFormulaRepository.strikeForDelta(
               SPOT, deltaP, TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k], COST_OF_CARRY, false);
-          assertEquals(resC, STRIKES_INPUT[i], STRIKES_INPUT[i] * EPS);
-          assertEquals(resP, STRIKES_INPUT[i], STRIKES_INPUT[i] * EPS);
+          assertThat(resC).isCloseTo(STRIKES_INPUT[i], offset(STRIKES_INPUT[i] * EPS));
+          assertThat(resP).isCloseTo(STRIKES_INPUT[i], offset(STRIKES_INPUT[i] * EPS));
         }
       }
     }
@@ -476,6 +470,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for price
    */
+  @Test
   public void exPriceTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -511,15 +506,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -555,15 +550,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 4; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -593,15 +588,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -636,15 +631,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 4; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -688,15 +683,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -730,15 +725,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -775,10 +770,10 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.price(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.price(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
-                assertTrue(resC1 >= 0.);
-                assertTrue(resP1 >= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
+                assertThat(resP1 >= 0.).isTrue();
               }
             }
           }
@@ -790,6 +785,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for delta
    */
+  @Test
   public void exDeltaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -825,15 +821,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -866,15 +862,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 4; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -904,15 +900,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -947,15 +943,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 4; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -996,15 +992,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -1038,15 +1034,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -1083,10 +1079,10 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.delta(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.delta(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
-                assertTrue(resC1 >= 0.);
-                assertTrue(resP1 <= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
+                assertThat(resP1 <= 0.).isTrue();
               }
             }
           }
@@ -1098,6 +1094,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for dualDelta
    */
+  @Test
   public void exDualDeltaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -1137,15 +1134,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -1185,15 +1182,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 4; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -1223,15 +1220,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -1267,15 +1264,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 4; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -1319,15 +1316,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -1363,15 +1360,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -1407,10 +1404,10 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.dualDelta(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.dualDelta(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
-                assertTrue(resC1 <= 0.);
-                assertTrue(resP1 >= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
+                assertThat(resC1 <= 0.).isTrue();
+                assertThat(resP1 >= 0.).isTrue();
               }
             }
           }
@@ -1422,6 +1419,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for gamma
    */
+  @Test
   public void exGammaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -1447,15 +1445,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -1481,15 +1479,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -1515,15 +1513,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -1547,15 +1545,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -1581,15 +1579,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -1617,15 +1615,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -1661,8 +1659,8 @@ public class BlackScholesFormulaRepositoryTest {
 
                 double resC1 = BlackScholesFormulaRepository.gamma(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(resC1 >= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
               }
             }
           }
@@ -1674,6 +1672,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for DualGamma
    */
+  @Test
   public void exDualGammaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -1699,15 +1698,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -1733,15 +1732,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -1767,15 +1766,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -1801,15 +1800,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -1837,15 +1836,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -1873,15 +1872,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -1916,8 +1915,8 @@ public class BlackScholesFormulaRepositoryTest {
                 double cost = COST_OF_CARRY_EX[ii];
                 double resC1 = BlackScholesFormulaRepository.dualGamma(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(resC1 >= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
               }
             }
           }
@@ -1929,6 +1928,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for crossGamma
    */
+  @Test
   public void excrossGammaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -1957,15 +1957,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -1991,15 +1991,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2025,15 +2025,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2059,15 +2059,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -2096,15 +2096,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -2132,15 +2132,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -2175,8 +2175,8 @@ public class BlackScholesFormulaRepositoryTest {
                 double cost = COST_OF_CARRY_EX[ii];
                 double resC1 = BlackScholesFormulaRepository.crossGamma(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(resC1 <= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(resC1 <= 0.).isTrue();
               }
             }
           }
@@ -2188,6 +2188,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for theta
    */
+  @Test
   public void exthetaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -2227,15 +2228,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2270,15 +2271,15 @@ public class BlackScholesFormulaRepositoryTest {
 
             if (rate != 0.) {
               if (refVec[k] > 1.e10) {
-                assertTrue(resVec[k] > 1.e10);
+                assertThat(resVec[k] > 1.e10).isTrue();
               } else {
                 if (refVec[k] < -1.e10) {
-                  assertTrue(resVec[k] < -1.e10);
+                  assertThat(resVec[k] < -1.e10).isTrue();
                 } else {
                   if (refVec[k] == 0.) {
-                    assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                    assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                   } else {
-                    assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                    assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                   }
                 }
               }
@@ -2309,15 +2310,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2353,15 +2354,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           if (rate != 0.) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
                 }
               }
             }
@@ -2403,15 +2404,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
               }
             }
           }
@@ -2445,15 +2446,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9)));
                 }
               }
             }
@@ -2490,8 +2491,8 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.theta(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.theta(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
               }
             }
           }
@@ -2503,6 +2504,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for charm
    */
+  @Test
   public void excharmTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -2542,15 +2544,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2585,15 +2587,15 @@ public class BlackScholesFormulaRepositoryTest {
 
             if (rate != 0.) {
               if (refVec[k] > 1.e10) {
-                assertTrue(resVec[k] > 1.e10);
+                assertThat(resVec[k] > 1.e10).isTrue();
               } else {
                 if (refVec[k] < -1.e10) {
-                  assertTrue(resVec[k] < -1.e10);
+                  assertThat(resVec[k] < -1.e10).isTrue();
                 } else {
                   if (refVec[k] == 0.) {
-                    assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                    assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                   } else {
-                    assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                    assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                   }
                 }
               }
@@ -2624,15 +2626,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2668,15 +2670,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           if (rate != 0.) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
                 }
               }
             }
@@ -2718,15 +2720,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
               }
             }
           }
@@ -2760,15 +2762,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9)));
                 }
               }
             }
@@ -2805,8 +2807,8 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.charm(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.charm(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
               }
             }
           }
@@ -2818,6 +2820,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for dualCharm
    */
+  @Test
   public void exdualCharmTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -2857,15 +2860,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2907,15 +2910,15 @@ public class BlackScholesFormulaRepositoryTest {
 
             if (rate != 0.) {
               if (refVec[k] > 1.e10) {
-                assertTrue(resVec[k] > 1.e10);
+                assertThat(resVec[k] > 1.e10).isTrue();
               } else {
                 if (refVec[k] < -1.e10) {
-                  assertTrue(resVec[k] < -1.e10);
+                  assertThat(resVec[k] < -1.e10).isTrue();
                 } else {
                   if (refVec[k] == 0.) {
-                    assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                    assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                   } else {
-                    assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                    assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                   }
                 }
               }
@@ -2946,15 +2949,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -2991,15 +2994,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           if (rate != 0.) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
                 }
               }
             }
@@ -3044,15 +3047,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
               }
             }
           }
@@ -3088,15 +3091,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9)));
                 }
               }
             }
@@ -3133,8 +3136,8 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.dualCharm(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.dualCharm(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
               }
             }
           }
@@ -3146,6 +3149,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for vega
    */
+  @Test
   public void exVegaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -3171,15 +3175,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -3205,15 +3209,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3239,15 +3243,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3271,15 +3275,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -3305,15 +3309,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -3341,15 +3345,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -3385,8 +3389,8 @@ public class BlackScholesFormulaRepositoryTest {
 
                 double resC1 = BlackScholesFormulaRepository.vega(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(resC1 >= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
               }
             }
           }
@@ -3398,6 +3402,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for vanna
    */
+  @Test
   public void exVannaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -3423,15 +3428,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -3457,15 +3462,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3491,15 +3496,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3523,15 +3528,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -3557,15 +3562,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
               }
             }
           }
@@ -3593,15 +3598,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -3637,7 +3642,7 @@ public class BlackScholesFormulaRepositoryTest {
 
                 double resC1 = BlackScholesFormulaRepository.vanna(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
               }
             }
           }
@@ -3649,6 +3654,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for dualVanna
    */
+  @Test
   public void exDualVannaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -3675,15 +3681,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -3709,15 +3715,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3743,15 +3749,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3777,15 +3783,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -3813,15 +3819,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
               }
             }
           }
@@ -3849,15 +3855,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -3893,7 +3899,7 @@ public class BlackScholesFormulaRepositoryTest {
 
                 double resC1 = BlackScholesFormulaRepository.dualVanna(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
               }
             }
           }
@@ -3905,6 +3911,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for vomma
    */
+  @Test
   public void exvommaTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -3930,15 +3937,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -3964,15 +3971,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -3998,15 +4005,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -4030,15 +4037,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -4064,15 +4071,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
               }
             }
           }
@@ -4100,15 +4107,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-8, 1.e-8));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-8, 1.e-8)));
                 }
               }
             }
@@ -4144,7 +4151,7 @@ public class BlackScholesFormulaRepositoryTest {
 
                 double resC1 = BlackScholesFormulaRepository.vomma(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
               }
             }
           }
@@ -4156,6 +4163,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for vegaBleed
    */
+  @Test
   public void exVegaBleedTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -4182,15 +4190,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -4216,15 +4224,15 @@ public class BlackScholesFormulaRepositoryTest {
 
           for (int k = 0; k < 2; ++k) {
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                  assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -4250,15 +4258,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 2; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -4284,15 +4292,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 2; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -4320,15 +4328,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 3; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e10);
+            assertThat(resVec[k] > 1.e10).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e10);
+              assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
               }
             }
           }
@@ -4356,15 +4364,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 3; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-8, 1.e-8));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-8, 1.e-8)));
                 }
               }
             }
@@ -4400,7 +4408,7 @@ public class BlackScholesFormulaRepositoryTest {
 
                 double resC1 = BlackScholesFormulaRepository.vegaBleed(spot, strike, time, vol, rate, cost);
 
-                assertTrue(!(Double.isNaN(resC1)));
+                assertThat(!(Double.isNaN(resC1))).isTrue();
               }
             }
           }
@@ -4412,6 +4420,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for rho
    */
+  @Test
   public void exRhoTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -4447,15 +4456,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e12);
+              assertThat(resVec[k] > 1.e12).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e12);
+                assertThat(resVec[k] < -1.e12).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                  assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
                 }
               }
             }
@@ -4488,15 +4497,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-8);
+                  assertThat(Math.abs(resVec[k]) < 1.e-8).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-9);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-9));
                 }
               }
             }
@@ -4526,15 +4535,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -4566,15 +4575,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 4; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -4611,15 +4620,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -4653,15 +4662,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -4698,10 +4707,10 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.rho(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.rho(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
-                assertTrue(resC1 >= 0.);
-                assertTrue(resP1 <= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
+                assertThat(resP1 <= 0.).isTrue();
               }
             }
           }
@@ -4713,6 +4722,7 @@ public class BlackScholesFormulaRepositoryTest {
   /**
    * Large/small values for carryRho
    */
+  @Test
   public void excarryRhoTest() {
     int nStrikes = STRIKES_INPUT.length;
     int nVols = VOLS.length;
@@ -4752,15 +4762,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-8);
+                  assertThat(Math.abs(resVec[k]) < 1.e-8).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-9);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-9));
                 }
               }
             }
@@ -4801,15 +4811,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e9);
+              assertThat(resVec[k] > 1.e9).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e9);
+                assertThat(resVec[k] < -1.e9).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-8);
+                  assertThat(Math.abs(resVec[k]) < 1.e-8).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-9);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-9));
                 }
               }
             }
@@ -4839,15 +4849,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 4; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-10);
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
                 }
               }
             }
@@ -4883,15 +4893,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 4; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+                assertThat(Math.abs(resVec[k]) < 1.e-12).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-12);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-12));
               }
             }
           }
@@ -4935,15 +4945,15 @@ public class BlackScholesFormulaRepositoryTest {
         for (int k = 0; k < 6; ++k) {
 
           if (refVec[k] > 1.e10) {
-            assertTrue(resVec[k] > 1.e12);
+            assertThat(resVec[k] > 1.e12).isTrue();
           } else {
             if (refVec[k] < -1.e10) {
-              assertTrue(resVec[k] < -1.e12);
+              assertThat(resVec[k] < -1.e12).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertTrue(Math.abs(resVec[k]) < 1.e-11);
+                assertThat(Math.abs(resVec[k]) < 1.e-11).isTrue();
               } else {
-                assertEquals(resVec[k], refVec[k], Math.abs(refVec[k]) * 1.e-11);
+                assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.abs(refVec[k]) * 1.e-11));
               }
             }
           }
@@ -4977,15 +4987,15 @@ public class BlackScholesFormulaRepositoryTest {
           for (int k = 0; k < 6; ++k) {
 
             if (refVec[k] > 1.e10) {
-              assertTrue(resVec[k] > 1.e10);
+              assertThat(resVec[k] > 1.e10).isTrue();
             } else {
               if (refVec[k] < -1.e10) {
-                assertTrue(resVec[k] < -1.e10);
+                assertThat(resVec[k] < -1.e10).isTrue();
               } else {
                 if (refVec[k] == 0.) {
-                  assertTrue(Math.abs(resVec[k]) < 1.e-10);
+                  assertThat(Math.abs(resVec[k]) < 1.e-10).isTrue();
                 } else {
-                  assertEquals(resVec[k], refVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+                  assertThat(resVec[k]).isCloseTo(refVec[k], offset(Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10)));
                 }
               }
             }
@@ -5022,10 +5032,10 @@ public class BlackScholesFormulaRepositoryTest {
                 double resC1 = BlackScholesFormulaRepository.carryRho(spot, strike, time, vol, rate, cost, true);
                 double resP1 = BlackScholesFormulaRepository.carryRho(spot, strike, time, vol, rate, cost, false);
 
-                assertTrue(!(Double.isNaN(resC1)));
-                assertTrue(!(Double.isNaN(resP1)));
-                assertTrue(resC1 >= 0.);
-                assertTrue(resP1 <= 0.);
+                assertThat(!(Double.isNaN(resC1))).isTrue();
+                assertThat(!(Double.isNaN(resP1))).isTrue();
+                assertThat(resC1 >= 0.).isTrue();
+                assertThat(resP1 <= 0.).isTrue();
               }
             }
           }
@@ -5041,931 +5051,725 @@ public class BlackScholesFormulaRepositoryTest {
    *
    */
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorstrikeForDeltaTest() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        SPOT, 0.1, TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            SPOT, 0.1, TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorstrikeForDeltaTest() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        -SPOT, 0.1, TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            -SPOT, 0.1, TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorstrikeForDeltaTest() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        SPOT, 0.1, -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            SPOT, 0.1, -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void rangeErrorstrikeForDelta1Test() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        SPOT, 100., TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            SPOT, 100., TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void rangeErrorstrikeForDelta2Test() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        SPOT, -100., TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            SPOT, -100., TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void rangeErrorstrikeForDelta3Test() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        SPOT, 100., TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, false);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            SPOT, 100., TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, false));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void rangeErrorstrikeForDelta4Test() {
-    BlackScholesFormulaRepository.strikeForDelta(
-        SPOT, -100., TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, false);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.strikeForDelta(
+            SPOT, -100., TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, false));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorPriceTest() {
-    BlackScholesFormulaRepository.price(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.price(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorPriceTest() {
-    BlackScholesFormulaRepository.price(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.price(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorPriceTest() {
-    BlackScholesFormulaRepository.price(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.price(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorPriceTest() {
-    BlackScholesFormulaRepository.price(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.price(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorPriceTest() {
-    BlackScholesFormulaRepository.price(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.price(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorPriceTest() {
-    BlackScholesFormulaRepository.price(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.price(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrordeltaTest() {
-    BlackScholesFormulaRepository.delta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.delta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrordeltaTest() {
-    BlackScholesFormulaRepository.delta(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.delta(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrordeltaTest() {
-    BlackScholesFormulaRepository.delta(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.delta(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrordeltaTest() {
-    BlackScholesFormulaRepository.delta(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.delta(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrordeltaTest() {
-    BlackScholesFormulaRepository.delta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.delta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrordeltaTest() {
-    BlackScholesFormulaRepository.delta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.delta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrordualDeltaTest() {
-    BlackScholesFormulaRepository.dualDelta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualDelta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrordualDeltaTest() {
-    BlackScholesFormulaRepository.dualDelta(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualDelta(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrordualDeltaTest() {
-    BlackScholesFormulaRepository.dualDelta(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualDelta(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrordualDeltaTest() {
-    BlackScholesFormulaRepository.dualDelta(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualDelta(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrordualDeltaTest() {
-    BlackScholesFormulaRepository.dualDelta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualDelta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrordualDeltaTest() {
-    BlackScholesFormulaRepository.dualDelta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualDelta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorgammaTest() {
-    BlackScholesFormulaRepository.gamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.gamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorgammaTest() {
-    BlackScholesFormulaRepository.gamma(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.gamma(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorgammaTest() {
-    BlackScholesFormulaRepository.gamma(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.gamma(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorgammaTest() {
-    BlackScholesFormulaRepository.gamma(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.gamma(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorgammaTest() {
-    BlackScholesFormulaRepository.gamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.gamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorgammaTest() {
-    BlackScholesFormulaRepository.gamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.gamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrordualGammaTest() {
-    BlackScholesFormulaRepository.dualGamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualGamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrordualGammaTest() {
-    BlackScholesFormulaRepository.dualGamma(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualGamma(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrordualGammaTest() {
-    BlackScholesFormulaRepository.dualGamma(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualGamma(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrordualGammaTest() {
-    BlackScholesFormulaRepository.dualGamma(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualGamma(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrordualGammaTest() {
-    BlackScholesFormulaRepository.dualGamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualGamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrordualGammaTest() {
-    BlackScholesFormulaRepository.dualGamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualGamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorcrossGammaTest() {
-    BlackScholesFormulaRepository.crossGamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.crossGamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorcrossGammaTest() {
-    BlackScholesFormulaRepository.crossGamma(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.crossGamma(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorcrossGammaTest() {
-    BlackScholesFormulaRepository.crossGamma(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.crossGamma(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorcrossGammaTest() {
-    BlackScholesFormulaRepository.crossGamma(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.crossGamma(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorcrossGammaTest() {
-    BlackScholesFormulaRepository.crossGamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.crossGamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorcrossGammaTest() {
-    BlackScholesFormulaRepository.crossGamma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.crossGamma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorthetaTest() {
-    BlackScholesFormulaRepository.theta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.theta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorthetaTest() {
-    BlackScholesFormulaRepository.theta(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.theta(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorthetaTest() {
-    BlackScholesFormulaRepository.theta(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.theta(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorthetaTest() {
-    BlackScholesFormulaRepository.theta(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.theta(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorthetaTest() {
-    BlackScholesFormulaRepository.theta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.theta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorthetaTest() {
-    BlackScholesFormulaRepository.theta(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.theta(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorcharmTest() {
-    BlackScholesFormulaRepository.charm(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.charm(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorcharmTest() {
-    BlackScholesFormulaRepository.charm(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.charm(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorcharmTest() {
-    BlackScholesFormulaRepository.charm(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.charm(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorcharmTest() {
-    BlackScholesFormulaRepository.charm(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.charm(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorcharmTest() {
-    BlackScholesFormulaRepository.charm(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.charm(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorcharmTest() {
-    BlackScholesFormulaRepository.charm(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.charm(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrordualCharmTest() {
-    BlackScholesFormulaRepository.dualCharm(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualCharm(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrordualCharmTest() {
-    BlackScholesFormulaRepository.dualCharm(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualCharm(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrordualCharmTest() {
-    BlackScholesFormulaRepository.dualCharm(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualCharm(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrordualCharmTest() {
-    BlackScholesFormulaRepository.dualCharm(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualCharm(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrordualCharmTest() {
-    BlackScholesFormulaRepository.dualCharm(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualCharm(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrordualCharmTest() {
-    BlackScholesFormulaRepository.dualCharm(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualCharm(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorvegaTest() {
-    BlackScholesFormulaRepository.vega(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vega(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorvegaTest() {
-    BlackScholesFormulaRepository.vega(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vega(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorvegaTest() {
-    BlackScholesFormulaRepository.vega(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vega(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorvegaTest() {
-    BlackScholesFormulaRepository.vega(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vega(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorvegaTest() {
-    BlackScholesFormulaRepository.vega(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vega(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorvegaTest() {
-    BlackScholesFormulaRepository.vega(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vega(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorvannaTest() {
-    BlackScholesFormulaRepository.vanna(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vanna(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorvannaTest() {
-    BlackScholesFormulaRepository.vanna(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vanna(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorvannaTest() {
-    BlackScholesFormulaRepository.vanna(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vanna(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorvannaTest() {
-    BlackScholesFormulaRepository.vanna(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vanna(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorvannaTest() {
-    BlackScholesFormulaRepository.vanna(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vanna(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorvannaTest() {
-    BlackScholesFormulaRepository.vanna(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vanna(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrordualVannaTest() {
-    BlackScholesFormulaRepository.dualVanna(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualVanna(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrordualVannaTest() {
-    BlackScholesFormulaRepository.dualVanna(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualVanna(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrordualVannaTest() {
-    BlackScholesFormulaRepository.dualVanna(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualVanna(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrordualVannaTest() {
-    BlackScholesFormulaRepository.dualVanna(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualVanna(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrordualVannaTest() {
-    BlackScholesFormulaRepository.dualVanna(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualVanna(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrordualVannaTest() {
-    BlackScholesFormulaRepository.dualVanna(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.dualVanna(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorvommaTest() {
-    BlackScholesFormulaRepository.vomma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vomma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorvommaTest() {
-    BlackScholesFormulaRepository.vomma(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vomma(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorvommaTest() {
-    BlackScholesFormulaRepository.vomma(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vomma(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorvommaTest() {
-    BlackScholesFormulaRepository.vomma(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vomma(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorvommaTest() {
-    BlackScholesFormulaRepository.vomma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vomma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorvommaTest() {
-    BlackScholesFormulaRepository.vomma(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vomma(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorvegaBleedTest() {
-    BlackScholesFormulaRepository.vegaBleed(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vegaBleed(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorvegaBleedTest() {
-    BlackScholesFormulaRepository.vegaBleed(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vegaBleed(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorvegaBleedTest() {
-    BlackScholesFormulaRepository.vegaBleed(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vegaBleed(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorvegaBleedTest() {
-    BlackScholesFormulaRepository.vegaBleed(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vegaBleed(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorvegaBleedTest() {
-    BlackScholesFormulaRepository.vegaBleed(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vegaBleed(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorvegaBleedTest() {
-    BlackScholesFormulaRepository.vegaBleed(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.vegaBleed(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorrhoTest() {
-    BlackScholesFormulaRepository.rho(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.rho(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorrhoTest() {
-    BlackScholesFormulaRepository.rho(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.rho(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorrhoTest() {
-    BlackScholesFormulaRepository.rho(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.rho(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorrhoTest() {
-    BlackScholesFormulaRepository.rho(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.rho(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorrhoTest() {
-    BlackScholesFormulaRepository.rho(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.rho(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorrhoTest() {
-    BlackScholesFormulaRepository.rho(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.rho(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeVolErrorcarryRhoTest() {
-    BlackScholesFormulaRepository.carryRho(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.carryRho(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeSpotErrorcarryRhoTest() {
-    BlackScholesFormulaRepository.carryRho(
-        -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.carryRho(
+            -SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeStrikeErrorcarryRhoTest() {
-    BlackScholesFormulaRepository.carryRho(
-        SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.carryRho(
+            SPOT, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negativeTimeErrorcarryRhoTest() {
-    BlackScholesFormulaRepository.carryRho(
-        SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.carryRho(
+            SPOT, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanIntErrorcarryRhoTest() {
-    BlackScholesFormulaRepository.carryRho(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.carryRho(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], NAN, COST_OF_CARRY, true));
   }
 
-  /**
-   *
-   */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanCarryErrorcarryRhoTest() {
-    BlackScholesFormulaRepository.carryRho(
-        SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BlackScholesFormulaRepository.carryRho(
+            SPOT, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], INTEREST_RATES[1], NAN, true));
   }
 
 }

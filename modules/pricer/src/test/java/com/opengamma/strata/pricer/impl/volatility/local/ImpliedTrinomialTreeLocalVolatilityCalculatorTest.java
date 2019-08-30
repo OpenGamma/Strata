@@ -10,11 +10,12 @@ import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_SPLINE_NONNEGATIVITY_CUBIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -30,7 +31,6 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 /**
  * Test {@link ImpliedTrinomialTreeLocalVolatilityCalculator}.
  */
-@Test
 public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
 
   private static final GridSurfaceInterpolator INTERP_LINEAR = GridSurfaceInterpolator.of(LINEAR, LINEAR);
@@ -56,6 +56,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
       InterpolatedNodalSurface.ofUnsorted(DefaultSurfaceMetadata.of("Test"), TIMES, STRIKES, PRICES, INTERP_CUBIC_NN);
   private static final double SPOT = 1.40;
 
+  @Test
   public void flatVolTest() {
     double tol = 2.0e-2;
     double constantVol = 0.15;
@@ -76,9 +77,10 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
         new ImpliedTrinomialTreeLocalVolatilityCalculator(45, 1d, INTERP_TIMESQ_LINEAR);
     InterpolatedNodalSurface localVolSurface =
         calc.localVolatilityFromImpliedVolatility(impliedVolSurface, 100d, zeroRate, zeroRate1);
-    assertEquals(localVolSurface.getZValues().stream().filter(d -> !DoubleMath.fuzzyEquals(d, constantVol, tol)).count(), 0);
+    assertThat(localVolSurface.getZValues().stream().filter(d -> !DoubleMath.fuzzyEquals(d, constantVol, tol)).count()).isEqualTo(0);
   }
 
+  @Test
   public void flatVolPriceTest() {
     double tol = 2.0e-2;
     double constantVol = 0.15;
@@ -103,9 +105,10 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
     ImpliedTrinomialTreeLocalVolatilityCalculator calc =
         new ImpliedTrinomialTreeLocalVolatilityCalculator(nSteps, maxTime, INTERP_TIMESQ_LINEAR);
     InterpolatedNodalSurface localVolSurface = calc.localVolatilityFromPrice(priceSurface, spot, zeroRate, zeroRate);
-    assertEquals(localVolSurface.getZValues().stream().filter(d -> !DoubleMath.fuzzyEquals(d, constantVol, tol)).count(), 0);
+    assertThat(localVolSurface.getZValues().stream().filter(d -> !DoubleMath.fuzzyEquals(d, constantVol, tol)).count()).isEqualTo(0);
   }
 
+  @Test
   public void comparisonDupireVolTest() {
     double tol = 1.0e-2;
     ImpliedTrinomialTreeLocalVolatilityCalculator calc =
@@ -133,11 +136,12 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
       for (double strike : sampleStrikes[i]) {
         double volTri = resTri.zValue(time, strike);
         double volDup = resDup.zValue(time, strike);
-        assertEquals(volTri, volDup, tol);
+        assertThat(volTri).isCloseTo(volDup, offset(tol));
       }
     }
   }
 
+  @Test
   public void comparisonDupirePriceTest() {
     double tol = 7.0e-2;
     ImpliedTrinomialTreeLocalVolatilityCalculator calc =
@@ -165,7 +169,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
       for (double strike : sampleStrikes[i]) {
         double volTri = resTri.zValue(time, strike);
         double volDup = resDup.zValue(time, strike);
-        assertEquals(volTri, volDup, tol);
+        assertThat(volTri).isCloseTo(volDup, offset(tol));
       }
     }
   }

@@ -17,13 +17,12 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.Iterables;
 import com.opengamma.strata.basics.ReferenceData;
@@ -59,7 +58,6 @@ import com.opengamma.strata.product.swap.SwapLeg;
 /**
  * Test {@link CurveGammaCalculator}.
  */
-@Test
 public class CurveGammaCalculatorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -93,6 +91,7 @@ public class CurveGammaCalculatorTest {
   private static final double TOLERANCE_GAMMA = 1.0E+1;
 
   //-------------------------------------------------------------------------
+  @Test
   public void semiParallelGammaValue() {
     ImmutableRatesProvider provider = SINGLE;
     Currency curveCurrency = SINGLE_CURRENCY;
@@ -124,12 +123,13 @@ public class CurveGammaCalculatorTest {
         USD_SINGLE_CURVE,
         curveCurrency,
         c -> buildSensitivities(c, provider));
-    assertEquals(sensitivityComputed.getMarketDataName(), USD_SINGLE_CURVE.getName());
+    assertThat(sensitivityComputed.getMarketDataName()).isEqualTo(USD_SINGLE_CURVE.getName());
     DoubleArray gammaComputed = sensitivityComputed.getSensitivity();
-    assertTrue(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA));
+    assertThat(gammaComputed.equalWithTolerance(gammaExpected, TOLERANCE_GAMMA)).isTrue();
   }
 
   // Checks that different finite difference types and shifts give similar results.
+  @Test
   public void semiParallelGammaCoherency() {
     ImmutableRatesProvider provider = SINGLE;
     Curve curve = Iterables.getOnlyElement(provider.getDiscountCurves().values());
@@ -143,15 +143,15 @@ public class CurveGammaCalculatorTest {
 
     DoubleArray gammaForward5 = calculatorForward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    assertTrue(gammaForward5.equalWithTolerance(gammaCentral5, toleranceCoherency));
+    assertThat(gammaForward5.equalWithTolerance(gammaCentral5, toleranceCoherency)).isTrue();
 
     DoubleArray gammaBackward5 = calculatorBackward5.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    assertTrue(gammaForward5.equalWithTolerance(gammaBackward5, toleranceCoherency));
+    assertThat(gammaForward5.equalWithTolerance(gammaBackward5, toleranceCoherency)).isTrue();
 
     DoubleArray gammaCentral4 = calculatorCentral4.calculateSemiParallelGamma(
         curve, curveCurrency, c -> buildSensitivities(c, provider)).getSensitivity();
-    assertTrue(gammaForward5.equalWithTolerance(gammaCentral4, toleranceCoherency));
+    assertThat(gammaForward5.equalWithTolerance(gammaCentral4, toleranceCoherency)).isTrue();
   }
 
   //-------------------------------------------------------------------------

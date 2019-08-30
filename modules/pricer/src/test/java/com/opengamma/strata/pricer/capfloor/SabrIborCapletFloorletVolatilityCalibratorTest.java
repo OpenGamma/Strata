@@ -11,12 +11,13 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.Period;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -32,7 +33,6 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 /**
  * Test {@link SabrIborCapletFloorletVolatilityCalibrator}.
  */
-@Test
 public class SabrIborCapletFloorletVolatilityCalibratorTest
     extends CapletStrippingSetup {
 
@@ -46,6 +46,7 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
   private static final DoubleArray NU_KNOTS = DoubleArray.of(0.75, 1.75, 2.75, 4.75, 6.75, 9.75);
   private static final double TOL = 1.0e-3;
 
+  @Test
   public void recovery_test_black() {
     double beta = 0.7;
     SabrIborCapletFloorletVolatilityCalibrationDefinition definition =
@@ -72,17 +73,18 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 3d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 3d));
       }
     }
-    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
-    assertEquals(resVols.getName(), definition.getName());
-    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
-    assertEquals(resVols.getParameterCount(), ALPHA_KNOTS.size() + BETA_RHO_KNOTS.size() + NU_KNOTS.size() + 2); // beta, shift counted
-    assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
-    assertEquals(resVols.getParameters().getBetaCurve(), definition.getBetaCurve().get());
+    assertThat(resVols.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(resVols.getName()).isEqualTo(definition.getName());
+    assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
+    assertThat(resVols.getParameterCount()).isEqualTo(ALPHA_KNOTS.size() + BETA_RHO_KNOTS.size() + NU_KNOTS.size() + 2); // beta, shift counted
+    assertThat(resVols.getParameters().getShiftCurve()).isEqualTo(definition.getShiftCurve());
+    assertThat(resVols.getParameters().getBetaCurve()).isEqualTo(definition.getBetaCurve().get());
   }
 
+  @Test
   public void recovery_test_black_fixedRho() {
     double rho = 0.15;
     SabrIborCapletFloorletVolatilityCalibrationDefinition definition =
@@ -109,17 +111,18 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
-    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
-    assertEquals(resVols.getName(), definition.getName());
-    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
-    assertEquals(resVols.getParameterCount(), ALPHA_KNOTS.size() + BETA_RHO_KNOTS.size() + NU_KNOTS.size() + 2); // beta, shift counted
-    assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
-    assertEquals(resVols.getParameters().getRhoCurve(), definition.getRhoCurve().get());
+    assertThat(resVols.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(resVols.getName()).isEqualTo(definition.getName());
+    assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
+    assertThat(resVols.getParameterCount()).isEqualTo(ALPHA_KNOTS.size() + BETA_RHO_KNOTS.size() + NU_KNOTS.size() + 2); // beta, shift counted
+    assertThat(resVols.getParameters().getShiftCurve()).isEqualTo(definition.getShiftCurve());
+    assertThat(resVols.getParameters().getRhoCurve()).isEqualTo(definition.getRhoCurve().get());
   }
 
+  @Test
   public void recovery_test_black_shift() {
     double shift = 0.05;
     DoubleArray initial = DoubleArray.of(0.03, 0.7, 0.15, 0.9);
@@ -145,13 +148,14 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
-    assertEquals(resVols.getParameters().getBetaCurve(), definition.getBetaCurve().get());
-    assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
+    assertThat(resVols.getParameters().getBetaCurve()).isEqualTo(definition.getBetaCurve().get());
+    assertThat(resVols.getParameters().getShiftCurve()).isEqualTo(definition.getShiftCurve());
   }
 
+  @Test
   public void recovery_test_black_shift_fixedRho() {
     double shift = 0.05;
     DoubleArray initial = DoubleArray.of(0.03, 0.7, 0.35, 0.9);
@@ -177,13 +181,14 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
-    assertEquals(resVols.getParameters().getShiftCurve(), definition.getShiftCurve());
-    assertEquals(resVols.getParameters().getRhoCurve(), definition.getRhoCurve().get());
+    assertThat(resVols.getParameters().getShiftCurve()).isEqualTo(definition.getShiftCurve());
+    assertThat(resVols.getParameters().getRhoCurve()).isEqualTo(definition.getRhoCurve().get());
   }
 
+  @Test
   public void recovery_test_flat() {
     DoubleArray initial = DoubleArray.of(0.4, 0.95, 0.5, 0.05);
     SabrIborCapletFloorletVolatilityCalibrationDefinition definition =
@@ -207,11 +212,12 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVol).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
       }
     }
   }
 
+  @Test
   public void recovery_test_normal() {
     double beta = 0.7;
     SabrIborCapletFloorletVolatilityCalibrationDefinition definition =
@@ -238,11 +244,12 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 3d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 3d));
       }
     }
   }
 
+  @Test
   public void recovery_test_normal_fixedRho() {
     DoubleArray initial = DoubleArray.of(0.05, 0.7, 0.35, 0.9);
     SabrIborCapletFloorletVolatilityCalibrationDefinition definition =
@@ -269,11 +276,12 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
   }
 
+  @Test
   public void recovery_test_normal_shift() {
     double shift = 0.02;
     DoubleArray initial = DoubleArray.of(0.05, 0.7, 0.35, 0.9);
@@ -301,11 +309,12 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
   }
 
+  @Test
   public void recovery_test_normal_shift_fixedRho() {
     double shift = 0.02;
     DoubleArray initial = DoubleArray.of(0.05, 0.35, 0.0, 0.9);
@@ -333,7 +342,7 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_SABR.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
   }

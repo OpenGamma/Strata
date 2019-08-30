@@ -10,17 +10,17 @@ import static com.opengamma.strata.basics.index.OvernightIndices.CHF_TOIS;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -50,7 +50,6 @@ import com.opengamma.strata.product.rate.OvernightAveragedRateComputation;
 /**
  * Test {@link ForwardOvernightAveragedRateComputationFn}.
  */
-@Test
 @SuppressWarnings("deprecation")
 public class ForwardOvernightAveragedRateComputationFnTest {
 
@@ -94,6 +93,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
 
   //-------------------------------------------------------------------------
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and no cutoff period. */
+  @Test
   public void rateFedFundNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -117,20 +117,21 @@ public class ForwardOvernightAveragedRateComputationFnTest {
     }
     double rateExpected = accruedRate / accrualFactorTotal;
     double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-    assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
 
     // explain
     ExplainMapBuilder builder = ExplainMap.builder();
     double explainedRate = obsFn.explainRate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv, builder);
-    assertEquals(explainedRate, rateExpected, TOLERANCE_RATE);
+    assertThat(explainedRate).isCloseTo(rateExpected, offset(TOLERANCE_RATE));
 
     ExplainMap built = builder.build();
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), false);
-    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, TOLERANCE_RATE);
+    assertThat(built.get(ExplainKey.OBSERVATIONS)).isNotPresent();
+    assertThat(built.get(ExplainKey.COMBINED_RATE).get().doubleValue()).isCloseTo(rateExpected, offset(TOLERANCE_RATE));
   }
 
   /** Test against FD approximation for the case where publication lag=1, effective offset=0 (USD conventions) and 
    * no cutoff period. Note that all the rates are bumped here, i.e., all the rates are treated as forward rates.*/
+  @Test
   public void rateFedFundNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -150,13 +151,14 @@ public class ForwardOvernightAveragedRateComputationFnTest {
         DUMMY_ACCRUAL_END_DATE, simpleProv);
     PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
     Double[] sensitivityExpected = computedSensitivityFD(ro, USD_FED_FUND, USD_OBS);
-    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    assertThat(sensitivityComputed.getSensitivities()).hasSize(sensitivityExpected.length);
     for (int i = 0; i < sensitivityExpected.length; ++i) {
-      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+      assertThat(sensitivityComputed.getSensitivities().get(i).getSensitivity()).isCloseTo(sensitivityExpected[i], offset(EPS_FD));
     }
   }
 
   /** Test for the case where publication lag=1, effective offset=0 (USD conventions) and cutoff=2 (FedFund swaps). */
+  @Test
   public void rateFedFund() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -184,12 +186,13 @@ public class ForwardOvernightAveragedRateComputationFnTest {
     accruedRate += FIXING_RATES[indexLast - 1] * af;
     double rateExpected = accruedRate / accrualFactorTotal;
     double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-    assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
   }
 
   /** Test against FD approximation for the case where publication lag=1, effective offset=0 (USD conventions) and 
    * cutoff=2 (FedFund swaps). 
    * Note that all the rates are bumped here, i.e., all the rates are treated as forward rates. */
+  @Test
   public void rateFedFundSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
@@ -208,9 +211,9 @@ public class ForwardOvernightAveragedRateComputationFnTest {
         DUMMY_ACCRUAL_END_DATE, simpleProv);
     PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
     Double[] sensitivityExpected = computedSensitivityFD(ro, USD_FED_FUND, USD_OBS);
-    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    assertThat(sensitivityComputed.getSensitivities()).hasSize(sensitivityExpected.length);
     for (int i = 0; i < sensitivityExpected.length; ++i) {
-      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+      assertThat(sensitivityComputed.getSensitivities().get(i).getSensitivity()).isCloseTo(sensitivityExpected[i], offset(EPS_FD));
     }
   }
 
@@ -218,6 +221,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
    * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period.
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
    */
+  @Test
   public void rateChfNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(CHF_TOIS);
@@ -241,13 +245,14 @@ public class ForwardOvernightAveragedRateComputationFnTest {
     }
     double rateExpected = accruedRate / accrualFactorTotal;
     double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-    assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
   }
 
   /**
    * Test for the case where publication lag=0, effective offset=1 (CHF conventions) and no cutoff period.
    * The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case.
    */
+  @Test
   public void rateChfNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(CHF_TOIS);
@@ -265,14 +270,15 @@ public class ForwardOvernightAveragedRateComputationFnTest {
         DUMMY_ACCRUAL_END_DATE, simpleProv);
     PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
     Double[] sensitivityExpected = computedSensitivityFD(ro, CHF_TOIS, CHF_OBS);
-    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    assertThat(sensitivityComputed.getSensitivities()).hasSize(sensitivityExpected.length);
     for (int i = 0; i < sensitivityExpected.length; ++i) {
-      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+      assertThat(sensitivityComputed.getSensitivities().get(i).getSensitivity()).isCloseTo(sensitivityExpected[i], offset(EPS_FD));
     }
   }
 
   /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period.
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
+  @Test
   public void rateGbpNoCutOff() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(GBP_SONIA);
@@ -296,11 +302,12 @@ public class ForwardOvernightAveragedRateComputationFnTest {
     }
     double rateExpected = accruedRate / accrualFactorTotal;
     double rateComputed = obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-    assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+    assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
   }
 
   /** Test for the case where publication lag=0, effective offset=0 (GBP conventions) and no cutoff period.
     *   The arithmetic average coupons are used mainly in USD. This test is more for completeness than a real case. */
+  @Test
   public void rateGbpNoCutOffSensitivity() {
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
     when(mockRates.getIndex()).thenReturn(GBP_SONIA);
@@ -318,9 +325,9 @@ public class ForwardOvernightAveragedRateComputationFnTest {
         DUMMY_ACCRUAL_END_DATE, simpleProv);
     PointSensitivities sensitivityComputed = sensitivityBuilderComputed.build().normalized();
     Double[] sensitivityExpected = computedSensitivityFD(ro, GBP_SONIA, GBP_OBS);
-    assertEquals(sensitivityComputed.getSensitivities().size(), sensitivityExpected.length);
+    assertThat(sensitivityComputed.getSensitivities()).hasSize(sensitivityExpected.length);
     for (int i = 0; i < sensitivityExpected.length; ++i) {
-      assertEquals(sensitivityComputed.getSensitivities().get(i).getSensitivity(), sensitivityExpected[i], EPS_FD);
+      assertThat(sensitivityComputed.getSensitivities().get(i).getSensitivity()).isCloseTo(sensitivityExpected[i], offset(EPS_FD));
     }
   }
 
@@ -338,6 +345,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   /** Test parameter sensitivity with finite difference sensitivity calculator. Two days cutoff period. */
+  @Test
   public void rateFedFundTwoDaysCutoffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     DoubleArray time = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
@@ -361,11 +369,12 @@ public class ForwardOvernightAveragedRateComputationFnTest {
       CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0)).isTrue();
     }
   }
 
   /** Test parameter sensitivity with finite difference sensitivity calculator. No cutoff period. */
+  @Test
   public void rateChfNoCutOffParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     DoubleArray time = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
@@ -389,7 +398,7 @@ public class ForwardOvernightAveragedRateComputationFnTest {
       CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(CHF_TOIS.getCurrency(),
               obsFn.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0)).isTrue();
     }
   }
 

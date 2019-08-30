@@ -23,14 +23,13 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.time.Period;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -54,7 +53,6 @@ import com.opengamma.strata.pricer.option.RawOptionData;
 /**
  * Test {@link SabrIborCapletFloorletVolatilityCalibrationDefinition}.
  */
-@Test
 public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
 
   private static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("test");
@@ -71,80 +69,81 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
   private static final RawOptionData SAMPLE_BLACK = RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, BLACK_VOLATILITY);
   private static final RawOptionData SAMPLE_NORMAL = RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, NORMAL_VOLATILITY);
 
+  @Test
   public void test_ofFixedBeta() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
             NAME, USD_LIBOR_3M, ACT_365F, BETA_RHO, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, LINEAR, HAGAN);
-    assertEquals(test.getBetaCurve().get(),
-        ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_365F, SABR_BETA), BETA_RHO));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getExtrapolatorLeft(), FLAT);
-    assertEquals(test.getExtrapolatorRight(), LINEAR);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInitialParameters(), DoubleArray.of(0.1, BETA_RHO, -0.2, 0.5));
-    assertEquals(test.getInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getName(), NAME);
-    assertFalse(test.getRhoCurve().isPresent());
-    assertEquals(test.getSabrVolatilityFormula(), HAGAN);
-    assertEquals(test.getShiftCurve(), ConstantCurve.of("Zero shift", 0d));
+    assertThat(test.getBetaCurve().get()).isEqualTo(ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_365F, SABR_BETA), BETA_RHO));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(LINEAR);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInitialParameters()).isEqualTo(DoubleArray.of(0.1, BETA_RHO, -0.2, 0.5));
+    assertThat(test.getInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getRhoCurve().isPresent()).isFalse();
+    assertThat(test.getSabrVolatilityFormula()).isEqualTo(HAGAN);
+    assertThat(test.getShiftCurve()).isEqualTo(ConstantCurve.of("Zero shift", 0d));
   }
 
+  @Test
   public void test_ofFixedBeta_shift() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
             NAME, USD_LIBOR_3M, ACT_365F, BETA_RHO, SHIFT, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, LINEAR,
             HAGAN);
-    assertEquals(test.getBetaCurve().get(),
-        ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_365F, SABR_BETA), BETA_RHO));
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getExtrapolatorLeft(), FLAT);
-    assertEquals(test.getExtrapolatorRight(), LINEAR);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInitialParameters(), DoubleArray.of(0.1, BETA_RHO, -0.2, 0.5));
-    assertEquals(test.getInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getName(), NAME);
-    assertFalse(test.getRhoCurve().isPresent());
-    assertEquals(test.getSabrVolatilityFormula(), HAGAN);
-    assertEquals(test.getShiftCurve(), ConstantCurve.of("Shift curve", SHIFT));
+    assertThat(test.getBetaCurve().get()).isEqualTo(ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_365F, SABR_BETA), BETA_RHO));
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(LINEAR);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInitialParameters()).isEqualTo(DoubleArray.of(0.1, BETA_RHO, -0.2, 0.5));
+    assertThat(test.getInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getRhoCurve().isPresent()).isFalse();
+    assertThat(test.getSabrVolatilityFormula()).isEqualTo(HAGAN);
+    assertThat(test.getShiftCurve()).isEqualTo(ConstantCurve.of("Shift curve", SHIFT));
   }
 
+  @Test
   public void test_ofFixedRho() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedRho(
             NAME, USD_LIBOR_3M, ACT_365F, BETA_RHO, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, LINEAR, HAGAN);
-    assertFalse(test.getBetaCurve().isPresent());
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getExtrapolatorLeft(), FLAT);
-    assertEquals(test.getExtrapolatorRight(), LINEAR);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInitialParameters(), DoubleArray.of(0.1, 0.7, BETA_RHO, 0.5));
-    assertEquals(test.getInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getRhoCurve().get(),
-        ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_365F, SABR_RHO), BETA_RHO));
-    assertEquals(test.getSabrVolatilityFormula(), HAGAN);
-    assertEquals(test.getShiftCurve(), ConstantCurve.of("Zero shift", 0d));
+    assertThat(test.getBetaCurve().isPresent()).isFalse();
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(LINEAR);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInitialParameters()).isEqualTo(DoubleArray.of(0.1, 0.7, BETA_RHO, 0.5));
+    assertThat(test.getInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getRhoCurve().get()).isEqualTo(ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_365F, SABR_RHO), BETA_RHO));
+    assertThat(test.getSabrVolatilityFormula()).isEqualTo(HAGAN);
+    assertThat(test.getShiftCurve()).isEqualTo(ConstantCurve.of("Zero shift", 0d));
   }
 
+  @Test
   public void test_ofFixedRho_shift() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedRho(
             NAME, USD_LIBOR_3M, ACT_365F, BETA_RHO, SHIFT, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, LINEAR,
             HAGAN);
-    assertFalse(test.getBetaCurve().isPresent());
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getExtrapolatorLeft(), FLAT);
-    assertEquals(test.getExtrapolatorRight(), LINEAR);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInitialParameters(), DoubleArray.of(0.1, 0.7, BETA_RHO, 0.5));
-    assertEquals(test.getInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getRhoCurve().get(),
-        ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_365F, SABR_RHO), BETA_RHO));
-    assertEquals(test.getSabrVolatilityFormula(), HAGAN);
-    assertEquals(test.getShiftCurve(), ConstantCurve.of("Shift curve", SHIFT));
+    assertThat(test.getBetaCurve().isPresent()).isFalse();
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(LINEAR);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInitialParameters()).isEqualTo(DoubleArray.of(0.1, 0.7, BETA_RHO, 0.5));
+    assertThat(test.getInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getRhoCurve().get()).isEqualTo(ConstantCurve.of(Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_365F, SABR_RHO), BETA_RHO));
+    assertThat(test.getSabrVolatilityFormula()).isEqualTo(HAGAN);
+    assertThat(test.getShiftCurve()).isEqualTo(ConstantCurve.of("Shift curve", SHIFT));
   }
 
+  @Test
   public void test_builder() {
     Curve betaCurve = InterpolatedNodalCurve.of(
         Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_365F, SABR_BETA),
@@ -168,19 +167,20 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
             .sabrVolatilityFormula(HAGAN)
             .shiftCurve(shiftCurve)
             .build();
-    assertEquals(test.getBetaCurve().get(), betaCurve);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getExtrapolatorLeft(), FLAT);
-    assertEquals(test.getExtrapolatorRight(), FLAT);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInitialParameters(), initial);
-    assertEquals(test.getInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getName(), NAME);
-    assertFalse(test.getRhoCurve().isPresent());
-    assertEquals(test.getSabrVolatilityFormula(), HAGAN);
-    assertEquals(test.getShiftCurve(), shiftCurve);
+    assertThat(test.getBetaCurve().get()).isEqualTo(betaCurve);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(FLAT);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInitialParameters()).isEqualTo(initial);
+    assertThat(test.getInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getRhoCurve().isPresent()).isFalse();
+    assertThat(test.getSabrVolatilityFormula()).isEqualTo(HAGAN);
+    assertThat(test.getShiftCurve()).isEqualTo(shiftCurve);
   }
 
+  @Test
   public void test_build_fail() {
     Curve betaCurve = InterpolatedNodalCurve.of(
         Curves.sabrParameterByExpiry(NAME.getName() + "-Beta", ACT_365F, SABR_BETA),
@@ -272,16 +272,18 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         .build());
   }
 
+  @Test
   public void test_createMetadata() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition base =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
             NAME, USD_LIBOR_3M, ACT_365F, BETA_RHO, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, LINEAR, HAGAN);
-    assertEquals(base.createMetadata(SAMPLE_BLACK), Surfaces.blackVolatilityByExpiryStrike(NAME.getName(), ACT_365F));
-    assertEquals(base.createMetadata(SAMPLE_NORMAL), Surfaces.normalVolatilityByExpiryStrike(NAME.getName(), ACT_365F));
+    assertThat(base.createMetadata(SAMPLE_BLACK)).isEqualTo(Surfaces.blackVolatilityByExpiryStrike(NAME.getName(), ACT_365F));
+    assertThat(base.createMetadata(SAMPLE_NORMAL)).isEqualTo(Surfaces.normalVolatilityByExpiryStrike(NAME.getName(), ACT_365F));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> base.createMetadata(RawOptionData.of(EXPIRIES, STRIKES, STRIKE, DATA, ValueType.PRICE)));
   }
 
+  @Test
   public void test_createSabrParameterMetadata() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition base =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
@@ -292,9 +294,10 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
         Curves.sabrParameterByExpiry(NAME.getName() + "-Rho", ACT_365F, SABR_RHO),
         Curves.sabrParameterByExpiry(NAME.getName() + "-Nu", ACT_365F, SABR_NU));
     ImmutableList<CurveMetadata> computed = base.createSabrParameterMetadata();
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_createSabrParameterCurve() {
     DoubleArray nuKnots = DoubleArray.of(5.0);
     SabrIborCapletFloorletVolatilityCalibrationDefinition fixedBeta =
@@ -318,10 +321,11 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
     Curve curveRho = InterpolatedNodalCurve.of(
         metadata.get(2), BETA_RHO_KNOTS, newValues2, DOUBLE_QUADRATIC, FLAT, LINEAR);
     Curve curveNu = ConstantNodalCurve.of(metadata.get(3), nuKnots.get(0), newValues3.get(0));
-    assertEquals(computedFixedBeta, ImmutableList.of(curveAlpha, fixedBeta.getBetaCurve().get(), curveRho, curveNu));
-    assertEquals(computedFixedRho, ImmutableList.of(curveAlpha, curveBeta, fixedRho.getRhoCurve().get(), curveNu));
+    assertThat(computedFixedBeta).containsExactly(curveAlpha, fixedBeta.getBetaCurve().get(), curveRho, curveNu);
+    assertThat(computedFixedRho).containsExactly(curveAlpha, curveBeta, fixedRho.getRhoCurve().get(), curveNu);
   }
 
+  @Test
   public void test_createFullTransform() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition fixedBeta =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
@@ -342,10 +346,11 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
     ParameterLimitsTransform[] expectedFixedRho = new ParameterLimitsTransform[] {
         transf[0], transf[0], transf[0], transf[0], transf[0], transf[0], transf[1], transf[1], transf[1],
         transf[3], transf[3], transf[3], transf[3], transf[3], transf[3]};
-    assertEquals(computedFixedBeta, expectedFixedBeta);
-    assertEquals(computedFixedRho, expectedFixedRho);
+    assertThat(computedFixedBeta).isEqualTo(expectedFixedBeta);
+    assertThat(computedFixedRho).isEqualTo(expectedFixedRho);
   }
 
+  @Test
   public void test_createFullInitialValues() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition fixedBeta =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
@@ -365,11 +370,12 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
     double nu1 = fixedRho.getInitialParameters().get(3);
     DoubleArray expectedFixedRho = DoubleArray.ofUnsafe(new double[] {
         alpha1, alpha1, alpha1, alpha1, alpha1, alpha1, beta1, beta1, beta1, nu1, nu1, nu1, nu1, nu1, nu1});
-    assertEquals(computedFixedBeta, expectedFixedBeta);
-    assertEquals(computedFixedRho, expectedFixedRho);
+    assertThat(computedFixedBeta).isEqualTo(expectedFixedBeta);
+    assertThat(computedFixedRho).isEqualTo(expectedFixedRho);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test1 =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
@@ -400,6 +406,7 @@ public class SabrIborCapletFloorletVolatilityCalibrationDefinitionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     SabrIborCapletFloorletVolatilityCalibrationDefinition test =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(

@@ -11,11 +11,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.CurveMetadata;
@@ -36,7 +37,6 @@ import com.opengamma.strata.product.bond.FixedCouponBondPaymentPeriod;
 /**
  * Test {@link DiscountingFixedCouponBondPaymentPeriodPricer}.
  */
-@Test
 public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
 
   // issuer curves
@@ -80,148 +80,158 @@ public class DiscountingFixedCouponBondPaymentPeriodPricerTest {
   private static final double TOL = 1.0e-12;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     double computed = PRICER.presentValue(PAYMENT_PERIOD, ISSUER_CURVE);
     double expected = FIXED_RATE * NOTIONAL * YEAR_FRACTION * DSC_FACTORS.discountFactor(END_ADJUSTED);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_presentValueWithSpread() {
     double computed = PRICER.presentValueWithSpread(
         PAYMENT_PERIOD, ISSUER_CURVE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double expected = FIXED_RATE * NOTIONAL * YEAR_FRACTION *
         DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_forecastValue() {
     double computed = PRICER.forecastValue(PAYMENT_PERIOD, ISSUER_CURVE);
     double expected = FIXED_RATE * NOTIONAL * YEAR_FRACTION;
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_presentValue_past() {
     double computed = PRICER.presentValue(PAYMENT_PERIOD, ISSUER_CURVE_AFTER);
-    assertEquals(computed, 0d);
+    assertThat(computed).isEqualTo(0d);
   }
 
+  @Test
   public void test_presentValueWithSpread_past() {
     double computed = PRICER.presentValueWithSpread(
         PAYMENT_PERIOD, ISSUER_CURVE_AFTER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, 0d);
+    assertThat(computed).isEqualTo(0d);
   }
 
+  @Test
   public void test_forecastValue_past() {
     double computed = PRICER.forecastValue(PAYMENT_PERIOD, ISSUER_CURVE_AFTER);
-    assertEquals(computed, 0d);
+    assertThat(computed).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder computed = PRICER.presentValueSensitivity(PAYMENT_PERIOD, ISSUER_CURVE);
     PointSensitivityBuilder expected = IssuerCurveZeroRateSensitivity.of(
         DSC_FACTORS.zeroRatePointSensitivity(END_ADJUSTED).multipliedBy(FIXED_RATE * NOTIONAL * YEAR_FRACTION), GROUP);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_presentValueSensitivityWithSpread() {
     PointSensitivityBuilder computed = PRICER.presentValueSensitivityWithSpread(
         PAYMENT_PERIOD, ISSUER_CURVE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     PointSensitivityBuilder expected = IssuerCurveZeroRateSensitivity.of(
         DSC_FACTORS.zeroRatePointSensitivityWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)
             .multipliedBy(FIXED_RATE * NOTIONAL * YEAR_FRACTION), GROUP);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_forecastValueSensitivity() {
     PointSensitivityBuilder computed = PRICER.forecastValueSensitivity(PAYMENT_PERIOD, ISSUER_CURVE);
-    assertEquals(computed, PointSensitivityBuilder.none());
+    assertThat(computed).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_presentValueSensitivity_past() {
     PointSensitivityBuilder computed = PRICER.presentValueSensitivity(PAYMENT_PERIOD, ISSUER_CURVE_AFTER);
-    assertEquals(computed, PointSensitivityBuilder.none());
+    assertThat(computed).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_presentValueSensitivityWithSpread_past() {
     PointSensitivityBuilder computed = PRICER.presentValueSensitivityWithSpread(
         PAYMENT_PERIOD, ISSUER_CURVE_AFTER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, PointSensitivityBuilder.none());
+    assertThat(computed).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explainPresentValue() {
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValue(PAYMENT_PERIOD, ISSUER_CURVE, builder);
     ExplainMap explain = builder.build();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FixedCouponBondPaymentPeriod");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), PAYMENT_PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), START_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DSC_FACTORS.discountFactor(END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
-        FIXED_RATE * NOTIONAL * YEAR_FRACTION, NOTIONAL * TOL);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(),
-        FIXED_RATE * NOTIONAL * YEAR_FRACTION * DSC_FACTORS.discountFactor(END_ADJUSTED), NOTIONAL * TOL);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FixedCouponBondPaymentPeriod");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PAYMENT_PERIOD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(PAYMENT_PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(START_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_START_DATE).get()).isEqualTo(START);
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(END_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_END_DATE).get()).isEqualTo(END);
+    assertThat(explain.get(ExplainKey.DAYS).get().intValue()).isEqualTo((int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isEqualTo(DSC_FACTORS.discountFactor(END_ADJUSTED));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(FIXED_RATE * NOTIONAL * YEAR_FRACTION, offset(NOTIONAL * TOL));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(FIXED_RATE * NOTIONAL * YEAR_FRACTION * DSC_FACTORS.discountFactor(END_ADJUSTED), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_explainPresentValue_past() {
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValue(PAYMENT_PERIOD, ISSUER_CURVE_AFTER, builder);
     ExplainMap explain = builder.build();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FixedCouponBondPaymentPeriod");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), PAYMENT_PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), START_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FixedCouponBondPaymentPeriod");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PAYMENT_PERIOD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(PAYMENT_PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(START_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_START_DATE).get()).isEqualTo(START);
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(END_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_END_DATE).get()).isEqualTo(END);
+    assertThat(explain.get(ExplainKey.DAYS).get().intValue()).isEqualTo((int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_explainPresentValueWithSpread() {
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValueWithSpread(
         PAYMENT_PERIOD, ISSUER_CURVE, builder, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     ExplainMap explain = builder.build();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FixedCouponBondPaymentPeriod");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), PAYMENT_PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), START_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(),
-        DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(),
-        FIXED_RATE * NOTIONAL * YEAR_FRACTION, NOTIONAL * TOL);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), FIXED_RATE * NOTIONAL * YEAR_FRACTION *
-        DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR),
-        NOTIONAL * TOL);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FixedCouponBondPaymentPeriod");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PAYMENT_PERIOD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(PAYMENT_PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(START_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_START_DATE).get()).isEqualTo(START);
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(END_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_END_DATE).get()).isEqualTo(END);
+    assertThat(explain.get(ExplainKey.DAYS).get().intValue()).isEqualTo((int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isEqualTo(DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(FIXED_RATE * NOTIONAL * YEAR_FRACTION, offset(NOTIONAL * TOL));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(FIXED_RATE * NOTIONAL * YEAR_FRACTION *
+        DSC_FACTORS.discountFactorWithSpread(END_ADJUSTED, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_explainPresentValueWithSpread_past() {
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValueWithSpread(
         PAYMENT_PERIOD, ISSUER_CURVE_AFTER, builder, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     ExplainMap explain = builder.build();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FixedCouponBondPaymentPeriod");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PERIOD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), PAYMENT_PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), START_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), START);
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), END_ADJUSTED);
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), END);
-    assertEquals(explain.get(ExplainKey.DAYS).get().intValue(), (int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FixedCouponBondPaymentPeriod");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PAYMENT_PERIOD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(PAYMENT_PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(START_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_START_DATE).get()).isEqualTo(START);
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(END_ADJUSTED);
+    assertThat(explain.get(ExplainKey.UNADJUSTED_END_DATE).get()).isEqualTo(END);
+    assertThat(explain.get(ExplainKey.DAYS).get().intValue()).isEqualTo((int) DAYS.between(START_ADJUSTED, END_ADJUSTED));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
 }

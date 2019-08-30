@@ -11,14 +11,14 @@ import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.STRIKE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.Period;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -32,7 +32,6 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 /**
  * Test {@link DirectIborCapletFloorletFlatVolatilityCalibrator}.
  */
-@Test
 public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
     extends CapletStrippingSetup {
 
@@ -43,6 +42,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
   private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
   private static final double TOL = 1.0e-5;
 
+  @Test
   public void test_recovery_black() {
     double lambdaT = 0.07;
     double error = 1.0e-5;
@@ -68,15 +68,16 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
       }
     }
-    assertTrue(res.getChiSquare() > 0d);
-    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
-    assertEquals(resVols.getName(), definition.getName());
-    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
+    assertThat(res.getChiSquare() > 0d).isTrue();
+    assertThat(resVols.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(resVols.getName()).isEqualTo(definition.getName());
+    assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
   }
 
+  @Test
   public void test_recovery_normal() {
     double lambdaT = 0.07;
     double error = 1.0e-5;
@@ -102,11 +103,12 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, resVol).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
       }
     }
   }
 
+  @Test
   public void test_wrong_data() {
     double lambdaT = 0.07;
     double error = 1.0e-5;
@@ -117,7 +119,7 @@ public class DirectIborCapletFloorletFlatVolatilityCalibratorTest
     DoubleMatrix errorMatrix = DoubleMatrix.filled(maturities.size(), strikes.size(), error);
     RawOptionData data = RawOptionData.of(
         maturities, strikes, STRIKE, createFullBlackDataMatrix(), errorMatrix, BLACK_VOLATILITY);
-    assertThrows(IllegalArgumentException.class, () -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
+    assertThatIllegalArgumentException().isThrownBy(() -> CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER));
   }
 
 }

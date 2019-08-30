@@ -8,9 +8,9 @@ package com.opengamma.strata.pricer.model;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
@@ -24,7 +24,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link SabrParameters}.
  */
-@Test
 public class SabrParametersTest {
 
   private static final InterpolatedNodalCurve ALPHA_CURVE =
@@ -54,89 +53,91 @@ public class SabrParametersTest {
   private static final SabrParameters PARAMETERS =
       SabrParameters.of(ALPHA_CURVE, BETA_CURVE, RHO_CURVE, NU_CURVE, FORMULA);
 
+  @Test
   public void getter() {
-    assertEquals(PARAMETERS.getAlphaCurve(), ALPHA_CURVE);
-    assertEquals(PARAMETERS.getBetaCurve(), BETA_CURVE);
-    assertEquals(PARAMETERS.getRhoCurve(), RHO_CURVE);
-    assertEquals(PARAMETERS.getNuCurve(), NU_CURVE);
-    assertEquals(PARAMETERS.getSabrVolatilityFormula(), FORMULA);
-    assertEquals(PARAMETERS.getShiftCurve().getName(), CurveName.of("Zero shift"));
-    assertEquals(PARAMETERS.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(PARAMETERS.getParameterCount(), 9);
+    assertThat(PARAMETERS.getAlphaCurve()).isEqualTo(ALPHA_CURVE);
+    assertThat(PARAMETERS.getBetaCurve()).isEqualTo(BETA_CURVE);
+    assertThat(PARAMETERS.getRhoCurve()).isEqualTo(RHO_CURVE);
+    assertThat(PARAMETERS.getNuCurve()).isEqualTo(NU_CURVE);
+    assertThat(PARAMETERS.getSabrVolatilityFormula()).isEqualTo(FORMULA);
+    assertThat(PARAMETERS.getShiftCurve().getName()).isEqualTo(CurveName.of("Zero shift"));
+    assertThat(PARAMETERS.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(PARAMETERS.getParameterCount()).isEqualTo(9);
     double expiry = 2.0;
     double alpha = ALPHA_CURVE.yValue(expiry);
     double beta = BETA_CURVE.yValue(expiry);
     double rho = RHO_CURVE.yValue(expiry);
     double nu = NU_CURVE.yValue(expiry);
-    assertEquals(PARAMETERS.alpha(expiry), alpha);
-    assertEquals(PARAMETERS.beta(expiry), beta);
-    assertEquals(PARAMETERS.rho(expiry), rho);
-    assertEquals(PARAMETERS.nu(expiry), nu);
+    assertThat(PARAMETERS.alpha(expiry)).isEqualTo(alpha);
+    assertThat(PARAMETERS.beta(expiry)).isEqualTo(beta);
+    assertThat(PARAMETERS.rho(expiry)).isEqualTo(rho);
+    assertThat(PARAMETERS.nu(expiry)).isEqualTo(nu);
     double strike = 1.1;
     double forward = 1.05;
-    assertEquals(PARAMETERS.volatility(expiry, strike, forward),
-        FORMULA.volatility(forward, strike, expiry, alpha, beta, rho, nu));
+    assertThat(PARAMETERS.volatility(expiry, strike, forward)).isEqualTo(FORMULA.volatility(forward, strike, expiry, alpha, beta, rho, nu));
     double[] adjCmp = PARAMETERS.volatilityAdjoint(expiry, strike, forward).getDerivatives().toArray();
     double[] adjExp = FORMULA.volatilityAdjoint(forward, strike, expiry, alpha, beta, rho, nu).getDerivatives().toArray();
     for (int i = 0; i < 6; ++i) {
-      assertEquals(adjCmp[i], adjExp[i]);
+      assertThat(adjCmp[i]).isEqualTo(adjExp[i]);
     }
     for (int i = 0; i < 9; ++i) {
       if (i < 2) {
-        assertEquals(PARAMETERS.getParameterMetadata(i), ALPHA_CURVE.getParameterMetadata(i));
-        assertEquals(PARAMETERS.getParameter(i), ALPHA_CURVE.getParameter(i));
+        assertThat(PARAMETERS.getParameterMetadata(i)).isEqualTo(ALPHA_CURVE.getParameterMetadata(i));
+        assertThat(PARAMETERS.getParameter(i)).isEqualTo(ALPHA_CURVE.getParameter(i));
       } else if (i < 4) {
-        assertEquals(PARAMETERS.getParameterMetadata(i), BETA_CURVE.getParameterMetadata(i - 2));
-        assertEquals(PARAMETERS.getParameter(i), BETA_CURVE.getParameter(i - 2));
+        assertThat(PARAMETERS.getParameterMetadata(i)).isEqualTo(BETA_CURVE.getParameterMetadata(i - 2));
+        assertThat(PARAMETERS.getParameter(i)).isEqualTo(BETA_CURVE.getParameter(i - 2));
       } else if (i < 6) {
-        assertEquals(PARAMETERS.getParameterMetadata(i), RHO_CURVE.getParameterMetadata(i - 4));
-        assertEquals(PARAMETERS.getParameter(i), RHO_CURVE.getParameter(i - 4));
+        assertThat(PARAMETERS.getParameterMetadata(i)).isEqualTo(RHO_CURVE.getParameterMetadata(i - 4));
+        assertThat(PARAMETERS.getParameter(i)).isEqualTo(RHO_CURVE.getParameter(i - 4));
       } else if (i < 8) {
-        assertEquals(PARAMETERS.getParameterMetadata(i), NU_CURVE.getParameterMetadata(i - 6));
-        assertEquals(PARAMETERS.getParameter(i), NU_CURVE.getParameter(i - 6));
+        assertThat(PARAMETERS.getParameterMetadata(i)).isEqualTo(NU_CURVE.getParameterMetadata(i - 6));
+        assertThat(PARAMETERS.getParameter(i)).isEqualTo(NU_CURVE.getParameter(i - 6));
       } else {
-        assertEquals(PARAMETERS.getParameterMetadata(i), ParameterMetadata.empty());
-        assertEquals(PARAMETERS.getParameter(i), 0d);
+        assertThat(PARAMETERS.getParameterMetadata(i)).isEqualTo(ParameterMetadata.empty());
+        assertThat(PARAMETERS.getParameter(i)).isEqualTo(0d);
       }
     }
   }
 
+  @Test
   public void negativeRates() {
     double shift = 0.05;
     Curve surface = ConstantCurve.of("shfit", shift);
     SabrParameters params =
         SabrParameters.of(ALPHA_CURVE, BETA_CURVE, RHO_CURVE, NU_CURVE, surface, FORMULA);
     double expiry = 2.0;
-    assertEquals(params.alpha(expiry), ALPHA_CURVE.yValue(expiry));
-    assertEquals(params.beta(expiry), BETA_CURVE.yValue(expiry));
-    assertEquals(params.rho(expiry), RHO_CURVE.yValue(expiry));
-    assertEquals(params.nu(expiry), NU_CURVE.yValue(expiry));
+    assertThat(params.alpha(expiry)).isEqualTo(ALPHA_CURVE.yValue(expiry));
+    assertThat(params.beta(expiry)).isEqualTo(BETA_CURVE.yValue(expiry));
+    assertThat(params.rho(expiry)).isEqualTo(RHO_CURVE.yValue(expiry));
+    assertThat(params.nu(expiry)).isEqualTo(NU_CURVE.yValue(expiry));
     double strike = -0.02;
     double forward = 0.015;
     double alpha = ALPHA_CURVE.yValue(expiry);
     double beta = BETA_CURVE.yValue(expiry);
     double rho = RHO_CURVE.yValue(expiry);
     double nu = NU_CURVE.yValue(expiry);
-    assertEquals(params.volatility(expiry, strike, forward),
-        FORMULA.volatility(forward + shift, strike + shift, expiry, alpha, beta, rho, nu));
+    assertThat(params.volatility(expiry, strike, forward)).isEqualTo(FORMULA.volatility(forward + shift, strike + shift, expiry, alpha, beta, rho, nu));
     double[] adjCmp = params.volatilityAdjoint(expiry, strike, forward).getDerivatives().toArray();
     double[] adjExp = FORMULA.volatilityAdjoint(
         forward + shift, strike + shift, expiry, alpha, beta, rho, nu).getDerivatives().toArray();
     for (int i = 0; i < 4; ++i) {
-      assertEquals(adjCmp[i], adjExp[i]);
+      assertThat(adjCmp[i]).isEqualTo(adjExp[i]);
     }
   }
 
+  @Test
   public void perturbation() {
     SabrParameters test = PARAMETERS.withPerturbation((i, v, m) -> (2d + i) * v);
     SabrParameters expected = PARAMETERS;
     for (int i = 0; i < PARAMETERS.getParameterCount(); ++i) {
       expected = expected.withParameter(i, (2d + i) * expected.getParameter(i));
     }
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(PARAMETERS);
   }

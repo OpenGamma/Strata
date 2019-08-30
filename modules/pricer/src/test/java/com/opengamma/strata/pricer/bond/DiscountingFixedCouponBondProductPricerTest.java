@@ -13,15 +13,15 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,7 +64,6 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBond;
 /**
  * Test {@link DiscountingFixedCouponBondProductPricer}
  */
-@Test
 public class DiscountingFixedCouponBondProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -149,6 +148,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL = new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed = PRICER.presentValue(PRODUCT, PROVIDER);
     CurrencyAmount expected = PRICER_NOMINAL.presentValue(PRODUCT.getNominalPayment(), DSC_FACTORS_ISSUER);
@@ -159,10 +159,11 @@ public class DiscountingFixedCouponBondProductPricerTest {
       pvCupon += PRICER_COUPON.presentValue(payment, IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
     }
     expected = expected.plus(pvCupon);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_continuous() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount expected = PRICER_NOMINAL.presentValueWithSpread(
@@ -175,10 +176,11 @@ public class DiscountingFixedCouponBondProductPricerTest {
           IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER), Z_SPREAD, CONTINUOUS, 0);
     }
     expected = expected.plus(pvcCupon);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_periodic() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -192,10 +194,11 @@ public class DiscountingFixedCouponBondProductPricerTest {
           IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER), Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     }
     expected = expected.plus(pvcCupon);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_noExcoupon() {
     CurrencyAmount computed = PRICER.presentValue(PRODUCT_NO_EXCOUPON, PROVIDER);
     CurrencyAmount expected = PRICER_NOMINAL.presentValue(PRODUCT.getNominalPayment(), DSC_FACTORS_ISSUER);
@@ -206,10 +209,11 @@ public class DiscountingFixedCouponBondProductPricerTest {
       pvcCupon += PRICER_COUPON.presentValue(payment, IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
     }
     expected = expected.plus(pvcCupon);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_continuous_noExcoupon() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
@@ -223,10 +227,11 @@ public class DiscountingFixedCouponBondProductPricerTest {
           IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER), Z_SPREAD, CONTINUOUS, 0);
     }
     expected = expected.plus(pvcCupon);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_periodic_noExcoupon() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -240,28 +245,31 @@ public class DiscountingFixedCouponBondProductPricerTest {
           IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER), Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     }
     expected = expected.plus(pvcCupon);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dirtyPriceFromCurves() {
     double computed = PRICER.dirtyPriceFromCurves(PRODUCT, PROVIDER, REF_DATA);
     CurrencyAmount pv = PRICER.presentValue(PRODUCT, PROVIDER);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
-    assertEquals(computed, pv.getAmount() / df / NOTIONAL);
+    assertThat(computed).isEqualTo(pv.getAmount() / df / NOTIONAL);
   }
 
+  @Test
   public void test_dirtyPriceFromCurvesWithZSpread_continuous() {
     double computed = PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount pv = PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
-    assertEquals(computed, pv.getAmount() / df / NOTIONAL);
+    assertThat(computed).isEqualTo(pv.getAmount() / df / NOTIONAL);
   }
 
+  @Test
   public void test_dirtyPriceFromCurvesWithZSpread_periodic() {
     double computed = PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -269,124 +277,137 @@ public class DiscountingFixedCouponBondProductPricerTest {
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double df = DSC_FACTORS_REPO.discountFactor(settlement);
-    assertEquals(computed, pv.getAmount() / df / NOTIONAL);
+    assertThat(computed).isEqualTo(pv.getAmount() / df / NOTIONAL);
   }
 
+  @Test
   public void test_dirtyPriceFromCleanPrice_cleanPriceFromDirtyPrice() {
     double dirtyPrice = PRICER.dirtyPriceFromCurves(PRODUCT, PROVIDER, REF_DATA);
     LocalDate settlement = DATE_OFFSET.adjust(VAL_DATE, REF_DATA);
     double cleanPrice = PRICER.cleanPriceFromDirtyPrice(PRODUCT, settlement, dirtyPrice);
     double accruedInterest = PRICER.accruedInterest(PRODUCT, settlement);
-    assertEquals(cleanPrice, dirtyPrice - accruedInterest / NOTIONAL, NOTIONAL * TOL);
+    assertThat(cleanPrice).isCloseTo(dirtyPrice - accruedInterest / NOTIONAL, offset(NOTIONAL * TOL));
     double dirtyPriceRe = PRICER.dirtyPriceFromCleanPrice(PRODUCT, settlement, cleanPrice);
-    assertEquals(dirtyPriceRe, dirtyPrice, TOL);
+    assertThat(dirtyPriceRe).isCloseTo(dirtyPrice, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zSpreadFromCurvesAndPV_continuous() {
     double dirtyPrice = PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     double computed = PRICER.zSpreadFromCurvesAndDirtyPrice(
         PRODUCT, PROVIDER, REF_DATA, dirtyPrice, CONTINUOUS, 0);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_zSpreadFromCurvesAndPV_periodic() {
     double dirtyPrice = PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double computed = PRICER.zSpreadFromCurvesAndDirtyPrice(
         PRODUCT, PROVIDER, REF_DATA, dirtyPrice, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivity(PRODUCT, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> PRICER.presentValue(PRODUCT, p));
-    assertTrue(computed.equalWithTolerance(expected, 30d * NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, 30d * NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_continuous() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS,
         0);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> PRICER.presentValueWithZSpread(PRODUCT, p, Z_SPREAD, CONTINUOUS, 0));
-    assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_periodic() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
         p -> PRICER.presentValueWithZSpread(PRODUCT, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueProductSensitivity_noExcoupon() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivity(PRODUCT_NO_EXCOUPON, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> PRICER.presentValue(PRODUCT_NO_EXCOUPON, p));
-    assertTrue(computed.equalWithTolerance(expected, 30d * NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, 30d * NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_continuous_noExcoupon() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER,
         p -> PRICER.presentValueWithZSpread(PRODUCT_NO_EXCOUPON, p, Z_SPREAD, CONTINUOUS, 0));
-    assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_periodic_noExcoupon() {
     PointSensitivityBuilder point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p ->
         PRICER.presentValueWithZSpread(PRODUCT_NO_EXCOUPON, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertTrue(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, 20d * NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_dirtyPriceSensitivity() {
     PointSensitivityBuilder point = PRICER.dirtyPriceSensitivity(PRODUCT, PROVIDER, REF_DATA);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         PROVIDER, p -> CurrencyAmount.of(EUR, PRICER.dirtyPriceFromCurves(PRODUCT, p, REF_DATA)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_dirtyPriceSensitivityWithZspread_continuous() {
     PointSensitivityBuilder point =
         PRICER.dirtyPriceSensitivityWithZspread(PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(
         EUR, PRICER.dirtyPriceFromCurvesWithZSpread(PRODUCT, p, REF_DATA, Z_SPREAD, CONTINUOUS, 0)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * EPS)).isTrue();
   }
 
+  @Test
   public void test_dirtyPriceSensitivityWithZspread_periodic() {
     PointSensitivityBuilder point = PRICER.dirtyPriceSensitivityWithZspread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(PROVIDER, p -> CurrencyAmount.of(EUR, PRICER
         .dirtyPriceFromCurvesWithZSpread(PRODUCT, p, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * EPS)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_accruedInterest() {
     // settle before start
     LocalDate settleDate1 = START_DATE.minusDays(5);
     double accruedInterest1 = PRICER.accruedInterest(PRODUCT, settleDate1);
-    assertEquals(accruedInterest1, 0d);
+    assertThat(accruedInterest1).isEqualTo(0d);
     // settle between endDate and endDate -lag
     LocalDate settleDate2 = date(2015, 10, 8);
     double accruedInterest2 = PRICER.accruedInterest(PRODUCT, settleDate2);
-    assertEquals(accruedInterest2, -4.0 / 365.0 * FIXED_RATE * NOTIONAL, EPS);
+    assertThat(accruedInterest2).isCloseTo(-4.0 / 365.0 * FIXED_RATE * NOTIONAL, offset(EPS));
     // normal
     LocalDate settleDate3 = date(2015, 4, 18); // not adjusted
     ResolvedFixedCouponBond product = FixedCouponBond.builder()
@@ -403,7 +424,7 @@ public class DiscountingFixedCouponBondProductPricerTest {
         .build()
         .resolve(REF_DATA);
     double accruedInterest3 = PRICER.accruedInterest(product, settleDate3);
-    assertEquals(accruedInterest3, 6.0 / 365.0 * FIXED_RATE * NOTIONAL, EPS);
+    assertThat(accruedInterest3).isCloseTo(6.0 / 365.0 * FIXED_RATE * NOTIONAL, offset(EPS));
   }
 
   //-------------------------------------------------------------------------
@@ -433,74 +454,83 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate SETTLEMENT_LAST_US = PRODUCT_US.getSettlementDateOffset().adjust(VALUATION_LAST_US, REF_DATA);
   private static final double YIELD_US = 0.04;
 
+  @Test
   public void dirtyPriceFromYieldUS() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
-    assertEquals(dirtyPrice, 1.0417352500524246, TOL); // 2.x.
+    assertThat(dirtyPrice).isCloseTo(1.0417352500524246, offset(TOL)); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_US, SETTLEMENT_US, dirtyPrice);
-    assertEquals(yield, YIELD_US, TOL);
+    assertThat(yield).isCloseTo(YIELD_US, offset(TOL));
   }
 
   // Check price from yield when coupon is 0.
+  @Test
   public void dirtyPriceFromYieldUS0() {
     double dirtyPrice0 = PRICER.dirtyPriceFromYield(PRODUCT_US_0, SETTLEMENT_US, 0.0d);
-    assertEquals(dirtyPrice0, 1.0d, TOL);
+    assertThat(dirtyPrice0).isCloseTo(1.0d, offset(TOL));
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_US_0, SETTLEMENT_US, YIELD_US);
-    assertEquals(dirtyPrice, 0.8129655023939295, TOL); // Previous run
+    assertThat(dirtyPrice).isCloseTo(0.8129655023939295, offset(TOL)); // Previous run
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_US_0, SETTLEMENT_US, dirtyPrice);
-    assertEquals(yield, YIELD_US, TOL);
+    assertThat(yield).isCloseTo(YIELD_US, offset(TOL));
   }
 
+  @Test
   public void dirtyPriceFromYieldUSLastPeriod() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
-    assertEquals(dirtyPrice, 1.005635683760684, TOL); // 2.x.
+    assertThat(dirtyPrice).isCloseTo(1.005635683760684, offset(TOL)); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_US, SETTLEMENT_LAST_US, dirtyPrice);
-    assertEquals(yield, YIELD_US, TOL);
+    assertThat(yield).isCloseTo(YIELD_US, offset(TOL));
   }
 
+  @Test
   public void modifiedDurationFromYieldUS() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void modifiedDurationFromYieldUSLastPeriod() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldUS() {
     double computed = PRICER.convexityFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldUSLastPeriod() {
     double computed = PRICER.convexityFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void macaulayDurationFromYieldUS() {
     double duration = PRICER.macaulayDurationFromYield(PRODUCT_US, SETTLEMENT_US, YIELD_US);
-    assertEquals(duration, 4.6575232098896215, TOL); // 2.x.
+    assertThat(duration).isCloseTo(4.6575232098896215, offset(TOL)); // 2.x.
   }
 
+  @Test
   public void macaulayDurationFromYieldUSLastPeriod() {
     double duration = PRICER.macaulayDurationFromYield(PRODUCT_US, SETTLEMENT_LAST_US, YIELD_US);
-    assertEquals(duration, 0.43478260869565216, TOL); // 2.x.
+    assertThat(duration).isCloseTo(0.43478260869565216, offset(TOL)); // 2.x.
   }
 
   /* UK BUMP/DMO convention */
@@ -529,64 +559,72 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate SETTLEMENT_LAST_UK = PRODUCT_UK.getSettlementDateOffset().adjust(VALUATION_LAST_UK, REF_DATA);
   private static final double YIELD_UK = 0.04;
 
+  @Test
   public void dirtyPriceFromYieldUK() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK);
-    assertEquals(dirtyPrice, 1.0277859038905428, TOL); // 2.x.
+    assertThat(dirtyPrice).isCloseTo(1.0277859038905428, offset(TOL)); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_UK, SETTLEMENT_UK, dirtyPrice);
-    assertEquals(yield, YIELD_UK, TOL);
+    assertThat(yield).isCloseTo(YIELD_UK, offset(TOL));
   }
 
+  @Test
   public void dirtyPriceFromYieldUKLastPeriod() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK);
-    assertEquals(dirtyPrice, 1.0145736043763598, TOL); // 2.x.
+    assertThat(dirtyPrice).isCloseTo(1.0145736043763598, offset(TOL)); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_UK, SETTLEMENT_LAST_UK, dirtyPrice);
-    assertEquals(yield, YIELD_UK, TOL);
+    assertThat(yield).isCloseTo(YIELD_UK, offset(TOL));
   }
 
+  @Test
   public void modifiedDurationFromYieldUK() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void modifiedDurationFromYieldUKLastPeriod() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldUK() {
     double computed = PRICER.convexityFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldUKLastPeriod() {
     double computed = PRICER.convexityFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void macaulayDurationFromYieldUK() {
     double duration = PRICER.macaulayDurationFromYield(PRODUCT_UK, SETTLEMENT_UK, YIELD_UK);
-    assertEquals(duration, 2.8312260658609163, TOL); // 2.x.
+    assertThat(duration).isCloseTo(2.8312260658609163, offset(TOL)); // 2.x.
   }
 
+  @Test
   public void macaulayDurationFromYieldUKLastPeriod() {
     double duration = PRICER.macaulayDurationFromYield(PRODUCT_UK, SETTLEMENT_LAST_UK, YIELD_UK);
-    assertEquals(duration, 0.25815217391304346, TOL); // 2.x.
+    assertThat(duration).isCloseTo(0.25815217391304346, offset(TOL)); // 2.x.
   }
 
   /* German bond convention */
@@ -614,64 +652,72 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate SETTLEMENT_LAST_GER = PRODUCT_GER.getSettlementDateOffset().adjust(VALUATION_LAST_GER, REF_DATA);
   private static final double YIELD_GER = 0.04;
 
+  @Test
   public void dirtyPriceFromYieldGerman() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER);
-    assertEquals(dirtyPrice, 1.027750910332271, TOL); // 2.x.
+    assertThat(dirtyPrice).isCloseTo(1.027750910332271, offset(TOL)); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_GER, SETTLEMENT_GER, dirtyPrice);
-    assertEquals(yield, YIELD_GER, TOL);
+    assertThat(yield).isCloseTo(YIELD_GER, offset(TOL));
   }
 
+  @Test
   public void dirtyPriceFromYieldGermanLastPeriod() {
     double dirtyPrice = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
-    assertEquals(dirtyPrice, 1.039406595790844, TOL); // 2.x.
+    assertThat(dirtyPrice).isCloseTo(1.039406595790844, offset(TOL)); // 2.x.
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_GER, SETTLEMENT_LAST_GER, dirtyPrice);
-    assertEquals(yield, YIELD_GER, TOL);
+    assertThat(yield).isCloseTo(YIELD_GER, offset(TOL));
   }
 
+  @Test
   public void modifiedDurationFromYieldGER() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void modifiedDurationFromYieldGERLastPeriod() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldGER() {
     double computed = PRICER.convexityFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldGERLastPeriod() {
     double computed = PRICER.convexityFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void macaulayDurationFromYieldGER() {
     double duration = PRICER.macaulayDurationFromYield(PRODUCT_GER, SETTLEMENT_GER, YIELD_GER);
-    assertEquals(duration, 2.861462874541554, TOL); // 2.x.
+    assertThat(duration).isCloseTo(2.861462874541554, offset(TOL)); // 2.x.
   }
 
+  @Test
   public void macaulayDurationFromYieldGERLastPeriod() {
     double duration = PRICER.macaulayDurationFromYield(PRODUCT_GER, SETTLEMENT_LAST_GER, YIELD_GER);
-    assertEquals(duration, 0.26231286613148186, TOL); // 2.x.
+    assertThat(duration).isCloseTo(0.26231286613148186, offset(TOL)); // 2.x.
   }
 
   /* Japan simple convention */
@@ -702,83 +748,94 @@ public class DiscountingFixedCouponBondProductPricerTest {
   private static final LocalDate SETTLEMENT_ENDED_JP = PRODUCT_JP.getSettlementDateOffset().adjust(VALUATION_ENDED_JP, REF_DATA);
   private static final double YIELD_JP = 0.00321;
 
+  @Test
   public void dirtyPriceFromYieldJP() {
     double computed = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
     double maturity = DayCounts.NL_365.relativeYearFraction(SETTLEMENT_JP, END_JP);
     double expected = PRICER.dirtyPriceFromCleanPrice(
         PRODUCT_JP, SETTLEMENT_JP, (1d + RATE_JP * maturity) / (1d + YIELD_JP * maturity));
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_JP, SETTLEMENT_JP, computed);
-    assertEquals(yield, YIELD_JP, TOL);
+    assertThat(yield).isCloseTo(YIELD_JP, offset(TOL));
   }
 
+  @Test
   public void dirtyPriceFromYieldJPLastPeriod() {
     double computed = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP);
     double maturity = DayCounts.NL_365.relativeYearFraction(SETTLEMENT_LAST_JP, END_JP);
     double expected = PRICER.dirtyPriceFromCleanPrice(
         PRODUCT_JP, SETTLEMENT_LAST_JP, (1d + RATE_JP * maturity) / (1d + YIELD_JP * maturity));
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
     double yield = PRICER.yieldFromDirtyPrice(PRODUCT_JP, SETTLEMENT_LAST_JP, computed);
-    assertEquals(yield, YIELD_JP, TOL);
+    assertThat(yield).isCloseTo(YIELD_JP, offset(TOL));
   }
 
+  @Test
   public void dirtyPriceFromYieldJPEnded() {
     double computed = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_ENDED_JP, YIELD_JP);
-    assertEquals(computed, 0d, TOL);
+    assertThat(computed).isCloseTo(0d, offset(TOL));
   }
 
+  @Test
   public void modifiedDurationFromYielddJP() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void modifiedDurationFromYieldJPLastPeriod() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP);
     double price = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP);
     double priceUp = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP + EPS);
     double priceDw = PRICER.dirtyPriceFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP - EPS);
     double expected = 0.5 * (priceDw - priceUp) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void modifiedDurationFromYielddJPEnded() {
     double computed = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_ENDED_JP, YIELD_JP);
-    assertEquals(computed, 0d, EPS);
+    assertThat(computed).isCloseTo(0d, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldJP() {
     double computed = PRICER.convexityFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldJPLastPeriod() {
     double computed = PRICER.convexityFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP);
     double duration = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP);
     double durationUp = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP + EPS);
     double durationDw = PRICER.modifiedDurationFromYield(PRODUCT_JP, SETTLEMENT_LAST_JP, YIELD_JP - EPS);
     double expected = 0.5 * (durationDw - durationUp) / EPS + duration * duration;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
   }
 
+  @Test
   public void convexityFromYieldJPEnded() {
     double computed = PRICER.convexityFromYield(PRODUCT_JP, SETTLEMENT_ENDED_JP, YIELD_JP);
-    assertEquals(computed, 0d, EPS);
+    assertThat(computed).isCloseTo(0d, offset(EPS));
   }
 
+  @Test
   public void macaulayDurationFromYieldYieldJP() {
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> PRICER.macaulayDurationFromYield(PRODUCT_JP, SETTLEMENT_JP, YIELD_JP))
         .withMessage("The convention JP_SIMPLE is not supported.");
   }
 
+  @Test
   public void zSpreadFromCurvesAndPV_acrossExDivDate() {
     LocalDate threeDayBeforeExDiv = LocalDate.of(2019, 2, 24);
     LocalDate twoDayBeforeExDiv = LocalDate.of(2019, 2, 25);
@@ -817,13 +874,13 @@ public class DiscountingFixedCouponBondProductPricerTest {
 
       double zSpread = PRICER.zSpreadFromCurvesAndDirtyPrice(bond, dateProvider, REF_DATA, dirtyPrice, PERIODIC, 2);
       double dirtyPriceZ = PRICER.dirtyPriceFromCurvesWithZSpread(bond, dateProvider, REF_DATA, zSpread, PERIODIC, 2);
-      assertEquals(dirtyPriceZ, dirtyPrice, TOL);
-      assertEquals(zSpread, -.025, 5e-3, date.format(DateTimeFormatter.ISO_DATE));
+      assertThat(dirtyPriceZ).isCloseTo(dirtyPrice, offset(TOL));
+      assertThat(zSpread).as(date.format(DateTimeFormatter.ISO_DATE)).isCloseTo(-.025, offset(5e-3));
 
       double yield = PRICER.yieldFromDirtyPrice(bond, settlement, dirtyPrice);
       double dirtyPriceY = PRICER.dirtyPriceFromYield(bond, settlement, yield);
-      assertEquals(dirtyPriceY, dirtyPrice, TOL);
-      assertEquals(yield, .007, 1e-3, date.format(DateTimeFormatter.ISO_DATE));
+      assertThat(dirtyPriceY).isCloseTo(dirtyPrice, offset(TOL));
+      assertThat(yield).as(date.format(DateTimeFormatter.ISO_DATE)).isCloseTo(.007, offset(1e-3));
     }
   }
 

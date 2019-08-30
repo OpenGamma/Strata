@@ -8,11 +8,12 @@ package com.opengamma.strata.pricer;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -31,7 +32,6 @@ import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 /**
  * Test {@link DiscountingPaymentPricer}.
  */
-@Test
 public class DiscountingPaymentPricerTest {
 
   private static final DiscountingPaymentPricer PRICER = DiscountingPaymentPricer.DEFAULT;
@@ -53,50 +53,58 @@ public class DiscountingPaymentPricerTest {
   private static final double EPS = 1.0e-6;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_provider() {
     CurrencyAmount computed = PRICER.presentValue(PAYMENT, PROVIDER);
     double expected = NOTIONAL_USD * DF;
-    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValue_provider_ended() {
     CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, PROVIDER);
-    assertEquals(computed, CurrencyAmount.zero(USD));
+    assertThat(computed).isEqualTo(CurrencyAmount.zero(USD));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_df() {
     CurrencyAmount computed = PRICER.presentValue(PAYMENT, DISCOUNT_FACTORS);
     double expected = NOTIONAL_USD * DF;
-    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValue_df_ended() {
     CurrencyAmount computed = PRICER.presentValue(PAYMENT_PAST, DISCOUNT_FACTORS);
-    assertEquals(computed, CurrencyAmount.zero(USD));
+    assertThat(computed).isEqualTo(CurrencyAmount.zero(USD));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueAmount_provider() {
     double computed = PRICER.presentValueAmount(PAYMENT, PROVIDER);
     double expected = NOTIONAL_USD * DF;
-    assertEquals(computed, expected, NOTIONAL_USD * TOL);
+    assertThat(computed).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueAmount_provider_ended() {
     double computed = PRICER.presentValueAmount(PAYMENT_PAST, PROVIDER);
-    assertEquals(computed, 0d, 0d);
+    assertThat(computed).isCloseTo(0d, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueWithSpread_df_spread_continuous() {
     CurrencyAmount computed = PRICER
         .presentValueWithSpread(PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, CONTINUOUS, 0);
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double expected = NOTIONAL_USD * DF * Math.exp(-Z_SPREAD * relativeYearFraction);
-    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueWithSpread_df_spread_periodic() {
     CurrencyAmount computed = PRICER.presentValueWithSpread(
         PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -104,12 +112,13 @@ public class DiscountingPaymentPricerTest {
     double rate = (Math.pow(DF, -1d / PERIOD_PER_YEAR / relativeYearFraction) - 1d) * PERIOD_PER_YEAR;
     double expected = NOTIONAL_USD *
         discountFactorFromPeriodicallyCompoundedRate(rate + Z_SPREAD, PERIOD_PER_YEAR, relativeYearFraction);
-    assertEquals(computed.getAmount(), expected, NOTIONAL_USD * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueWithSpread_df_ended_spread() {
     CurrencyAmount computed = PRICER.presentValueWithSpread(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, 3);
-    assertEquals(computed, CurrencyAmount.zero(USD));
+    assertThat(computed).isEqualTo(CurrencyAmount.zero(USD));
   }
 
   private double discountFactorFromPeriodicallyCompoundedRate(double rate, double periodPerYear, double time) {
@@ -117,81 +126,89 @@ public class DiscountingPaymentPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explainPresentValue_provider() {
     CurrencyAmount fvExpected = PRICER.forecastValue(PAYMENT, PROVIDER);
     CurrencyAmount pvExpected = PRICER.presentValue(PAYMENT, PROVIDER);
 
     ExplainMap explain = PRICER.explainPresentValue(PAYMENT, PROVIDER);
     Currency currency = PAYMENT.getCurrency();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Payment");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT.getDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DF, TOL);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), fvExpected.getAmount(), TOL);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), pvExpected.getAmount(), TOL);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("Payment");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PAYMENT.getDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isCloseTo(DF, offset(TOL));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(fvExpected.getAmount(), offset(TOL));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOL));
   }
 
+  @Test
   public void test_explainPresentValue_provider_ended() {
     ExplainMap explain = PRICER.explainPresentValue(PAYMENT_PAST, PROVIDER);
     Currency currency = PAYMENT_PAST.getCurrency();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "Payment");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PAYMENT_PAST.getDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOL);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0, TOL);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("Payment");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PAYMENT_PAST.getDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(0, offset(TOL));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(0, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_provider() {
     PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, PROVIDER).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double expected = -DF * relativeYearFraction * NOTIONAL_USD;
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
-    assertEquals(actual.getCurrency(), USD);
-    assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getYearFraction(), relativeYearFraction);
-    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
+    assertThat(actual.getCurrency()).isEqualTo(USD);
+    assertThat(actual.getCurveCurrency()).isEqualTo(USD);
+    assertThat(actual.getYearFraction()).isEqualTo(relativeYearFraction);
+    assertThat(actual.getSensitivity()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueSensitivity_provider_ended() {
     PointSensitivities computed = PRICER.presentValueSensitivity(PAYMENT_PAST, PROVIDER).build();
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_df() {
     PointSensitivities point = PRICER.presentValueSensitivity(PAYMENT, DISCOUNT_FACTORS).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double expected = -DF * relativeYearFraction * NOTIONAL_USD;
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
-    assertEquals(actual.getCurrency(), USD);
-    assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getYearFraction(), relativeYearFraction);
-    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
+    assertThat(actual.getCurrency()).isEqualTo(USD);
+    assertThat(actual.getCurveCurrency()).isEqualTo(USD);
+    assertThat(actual.getYearFraction()).isEqualTo(relativeYearFraction);
+    assertThat(actual.getSensitivity()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueSensitivity_df_ended() {
     PointSensitivities computed = PRICER.presentValueSensitivity(PAYMENT_PAST, DISCOUNT_FACTORS).build();
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityWithSpread_df_spread_continuous() {
     PointSensitivities point = PRICER.presentValueSensitivityWithSpread(
         PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, CONTINUOUS, 0).build();
     double relativeYearFraction = ACT_365F.relativeYearFraction(VAL_DATE_2014_01_22, PAYMENT_DATE);
     double expected = -DF * relativeYearFraction * NOTIONAL_USD * Math.exp(-Z_SPREAD * relativeYearFraction);
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
-    assertEquals(actual.getCurrency(), USD);
-    assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getYearFraction(), relativeYearFraction);
-    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * TOL);
+    assertThat(actual.getCurrency()).isEqualTo(USD);
+    assertThat(actual.getCurveCurrency()).isEqualTo(USD);
+    assertThat(actual.getYearFraction()).isEqualTo(relativeYearFraction);
+    assertThat(actual.getSensitivity()).isCloseTo(expected, offset(NOTIONAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueSensitivityWithSpread_df_spread_periodic() {
     PointSensitivities point = PRICER.presentValueSensitivityWithSpread(
         PAYMENT, DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
@@ -204,53 +221,59 @@ public class DiscountingPaymentPricerTest {
         discountFactorFromPeriodicallyCompoundedRate(rateUp + Z_SPREAD, PERIOD_PER_YEAR, relativeYearFraction) -
         discountFactorFromPeriodicallyCompoundedRate(rateDw + Z_SPREAD, PERIOD_PER_YEAR, relativeYearFraction));
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
-    assertEquals(actual.getCurrency(), USD);
-    assertEquals(actual.getCurveCurrency(), USD);
-    assertEquals(actual.getYearFraction(), relativeYearFraction);
-    assertEquals(actual.getSensitivity(), expected, NOTIONAL_USD * EPS);
+    assertThat(actual.getCurrency()).isEqualTo(USD);
+    assertThat(actual.getCurveCurrency()).isEqualTo(USD);
+    assertThat(actual.getYearFraction()).isEqualTo(relativeYearFraction);
+    assertThat(actual.getSensitivity()).isCloseTo(expected, offset(NOTIONAL_USD * EPS));
   }
 
+  @Test
   public void test_presentValueSensitivityWithSpread_df_spread_ended() {
     PointSensitivities computed =
         PRICER.presentValueSensitivityWithSpread(PAYMENT_PAST, DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, 3).build();
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValue_provider() {
-    assertEquals(PRICER.forecastValue(PAYMENT, PROVIDER).getAmount(), NOTIONAL_USD, 0d);
-    assertEquals(PRICER.forecastValueAmount(PAYMENT, PROVIDER), NOTIONAL_USD, 0d);
+    assertThat(PRICER.forecastValue(PAYMENT, PROVIDER).getAmount()).isCloseTo(NOTIONAL_USD, offset(0d));
+    assertThat(PRICER.forecastValueAmount(PAYMENT, PROVIDER)).isCloseTo(NOTIONAL_USD, offset(0d));
   }
 
+  @Test
   public void test_forecastValue_provider_ended() {
-    assertEquals(PRICER.forecastValue(PAYMENT_PAST, PROVIDER).getAmount(), 0d, 0d);
-    assertEquals(PRICER.forecastValueAmount(PAYMENT_PAST, PROVIDER), 0d, 0d);
+    assertThat(PRICER.forecastValue(PAYMENT_PAST, PROVIDER).getAmount()).isCloseTo(0d, offset(0d));
+    assertThat(PRICER.forecastValueAmount(PAYMENT_PAST, PROVIDER)).isCloseTo(0d, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cashFlow_provider() {
     CashFlow expected = CashFlow.ofForecastValue(PAYMENT_DATE, USD, NOTIONAL_USD, DF);
-    assertEquals(PRICER.cashFlows(PAYMENT, PROVIDER), CashFlows.of(expected));
+    assertThat(PRICER.cashFlows(PAYMENT, PROVIDER)).isEqualTo(CashFlows.of(expected));
   }
 
+  @Test
   public void test_cashFlow_provider_ended() {
-    assertEquals(PRICER.cashFlows(PAYMENT_PAST, PROVIDER), CashFlows.NONE);
+    assertThat(PRICER.cashFlows(PAYMENT_PAST, PROVIDER)).isEqualTo(CashFlows.NONE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
-    assertEquals(
-        PRICER.currencyExposure(PAYMENT, PROVIDER),
-        MultiCurrencyAmount.of(PRICER.presentValue(PAYMENT, PROVIDER)));
+    assertThat(PRICER.currencyExposure(PAYMENT, PROVIDER)).isEqualTo(MultiCurrencyAmount.of(PRICER.presentValue(PAYMENT, PROVIDER)));
   }
 
+  @Test
   public void test_currentCash_onDate() {
     SimpleRatesProvider prov = new SimpleRatesProvider(PAYMENT.getDate(), DISCOUNT_FACTORS);
-    assertEquals(PRICER.currentCash(PAYMENT, prov), PAYMENT.getValue());
+    assertThat(PRICER.currentCash(PAYMENT, prov)).isEqualTo(PAYMENT.getValue());
   }
 
+  @Test
   public void test_currentCash_past() {
-    assertEquals(PRICER.currentCash(PAYMENT_PAST, PROVIDER), CurrencyAmount.zero(USD));
+    assertThat(PRICER.currentCash(PAYMENT_PAST, PROVIDER)).isEqualTo(CurrencyAmount.zero(USD));
   }
 
 }

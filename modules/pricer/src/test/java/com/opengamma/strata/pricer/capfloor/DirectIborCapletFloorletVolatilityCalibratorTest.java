@@ -10,13 +10,13 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.STRIKE;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.Period;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -34,7 +34,6 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 /**
  * Test {@link DirectIborCapletFloorletVolatilityCalibrator}.
  */
-@Test
 public class DirectIborCapletFloorletVolatilityCalibratorTest
     extends CapletStrippingSetup {
 
@@ -47,6 +46,7 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
   private static final NormalIborCapFloorLegPricer LEG_PRICER_NORMAL = NormalIborCapFloorLegPricer.DEFAULT;
   private static final double TOL = 1.0e-4;
 
+  @Test
   public void test_recovery_black() {
     double lambdaT = 0.07;
     double lambdaK = 0.07;
@@ -73,15 +73,16 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL * 5d);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
       }
     }
-    assertTrue(res.getChiSquare() > 0d);
-    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
-    assertEquals(resVols.getName(), definition.getName());
-    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
+    assertThat(res.getChiSquare() > 0d).isTrue();
+    assertThat(resVols.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(resVols.getName()).isEqualTo(definition.getName());
+    assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
   }
 
+  @Test
   public void recovery_test_shiftedBlack() {
     double lambdaT = 0.07;
     double lambdaK = 0.07;
@@ -109,16 +110,17 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
       }
     }
-    assertTrue(res.getChiSquare() > 0d);
-    assertEquals(resVols.getIndex(), USD_LIBOR_3M);
-    assertEquals(resVols.getName(), definition.getName());
-    assertEquals(resVols.getValuationDateTime(), CALIBRATION_TIME);
-    assertEquals(resVols.getShiftCurve(), definition.getShiftCurve().get());
+    assertThat(res.getChiSquare() > 0d).isTrue();
+    assertThat(resVols.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(resVols.getName()).isEqualTo(definition.getName());
+    assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
+    assertThat(resVols.getShiftCurve()).isEqualTo(definition.getShiftCurve().get());
   }
 
+  @Test
   public void recovery_test_flat() {
     double lambdaT = 0.01;
     double lambdaK = 0.01;
@@ -136,10 +138,11 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
     Surface resSurface = resVol.getSurface();
     int nParams = resSurface.getParameterCount();
     for (int i = 0; i < nParams; ++i) {
-      assertEquals(resSurface.getParameter(i), 0.5, 1.0e-11);
+      assertThat(resSurface.getParameter(i)).isCloseTo(0.5, offset(1.0e-11));
     }
   }
 
+  @Test
   public void recovery_test_normalFlat() {
     double lambdaT = 0.01;
     double lambdaK = 0.01;
@@ -157,10 +160,11 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
     Surface resSurface = resVol.getSurface();
     int nParams = resSurface.getParameterCount();
     for (int i = 0; i < nParams; ++i) {
-      assertEquals(resSurface.getParameter(i), 0.5, 1.0e-12);
+      assertThat(resSurface.getParameter(i)).isCloseTo(0.5, offset(1.0e-12));
     }
   }
 
+  @Test
   public void recovery_test_normal() {
     double lambdaT = 0.07;
     double lambdaK = 0.07;
@@ -187,11 +191,12 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, resVol).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
       }
     }
   }
 
+  @Test
   public void recovery_test_normalToBlack() {
     double lambdaT = 0.07;
     double lambdaK = 0.07;
@@ -219,7 +224,7 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
             USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
         double priceOrg = LEG_PRICER_NORMAL.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
         double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVol).getAmount();
-        assertEquals(priceOrg, priceCalib, Math.max(priceOrg, 1d) * TOL);
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
       }
     }
   }

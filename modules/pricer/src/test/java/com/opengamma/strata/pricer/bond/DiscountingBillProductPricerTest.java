@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.bond;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -53,7 +53,6 @@ import com.opengamma.strata.product.bond.ResolvedBill;
 /**
  * Test {@link DiscountingBillProductPricer}
  */
-@Test
 public class DiscountingBillProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -117,52 +116,59 @@ public class DiscountingBillProductPricerTest {
   private static final double TOLERANCE_PRICE = 1.0e-10;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount pvComputed = PRICER.presentValue(BILL, PROVIDER);
     double pvExpected = DSC_FACTORS_ISSUER.discountFactor(MATURITY_DATE) * NOTIONAL.getAmount();
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
   
+  @Test
   public void test_presentValue_aftermaturity() {
     CurrencyAmount pvComputed = PRICER.presentValue(BILL_PAST, PROVIDER);
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), 0.0d, TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(0.0d, offset(TOLERANCE_PV));
   }
+  @Test
   public void test_presentValue_zspread() {
     CurrencyAmount pvComputed = 
         PRICER.presentValueWithZSpread(BILL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
     double pvExpected = DSC_FACTORS_ISSUER.discountFactor(MATURITY_DATE) * NOTIONAL.getAmount() *
         Math.exp(-Z_SPREAD * DSC_FACTORS_ISSUER.relativeYearFraction(MATURITY_DATE));
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_presentValue_zspread_aftermaturity() {
     CurrencyAmount pvComputed =
         PRICER.presentValueWithZSpread(BILL_PAST, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), 0.0d, TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(0.0d, offset(TOLERANCE_PV));
   }
   
   //-------------------------------------------------------------------------
+  @Test
   public void presentValueSensitivity() {
     PointSensitivities sensiComputed = PRICER.presentValueSensitivity(BILL, PROVIDER);
     PointSensitivities sensiExpected = IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER)
         .zeroRatePointSensitivity(MATURITY_DATE)
         .multipliedBy(NOTIONAL.getAmount()).build();
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(sensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(PROVIDER, p -> PRICER.presentValue(BILL, p));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT)).isTrue();
   }
   
+  @Test
   public void presentValueSensitivity_aftermaturity() {
     PointSensitivities sensiComputed = PRICER.presentValueSensitivity(BILL_PAST, PROVIDER);
     PointSensitivities sensiExpected = PointSensitivities.empty();
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV)).isTrue();
   }
   
+  @Test
   public void presentValueSensitivity_zspread() {
     PointSensitivities sensiComputed = 
         PRICER.presentValueSensitivityWithZSpread(BILL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
@@ -171,40 +177,45 @@ public class DiscountingBillProductPricerTest {
         GROUP_ISSUER)
         .multipliedBy(NOTIONAL.getAmount())
         .build();
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(sensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER, p -> PRICER.presentValueWithZSpread(BILL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT)).isTrue();
   }
   
+  @Test
   public void presentValueSensitivity_zspread_aftermaturity() {
     PointSensitivities sensiComputed = 
         PRICER.presentValueSensitivityWithZSpread(BILL_PAST, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
     PointSensitivities sensiExpected = PointSensitivities.empty();
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PV)).isTrue();
   }
   
   //-------------------------------------------------------------------------
+  @Test
   public void priceFromCurves() {
     LocalDate settlementDate = VAL_DATE.plusDays(1);
     double priceComputed = PRICER.priceFromCurves(BILL, PROVIDER, settlementDate);
     double dfMaturity = DSC_FACTORS_ISSUER.discountFactor(MATURITY_DATE);
     double dfSettle = DSC_FACTORS_REPO.discountFactor(settlementDate);
     double priceExpected = dfMaturity/dfSettle;
-    assertEquals(priceComputed, priceExpected, TOLERANCE_PRICE);
+    assertThat(priceComputed).isCloseTo(priceExpected, offset(TOLERANCE_PRICE));
   }
   
+  @Test
   public void price_settle_date_after_maturity_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.priceFromCurves(BILL, PROVIDER, MATURITY_DATE));
   }
   
+  @Test
   public void price_settle_date_before_valuation_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.priceFromCurves(BILL, PROVIDER, VAL_DATE.minusDays(1)));
   }
 
+  @Test
   public void priceFromCurves_zspread() {
     LocalDate settlementDate = VAL_DATE.plusDays(1);
     double priceComputed =
@@ -212,15 +223,17 @@ public class DiscountingBillProductPricerTest {
     double dfMaturity = DSC_FACTORS_ISSUER.discountFactor(MATURITY_DATE);
     double dfSettle = DSC_FACTORS_REPO.discountFactor(settlementDate);
     double priceExpected = dfMaturity * Math.exp(-Z_SPREAD * DSC_FACTORS_ISSUER.relativeYearFraction(MATURITY_DATE)) / dfSettle;
-    assertEquals(priceComputed, priceExpected, TOLERANCE_PRICE);
+    assertThat(priceComputed).isCloseTo(priceExpected, offset(TOLERANCE_PRICE));
   }
   
+  @Test
   public void price_zspread_settle_date_after_maturity_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.priceFromCurvesWithZSpread(
             BILL, PROVIDER, MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
   
+  @Test
   public void price_zspread_settle_date_before_valuation_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.priceFromCurvesWithZSpread(
@@ -228,6 +241,7 @@ public class DiscountingBillProductPricerTest {
   }
   
   //-------------------------------------------------------------------------
+  @Test
   public void yieldFromCurves() {
     LocalDate settlementDate = VAL_DATE.plusDays(1);
     double yieldComputed = PRICER.yieldFromCurves(BILL, PROVIDER, settlementDate);
@@ -235,19 +249,22 @@ public class DiscountingBillProductPricerTest {
     double dfSettle = DSC_FACTORS_REPO.discountFactor(settlementDate);
     double priceExpected = dfMaturity/dfSettle;
     double yieldExpected = BILL.yieldFromPrice(priceExpected, settlementDate);
-    assertEquals(yieldComputed, yieldExpected, TOLERANCE_PRICE);
+    assertThat(yieldComputed).isCloseTo(yieldExpected, offset(TOLERANCE_PRICE));
   }
   
+  @Test
   public void yield_settle_date_after_maturity_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.yieldFromCurves(BILL, PROVIDER, MATURITY_DATE));
   }
   
+  @Test
   public void yield_settle_date_before_valuation_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.yieldFromCurves(BILL, PROVIDER, VAL_DATE.minusDays(1)));
   }
   
+  @Test
   public void yieldFromCurves_zspread() {
     LocalDate settlementDate = VAL_DATE.plusDays(1);
     double yieldComputed = 
@@ -255,15 +272,17 @@ public class DiscountingBillProductPricerTest {
     double priceExpected = 
         PRICER.priceFromCurvesWithZSpread(BILL, PROVIDER, settlementDate, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
     double yieldExpected = BILL.yieldFromPrice(priceExpected, settlementDate);
-    assertEquals(yieldComputed, yieldExpected, TOLERANCE_PRICE);
+    assertThat(yieldComputed).isCloseTo(yieldExpected, offset(TOLERANCE_PRICE));
   }
   
+  @Test
   public void yield_zspread_settle_date_after_maturity_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.yieldFromCurvesWithZSpread(
             BILL, PROVIDER, MATURITY_DATE, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
   }
   
+  @Test
   public void yield_zspread_settle_date_before_valuation_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.yieldFromCurvesWithZSpread(

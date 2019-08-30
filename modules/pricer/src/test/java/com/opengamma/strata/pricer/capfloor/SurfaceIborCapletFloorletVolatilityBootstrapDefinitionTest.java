@@ -16,16 +16,15 @@ import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.STEP_UPPER;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -53,54 +52,58 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 /**
  * Test {@link SurfaceIborCapletFloorletVolatilityBootstrapDefinition}.
  */
-@Test
 public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
 
   private static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("TestName");
   private static final ConstantCurve SHIFT = ConstantCurve.of("Black shift", 0.02);
 
+  @Test
   public void test_of(){
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, STEP_UPPER, DOUBLE_QUADRATIC);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), GridSurfaceInterpolator.of(STEP_UPPER, DOUBLE_QUADRATIC));
-    assertEquals(test.getName(), NAME);
-    assertFalse(test.getShiftCurve().isPresent());
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(GridSurfaceInterpolator.of(STEP_UPPER, DOUBLE_QUADRATIC));
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getShiftCurve().isPresent()).isFalse();
   }
 
+  @Test
   public void test_of_surface() {
     GridSurfaceInterpolator interp = GridSurfaceInterpolator.of(LINEAR, LINEAR);
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test =
         SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(NAME, USD_LIBOR_3M, ACT_ACT_ISDA, interp);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), interp);
-    assertEquals(test.getName(), NAME);
-    assertFalse(test.getShiftCurve().isPresent());
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(interp);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getShiftCurve().isPresent()).isFalse();
   }
 
+  @Test
   public void test_of_shift() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, STEP_UPPER, DOUBLE_QUADRATIC, SHIFT);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), GridSurfaceInterpolator.of(STEP_UPPER, DOUBLE_QUADRATIC));
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getShiftCurve().get(), SHIFT);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(GridSurfaceInterpolator.of(STEP_UPPER, DOUBLE_QUADRATIC));
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getShiftCurve().get()).isEqualTo(SHIFT);
   }
 
+  @Test
   public void test_of_surface_shift() {
     GridSurfaceInterpolator interp = GridSurfaceInterpolator.of(LINEAR, LINEAR);
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test =
         SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(NAME, USD_LIBOR_3M, ACT_ACT_ISDA, interp, SHIFT);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getIndex(), USD_LIBOR_3M);
-    assertEquals(test.getInterpolator(), interp);
-    assertEquals(test.getName(), NAME);
-    assertEquals(test.getShiftCurve().get(), SHIFT);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.getInterpolator()).isEqualTo(interp);
+    assertThat(test.getName()).isEqualTo(NAME);
+    assertThat(test.getShiftCurve().get()).isEqualTo(SHIFT);
   }
 
+  @Test
   public void test_createCap() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition base = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, TIME_SQUARE, DOUBLE_QUADRATIC);
@@ -124,9 +127,10 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
         .payReceive(PayReceive.RECEIVE)
         .build();
     IborCapFloorLeg computed = base.createCap(startDate, endDate, strike);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_createMetadata_normal() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition base = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, DOUBLE_QUADRATIC);
@@ -145,9 +149,10 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
     SurfaceMetadata expected = Surfaces.normalVolatilityByExpiryStrike(
         NAME.getName(), ACT_ACT_ISDA).withParameterMetadata(list);
     SurfaceMetadata computed = base.createMetadata(capData);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_createMetadata_black() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition base = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, DOUBLE_QUADRATIC);
@@ -167,16 +172,18 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
     SurfaceMetadata expected = Surfaces.blackVolatilityByExpiryStrike(
         NAME.getName(), ACT_ACT_ISDA).withParameterMetadata(list);
     SurfaceMetadata computed = base.createMetadata(capData);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_wrongInterpolator() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, DOUBLE_QUADRATIC, DOUBLE_QUADRATIC));
 
   }
+  @Test
   public void test_createMetadata_wrongValueType() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition base = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, DOUBLE_QUADRATIC);
@@ -191,6 +198,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test1 = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, DOUBLE_QUADRATIC);
@@ -200,6 +208,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, DOUBLE_QUADRATIC);

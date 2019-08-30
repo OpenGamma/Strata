@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.pricer.fx;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSingle;
 /**
  * Test {@link DiscountingFxSingleProductPricer}.
  */
-@Test
 public class DiscountingFxSingleProductPricerTest {
 
   private static final RatesProvider PROVIDER = RatesProviderFxDataSets.createProvider();
@@ -45,36 +44,41 @@ public class DiscountingFxSingleProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
+  @Test
   public void test_presentValue() {
     MultiCurrencyAmount computed = PRICER.presentValue(FWD, PROVIDER);
     double expected1 = NOMINAL_USD * PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double expected2 = -NOMINAL_USD * FX_RATE * PROVIDER.discountFactor(KRW, PAYMENT_DATE);
-    assertEquals(computed.getAmount(USD).getAmount(), expected1, NOMINAL_USD * TOL);
-    assertEquals(computed.getAmount(KRW).getAmount(), expected2, NOMINAL_USD * TOL);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected1, offset(NOMINAL_USD * TOL));
+    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expected2, offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValue_ended() {
     ResolvedFxSingle fwd =
         ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     MultiCurrencyAmount computed = PRICER.presentValue(fwd, PROVIDER);
-    assertEquals(computed, MultiCurrencyAmount.empty());
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.empty());
   }
 
+  @Test
   public void test_parSpread() {
     double spread = PRICER.parSpread(FWD, PROVIDER);
     ResolvedFxSingle fwdSp =
         ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE + spread), PAYMENT_DATE);
     MultiCurrencyAmount pv = PRICER.presentValue(fwdSp, PROVIDER);
-    assertEquals(pv.convertedTo(USD, PROVIDER).getAmount(), 0d, NOMINAL_USD * TOL);
+    assertThat(pv.convertedTo(USD, PROVIDER).getAmount()).isCloseTo(0d, offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_parSpread_ended() {
     ResolvedFxSingle fwd =
         ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     double spread = PRICER.parSpread(fwd, PROVIDER);
-    assertEquals(spread, 0d, TOL);
+    assertThat(spread).isCloseTo(0d, offset(TOL));
   }
 
+  @Test
   public void test_forwardFxRate() {
     // forward rate is computed by discounting for any RatesProvider input.
     FxRate computed = PRICER.forwardFxRate(FWD, PROVIDER);
@@ -82,22 +86,25 @@ public class DiscountingFxSingleProductPricerTest {
     double df2 = PROVIDER.discountFactor(KRW, PAYMENT_DATE);
     double spot = PROVIDER.fxRate(USD, KRW);
     FxRate expected = FxRate.of(USD, KRW, spot * df1 / df2);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_forwardFxRatePointSensitivity() {
     PointSensitivityBuilder computed = PRICER.forwardFxRatePointSensitivity(FWD, PROVIDER);
     FxForwardSensitivity expected = FxForwardSensitivity.of(CurrencyPair.of(USD, KRW), USD, FWD.getPaymentDate(), 1d);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_forwardFxRateSpotSensitivity() {
     double computed = PRICER.forwardFxRateSpotSensitivity(FWD, PROVIDER);
     double df1 = PROVIDER.discountFactor(USD, PAYMENT_DATE);
     double df2 = PROVIDER.discountFactor(KRW, PAYMENT_DATE);
-    assertEquals(computed, df1 / df2);
+    assertThat(computed).isEqualTo(df1 / df2);
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(FWD, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
@@ -105,31 +112,35 @@ public class DiscountingFxSingleProductPricerTest {
         CAL_FD.sensitivity(PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(USD));
     CurrencyParameterSensitivities expectedKrw =
         CAL_FD.sensitivity(PROVIDER, (p) -> PRICER.presentValue(FWD, (p)).getAmount(KRW));
-    assertTrue(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD));
+    assertThat(computed.equalWithTolerance(expectedUsd.combinedWith(expectedKrw), NOMINAL_USD * FX_RATE * EPS_FD)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_ended() {
     ResolvedFxSingle fwd =
         ResolvedFxSingle.of(CurrencyAmount.of(USD, NOMINAL_USD), FxRate.of(USD, KRW, FX_RATE), PAYMENT_DATE_PAST);
     PointSensitivities computed = PRICER.presentValueSensitivity(fwd, PROVIDER);
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computed = PRICER.currencyExposure(FWD, PROVIDER);
     MultiCurrencyAmount expected = PRICER.presentValue(FWD, PROVIDER);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_currentCash_zero() {
     MultiCurrencyAmount computed = PRICER.currentCash(FWD, PROVIDER.getValuationDate());
-    assertEquals(computed, MultiCurrencyAmount.empty());
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.empty());
   }
 
+  @Test
   public void test_currentCash_onPayment() {
     MultiCurrencyAmount computed = PRICER.currentCash(FWD, PAYMENT_DATE);
-    assertEquals(computed, MultiCurrencyAmount.of(
+    assertThat(computed).isEqualTo(MultiCurrencyAmount.of(
         FWD.getBaseCurrencyPayment().getValue(),
         FWD.getCounterCurrencyPayment().getValue()));
   }

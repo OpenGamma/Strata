@@ -8,13 +8,14 @@ package com.opengamma.strata.pricer.impl.volatility.smile;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.product.common.PutCall.CALL;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
@@ -30,7 +31,6 @@ import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 /**
  * Test {@link SabrHaganVolatilityFunctionProvider}.
  */
-@Test
 public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunctionProviderTestCase {
 
   private static ProbabilityDistribution<Double> NORMAL =
@@ -80,8 +80,8 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
           FUNCTION.volatility(forward, strike[looppts + nbPoints], timeToExpiry, SabrData);
     }
     for (int looppts = -nbPoints; looppts < nbPoints; looppts++) {
-      assertTrue(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) /
-          (strike[looppts + nbPoints + 1] - strike[looppts + nbPoints]) < 20.0);
+      assertThat(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) /
+          (strike[looppts + nbPoints + 1] - strike[looppts + nbPoints]) < 20.0).isTrue();
     }
   }  
 
@@ -122,13 +122,13 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     testVolatilityAdjoint(F, CALL_ATM, data, eps, tol);
     double volatility = FUNCTION.volatility(F, STRIKE_ITM, T, data);
     ValueDerivatives volatilityAdjoint = FUNCTION.volatilityAdjoint(F, STRIKE_ITM, T, data);
-    assertEquals(volatility, volatilityAdjoint.getValue(), tol);
-    assertEquals(0.0, volatilityAdjoint.getDerivative(0), tol);
-    assertEquals(0.0, volatilityAdjoint.getDerivative(1), tol);
-    assertEquals(1e7, volatilityAdjoint.getDerivative(2), tol);
-    assertEquals(0.0, volatilityAdjoint.getDerivative(3), tol);
-    assertEquals(0.0, volatilityAdjoint.getDerivative(4), tol);
-    assertEquals(0.0, volatilityAdjoint.getDerivative(5), tol);
+    assertThat(volatility).isCloseTo(volatilityAdjoint.getValue(), offset(tol));
+    assertThat(0.0).isCloseTo(volatilityAdjoint.getDerivative(0), offset(tol));
+    assertThat(0.0).isCloseTo(volatilityAdjoint.getDerivative(1), offset(tol));
+    assertThat(1e7).isCloseTo(volatilityAdjoint.getDerivative(2), offset(tol));
+    assertThat(0.0).isCloseTo(volatilityAdjoint.getDerivative(3), offset(tol));
+    assertThat(0.0).isCloseTo(volatilityAdjoint.getDerivative(4), offset(tol));
+    assertThat(0.0).isCloseTo(volatilityAdjoint.getDerivative(5), offset(tol));
   }
 
   @Test
@@ -226,7 +226,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   }
 
   //TODO write a fuzzer that hits SABR with random parameters
-  @Test(enabled = false)
+  @Disabled
   public void testRandomParameters() {
     double eps = 1e-5;
     double tol = 1e-3;
@@ -246,7 +246,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
   /**
    * Calculate the true SABR delta and gamma and compare with that found by finite difference
    */
-  @Test(enabled = false)
+  @Disabled
   public void testGreeks() {
     double eps = 1e-3;
     double f = 1.2;
@@ -270,7 +270,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double price = BlackFormulaRepository.price(f, k, t, adj.getValue(), true);
     double priceDown = BlackFormulaRepository.price(f - eps, k, t, volDown, true);
     double fdDelta = (priceUp - priceDown) / 2 / eps;
-    assertEquals(fdDelta, delta, 1e-6);
+    assertThat(fdDelta).isCloseTo(delta, offset(1e-6));
 
     double bsVanna = BlackFormulaRepository.vanna(f, k, t, adj.getValue());
     double bsGamma = BlackFormulaRepository.gamma(f, k, t, adj.getValue());
@@ -283,9 +283,9 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double fdGamma = (priceUp + priceDown - 2 * price) / eps / eps;
 
     double d2Sigmad2FwdFD = (volUp + volDown - 2 * adj.getValue()) / eps / eps;
-    assertEquals(d2Sigmad2FwdFD, d2Sigmad2Fwd, 1e-4);
+    assertThat(d2Sigmad2FwdFD).isCloseTo(d2Sigmad2Fwd, offset(1e-4));
 
-    assertEquals(fdGamma, gamma, 1e-2);
+    assertThat(fdGamma).isCloseTo(gamma, offset(1e-2));
   }
 
   /**
@@ -322,16 +322,16 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     
     double volatility1 = FUNCTION.volatility(F, STRIKE_OTM, T, data1);
 
-    assertEquals(volatilityOut, volatility1, TOLERANCE_VOL_LIMIT);
-    assertEquals(volatilityOut, volatilityIn, TOLERANCE_VOL_LIMIT);
-    assertEquals(volatility2Out, volatility2In, TOLERANCE_VOL_LIMIT);
+    assertThat(volatilityOut).isCloseTo(volatility1, offset(TOLERANCE_VOL_LIMIT));
+    assertThat(volatilityOut).isCloseTo(volatilityIn, offset(TOLERANCE_VOL_LIMIT));
+    assertThat(volatility2Out).isCloseTo(volatility2In, offset(TOLERANCE_VOL_LIMIT));
     for (int i = 0; i < adjointOut.length; ++i) {
       double ref = adjointOut[i];
-      assertEquals(adjointOut[i], adjointIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
+      assertThat(adjointOut[i]).isCloseTo(adjointIn[i], offset(Math.max(Math.abs(ref), 1.0) * 1.e-3));
     }
     for (int i = 0; i < volatilityDOut.length; ++i) {
       double ref = volatilityDOut[i];
-      assertEquals(volatilityDOut[i], volatilityDIn[i], Math.max(Math.abs(ref), 1.0) * 1.e-3);
+      assertThat(volatilityDOut[i]).isCloseTo(volatilityDIn[i], offset(Math.max(Math.abs(ref), 1.0) * 1.e-3));
     }
     
   }
@@ -350,10 +350,12 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
         .isThrownBy(() -> FUNCTION.volatilityAdjoint(10 * F, STRIKE_ITM, T, dataIn));
   }
 
+  @Test
   public void coverage() {
     coverImmutableBean(FUNCTION);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(FUNCTION);
   }
@@ -368,7 +370,7 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double volatility = FUNCTION.volatility(forward, optionData.getStrike(), optionData.getTimeToExpiry(), sabrData);
     double[] volatilityAdjoint = toArray(FUNCTION.volatilityAdjoint(
         forward, optionData.getStrike(), optionData.getTimeToExpiry(), sabrData));
-    assertEquals(volatility, volatilityAdjoint[0], tol);
+    assertThat(volatility).isCloseTo(volatilityAdjoint[0], offset(tol));
     assertEqualsRelTol("Forward Sensitivity" + sabrData.toString(),
         fdSensitivity(optionData, forward, sabrData, SabrParameter.Forward, eps), volatilityAdjoint[1], tol);
     assertEqualsRelTol("Strike Sensitivity" + sabrData.toString(),
@@ -399,33 +401,33 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double[] volD = new double[6];
     double[][] volD2 = new double[2][2];
     double vol = FUNCTION.volatilityAdjoint2(F, option.getStrike(), option.getTimeToExpiry(), DATA, volD, volD2);
-    assertEquals(volatility, vol, tolerance1);
+    assertThat(volatility).isCloseTo(vol, offset(tolerance1));
     // Derivative
     for (int loopder = 0; loopder < 6; loopder++) {
-      assertEquals(volatilityAdjoint[loopder + 1], volD[loopder], tolerance1);
+      assertThat(volatilityAdjoint[loopder + 1]).isCloseTo(volD[loopder], offset(tolerance1));
     }
     // Derivative forward-forward
     double deltaF = 0.000001;
     double volatilityFP = FUNCTION.volatility(F + deltaF, option.getStrike(), option.getTimeToExpiry(), DATA);
     double volatilityFM = FUNCTION.volatility(F - deltaF, option.getStrike(), option.getTimeToExpiry(), DATA);
     double derivativeFF_FD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
-    assertEquals(derivativeFF_FD, volD2[0][0], tolerance2);
+    assertThat(derivativeFF_FD).isCloseTo(volD2[0][0], offset(tolerance2));
     // Derivative strike-strike
     double deltaK = 0.000001;
     double volatilityKP = FUNCTION.volatility(F, option.getStrike() + deltaK, option.getTimeToExpiry(), DATA);
     double volatilityKM = FUNCTION.volatility(F, option.getStrike() - deltaK, option.getTimeToExpiry(), DATA);
     double derivativeKK_FD = (volatilityKP + volatilityKM - 2 * volatility) / (deltaK * deltaK);
-    assertEquals(derivativeKK_FD, volD2[1][1], tolerance2);
+    assertThat(derivativeKK_FD).isCloseTo(volD2[1][1], offset(tolerance2));
     // Derivative strike-forward
     double volatilityFPKP = FUNCTION.volatility(F + deltaF, option.getStrike() + deltaK, option.getTimeToExpiry(), DATA);
     double derivativeFK_FD = (volatilityFPKP + volatility - volatilityFP - volatilityKP) / (deltaF * deltaK);
-    assertEquals(derivativeFK_FD, volD2[0][1], tolerance2);
-    assertEquals(volD2[0][1], volD2[1][0], 1E-6);
+    assertThat(derivativeFK_FD).isCloseTo(volD2[0][1], offset(tolerance2));
+    assertThat(volD2[0][1]).isCloseTo(volD2[1][0], offset(1E-6));
   }
 
   private void assertEqualsRelTol(String msg, double exp, double act, double tol) {
     double delta = (Math.abs(exp) + Math.abs(act)) * tol / 2.0;
-    assertEquals(act, exp, delta, msg);
+    assertThat(act).as(msg).isCloseTo(exp, offset(delta));
   }
 
   @SuppressWarnings("null")

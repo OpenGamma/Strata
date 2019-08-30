@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -22,7 +23,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link BlackOneTouchCashPriceFormulaRepository}.
  */
-@Test
 public class BlackOneTouchCashPriceFormulaRepositoryTest {
   private static final ZonedDateTime REFERENCE_DATE = TestHelper.dateUtc(2011, 7, 1);
   private static final ZonedDateTime EXPIRY_DATE = TestHelper.dateUtc(2015, 1, 2);
@@ -52,6 +52,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   /**
    * standard in-out parity holds if r=0.
    */
+  @Test
   public void inOutParity() {
     double upIn = PRICER.price(SPOT, EXPIRY_TIME, COST_OF_CARRY, 0d, VOLATILITY, BARRIER_UP_IN);
     double upOut = PRICER.price(SPOT, EXPIRY_TIME, COST_OF_CARRY, 0d, VOLATILITY, BARRIER_UP_OUT);
@@ -64,6 +65,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   /**
    * Upper barrier level is very high.
    */
+  @Test
   public void largeBarrierTest() {
     SimpleConstantContinuousBarrier in = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 1.0e4);
     SimpleConstantContinuousBarrier out = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, 1.0e4);
@@ -76,6 +78,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   /**
    * Lower barrier level is very small.
    */
+  @Test
   public void smallBarrierTest() {
     SimpleConstantContinuousBarrier in =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, 0.1d);
@@ -90,6 +93,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   /**
    * Greeks against finite difference approximation.
    */
+  @Test
   public void greekfdTest() {
     for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
       ValueDerivatives computed = PRICER.priceAdjoint(
@@ -118,18 +122,19 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
           SPOT + EPS_FD, EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, barrier);
       ValueDerivatives spotDw1 = PRICER.priceAdjoint(
           SPOT - EPS_FD, EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, barrier);
-      assertEquals(computed.getDerivative(0), 0.5 * (spotUp - spotDw) / EPS_FD, EPS_FD);
-      assertEquals(computed.getDerivative(1), 0.5 * (rateUp - rateDw) / EPS_FD, EPS_FD);
-      assertEquals(computed.getDerivative(2), 0.5 * (costUp - costDw) / EPS_FD, EPS_FD);
-      assertEquals(computed.getDerivative(3), 0.5 * (volUp - volDw) / EPS_FD, EPS_FD);
-      assertEquals(computed.getDerivative(4), 0.5 * (timeUp - timeDw) / EPS_FD, EPS_FD);
-      assertEquals(computed.getDerivative(5), 0.5 * (spotUp1.getDerivative(0) - spotDw1.getDerivative(0)) / EPS_FD, EPS_FD);
+      assertThat(computed.getDerivative(0)).isCloseTo(0.5 * (spotUp - spotDw) / EPS_FD, offset(EPS_FD));
+      assertThat(computed.getDerivative(1)).isCloseTo(0.5 * (rateUp - rateDw) / EPS_FD, offset(EPS_FD));
+      assertThat(computed.getDerivative(2)).isCloseTo(0.5 * (costUp - costDw) / EPS_FD, offset(EPS_FD));
+      assertThat(computed.getDerivative(3)).isCloseTo(0.5 * (volUp - volDw) / EPS_FD, offset(EPS_FD));
+      assertThat(computed.getDerivative(4)).isCloseTo(0.5 * (timeUp - timeDw) / EPS_FD, offset(EPS_FD));
+      assertThat(computed.getDerivative(5)).isCloseTo(0.5 * (spotUp1.getDerivative(0) - spotDw1.getDerivative(0)) / EPS_FD, offset(EPS_FD));
     }
   }
 
   /**
    * smoothly connected to limiting cases.
    */
+  @Test
   public void smallsigmaTTest() {
     for (SimpleConstantContinuousBarrier barrier : BARRIERS) {
       double volUp = 2.0e-3;
@@ -150,6 +155,7 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
   /**
    * Barrier event has occured already.
    */
+  @Test
   public void illegalBarrierLevelTest() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, EXPIRY_TIME, COST_OF_CARRY,
@@ -167,6 +173,6 @@ public class BlackOneTouchCashPriceFormulaRepositoryTest {
 
   //-------------------------------------------------------------------------
   private void assertRelative(double val1, double val2) {
-    assertEquals(val1, val2, Math.max(Math.abs(val2), 1d) * TOL);
+    assertThat(val1).isCloseTo(val2, offset(Math.max(Math.abs(val2), 1d) * TOL));
   }
 }

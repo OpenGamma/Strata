@@ -6,11 +6,11 @@
 package com.opengamma.strata.pricer.fx;
 
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.fx.ResolvedFxNdfTrade;
 /**
  * Test {@link DiscountingFxNdfProductPricer}.
  */
-@Test
 public class DiscountingFxNdfTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -60,34 +59,29 @@ public class DiscountingFxNdfTradePricerTest {
   private static final DiscountingFxNdfTradePricer TRADE_PRICER = DiscountingFxNdfTradePricer.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
-    assertEquals(
-        TRADE_PRICER.presentValue(TRADE, PROVIDER),
-        PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.presentValue(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
-    assertEquals(
-        TRADE_PRICER.presentValueSensitivity(TRADE, PROVIDER),
-        PRODUCT_PRICER.presentValueSensitivity(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.presentValueSensitivity(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.presentValueSensitivity(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_currencyExposure() {
-    assertEquals(
-        TRADE_PRICER.currencyExposure(TRADE, PROVIDER),
-        PRODUCT_PRICER.currencyExposure(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.currencyExposure(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.currencyExposure(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_currentCash() {
-    assertEquals(
-        TRADE_PRICER.currentCash(TRADE, PROVIDER),
-        PRODUCT_PRICER.currentCash(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.currentCash(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.currentCash(PRODUCT, PROVIDER));
   }
 
+  @Test
   public void test_forwardFxRate() {
-    assertEquals(
-        TRADE_PRICER.forwardFxRate(TRADE, PROVIDER),
-        PRODUCT_PRICER.forwardFxRate(PRODUCT, PROVIDER));
+    assertThat(TRADE_PRICER.forwardFxRate(TRADE, PROVIDER)).isEqualTo(PRODUCT_PRICER.forwardFxRate(PRODUCT, PROVIDER));
   }
 
 }

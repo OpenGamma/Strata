@@ -10,15 +10,15 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -50,7 +50,6 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
 /**
  * Test {@link VannaVolgaFxVanillaOptionProductPricer}.
  */
-@Test
 public class VannaVolgaFxVanillaOptionProductPricerTest {
 
   private static final ZoneId ZONE = ZoneId.of("Z");
@@ -119,6 +118,7 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
   private static final SVDecompositionCommons SVD = new SVDecompositionCommons();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_price_presentValue() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       ResolvedFxVanillaOption call = CALLS[i];
@@ -144,13 +144,14 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
             - BlackFormulaRepository.price(forwardRate, strikes[j], timeToExpiry, vols[1], true));
       }
       expectedPriceCall *= df;
-      assertEquals(computedPriceCall, expectedPriceCall, TOL);
-      assertEquals(computedCall.getAmount(), expectedPriceCall * NOTIONAL, TOL * NOTIONAL);
+      assertThat(computedPriceCall).isCloseTo(expectedPriceCall, offset(TOL));
+      assertThat(computedCall.getAmount()).isCloseTo(expectedPriceCall * NOTIONAL, offset(TOL * NOTIONAL));
       // test against trade pricer
-      assertEquals(computedCall, TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER, VOLS).getAmount(USD));
+      assertThat(computedCall).isEqualTo(TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER, VOLS).getAmount(USD));
     }
   }
 
+  @Test
   public void test_price_presentValue_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       ResolvedFxVanillaOption call = CALLS[i];
@@ -160,8 +161,8 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
           .build();
       double computedPriceCall = PRICER.price(call, RATES_PROVIDER_AFTER, VOLS_AFTER);
       CurrencyAmount computedCall = PRICER.presentValue(call, RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedPriceCall, 0d, TOL);
-      assertEquals(computedCall.getAmount(), 0d, TOL);
+      assertThat(computedPriceCall).isCloseTo(0d, offset(TOL));
+      assertThat(computedCall.getAmount()).isCloseTo(0d, offset(TOL));
       ResolvedFxVanillaOption put = PUTS[i];
       ResolvedFxVanillaOptionTrade putTrade = ResolvedFxVanillaOptionTrade.builder()
           .product(put)
@@ -169,15 +170,16 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
           .build();
       double computedPricePut = PRICER.price(put, RATES_PROVIDER_AFTER, VOLS_AFTER);
       CurrencyAmount computedPut = PRICER.presentValue(put, RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedPricePut, 0d, TOL);
-      assertEquals(computedPut.getAmount(), 0d, TOL);
+      assertThat(computedPricePut).isCloseTo(0d, offset(TOL));
+      assertThat(computedPut.getAmount()).isCloseTo(0d, offset(TOL));
       // test against trade pricer
-      assertEquals(computedCall, TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
-      assertEquals(computedPut, TRADE_PRICER.presentValue(putTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
+      assertThat(computedCall).isEqualTo(TRADE_PRICER.presentValue(callTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
+      assertThat(computedPut).isEqualTo(TRADE_PRICER.presentValue(putTrade, RATES_PROVIDER_AFTER, VOLS_AFTER).getAmount(USD));
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       ResolvedFxVanillaOption option = CALLS[i];
@@ -207,22 +209,24 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
             }
            }
           );
-      assertTrue(sensiComputed.equalWithTolerance(sensiExpected.combinedWith(sensiRes), FD_EPS * NOTIONAL * 10d));
+      assertThat(sensiComputed.equalWithTolerance(sensiExpected.combinedWith(sensiRes), FD_EPS * NOTIONAL * 10d)).isTrue();
     }
   }
 
+  @Test
   public void test_presentValueSensitivity_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       PointSensitivityBuilder computedCall =
           PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedCall, PointSensitivityBuilder.none());
+      assertThat(computedCall).isEqualTo(PointSensitivityBuilder.none());
       PointSensitivityBuilder computedPut =
           PRICER.presentValueSensitivityRatesStickyStrike(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedPut, PointSensitivityBuilder.none());
+      assertThat(computedPut).isEqualTo(PointSensitivityBuilder.none());
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityVolatility() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       PointSensitivities computedCall =
@@ -249,55 +253,59 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
       double[] expStrikes = new double[] {strikes[0], strikes[2], strikes[1] };
       for (int j = 0; j < 3; ++j) {
         FxOptionSensitivity sensi = (FxOptionSensitivity) computedCall.getSensitivities().get(j);
-        assertEquals(sensi.getSensitivity(), vegas[j], TOL * NOTIONAL);
-        assertEquals(sensi.getStrike(), expStrikes[j], TOL);
-        assertEquals(sensi.getForward(), forwardRate, TOL);
-        assertEquals(sensi.getCurrency(), USD);
-        assertEquals(sensi.getCurrencyPair(), CURRENCY_PAIR);
-        assertEquals(sensi.getExpiry(), timeToExpiry);
+        assertThat(sensi.getSensitivity()).isCloseTo(vegas[j], offset(TOL * NOTIONAL));
+        assertThat(sensi.getStrike()).isCloseTo(expStrikes[j], offset(TOL));
+        assertThat(sensi.getForward()).isCloseTo(forwardRate, offset(TOL));
+        assertThat(sensi.getCurrency()).isEqualTo(USD);
+        assertThat(sensi.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+        assertThat(sensi.getExpiry()).isEqualTo(timeToExpiry);
       }
     }
   }
 
+  @Test
   public void test_presentValueSensitivityVolatility_afterExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       PointSensitivityBuilder computedCall =
           PRICER.presentValueSensitivityModelParamsVolatility(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedCall, PointSensitivityBuilder.none());
+      assertThat(computedCall).isEqualTo(PointSensitivityBuilder.none());
       PointSensitivityBuilder computedPut =
           PRICER.presentValueSensitivityModelParamsVolatility(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedPut, PointSensitivityBuilder.none());
+      assertThat(computedPut).isEqualTo(PointSensitivityBuilder.none());
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       CurrencyAmount pvCall = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiCall = PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER, VOLS);
       MultiCurrencyAmount computedCall = PRICER.currencyExposure(CALLS[i], RATES_PROVIDER, VOLS);
       MultiCurrencyAmount expectedCall = RATES_PROVIDER.currencyExposure(pvSensiCall.build()).plus(pvCall);
-      assertEquals(computedCall.getAmount(EUR).getAmount(), expectedCall.getAmount(EUR).getAmount(), NOTIONAL * TOL);
-      assertEquals(computedCall.getAmount(USD).getAmount(), expectedCall.getAmount(USD).getAmount(), NOTIONAL * TOL);
+      assertThat(computedCall.getAmount(EUR).getAmount()).isCloseTo(expectedCall.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
+      assertThat(computedCall.getAmount(USD).getAmount()).isCloseTo(expectedCall.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
       CurrencyAmount pvPut = PRICER.presentValue(PUTS[i], RATES_PROVIDER, VOLS);
       PointSensitivityBuilder pvSensiPut = PRICER.presentValueSensitivityRatesStickyStrike(PUTS[i], RATES_PROVIDER, VOLS);
       MultiCurrencyAmount computedPut = PRICER.currencyExposure(PUTS[i], RATES_PROVIDER, VOLS);
       MultiCurrencyAmount expectedPut = RATES_PROVIDER.currencyExposure(pvSensiPut.build()).plus(pvPut);
-      assertEquals(computedPut.getAmount(EUR).getAmount(), expectedPut.getAmount(EUR).getAmount(), NOTIONAL * TOL);
-      assertEquals(computedPut.getAmount(USD).getAmount(), expectedPut.getAmount(USD).getAmount(), NOTIONAL * TOL);
+      assertThat(computedPut.getAmount(EUR).getAmount()).isCloseTo(expectedPut.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
+      assertThat(computedPut.getAmount(USD).getAmount()).isCloseTo(expectedPut.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
     }
   }
 
+  @Test
   public void test_currencyExposure_atExpiry() {
     for (int i = 0; i < NB_STRIKES; ++i) {
       MultiCurrencyAmount computedCall = PRICER.currencyExposure(CALLS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedCall, MultiCurrencyAmount.empty());
+      assertThat(computedCall).isEqualTo(MultiCurrencyAmount.empty());
       MultiCurrencyAmount computedPut = PRICER.currencyExposure(PUTS[i], RATES_PROVIDER_AFTER, VOLS_AFTER);
-      assertEquals(computedPut, MultiCurrencyAmount.empty());
+      assertThat(computedPut).isEqualTo(MultiCurrencyAmount.empty());
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_putCallParity() {
     double df = RATES_PROVIDER.discountFactor(USD, PAY);
     PointSensitivityBuilder dfSensi = RATES_PROVIDER.discountFactors(USD).zeroRatePointSensitivity(PAY);
@@ -315,18 +323,19 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
       double forward = FX_PRICER.forwardFxRate(UNDERLYING[i], RATES_PROVIDER).fxRate(CURRENCY_PAIR);
       PointSensitivityBuilder forwardSensi = FX_PRICER.forwardFxRatePointSensitivity(UNDERLYING[i], RATES_PROVIDER);
       double strike = CALLS[i].getStrike();
-      assertEquals(pvCall.getAmount() + pvPut.getAmount(), df * (forward - strike) * NOTIONAL, TOL * NOTIONAL);
-      assertTrue(pvSensiCall.combinedWith(pvSensiPut).build().normalized().equalWithTolerance(
+      assertThat(pvCall.getAmount() + pvPut.getAmount()).isCloseTo(df * (forward - strike) * NOTIONAL, offset(TOL * NOTIONAL));
+      assertThat(pvSensiCall.combinedWith(pvSensiPut).build().normalized().equalWithTolerance(
           dfSensi.multipliedBy((forward - strike) * NOTIONAL)
               .combinedWith(forwardSensi.multipliedBy(df * NOTIONAL)).build().normalized(),
-          NOTIONAL * TOL));
+          NOTIONAL * TOL)).isTrue();
       DoubleArray sensiVol = VOLS.parameterSensitivity(
           pvSensiVolCall.combinedWith(pvSensiVolPut).build()).getSensitivities().get(0).getSensitivity();
-      assertTrue(DoubleArrayMath.fuzzyEquals(sensiVol.toArray(), new double[sensiVol.size()], NOTIONAL * TOL));
+      assertThat(DoubleArrayMath.fuzzyEquals(sensiVol.toArray(), new double[sensiVol.size()], NOTIONAL * TOL)).isTrue();
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void regression_test() {
     double[] expected = new double[] {
       3.860405407112769E7, 3.0897699603079587E7, 2.3542824458812844E7, 1.6993448607300103E7, 1.1705393621236656E7,
@@ -371,24 +380,24 @@ public class VannaVolgaFxVanillaOptionProductPricerTest {
     for (int i = 0; i < NB_STRIKES; ++i) {
       // pv
       CurrencyAmount computed = PRICER.presentValue(CALLS[i], RATES_PROVIDER, VOLS);
-      assertEquals(computed.getAmount(), expected[i], NOTIONAL * TOL);
+      assertThat(computed.getAmount()).isCloseTo(expected[i], offset(NOTIONAL * TOL));
       // curve sensitivity
       PointSensitivityBuilder point = PRICER.presentValueSensitivityRatesStickyStrike(CALLS[i], RATES_PROVIDER, VOLS);
       CurrencyParameterSensitivities sensiComputed = RATES_PROVIDER.parameterSensitivity(point.build());
-      assertTrue(DoubleArrayMath.fuzzyEquals(
+      assertThat(DoubleArrayMath.fuzzyEquals(
           sensiComputed.getSensitivity(eurName, USD).getSensitivity().toArray(),
           sensiExpected[i][0],
-          NOTIONAL * TOL));
-      assertTrue(DoubleArrayMath.fuzzyEquals(
+          NOTIONAL * TOL)).isTrue();
+      assertThat(DoubleArrayMath.fuzzyEquals(
           sensiComputed.getSensitivity(usdName, USD).getSensitivity().toArray(),
           sensiExpected[i][1],
-          NOTIONAL * TOL));
+          NOTIONAL * TOL)).isTrue();
       // vol sensitivity
       PointSensitivities pointVol =
           PRICER.presentValueSensitivityModelParamsVolatility(CALLS[i], RATES_PROVIDER, VOLS).build();
-      assertEquals(pointVol.getSensitivities().get(0).getSensitivity(), sensiVolExpected[i][2], NOTIONAL * TOL);
-      assertEquals(pointVol.getSensitivities().get(1).getSensitivity(), sensiVolExpected[i][1], NOTIONAL * TOL);
-      assertEquals(pointVol.getSensitivities().get(2).getSensitivity(), sensiVolExpected[i][0], NOTIONAL * TOL);
+      assertThat(pointVol.getSensitivities().get(0).getSensitivity()).isCloseTo(sensiVolExpected[i][2], offset(NOTIONAL * TOL));
+      assertThat(pointVol.getSensitivities().get(1).getSensitivity()).isCloseTo(sensiVolExpected[i][1], offset(NOTIONAL * TOL));
+      assertThat(pointVol.getSensitivities().get(2).getSensitivity()).isCloseTo(sensiVolExpected[i][0], offset(NOTIONAL * TOL));
     }
   }
 

@@ -10,11 +10,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -50,7 +51,6 @@ import com.opengamma.strata.product.swap.SwapIndices;
 /**
  * Test {@link SabrExtrapolationReplicationCmsTradePricer}.
  */
-@Test
 public class DiscountingCmsTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -112,26 +112,29 @@ public class DiscountingCmsTradePricerTest {
   private static final DiscountingCmsTradePricer TRADE_PRICER = DiscountingCmsTradePricer.DEFAULT;
   private static final double TOL = 1.0e-13;
 
+  @Test
   public void test_presentValue() {
     MultiCurrencyAmount pv1 = TRADE_PRICER.presentValue(CMS_TRADE_PREMIUM, RATES_PROVIDER);
     MultiCurrencyAmount pv2 = TRADE_PRICER.presentValue(CMS_TRADE, RATES_PROVIDER);
     MultiCurrencyAmount pvProd1 = PRODUCT_PRICER.presentValue(CMS_ONE_LEG, RATES_PROVIDER);
     MultiCurrencyAmount pvProd2 = PRODUCT_PRICER.presentValue(CMS_TWO_LEGS, RATES_PROVIDER);
     CurrencyAmount pvPrem = PREMIUM_PRICER.presentValue(PREMIUM, RATES_PROVIDER);
-    assertEquals(pv1, pvProd1.plus(pvPrem));
-    assertEquals(pv2, pvProd2);
+    assertThat(pv1).isEqualTo(pvProd1.plus(pvPrem));
+    assertThat(pv2).isEqualTo(pvProd2);
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities pt1 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE_PREMIUM, RATES_PROVIDER);
     PointSensitivities pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER);
     PointSensitivityBuilder ptProd1 = PRODUCT_PRICER.presentValueSensitivity(CMS_ONE_LEG, RATES_PROVIDER);
     PointSensitivityBuilder ptProd2 = PRODUCT_PRICER.presentValueSensitivity(CMS_TWO_LEGS, RATES_PROVIDER);
     PointSensitivityBuilder ptPrem = PREMIUM_PRICER.presentValueSensitivity(PREMIUM, RATES_PROVIDER);
-    assertEquals(pt1, ptProd1.combinedWith(ptPrem).build());
-    assertEquals(pt2, ptProd2.build());
+    assertThat(pt1).isEqualTo(ptProd1.combinedWith(ptPrem).build());
+    assertThat(pt2).isEqualTo(ptProd2.build());
   }
 
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computed1 = TRADE_PRICER.currencyExposure(CMS_TRADE_PREMIUM, RATES_PROVIDER);
     MultiCurrencyAmount computed2 = TRADE_PRICER.currencyExposure(CMS_TRADE, RATES_PROVIDER);
@@ -141,24 +144,26 @@ public class DiscountingCmsTradePricerTest {
     MultiCurrencyAmount pv2 = TRADE_PRICER.presentValue(CMS_TRADE, RATES_PROVIDER);
     PointSensitivities pt2 = TRADE_PRICER.presentValueSensitivity(CMS_TRADE, RATES_PROVIDER);
     MultiCurrencyAmount expected2 = RATES_PROVIDER.currencyExposure(pt2).plus(pv2);
-    assertEquals(computed1.getAmount(EUR).getAmount(), expected1.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
-    assertEquals(computed2.getAmount(EUR).getAmount(), expected2.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
+    assertThat(computed1.getAmount(EUR).getAmount()).isCloseTo(expected1.getAmount(EUR).getAmount(), offset(NOTIONAL_VALUE * TOL));
+    assertThat(computed2.getAmount(EUR).getAmount()).isCloseTo(expected2.getAmount(EUR).getAmount(), offset(NOTIONAL_VALUE * TOL));
   }
 
+  @Test
   public void test_currentCash() {
     MultiCurrencyAmount cc1 = TRADE_PRICER.currentCash(CMS_TRADE_PREMIUM, RATES_PROVIDER);
     MultiCurrencyAmount cc2 = TRADE_PRICER.currentCash(CMS_TRADE, RATES_PROVIDER);
-    assertEquals(cc1, MultiCurrencyAmount.of(PREMIUM.getValue()));
-    assertEquals(cc2, MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
+    assertThat(cc1).isEqualTo(MultiCurrencyAmount.of(PREMIUM.getValue()));
+    assertThat(cc2).isEqualTo(MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
   }
 
+  @Test
   public void test_currentCash_onPay() {
     MultiCurrencyAmount cc1 = TRADE_PRICER.currentCash(CMS_TRADE_PREMIUM, RATES_PROVIDER_ON_PAY);
     MultiCurrencyAmount cc2 = TRADE_PRICER.currentCash(CMS_TRADE, RATES_PROVIDER_ON_PAY);
     MultiCurrencyAmount ccProd1 = PRODUCT_PRICER.currentCash(CMS_ONE_LEG, RATES_PROVIDER_ON_PAY);
     MultiCurrencyAmount ccProd2 = PRODUCT_PRICER.currentCash(CMS_TWO_LEGS, RATES_PROVIDER_ON_PAY);
-    assertEquals(cc1, ccProd1);
-    assertEquals(cc2, ccProd2);
+    assertThat(cc1).isEqualTo(ccProd1);
+    assertThat(cc2).isEqualTo(ccProd2);
   }
 
 }

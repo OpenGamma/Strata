@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.pricer.index;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -23,7 +23,6 @@ import com.opengamma.strata.product.index.ResolvedIborFuture;
 /**
  * Test {@link DiscountingIborFutureTradePricer}.
  */
-@Test
 public class DiscountingIborFutureProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -35,16 +34,18 @@ public class DiscountingIborFutureProductPricerTest {
   private static final double TOLERANCE_PRICE_DELTA = 1.0e-9;
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_marginIndex() {
     double notional = FUTURE.getNotional();
     double accrualFactor = FUTURE.getAccrualFactor();
     double price = 0.99;
     double marginIndexExpected = price * notional * accrualFactor;
     double marginIndexComputed = PRICER.marginIndex(FUTURE, price);
-    assertEquals(marginIndexComputed, marginIndexExpected);
+    assertThat(marginIndexComputed).isEqualTo(marginIndexExpected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marginIndexSensitivity() {
     double notional = FUTURE.getNotional();
     double accrualFactor = FUTURE.getAccrualFactor();
@@ -52,20 +53,22 @@ public class DiscountingIborFutureProductPricerTest {
         IborRateSensitivity.of(FUTURE.getIborRate().getObservation(), -notional * accrualFactor));
     PointSensitivities priceSensitivity = PRICER.priceSensitivity(FUTURE, new MockRatesProvider());
     PointSensitivities sensiComputed = PRICER.marginIndexSensitivity(FUTURE, priceSensitivity).normalized();
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, 1e-5));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, 1e-5)).isTrue();
   }
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_price() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
     when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
-    assertEquals(PRICER.price(FUTURE, prov), 1.0 - RATE, TOLERANCE_PRICE);
+    assertThat(PRICER.price(FUTURE, prov)).isCloseTo(1.0 - RATE, offset(TOLERANCE_PRICE));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_priceSensitivity() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -74,7 +77,7 @@ public class DiscountingIborFutureProductPricerTest {
     PointSensitivities sensiExpected =
         PointSensitivities.of(IborRateSensitivity.of(FUTURE.getIborRate().getObservation(), -1d));
     PointSensitivities sensiComputed = PRICER.priceSensitivity(FUTURE, prov);
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA)).isTrue();
   }
 
 }

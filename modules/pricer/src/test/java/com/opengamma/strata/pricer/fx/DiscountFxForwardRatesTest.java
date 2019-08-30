@@ -12,13 +12,14 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -49,7 +50,6 @@ import com.opengamma.strata.product.swap.RatePaymentPeriod;
 /**
  * Test {@link DiscountFxForwardRates}.
  */
-@Test
 public class DiscountFxForwardRatesTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -76,35 +76,33 @@ public class DiscountFxForwardRatesTest {
   private static final double TOLERANCE = 1.0E-6;
   
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
-    assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD);
-    assertEquals(test.getFxRateProvider(), FX_RATE);
-    assertEquals(test.findData(CURVE1.getName()), Optional.of(CURVE1));
-    assertEquals(test.findData(CURVE2.getName()), Optional.of(CURVE2));
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
+    assertThat(test.getBaseCurrencyDiscountFactors()).isEqualTo(DFCURVE_GBP);
+    assertThat(test.getCounterCurrencyDiscountFactors()).isEqualTo(DFCURVE_USD);
+    assertThat(test.getFxRateProvider()).isEqualTo(FX_RATE);
+    assertThat(test.findData(CURVE1.getName())).isEqualTo(Optional.of(CURVE1));
+    assertThat(test.findData(CURVE2.getName())).isEqualTo(Optional.of(CURVE2));
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
 
     int baseSize = DFCURVE_USD.getParameterCount();
-    assertEquals(test.getParameterCount(), DFCURVE_GBP.getParameterCount() + baseSize);
-    assertEquals(test.getParameter(0), DFCURVE_GBP.getParameter(0));
-    assertEquals(test.getParameter(baseSize), DFCURVE_USD.getParameter(0));
-    assertEquals(test.getParameterMetadata(0), DFCURVE_GBP.getParameterMetadata(0));
-    assertEquals(test.getParameterMetadata(baseSize), DFCURVE_USD.getParameterMetadata(0));
-    assertEquals(test.withParameter(0, 1d).getBaseCurrencyDiscountFactors(), DFCURVE_GBP.withParameter(0, 1d));
-    assertEquals(test.withParameter(0, 1d).getCounterCurrencyDiscountFactors(), DFCURVE_USD);
-    assertEquals(test.withParameter(baseSize, 1d).getBaseCurrencyDiscountFactors(), DFCURVE_GBP);
-    assertEquals(test.withParameter(baseSize, 1d).getCounterCurrencyDiscountFactors(), DFCURVE_USD.withParameter(0, 1d));
-    assertEquals(
-        test.withPerturbation((i, v, m) -> v + 1d).getBaseCurrencyDiscountFactors(),
-        DFCURVE_GBP.withPerturbation((i, v, m) -> v + 1d));
-    assertEquals(
-        test.withPerturbation((i, v, m) -> v + 1d).getCounterCurrencyDiscountFactors(),
-        DFCURVE_USD.withPerturbation((i, v, m) -> v + 1d));
+    assertThat(test.getParameterCount()).isEqualTo(DFCURVE_GBP.getParameterCount() + baseSize);
+    assertThat(test.getParameter(0)).isEqualTo(DFCURVE_GBP.getParameter(0));
+    assertThat(test.getParameter(baseSize)).isEqualTo(DFCURVE_USD.getParameter(0));
+    assertThat(test.getParameterMetadata(0)).isEqualTo(DFCURVE_GBP.getParameterMetadata(0));
+    assertThat(test.getParameterMetadata(baseSize)).isEqualTo(DFCURVE_USD.getParameterMetadata(0));
+    assertThat(test.withParameter(0, 1d).getBaseCurrencyDiscountFactors()).isEqualTo(DFCURVE_GBP.withParameter(0, 1d));
+    assertThat(test.withParameter(0, 1d).getCounterCurrencyDiscountFactors()).isEqualTo(DFCURVE_USD);
+    assertThat(test.withParameter(baseSize, 1d).getBaseCurrencyDiscountFactors()).isEqualTo(DFCURVE_GBP);
+    assertThat(test.withParameter(baseSize, 1d).getCounterCurrencyDiscountFactors()).isEqualTo(DFCURVE_USD.withParameter(0, 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d).getBaseCurrencyDiscountFactors()).isEqualTo(DFCURVE_GBP.withPerturbation((i, v, m) -> v + 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d).getCounterCurrencyDiscountFactors()).isEqualTo(DFCURVE_USD.withPerturbation((i, v, m) -> v + 1d));
   }
 
+  @Test
   public void test_of_nonMatchingCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_GBP));
@@ -112,12 +110,14 @@ public class DiscountFxForwardRatesTest {
         .isThrownBy(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_USD, DFCURVE_USD));
   }
 
+  @Test
   public void test_of_nonMatchingValuationDates() {
     DiscountFactors curve2 = ZeroRateDiscountFactors.of(USD, DATE_REF, CURVE2);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, curve2));
   }
 
+  @Test
   public void test_builder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DiscountFxForwardRates.meta().builder()
@@ -128,26 +128,29 @@ public class DiscountFxForwardRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withDiscountFactors() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     test = test.withDiscountFactors(DFCURVE_GBP2, DFCURVE_USD2);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getBaseCurrencyDiscountFactors(), DFCURVE_GBP2);
-    assertEquals(test.getCounterCurrencyDiscountFactors(), DFCURVE_USD2);
-    assertEquals(test.getFxRateProvider(), FX_RATE);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
+    assertThat(test.getBaseCurrencyDiscountFactors()).isEqualTo(DFCURVE_GBP2);
+    assertThat(test.getCounterCurrencyDiscountFactors()).isEqualTo(DFCURVE_USD2);
+    assertThat(test.getFxRateProvider()).isEqualTo(FX_RATE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rate() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
-    assertEquals(test.rate(GBP, DATE_REF), expected, 1e-12);
-    assertEquals(test.rate(USD, DATE_REF), 1d / expected, 1e-12);
+    assertThat(test.rate(GBP, DATE_REF)).isCloseTo(expected, offset(1e-12));
+    assertThat(test.rate(USD, DATE_REF)).isCloseTo(1d / expected, offset(1e-12));
   }
 
+  @Test
   public void test_rate_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     assertThatIllegalArgumentException()
@@ -155,14 +158,14 @@ public class DiscountFxForwardRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ratePointSensitivity() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
-    assertEquals(test.ratePointSensitivity(GBP, DATE_REF),
-        FxForwardSensitivity.of(CURRENCY_PAIR, GBP, DATE_REF, 1d));
-    assertEquals(test.ratePointSensitivity(USD, DATE_REF),
-        FxForwardSensitivity.of(CURRENCY_PAIR, USD, DATE_REF, 1d));
+    assertThat(test.ratePointSensitivity(GBP, DATE_REF)).isEqualTo(FxForwardSensitivity.of(CURRENCY_PAIR, GBP, DATE_REF, 1d));
+    assertThat(test.ratePointSensitivity(USD, DATE_REF)).isEqualTo(FxForwardSensitivity.of(CURRENCY_PAIR, USD, DATE_REF, 1d));
   }
 
+  @Test
   public void test_ratePointSensitivity_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     assertThatIllegalArgumentException()
@@ -170,15 +173,17 @@ public class DiscountFxForwardRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rateFxSpotSensitivity() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(DATE_REF);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(DATE_REF);
     double expected = dfCcyBaseAtMaturity / dfCcyCounterAtMaturity;
-    assertEquals(test.rateFxSpotSensitivity(GBP, DATE_REF), expected, 1e-12);
-    assertEquals(test.rateFxSpotSensitivity(USD, DATE_REF), 1d / expected, 1e-12);
+    assertThat(test.rateFxSpotSensitivity(GBP, DATE_REF)).isCloseTo(expected, offset(1e-12));
+    assertThat(test.rateFxSpotSensitivity(USD, DATE_REF)).isCloseTo(1d / expected, offset(1e-12));
   }
 
+  @Test
   public void test_rateFxSpotSensitivity_nonMatchingCurrency() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     assertThatIllegalArgumentException()
@@ -187,15 +192,17 @@ public class DiscountFxForwardRatesTest {
 
   //-------------------------------------------------------------------------
   //proper end-to-end tests are elsewhere
+  @Test
   public void test_parameterSensitivity() {
     DiscountFxForwardRates test = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     FxForwardSensitivity point = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, DATE_VAL, 1d);
-    assertEquals(test.parameterSensitivity(point).size(), 2);
+    assertThat(test.parameterSensitivity(point).size()).isEqualTo(2);
     FxForwardSensitivity point2 = FxForwardSensitivity.of(CURRENCY_PAIR, USD, DATE_VAL, 1d);
-    assertEquals(test.parameterSensitivity(point2).size(), 2);
+    assertThat(test.parameterSensitivity(point2).size()).isEqualTo(2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void currency_exposure_GBP() {
     LocalDate startDate = LocalDate.of(2016, 8, 2);
     LocalDate fixingDate = LocalDate.of(2016, 11, 2);
@@ -216,14 +223,15 @@ public class DiscountFxForwardRatesTest {
     MultiCurrencyAmount ceComputed = PERIOD_PRICER.currencyExposure(fixedFx, PROVIDER);
     double dfGbp = PROVIDER.discountFactor(GBP, endDate);
     double ceGbpExpected = notional * yearFraction * rate * dfGbp;
-    assertEquals(ceComputed.getAmount(GBP).getAmount(), ceGbpExpected, 1.0E-6);
+    assertThat(ceComputed.getAmount(GBP).getAmount()).isCloseTo(ceGbpExpected, offset(1.0E-6));
     MultiCurrencyAmount ceWithoutPvComputed = PROVIDER.currencyExposure(pts.build().convertedTo(GBP, PROVIDER));
     CurrencyAmount pvComputed = CurrencyAmount.of(USD, PERIOD_PRICER.presentValue(fixedFx, PROVIDER));
     MultiCurrencyAmount ceComputed2 = ceWithoutPvComputed.plus(pvComputed);
-    assertEquals(ceComputed2.getAmount(GBP).getAmount(), ceGbpExpected, TOLERANCE);
-    assertEquals(ceComputed2.getAmount(USD).getAmount(), 0.0, TOLERANCE);
+    assertThat(ceComputed2.getAmount(GBP).getAmount()).isCloseTo(ceGbpExpected, offset(TOLERANCE));
+    assertThat(ceComputed2.getAmount(USD).getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
   
+  @Test
   public void currency_exposure_USD() {
     LocalDate startDate = LocalDate.of(2016, 8, 2);
     LocalDate fixingDate = LocalDate.of(2016, 11, 2);
@@ -244,15 +252,16 @@ public class DiscountFxForwardRatesTest {
     MultiCurrencyAmount ceComputed = PERIOD_PRICER.currencyExposure(fixedFx, PROVIDER);
     double dfUsd = PROVIDER.discountFactor(USD, endDate);
     double ceUsdExpected = notional * yearFraction * rate * dfUsd;
-    assertEquals(ceComputed.getAmount(USD).getAmount(), ceUsdExpected, 1.0E-6);
+    assertThat(ceComputed.getAmount(USD).getAmount()).isCloseTo(ceUsdExpected, offset(1.0E-6));
     MultiCurrencyAmount ceWithoutPvComputed = PROVIDER.currencyExposure(pts.build().convertedTo(USD, PROVIDER));
     CurrencyAmount pvComputed = CurrencyAmount.of(GBP, PERIOD_PRICER.presentValue(fixedFx, PROVIDER));
     MultiCurrencyAmount ceComputed2 = ceWithoutPvComputed.plus(pvComputed);
-    assertEquals(ceComputed2.getAmount(USD).getAmount(), ceUsdExpected, TOLERANCE);
-    assertEquals(ceComputed2.getAmount(GBP).getAmount(), 0.0, TOLERANCE);
+    assertThat(ceComputed2.getAmount(USD).getAmount()).isCloseTo(ceUsdExpected, offset(TOLERANCE));
+    assertThat(ceComputed2.getAmount(GBP).getAmount()).isCloseTo(0.0, offset(TOLERANCE));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DiscountFxForwardRates test1 = DiscountFxForwardRates.of(CURRENCY_PAIR, FX_RATE, DFCURVE_GBP, DFCURVE_USD);
     coverImmutableBean(test1);

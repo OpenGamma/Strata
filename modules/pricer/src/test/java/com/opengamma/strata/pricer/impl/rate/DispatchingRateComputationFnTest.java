@@ -11,10 +11,11 @@ import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.ignoreThrows;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -53,7 +54,6 @@ import com.opengamma.strata.product.rate.RateComputation;
  * Test.
  */
 @SuppressWarnings("unchecked")
-@Test
 public class DispatchingRateComputationFnTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -90,19 +90,22 @@ public class DispatchingRateComputationFnTest {
 
   private static final double TOLERANCE_RATE = 1.0E-10;
 
+  @Test
   public void test_rate_FixedRateComputation() {
     FixedRateComputation ro = FixedRateComputation.of(0.0123d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), 0.0123d, 0d);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(0.0123d, offset(0d));
   }
   
+  @Test
   public void test_rate_FixedOvernightCompoundedAnnualRateComputation() {
     FixedOvernightCompoundedAnnualRateComputation ro = FixedOvernightCompoundedAnnualRateComputation.of(0.0123d, 0.5d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
     double simpleRate = (Math.pow(1 + 0.0123d, 0.5d) - 1) / 0.5d;
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), simpleRate, 0d);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(simpleRate, offset(0d));
   }
 
+  @Test
   public void test_rate_IborRateComputation() {
     RateComputationFn<IborRateComputation> mockIbor = mock(RateComputationFn.class);
     IborRateComputation ro = IborRateComputation.of(GBP_LIBOR_3M, FIXING_DATE, REF_DATA);
@@ -120,9 +123,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), 0.0123d, 0d);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(0.0123d, offset(0d));
   }
 
+  @Test
   public void test_rate_IborInterpolatedRateComputation() {
     double mockRate = 0.0123d;
     RateComputationFn<IborInterpolatedRateComputation> mockIborInt = mock(RateComputationFn.class);
@@ -142,9 +146,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, 0d);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(0d));
   }
 
+  @Test
   public void test_rate_IborAverageRateComputation() {
     double mockRate = 0.0123d;
     RateComputationFn<IborAveragedRateComputation> mockIborAve = mock(RateComputationFn.class);
@@ -174,9 +179,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, 0d);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(0d));
   }
 
+  @Test
   public void test_rate_OvernightCompoundedRateComputation() {
     double mockRate = 0.0123d;
     RateComputationFn<OvernightCompoundedRateComputation> mockOnCpd = mock(RateComputationFn.class);
@@ -196,9 +202,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_overnightCompoundedAnnualRateComputation() {
     double mockRate = 0.0123d;
     RateComputationFn<OvernightCompoundedAnnualRateComputation> mockOnBrlCpd = mock(RateComputationFn.class);
@@ -218,9 +225,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_OvernightAveragedRateComputation() {
     double mockRate = 0.0123d;
     RateComputationFn<OvernightAveragedRateComputation> mockOnAve = mock(RateComputationFn.class);
@@ -240,9 +248,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_OvernightAveragedDailyRateComputation() {
     double mockRate = 0.0123d;
     RateComputationFn<OvernightAveragedDailyRateComputation> mockOnAve = mock(RateComputationFn.class);
@@ -262,9 +271,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_InflationMonthlyRateComputation() {
     double mockRate = 223.0d;
     RateComputationFn<InflationMonthlyRateComputation> mockInfMon = mock(RateComputationFn.class);
@@ -284,9 +294,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_InflationInterpolatedRateComputation() {
     double mockRate = 223.0d;
     RateComputationFn<InflationInterpolatedRateComputation> mockInfInt = mock(RateComputationFn.class);
@@ -306,9 +317,10 @@ public class DispatchingRateComputationFnTest {
         mockInfInt,
         MOCK_INF_BOND_MON_EMPTY,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_InflationEndMonthRateComputation() {
     double mockRate = 223.0d;
     RateComputationFn<InflationEndMonthRateComputation> mockInfMon = mock(RateComputationFn.class);
@@ -328,9 +340,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         mockInfMon,
         MOCK_INF_BOND_INT_EMPTY);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_InflationEndInterpolatedRateComputation() {
     double mockRate = 223.0d;
     RateComputationFn<InflationEndInterpolatedRateComputation> mockInfInt = mock(RateComputationFn.class);
@@ -350,9 +363,10 @@ public class DispatchingRateComputationFnTest {
         MOCK_INF_INT_EMPTY,
         MOCK_INF_BOND_MON_EMPTY,
         mockInfInt);
-    assertEquals(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV), mockRate, TOLERANCE_RATE);
+    assertThat(test.rate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV)).isCloseTo(mockRate, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rate_unknownType() {
     RateComputation mockComputation = mock(RateComputation.class);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
@@ -361,28 +375,31 @@ public class DispatchingRateComputationFnTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explainRate_FixedRateComputation() {
     FixedRateComputation ro = FixedRateComputation.of(0.0123d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
-    assertEquals(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder), 0.0123d, 0d);
+    assertThat(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder)).isCloseTo(0.0123d, offset(0d));
     ExplainMap built = builder.build();
-    assertEquals(built.get(ExplainKey.FIXED_RATE), Optional.of(0.0123d));
-    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(0.0123d));
+    assertThat(built.get(ExplainKey.FIXED_RATE)).isEqualTo(Optional.of(0.0123d));
+    assertThat(built.get(ExplainKey.COMBINED_RATE)).isEqualTo(Optional.of(0.0123d));
   }
   
+  @Test
   public void test_explainRate_FixedOvernightCompoundedAnnualRateComputation() {
     double simpleRate = (Math.pow(1 + 0.0123d, 0.5d) - 1) / 0.5d;
     FixedOvernightCompoundedAnnualRateComputation ro = FixedOvernightCompoundedAnnualRateComputation.of(0.0123d, 0.5d);
     DispatchingRateComputationFn test = DispatchingRateComputationFn.DEFAULT;
     ExplainMapBuilder builder = ExplainMap.builder();
-    assertEquals(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder), 0.0123d, 0d);
+    assertThat(test.explainRate(ro, ACCRUAL_START_DATE, ACCRUAL_END_DATE, MOCK_PROV, builder)).isCloseTo(0.0123d, offset(0d));
     ExplainMap built = builder.build();
-    assertEquals(built.get(ExplainKey.FIXED_RATE), Optional.of(0.0123d));
-    assertEquals(built.get(ExplainKey.COMBINED_RATE), Optional.of(simpleRate));
+    assertThat(built.get(ExplainKey.FIXED_RATE)).isEqualTo(Optional.of(0.0123d));
+    assertThat(built.get(ExplainKey.COMBINED_RATE)).isEqualTo(Optional.of(simpleRate));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DispatchingRateComputationFn test = new DispatchingRateComputationFn(
         MOCK_IBOR_EMPTY,
