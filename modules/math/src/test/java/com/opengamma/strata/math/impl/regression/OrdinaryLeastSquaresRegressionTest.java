@@ -5,16 +5,15 @@
  */
 package com.opengamma.strata.math.impl.regression;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class OrdinaryLeastSquaresRegressionTest {
 
   private static final LeastSquaresRegression REGRESSION = new OrdinaryLeastSquaresRegression();
@@ -45,13 +44,13 @@ public class OrdinaryLeastSquaresRegressionTest {
     assertRegression(result2, a2);
     final double[] residuals1 = result1.getResiduals();
     for (int i = 0; i < n; i++) {
-      assertEquals(y1[i], a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4]
-          + residuals1[i], 10 * EPS);
+      assertThat(y1[i]).isCloseTo(a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4]
+          + residuals1[i], offset(10 * EPS));
     }
     final double[] residuals2 = result2.getResiduals();
     for (int i = 0; i < n; i++) {
-      assertEquals(y2[i], a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5]
-          * x[i][4] + residuals2[i], 10 * EPS);
+      assertThat(y2[i]).isCloseTo(a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5]
+          * x[i][4] + residuals2[i], offset(10 * EPS));
     }
   }
 
@@ -61,12 +60,12 @@ public class OrdinaryLeastSquaresRegressionTest {
     final double[] pStat = result.getPValues();
     final double[] stdErr = result.getStandardErrorOfBetas();
     for (int i = 0; i < 5; i++) {
-      assertEquals(beta[i], a[i], EPS);
-      assertTrue(Math.abs(tStat[i]) > FACTOR);
-      assertTrue(pStat[i] < EPS);
-      assertTrue(stdErr[i] < EPS);
+      assertThat(beta[i]).isCloseTo(a[i], offset(EPS));
+      assertThat(Math.abs(tStat[i]) > FACTOR).isTrue();
+      assertThat(pStat[i] < EPS).isTrue();
+      assertThat(stdErr[i] < EPS).isTrue();
     }
-    assertEquals(result.getRSquared(), 1, EPS);
-    assertEquals(result.getAdjustedRSquared(), 1, EPS);
+    assertThat(result.getRSquared()).isCloseTo(1, offset(EPS));
+    assertThat(result.getAdjustedRSquared()).isCloseTo(1, offset(EPS));
   }
 }

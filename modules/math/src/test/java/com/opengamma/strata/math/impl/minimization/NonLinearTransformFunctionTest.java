@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.BitSet;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -21,7 +22,6 @@ import com.opengamma.strata.math.impl.minimization.ParameterLimitsTransform.Limi
 /**
  * Test.
  */
-@Test
 public class NonLinearTransformFunctionTest {
 
   private static final ParameterLimitsTransform[] NULL_TRANSFORMS;
@@ -80,17 +80,17 @@ public class NonLinearTransformFunctionTest {
     DoubleArray x = DoubleArray.of(0.5);
     final double rootHalf = Math.sqrt(0.5);
     DoubleArray y = func.apply(x);
-    assertEquals(3, y.size());
-    assertEquals(rootHalf * Math.cos(0.5), y.get(0), 1e-9);
-    assertEquals(rootHalf * Math.sin(0.5), y.get(1), 1e-9);
-    assertEquals(rootHalf, y.get(2), 1e-9);
+    assertThat(y.size()).isEqualTo(3);
+    assertThat(y.get(0)).isCloseTo(rootHalf * Math.cos(0.5), offset(1e-9));
+    assertThat(y.get(1)).isCloseTo(rootHalf * Math.sin(0.5), offset(1e-9));
+    assertThat(rootHalf).isCloseTo(y.get(2), offset(1e-9));
 
     DoubleMatrix jac = jacFunc.apply(x);
-    assertEquals(3, jac.rowCount());
-    assertEquals(1, jac.columnCount());
-    assertEquals(-rootHalf * Math.sin(0.5), jac.get(0, 0), 1e-9);
-    assertEquals(rootHalf * Math.cos(0.5), jac.get(1, 0), 1e-9);
-    assertEquals(0, jac.get(2, 0), 1e-9);
+    assertThat(jac.rowCount()).isEqualTo(3);
+    assertThat(jac.columnCount()).isEqualTo(1);
+    assertThat(jac.get(0, 0)).isCloseTo(-rootHalf * Math.sin(0.5), offset(1e-9));
+    assertThat(jac.get(1, 0)).isCloseTo(rootHalf * Math.cos(0.5), offset(1e-9));
+    assertThat(jac.get(2, 0)).isCloseTo(0, offset(1e-9));
   }
 
   @Test
@@ -108,12 +108,12 @@ public class NonLinearTransformFunctionTest {
     DoubleArray testPoint = DoubleArray.of(4.5, -2.1);
     DoubleMatrix jac = jacFunc.apply(testPoint);
     DoubleMatrix jacFD = jacFuncFD.apply(testPoint);
-    assertEquals(3, jac.rowCount());
-    assertEquals(2, jac.columnCount());
+    assertThat(jac.rowCount()).isEqualTo(3);
+    assertThat(jac.columnCount()).isEqualTo(2);
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(jacFD.get(i, j), jac.get(i, j), 1e-6);
+        assertThat(jac.get(i, j)).isCloseTo(jacFD.get(i, j), offset(1e-6));
       }
     }
   }

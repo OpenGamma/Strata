@@ -5,47 +5,50 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class ChiSquareDistributionTest extends ProbabilityDistributionTestCase {
   private static final double[] X = new double[] {1.9, 5.8, 9.0, 15.5, 39 };
   private static final double[] DOF = new double[] {3, 6, 7, 16, 28 };
   private static final double[] Q = new double[] {0.59342, 0.44596, 0.25266, 0.48837, 0.08092 };
   private static final ChiSquareDistribution DIST = new ChiSquareDistribution(1, ENGINE);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeDOF1() {
-    new ChiSquareDistribution(-2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ChiSquareDistribution(-2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeDOF2() {
-    new ChiSquareDistribution(-2, ENGINE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ChiSquareDistribution(-2, ENGINE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullEngine() {
-    new ChiSquareDistribution(2, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ChiSquareDistribution(2, null));
   }
 
   @Test
   public void testObject() {
-    assertEquals(1, DIST.getDegreesOfFreedom(), 0);
+    assertThat(DIST.getDegreesOfFreedom()).isEqualTo(1);
     ChiSquareDistribution other = new ChiSquareDistribution(1);
-    assertEquals(DIST, other);
-    assertEquals(DIST.hashCode(), other.hashCode());
+    assertThat(DIST).isEqualTo(other);
+    assertThat(DIST.hashCode()).isEqualTo(other.hashCode());
     other = new ChiSquareDistribution(1, ENGINE);
-    assertEquals(DIST, other);
-    assertEquals(DIST.hashCode(), other.hashCode());
+    assertThat(DIST).isEqualTo(other);
+    assertThat(DIST.hashCode()).isEqualTo(other.hashCode());
     other = new ChiSquareDistribution(2);
-    assertFalse(other.equals(DIST));
+    assertThat(other).isNotEqualTo(DIST);
   }
 
   @Test
@@ -56,8 +59,8 @@ public class ChiSquareDistributionTest extends ProbabilityDistributionTestCase {
     ChiSquareDistribution dist;
     for (int i = 0; i < 5; i++) {
       dist = new ChiSquareDistribution(DOF[i], ENGINE);
-      assertEquals(1 - dist.getCDF(X[i]), Q[i], EPS);
-      assertEquals(dist.getInverseCDF(dist.getCDF(X[i])), X[i], EPS);
+      assertThat(1 - dist.getCDF(X[i])).isCloseTo(Q[i], offset(EPS));
+      assertThat(dist.getInverseCDF(dist.getCDF(X[i]))).isCloseTo(X[i], offset(EPS));
     }
   }
 }

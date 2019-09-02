@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -24,7 +25,6 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquar
 /**
  * Test.
  */
-@Test
 public class SumToOneTest {
 
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
@@ -36,14 +36,14 @@ public class SumToOneTest {
   public void setTest() {
     int n = 7;
     int[][] sets = SumToOne.getSet(n);
-    assertEquals(n, sets.length);
+    assertThat(n).isEqualTo(sets.length);
   }
 
   @Test
   public void setTest2() {
     int n = 13;
     int[][] sets = SumToOne.getSet(n);
-    assertEquals(n, sets.length);
+    assertThat(n).isEqualTo(sets.length);
   }
 
   @Test
@@ -55,12 +55,12 @@ public class SumToOneTest {
       }
       SumToOne trans = new SumToOne(n);
       DoubleArray to = trans.transform(DoubleArray.copyOf(from));
-      assertEquals(n, to.size());
+      assertThat(n).isEqualTo(to.size());
       double sum = 0;
       for (int i = 0; i < n; i++) {
         sum += to.get(i);
       }
-      assertEquals("vector length " + n, 1.0, sum, 1e-9);
+      assertThat(sum).as("vector length " + n).isCloseTo(1.0, offset(1e-9));
     }
   }
 
@@ -76,7 +76,7 @@ public class SumToOneTest {
 
       DoubleArray theta2 = trans.inverseTransform(w);
       for (int j = 0; j < n - 1; j++) {
-        assertEquals("element " + j + ", of vector length " + n, theta[j], theta2.get(j), 1e-9);
+        assertThat(theta[j]).as("element " + j + ", of vector length " + n).isCloseTo(theta2.get(j), offset(1e-9));
       }
     }
   }
@@ -98,7 +98,7 @@ public class SumToOneTest {
     DoubleArray start = DoubleArray.filled(n - 1, 0.8);
 
     LeastSquareResults res = SOLVER.solve(DoubleArray.copyOf(w), sigma, func, start/*, maxJump*/);
-    assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
+    assertThat(res.getChiSq()).as("chi sqr").isCloseTo(0.0, offset(1e-9));
     double[] fit = res.getFitParameters().toArray();
     double[] expected = trans.inverseTransform(w);
     for (int i = 0; i < n - 1; i++) {
@@ -115,7 +115,7 @@ public class SumToOneTest {
         }
       }
 
-      assertEquals(expected[i], x, 1e-9);
+      assertThat(expected[i]).isCloseTo(x, offset(1e-9));
     }
 
   }
@@ -141,10 +141,10 @@ public class SumToOneTest {
     DoubleArray start = DoubleArray.of(0.0, 0.8);
 
     LeastSquareResults res = SOLVER.solve(DoubleArray.copyOf(w), sigma, func, start/*, maxJump*/);
-    assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
+    assertThat(res.getChiSq()).as("chi sqr").isCloseTo(0.0, offset(1e-9));
     double[] fit = res.getFitParameters().toArray();
-    assertEquals(7.0, fit[0], 1e-9);
-    assertEquals(Math.atan(Math.sqrt(4 / 3.)), fit[1], 1e-9);
+    assertThat(7.0).isCloseTo(fit[0], offset(1e-9));
+    assertThat(Math.atan(Math.sqrt(4 / 3.))).isCloseTo(fit[1], offset(1e-9));
   }
 
   @Test
@@ -176,9 +176,9 @@ public class SumToOneTest {
         double sum = 0.0;
         for (int i = 0; i < n; i++) {
           sum += jac.get(i, j);
-          assertEquals("element " + i + " " + j, fdJac.get(i, j), jac.get(i, j), 1e-6);
+          assertThat(jac.get(i, j)).as("element " + i + " " + j).isCloseTo(fdJac.get(i, j), offset(1e-6));
         }
-        assertEquals("wrong sum of sensitivities", 0.0, sum, 1e-15);
+        assertThat(sum).as("wrong sum of sensitivities").isCloseTo(0.0, offset(1e-15));
       }
 
     }

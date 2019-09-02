@@ -5,16 +5,16 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.BiFunction;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests related to the repeated one-dimensional integration to integrate 2-D functions.
  */
-@Test
 public class IntegratorRepeated2DTest {
 
   @Test
@@ -40,7 +40,7 @@ public class IntegratorRepeated2DTest {
     resultExpected =
         (upper[0] * upper[0] - lower[0] * lower[0]) / 2.0 * (upper[1] - lower[1]) +
             (upper[0] - lower[0]) * (-Math.cos(upper[1]) + Math.cos(lower[1]));
-    assertEquals("Integration 2D - repeated 1D", resultExpected, result, 1E-8);
+    assertThat(result).as("Integration 2D - repeated 1D").isCloseTo(resultExpected, offset(1e-8));
     // Second set of limits.
     lower = new Double[] {0.25, 5.25};
     upper = new Double[] {25.25, 35.25};
@@ -48,7 +48,7 @@ public class IntegratorRepeated2DTest {
     resultExpected =
         (upper[0] * upper[0] - lower[0] * lower[0]) / 2.0 * (upper[1] - lower[1]) +
             (upper[0] - lower[0]) * (-Math.cos(upper[1]) + Math.cos(lower[1]));
-    assertEquals("Integration 2D - repeated 1D", resultExpected, result, 1E-6);
+    assertThat(result).as("Integration 2D - repeated 1D").isCloseTo(resultExpected, offset(1e-6));
   }
 
 }

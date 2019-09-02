@@ -8,7 +8,7 @@ package com.opengamma.strata.math.impl.function;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.util.AssertMatrix;
@@ -18,7 +18,6 @@ import com.opengamma.strata.math.impl.util.AssertMatrix;
  * that sample the curve at some values of x, thus providing a mapping from the model parameters to the curve
  * value at the sample positions. 
  */
-@Test
 public class DoublesVectorFunctionProviderTest {
 
   @Test

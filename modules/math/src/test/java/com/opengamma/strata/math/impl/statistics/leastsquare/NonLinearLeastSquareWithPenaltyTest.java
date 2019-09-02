@@ -6,12 +6,13 @@
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
 import static com.opengamma.strata.math.impl.interpolation.PenaltyMatrixGenerator.getPenaltyMatrix;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -21,7 +22,6 @@ import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
 /**
  * Test {@link NonLinearLeastSquareWithPenalty}.
  */
-@Test
 public class NonLinearLeastSquareWithPenaltyTest {
 
   private static final MatrixAlgebra MA = new CommonsMatrixAlgebra();
@@ -29,6 +29,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
   private static NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty();
   static int N_SWAPS = 8;
 
+  @Test
   public void linearTest() {
     boolean print = false;
     if (print) {
@@ -76,10 +77,10 @@ public class NonLinearLeastSquareWithPenaltyTest {
       System.out.println(lsRes.getFitParameters());
     }
     for (int i = 0; i < n; i++) {
-      assertEquals(obs[i], lsRes.getFitParameters().get(onIndex[i]), 0.01);
+      assertThat(obs[i]).isCloseTo(lsRes.getFitParameters().get(onIndex[i]), offset(0.01));
     }
     double expPen = 20.87912357454752;
-    assertEquals(expPen, lsRes.getPenalty(), 1e-9);
+    assertThat(expPen).isCloseTo(lsRes.getPenalty(), offset(1e-9));
   }
 
 }

@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -15,7 +17,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class BroydenMatrixUpdateFunctionTest {
   private static final BroydenMatrixUpdateFunction UPDATE = new BroydenMatrixUpdateFunction();
   private static final DoubleArray V = DoubleArray.of(1, 2);
@@ -27,18 +28,21 @@ public class BroydenMatrixUpdateFunctionTest {
     }
   };
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDeltaX() {
-    UPDATE.getUpdatedMatrix(J, V, null, V, M);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPDATE.getUpdatedMatrix(J, V, null, V, M));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDeltaY() {
-    UPDATE.getUpdatedMatrix(J, V, V, null, M);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPDATE.getUpdatedMatrix(J, V, V, null, M));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullMatrix() {
-    UPDATE.getUpdatedMatrix(J, V, V, V, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPDATE.getUpdatedMatrix(J, V, V, V, null));
   }
 }

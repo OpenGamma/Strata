@@ -5,11 +5,11 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
-
-import org.testng.Assert;
 
 /**
  * Abstract test.
@@ -32,18 +32,14 @@ public abstract class Minimizer1DTestCase {
   };
 
   public void assertInputs(final ScalarMinimizer minimizer) {
-    try {
-      minimizer.minimize(null, 0.0, 2., 3.);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> minimizer.minimize(null, 0.0, 2., 3.));
   }
 
   public void assertMinimizer(final ScalarMinimizer minimizer) {
     double result = minimizer.minimize(QUADRATIC, 0.0, -10., 10.);
-    assertEquals(-3.5, result, EPS);
+    assertThat(-3.5).isCloseTo(result, offset(EPS));
     result = minimizer.minimize(QUINTIC, 0.0, 0.5, 2.);
-    assertEquals(1.06154, result, EPS);
+    assertThat(1.06154).isCloseTo(result, offset(EPS));
   }
 }

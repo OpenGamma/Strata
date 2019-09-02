@@ -5,46 +5,51 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class IncompleteGammaFunctionTest {
   private static final double A = 1;
   private static final Function<Double, Double> FUNCTION = new IncompleteGammaFunction(A);
   private static final double EPS = 1e-9;
   private static final int MAX_ITER = 10000;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeA1() {
-    new IncompleteGammaFunction(-A);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteGammaFunction(-A));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeA2() {
-    new IncompleteGammaFunction(-A, MAX_ITER, EPS);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteGammaFunction(-A, MAX_ITER, EPS));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeIter() {
-    new IncompleteGammaFunction(A, -MAX_ITER, EPS);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteGammaFunction(A, -MAX_ITER, EPS));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeEps() {
-    new IncompleteGammaFunction(A, MAX_ITER, -EPS);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteGammaFunction(A, MAX_ITER, -EPS));
   }
 
   @Test
   public void testLimits() {
-    assertEquals(FUNCTION.apply(0.), 0, EPS);
-    assertEquals(FUNCTION.apply(100.), 1, EPS);
+    assertThat(FUNCTION.apply(0.)).isCloseTo(0, offset(EPS));
+    assertThat(FUNCTION.apply(100.)).isCloseTo(1, offset(EPS));
   }
 
   @Test
@@ -58,6 +63,6 @@ public class IncompleteGammaFunctionTest {
 
     };
     final double x = 4.6;
-    assertEquals(f.apply(x), FUNCTION.apply(x), EPS);
+    assertThat(f.apply(x)).isCloseTo(FUNCTION.apply(x), offset(EPS));
   }
 }

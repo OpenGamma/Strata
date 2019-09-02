@@ -5,9 +5,8 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
-
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 
 import com.opengamma.strata.math.impl.cern.MersenneTwister;
 import com.opengamma.strata.math.impl.cern.MersenneTwister64;
@@ -18,7 +17,6 @@ import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistrib
 /**
  * Abstract test.
  */
-@Test
 public abstract class ParameterLimitsTransformTestCase {
 
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
@@ -27,21 +25,21 @@ public abstract class ParameterLimitsTransformTestCase {
   protected void assertRoundTrip(final ParameterLimitsTransform transform, final double modelParam) {
     final double fp = transform.transform(modelParam);
     final double mp = transform.inverseTransform(fp);
-    assertEquals(modelParam, mp, 1e-8);
+    assertThat(modelParam).isCloseTo(mp, offset(1e-8));
   }
 
   // reverse
   protected void assertReverseRoundTrip(final ParameterLimitsTransform transform, final double fitParam) {
     final double mp = transform.inverseTransform(fitParam);
     final double fp = transform.transform(mp);
-    assertEquals(fitParam, fp, 1e-8);
+    assertThat(fitParam).isCloseTo(fp, offset(1e-8));
   }
 
   protected void assertGradientRoundTrip(final ParameterLimitsTransform transform, final double modelParam) {
     final double g = transform.transformGradient(modelParam);
     final double fp = transform.transform(modelParam);
     final double gInv = transform.inverseTransformGradient(fp);
-    assertEquals(g, 1.0 / gInv, 1e-8);
+    assertThat(g).isCloseTo(1.0 / gInv, offset(1e-8));
   }
 
   protected void assertGradient(final ParameterLimitsTransform transform, final double modelParam) {
@@ -62,7 +60,7 @@ public abstract class ParameterLimitsTransformTestCase {
         fdg = (fp - down) / eps;
       }
     }
-    assertEquals(g, fdg, 1e-6);
+    assertThat(g).isCloseTo(fdg, offset(1e-6));
   }
 
   protected void assertInverseGradient(final ParameterLimitsTransform transform, final double fitParam) {
@@ -74,7 +72,7 @@ public abstract class ParameterLimitsTransformTestCase {
     final double up = transform.inverseTransform(fitParam + eps);
     fdg = (up - down) / 2 / eps;
 
-    assertEquals(g, fdg, 1e-6);
+    assertThat(g).isCloseTo(fdg, offset(1e-6));
   }
 
 }

@@ -5,17 +5,16 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * 
  */
-@Test
 public class AdaptiveCompositeIntegrator1DTest extends Integrator1DTestCase {
   private static final Integrator1D<Double, Double> INTEGRATOR = new AdaptiveCompositeIntegrator1D(new SimpsonIntegrator1D());
 
@@ -30,7 +29,7 @@ public class AdaptiveCompositeIntegrator1DTest extends Integrator1DTestCase {
   @Test
   public void sampleDataTest() {
     final Integrator1D<Double, Double> localInt = new AdaptiveCompositeIntegrator1D(new SimpsonIntegrator1D(), 10., 1.e-4);
-    assertEquals(-0.368924186060527, localInt.integrate(sampleFunc(), 1.1, 3.), 1.e-6); // answer from quadpack
+    assertThat(-0.368924186060527).isCloseTo(localInt.integrate(sampleFunc(), 1.1, 3.), offset(1.e-6)); // answer from quadpack
   }
 
   private Function<Double, Double> sampleFunc() {
@@ -55,20 +54,20 @@ public class AdaptiveCompositeIntegrator1DTest extends Integrator1DTestCase {
     final Integrator1D<Double, Double> integ4 = new AdaptiveCompositeIntegrator1D(integBase, 2., 1.e-5);
     final Integrator1D<Double, Double> integ5 = new AdaptiveCompositeIntegrator1D(integBase, 1., 1.e-6);
 
-    assertTrue(integ0.equals(integ0));
+    assertThat(integ0.equals(integ0)).isTrue();
 
-    assertTrue(integ0.equals(integ1));
-    assertTrue(integ1.equals(integ0));
-    assertTrue(integ1.hashCode() == integ0.hashCode());
+    assertThat(integ0.equals(integ1)).isTrue();
+    assertThat(integ1.equals(integ0)).isTrue();
+    assertThat(integ1.hashCode() == integ0.hashCode()).isTrue();
 
-    assertTrue(!(integ0.equals(integ2)));
-    assertTrue(!(integ0.equals(integ3)));
-    assertTrue(!(integ0.equals(integ4)));
-    assertTrue(!(integ0.equals(integ5)));
-    assertTrue(!(integ0.equals(integBase)));
-    assertTrue(!(integ0.equals(null)));
-    assertTrue(!(integ3.equals(integ5)));
+    assertThat(!(integ0.equals(integ2))).isTrue();
+    assertThat(!(integ0.equals(integ3))).isTrue();
+    assertThat(!(integ0.equals(integ4))).isTrue();
+    assertThat(!(integ0.equals(integ5))).isTrue();
+    assertThat(!(integ0.equals(integBase))).isTrue();
+    assertThat(!(integ0.equals(null))).isTrue();
+    assertThat(!(integ3.equals(integ5))).isTrue();
 
-    assertTrue(!(integ1.hashCode() == INTEGRATOR.hashCode()));
+    assertThat(!(integ1.hashCode() == INTEGRATOR.hashCode())).isTrue();
   }
 }

@@ -5,9 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -16,7 +19,6 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivit
 /**
  * 
  */
-@Test
 public class ProductPiecewisePolynomialInterpolatorTest {
   private static final double EPS = 1.0e-12;
   private static final double DELTA = 1.0e-6;
@@ -270,44 +272,47 @@ public class ProductPiecewisePolynomialInterpolatorTest {
   /**
    * Wrong data length
    */
-  @SuppressWarnings("unused")
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void clampedDifferentLengthTest() {
     double[] xValues = new double[] {-5.0, };
     double[] yValues = new double[] {-2.2, 1.1 };
-    new ProductPiecewisePolynomialInterpolator(INTERP[0], xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ProductPiecewisePolynomialInterpolator(INTERP[0], xValues, yValues));
   }
 
   /**
    * Wrong data length
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void dataDifferentLengthTest() {
     double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
     double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3 };
     ProductPiecewisePolynomialInterpolator interp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[1]);
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * Wrong data length
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void dataDifferentLengthWithSenseTest() {
     double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5 };
     double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, 1.2 };
     ProductPiecewisePolynomialInterpolator interp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[1]);
-    interp.interpolateWithSensitivity(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolateWithSensitivity(xValues, yValues));
   }
 
   /**
    * 2D method is not implemented
    */
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void notImplementedTest() {
     double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
     double[][] yValues = new double[][] { {-2.2, 1.1, 1.9, 2.3, 1.2 }, {-2.2, 1.1, 1.9, 2.3, 1.2 } };
     ProductPiecewisePolynomialInterpolator interp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[1]);
-    interp.interpolate(xValues, yValues);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 }

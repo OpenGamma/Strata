@@ -5,7 +5,7 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -15,7 +15,6 @@ import com.opengamma.strata.math.impl.util.AssertMatrix;
 /**
  * Create a few {@link VectorFunction} (as anonymous inner classes) and check they concatenate correctly 
  */
-@Test
 public class ConcatenatedVectorFunctionTest {
 
   private static final VectorFieldFirstOrderDifferentiator DIFF = new VectorFieldFirstOrderDifferentiator();

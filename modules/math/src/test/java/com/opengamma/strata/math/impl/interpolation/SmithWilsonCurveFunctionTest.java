@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -21,7 +21,6 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferenti
 /**
  * Test {@link SmithWilsonCurveFunction}.
  */
-@Test
 public class SmithWilsonCurveFunctionTest {
 
   private static final double TOL = 1.0e-13;
@@ -33,6 +32,7 @@ public class SmithWilsonCurveFunctionTest {
       new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final SmithWilsonCurveFunction SW_FUNCTION = SmithWilsonCurveFunction.DEFAULT;
 
+  @Test
   public void test_function() {
     /* Source: EIOPA - European Insurance and Occupational Pensions Authority */
     DoubleArray weights = DoubleArray.of(2.66199573146653, -2.69394271301803, 0.484066828515597, 0.690098457608931,
@@ -69,25 +69,26 @@ public class SmithWilsonCurveFunctionTest {
       double t = (double) i;
       // value
       double dfCmp = SW_FUNCTION.value(t, alpha, nodes, weights);
-      assertEquals(dfCmp, dfExp[i], TOL);
+      assertThat(dfCmp).isCloseTo(dfExp[i], offset(TOL));
       // first derivative
       double derivCmp = SW_FUNCTION.firstDerivative(t, alpha, nodes, weights);
       double derivExp = derivFunc.apply(t);
-      assertEquals(derivCmp, derivExp, EPS);
+      assertThat(derivCmp).isCloseTo(derivExp, offset(EPS));
       // parameter sensitivity
       DoubleArray paramSensiCmp = SW_FUNCTION.parameterSensitivity(t, alpha, nodes);
       Function<DoubleArray, DoubleArray> paramSensiFunc = PARAM_SENSI.differentiate(w -> SW_FUNCTION.value(t, alpha, nodes, w));
       DoubleArray paramSensiExp = paramSensiFunc.apply(weights);
-      assertTrue(DoubleArrayMath.fuzzyEquals(paramSensiCmp.toArray(), paramSensiExp.toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(paramSensiCmp.toArray(), paramSensiExp.toArray(), EPS)).isTrue();
       // forward rate
       if (i > 60) {
         double fwd = dfPrev / dfCmp - 1d;
-        assertEquals(fwd, 0.042, ONE_BP);
+        assertThat(fwd).isCloseTo(0.042, offset(ONE_BP));
       }
       dfPrev = dfCmp;
     }
   }
 
+  @Test
   public void test_gap() {
     DoubleArray nodes = DoubleArray.of(3d, 5d, 7d, 10d, 15d, 20d, 30d);
     double testAlpha = 0.05;
@@ -95,7 +96,7 @@ public class SmithWilsonCurveFunctionTest {
         5.04900954653571, -1.82365099870708);
     double gapExp = 4.27089481442022E-03 + ONE_BP;
     double gapCmp = SmithWilsonCurveFunction.gap(60d, testAlpha, nodes, weights);
-    assertEquals(gapCmp, gapExp, TOL);
+    assertThat(gapCmp).isCloseTo(gapExp, offset(TOL));
   }
 
 }

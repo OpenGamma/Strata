@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -15,7 +17,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class NaturalSplineInterpolatorTest {
   private static final double EPS = 1e-14;
   private static final double INF = 1. / 0.;
@@ -23,6 +24,7 @@ public class NaturalSplineInterpolatorTest {
   /**
    * 
    */
+  @Test
   public void recov2ptsTest() {
     final double[] xValues = new double[] {1., 2. };
     final double[] yValues = new double[] {6., 1. };
@@ -36,25 +38,26 @@ public class NaturalSplineInterpolatorTest {
 
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), dimExp);
-    assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
-    assertEquals(result.getDimensions(), dimExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(nIntervalsExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
 
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatExp[i][j], offset(ref * EPS));
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().get(j), xValues[j]);
+      assertThat(result.getKnots().get(j)).isEqualTo(xValues[j]);
     }
   }
 
   /**
    * 
    */
+  @Test
   public void recov4ptsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4 };
     final double[] yValues = new double[] {6., 25. / 6., 10. / 3., 4. };
@@ -68,146 +71,152 @@ public class NaturalSplineInterpolatorTest {
 
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), dimExp);
-    assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
-    assertEquals(result.getDimensions(), dimExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(nIntervalsExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
 
     for (int i = 0; i < nIntervalsExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatExp[i][j], offset(ref * EPS));
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().get(j), xValues[j]);
+      assertThat(result.getKnots().get(j)).isEqualTo(xValues[j]);
     }
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullXvaluesTest() {
-    double[] xValues = new double[4];
+  @Test
+  public void nullXvaluesTest() {
+    double[] xValues = null;
     double[] yValues = new double[] {1., 2., 3., 4. };
 
-    xValues = null;
-
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullYvaluesTest() {
+  @Test
+  public void nullYvaluesTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[4];
-
-    yValues = null;
+    double[] yValues = null;
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void wrongDatalengthTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[] yValues = new double[] {1., 2., 3., 4. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void shortDataLengthTest() {
     double[] xValues = new double[] {1. };
     double[] yValues = new double[] {4. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNxValuesTest() {
+  @Test
+  public void naNxValuesTest() {
     double[] xValues = new double[] {1., 2., Double.NaN, 4. };
     double[] yValues = new double[] {1., 2., 3., 4. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNyValuesTest() {
+  @Test
+  public void naNyValuesTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[] {1., 2., Double.NaN, 4. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void InfxValuesTest() {
+  @Test
+  public void infxValuesTest() {
     double[] xValues = new double[] {1., 2., 3., INF };
     double[] yValues = new double[] {1., 2., 3., 4. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void InfyValuesTest() {
+  @Test
+  public void infyValuesTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[] {1., 2., 3., INF };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void coincideXvaluesTest() {
     double[] xValues = new double[] {1., 2., 3., 3. };
     double[] yValues = new double[] {1., 2., 3., 4. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
+  @Test
   public void recov2ptsMultiTest() {
     final double[] xValues = new double[] {1., 2. };
     final double[][] yValues = new double[][] { {6., 1. }, {2., 5. } };
@@ -221,25 +230,26 @@ public class NaturalSplineInterpolatorTest {
 
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), dimExp);
-    assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
-    assertEquals(result.getDimensions(), dimExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(nIntervalsExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
 
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatExp[i][j], offset(ref * EPS));
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().get(j), xValues[j]);
+      assertThat(result.getKnots().get(j)).isEqualTo(xValues[j]);
     }
   }
 
   /**
    * 
    */
+  @Test
   public void recov4ptsMultiTest() {
     final double[] xValues = new double[] {1., 2., 3., 4 };
     final double[][] yValues = new double[][] { {6., 25. / 6., 10. / 3., 4. }, {6., 1., 0., 0. } };
@@ -254,147 +264,153 @@ public class NaturalSplineInterpolatorTest {
 
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), dimExp);
-    assertEquals(result.getNumberOfIntervals(), nIntervalsExp);
-    assertEquals(result.getDimensions(), dimExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(nIntervalsExp);
+    assertThat(result.getDimensions()).isEqualTo(dimExp);
 
     for (int i = 0; i < nIntervalsExp * dimExp; ++i) {
       for (int j = 0; j < orderExp; ++j) {
         final double ref = coefsMatExp[i][j] == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatExp[i][j], offset(ref * EPS));
       }
     }
 
     for (int j = 0; j < nIntervalsExp + 1; ++j) {
-      assertEquals(result.getKnots().get(j), xValues[j]);
+      assertThat(result.getKnots().get(j)).isEqualTo(xValues[j]);
     }
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullXvaluesMultiTest() {
-    double[] xValues = new double[4];
+  @Test
+  public void nullXvaluesMultiTest() {
+    double[] xValues = null;
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 5., 3., 4. } };
 
-    xValues = null;
-
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullYvaluesMultiTest() {
+  @Test
+  public void nullYvaluesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[2][4];
-
-    yValues = null;
+    double[][] yValues = null;
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void wrongDatalengthMultiTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void shortDataLengthMultiTest() {
     double[] xValues = new double[] {1. };
     double[][] yValues = new double[][] { {4. }, {1. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNxValuesMultiTest() {
+  @Test
+  public void naNxValuesMultiTest() {
     double[] xValues = new double[] {1., 2., Double.NaN, 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NaNyValuesMultiTest() {
+  @Test
+  public void naNyValuesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., Double.NaN, 4. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void InfxValuesMultiTest() {
+  @Test
+  public void infxValuesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., INF };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void InfyValuesMultiTest() {
+  @Test
+  public void infyValuesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., 3., INF } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void coincideXvaluesMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 3. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * Derive value of the underlying cubic spline function at the value of xKey
    */
-  public void InterpolantsTest() {
+  @Test
+  public void interpolantsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4. };
     final double[][] yValues = new double[][] { {6., 25. / 6., 10. / 3., 4. }, {6., 1., 0., 0. } };
     final double[][] xKey = new double[][] { {-1., 0.5, 1.5 }, {2.5, 3.5, 4.5 } };
@@ -411,26 +427,26 @@ public class NaturalSplineInterpolatorTest {
     double value = interp.interpolate(xValues, yValues[0], xKey[0][0]);
     {
       final double ref = resultValuesExpected[0][0][0] == 0. ? 1. : Math.abs(resultValuesExpected[0][0][0]);
-      assertEquals(value, resultValuesExpected[0][0][0], ref * EPS);
+      assertThat(value).isCloseTo(resultValuesExpected[0][0][0], offset(ref * EPS));
     }
 
     DoubleArray valuesVec1 = interp.interpolate(xValues, yValues, xKey[0][0]);
     for (int i = 0; i < yDim; ++i) {
       final double ref = resultValuesExpected[0][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[0][i][0]);
-      assertEquals(valuesVec1.get(i), resultValuesExpected[0][i][0], ref * EPS);
+      assertThat(valuesVec1.get(i)).isCloseTo(resultValuesExpected[0][i][0], offset(ref * EPS));
     }
 
     DoubleArray valuesVec2 = interp.interpolate(xValues, yValues[0], xKey[0]);
     for (int k = 0; k < keyLength; ++k) {
       final double ref = resultValuesExpected[k][0][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][0]);
-      assertEquals(valuesVec2.get(k), resultValuesExpected[k][0][0], ref * EPS);
+      assertThat(valuesVec2.get(k)).isCloseTo(resultValuesExpected[k][0][0], offset(ref * EPS));
     }
 
     DoubleMatrix valuesMat1 = interp.interpolate(xValues, yValues[0], xKey);
     for (int j = 0; j < keyDim; ++j) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][0][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][0][j]);
-        assertEquals(valuesMat1.get(j, k), resultValuesExpected[k][0][j], ref * EPS);
+        assertThat(valuesMat1.get(j, k)).isCloseTo(resultValuesExpected[k][0][j], offset(ref * EPS));
       }
     }
 
@@ -438,7 +454,7 @@ public class NaturalSplineInterpolatorTest {
     for (int i = 0; i < yDim; ++i) {
       for (int k = 0; k < keyLength; ++k) {
         final double ref = resultValuesExpected[k][i][0] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][0]);
-        assertEquals(valuesMat2.get(i, k), resultValuesExpected[k][i][0], ref * EPS);
+        assertThat(valuesMat2.get(i, k)).isCloseTo(resultValuesExpected[k][i][0], offset(ref * EPS));
       }
     }
 
@@ -447,7 +463,7 @@ public class NaturalSplineInterpolatorTest {
       for (int j = 0; j < keyDim; ++j) {
         for (int k = 0; k < keyLength; ++k) {
           final double ref = resultValuesExpected[k][i][j] == 0. ? 1. : Math.abs(resultValuesExpected[k][i][j]);
-          assertEquals(valuesMat3[k].get(i, j), resultValuesExpected[k][i][j], ref * EPS);
+          assertThat(valuesMat3[k].get(i, j)).isCloseTo(resultValuesExpected[k][i][j], offset(ref * EPS));
         }
       }
     }
@@ -456,134 +472,135 @@ public class NaturalSplineInterpolatorTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void InfiniteOutputTest() {
+  @Test
+  public void infiniteOutputTest() {
     double[] xValues = new double[] {1.e-308, 2.e-308 };
     double[] yValues = new double[] {1., 1.e308 };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
 
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void InfiniteOutputMultiTest() {
+  @Test
+  public void infiniteOutputMultiTest() {
     double[] xValues = new double[] {1.e-308, 2.e-308 };
     double[][] yValues = new double[][] { {1., 1.e308 }, {2., 1. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NanOutputTest() {
+  @Test
+  public void nanOutputTest() {
     double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
     double[] yValues = new double[] {1., 2., 1.e308, 3. };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NanOutputMultiTest() {
+  @Test
+  public void nanOutputMultiTest() {
     double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
     double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void LargeInterpolantsTest() {
+  @Test
+  public void largeInterpolantsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4. };
     final double[][] yValues = new double[][] { {2., 10., 2., 5. }, {1., 2., 10., 11. } };
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues[0], 1.e308);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues[0], 1.e308));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullKeyTest() {
+  @Test
+  public void nullKeyTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[] yValues = new double[] {1., 3., 4. };
-    double[] xKey = new double[3];
-
-    xKey = null;
+    double[] xKey = null;
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues, xKey);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues, xKey));
 
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullKeyMultiTest() {
+  @Test
+  public void nullKeyMultiTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
-    double[] xKey = new double[3];
-
-    xKey = null;
+    double[] xKey = null;
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues, xKey);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues, xKey));
 
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullKeyMatrixTest() {
+  @Test
+  public void nullKeyMatrixTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[] yValues = new double[] {1., 3., 4. };
-    double[][] xKey = new double[3][3];
-
-    xKey = null;
+    double[][] xKey = null;
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues, xKey);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues, xKey));
 
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void NullKeyMatrixMultiTest() {
+  @Test
+  public void nullKeyMatrixMultiTest() {
     double[] xValues = new double[] {1., 2., 3. };
     double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
-    double[][] xKey = new double[3][4];
-
-    xKey = null;
+    double[][] xKey = null;
 
     NaturalSplineInterpolator interp = new NaturalSplineInterpolator();
 
-    interp.interpolate(xValues, yValues, xKey);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(xValues, yValues, xKey));
 
   }
 }

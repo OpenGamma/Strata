@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
@@ -17,7 +20,6 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 /**
  * Test.
  */
-@Test
 public class LaguerrePolynomialRealRootFinderTest {
   private static final double EPS = 1e-12;
   private static final LaguerrePolynomialRealRootFinder ROOT_FINDER = new LaguerrePolynomialRealRootFinder();
@@ -26,30 +28,32 @@ public class LaguerrePolynomialRealRootFinderTest {
   private static final RealPolynomialFunction1D CLOSE_ROOTS = new RealPolynomialFunction1D(9 + 3 * 1e-6, -6 - 1e-6, 1);
   private static final RealPolynomialFunction1D NO_REAL_ROOTS = new RealPolynomialFunction1D(12, 0, 1);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    ROOT_FINDER.getRoots(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoots(null));
   }
 
-  @Test(expectedExceptions = MathException.class)
+  @Test
   public void testNoRealRoots() {
-    ROOT_FINDER.getRoots(NO_REAL_ROOTS);
+    assertThatExceptionOfType(MathException.class)
+        .isThrownBy(() -> ROOT_FINDER.getRoots(NO_REAL_ROOTS));
   }
 
   @Test
   public void test() {
     Double[] result = ROOT_FINDER.getRoots(TWO_REAL_ROOTS);
     Arrays.sort(result);
-    assertEquals(result.length, 2);
-    assertEquals(result[0], -4, EPS);
-    assertEquals(result[1], -3, EPS);
+    assertThat(result.length).isEqualTo(2);
+    assertThat(result[0]).isCloseTo(-4, offset(EPS));
+    assertThat(result[1]).isCloseTo(-3, offset(EPS));
     result = ROOT_FINDER.getRoots(ONE_REAL_ROOT);
-    assertEquals(result.length, 2);
-    assertEquals(result[0], 3, EPS);
-    assertEquals(result[1], 3, EPS);
+    assertThat(result.length).isEqualTo(2);
+    assertThat(result[0]).isCloseTo(3, offset(EPS));
+    assertThat(result[1]).isCloseTo(3, offset(EPS));
     result = ROOT_FINDER.getRoots(CLOSE_ROOTS);
     Arrays.sort(result);
-    assertEquals(result.length, 2);
-    assertEquals(result[1] - result[0], 1e-6, 1e-8);
+    assertThat(result.length).isEqualTo(2);
+    assertThat(result[1] - result[0]).isCloseTo(1e-6, offset(1e-8));
   }
 }

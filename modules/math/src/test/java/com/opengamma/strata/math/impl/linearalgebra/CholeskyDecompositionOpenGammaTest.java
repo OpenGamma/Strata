@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.offset;
 
-import org.testng.annotations.Test;
-import org.testng.internal.junit.ArrayAsserts;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -19,7 +20,6 @@ import com.opengamma.strata.math.linearalgebra.Decomposition;
 /**
  * Tests the Cholesky decomposition OpenGamma implementation.
  */
-@Test
 public class CholeskyDecompositionOpenGammaTest {
 
   private static final MatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
@@ -36,14 +36,16 @@ public class CholeskyDecompositionOpenGammaTest {
           {1.0, 0.5, 0.5, -1.0, 25.0}});
   private static final double EPS = 1e-9;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullObjectMatrix() {
-    CDOG.apply((DoubleMatrix) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CDOG.apply((DoubleMatrix) null));
   }
 
   /**
    * Tests A = L L^T.
    */
+  @Test
   public void recoverOrginal() {
     final CholeskyDecompositionResult result = CDOG.apply(A3);
     final DoubleMatrix a = (DoubleMatrix) ALGEBRA.multiply(result.getL(), result.getLT());
@@ -53,45 +55,48 @@ public class CholeskyDecompositionOpenGammaTest {
   /**
    * Tests solve Ax = b from A and b.
    */
+  @Test
   public void solveVector() {
     final CholeskyDecompositionResult result = CDOG.apply(A5);
     double[] b = new double[] {1.0, 2.0, 3.0, 4.0, -1.0 };
     double[] x = result.solve(b);
     DoubleArray ax = (DoubleArray) ALGEBRA.multiply(A5, DoubleArray.copyOf(x));
-    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b, ax.toArray(), 1.0E-10);
+    assertThat(ax.toArray()).usingComparatorWithPrecision(1e-10).containsExactly(b);
   }
 
   /**
    * Tests solve AX = B from A and B.
    */
+  @Test
   public void solveMatrix() {
     final CholeskyDecompositionResult result = CDOG.apply(A5);
     double[][] b = new double[][] { {1.0, 2.0 }, {2.0, 3.0 }, {3.0, 4.0 }, {4.0, -2.0 }, {-1.0, -1.0 } };
     DoubleMatrix x = result.solve(DoubleMatrix.copyOf(b));
     DoubleMatrix ax = (DoubleMatrix) ALGEBRA.multiply(A5, x);
-    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b[0], ax.rowArray(0), 1.0E-10);
-    ArrayAsserts.assertArrayEquals("Cholesky decomposition OpenGamma - solve", b[1], ax.rowArray(1), 1.0E-10);
+    assertThat(ax.rowArray(0)).usingComparatorWithPrecision(1e-10).containsExactly(b[0]);
+    assertThat(ax.rowArray(1)).usingComparatorWithPrecision(1e-10).containsExactly(b[1]);
   }
 
   /**
    * Compare results with Common decomposition
    */
+  @Test
   public void compareCommon() {
     final CholeskyDecompositionResult resultOG = CDOG.apply(A3);
     final CholeskyDecompositionResult resultC = CDC.apply(A3);
     checkEquals(resultC.getL(), resultOG.getL());
     checkEquals(ALGEBRA.getTranspose(resultC.getL()), resultOG.getLT());
-    assertEquals("Determinant", resultC.getDeterminant(), resultOG.getDeterminant(), 1.0E-10);
+    assertThat(resultOG.getDeterminant()).isCloseTo(resultC.getDeterminant(), offset(1e-10));
   }
 
   private void checkEquals(final DoubleMatrix x, final DoubleMatrix y) {
     final int n = x.rowCount();
     final int m = x.columnCount();
-    assertEquals(n, y.rowCount());
-    assertEquals(m, y.columnCount());
+    assertThat(n).isEqualTo(y.rowCount());
+    assertThat(m).isEqualTo(y.columnCount());
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        assertEquals(x.get(i, j), y.get(i, j), EPS);
+        assertThat(x.get(i, j)).isCloseTo(y.get(i, j), offset(EPS));
       }
     }
   }

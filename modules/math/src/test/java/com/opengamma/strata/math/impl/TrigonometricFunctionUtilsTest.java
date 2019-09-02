@@ -5,85 +5,98 @@
  */
 package com.opengamma.strata.math.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class TrigonometricFunctionUtilsTest {
   private static final Double X = 0.12;
   private static final ComplexNumber Y = new ComplexNumber(X, 0);
   private static final ComplexNumber Z = new ComplexNumber(X, -0.34);
   private static final double EPS = 1e-9;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull1() {
-    TrigonometricFunctionUtils.acos(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.acos(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull2() {
-    TrigonometricFunctionUtils.acosh(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.acosh(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull3() {
-    TrigonometricFunctionUtils.asin(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.asin(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull4() {
-    TrigonometricFunctionUtils.asinh(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.asinh(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull5() {
-    TrigonometricFunctionUtils.atan(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.atan(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull6() {
-    TrigonometricFunctionUtils.atanh(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.atanh(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull7() {
-    TrigonometricFunctionUtils.cos(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.cos(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull8() {
-    TrigonometricFunctionUtils.cosh(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.cosh(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull9() {
-    TrigonometricFunctionUtils.sin(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.sin(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull10() {
-    TrigonometricFunctionUtils.sinh(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.sinh(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull11() {
-    TrigonometricFunctionUtils.tan(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.tan(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull12() {
-    TrigonometricFunctionUtils.tanh(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> TrigonometricFunctionUtils.tanh(null));
   }
 
   @Test
   public void test() {
-    assertEquals(TrigonometricFunctionUtils.acos(TrigonometricFunctionUtils.cos(X)), X, EPS);
-    assertEquals(TrigonometricFunctionUtils.asin(TrigonometricFunctionUtils.sin(X)), X, EPS);
-    assertEquals(TrigonometricFunctionUtils.atan(TrigonometricFunctionUtils.tan(X)), X, EPS);
+    assertThat(TrigonometricFunctionUtils.acos(TrigonometricFunctionUtils.cos(X))).isCloseTo(X, offset(EPS));
+    assertThat(TrigonometricFunctionUtils.asin(TrigonometricFunctionUtils.sin(X))).isCloseTo(X, offset(EPS));
+    assertThat(TrigonometricFunctionUtils.atan(TrigonometricFunctionUtils.tan(X))).isCloseTo(X, offset(EPS));
     assertComplexEquals(TrigonometricFunctionUtils.cos(Y), Math.cos(X));
     assertComplexEquals(TrigonometricFunctionUtils.sin(Y), Math.sin(X));
     assertComplexEquals(TrigonometricFunctionUtils.tan(Y), Math.tan(X));
@@ -93,9 +106,9 @@ public class TrigonometricFunctionUtilsTest {
     assertComplexEquals(TrigonometricFunctionUtils.acos(TrigonometricFunctionUtils.cos(Z)), Z);
     assertComplexEquals(TrigonometricFunctionUtils.asin(TrigonometricFunctionUtils.sin(Z)), Z);
     assertComplexEquals(TrigonometricFunctionUtils.atan(TrigonometricFunctionUtils.tan(Z)), Z);
-    assertEquals(TrigonometricFunctionUtils.acosh(TrigonometricFunctionUtils.cosh(X)), X, EPS);
-    assertEquals(TrigonometricFunctionUtils.asinh(TrigonometricFunctionUtils.sinh(X)), X, EPS);
-    assertEquals(TrigonometricFunctionUtils.atanh(TrigonometricFunctionUtils.tanh(X)), X, EPS);
+    assertThat(TrigonometricFunctionUtils.acosh(TrigonometricFunctionUtils.cosh(X))).isCloseTo(X, offset(EPS));
+    assertThat(TrigonometricFunctionUtils.asinh(TrigonometricFunctionUtils.sinh(X))).isCloseTo(X, offset(EPS));
+    assertThat(TrigonometricFunctionUtils.atanh(TrigonometricFunctionUtils.tanh(X))).isCloseTo(X, offset(EPS));
     assertComplexEquals(TrigonometricFunctionUtils.acosh(TrigonometricFunctionUtils.cosh(Z)), Z);
     assertComplexEquals(TrigonometricFunctionUtils.asinh(TrigonometricFunctionUtils.sinh(Z)), Z);
     assertComplexEquals(TrigonometricFunctionUtils.atanh(TrigonometricFunctionUtils.tanh(Z)), Z);
@@ -107,17 +120,17 @@ public class TrigonometricFunctionUtilsTest {
     ComplexNumber z = new ComplexNumber(x);
     double real = 0.5 * Math.log((1 + x) / (1 - x));
     ComplexNumber res = TrigonometricFunctionUtils.atanh(z);
-    assertEquals(real, res.getReal(), 1e-15);
-    assertEquals(0.0, res.getImaginary(), 0);
+    assertThat(real).isCloseTo(res.getReal(), offset(1e-15));
+    assertThat(res.getImaginary()).isEqualTo(0d);
   }
 
   private void assertComplexEquals(final ComplexNumber z1, final ComplexNumber z2) {
-    assertEquals(z1.getReal(), z2.getReal(), EPS);
-    assertEquals(z1.getImaginary(), z2.getImaginary(), EPS);
+    assertThat(z1.getReal()).isCloseTo(z2.getReal(), offset(EPS));
+    assertThat(z1.getImaginary()).isCloseTo(z2.getImaginary(), offset(EPS));
   }
 
   private void assertComplexEquals(final ComplexNumber z, final double x) {
-    assertEquals(z.getImaginary(), 0, EPS);
-    assertEquals(z.getReal(), x, EPS);
+    assertThat(z.getImaginary()).isCloseTo(0, offset(EPS));
+    assertThat(z.getReal()).isCloseTo(x, offset(EPS));
   }
 }

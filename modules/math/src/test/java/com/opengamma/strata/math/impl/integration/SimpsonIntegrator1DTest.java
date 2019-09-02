@@ -5,12 +5,9 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import org.testng.annotations.Test;
-
 /**
  * Test.
  */
-@Test
 public class SimpsonIntegrator1DTest extends Integrator1DTestCase {
   private static final Integrator1D<Double, Double> INTEGRATOR = new SimpsonIntegrator1D();
 

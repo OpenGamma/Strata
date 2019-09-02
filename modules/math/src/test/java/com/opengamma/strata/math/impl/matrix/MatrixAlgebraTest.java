@@ -5,10 +5,12 @@
  */
 package com.opengamma.strata.math.impl.matrix;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -18,7 +20,6 @@ import com.opengamma.strata.collect.array.Matrix;
  * Test.
  */
 @SuppressWarnings("synthetic-access")
-@Test
 public class MatrixAlgebraTest {
   private static final MatrixAlgebra ALGEBRA = new MyMatrixAlgebra();
 
@@ -40,153 +41,170 @@ public class MatrixAlgebraTest {
   };
   private static final double EPS = 1e-10;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddWrongSize() {
-    ALGEBRA.add(M1, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.add(M1, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddDifferentRowNumber1D() {
-    ALGEBRA.add(M1, DoubleArray.of(1, 2, 3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.add(M1, DoubleArray.of(1, 2, 3)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddDifferentRowNumber2D() {
-    ALGEBRA.add(M3, DoubleMatrix.of(3, 2, 1d, 2d, 3d, 4d, 5d, 6d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.add(M3, DoubleMatrix.of(3, 2, 1d, 2d, 3d, 4d, 5d, 6d)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddDifferentColumnNumber2D() {
-    ALGEBRA.add(M3, DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.add(M3, DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddWrongType1() {
-    ALGEBRA.add(M1, M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.add(M1, M5));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddWrongType2() {
-    ALGEBRA.add(M3, M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.add(M3, M5));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testAddWrongType3() {
-    ALGEBRA.add(M5, M5);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> ALGEBRA.add(M5, M5));
   }
 
   @Test
   public void testAdd() {
     Matrix m = ALGEBRA.add(M1, M2);
-    assertTrue(m instanceof DoubleArray);
+    assertThat(m instanceof DoubleArray).isTrue();
     assertMatrixEquals(m, DoubleArray.of(4, 6));
     m = ALGEBRA.add(M3, M4);
-    assertTrue(m instanceof DoubleMatrix);
+    assertThat(m instanceof DoubleMatrix).isTrue();
     assertMatrixEquals(m, DoubleMatrix.of(2, 2, 6d, 8d, 10d, 12d));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractWrongSize() {
-    ALGEBRA.subtract(M1, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.subtract(M1, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractDifferentRowNumber1D() {
-    ALGEBRA.subtract(M1, DoubleArray.of(1, 2, 3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.subtract(M1, DoubleArray.of(1, 2, 3)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractDifferentRowNumber2D() {
-    ALGEBRA.subtract(M3, DoubleMatrix.of(3, 2, 1d, 2d, 3d, 4d, 5d, 6d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.subtract(M3, DoubleMatrix.of(3, 2, 1d, 2d, 3d, 4d, 5d, 6d)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractDifferentColumnNumber2D() {
-    ALGEBRA.subtract(M3, DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.subtract(M3, DoubleMatrix.of(2, 3, 1d, 2d, 3d, 4d, 5d, 6d)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractWrongType1() {
-    ALGEBRA.subtract(M1, M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.subtract(M1, M5));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractWrongType2() {
-    ALGEBRA.subtract(M3, M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.subtract(M3, M5));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testSubtractWrongType3() {
-    ALGEBRA.subtract(M5, M5);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> ALGEBRA.subtract(M5, M5));
   }
 
   @Test
   public void testSubtract() {
     Matrix m = ALGEBRA.subtract(M1, M2);
-    assertTrue(m instanceof DoubleArray);
+    assertThat(m instanceof DoubleArray).isTrue();
     assertMatrixEquals(m, DoubleArray.of(-2, -2));
     m = ALGEBRA.subtract(M3, M4);
-    assertTrue(m instanceof DoubleMatrix);
+    assertThat(m instanceof DoubleMatrix).isTrue();
     assertMatrixEquals(m, DoubleMatrix.of(2, 2, -4d, -4d, -4d, -4d));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testScaleWrongType() {
-    ALGEBRA.scale(M5, 0.5);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> ALGEBRA.scale(M5, 0.5));
   }
 
   @Test
   public void testScale() {
     Matrix m = ALGEBRA.scale(M1, 10);
-    assertTrue(m instanceof DoubleArray);
+    assertThat(m instanceof DoubleArray).isTrue();
     assertMatrixEquals(m, DoubleArray.of(10, 20));
     m = ALGEBRA.scale(m, 0.1);
     assertMatrixEquals(m, M1);
     m = ALGEBRA.scale(M3, 10);
-    assertTrue(m instanceof DoubleMatrix);
+    assertThat(m instanceof DoubleMatrix).isTrue();
     assertMatrixEquals(m, DoubleMatrix.of(2, 2, 10d, 20d, 30d, 40d));
     m = ALGEBRA.scale(m, 0.1);
     assertMatrixEquals(m, M3);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDivide1D() {
-    ALGEBRA.divide(M1, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.divide(M1, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDivide2D() {
-    ALGEBRA.divide(M3, M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.divide(M3, M1));
   }
 
   @Test
   public void testKroneckerProduct() {
     Matrix m = ALGEBRA.kroneckerProduct(M3, M4);
-    assertTrue(m instanceof DoubleMatrix);
+    assertThat(m instanceof DoubleMatrix).isTrue();
     assertMatrixEquals(m, DoubleMatrix.of(4, 4, 5, 6, 10, 12, 7, 8, 14, 16, 15, 18, 20, 24, 21, 24, 28, 32));
 
   }
 
   private void assertMatrixEquals(final Matrix m1, final Matrix m2) {
     if (m1 instanceof DoubleArray) {
-      assertTrue(m2 instanceof DoubleArray);
+      assertThat(m2 instanceof DoubleArray).isTrue();
       final DoubleArray m3 = (DoubleArray) m1;
       final DoubleArray m4 = (DoubleArray) m2;
-      assertEquals(m3.size(), m4.size());
+      assertThat(m3.size()).isEqualTo(m4.size());
       for (int i = 0; i < m3.size(); i++) {
-        assertEquals(m3.get(i), m4.get(i), EPS);
+        assertThat(m3.get(i)).isCloseTo(m4.get(i), offset(EPS));
       }
       return;
     }
     if (m2 instanceof DoubleMatrix) {
       final DoubleMatrix m3 = (DoubleMatrix) m1;
       final DoubleMatrix m4 = (DoubleMatrix) m2;
-      assertEquals(m3.size(), m4.size());
-      assertEquals(m3.rowCount(), m4.rowCount());
-      assertEquals(m3.columnCount(), m4.columnCount());
+      assertThat(m3.size()).isEqualTo(m4.size());
+      assertThat(m3.rowCount()).isEqualTo(m4.rowCount());
+      assertThat(m3.columnCount()).isEqualTo(m4.columnCount());
       for (int i = 0; i < m3.rowCount(); i++) {
         for (int j = 0; j < m3.columnCount(); j++) {
-          assertEquals(m3.get(i, j), m4.get(i, j), EPS);
+          assertThat(m3.get(i, j)).isCloseTo(m4.get(i, j), offset(EPS));
         }
       }
     }

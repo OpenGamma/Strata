@@ -5,16 +5,17 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GeometricMeanCalculatorTest {
   private static final Function<double[], Double> ARITHMETIC = new MeanCalculator();
   private static final Function<double[], Double> GEOMETRIC = new GeometricMeanCalculator();
@@ -31,19 +32,21 @@ public class GeometricMeanCalculatorTest {
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullArray() {
-    GEOMETRIC.apply(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> GEOMETRIC.apply(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEmptyArray() {
-    GEOMETRIC.apply(new double[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> GEOMETRIC.apply(new double[0]));
   }
 
   @Test
   public void test() {
-    assertEquals(GEOMETRIC.apply(FLAT), 2, 0);
-    assertEquals(GEOMETRIC.apply(X), Math.exp(ARITHMETIC.apply(LN_X)), 1e-15);
+    assertThat(GEOMETRIC.apply(FLAT)).isEqualTo(2);
+    assertThat(GEOMETRIC.apply(X)).isCloseTo(Math.exp(ARITHMETIC.apply(LN_X)), offset(1e-15));
   }
 }

@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -16,7 +18,6 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult2D;
 /**
  * Test.
  */
-@Test
 public class PiecewisePolynomialFunction2DTest {
 
   private static final double EPS = 1e-14;
@@ -110,18 +111,18 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double ref = valuesExp[i][j] == 0. ? 1. : Math.abs(valuesExp[i][j]);
-        assertEquals(values[i][j], valuesExp[i][j], ref * EPS);
+        assertThat(values[i][j]).isCloseTo(valuesExp[i][j], offset(ref * EPS));
       }
     }
     {
       final double value = function.evaluate(result, x0Keys[1], x1Keys[1]);
       final double ref = valuesExp[1][1] == 0. ? 1. : Math.abs(valuesExp[1][1]);
-      assertEquals(value, valuesExp[1][1], ref * EPS);
+      assertThat(value).isCloseTo(valuesExp[1][1], offset(ref * EPS));
     }
     {
       final double value = function.evaluate(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
       final double ref = valuesExp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesExp[n0Keys - 2][n1Keys - 2]);
-      assertEquals(value, valuesExp[n0Keys - 2][n1Keys - 2], ref * EPS);
+      assertThat(value).isCloseTo(valuesExp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
     /*
@@ -137,18 +138,18 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double ref = valuesDiffX0Exp[i][j] == 0. ? 1. : Math.abs(valuesDiffX0Exp[i][j]);
-        assertEquals(valuesDiffX0[i][j], valuesDiffX0Exp[i][j], ref * EPS);
+        assertThat(valuesDiffX0[i][j]).isCloseTo(valuesDiffX0Exp[i][j], offset(ref * EPS));
       }
     }
     {
       final double value = function.differentiateX0(result, x0Keys[1], x1Keys[1]);
       final double ref = valuesDiffX0Exp[1][1] == 0. ? 1. : Math.abs(valuesDiffX0Exp[1][1]);
-      assertEquals(value, valuesDiffX0Exp[1][1], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffX0Exp[1][1], offset(ref * EPS));
     }
     {
       final double value = function.differentiateX0(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
       final double ref = valuesDiffX0Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffX0Exp[n0Keys - 2][n1Keys - 2]);
-      assertEquals(value, valuesDiffX0Exp[n0Keys - 2][n1Keys - 2], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffX0Exp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
     double[][] valuesDiffX1Exp = new double[n0Keys][n1Keys];
@@ -161,18 +162,18 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double ref = valuesDiffX1Exp[i][j] == 0. ? 1. : Math.abs(valuesDiffX1Exp[i][j]);
-        assertEquals(valuesDiffX1[i][j], valuesDiffX1Exp[i][j], ref * EPS);
+        assertThat(valuesDiffX1[i][j]).isCloseTo(valuesDiffX1Exp[i][j], offset(ref * EPS));
       }
     }
     {
       final double value = function.differentiateX1(result, x0Keys[1], x1Keys[1]);
       final double ref = valuesDiffX1Exp[1][1] == 0. ? 1. : Math.abs(valuesDiffX1Exp[1][1]);
-      assertEquals(value, valuesDiffX1Exp[1][1], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffX1Exp[1][1], offset(ref * EPS));
     }
     {
       final double value = function.differentiateX1(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
       final double ref = valuesDiffX1Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffX1Exp[n0Keys - 2][n1Keys - 2]);
-      assertEquals(value, valuesDiffX1Exp[n0Keys - 2][n1Keys - 2], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffX1Exp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
     /*
@@ -188,18 +189,18 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double ref = valuesDiffCrossExp[i][j] == 0. ? 1. : Math.abs(valuesDiffCrossExp[i][j]);
-        assertEquals(valuesDiffCross[i][j], valuesDiffCrossExp[i][j], ref * EPS);
+        assertThat(valuesDiffCross[i][j]).isCloseTo(valuesDiffCrossExp[i][j], offset(ref * EPS));
       }
     }
     {
       final double value = function.differentiateCross(result, x0Keys[1], x1Keys[1]);
       final double ref = valuesDiffCrossExp[1][1] == 0. ? 1. : Math.abs(valuesDiffCrossExp[1][1]);
-      assertEquals(value, valuesDiffCrossExp[1][1], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffCrossExp[1][1], offset(ref * EPS));
     }
     {
       final double value = function.differentiateCross(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
       final double ref = valuesDiffCrossExp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffCrossExp[n0Keys - 2][n1Keys - 2]);
-      assertEquals(value, valuesDiffCrossExp[n0Keys - 2][n1Keys - 2], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffCrossExp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
     double[][] valuesDiffTwiceX0Exp = new double[n0Keys][n1Keys];
@@ -212,18 +213,18 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double ref = valuesDiffTwiceX0Exp[i][j] == 0. ? 1. : Math.abs(valuesDiffTwiceX0Exp[i][j]);
-        assertEquals(valuesDiffTwiceX0[i][j], valuesDiffTwiceX0Exp[i][j], ref * EPS);
+        assertThat(valuesDiffTwiceX0[i][j]).isCloseTo(valuesDiffTwiceX0Exp[i][j], offset(ref * EPS));
       }
     }
     {
       final double value = function.differentiateTwiceX0(result, x0Keys[1], x1Keys[1]);
       final double ref = valuesDiffTwiceX0Exp[1][1] == 0. ? 1. : Math.abs(valuesDiffTwiceX0Exp[1][1]);
-      assertEquals(value, valuesDiffTwiceX0Exp[1][1], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffTwiceX0Exp[1][1], offset(ref * EPS));
     }
     {
       final double value = function.differentiateTwiceX0(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
       final double ref = valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2]);
-      assertEquals(value, valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
     double[][] valuesDiffTwiceX1Exp = new double[n0Keys][n1Keys];
@@ -236,18 +237,18 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double ref = valuesDiffTwiceX1Exp[i][j] == 0. ? 1. : Math.abs(valuesDiffTwiceX1Exp[i][j]);
-        assertEquals(valuesDiffTwiceX1[i][j], valuesDiffTwiceX1Exp[i][j], ref * EPS);
+        assertThat(valuesDiffTwiceX1[i][j]).isCloseTo(valuesDiffTwiceX1Exp[i][j], offset(ref * EPS));
       }
     }
     {
       final double value = function.differentiateTwiceX1(result, x0Keys[1], x1Keys[1]);
       final double ref = valuesDiffTwiceX1Exp[1][1] == 0. ? 1. : Math.abs(valuesDiffTwiceX1Exp[1][1]);
-      assertEquals(value, valuesDiffTwiceX1Exp[1][1], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffTwiceX1Exp[1][1], offset(ref * EPS));
     }
     {
       final double value = function.differentiateTwiceX1(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
       final double ref = valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2]);
-      assertEquals(value, valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2], ref * EPS);
+      assertThat(value).isCloseTo(valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
   }
 
@@ -257,9 +258,9 @@ public class PiecewisePolynomialFunction2DTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpEvaluateTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -272,16 +273,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.evaluate(result, x0Keys[1], x1Keys[1]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys[1], x1Keys[1]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpEvaluateMultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -294,16 +295,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.evaluate(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffX0Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -316,16 +317,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateX0(result, x0Keys[1], x1Keys[1]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX0(result, x0Keys[1], x1Keys[1]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffX0MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -338,16 +339,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateX0(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX0(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffX1Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -360,16 +361,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateX1(result, x0Keys[1], x1Keys[1]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX1(result, x0Keys[1], x1Keys[1]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffX1MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -382,16 +383,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateX1(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX1(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffCrossTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -404,16 +405,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateCross(result, x0Keys[1], x1Keys[1]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateCross(result, x0Keys[1], x1Keys[1]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffCrossMultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -426,16 +427,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateCross(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateCross(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffTwiceX0Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -448,16 +449,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateTwiceX0(result, x0Keys[1], x1Keys[1]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX0(result, x0Keys[1], x1Keys[1]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffTwiceX0MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -470,16 +471,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateTwiceX0(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX0(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffTwiceX1Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -492,16 +493,16 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateTwiceX1(result, x0Keys[1], x1Keys[1]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX1(result, x0Keys[1], x1Keys[1]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullPpDiffTwiceX1MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = null;
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -514,14 +515,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    result = null;
-    function.differentiateTwiceX1(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX1(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infX0Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -537,7 +538,8 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x0Keys[2] = INF;
-    function.evaluate(result, x0Keys[2], x1Keys[2]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys[2], x1Keys[2]));
   }
 
   /*
@@ -546,7 +548,7 @@ public class PiecewisePolynomialFunction2DTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanX0Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -562,13 +564,14 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x0Keys[3] = Double.NaN;
-    function.evaluate(result, x0Keys[3], x1Keys[3]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys[3], x1Keys[3]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infX1Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -584,13 +587,14 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x1Keys[2] = INF;
-    function.evaluate(result, x0Keys[2], x1Keys[2]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys[2], x1Keys[2]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanX1Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -606,13 +610,14 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x1Keys[3] = Double.NaN;
-    function.evaluate(result, x0Keys[3], x1Keys[3]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys[3], x1Keys[3]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infX0MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -628,13 +633,14 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x0Keys[2] = INF;
-    function.evaluate(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanX0MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -650,13 +656,14 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x0Keys[3] = Double.NaN;
-    function.evaluate(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infX1MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -672,13 +679,14 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x1Keys[2] = INF;
-    function.evaluate(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanX1MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -694,7 +702,8 @@ public class PiecewisePolynomialFunction2DTest {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
     x1Keys[3] = Double.NaN;
-    function.evaluate(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.evaluate(result, x0Keys, x1Keys));
   }
 
   /*
@@ -703,7 +712,7 @@ public class PiecewisePolynomialFunction2DTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constDiffX0Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -718,13 +727,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateX0(result, x0Keys[0], x1Keys[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX0(result, x0Keys[0], x1Keys[0]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constDiffX0MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -739,13 +749,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateX0(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX0(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constDiffX1Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -760,13 +771,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateX1(result, x0Keys[0], x1Keys[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX1(result, x0Keys[0], x1Keys[0]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constDiffX1MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -781,13 +793,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateX1(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateX1(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linearDiffTwiceX0Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -802,13 +815,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateTwiceX0(result, x0Keys[0], x1Keys[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX0(result, x0Keys[0], x1Keys[0]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linearDiffTwiceX0MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -823,13 +837,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateTwiceX0(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX0(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linearDiffTwiceX1Test() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -844,13 +859,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateTwiceX1(result, x0Keys[0], x1Keys[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX1(result, x0Keys[0], x1Keys[0]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linearDiffTwiceX1MultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -865,13 +881,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateTwiceX1(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateTwiceX1(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constDiffCrossTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -886,13 +903,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateCross(result, x0Keys[0], x1Keys[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateCross(result, x0Keys[0], x1Keys[0]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linConstDiffCrossTest() {
 
     DoubleMatrix[][] coefsLinConst;
@@ -917,13 +935,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateCross(result, x0Keys[0], x1Keys[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateCross(result, x0Keys[0], x1Keys[0]));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void constDiffCrossMultiTest() {
     PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
@@ -938,13 +957,14 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateCross(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateCross(result, x0Keys, x1Keys));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void linConstDiffCrossMultiTest() {
 
     DoubleMatrix[][] coefsLinConst;
@@ -969,7 +989,8 @@ public class PiecewisePolynomialFunction2DTest {
     for (int i = 0; i < n1Keys; ++i) {
       x1Keys[i] = 1. + 3. / (n1Keys - 1) * i;
     }
-    function.differentiateCross(result, x0Keys, x1Keys);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> function.differentiateCross(result, x0Keys, x1Keys));
   }
 
 }

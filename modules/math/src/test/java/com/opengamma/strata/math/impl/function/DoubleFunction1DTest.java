@@ -5,18 +5,19 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.differentiation.FiniteDifferenceType;
 
 /**
  * Test.
  */
-@Test
 public class DoubleFunction1DTest {
 
   private static final DoubleFunction1D F1 = x -> x * x * x + 2 * x * x - 7 * x + 12;
@@ -53,72 +54,78 @@ public class DoubleFunction1DTest {
   private static final double A = 5.67;
   private static final double EPS = 1e-15;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAddNull() {
-    F1.add(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F1.add(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDivideNull() {
-    F1.divide(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F1.divide(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testMultiplyNull() {
-    F1.multiply(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F1.multiply(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSubtractNull() {
-    F1.subtract(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F1.subtract(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testConvertNull() {
-    DoubleFunction1D.from(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DoubleFunction1D.from(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDerivativeNullType() {
-    F1.derivative(null, EPS);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F1.derivative(null, EPS));
   }
 
   @Test
   public void testAdd() {
-    assertEquals(F1.add(F2).applyAsDouble(X), F1.applyAsDouble(X) + F2.applyAsDouble(X), EPS);
-    assertEquals(F1.add(A).applyAsDouble(X), F1.applyAsDouble(X) + A, EPS);
+    assertThat(F1.add(F2).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) + F2.applyAsDouble(X), offset(EPS));
+    assertThat(F1.add(A).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) + A, offset(EPS));
   }
 
   @Test
   public void testDivide() {
-    assertEquals(F1.divide(F2).applyAsDouble(X), F1.applyAsDouble(X) / F2.applyAsDouble(X), EPS);
-    assertEquals(F1.divide(A).applyAsDouble(X), F1.applyAsDouble(X) / A, EPS);
+    assertThat(F1.divide(F2).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) / F2.applyAsDouble(X), offset(EPS));
+    assertThat(F1.divide(A).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) / A, offset(EPS));
   }
 
   @Test
   public void testMultiply() {
-    assertEquals(F1.multiply(F2).applyAsDouble(X), F1.applyAsDouble(X) * F2.applyAsDouble(X), EPS);
-    assertEquals(F1.multiply(A).applyAsDouble(X), F1.applyAsDouble(X) * A, EPS);
+    assertThat(F1.multiply(F2).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) * F2.applyAsDouble(X), offset(EPS));
+    assertThat(F1.multiply(A).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) * A, offset(EPS));
   }
 
   @Test
   public void testSubtract() {
-    assertEquals(F1.subtract(F2).applyAsDouble(X), F1.applyAsDouble(X) - F2.applyAsDouble(X), EPS);
-    assertEquals(F1.subtract(A).applyAsDouble(X), F1.applyAsDouble(X) - A, EPS);
+    assertThat(F1.subtract(F2).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) - F2.applyAsDouble(X), offset(EPS));
+    assertThat(F1.subtract(A).applyAsDouble(X)).isCloseTo(F1.applyAsDouble(X) - A, offset(EPS));
   }
 
   @Test
   public void testDerivative() {
-    assertEquals(F1.derivative().applyAsDouble(X), DF1.applyAsDouble(X), 1e-3);
-    assertEquals(F2.derivative().applyAsDouble(X), DF2.applyAsDouble(X), 1e-3);
-    assertEquals(F1.derivative(FiniteDifferenceType.CENTRAL, 1e-5).applyAsDouble(X), DF1.applyAsDouble(X), 1e-3);
-    assertEquals(F2.derivative(FiniteDifferenceType.CENTRAL, 1e-5).applyAsDouble(X), DF2.applyAsDouble(X), 1e-3);
-    assertEquals(F1.derivative(FiniteDifferenceType.FORWARD, 1e-5).applyAsDouble(X), DF1.applyAsDouble(X), 1e-3);
-    assertEquals(F2.derivative(FiniteDifferenceType.FORWARD, 1e-5).applyAsDouble(X), DF2.applyAsDouble(X), 1e-3);
-    assertEquals(F1.derivative(FiniteDifferenceType.BACKWARD, 1e-5).applyAsDouble(X), DF1.applyAsDouble(X), 1e-3);
-    assertEquals(F2.derivative(FiniteDifferenceType.BACKWARD, 1e-5).applyAsDouble(X), DF2.applyAsDouble(X), 1e-3);
-    assertEquals(F3.derivative().applyAsDouble(X), DF1.applyAsDouble(X), 1e-15);
-    assertEquals(F4.derivative().applyAsDouble(X), DF2.applyAsDouble(X), 1e-15);
+    assertThat(F1.derivative().applyAsDouble(X)).isCloseTo(DF1.applyAsDouble(X), offset(1e-3));
+    assertThat(F2.derivative().applyAsDouble(X)).isCloseTo(DF2.applyAsDouble(X), offset(1e-3));
+    assertThat(F1.derivative(FiniteDifferenceType.CENTRAL, 1e-5).applyAsDouble(X)).isCloseTo(DF1.applyAsDouble(X), offset(1e-3));
+    assertThat(F2.derivative(FiniteDifferenceType.CENTRAL, 1e-5).applyAsDouble(X)).isCloseTo(DF2.applyAsDouble(X), offset(1e-3));
+    assertThat(F1.derivative(FiniteDifferenceType.FORWARD, 1e-5).applyAsDouble(X)).isCloseTo(DF1.applyAsDouble(X), offset(1e-3));
+    assertThat(F2.derivative(FiniteDifferenceType.FORWARD, 1e-5).applyAsDouble(X)).isCloseTo(DF2.applyAsDouble(X), offset(1e-3));
+    assertThat(F1.derivative(FiniteDifferenceType.BACKWARD, 1e-5).applyAsDouble(X)).isCloseTo(DF1.applyAsDouble(X), offset(1e-3));
+    assertThat(F2.derivative(FiniteDifferenceType.BACKWARD, 1e-5).applyAsDouble(X)).isCloseTo(DF2.applyAsDouble(X), offset(1e-3));
+    assertThat(F3.derivative().applyAsDouble(X)).isCloseTo(DF1.applyAsDouble(X), offset(1e-15));
+    assertThat(F4.derivative().applyAsDouble(X)).isCloseTo(DF2.applyAsDouble(X), offset(1e-15));
   }
 
   @Test
@@ -127,8 +134,8 @@ public class DoubleFunction1DTest {
     final DoubleFunction1D f2 = DoubleFunction1D.from(f1);
     for (int i = 0; i < 100; i++) {
       final double x = Math.random();
-      assertEquals(f2.applyAsDouble(x), F1.applyAsDouble(x), 0);
-      assertEquals(f2.derivative().applyAsDouble(x), F1.derivative().applyAsDouble(x), 0);
+      assertThat(f2.applyAsDouble(x)).isEqualTo(F1.applyAsDouble(x));
+      assertThat(f2.derivative().applyAsDouble(x)).isEqualTo(F1.derivative().applyAsDouble(x));
     }
   }
 }

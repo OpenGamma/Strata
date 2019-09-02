@@ -5,25 +5,27 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import org.apache.commons.math3.util.CombinatoricsUtils;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 
 /**
  * Test.
  */
-@Test
 public class OrthonormalHermitePolynomialFunctionTest {
   private static final HermitePolynomialFunction HERMITE = new HermitePolynomialFunction();
   private static final OrthonormalHermitePolynomialFunction ORTHONORMAL = new OrthonormalHermitePolynomialFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadN() {
-    ORTHONORMAL.getPolynomials(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ORTHONORMAL.getPolynomials(-3));
   }
 
   @Test
@@ -33,10 +35,7 @@ public class OrthonormalHermitePolynomialFunctionTest {
     final DoubleFunction1D[] f2 = ORTHONORMAL.getPolynomials(n);
     final double x = 3.4;
     for (int i = 0; i < f1.length; i++) {
-      assertEquals(
-          f1[i].applyAsDouble(x) / Math.sqrt(CombinatoricsUtils.factorialDouble(i) * Math.pow(2, i) * Math.sqrt(Math.PI)),
-          f2[i].applyAsDouble(x),
-          EPS);
+      assertThat(f1[i].applyAsDouble(x) / Math.sqrt(CombinatoricsUtils.factorialDouble(i) * Math.pow(2, i) * Math.sqrt(Math.PI))).isCloseTo(f2[i].applyAsDouble(x), offset(EPS));
     }
   }
 

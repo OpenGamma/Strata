@@ -6,10 +6,14 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import static com.opengamma.strata.math.MathUtils.pow2;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -20,7 +24,6 @@ import com.opengamma.strata.math.impl.util.AssertMatrix;
 /**
  * 
  */
-@Test
 public class PenaltyMatrixGeneratorTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
 
@@ -33,8 +36,8 @@ public class PenaltyMatrixGeneratorTest {
 
     DoubleArray zeroVector = DoubleArray.filled(n);
     DoubleMatrix d1 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 1); //first order difference matrix
-    assertEquals(n, d1.rowCount());
-    assertEquals(n, d1.columnCount());
+    assertThat(n).isEqualTo(d1.rowCount());
+    assertThat(n).isEqualTo(d1.columnCount());
     AssertMatrix.assertEqualsVectors(zeroVector, d1.row(0), 1e-15); //first row should be zero
 
     DoubleArray x = DoubleArray.filled(n, 1.0);
@@ -43,8 +46,8 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsVectors(zeroVector, d1x, 1e-14);
 
     DoubleMatrix d2 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 2); //second order difference matrix
-    assertEquals(n, d2.rowCount());
-    assertEquals(n, d2.columnCount());
+    assertThat(n).isEqualTo(d2.rowCount());
+    assertThat(n).isEqualTo(d2.columnCount());
     AssertMatrix.assertEqualsVectors(zeroVector, d2.row(0), 1e-15); //first two rows should be zero
     AssertMatrix.assertEqualsVectors(zeroVector, d2.row(1), 1e-15);
 
@@ -60,8 +63,8 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsVectors(zeroVector, d2x, 1e-14);
 
     DoubleMatrix d3 = PenaltyMatrixGenerator.getDifferenceMatrix(n, 3); //third order difference matrix
-    assertEquals(n, d3.rowCount());
-    assertEquals(n, d3.columnCount());
+    assertThat(n).isEqualTo(d3.rowCount());
+    assertThat(n).isEqualTo(d3.columnCount());
     AssertMatrix.assertEqualsVectors(zeroVector, d3.row(0), 1e-15); //first three rows should be zero
     AssertMatrix.assertEqualsVectors(zeroVector, d3.row(1), 1e-15);
     AssertMatrix.assertEqualsVectors(zeroVector, d3.row(2), 1e-15);
@@ -82,9 +85,10 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsVectors(zeroVector, d3x, 1e-14);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void diffOrderTooHighTest() {
-    PenaltyMatrixGenerator.getDifferenceMatrix(6, 6);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getDifferenceMatrix(6, 6));
   }
 
   @Test
@@ -97,25 +101,26 @@ public class PenaltyMatrixGeneratorTest {
     DoubleArray x = DoubleArray.filled(n, 2.0);
     DoubleMatrix p = PenaltyMatrixGenerator.getPenaltyMatrix(n, 2);
     double r = MA.getInnerProduct(x, MA.multiply(p, x));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
 
     DoubleArray x2 = DoubleArray.of(n, i -> i);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
 
     DoubleArray x3 = DoubleArray.of(n, i -> 0.4 + 0.4 * i + i * i);
     r = MA.getInnerProduct(x3, MA.multiply(p, x3));
     //The second order diff is 2; for 2nd order difference use 8 values (n-2), so expect 8 * 2^2 = 32
-    assertEquals(32.0, r, 1e-11);
+    assertThat(r).isCloseTo(32, offset(1e-11));
 
     p = PenaltyMatrixGenerator.getPenaltyMatrix(n, 3);
     r = MA.getInnerProduct(x3, MA.multiply(p, x3));
-    assertEquals(0.0, r, 1e-13);
+    assertThat(r).isCloseTo(0, offset(1e-13));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void penaltyMatrixDiffOrderTooHighTest() {
-    PenaltyMatrixGenerator.getPenaltyMatrix(6, 10);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getPenaltyMatrix(6, 10));
   }
 
   @Test
@@ -127,7 +132,7 @@ public class PenaltyMatrixGeneratorTest {
     DoubleArray x = DoubleArray.filled(n1 * n2, 2.0);
     DoubleMatrix p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, 1, 0);
     double r = MA.getInnerProduct(x, MA.multiply(p, x));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
 
     //viewed as an x-y grid, this is flat in the x direction 
     double[][] data = new double[n1][n2];
@@ -138,12 +143,12 @@ public class PenaltyMatrixGeneratorTest {
     }
     x = PenaltyMatrixGenerator.flattenMatrix(DoubleMatrix.copyOf(data));
     r = MA.getInnerProduct(x, MA.multiply(p, x));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
 
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, 1, 1);
     r = MA.getInnerProduct(x, MA.multiply(p, x));
     //8*12
-    assertEquals(96, r, 1e-12);
+    assertThat(r).isCloseTo(96, offset(1e-12));
 
     double[] xArray = x.toArray();
     for (int i = 0; i < n1; i++) {
@@ -155,22 +160,22 @@ public class PenaltyMatrixGeneratorTest {
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, 2, 0);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
     //6*13
-    assertEquals(78, r, 1e-11);
+    assertThat(r).isCloseTo(78, offset(1e-11));
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, 3, 0);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(0, r, 2e-10);
+    assertThat(r).isCloseTo(0, offset(2e-10));
 
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, 2, 1);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(0, r, 2e-10);
+    assertThat(r).isCloseTo(0, offset(2e-10));
 
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, 1, 1);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(17232, r, 2e-10);
+    assertThat(r).isCloseTo(17232, offset(2e-10));
 
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2}, new int[] {2, 1}, new double[] {1 / 78.0, 1. / 17232.});
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(2.0, r, 2e-10);
+    assertThat(r).isCloseTo(2, offset(2e-10));
   }
 
   @Test
@@ -184,13 +189,13 @@ public class PenaltyMatrixGeneratorTest {
     DoubleArray x = DoubleArray.filled(n1 * n2 * n3, 2.0);
     DoubleMatrix p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 1, 0);
     double r = MA.getInnerProduct(x, MA.multiply(p, x));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 1, 1);
     r = MA.getInnerProduct(x, MA.multiply(p, x));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 1, 2);
     r = MA.getInnerProduct(x, MA.multiply(p, x));
-    assertEquals(0.0, r);
+    assertThat(r).isEqualTo(0);
 
     double[] data = x.toArray();
     for (int i = 0; i < n1; i++) {
@@ -203,20 +208,19 @@ public class PenaltyMatrixGeneratorTest {
     DoubleArray x2 = DoubleArray.copyOf(data);
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 2, 0);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(0.0, r, 1e-11);
+    assertThat(r).isCloseTo(0, offset(1e-11));
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 3, 1);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(0.0, r, 3e-10);
+    assertThat(r).isCloseTo(0, offset(3e-10));
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 2, 2);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
-    assertEquals(0.0, r, 5e-11);
+    assertThat(r).isCloseTo(0, offset(5e-11));
     p = PenaltyMatrixGenerator.getPenaltyMatrix(new int[] {n1, n2, n3}, 2, 1);
     r = MA.getInnerProduct(x2, MA.multiply(p, x2));
     //4*11*5*4
-    assertEquals(880, r, 1e-9);
+    assertThat(r).isCloseTo(880, offset(1e-9));
   }
 
-  @DataProvider
   public static Object[][] data() {
     Object[][] obj = new Object[1][4];
     double[] x = new double[] {0.0, 0.3, 0.7, 0.8, 1.2, 2.0};
@@ -232,7 +236,8 @@ public class PenaltyMatrixGeneratorTest {
     return obj;
   }
 
-  @Test(dataProvider = "data")
+  @ParameterizedTest
+  @MethodSource("data")
   public void derivativeMatrix1DTest(double[] x, DoubleArray y, DoubleArray dydx, DoubleArray d2ydx2) {
 
     int n = x.length;
@@ -248,7 +253,8 @@ public class PenaltyMatrixGeneratorTest {
 
   }
 
-  @Test(dataProvider = "data")
+  @ParameterizedTest
+  @MethodSource("data")
   public void penaltyMatrix1DTest(double[] x, DoubleArray y, DoubleArray dydx, DoubleArray d2ydx2) {
     int n = x.length;
     double expected = 0.0;
@@ -262,14 +268,14 @@ public class PenaltyMatrixGeneratorTest {
 
     DoubleMatrix p2 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 2);
     double r = MA.getInnerProduct(y, MA.multiply(p2, y));
-    assertEquals(expected, r, 1e-11);
+    assertThat(expected).isCloseTo(r, offset(1e-11));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void orderG2Test() {
     double[] x = new double[] {0.0, 0.3, 0.7, 0.8, 1.2, 2.0};
-    @SuppressWarnings("unused")
-    DoubleMatrix d3 = PenaltyMatrixGenerator.getDerivativeMatrix(x, 3, true);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> PenaltyMatrixGenerator.getDerivativeMatrix(x, 3, true));
   }
 
   /**
@@ -292,48 +298,48 @@ public class PenaltyMatrixGeneratorTest {
     DoubleMatrix p1s = PenaltyMatrixGenerator.getPenaltyMatrix(xScaled, 1);
     double r = MA.getInnerProduct(y, MA.multiply(p1, y));
     double rs = MA.getInnerProduct(y, MA.multiply(p1s, y));
-    assertEquals(r, rs, 1e-10);
+    assertThat(rs).isCloseTo(r, offset(1e-10));
 
     //second order
     DoubleMatrix p2 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 2);
     DoubleMatrix p2s = PenaltyMatrixGenerator.getPenaltyMatrix(xScaled, 2);
     r = MA.getInnerProduct(y, MA.multiply(p2, y));
     rs = MA.getInnerProduct(y, MA.multiply(p2s, y));
-    assertEquals(r, rs, 1e-10);
+    assertThat(rs).isCloseTo(r, offset(1e-10));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void xNotUniqueTest() {
     double[] x = new double[] {0.0, 0.3, 0.8, 0.8, 1.2, 2.0};
-    @SuppressWarnings("unused")
-    DoubleMatrix p1 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getPenaltyMatrix(x, 1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void xNotAscendingTest() {
     double[] x = new double[] {0.0, 0.3, 0.8, 0.7, 1.2, 2.0};
-    @SuppressWarnings("unused")
-    DoubleMatrix p1 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getPenaltyMatrix(x, 2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void emptyXTest() {
-    @SuppressWarnings("unused")
-    DoubleMatrix p1 = PenaltyMatrixGenerator.getPenaltyMatrix(new double[0], 1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getPenaltyMatrix(new double[0], 1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void negRangeTest() {
     double[] x = new double[] {0.0, -2.0};
-    @SuppressWarnings("unused")
-    DoubleMatrix p1 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getPenaltyMatrix(x, 1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void singlePointTest() {
     double[] x = new double[] {0.2};
-    @SuppressWarnings("unused")
-    DoubleMatrix p1 = PenaltyMatrixGenerator.getPenaltyMatrix(x, 1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getPenaltyMatrix(x, 1));
   }
 
   @Test
@@ -343,11 +349,11 @@ public class PenaltyMatrixGeneratorTest {
     AssertMatrix.assertEqualsMatrix(DoubleMatrix.identity(1), p1, 1e-15);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void twoPointsTest() {
     double[] x = new double[] {0.2, 0.5};
-    @SuppressWarnings("unused")
-    DoubleMatrix d1 = PenaltyMatrixGenerator.getDerivativeMatrix(x, 1, true);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PenaltyMatrixGenerator.getDerivativeMatrix(x, 1, true));
   }
 
   /**
@@ -425,10 +431,10 @@ public class PenaltyMatrixGeneratorTest {
     double xRange = x[nx - 1] - x[0];
     double yRange = y[ny - 1] - y[0];
 
-    assertEquals("first order x", Math.pow(xRange, 2) * dzdxSum, r1x, 1e-10);
-    assertEquals("second order x", Math.pow(xRange, 4) * d2zdx2Sum, r2x, 1e-9);
-    assertEquals("first order y", Math.pow(yRange, 2) * dzdySum, r1y, 1e-10);
-    assertEquals("second order y", Math.pow(yRange, 4) * d2zdy2Sum, r2y, 1e-8);
+    assertThat(r1x).as("first order x").isCloseTo(Math.pow(xRange, 2) * dzdxSum, offset(1e-10));
+    assertThat(r2x).as("second order x").isCloseTo(Math.pow(xRange, 4) * d2zdx2Sum, offset(1e-9));
+    assertThat(r1y).as("first order y").isCloseTo(Math.pow(yRange, 2) * dzdySum, offset(1e-10));
+    assertThat(r2y).as("second order y").isCloseTo(Math.pow(yRange, 4) * d2zdy2Sum, offset(1e-8));
 
     double lambdaX = 0.7;
     double lambdaY = Math.PI;
@@ -437,6 +443,6 @@ public class PenaltyMatrixGeneratorTest {
         PenaltyMatrixGenerator.getPenaltyMatrix(new double[][] {x, y}, new int[] {2, 1}, new double[] {lambdaX, lambdaY});
     double r = MA.getInnerProduct(z, MA.multiply(p, z));
     double expR = Math.pow(xRange, 4) * d2zdx2Sum * lambdaX + Math.pow(yRange, 2) * dzdySum * lambdaY;
-    assertEquals(expR, r, 1e-9);
+    assertThat(expR).isCloseTo(r, offset(1e-9));
   }
 }

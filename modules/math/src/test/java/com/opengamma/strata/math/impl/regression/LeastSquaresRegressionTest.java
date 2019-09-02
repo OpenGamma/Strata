@@ -5,95 +5,51 @@
  */
 package com.opengamma.strata.math.impl.regression;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class LeastSquaresRegressionTest {
 
   @Test
   public void test() {
     final LeastSquaresRegression regression = new OrdinaryLeastSquaresRegression();
-    try {
-      regression.checkData(null, null);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    double[][] x = new double[0][0];
-    try {
-      regression.checkData(x, null);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    double[] y = new double[0];
-    try {
-      regression.checkData(x, (double[]) null, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    x = new double[1][2];
-    y = new double[3];
-    try {
-      regression.checkData(x, (double[]) null, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    x = new double[][] {new double[] {1., 2., 3. }, new double[] {4., 5. }, new double[] {6., 7., 8. }, new double[] {9., 0., 0. } };
-    try {
-      regression.checkData(x, (double[]) null, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(null, null));
+    double[][] x1 = new double[0][0];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x1, null));
+    double[] y1 = new double[0];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x1, (double[]) null, y1));
+    double[][] x2 = new double[1][2];
+    double[] y2 = new double[3];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x2, (double[]) null, y2));
+    double[][] x = new double[][] {{1., 2., 3.}, {4., 5.}, {6., 7., 8.}, {9., 0., 0.}};
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, (double[]) null, y2));
     x[1] = new double[] {4., 5., 6. };
-    try {
-      regression.checkData(x, (double[]) null, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    y = new double[] {1., 2., 3., 4. };
-    double[] w1 = new double[0];
-    try {
-      regression.checkData(x, w1, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    double[][] w = new double[0][0];
-    try {
-      regression.checkData(x, w, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    w1 = new double[3];
-    try {
-      regression.checkData(x, w1, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    w = new double[3][0];
-    try {
-      regression.checkData(x, w, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    w = new double[][] {new double[] {1., 2., 3. }, new double[] {4., 5. }, new double[] {6., 7., 8. }, new double[] {9., 0., 0. } };
-    try {
-      regression.checkData(x, w, y);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, (double[]) null, y2));
+    double[] y3 = new double[] {1., 2., 3., 4.};
+    double[] w11 = new double[0];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, w11, y3));
+    double[][] w1 = new double[0][0];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, w1, y3));
+    double[] w12 = new double[3];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, w12, y3));
+    double[][] w2 = new double[3][0];
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, w2, y3));
+    double[][] w3 = new double[][] {{1., 2., 3.}, {4., 5.}, {6., 7., 8.}, {9., 0., 0.}};
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> regression.checkData(x, w3, y3));
   }
 }

@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
@@ -20,7 +21,6 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 /**
  * Test.
  */
-@Test
 public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
 
   private final static MatrixAlgebra MA = new OGMatrixAlgebra();
@@ -72,6 +72,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
 
   }
 
+  @Test
   public void baseInterpolationTest() {
     final int nExamples = Y.length;
     final int n = XX.length;
@@ -80,11 +81,12 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
       PiecewisePolynomialResult pp = PCHIP.interpolate(X, Y[example]);
       for (int i = 0; i < n; i++) {
         final double y = PPVAL.evaluate(pp, XX[i]).get(0);
-        assertEquals(YY[example][i], y, 1e-14);
+        assertThat(y).isCloseTo(YY[example][i], offset(1e-14));
       }
     }
   }
 
+  @Test
   public void interpolationTest() {
     final int nExamples = Y.length;
     final int n = XX.length;
@@ -94,11 +96,12 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
       for (int i = 0; i < n; i++) {
         final double y = PPVAL_S.evaluate(pp, XX[i]).get(0);
 
-        assertEquals("example: " + example + ", index:" + i, YY[example][i], y, 1e-14);
+        assertThat(y).as("example: " + example + ", index:" + i).isCloseTo(YY[example][i], offset(1e-14));
       }
     }
   }
 
+  @Test
   public void sensitivityTest() {
     final int nExamples = Y.length;
     final int n = XX.length;
@@ -112,12 +115,15 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
       for (int i = 0; i < n; i++) {
         DoubleArray res = PPVAL_S.nodeSensitivity(pp, XX[i]);
         for (int j = 0; j < nData; j++) {
-          assertEquals("example: " + example + ", sample: " + i + ", node: " + j, fdRes[j].get(i), res.get(j), 1e-4);
+          assertThat(res.get(j))
+              .as("example: " + example + ", sample: " + i + ", node: " + j)
+              .isCloseTo(fdRes[j].get(i), offset(1e-4));
         }
       }
     }
   }
 
+  @Test
   public void sensitivityTwoNodeTest() {
     int n = XX.length;
     double[] xValues = new double[] {-0.2, 3.63};
@@ -127,7 +133,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
     for (int i = 0; i < n; i++) {
       DoubleArray res = PPVAL_S.nodeSensitivity(pp, XX[i]);
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdRes[j].get(i), res.get(j), 1e-4);
+        assertThat(res.get(j)).isCloseTo(fdRes[j].get(i), offset(1e-4));
       }
     }
   }

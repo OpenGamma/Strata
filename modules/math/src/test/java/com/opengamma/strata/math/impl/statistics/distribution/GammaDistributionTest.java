@@ -5,60 +5,64 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GammaDistributionTest extends ProbabilityDistributionTestCase {
   private static final double K = 1;
   private static final double THETA = 0.5;
   private static final GammaDistribution DIST = new GammaDistribution(K, THETA, ENGINE);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeK1() {
-    new GammaDistribution(-1, 1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GammaDistribution(-1, 1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeK2() {
-    new GammaDistribution(-1, 1, ENGINE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GammaDistribution(-1, 1, ENGINE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeTheta1() {
-    new GammaDistribution(1, -1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GammaDistribution(1, -1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeTheta2() {
-    new GammaDistribution(1, -1, ENGINE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GammaDistribution(1, -1, ENGINE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullEngine() {
-    new GammaDistribution(1, 1, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GammaDistribution(1, 1, null));
   }
 
   @Test
   public void test() {
     assertCDFWithNull(DIST);
     assertPDFWithNull(DIST);
-    assertEquals(K, DIST.getK(), 0);
-    assertEquals(THETA, DIST.getTheta(), 0);
+    assertThat(K).isEqualTo(DIST.getK());
+    assertThat(THETA).isEqualTo(DIST.getTheta());
     GammaDistribution other = new GammaDistribution(K, THETA, ENGINE);
-    assertEquals(DIST, other);
-    assertEquals(DIST.hashCode(), other.hashCode());
+    assertThat(DIST).isEqualTo(other);
+    assertThat(DIST.hashCode()).isEqualTo(other.hashCode());
     other = new GammaDistribution(K, THETA);
-    assertEquals(DIST, other);
-    assertEquals(DIST.hashCode(), other.hashCode());
+    assertThat(DIST).isEqualTo(other);
+    assertThat(DIST.hashCode()).isEqualTo(other.hashCode());
     other = new GammaDistribution(K + 1, THETA);
-    assertFalse(other.equals(DIST));
+    assertThat(other.equals(DIST)).isFalse();
     other = new GammaDistribution(K, THETA + 1);
-    assertFalse(other.equals(DIST));
+    assertThat(other.equals(DIST)).isFalse();
   }
 }

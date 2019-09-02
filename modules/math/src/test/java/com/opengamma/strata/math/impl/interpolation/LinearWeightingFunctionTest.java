@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class LinearWeightingFunctionTest extends WeightingFunctionTestCase {
 
   @Override
@@ -20,13 +20,15 @@ public class LinearWeightingFunctionTest extends WeightingFunctionTestCase {
     return LinearWeightingFunction.INSTANCE;
   }
 
+  @Test
   public void testWeighting() {
-    assertEquals(getInstance().getWeight(STRIKES, INDEX, STRIKE), 0.55, EPS);
-    assertEquals(getInstance().getWeight(STRIKES, INDEX, STRIKES[3]), 1, EPS);
+    assertThat(getInstance().getWeight(STRIKES, INDEX, STRIKE)).isCloseTo(0.55, offset(EPS));
+    assertThat(getInstance().getWeight(STRIKES, INDEX, STRIKES[3])).isCloseTo(1, offset(EPS));
   }
 
+  @Test
   public void testName() {
-    assertEquals(getInstance().getName(), "Linear");
+    assertThat(getInstance().getName()).isEqualTo("Linear");
   }
 
 }

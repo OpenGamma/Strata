@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public abstract class WeightingFunctionTestCase {
 
   static final double[] STRIKES = new double[] {1, 1.1, 1.2, 1.3, 1.4, 1.5};
@@ -20,19 +21,22 @@ public abstract class WeightingFunctionTestCase {
 
   protected abstract WeightingFunction getInstance();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullStrikes2() {
-    getInstance().getWeight(null, INDEX, STRIKE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getInstance().getWeight(null, INDEX, STRIKE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeIndex() {
-    getInstance().getWeight(STRIKES, -INDEX, STRIKE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getInstance().getWeight(STRIKES, -INDEX, STRIKE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testHighIndex() {
-    getInstance().getWeight(STRIKES, STRIKES.length, STRIKE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getInstance().getWeight(STRIKES, STRIKES.length, STRIKE));
   }
 
 }

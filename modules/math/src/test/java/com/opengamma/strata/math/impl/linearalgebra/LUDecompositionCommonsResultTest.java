@@ -5,14 +5,15 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.Arrays;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.LUDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -22,7 +23,6 @@ import com.opengamma.strata.math.impl.FuzzyEquals;
  * Tests the LUDecompositionCommonsResult class with well conditioned data and 
  * poorly conditioned data.
  */
-@Test
 public class LUDecompositionCommonsResultTest {
 
   static double[][] rawAok = new double[][] { {100.0000000000000000, 9.0000000000000000, 10.0000000000000000, 1.0000000000000000 },
@@ -37,58 +37,67 @@ public class LUDecompositionCommonsResultTest {
   LUDecomposition decomp = new LUDecomposition(condok);
   LUDecompositionCommonsResult result = new LUDecompositionCommonsResult(decomp);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void checkThrowOnNull() {
-    new LUDecompositionCommonsResult(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new LUDecompositionCommonsResult(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void checkThrowOnSingular() {
-    new LUDecompositionCommonsResult(new LUDecomposition(new Array2DRowRealMatrix(rawAsingular)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new LUDecompositionCommonsResult(new LUDecomposition(new Array2DRowRealMatrix(rawAsingular))));
   }
 
+  @Test
   public void testGetL() {
     double[][] expectedRaw = new double[][] { {1.0000000000000000, 0.0000000000000000, 0.0000000000000000, 0.0000000000000000 },
       {0.0900000000000000, 1.0000000000000000, 0.0000000000000000, 0.0000000000000000 }, {0.1000000000000000, 0.2053262858304534, 1.0000000000000000, 0.0000000000000000 },
       {0.0800000000000000, 0.1886562309412482, 0.6500406024227509, 1.0000000000000000 } };
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.getL().toArray(), expectedRaw));
+    assertThat(FuzzyEquals.ArrayFuzzyEquals(result.getL().toArray(), expectedRaw)).isTrue();
   }
 
+  @Test
   public void testGetU() {
     double[][] expectedRaw = new double[][] { {100.0000000000000000, 9.0000000000000000, 10.0000000000000000, 1.0000000000000000 },
       {0.0000000000000000, 49.1899999999999977, 18.1000000000000014, 14.9100000000000001 }, {0.0000000000000000, 0.0000000000000000, 24.2835942264687930, 17.8385850782679398 },
       {0.0000000000000000, 0.0000000000000000, 0.0000000000000000, 13.5113310060192049 } };
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.getU().toArray(), expectedRaw));
+    assertThat(FuzzyEquals.ArrayFuzzyEquals(result.getU().toArray(), expectedRaw)).isTrue();
   }
 
+  @Test
   public void testGetDeterminant() {
-    assertTrue(FuzzyEquals.SingleValueFuzzyEquals(result.getDeterminant(), 1613942.00000000));
+    assertThat(FuzzyEquals.SingleValueFuzzyEquals(result.getDeterminant(), 1613942.00000000)).isTrue();
   }
 
+  @Test
   public void testGetP() {
     double[][] expectedRaw = new double[][] { {1.0000000000000000, 0.0000000000000000, 0.0000000000000000, 0.0000000000000000 },
       {0.0000000000000000, 1.0000000000000000, 0.0000000000000000, 0.0000000000000000 }, {0.0000000000000000, 0.0000000000000000, 1.0000000000000000, 0.0000000000000000 },
       {0.0000000000000000, 0.0000000000000000, 0.0000000000000000, 1.0000000000000000 } };
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.getP().toArray(), expectedRaw));
+    assertThat(FuzzyEquals.ArrayFuzzyEquals(result.getP().toArray(), expectedRaw)).isTrue();
   }
 
+  @Test
   public void testGetPivot() {
     int[] expectedRaw = new int[] {0, 1, 2, 3 };
-    assertTrue(Arrays.equals(result.getPivot(), expectedRaw));
+    assertThat(Arrays.equals(result.getPivot(), expectedRaw)).isTrue();
   }
 
+  @Test
   public void testSolveForVector() {
     double[] expectedRaw = new double[] {0.0090821107573878, -0.0038563963265099, -0.0016307897061976, 0.1428043882617839 };
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(rawRHSvect), expectedRaw));
+    assertThat(FuzzyEquals.ArrayFuzzyEquals(result.solve(rawRHSvect), expectedRaw)).isTrue();
 
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleArray.copyOf(rawRHSvect)).toArray(), expectedRaw));
+    assertThat(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleArray.copyOf(rawRHSvect)).toArray(), expectedRaw)).isTrue();
   }
 
+  @Test
   public void testSolveForMatrix() {
     double[][] expectedRaw = new double[][] { {0.0103938059732010, 0.0181642215147756 }, {-0.0147149030138629, -0.0077127926530197 }, {-0.0171480759531631, -0.0032615794123952 },
       {0.2645342893362958, 0.2856087765235678 } };
 
-    assertTrue(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleMatrix.copyOf(rawRHSmat)).toArray(), expectedRaw));
+    assertThat(FuzzyEquals.ArrayFuzzyEquals(result.solve(DoubleMatrix.copyOf(rawRHSmat)).toArray(), expectedRaw)).isTrue();
   }
 
 }

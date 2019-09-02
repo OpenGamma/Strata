@@ -5,27 +5,29 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 
 /**
  * Test.
  */
-@Test
 public class EigenvaluePolynomialRootFinderTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
   private static final Polynomial1DRootFinder<Double> FINDER = new EigenvaluePolynomialRootFinder();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull() {
-    FINDER.getRoots(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FINDER.getRoots(null));
   }
 
   @Test
@@ -45,7 +47,7 @@ public class EigenvaluePolynomialRootFinderTest {
     }
     Arrays.sort(expected);
     for (int i = 0; i < roots.length; i++) {
-      assertEquals(roots[i], expected[i], 1e-12);
+      assertThat(roots[i]).isCloseTo(expected[i], offset(1e-12));
     }
   }
 }

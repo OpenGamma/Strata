@@ -5,14 +5,14 @@
  */
 package com.opengamma.strata.math.impl.regression;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GeneralizedLeastSquaresRegressionTest {
   private static final double EPS = 1e-9;
 
@@ -64,12 +64,12 @@ public class GeneralizedLeastSquaresRegressionTest {
     final double[] r1 = regression1.getResiduals();
     final double[] r2 = regression2.getResiduals();
     for (int i = 0; i < n; i++) {
-      assertEquals(r1[i], r2[i], EPS);
+      assertThat(r1[i]).isCloseTo(r2[i], offset(EPS));
     }
     final double[] b1 = regression1.getBetas();
     final double[] b2 = regression2.getBetas();
     for (int i = 0; i < k; i++) {
-      assertEquals(b1[i], b2[i], EPS);
+      assertThat(b1[i]).isCloseTo(b2[i], offset(EPS));
     }
   }
 }

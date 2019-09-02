@@ -5,20 +5,21 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Arrays;
 import java.util.function.Function;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.MathException;
 
 /**
  * Test.
  */
-@Test
 public class AverageCalculatorTest {
   private static final double[] DATA = {1., 1., 3., 2.5, 5.7, 3.7, 5.7, 5.7, -4., 9.};
   private static final Function<double[], Double> MEAN = new MeanCalculator();
@@ -44,52 +45,40 @@ public class AverageCalculatorTest {
   public void testSingleValue() {
     double value = 3.;
     double[] x = {value};
-    assertEquals(value, MEAN.apply(x), EPS);
-    assertEquals(value, MEDIAN.apply(x), EPS);
-    assertEquals(value, MODE.apply(x), EPS);
+    assertThat(value).isCloseTo(MEAN.apply(x), offset(EPS));
+    assertThat(value).isCloseTo(MEDIAN.apply(x), offset(EPS));
+    assertThat(value).isCloseTo(MODE.apply(x), offset(EPS));
   }
 
   @Test
   public void testMean() {
-    assertEquals(MEAN.apply(DATA), 3.33, EPS);
+    assertThat(MEAN.apply(DATA)).isCloseTo(3.33, offset(EPS));
   }
 
   @Test
   public void testMedian() {
-    assertEquals(MEDIAN.apply(DATA), 3.35, EPS);
+    assertThat(MEDIAN.apply(DATA)).isCloseTo(3.35, offset(EPS));
     double[] x = Arrays.copyOf(DATA, DATA.length - 1);
-    assertEquals(MEDIAN.apply(x), 3, EPS);
+    assertThat(MEDIAN.apply(x)).isCloseTo(3, offset(EPS));
   }
 
   @Test
   public void testMode() {
     double[] x = {1., 2., 3., 4., 5., 6., 7., 8., 9., 10.};
-    try {
-      MODE.apply(x);
-      Assert.fail();
-    } catch (MathException e) {
-      // Expected
-    }
-    assertEquals(MODE.apply(DATA), 5.7, EPS);
+    assertThatExceptionOfType(MathException.class)
+        .isThrownBy(() -> MODE.apply(x));
+    assertThat(MODE.apply(DATA)).isCloseTo(5.7, offset(EPS));
   }
 
   private void assertNull(Function<double[], Double> calculator) {
-    try {
-      calculator.apply(null);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> calculator.apply(null));
   }
 
   private void assertEmpty(Function<double[], Double> calculator) {
     double[] x = new double[0];
-    try {
-      calculator.apply(x);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> calculator.apply(x));
   }
 
 }

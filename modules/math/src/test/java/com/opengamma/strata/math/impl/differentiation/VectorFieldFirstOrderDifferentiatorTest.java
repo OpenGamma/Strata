@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -17,7 +19,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class VectorFieldFirstOrderDifferentiatorTest {
 
   private static final Function<DoubleArray, DoubleArray> F = new Function<DoubleArray, DoubleArray>() {
@@ -96,14 +97,16 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   private static final VectorFieldFirstOrderDifferentiator CENTRAL = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final VectorFieldFirstOrderDifferentiator BACKWARD = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDifferenceType() {
-    new ScalarFirstOrderDifferentiator(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ScalarFirstOrderDifferentiator(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    CENTRAL.differentiate((Function<DoubleArray, DoubleArray>) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CENTRAL.differentiate((Function<DoubleArray, DoubleArray>) null));
   }
 
   @Test
@@ -116,9 +119,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdFwdJac.get(i, j), anJac.get(i, j), 10 * EPS);
-        assertEquals(fdCentGrad.get(i, j), anJac.get(i, j), 10 * EPS * EPS);
-        assertEquals(fdBackGrad.get(i, j), anJac.get(i, j), 10 * EPS);
+        assertThat(fdFwdJac.get(i, j)).isCloseTo(anJac.get(i, j), offset(10 * EPS));
+        assertThat(fdCentGrad.get(i, j)).isCloseTo(anJac.get(i, j), offset(10 * EPS * EPS));
+        assertThat(fdBackGrad.get(i, j)).isCloseTo(anJac.get(i, j), offset(10 * EPS));
       }
     }
   }
@@ -133,17 +136,18 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(fdFwdJac.get(i, j), anJac.get(i, j), 10 * EPS);
-        assertEquals(fdCentGrad.get(i, j), anJac.get(i, j), 10 * EPS * EPS);
-        assertEquals(fdBackGrad.get(i, j), anJac.get(i, j), 10 * EPS);
+        assertThat(fdFwdJac.get(i, j)).isCloseTo(anJac.get(i, j), offset(10 * EPS));
+        assertThat(fdCentGrad.get(i, j)).isCloseTo(anJac.get(i, j), offset(10 * EPS * EPS));
+        assertThat(fdBackGrad.get(i, j)).isCloseTo(anJac.get(i, j), offset(10 * EPS));
       }
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void outsideDomainTest() {
     final Function<DoubleArray, DoubleMatrix> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
-    fdJacFunc.apply(DoubleArray.of(2.3, 3.2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> fdJacFunc.apply(DoubleArray.of(2.3, 3.2)));
   }
 
   @Test
@@ -166,7 +170,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
       for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {
-          assertEquals("set " + k, anJac.get(i, j), fdJac.get(i, j), 1e-8);
+          assertThat(anJac.get(i, j)).as("set " + k).isCloseTo(fdJac.get(i, j), offset(1e-8));
         }
       }
     }

@@ -5,16 +5,16 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.DoubleBinaryOperator;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class LognormalSkewnessFromVolatilityCalculatorTest {
   private static final DoubleBinaryOperator F = new LognormalSkewnessFromVolatilityCalculator();
   private static final double SIGMA = 0.3;
@@ -22,6 +22,6 @@ public class LognormalSkewnessFromVolatilityCalculatorTest {
 
   @Test
   public void test() {
-    assertEquals(F.applyAsDouble(SIGMA, T), 0.4560, 1e-4);
+    assertThat(F.applyAsDouble(SIGMA, T)).isCloseTo(0.4560, offset(1e-4));
   }
 }

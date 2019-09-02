@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
-import static org.testng.Assert.assertTrue;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -19,7 +20,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class VectorFieldSecondOrderDifferentiatorTest {
 
   private static Function<DoubleArray, DoubleArray> FUNC = new Function<DoubleArray, DoubleArray>() {
@@ -95,17 +95,18 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     DoubleMatrix t2 = DW2.apply(x);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals("first observation " + i + " " + j, t1.get(i, j), fdValues[0].get(i, j), 1e-6);
-        assertEquals("second observation " + i + " " + j, t2.get(i, j), fdValues[1].get(i, j), 1e-6);
+        assertThat(t1.get(i, j)).as("first observation " + i + " " + j).isCloseTo(fdValues[0].get(i, j), offset(1e-6));
+        assertThat(t2.get(i, j)).as("second observation " + i + " " + j).isCloseTo(fdValues[1].get(i, j), offset(1e-6));
       }
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void outsideDomainTest() {
     VectorFieldSecondOrderDifferentiator fd = new VectorFieldSecondOrderDifferentiator();
     Function<DoubleArray, DoubleMatrix[]> fdFuncs = fd.differentiate(FUNC, DOMAIN);
-    fdFuncs.apply(DoubleArray.of(-1.0, 0.3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> fdFuncs.apply(DoubleArray.of(-1.0, 0.3)));
   }
 
   @Test
@@ -126,8 +127,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
       DoubleMatrix t2 = DW2.apply(x[k]);
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 2; j++) {
-          assertEquals("first observation " + i + " " + j, t1.get(i, j), fdValues[0].get(i, j), 1e-6);
-          assertEquals("second observation " + i + " " + j, t2.get(i, j), fdValues[1].get(i, j), 1e-6);
+          assertThat(t1.get(i, j)).as("first observation " + i + " " + j).isCloseTo(fdValues[0].get(i, j), offset(1e-6));
+          assertThat(t2.get(i, j)).as("second observation " + i + " " + j).isCloseTo(fdValues[1].get(i, j), offset(1e-6));
         }
       }
     }
@@ -159,8 +160,8 @@ public class VectorFieldSecondOrderDifferentiatorTest {
     for (double[] key : keys) {
       DoubleMatrix cmp = fdFuncs.apply(DoubleArray.ofUnsafe(key));
       DoubleMatrix exp = funcExp.apply(DoubleArray.ofUnsafe(key));
-      assertTrue(DoubleArrayMath.fuzzyEquals(cmp.column(0).toArray(), exp.row(0).toArray(), 1.0e-5));
-      assertTrue(DoubleArrayMath.fuzzyEquals(cmp.column(1).toArray(), exp.row(1).toArray(), 1.0e-5));
+      assertThat(DoubleArrayMath.fuzzyEquals(cmp.column(0).toArray(), exp.row(0).toArray(), 1.0e-5)).isTrue();
+      assertThat(DoubleArrayMath.fuzzyEquals(cmp.column(1).toArray(), exp.row(1).toArray(), 1.0e-5)).isTrue();
     }
   }
 

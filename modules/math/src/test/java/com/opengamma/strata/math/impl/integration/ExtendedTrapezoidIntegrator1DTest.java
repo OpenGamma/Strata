@@ -5,12 +5,9 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import org.testng.annotations.Test;
-
 /**
  * Test.
  */
-@Test
 public class ExtendedTrapezoidIntegrator1DTest extends Integrator1DTestCase {
   private static final Integrator1D<Double, Double> INTEGRATOR = new ExtendedTrapezoidIntegrator1D();
 

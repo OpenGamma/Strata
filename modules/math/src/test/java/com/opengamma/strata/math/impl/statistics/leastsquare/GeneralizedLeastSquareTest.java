@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -29,7 +29,6 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 /**
  * Test.
  */
-@Test
 public class GeneralizedLeastSquareTest {
   private static boolean PRINT = false;
 
@@ -131,26 +130,29 @@ public class GeneralizedLeastSquareTest {
     BASIS_FUNCTIONS_2D = generator.generateSet(knots);
   }
 
+  @Test
   public void testPerfectFit() {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
     final LeastSquareResults results = gls.solve(X, Y, SIGMA, SIN_FUNCTIONS);
-    assertEquals(0.0, results.getChiSq(), 1e-8);
+    assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-8));
     final DoubleArray w = results.getFitParameters();
     for (int i = 0; i < WEIGHTS.length; i++) {
-      assertEquals(WEIGHTS[i], w.get(i), 1e-8);
+      assertThat(WEIGHTS[i]).isCloseTo(w.get(i), offset(1e-8));
     }
   }
 
+  @Test
   public void testPerfectFitVector() {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
     final LeastSquareResults results = gls.solve(X_TRIG, Y_TRIG, SIGMA_TRIG, VECTOR_TRIG_FUNCTIONS);
-    assertEquals(0.0, results.getChiSq(), 1e-8);
+    assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-8));
     final DoubleArray w = results.getFitParameters();
     for (int i = 0; i < WEIGHTS.length; i++) {
-      assertEquals(WEIGHTS[i], w.get(i), 1e-8);
+      assertThat(WEIGHTS[i]).isCloseTo(w.get(i), offset(1e-8));
     }
   }
 
+  @Test
   public void testFit() {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
     final double[] y = new double[Y.length];
@@ -159,18 +161,19 @@ public class GeneralizedLeastSquareTest {
     }
 
     final LeastSquareResults results = gls.solve(X, y, SIGMA, SIN_FUNCTIONS);
-    assertTrue(results.getChiSq() < 3 * Y.length);
+    assertThat(results.getChiSq() < 3 * Y.length).isTrue();
 
   }
 
+  @Test
   public void testBSplineFit() {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS);
     final Function<Double, Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS, results.getFitParameters().toArray());
-    assertEquals(0.0, results.getChiSq(), 1e-12);
-    assertEquals(-0.023605293, spline.apply(0.5), 1e-8);
+    assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-12));
+    assertThat(-0.023605293).isCloseTo(spline.apply(0.5), offset(1e-8));
 
     if (PRINT) {
       System.out.println("Chi^2:\t" + results.getChiSq());
@@ -186,14 +189,15 @@ public class GeneralizedLeastSquareTest {
     }
   }
 
+  @Test
   public void testBSplineFit2D() {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final LeastSquareResults results = gls.solve(X_SIN_EXP, Y_SIN_EXP, SIGMA_COS_EXP, BASIS_FUNCTIONS_2D);
     final Function<double[], Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().toArray());
-    assertEquals(0.0, results.getChiSq(), 1e-16);
-    assertEquals(0.05161579, spline.apply(new double[] {4, 3 }), 1e-8);
+    assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-16));
+    assertThat(0.05161579).isCloseTo(spline.apply(new double[]{4, 3}), offset(1e-8));
 
     /*
      * Print out function for debugging
@@ -222,13 +226,14 @@ public class GeneralizedLeastSquareTest {
     }
   }
 
+  @Test
   public void testPSplineFit() {
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
     final GeneralizedLeastSquareResults<Double> results = gls.solve(X, Y, SIGMA, BASIS_FUNCTIONS, 1000.0, 2);
     final Function<Double, Double> spline = results.getFunction();
-    assertEquals(2225.7, results.getChiSq(), 1e-1);
-    assertEquals(-0.758963811327287, spline.apply(1.1), 1e-8);
+    assertThat(2225.7).isCloseTo(results.getChiSq(), offset(1e-1));
+    assertThat(-0.758963811327287).isCloseTo(spline.apply(1.1), offset(1e-8));
 
     /*
      * Print out function for debugging
@@ -247,6 +252,7 @@ public class GeneralizedLeastSquareTest {
     }
   }
 
+  @Test
   public void testPSplineFit2() {
     final BasisFunctionGenerator generator = new BasisFunctionGenerator();
     List<Function<Double, Double>> basisFuncs = generator.generateSet(BasisFunctionKnots.fromUniform(0, 12, 100, 3));
@@ -304,6 +310,7 @@ public class GeneralizedLeastSquareTest {
 
   }
 
+  @Test
   public void testPSplineFit2D() {
 
     final PSplineFitter psf = new PSplineFitter();
@@ -311,9 +318,9 @@ public class GeneralizedLeastSquareTest {
         new int[] {3, 3 },
         new double[] {0.001, 0.001 }, new int[] {3, 3 });
 
-    assertEquals(0.0, results.getChiSq(), 1e-9);
+    assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-9));
     final Function<double[], Double> spline = results.getFunction();
-    assertEquals(0.5333876489112092, spline.apply(new double[] {4, 3 }), 1e-8);
+    assertThat(0.5333876489112092).isCloseTo(spline.apply(new double[]{4, 3}), offset(1e-8));
 
     /*
      * Print out function for debugging

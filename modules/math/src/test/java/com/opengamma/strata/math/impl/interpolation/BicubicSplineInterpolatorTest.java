@@ -6,9 +6,11 @@
 package com.opengamma.strata.math.impl.interpolation;
 
 import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
@@ -17,7 +19,6 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction2D;
 /**
  * Test.
  */
-@Test
 public class BicubicSplineInterpolatorTest {
 
   private static final double EPS = 1e-12;
@@ -26,6 +27,7 @@ public class BicubicSplineInterpolatorTest {
   /**
    * 
    */
+  @Test
   public void linearTest() {
     double[] x0Values = new double[] {1., 2., 3., 4. };
     double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
@@ -59,10 +61,10 @@ public class BicubicSplineInterpolatorTest {
       }
     }
 
-    assertEquals(result.getNumberOfIntervals()[0], n0IntExp);
-    assertEquals(result.getNumberOfIntervals()[1], n1IntExp);
-    assertEquals(result.getOrder()[0], orderExp);
-    assertEquals(result.getOrder()[1], orderExp);
+    assertThat(result.getNumberOfIntervals()[0]).isEqualTo(n0IntExp);
+    assertThat(result.getNumberOfIntervals()[1]).isEqualTo(n1IntExp);
+    assertThat(result.getOrder()[0]).isEqualTo(orderExp);
+    assertThat(result.getOrder()[1]).isEqualTo(orderExp);
 
     final int n0Keys = 51;
     final int n1Keys = 61;
@@ -77,20 +79,20 @@ public class BicubicSplineInterpolatorTest {
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
+      assertThat(result.getKnots0().get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(0).get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
+      assertThat(result.getKnots1().get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(1).get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
     }
     for (int i = 0; i < n0Data - 1; ++i) {
       for (int j = 0; j < n1Data - 1; ++j) {
         for (int k = 0; k < orderExp; ++k) {
           for (int l = 0; l < orderExp; ++l) {
             final double ref = Math.abs(coefsExp[i][j].get(k, l)) == 0. ? 1. : Math.abs(coefsExp[i][j].get(k, l));
-            assertEquals(result.getCoefs()[i][j].get(k, l), coefsExp[i][j].get(k, l), ref * EPS);
+            assertThat(result.getCoefs()[i][j].get(k, l)).isCloseTo(coefsExp[i][j].get(k, l), offset(ref * EPS));
           }
         }
       }
@@ -102,25 +104,25 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Keys; ++j) {
         final double expVal = (x0Keys[i] + 2.) * (x1Keys[j] + 5.);
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resValues.get(i, j), expVal, ref * EPS);
+        assertThat(resValues.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
     for (int i = 0; i < n0Keys; ++i) {
       for (int j = 0; j < n1Keys; ++j) {
         final double expVal = (x0Keys[i] + 2.) * (x1Keys[j] + 5.);
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resValues.get(i, j), expVal, ref * EPS);
+        assertThat(resValues.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
     {
       final double expVal = (x0Keys[1] + 2.) * (x1Keys[2] + 5.);
       final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-      assertEquals(interp.interpolate(x0Values, x1Values, yValues, x0Keys[1], x1Keys[2]), expVal, ref * EPS);
+      assertThat(interp.interpolate(x0Values, x1Values, yValues, x0Keys[1], x1Keys[2])).isCloseTo(expVal, offset(ref * EPS));
     }
     {
       final double expVal = (x0Keys[23] + 2.) * (x1Keys[20] + 5.);
       final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-      assertEquals(interp.interpolate(x0Values, x1Values, yValues, x0Keys[23], x1Keys[20]), expVal, ref * EPS);
+      assertThat(interp.interpolate(x0Values, x1Values, yValues, x0Keys[23], x1Keys[20])).isCloseTo(expVal, offset(ref * EPS));
     }
 
   }
@@ -128,6 +130,7 @@ public class BicubicSplineInterpolatorTest {
   /**
    * f(x0,x1) = ( x0 - 1.5)^2 * (x1  - 2.)^2
    */
+  @Test
   public void quadraticTest() {
     double[] x0Values = new double[] {1., 2., 3., 4. };
     double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
@@ -160,26 +163,26 @@ public class BicubicSplineInterpolatorTest {
       x1Keys[i] = -2. + 6. * i / (n1Keys - 1);
     }
 
-    assertEquals(result.getNumberOfIntervals()[0], n0IntExp);
-    assertEquals(result.getNumberOfIntervals()[1], n1IntExp);
-    assertEquals(result.getOrder()[0], orderExp);
-    assertEquals(result.getOrder()[1], orderExp);
+    assertThat(result.getNumberOfIntervals()[0]).isEqualTo(n0IntExp);
+    assertThat(result.getNumberOfIntervals()[1]).isEqualTo(n1IntExp);
+    assertThat(result.getOrder()[0]).isEqualTo(orderExp);
+    assertThat(result.getOrder()[1]).isEqualTo(orderExp);
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
+      assertThat(result.getKnots0().get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(0).get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
+      assertThat(result.getKnots1().get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(1).get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
     }
 
     for (int i = 0; i < n0Data - 1; ++i) {
       for (int j = 0; j < n1Data - 1; ++j) {
         final double ref = Math.abs(yValues[i][j]) == 0. ? 1. : Math.abs(yValues[i][j]);
-        assertEquals(result.getCoefs()[i][j].get(orderExp - 1, orderExp - 1), yValues[i][j], ref * EPS);
+        assertThat(result.getCoefs()[i][j].get(orderExp - 1, orderExp - 1)).isCloseTo(yValues[i][j], offset(ref * EPS));
       }
     }
 
@@ -197,7 +200,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         final double expVal = expDiffX1.get(i, j);
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resDiffX1.get(i, j), expVal, ref * EPS);
+        assertThat(resDiffX1.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -205,7 +208,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         final double expVal = expDiffX0.get(j, i);
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resDiffX0.get(i, j), expVal, ref * EPS);
+        assertThat(resDiffX0.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -213,7 +216,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         final double expVal = yValues[i][j];
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resValues.get(i, j), expVal, ref * EPS);
+        assertThat(resValues.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -222,6 +225,7 @@ public class BicubicSplineInterpolatorTest {
   /**
    * f(x0,x1) = ( x0 - 1.)^3 * (x1  + 14./13.)^3
    */
+  @Test
   public void cubicTest() {
     double[] x0Values = new double[] {1., 2., 3., 4. };
     double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
@@ -254,26 +258,26 @@ public class BicubicSplineInterpolatorTest {
       x1Keys[i] = -2. + 6. * i / (n1Keys - 1);
     }
 
-    assertEquals(result.getNumberOfIntervals()[0], n0IntExp);
-    assertEquals(result.getNumberOfIntervals()[1], n1IntExp);
-    assertEquals(result.getOrder()[0], orderExp);
-    assertEquals(result.getOrder()[1], orderExp);
+    assertThat(result.getNumberOfIntervals()[0]).isEqualTo(n0IntExp);
+    assertThat(result.getNumberOfIntervals()[1]).isEqualTo(n1IntExp);
+    assertThat(result.getOrder()[0]).isEqualTo(orderExp);
+    assertThat(result.getOrder()[1]).isEqualTo(orderExp);
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
+      assertThat(result.getKnots0().get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(0).get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
+      assertThat(result.getKnots1().get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(1).get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
     }
 
     for (int i = 0; i < n0Data - 1; ++i) {
       for (int j = 0; j < n1Data - 1; ++j) {
         final double ref = Math.abs(yValues[i][j]) == 0. ? 1. : Math.abs(yValues[i][j]);
-        assertEquals(result.getCoefs()[i][j].get(orderExp - 1, orderExp - 1), yValues[i][j], ref * EPS);
+        assertThat(result.getCoefs()[i][j].get(orderExp - 1, orderExp - 1)).isCloseTo(yValues[i][j], offset(ref * EPS));
       }
     }
 
@@ -291,7 +295,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         final double expVal = expDiffX1.get(i, j);
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resDiffX1.get(i, j), expVal, ref * EPS);
+        assertThat(resDiffX1.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -299,7 +303,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         final double expVal = expDiffX0.get(j, i);
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resDiffX0.get(i, j), expVal, ref * EPS);
+        assertThat(resDiffX0.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -307,7 +311,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         final double expVal = yValues[i][j];
         final double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resValues.get(i, j), expVal, ref * EPS);
+        assertThat(resValues.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -316,6 +320,7 @@ public class BicubicSplineInterpolatorTest {
   /**
    * 
    */
+  @Test
   public void crossDerivativeTest() {
     double[] x0Values = new double[] {1., 2., 3., 4. };
     double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
@@ -342,26 +347,26 @@ public class BicubicSplineInterpolatorTest {
       x1Keys[i] = -2. + 6. * i / (n1Keys - 1);
     }
 
-    assertEquals(result.getNumberOfIntervals()[0], n0IntExp);
-    assertEquals(result.getNumberOfIntervals()[1], n1IntExp);
-    assertEquals(result.getOrder()[0], orderExp);
-    assertEquals(result.getOrder()[1], orderExp);
+    assertThat(result.getNumberOfIntervals()[0]).isEqualTo(n0IntExp);
+    assertThat(result.getNumberOfIntervals()[1]).isEqualTo(n1IntExp);
+    assertThat(result.getOrder()[0]).isEqualTo(orderExp);
+    assertThat(result.getOrder()[1]).isEqualTo(orderExp);
 
     for (int i = 0; i < n0Data; ++i) {
       final double ref = Math.abs(x0Values[i]) == 0. ? 1. : Math.abs(x0Values[i]);
-      assertEquals(result.getKnots0().get(i), x0Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(0).get(i), x0Values[i], ref * EPS);
+      assertThat(result.getKnots0().get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(0).get(i)).isCloseTo(x0Values[i], offset(ref * EPS));
     }
     for (int i = 0; i < n1Data; ++i) {
       final double ref = Math.abs(x1Values[i]) == 0. ? 1. : Math.abs(x1Values[i]);
-      assertEquals(result.getKnots1().get(i), x1Values[i], ref * EPS);
-      assertEquals(result.getKnots2D().get(1).get(i), x1Values[i], ref * EPS);
+      assertThat(result.getKnots1().get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
+      assertThat(result.getKnots2D().get(1).get(i)).isCloseTo(x1Values[i], offset(ref * EPS));
     }
 
     for (int i = 0; i < n0Data - 1; ++i) {
       for (int j = 0; j < n1Data - 1; ++j) {
         double ref = Math.abs(yValues[i][j]) == 0. ? 1. : Math.abs(yValues[i][j]);
-        assertEquals(result.getCoefs()[i][j].get(orderExp - 1, orderExp - 1), yValues[i][j], ref * EPS);
+        assertThat(result.getCoefs()[i][j].get(orderExp - 1, orderExp - 1)).isCloseTo(yValues[i][j], offset(ref * EPS));
       }
     }
 
@@ -379,7 +384,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         double expVal = expDiffX1.get(i, j);
         double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resDiffX1.get(i, j), expVal, ref * EPS);
+        assertThat(resDiffX1.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -387,7 +392,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         double expVal = expDiffX0.get(j, i);
         double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resDiffX0.get(i, j), expVal, ref * EPS);
+        assertThat(resDiffX0.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -395,7 +400,7 @@ public class BicubicSplineInterpolatorTest {
       for (int j = 0; j < n1Data; ++j) {
         double expVal = yValues[i][j];
         double ref = Math.abs(expVal) == 0. ? 1. : Math.abs(expVal);
-        assertEquals(resValues.get(i, j), expVal, ref * EPS);
+        assertThat(resValues.get(i, j)).isCloseTo(expVal, offset(ref * EPS));
       }
     }
 
@@ -404,225 +409,239 @@ public class BicubicSplineInterpolatorTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullx0Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
+    double[] x0Values = null;
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
-    x0Values = null;
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullx1Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = null;
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
-    x1Values = null;
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullyTest() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
-    yValues = null;
+    double[][] yValues = null;
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void wrongLengthx0Test() {
     double[] x0Values = new double[] {0., 1., 2. };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void wrongLengthx1Test() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 2., 3. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void shortx0Test() {
     double[] x0Values = new double[] {1. };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] {{1., 2., 4. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void shortx1Test() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0. };
     double[][] yValues = new double[][] { {1. }, {-1. }, {2. }, {5. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infX0Test() {
     double[] x0Values = new double[] {0., 1., 2., INF };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanX0Test() {
     double[] x0Values = new double[] {0., 1., 2., Double.NaN };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infX1Test() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., INF };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanX1Test() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., Double.NaN };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infYTest() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., INF }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanYTest() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., Double.NaN } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void coincideX0Test() {
     double[] x0Values = new double[] {0., 1., 1., 3. };
     double[] x1Values = new double[] {0., 1., 2. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void coincideX1Test() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 1. };
     double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interp.interpolate(x0Values, x1Values, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void notTwoMethodsTest() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
-
-    BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator() });
-    interp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new BicubicSplineInterpolator(
+            new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator()}));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void notKnotRevoveredTests() {
     double[] x0Values = new double[] {0., 1., 2., 3. };
     double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1.e-20, 3.e-120, 5.e120 }, {2.e-20, 3.e-120, 4.e-120 }, {1.e-20, 1.e-120, 1.e-20 }, {4.e-120, 3.e-20, 2.e-20 } };
+    double[][] yValues = new double[][] {
+        {1.e-20, 3.e-120, 5.e120},
+        {2.e-20, 3.e-120, 4.e-120},
+        {1.e-20, 1.e-120, 1.e-20},
+        {4.e-120, 3.e-20, 2.e-20}};
 
     BicubicSplineInterpolator intp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
-    intp.interpolate(x0Values, x1Values, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> intp.interpolate(x0Values, x1Values, yValues));
   }
 
 }

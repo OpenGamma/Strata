@@ -5,38 +5,41 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestCase {
   private static final double A = -2.5;
   private static final double B = 1.0;
   private static final ParameterLimitsTransform RANGE_LIMITS = new DoubleRangeLimitTransform(A, B);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange1() {
-    RANGE_LIMITS.transform(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RANGE_LIMITS.transform(-3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange2() {
-    RANGE_LIMITS.transform(1.01);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RANGE_LIMITS.transform(1.01));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange3() {
-    RANGE_LIMITS.transformGradient(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RANGE_LIMITS.transformGradient(-3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange4() {
-    RANGE_LIMITS.transformGradient(1.01);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RANGE_LIMITS.transformGradient(1.01));
   }
 
   @Test
@@ -56,11 +59,11 @@ public class DoubleRangeLimitTransformTest extends ParameterLimitsTransformTestC
   @Test
   public void testHashCodeAndEquals() {
     ParameterLimitsTransform other = new DoubleRangeLimitTransform(A, B);
-    assertEquals(other, RANGE_LIMITS);
-    assertEquals(other.hashCode(), RANGE_LIMITS.hashCode());
+    assertThat(other).isEqualTo(RANGE_LIMITS);
+    assertThat(other.hashCode()).isEqualTo(RANGE_LIMITS.hashCode());
     other = new DoubleRangeLimitTransform(A - 1, B);
-    assertFalse(other.equals(RANGE_LIMITS));
+    assertThat(other.equals(RANGE_LIMITS)).isFalse();
     other = new DoubleRangeLimitTransform(A, B + 1);
-    assertFalse(other.equals(RANGE_LIMITS));
+    assertThat(other.equals(RANGE_LIMITS)).isFalse();
   }
 }

@@ -5,16 +5,17 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class ScalarFirstOrderDifferentiatorTest {
   private static final Function<Double, Double> F = new Function<Double, Double>() {
 
@@ -44,22 +45,24 @@ public class ScalarFirstOrderDifferentiatorTest {
   private static final ScalarFirstOrderDifferentiator CENTRAL = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final ScalarFirstOrderDifferentiator BACKWARD = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDifferenceType() {
-    new ScalarFirstOrderDifferentiator(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ScalarFirstOrderDifferentiator(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    CENTRAL.differentiate((Function<Double, Double>) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CENTRAL.differentiate((Function<Double, Double>) null));
   }
 
   @Test
   public void test() {
     final double x = 0.2245;
-    assertEquals(FORWARD.differentiate(F).apply(x), DX_ANALYTIC.apply(x), 10 * EPS);
-    assertEquals(CENTRAL.differentiate(F).apply(x), DX_ANALYTIC.apply(x), EPS * EPS); // This is why you use central difference
-    assertEquals(BACKWARD.differentiate(F).apply(x), DX_ANALYTIC.apply(x), 10 * EPS);
+    assertThat(FORWARD.differentiate(F).apply(x)).isCloseTo(DX_ANALYTIC.apply(x), offset(10 * EPS));
+    assertThat(CENTRAL.differentiate(F).apply(x)).isCloseTo(DX_ANALYTIC.apply(x), offset(EPS * EPS)); // This is why you use central difference
+    assertThat(BACKWARD.differentiate(F).apply(x)).isCloseTo(DX_ANALYTIC.apply(x), offset(10 * EPS));
   }
 
   @Test
@@ -67,7 +70,7 @@ public class ScalarFirstOrderDifferentiatorTest {
     final double[] x = new double[] {1.2, 0, Math.PI };
     final Function<Double, Double> alFunc = CENTRAL.differentiate(F, DOMAIN);
     for (int i = 0; i < 3; i++) {
-      assertEquals(alFunc.apply(x[i]), DX_ANALYTIC.apply(x[i]), 1e-8);
+      assertThat(alFunc.apply(x[i])).isCloseTo(DX_ANALYTIC.apply(x[i]), offset(1e-8));
     }
   }
 }

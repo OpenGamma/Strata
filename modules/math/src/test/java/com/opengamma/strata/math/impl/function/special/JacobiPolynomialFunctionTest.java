@@ -5,16 +5,18 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 
 /**
  * Test.
  */
-@Test
 public class JacobiPolynomialFunctionTest {
   private static final double ALPHA = 0.12;
   private static final double BETA = 0.34;
@@ -27,31 +29,34 @@ public class JacobiPolynomialFunctionTest {
   private static final JacobiPolynomialFunction JACOBI = new JacobiPolynomialFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testNoAlphaBeta() {
-    JACOBI.getPolynomials(3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> JACOBI.getPolynomials(3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeN() {
-    JACOBI.getPolynomials(-3, ALPHA, BETA);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> JACOBI.getPolynomials(-3, ALPHA, BETA));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testGetPolynomials() {
-    JACOBI.getPolynomialsAndFirstDerivative(3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> JACOBI.getPolynomialsAndFirstDerivative(3));
   }
 
   @Test
   public void test() {
     DoubleFunction1D[] p = JACOBI.getPolynomials(0, ALPHA, BETA);
-    assertEquals(p.length, 1);
+    assertThat(p.length).isEqualTo(1);
     final double x = 1.23;
-    assertEquals(p[0].applyAsDouble(x), 1, EPS);
+    assertThat(p[0].applyAsDouble(x)).isCloseTo(1, offset(EPS));
     for (int i = 0; i <= 2; i++) {
       p = JACOBI.getPolynomials(i, ALPHA, BETA);
       for (int j = 0; j <= i; j++) {
-        assertEquals(P[j].applyAsDouble(x), p[j].applyAsDouble(x), EPS);
+        assertThat(P[j].applyAsDouble(x)).isCloseTo(p[j].applyAsDouble(x), offset(EPS));
       }
     }
   }

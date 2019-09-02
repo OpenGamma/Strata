@@ -5,46 +5,47 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GaussianQuadratureDataTest {
   private static final double[] X = new double[] {1, 2, 3, 4 };
   private static final double[] W = new double[] {6, 7, 8, 9 };
   private static final GaussianQuadratureData F = new GaussianQuadratureData(X, W);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullAbscissas() {
-    new GaussianQuadratureData(null, W);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GaussianQuadratureData(null, W));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullWeights() {
-    new GaussianQuadratureData(X, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GaussianQuadratureData(X, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testWrongLength() {
-    new GaussianQuadratureData(X, new double[] {1, 2, 3 });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GaussianQuadratureData(X, new double[] {1, 2, 3}));
   }
 
   @Test
   public void test() {
     GaussianQuadratureData other = new GaussianQuadratureData(X, W);
-    assertEquals(F, other);
-    assertEquals(F.hashCode(), other.hashCode());
+    assertThat(F).isEqualTo(other);
+    assertThat(F.hashCode()).isEqualTo(other.hashCode());
     other = new GaussianQuadratureData(W, W);
-    assertFalse(F.equals(other));
+    assertThat(F.equals(other)).isFalse();
     other = new GaussianQuadratureData(X, X);
-    assertFalse(F.equals(other));
-    assertArrayEquals(F.getAbscissas(), X, 0);
-    assertArrayEquals(F.getWeights(), W, 0);
+    assertThat(F.equals(other)).isFalse();
+    assertThat(F.getAbscissas()).isEqualTo(X);
+    assertThat(F.getWeights()).isEqualTo(W);
   }
 }

@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -17,7 +18,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class MaxtrixFieldFirstOrderDifferentiatorTest {
   private static final MatrixFieldFirstOrderDifferentiator DIFF = new MatrixFieldFirstOrderDifferentiator();
 
@@ -75,14 +75,14 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
     final int p = fdRes.length;
     final int n = fdRes[0].rowCount();
     final int m = fdRes[0].columnCount();
-    assertEquals(p, alRes.length);
-    assertEquals(n, alRes[0].rowCount());
-    assertEquals(m, alRes[0].columnCount());
+    assertThat(p).isEqualTo(alRes.length);
+    assertThat(n).isEqualTo(alRes[0].rowCount());
+    assertThat(m).isEqualTo(alRes[0].columnCount());
 
     for (int k = 0; k < p; k++) {
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-          assertEquals(fdRes[k].get(i, j), alRes[k].get(i, j), 1e-8);
+          assertThat(fdRes[k].get(i, j)).isCloseTo(alRes[k].get(i, j), offset(1e-8));
         }
       }
     }

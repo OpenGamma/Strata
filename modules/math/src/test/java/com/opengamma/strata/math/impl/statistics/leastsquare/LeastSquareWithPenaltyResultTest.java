@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -15,7 +15,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * 
  */
-@Test
 public class LeastSquareWithPenaltyResultTest {
 
   @Test
@@ -28,13 +27,13 @@ public class LeastSquareWithPenaltyResultTest {
     DoubleMatrix cov = DoubleMatrix.filled(nParms, nParms);
 
     LeastSquareWithPenaltyResults res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov);
-    assertEquals(chi2, res.getChiSq());
-    assertEquals(pen, res.getPenalty());
+    assertThat(chi2).isEqualTo(res.getChiSq());
+    assertThat(pen).isEqualTo(res.getPenalty());
 
     DoubleMatrix invJac = DoubleMatrix.filled(nParms, 5);
     res = new LeastSquareWithPenaltyResults(chi2, pen, parms, cov, invJac);
-    assertEquals(chi2, res.getChiSq());
-    assertEquals(pen, res.getPenalty());
+    assertThat(chi2).isEqualTo(res.getChiSq());
+    assertThat(pen).isEqualTo(res.getPenalty());
   }
 
 }

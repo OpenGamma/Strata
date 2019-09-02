@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
@@ -17,7 +18,6 @@ import com.opengamma.strata.math.impl.function.RealPolynomialFunction1D;
 /**
  * Test.
  */
-@Test
 public class LaguerrePolynomialFunctionTest {
   private static final DoubleFunction1D L0 = x -> 1d;
   private static final DoubleFunction1D L1 = x -> 1 - x;
@@ -33,29 +33,31 @@ public class LaguerrePolynomialFunctionTest {
   private static final LaguerrePolynomialFunction LAGUERRE = new LaguerrePolynomialFunction();
   private static final double EPS = 1e-12;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadN1() {
-    LAGUERRE.getPolynomials(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LAGUERRE.getPolynomials(-3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadN2() {
-    LAGUERRE.getPolynomials(-3, 1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LAGUERRE.getPolynomials(-3, 1));
   }
 
   @Test
   public void test() {
     DoubleFunction1D[] l = LAGUERRE.getPolynomials(0);
-    assertEquals(l.length, 1);
+    assertThat(l.length).isEqualTo(1);
     final double x = 1.23;
-    assertEquals(l[0].applyAsDouble(x), 1, EPS);
+    assertThat(l[0].applyAsDouble(x)).isCloseTo(1, offset(EPS));
     l = LAGUERRE.getPolynomials(1);
-    assertEquals(l.length, 2);
-    assertEquals(l[1].applyAsDouble(x), 1 - x, EPS);
+    assertThat(l.length).isEqualTo(2);
+    assertThat(l[1].applyAsDouble(x)).isCloseTo(1 - x, offset(EPS));
     for (int i = 0; i <= 6; i++) {
       l = LAGUERRE.getPolynomials(i);
       for (int j = 0; j <= i; j++) {
-        assertEquals(L[j].applyAsDouble(x), l[j].applyAsDouble(x), EPS);
+        assertThat(L[j].applyAsDouble(x)).isCloseTo(l[j].applyAsDouble(x), offset(EPS));
       }
     }
   }
@@ -68,7 +70,7 @@ public class LaguerrePolynomialFunctionTest {
       l1 = LAGUERRE.getPolynomials(i, 0);
       l2 = LAGUERRE.getPolynomials(i);
       for (int j = 0; j <= i; j++) {
-        assertEquals(l1[j].applyAsDouble(x), l2[j].applyAsDouble(x), EPS);
+        assertThat(l1[j].applyAsDouble(x)).isCloseTo(l2[j].applyAsDouble(x), offset(EPS));
       }
     }
     final double alpha = 3.45;
@@ -78,10 +80,10 @@ public class LaguerrePolynomialFunctionTest {
     final DoubleFunction1D f2 = d -> d * d / 2 - (alpha + 2) * d + (alpha + 2) * (alpha + 1) / 2.;
     final DoubleFunction1D f3 =
         d -> -d * d * d / 6 + (alpha + 3) * d * d / 2 - (alpha + 2) * (alpha + 3) * d / 2 + (alpha + 1) * (alpha + 2) * (alpha + 3) / 6;
-    assertEquals(l1[0].applyAsDouble(x), f0.applyAsDouble(x), EPS);
-    assertEquals(l1[1].applyAsDouble(x), f1.applyAsDouble(x), EPS);
-    assertEquals(l1[2].applyAsDouble(x), f2.applyAsDouble(x), EPS);
-    assertEquals(l1[3].applyAsDouble(x), f3.applyAsDouble(x), EPS);
+    assertThat(l1[0].applyAsDouble(x)).isCloseTo(f0.applyAsDouble(x), offset(EPS));
+    assertThat(l1[1].applyAsDouble(x)).isCloseTo(f1.applyAsDouble(x), offset(EPS));
+    assertThat(l1[2].applyAsDouble(x)).isCloseTo(f2.applyAsDouble(x), offset(EPS));
+    assertThat(l1[3].applyAsDouble(x)).isCloseTo(f3.applyAsDouble(x), offset(EPS));
   }
 
   @Test
@@ -90,11 +92,11 @@ public class LaguerrePolynomialFunctionTest {
     final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomialAndDerivative1 = LAGUERRE.getPolynomialsAndFirstDerivative(n);
     final Pair<DoubleFunction1D, DoubleFunction1D>[] polynomialAndDerivative2 = LAGUERRE.getPolynomialsAndFirstDerivative(n, 0);
     for (int i = 0; i < n; i++) {
-      assertTrue(polynomialAndDerivative1[i].getFirst() instanceof RealPolynomialFunction1D);
-      assertTrue(polynomialAndDerivative2[i].getFirst() instanceof RealPolynomialFunction1D);
+      assertThat(polynomialAndDerivative1[i].getFirst() instanceof RealPolynomialFunction1D).isTrue();
+      assertThat(polynomialAndDerivative2[i].getFirst() instanceof RealPolynomialFunction1D).isTrue();
       final RealPolynomialFunction1D first = (RealPolynomialFunction1D) polynomialAndDerivative1[i].getFirst();
       final RealPolynomialFunction1D second = (RealPolynomialFunction1D) polynomialAndDerivative2[i].getFirst();
-      assertEquals(first, second);
+      assertThat(first).isEqualTo(second);
     }
   }
 }

@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
@@ -19,7 +20,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * and check the finite difference sensitivity (the default behaviour of getYParameterSensitivity)
  * agrees with the analytic calculation for a range of points along the curve.
  */
-@Test
 public class ParameterizedCurveTest {
 
   @Test
@@ -31,7 +31,7 @@ public class ParameterizedCurveTest {
 
       @Override
       public Double evaluate(final Double x, final DoubleArray parameters) {
-        assertEquals(3, parameters.size());
+        assertThat(3).isEqualTo(parameters.size());
         double a = parameters.get(0);
         double b = parameters.get(1);
         double c = parameters.get(2);
@@ -71,7 +71,7 @@ public class ParameterizedCurveTest {
       DoubleArray s1 = paramsSenseAnal.apply(x);
       DoubleArray s2 = paramsSenseFD.apply(x);
       for (int j = 0; j < 3; j++) {
-        assertEquals(s1.get(j), s2.get(j), 1e-10);
+        assertThat(s1.get(j)).isCloseTo(s2.get(j), offset(1e-10));
       }
     }
 

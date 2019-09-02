@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -19,7 +20,6 @@ import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 /**
  * Abstract test.
  */
-@Test
 public abstract class SVDecompositionCalculationTestCase {
   private static final double EPS = 1e-10;
   private static final DoubleMatrix A = DoubleMatrix.copyOf(
@@ -29,16 +29,17 @@ public abstract class SVDecompositionCalculationTestCase {
 
   protected abstract MatrixAlgebra getAlgebra();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullObjectMatrix() {
-    getSVD().apply((DoubleMatrix) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getSVD().apply((DoubleMatrix) null));
   }
 
   @Test
   public void testRecoverOrginal() {
     final MatrixAlgebra algebra = getAlgebra();
     final DecompositionResult result = getSVD().apply(A);
-    assertTrue(result instanceof SVDecompositionResult);
+    assertThat(result instanceof SVDecompositionResult).isTrue();
     final SVDecompositionResult svd_result = (SVDecompositionResult) result;
     final DoubleMatrix u = svd_result.getU();
     final DoubleMatrix w = DoubleMatrix.diagonal(DoubleArray.copyOf(svd_result.getSingularValues()));
@@ -73,24 +74,24 @@ public abstract class SVDecompositionCalculationTestCase {
   private void checkEquals(final DoubleMatrix x, final DoubleMatrix y) {
     final int n = x.rowCount();
     final int m = x.columnCount();
-    assertEquals(n, y.rowCount());
-    assertEquals(m, y.columnCount());
+    assertThat(n).isEqualTo(y.rowCount());
+    assertThat(m).isEqualTo(y.columnCount());
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        assertEquals(x.get(i, j), y.get(i, j), EPS);
+        assertThat(x.get(i, j)).isCloseTo(y.get(i, j), offset(EPS));
       }
     }
   }
 
   private void checkIdentity(final DoubleMatrix x) {
     final int n = x.rowCount();
-    assertEquals(x.columnCount(), n);
+    assertThat(x.columnCount()).isEqualTo(n);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < n; j++) {
         if (i == j) {
-          assertEquals(1.0, x.get(i, i), EPS);
+          assertThat(1.0).isCloseTo(x.get(i, i), offset(EPS));
         } else {
-          assertEquals(0.0, x.get(i, j), EPS);
+          assertThat(0.0).isCloseTo(x.get(i, j), offset(EPS));
         }
       }
     }

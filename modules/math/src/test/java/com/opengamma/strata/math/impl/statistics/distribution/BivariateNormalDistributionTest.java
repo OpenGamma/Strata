@@ -5,83 +5,89 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class BivariateNormalDistributionTest {
   private static final ProbabilityDistribution<double[]> DIST = new BivariateNormalDistribution();
   private static final double EPS = 1e-8;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullCDF() {
-    DIST.getCDF(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DIST.getCDF(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testInsufficientLengthCDF() {
-    DIST.getCDF(new double[] {2, 1 });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DIST.getCDF(new double[] {2, 1}));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testExcessiveLengthCDF() {
-    DIST.getCDF(new double[] {2, 1, 4, 5 });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DIST.getCDF(new double[] {2, 1, 4, 5}));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testHighCorrelation() {
-    DIST.getCDF(new double[] {1., 1., 3. });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DIST.getCDF(new double[] {1., 1., 3.}));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testLowCorrelation() {
-    DIST.getCDF(new double[] {1., 1., -3. });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DIST.getCDF(new double[] {1., 1., -3.}));
   }
 
   @Test
   public void test() {
-    assertEquals(DIST.getCDF(new double[] {Double.POSITIVE_INFINITY, Math.random(), Math.random() }), 1, 0);
-    assertEquals(DIST.getCDF(new double[] {Math.random(), Double.POSITIVE_INFINITY, Math.random() }), 1, 0);
-    assertEquals(DIST.getCDF(new double[] {Double.NEGATIVE_INFINITY, Math.random(), Math.random() }), 0, 0);
-    assertEquals(DIST.getCDF(new double[] {Math.random(), Double.NEGATIVE_INFINITY, Math.random() }), 0, 0);
-    assertEquals(DIST.getCDF(new double[] {0.0, 0.0, 0.0 }), 0.25, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, 0.0, -0.5 }), 1. / 6, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, 0.0, 0.5 }), 1. / 3, EPS);
+    assertThat(DIST.getCDF(new double[] {Double.POSITIVE_INFINITY, Math.random(), Math.random()})).isEqualTo(1);
+    assertThat(DIST.getCDF(new double[] {Math.random(), Double.POSITIVE_INFINITY, Math.random()})).isEqualTo(1);
+    assertThat(DIST.getCDF(new double[] {Double.NEGATIVE_INFINITY, Math.random(), Math.random()})).isEqualTo(0);
+    assertThat(DIST.getCDF(new double[] {Math.random(), Double.NEGATIVE_INFINITY, Math.random()})).isEqualTo(0);
+    assertThat(DIST.getCDF(new double[]{0.0, 0.0, 0.0})).isCloseTo(0.25, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, 0.0, -0.5})).isCloseTo(1. / 6, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, 0.0, 0.5})).isCloseTo(1. / 3, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {0.0, -0.5, 0.0 }), 0.1542687694, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, -0.5, -0.5 }), 0.0816597607, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, -0.5, 0.5 }), 0.2268777781, EPS);
+    assertThat(DIST.getCDF(new double[]{0.0, -0.5, 0.0})).isCloseTo(0.1542687694, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, -0.5, -0.5})).isCloseTo(0.0816597607, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, -0.5, 0.5})).isCloseTo(0.2268777781, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {0.0, 0.5, 0.0 }), 0.3457312306, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, 0.5, -0.5 }), 0.2731222219, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, 0.5, 0.5 }), 0.4183402393, EPS);
+    assertThat(DIST.getCDF(new double[]{0.0, 0.5, 0.0})).isCloseTo(0.3457312306, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, 0.5, -0.5})).isCloseTo(0.2731222219, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, 0.5, 0.5})).isCloseTo(0.4183402393, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {-0.5, 0.0, 0.0 }), 0.1542687694, EPS);
-    assertEquals(DIST.getCDF(new double[] {-0.5, 0.0, -0.5 }), 0.0816597607, EPS);
-    assertEquals(DIST.getCDF(new double[] {-0.5, 0.0, 0.5 }), 0.2268777781, EPS);
+    assertThat(DIST.getCDF(new double[]{-0.5, 0.0, 0.0})).isCloseTo(0.1542687694, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{-0.5, 0.0, -0.5})).isCloseTo(0.0816597607, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{-0.5, 0.0, 0.5})).isCloseTo(0.2268777781, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {-0.5, -0.5, 0.0 }), 0.0951954128, EPS);
-    assertEquals(DIST.getCDF(new double[] {-0.5, -0.5, -0.5 }), 0.0362981865, EPS);
-    assertEquals(DIST.getCDF(new double[] {-0.5, -0.5, 0.5 }), 0.1633195213, EPS);
+    assertThat(DIST.getCDF(new double[]{-0.5, -0.5, 0.0})).isCloseTo(0.0951954128, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{-0.5, -0.5, -0.5})).isCloseTo(0.0362981865, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{-0.5, -0.5, 0.5})).isCloseTo(0.1633195213, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {-0.5, 0.5, 0.0 }), 0.2133421259, EPS);
-    assertEquals(DIST.getCDF(new double[] {-0.5, 0.5, -0.5 }), 0.1452180174, EPS);
-    assertEquals(DIST.getCDF(new double[] {-0.5, 0.5, 0.5 }), 0.2722393522, EPS);
+    assertThat(DIST.getCDF(new double[]{-0.5, 0.5, 0.0})).isCloseTo(0.2133421259, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{-0.5, 0.5, -0.5})).isCloseTo(0.1452180174, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{-0.5, 0.5, 0.5})).isCloseTo(0.2722393522, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {0.5, 0.0, 0.0 }), 0.3457312306, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.5, 0.0, -0.5 }), 0.2731222219, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.5, 0.0, 0.5 }), 0.4183402393, EPS);
+    assertThat(DIST.getCDF(new double[]{0.5, 0.0, 0.0})).isCloseTo(0.3457312306, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.5, 0.0, -0.5})).isCloseTo(0.2731222219, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.5, 0.0, 0.5})).isCloseTo(0.4183402393, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {0.5, -0.5, 0.0 }), 0.2133421259, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.5, -0.5, -0.5 }), 0.1452180174, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.5, -0.5, 0.5 }), 0.2722393522, EPS);
+    assertThat(DIST.getCDF(new double[]{0.5, -0.5, 0.0})).isCloseTo(0.2133421259, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.5, -0.5, -0.5})).isCloseTo(0.1452180174, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.5, -0.5, 0.5})).isCloseTo(0.2722393522, offset(EPS));
 
-    assertEquals(DIST.getCDF(new double[] {0.5, 0.5, 0.0 }), 0.4781203354, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.5, 0.5, -0.5 }), 0.4192231090, EPS);
-    assertEquals(DIST.getCDF(new double[] {0.0, -1.0, -1.0 }), 0.00000000, EPS);
+    assertThat(DIST.getCDF(new double[]{0.5, 0.5, 0.0})).isCloseTo(0.4781203354, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.5, 0.5, -0.5})).isCloseTo(0.4192231090, offset(EPS));
+    assertThat(DIST.getCDF(new double[]{0.0, -1.0, -1.0})).isCloseTo(0.00000000, offset(EPS));
   }
 }

@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -15,24 +17,25 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class NewtonDefaultUpdateFunctionTest {
   private static final NewtonDefaultUpdateFunction F = new NewtonDefaultUpdateFunction();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    F.getUpdatedMatrix(null, null, null, null, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F.getUpdatedMatrix(null, null, null, null, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullVector() {
-    F.getUpdatedMatrix(new Function<DoubleArray, DoubleMatrix>() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F.getUpdatedMatrix(new Function<DoubleArray, DoubleMatrix>() {
 
-      @Override
-      public DoubleMatrix apply(DoubleArray x) {
-        return null;
-      }
-    }, null, null, null, null);
+          @Override
+          public DoubleMatrix apply(DoubleArray x) {
+            return null;
+          }
+        }, null, null, null, null));
   }
 
 }

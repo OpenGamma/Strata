@@ -5,17 +5,17 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.Arrays;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class PercentileCalculatorTest {
 
   private static final PercentileCalculator CALCULATOR = new PercentileCalculator(0.1);
@@ -29,34 +29,40 @@ public class PercentileCalculatorTest {
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testHighPercentile() {
-    new PercentileCalculator(1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new PercentileCalculator(1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testLowPercentile() {
-    new PercentileCalculator(0);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new PercentileCalculator(0));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSetHighPercentile() {
-    CALCULATOR.setPercentile(1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALCULATOR.setPercentile(1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testSetLowPercentile() {
-    CALCULATOR.setPercentile(0);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALCULATOR.setPercentile(0));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullArray() {
-    CALCULATOR.apply((double[]) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALCULATOR.apply((double[]) null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEmptyArray() {
-    CALCULATOR.apply(new double[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALCULATOR.apply(new double[0]));
   }
 
   @Test
@@ -64,9 +70,9 @@ public class PercentileCalculatorTest {
     final double[] y = Arrays.copyOf(X, X.length);
     Arrays.sort(y);
     CALCULATOR.setPercentile(1e-15);
-    assertEquals(CALCULATOR.apply(X), y[0], 0);
+    assertThat(CALCULATOR.apply(X)).isEqualTo(y[0]);
     CALCULATOR.setPercentile(1 - 1e-15);
-    assertEquals(CALCULATOR.apply(X), y[N - 1], 0);
+    assertThat(CALCULATOR.apply(X)).isEqualTo(y[N - 1]);
   }
 
   @Test
@@ -85,6 +91,6 @@ public class PercentileCalculatorTest {
     while (copy[count++] < value) {
       //intended
     }
-    assertEquals(count - 1, percentile);
+    assertThat(count - 1).isEqualTo(percentile);
   }
 }

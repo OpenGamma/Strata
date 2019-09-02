@@ -5,19 +5,18 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.BitSet;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test.
  */
-@Test
 public class TransformParametersTest {
   private static final DoubleArray INIT = DoubleArray.of(1, 2, 3, 4);
   private static final ParameterLimitsTransform[] NULLS = new ParameterLimitsTransform[] {new NullTransform(), new NullTransform(), new NullTransform(), new NullTransform() };
@@ -29,94 +28,107 @@ public class TransformParametersTest {
     PARAMS = new UncoupledParameterTransforms(INIT, NULLS, FIXED);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullStartValues() {
-    new UncoupledParameterTransforms(null, NULLS, FIXED);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new UncoupledParameterTransforms(null, NULLS, FIXED));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullTransforms() {
-    new UncoupledParameterTransforms(INIT, null, FIXED);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new UncoupledParameterTransforms(INIT, null, FIXED));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEmptyTransforms() {
-    new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[0], FIXED);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[0], FIXED));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullBitSet() {
-    new UncoupledParameterTransforms(INIT, NULLS, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new UncoupledParameterTransforms(INIT, NULLS, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testAllFixed() {
     final BitSet allFixed = new BitSet();
     allFixed.set(0);
     allFixed.set(1);
     allFixed.set(2);
     allFixed.set(3);
-    new UncoupledParameterTransforms(INIT, NULLS, allFixed);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new UncoupledParameterTransforms(INIT, NULLS, allFixed));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testTransformNullParameters() {
-    PARAMS.transform(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.transform(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testTransformWrongParameters() {
-    PARAMS.transform(DoubleArray.of(1, 2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.transform(DoubleArray.of(1, 2)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testInverseTransformNullParameters() {
-    PARAMS.inverseTransform(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.inverseTransform(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testInverseTransformWrongParameters() {
-    PARAMS.inverseTransform(DoubleArray.of(1, 2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.inverseTransform(DoubleArray.of(1, 2)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testJacobianNullParameters() {
-    PARAMS.jacobian(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.jacobian(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testJacobianWrongParameters() {
-    PARAMS.jacobian(DoubleArray.of(1, 2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.jacobian(DoubleArray.of(1, 2)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testInverseJacobianNullParameters() {
-    PARAMS.inverseJacobian(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.inverseJacobian(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testInverseJacobianWrongParameters() {
-    PARAMS.inverseJacobian(DoubleArray.of(1, 2));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PARAMS.inverseJacobian(DoubleArray.of(1, 2)));
   }
 
   @Test
   public void test() {
-    assertEquals(PARAMS.getNumberOfModelParameters(), 4);
-    assertEquals(PARAMS.getNumberOfFittingParameters(), 3);
+    assertThat(PARAMS.getNumberOfModelParameters()).isEqualTo(4);
+    assertThat(PARAMS.getNumberOfFittingParameters()).isEqualTo(3);
     UncoupledParameterTransforms other = new UncoupledParameterTransforms(INIT, NULLS, FIXED);
-    assertEquals(PARAMS, other);
-    assertEquals(PARAMS.hashCode(), other.hashCode());
+    assertThat(PARAMS).isEqualTo(other);
+    assertThat(PARAMS.hashCode()).isEqualTo(other.hashCode());
     other = new UncoupledParameterTransforms(DoubleArray.of(1, 2, 4, 5), NULLS, FIXED);
-    assertFalse(other.equals(PARAMS));
+    assertThat(other.equals(PARAMS)).isFalse();
     other = new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[] {new DoubleRangeLimitTransform(1, 2), new NullTransform(), new NullTransform(), new NullTransform() }, FIXED);
-    assertFalse(other.equals(PARAMS));
+    assertThat(other.equals(PARAMS)).isFalse();
     other = new UncoupledParameterTransforms(INIT, NULLS, new BitSet(4));
-    assertFalse(other.equals(PARAMS));
+    assertThat(other.equals(PARAMS)).isFalse();
   }
 
   @Test
   public void testTransformAndInverse() {
     final DoubleArray functionParameters = DoubleArray.of(1, 2, 6, 4);
-    assertEquals(PARAMS.inverseTransform(PARAMS.transform(functionParameters)), functionParameters);
+    assertThat(PARAMS.inverseTransform(PARAMS.transform(functionParameters))).isEqualTo(functionParameters);
   }
 }

@@ -5,19 +5,20 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class DecompositionFactoryTest {
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadName() {
-    DecompositionFactory.getDecomposition("X");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DecompositionFactory.getDecomposition("X"));
   }
 
   @Test
@@ -27,9 +28,9 @@ public class DecompositionFactoryTest {
 
   @Test
   public void test() {
-    assertEquals(DecompositionFactory.LU_COMMONS_NAME, DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME)));
-    assertEquals(DecompositionFactory.QR_COMMONS_NAME, DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.QR_COMMONS_NAME)));
-    assertEquals(DecompositionFactory.SV_COMMONS_NAME, DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME)));
+    assertThat(DecompositionFactory.LU_COMMONS_NAME).isEqualTo(DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME)));
+    assertThat(DecompositionFactory.QR_COMMONS_NAME).isEqualTo(DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.QR_COMMONS_NAME)));
+    assertThat(DecompositionFactory.SV_COMMONS_NAME).isEqualTo(DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME)));
   }
 
 }

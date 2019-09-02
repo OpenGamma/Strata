@@ -5,18 +5,19 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test.
  */
-@Test
 public class ScalarFieldFirstOrderDifferentiatorTest {
 
   private static final Function<DoubleArray, Double> F = new Function<DoubleArray, Double>() {
@@ -55,14 +56,16 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
   private static final ScalarFieldFirstOrderDifferentiator CENTRAL = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final ScalarFieldFirstOrderDifferentiator BACKWARD = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDifferenceType() {
-    new ScalarFirstOrderDifferentiator(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ScalarFirstOrderDifferentiator(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    CENTRAL.differentiate((Function<DoubleArray, Double>) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CENTRAL.differentiate((Function<DoubleArray, Double>) null));
   }
 
   @Test
@@ -74,9 +77,9 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     final DoubleArray fdBackGrad = BACKWARD.differentiate(F).apply(x);
 
     for (int i = 0; i < 2; i++) {
-      assertEquals(fdFwdGrad.get(i), anGrad.get(i), 10 * EPS);
-      assertEquals(fdCentGrad.get(i), anGrad.get(i), EPS * EPS);
-      assertEquals(fdBackGrad.get(i), anGrad.get(i), 10 * EPS);
+      assertThat(fdFwdGrad.get(i)).isCloseTo(anGrad.get(i), offset(10 * EPS));
+      assertThat(fdCentGrad.get(i)).isCloseTo(anGrad.get(i), offset(EPS * EPS));
+      assertThat(fdBackGrad.get(i)).isCloseTo(anGrad.get(i), offset(10 * EPS));
     }
   }
 
@@ -93,7 +96,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
       final DoubleArray fdRes = fdGradFunc.apply(x[k]);
       final DoubleArray alRes = G.apply(x[k]);
       for (int i = 0; i < 2; i++) {
-        assertEquals(fdRes.get(i), alRes.get(i), 1e-7);
+        assertThat(fdRes.get(i)).isCloseTo(alRes.get(i), offset(1e-7));
       }
     }
   }

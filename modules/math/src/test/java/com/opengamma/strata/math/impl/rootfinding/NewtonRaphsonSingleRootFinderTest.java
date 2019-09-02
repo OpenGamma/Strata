@@ -5,18 +5,19 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 
 /**
  * Test.
  */
-@Test
 public class NewtonRaphsonSingleRootFinderTest {
   private static final DoubleFunction1D F1 = new DoubleFunction1D() {
 
@@ -64,132 +65,155 @@ public class NewtonRaphsonSingleRootFinderTest {
     ROOT = a + b + 2;
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction1() {
-    ROOT_FINDER.getRoot((Function<Double, Double>) null, X1, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot((Function<Double, Double>) null, X1, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLower1() {
-    ROOT_FINDER.getRoot(F2, (Double) null, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, (Double) null, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullHigher1() {
-    ROOT_FINDER.getRoot(F2, X1, (Double) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, X1, (Double) null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction2() {
-    ROOT_FINDER.getRoot((DoubleFunction1D) null, X1, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot((DoubleFunction1D) null, X1, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLower2() {
-    ROOT_FINDER.getRoot(F1, (Double) null, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, (Double) null, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullHigher2() {
-    ROOT_FINDER.getRoot(F1, X1, (Double) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, X1, (Double) null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction3() {
-    ROOT_FINDER.getRoot(null, DF2, X1, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(null, DF2, X1, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDerivative1() {
-    ROOT_FINDER.getRoot(F2, null, X1, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, null, X1, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLower3() {
-    ROOT_FINDER.getRoot(F2, DF2, null, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, DF2, null, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullHigher3() {
-    ROOT_FINDER.getRoot(F2, DF2, X1, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, DF2, X1, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction4() {
-    ROOT_FINDER.getRoot(null, DF1, X1, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(null, DF1, X1, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDerivative2() {
-    ROOT_FINDER.getRoot(F1, null, X1, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, null, X1, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLower4() {
-    ROOT_FINDER.getRoot(F1, DF1, null, X2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, DF1, null, X2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullHigher4() {
-    ROOT_FINDER.getRoot(F1, DF1, X1, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, DF1, X1, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEnclosedExtremum() {
-    ROOT_FINDER.getRoot(F2, DF2, X1, X3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, DF2, X1, X3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDerivative3() {
-    ROOT_FINDER.getRoot(F1, (DoubleFunction1D) null, X);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, (DoubleFunction1D) null, X));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDerivative4() {
-    ROOT_FINDER.getRoot(F2, (Function<Double, Double>) null, X);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, (Function<Double, Double>) null, X));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction5() {
-    ROOT_FINDER.getRoot((Function<Double, Double>) null, X);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot((Function<Double, Double>) null, X));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction6() {
-    ROOT_FINDER.getRoot((DoubleFunction1D) null, X);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot((DoubleFunction1D) null, X));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullInitialGuess1() {
-    ROOT_FINDER.getRoot(F1, (Double) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, (Double) null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullInitialGuess2() {
-    ROOT_FINDER.getRoot(F2, (Double) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, (Double) null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullInitialGuess3() {
-    ROOT_FINDER.getRoot(F1, DF1, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F1, DF1, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullInitialGuess4() {
-    ROOT_FINDER.getRoot(F2, DF2, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ROOT_FINDER.getRoot(F2, DF2, null));
   }
 
   @Test
   public void test() {
-    assertEquals(ROOT_FINDER.getRoot(F2, DF2, ROOT, X2), ROOT, 0);
-    assertEquals(ROOT_FINDER.getRoot(F2, DF2, X1, ROOT), ROOT, 0);
-    assertEquals(ROOT_FINDER.getRoot(F1, X1, X2), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F1, DF1, X1, X2), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F2, X1, X2), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F2, DF2, X1, X2), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F1, X), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F1, DF1, X), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F2, X), ROOT, EPS);
-    assertEquals(ROOT_FINDER.getRoot(F2, DF2, X), ROOT, EPS);
+    assertThat(ROOT_FINDER.getRoot(F2, DF2, ROOT, X2)).isEqualTo(ROOT);
+    assertThat(ROOT_FINDER.getRoot(F2, DF2, X1, ROOT)).isEqualTo(ROOT);
+    assertThat(ROOT_FINDER.getRoot(F1, X1, X2)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F1, DF1, X1, X2)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F2, X1, X2)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F2, DF2, X1, X2)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F1, X)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F1, DF1, X)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F2, X)).isCloseTo(ROOT, offset(EPS));
+    assertThat(ROOT_FINDER.getRoot(F2, DF2, X)).isCloseTo(ROOT, offset(EPS));
   }
 }

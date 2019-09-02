@@ -6,16 +6,17 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
 
 /**
  * Test.
  */
-@Test
 public class InverseTridiagonalMatrixCalculatorTest {
   private static final InverseTridiagonalMatrixCalculator CALCULATOR = new InverseTridiagonalMatrixCalculator();
   private static final double[] A = new double[] {1.0, 2.4, -0.4, -0.8, 1.5, 7.8, -5.0, 1.0, 2.4, -0.4, 3.14 };
@@ -26,9 +27,10 @@ public class InverseTridiagonalMatrixCalculatorTest {
   private static final DoubleMatrix TRI = MATRIX.toDoubleMatrix();
   private static final double EPS = 1e-15;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullArray() {
-    CALCULATOR.apply((TridiagonalMatrix) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> CALCULATOR.apply((TridiagonalMatrix) null));
   }
 
   @Test
@@ -45,7 +47,7 @@ public class InverseTridiagonalMatrixCalculatorTest {
     final DoubleMatrix res = CALCULATOR.apply(new TridiagonalMatrix(a, b, c));
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
-        assertEquals((i == j ? 1.0 : 0.0), res.get(i, j), EPS);
+        assertThat((i == j ? 1.0 : 0.0)).isCloseTo(res.get(i, j), offset(EPS));
       }
     }
 
@@ -60,7 +62,7 @@ public class InverseTridiagonalMatrixCalculatorTest {
     int i, j;
     for (i = 0; i < n; i++) {
       for (j = 0; j < n; j++) {
-        assertEquals((i == j ? 1.0 : 0.0), idet.get(i, j), EPS);
+        assertThat((i == j ? 1.0 : 0.0)).isCloseTo(idet.get(i, j), offset(EPS));
       }
     }
 

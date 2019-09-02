@@ -5,39 +5,42 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestCase {
   private static final double A = -2.5;
   private static final double B = 1.0;
   private static final ParameterLimitsTransform LOWER_LIMIT = new SingleRangeLimitTransform(B, ParameterLimitsTransform.LimitType.GREATER_THAN);
   private static final ParameterLimitsTransform UPPER_LIMIT = new SingleRangeLimitTransform(A, ParameterLimitsTransform.LimitType.LESS_THAN);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange1() {
-    LOWER_LIMIT.transform(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOWER_LIMIT.transform(-3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange2() {
-    UPPER_LIMIT.transform(1.01);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPPER_LIMIT.transform(1.01));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange3() {
-    LOWER_LIMIT.transformGradient(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOWER_LIMIT.transformGradient(-3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfRange4() {
-    UPPER_LIMIT.transformGradient(1.01);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPPER_LIMIT.transformGradient(1.01));
   }
 
   @Test
@@ -69,11 +72,11 @@ public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestC
   @Test
   public void testHashCodeAndEquals() {
     ParameterLimitsTransform other = new SingleRangeLimitTransform(B, ParameterLimitsTransform.LimitType.GREATER_THAN);
-    assertEquals(other, LOWER_LIMIT);
-    assertEquals(other.hashCode(), LOWER_LIMIT.hashCode());
+    assertThat(other).isEqualTo(LOWER_LIMIT);
+    assertThat(other.hashCode()).isEqualTo(LOWER_LIMIT.hashCode());
     other = new SingleRangeLimitTransform(A, ParameterLimitsTransform.LimitType.GREATER_THAN);
-    assertFalse(other.equals(LOWER_LIMIT));
+    assertThat(other.equals(LOWER_LIMIT)).isFalse();
     other = new SingleRangeLimitTransform(B, ParameterLimitsTransform.LimitType.LESS_THAN);
-    assertFalse(other.equals(LOWER_LIMIT));
+    assertThat(other.equals(LOWER_LIMIT)).isFalse();
   }
 }

@@ -5,7 +5,9 @@
  */
 package com.opengamma.strata.math.impl.regression;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,36 +18,37 @@ import java.util.Map;
 import java.util.function.DoubleBinaryOperator;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class NamedVariableLeastSquaresRegressionResultTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
   private static final double EPS = 1e-2;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullNames() {
-    new NamedVariableLeastSquaresRegressionResult(null, new LeastSquaresRegressionResult(null, null, 0, null, 0, 0,
-        null, null, false));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new NamedVariableLeastSquaresRegressionResult(
+            null, new LeastSquaresRegressionResult(null, null, 0, null, 0, 0, null, null, false)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullRegression() {
-    new NamedVariableLeastSquaresRegressionResult(new ArrayList<String>(), null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new NamedVariableLeastSquaresRegressionResult(new ArrayList<String>(), null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNonMatchingInputs() {
     final List<String> names = Arrays.asList("A", "B");
     final double[] array = new double[] {1. };
     final LeastSquaresRegressionResult result = new LeastSquaresRegressionResult(array, array, 0., array, 0., 0.,
         array, array, false);
-    new NamedVariableLeastSquaresRegressionResult(names, result);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new NamedVariableLeastSquaresRegressionResult(names, result));
   }
 
   @Test
@@ -71,21 +74,13 @@ public class NamedVariableLeastSquaresRegressionResultTest {
         .regress(x, null, y1, false));
     final NamedVariableLeastSquaresRegressionResult result2 = new NamedVariableLeastSquaresRegressionResult(names, ols
         .regress(x, null, y2, true));
-    try {
-      result1.getPredictedValue((Map<String, Double>) null);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    assertEquals(result1.getPredictedValue(Collections.<String, Double>emptyMap()), 0., 1e-16);
-    try {
-      final Map<String, Double> map = new HashMap<>();
-      map.put("1", 0.);
-      result1.getPredictedValue(map);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> result1.getPredictedValue((Map<String, Double>) null));
+    assertThat(result1.getPredictedValue(Collections.<String, Double>emptyMap())).isCloseTo(0., offset(1e-16));
+    final Map<String, Double> map = new HashMap<>();
+    map.put("1", 0.);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> result1.getPredictedValue(map));
     double x1, x2, x3;
     final Map<String, Double> var = new HashMap<>();
     for (int i = 0; i < 10; i++) {
@@ -94,11 +89,11 @@ public class NamedVariableLeastSquaresRegressionResultTest {
       x3 = RANDOM.nextDouble();
       var.put("1", x1);
       var.put("2", x2);
-      assertEquals(result1.getPredictedValue(var), f1.applyAsDouble(x1, x2), EPS);
-      assertEquals(result2.getPredictedValue(var), f2.applyAsDouble(x1, x2), EPS);
+      assertThat(result1.getPredictedValue(var)).isCloseTo(f1.applyAsDouble(x1, x2), offset(EPS));
+      assertThat(result2.getPredictedValue(var)).isCloseTo(f2.applyAsDouble(x1, x2), offset(EPS));
       var.put("3", x3);
-      assertEquals(result1.getPredictedValue(var), f1.applyAsDouble(x1, x2), EPS);
-      assertEquals(result2.getPredictedValue(var), f2.applyAsDouble(x1, x2), EPS);
+      assertThat(result1.getPredictedValue(var)).isCloseTo(f1.applyAsDouble(x1, x2), offset(EPS));
+      assertThat(result2.getPredictedValue(var)).isCloseTo(f2.applyAsDouble(x1, x2), offset(EPS));
     }
   }
 }
