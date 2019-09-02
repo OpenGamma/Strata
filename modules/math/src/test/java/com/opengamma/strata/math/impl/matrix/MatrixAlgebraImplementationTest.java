@@ -5,10 +5,12 @@
  */
 package com.opengamma.strata.math.impl.matrix;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -17,7 +19,6 @@ import com.opengamma.strata.collect.array.Matrix;
 /**
  * Test.
  */
-@Test
 public class MatrixAlgebraImplementationTest {
 
   private static final MatrixAlgebra COMMONS = MatrixAlgebraFactory.COMMONS_ALGEBRA;
@@ -39,207 +40,240 @@ public class MatrixAlgebraImplementationTest {
   };
   private static final double EPS = 1e-10;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsCondition() {
-    COMMONS.getCondition(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getCondition(M1));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGCondition() {
-    OG.getCondition(M3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getCondition(M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsDeterminant() {
-    COMMONS.getCondition(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getCondition(M1));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGDeterminant() {
-    OG.getDeterminant(M3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getDeterminant(M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsInnerProduct() {
-    COMMONS.getInnerProduct(M1, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getInnerProduct(M1, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGInnerProduct1() {
-    OG.getInnerProduct(M1, DoubleArray.of(1, 2, 3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getInnerProduct(M1, DoubleArray.of(1, 2, 3)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGInnerProduct2() {
-    OG.getInnerProduct(M1, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getInnerProduct(M1, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsInverse() {
-    COMMONS.getInverse(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getInverse(M1));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGInverse() {
-    OG.getInverse(M1);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getInverse(M1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsNorm1() {
-    COMMONS.getNorm1(M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getNorm1(M5));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGNorm1() {
-    OG.getNorm1(M1);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getNorm1(M1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsNorm2() {
-    COMMONS.getNorm2(M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getNorm2(M5));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGNorm2_1() {
-    OG.getNorm2(M3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getNorm2(M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGNorm2_2() {
-    OG.getNorm2(M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getNorm2(M5));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsNormInfinity() {
-    COMMONS.getNormInfinity(M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getNormInfinity(M5));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGNormInfinity() {
-    OG.getNormInfinity(M5);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getNormInfinity(M5));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsOuterProduct() {
-    COMMONS.getOuterProduct(M3, M4);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getOuterProduct(M3, M4));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGOuterProduct() {
-    OG.getOuterProduct(M3, M4);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getOuterProduct(M3, M4));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsPower() {
-    COMMONS.getPower(M1, 2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getPower(M1, 2));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGPower1() {
-    OG.getPower(M2, 2);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getPower(M2, 2));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testOGPower2() {
-    OG.getPower(M2, 2.3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> OG.getPower(M2, 2.3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsTrace() {
-    COMMONS.getTrace(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getTrace(M1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGTrace1() {
-    OG.getTrace(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getTrace(M1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGTrace2() {
-    OG.getTrace(DoubleMatrix.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getTrace(DoubleMatrix.copyOf(new double[][] {{1, 2, 3}, {4, 5, 6}})));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsTranspose() {
-    COMMONS.getTranspose(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.getTranspose(M1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGTranspose() {
-    OG.getTranspose(M1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.getTranspose(M1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsMultiply1() {
-    COMMONS.multiply(M1, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.multiply(M1, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsMultiply2() {
-    COMMONS.multiply(M3, M5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.multiply(M3, M5));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testCommonsMultiply3() {
-    COMMONS.multiply(M5, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> COMMONS.multiply(M5, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGMultiply1() {
-    OG.multiply(M5, M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.multiply(M5, M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGMultiply2() {
-    OG.multiply(DoubleArray.of(1, 2, 3), M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.multiply(DoubleArray.of(1, 2, 3), M3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGMultiply3() {
-    OG.multiply(M3, DoubleArray.of(1, 2, 3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.multiply(M3, DoubleArray.of(1, 2, 3)));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOGMultiply4() {
-    OG.multiply(DoubleMatrix.copyOf(new double[][] { {1, 2, 3}, {4, 5, 6}}), M3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> OG.multiply(DoubleMatrix.copyOf(new double[][] {{1, 2, 3}, {4, 5, 6}}), M3));
   }
 
   @Test
   public void testCondition() {
-    assertEquals(COMMONS.getCondition(M4), 86.9885042281285, EPS);
+    assertThat(COMMONS.getCondition(M4)).isCloseTo(86.9885042281285, offset(EPS));
   }
 
   @Test
   public void testDeterminant() {
-    assertEquals(COMMONS.getDeterminant(M4), -2.0, EPS);
+    assertThat(COMMONS.getDeterminant(M4)).isCloseTo(-2.0, offset(EPS));
   }
 
   @Test
   public void testNormL1() {
-    assertEquals(COMMONS.getNorm1(M1), 3, EPS);
-    assertEquals(COMMONS.getNorm1(M4), 14, EPS);
+    assertThat(COMMONS.getNorm1(M1)).isCloseTo(3, offset(EPS));
+    assertThat(COMMONS.getNorm1(M4)).isCloseTo(14, offset(EPS));
   }
 
   @Test
   public void testNormL2() {
-    assertEquals(COMMONS.getNorm2(M1), 2.23606797749979, EPS);
-    assertEquals(COMMONS.getNorm2(M4), 13.1900344372658, EPS);
+    assertThat(COMMONS.getNorm2(M1)).isCloseTo(2.23606797749979, offset(EPS));
+    assertThat(COMMONS.getNorm2(M4)).isCloseTo(13.1900344372658, offset(EPS));
   }
 
   @Test
   public void testNormLInf() {
-    assertEquals(COMMONS.getNormInfinity(M1), 2, EPS);
-    assertEquals(COMMONS.getNormInfinity(M4), 15, EPS);
+    assertThat(COMMONS.getNormInfinity(M1)).isCloseTo(2, offset(EPS));
+    assertThat(COMMONS.getNormInfinity(M4)).isCloseTo(15, offset(EPS));
   }
 
   @Test
   public void testTrace() {
-    assertEquals(COMMONS.getTrace(M4), 13, EPS);
+    assertThat(COMMONS.getTrace(M4)).isCloseTo(13, offset(EPS));
   }
 
   @Test
   public void testInnerProduct() {
-    assertEquals(COMMONS.getInnerProduct(M1, M2), 11, EPS);
+    assertThat(COMMONS.getInnerProduct(M1, M2)).isCloseTo(11, offset(EPS));
   }
 
   @Test
@@ -267,24 +301,24 @@ public class MatrixAlgebraImplementationTest {
 
   private void assertMatrixEquals(final Matrix m1, final Matrix m2) {
     if (m1 instanceof DoubleArray) {
-      assertTrue(m2 instanceof DoubleArray);
+      assertThat(m2 instanceof DoubleArray).isTrue();
       final DoubleArray m3 = (DoubleArray) m1;
       final DoubleArray m4 = (DoubleArray) m2;
-      assertEquals(m3.size(), m4.size());
+      assertThat(m3.size()).isEqualTo(m4.size());
       for (int i = 0; i < m3.size(); i++) {
-        assertEquals(m3.get(i), m4.get(i), EPS);
+        assertThat(m3.get(i)).isCloseTo(m4.get(i), offset(EPS));
       }
       return;
     }
     if (m2 instanceof DoubleMatrix) {
       final DoubleMatrix m3 = (DoubleMatrix) m1;
       final DoubleMatrix m4 = (DoubleMatrix) m2;
-      assertEquals(m3.size(), m4.size());
-      assertEquals(m3.rowCount(), m4.rowCount());
-      assertEquals(m3.columnCount(), m4.columnCount());
+      assertThat(m3.size()).isEqualTo(m4.size());
+      assertThat(m3.rowCount()).isEqualTo(m4.rowCount());
+      assertThat(m3.columnCount()).isEqualTo(m4.columnCount());
       for (int i = 0; i < m3.rowCount(); i++) {
         for (int j = 0; j < m3.columnCount(); j++) {
-          assertEquals(m3.get(i, j), m4.get(i, j), EPS);
+          assertThat(m3.get(i, j)).isCloseTo(m4.get(i, j), offset(EPS));
         }
       }
     }

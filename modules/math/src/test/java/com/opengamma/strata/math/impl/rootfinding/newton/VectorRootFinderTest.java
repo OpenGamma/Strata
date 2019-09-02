@@ -6,11 +6,13 @@
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
 import static com.opengamma.strata.math.impl.matrix.MatrixAlgebraFactory.OG_ALGEBRA;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -19,7 +21,6 @@ import com.opengamma.strata.math.impl.rootfinding.VectorRootFinder;
 /**
  * Test.
  */
-@Test
 public abstract class VectorRootFinderTest {
   static final double EPS = 1e-6;
   static final double TOLERANCE = 1e-8;
@@ -165,21 +166,23 @@ public abstract class VectorRootFinderTest {
 
   };
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    DUMMY.getRoot(null, DoubleArray.EMPTY);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DUMMY.getRoot(null, DoubleArray.EMPTY));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullVector() {
-    DUMMY.getRoot(LINEAR, (DoubleArray) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> DUMMY.getRoot(LINEAR, (DoubleArray) null));
   }
 
   protected void assertLinear(final VectorRootFinder rootFinder, final double eps) {
     final DoubleArray x0 = DoubleArray.of(0.0, 0.0);
     final DoubleArray x1 = rootFinder.getRoot(LINEAR, x0);
-    assertEquals(1.0, x1.get(0), eps);
-    assertEquals(-1.0, x1.get(1), eps);
+    assertThat(1.0).isCloseTo(x1.get(0), offset(eps));
+    assertThat(-1.0).isCloseTo(x1.get(1), offset(eps));
   }
 
   // Note: at the root (1,1) the Jacobian is singular which leads to very slow convergence and is why
@@ -187,16 +190,16 @@ public abstract class VectorRootFinderTest {
   protected void assertFunction2D(final BaseNewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleArray x0 = DoubleArray.of(-0.0, 0.0);
     final DoubleArray x1 = rootFinder.findRoot(FUNCTION2D, JACOBIAN2D, x0);
-    assertEquals(1.0, x1.get(0), eps);
-    assertEquals(1.0, x1.get(1), eps);
+    assertThat(1.0).isCloseTo(x1.get(0), offset(eps));
+    assertThat(1.0).isCloseTo(x1.get(1), offset(eps));
   }
 
   protected void assertFunction3D(final BaseNewtonVectorRootFinder rootFinder, final double eps) {
     final DoubleArray x0 = DoubleArray.of(0.8, 0.2, -0.7);
     final DoubleArray x1 = rootFinder.findRoot(FUNCTION3D, JACOBIAN3D, x0);
-    assertEquals(1.0, x1.get(0), eps);
-    assertEquals(0.0, x1.get(1), eps);
-    assertEquals(-1.0, x1.get(2), eps);
+    assertThat(1.0).isCloseTo(x1.get(0), offset(eps));
+    assertThat(0.0).isCloseTo(x1.get(1), offset(eps));
+    assertThat(-1.0).isCloseTo(x1.get(2), offset(eps));
   }
 
   protected void assertYieldCurveBootstrap(final VectorRootFinder rootFinder, final double eps) {
@@ -208,7 +211,7 @@ public abstract class VectorRootFinderTest {
     final DoubleArray x0 = DoubleArray.copyOf(flatCurve);
     final DoubleArray x1 = rootFinder.getRoot(SWAP_RATES, x0);
     for (int i = 0; i < n; i++) {
-      assertEquals(-Math.log(DUMMY_YIELD_CURVE.apply(TIME_GRID[i])) / TIME_GRID[i], x1.get(i), eps);
+      assertThat(-Math.log(DUMMY_YIELD_CURVE.apply(TIME_GRID[i])) / TIME_GRID[i]).isCloseTo(x1.get(i), offset(eps));
     }
   }
 

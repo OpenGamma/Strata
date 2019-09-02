@@ -5,12 +5,9 @@
  */
 package com.opengamma.strata.math.impl.rootfinding;
 
-import org.testng.annotations.Test;
-
 /**
  * Test.
  */
-@Test
 public class BisectionSingleRootFinderTest extends RealSingleRootFinderTestCase {
   private static final RealSingleRootFinder FINDER = new BisectionSingleRootFinder();
 

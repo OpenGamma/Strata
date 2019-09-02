@@ -5,17 +5,17 @@
  */
 package com.opengamma.strata.math.impl.differentiation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ScalarSecondOrderDifferentiator}.
  */
-@Test
 public class ScalarSecondOrderDifferentiatorTest {
 
   private static final Function<Double, Double> F = new Function<Double, Double>() {
@@ -39,16 +39,19 @@ public class ScalarSecondOrderDifferentiatorTest {
   private static final ScalarSecondOrderDifferentiator CALC = new ScalarSecondOrderDifferentiator();
   private static final double EPS = 1.0e-4;
 
+  @Test
   public void testNullDifferenceType() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> new ScalarFirstOrderDifferentiator(null));
   }
 
+  @Test
   public void testNullFunction() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CALC.differentiate((Function<Double, Double>) null));
   }
 
+  @Test
   public void testDomainOut() {
     Function<Double, Boolean> domain = new Function<Double, Boolean>() {
       @Override
@@ -60,16 +63,18 @@ public class ScalarSecondOrderDifferentiatorTest {
         .isThrownBy(() -> CALC.differentiate(F, domain).apply(1.0e-9));
   }
 
+  @Test
   public void analyticTest() {
     final double x = 0.2245;
-    assertEquals(CALC.differentiate(F).apply(x), DX_ANALYTIC.apply(x), EPS);
+    assertThat(CALC.differentiate(F).apply(x)).isCloseTo(DX_ANALYTIC.apply(x), offset(EPS));
   }
 
+  @Test
   public void domainTest() {
     final double[] x = new double[] {1.2, 0, Math.PI };
     final Function<Double, Double> alFunc = CALC.differentiate(F, DOMAIN);
     for (int i = 0; i < 3; i++) {
-      assertEquals(alFunc.apply(x[i]), DX_ANALYTIC.apply(x[i]), EPS);
+      assertThat(alFunc.apply(x[i])).isCloseTo(DX_ANALYTIC.apply(x[i]), offset(EPS));
     }
   }
 

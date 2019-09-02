@@ -5,12 +5,12 @@
  */
 package com.opengamma.strata.math.impl.statistics.leastsquare;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -27,7 +27,6 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
 /**
  * Test.
  */
-@Test
 public class NonLinearLeastSquareTest {
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final DoubleArray X;
@@ -119,51 +118,55 @@ public class NonLinearLeastSquareTest {
     LS = new NonLinearLeastSquare();
   }
 
+  @Test
   public void solveExactTest() {
     final DoubleArray start = DoubleArray.of(1.2, 0.8, -0.2, -0.3);
     LeastSquareResults result = LS.solve(X, Y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
-    assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
+    assertThat(0.0).isCloseTo(result.getChiSq(), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(0), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(1), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(2), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(3), offset(1e-8));
     result = LS.solve(X, Y, SIGMA.get(0), PARAM_FUNCTION, PARAM_GRAD, start);
-    assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
+    assertThat(0.0).isCloseTo(result.getChiSq(), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(0), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(1), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(2), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(3), offset(1e-8));
     result = LS.solve(X, Y, PARAM_FUNCTION, PARAM_GRAD, start);
-    assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
+    assertThat(0.0).isCloseTo(result.getChiSq(), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(0), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(1), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(2), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(3), offset(1e-8));
   }
 
+  @Test
   public void solveExactTest2() {
     final DoubleArray start = DoubleArray.of(0.2, 1.8, 0.2, 0.3);
     final LeastSquareResults result = LS.solve(Y, SIGMA, FUNCTION, start);
-    assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
+    assertThat(0.0).isCloseTo(result.getChiSq(), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(0), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(1), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(2), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(3), offset(1e-8));
   }
 
+  @Test
   public void solveExactWithoutGradientTest() {
 
     final DoubleArray start = DoubleArray.of(1.2, 0.8, -0.2, -0.3);
 
     final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     final LeastSquareResults result = ls.solve(X, Y, SIGMA, PARAM_FUNCTION, start);
-    assertEquals(0.0, result.getChiSq(), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(0), 1e-8);
-    assertEquals(1.0, result.getFitParameters().get(1), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(2), 1e-8);
-    assertEquals(0.0, result.getFitParameters().get(3), 1e-8);
+    assertThat(0.0).isCloseTo(result.getChiSq(), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(0), offset(1e-8));
+    assertThat(1.0).isCloseTo(result.getFitParameters().get(1), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(2), offset(1e-8));
+    assertThat(0.0).isCloseTo(result.getFitParameters().get(3), offset(1e-8));
   }
 
+  @Test
   public void solveRandomNoiseTest() {
     final MatrixAlgebra ma = new OGMatrixAlgebra();
     final double[] y = new double[20];
@@ -175,8 +178,8 @@ public class NonLinearLeastSquareTest {
     final LeastSquareResults res = ls.solve(X, DoubleArray.copyOf(y), SIGMA, PARAM_FUNCTION, PARAM_GRAD, start);
 
     final double chiSqDoF = res.getChiSq() / 16;
-    assertTrue(chiSqDoF > 0.25);
-    assertTrue(chiSqDoF < 3.0);
+    assertThat(chiSqDoF > 0.25).isTrue();
+    assertThat(chiSqDoF < 3.0).isTrue();
 
     final DoubleArray trueValues = DoubleArray.of(1, 1, 0, 0);
     final DoubleArray delta = (DoubleArray) ma.subtract(res.getFitParameters(), trueValues);
@@ -188,10 +191,11 @@ public class NonLinearLeastSquareTest {
     double z = ma.getInnerProduct(delta, ma.multiply(invCovariance, delta));
     z = Math.sqrt(z);
 
-    assertTrue(z < 3.0);
+    assertThat(z < 3.0).isTrue();
 
   }
 
+  @Test
   public void smallPertubationTest() {
     final MatrixAlgebra ma = new OGMatrixAlgebra();
     final double[] dy = new double[20];
@@ -210,10 +214,10 @@ public class NonLinearLeastSquareTest {
     final LeastSquareResults lsRes = ls.solve(X, y, SIGMA, PARAM_FUNCTION, PARAM_GRAD, solution);
     final DoubleArray trueDeltaParms = (DoubleArray) ma.subtract(lsRes.getFitParameters(), solution);
 
-    assertEquals(trueDeltaParms.get(0), deltaParms.get(0), 5e-5);
-    assertEquals(trueDeltaParms.get(1), deltaParms.get(1), 5e-5);
-    assertEquals(trueDeltaParms.get(2), deltaParms.get(2), 5e-5);
-    assertEquals(trueDeltaParms.get(3), deltaParms.get(3), 5e-5);
+    assertThat(trueDeltaParms.get(0)).isCloseTo(deltaParms.get(0), offset(5e-5));
+    assertThat(trueDeltaParms.get(1)).isCloseTo(deltaParms.get(1), offset(5e-5));
+    assertThat(trueDeltaParms.get(2)).isCloseTo(deltaParms.get(2), offset(5e-5));
+    assertThat(trueDeltaParms.get(3)).isCloseTo(deltaParms.get(3), offset(5e-5));
   }
 
 }

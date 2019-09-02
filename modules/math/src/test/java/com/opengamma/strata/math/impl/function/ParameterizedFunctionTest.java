@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -19,7 +20,6 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferenti
 /**
  * Test.
  */
-@Test
 public class ParameterizedFunctionTest {
 
   private static ParameterizedFunction<Double, double[], Double> ARRAY_PARAMS = new ParameterizedFunction<Double, double[], Double>() {
@@ -62,32 +62,32 @@ public class ParameterizedFunctionTest {
   @Test
   public void testCubic() {
     final double[] parms = new double[] {3.0, -1.0, 1.0, 1.0 };
-    assertEquals(13.0, ARRAY_PARAMS.evaluate(2.0, parms), 0.0);
+    assertThat(13.0).isEqualTo(ARRAY_PARAMS.evaluate(2.0, parms));
 
     final Function<Double, Double> func = ARRAY_PARAMS.asFunctionOfArguments(parms);
-    assertEquals(4.0, func.apply(-1.0), 0.0);
+    assertThat(4.0).isEqualTo(func.apply(-1.0));
 
     final Function<double[], Double> param_func = ARRAY_PARAMS.asFunctionOfParameters(0.0);
-    assertEquals(10.0, param_func.apply(new double[] {10, 312, 423, 534 }), 0.0);
+    assertThat(10.0).isEqualTo(param_func.apply(new double[]{10, 312, 423, 534}));
   }
 
   @Test
   public void testSin() {
     final DoubleArray parms = DoubleArray.of(-1.0, 0.5);
-    assertEquals(-Math.sin(1.0), VECTOR_PARAMS.evaluate(2.0, parms), 0.0);
+    assertThat(-Math.sin(1.0)).isEqualTo(VECTOR_PARAMS.evaluate(2.0, parms));
 
     final Function<Double, Double> func = VECTOR_PARAMS.asFunctionOfArguments(parms);
-    assertEquals(1.0, func.apply(-Math.PI), 0.0);
+    assertThat(1.0).isEqualTo(func.apply(-Math.PI));
 
     final ScalarFirstOrderDifferentiator diff = new ScalarFirstOrderDifferentiator();
     final Function<Double, Double> grad = diff.differentiate(func);
-    assertEquals(-0.5, grad.apply(0.0), 1e-8);
+    assertThat(-0.5).isCloseTo(grad.apply(0.0), offset(1e-8));
 
     final Function<DoubleArray, Double> params_func = VECTOR_PARAMS.asFunctionOfParameters(1.0);
     final ScalarFieldFirstOrderDifferentiator vdiff = new ScalarFieldFirstOrderDifferentiator();
     final Function<DoubleArray, DoubleArray> vgrad = vdiff.differentiate(params_func);
     final DoubleArray res = vgrad.apply(DoubleArray.of(Math.PI, 0));
-    assertEquals(0.0, res.get(0), 1e-8);
-    assertEquals(Math.PI, res.get(1), 1e-8);
+    assertThat(0.0).isCloseTo(res.get(0), offset(1e-8));
+    assertThat(Math.PI).isCloseTo(res.get(1), offset(1e-8));
   }
 }

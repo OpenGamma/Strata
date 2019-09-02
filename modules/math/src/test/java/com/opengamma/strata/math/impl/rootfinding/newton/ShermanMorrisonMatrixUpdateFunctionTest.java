@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -17,7 +19,6 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 /**
  * Test.
  */
-@Test
 public class ShermanMorrisonMatrixUpdateFunctionTest {
   private static final MatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
   private static final ShermanMorrisonMatrixUpdateFunction UPDATE = new ShermanMorrisonMatrixUpdateFunction(ALGEBRA);
@@ -31,23 +32,27 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
     }
   };
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull() {
-    new ShermanMorrisonMatrixUpdateFunction(null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new ShermanMorrisonMatrixUpdateFunction(null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDeltaX() {
-    UPDATE.getUpdatedMatrix(J, V, null, V, M);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPDATE.getUpdatedMatrix(J, V, null, V, M));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDeltaY() {
-    UPDATE.getUpdatedMatrix(J, V, V, null, M);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPDATE.getUpdatedMatrix(J, V, V, null, M));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullMatrix() {
-    UPDATE.getUpdatedMatrix(J, V, V, V, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> UPDATE.getUpdatedMatrix(J, V, V, V, null));
   }
 }

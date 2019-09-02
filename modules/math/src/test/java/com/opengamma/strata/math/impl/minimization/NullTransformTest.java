@@ -5,15 +5,13 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class NullTransformTest extends ParameterLimitsTransformTestCase {
   private static final ParameterLimitsTransform NULL_TRANSFORM = new NullTransform();
 
@@ -32,8 +30,8 @@ public class NullTransformTest extends ParameterLimitsTransformTestCase {
   @Test
   public void testHashCodeAndEquals() {
     ParameterLimitsTransform other = new NullTransform();
-    assertEquals(other, NULL_TRANSFORM);
-    assertEquals(other.hashCode(), NULL_TRANSFORM.hashCode());
+    assertThat(other).isEqualTo(NULL_TRANSFORM);
+    assertThat(other.hashCode()).isEqualTo(NULL_TRANSFORM.hashCode());
     other = new ParameterLimitsTransform() {
 
       @Override
@@ -56,6 +54,6 @@ public class NullTransformTest extends ParameterLimitsTransformTestCase {
         return 0;
       }
     };
-    assertFalse(other.equals(NULL_TRANSFORM));
+    assertThat(other.equals(NULL_TRANSFORM)).isFalse();
   }
 }

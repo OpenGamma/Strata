@@ -5,14 +5,15 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class Integrator1DTest {
   private static final Integrator1D<Double, Double> INTEGRATOR = new Integrator1D<Double, Double>() {
 
@@ -33,38 +34,45 @@ public class Integrator1DTest {
   private static final Double[] L = new Double[] {1.3 };
   private static final Double[] U = new Double[] {3.4 };
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    INTEGRATOR.integrate(null, L, U);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(null, L, U));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLowerBound() {
-    INTEGRATOR.integrate(F, null, U);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(F, null, U));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullUpperBound() {
-    INTEGRATOR.integrate(F, L, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(F, L, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEmptyLowerBound() {
-    INTEGRATOR.integrate(F, new Double[0], U);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(F, new Double[0], U));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEmptyUpperBound() {
-    INTEGRATOR.integrate(F, L, new Double[0]);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(F, L, new Double[0]));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLowerBoundValue() {
-    INTEGRATOR.integrate(F, new Double[] {null }, U);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(F, new Double[] {null}, U));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullUpperBoundValue() {
-    INTEGRATOR.integrate(F, L, new Double[] {null });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> INTEGRATOR.integrate(F, L, new Double[] {null}));
   }
 }

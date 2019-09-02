@@ -6,14 +6,14 @@
 package com.opengamma.strata.math.impl;
 
 import static com.opengamma.strata.math.impl.ComplexMathUtils.multiply;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class ComplexMathUtilsTest {
   private static final double V = 0.123;
   private static final double W = 0.456;
@@ -172,7 +172,7 @@ public class ComplexMathUtilsTest {
 
   @Test
   public void testArg() {
-    assertEquals(Math.atan2(W, V), ComplexMathUtils.arg(Z1), EPS);
+    assertThat(Math.atan2(W, V)).isCloseTo(ComplexMathUtils.arg(Z1), offset(EPS));
   }
 
   @Test
@@ -212,7 +212,7 @@ public class ComplexMathUtilsTest {
 
   @Test
   public void testModulus() {
-    assertEquals(Math.sqrt(V * V + W * W), ComplexMathUtils.mod(Z1), EPS);
+    assertThat(Math.sqrt(V * V + W * W)).isCloseTo(ComplexMathUtils.mod(Z1), offset(EPS));
   }
 
   @Test
@@ -246,11 +246,11 @@ public class ComplexMathUtilsTest {
   }
 
   private void assertComplexEquals(final ComplexNumber z1, final ComplexNumber z2) {
-    assertEquals(z1.getReal(), z2.getReal(), EPS);
-    assertEquals(z1.getImaginary(), z2.getImaginary(), EPS);
+    assertThat(z1.getReal()).isCloseTo(z2.getReal(), offset(EPS));
+    assertThat(z1.getImaginary()).isCloseTo(z2.getImaginary(), offset(EPS));
   }
 
   private void assertStackTraceElement(final StackTraceElement[] ste) {
-    assertEquals(ste[0].getClassName(), "com.opengamma.strata.collect.ArgChecker");
+    assertThat(ste[0].getClassName()).isEqualTo("com.opengamma.strata.collect.ArgChecker");
   }
 }

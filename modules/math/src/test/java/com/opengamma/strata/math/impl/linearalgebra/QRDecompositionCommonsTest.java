@@ -5,10 +5,11 @@
  */
 package com.opengamma.strata.math.impl.linearalgebra;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.math.impl.matrix.CommonsMatrixAlgebra;
@@ -19,7 +20,6 @@ import com.opengamma.strata.math.linearalgebra.DecompositionResult;
 /**
  * Test.
  */
-@Test
 public class QRDecompositionCommonsTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<QRDecompositionResult> QR = new QRDecompositionCommons();
@@ -27,15 +27,16 @@ public class QRDecompositionCommonsTest {
       new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final double EPS = 1e-9;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullObjectMatrix() {
-    QR.apply((DoubleMatrix) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> QR.apply((DoubleMatrix) null));
   }
 
   @Test
   public void testRecoverOrginal() {
     final DecompositionResult result = QR.apply(A);
-    assertTrue(result instanceof QRDecompositionResult);
+    assertThat(result instanceof QRDecompositionResult).isTrue();
     final QRDecompositionResult qr = (QRDecompositionResult) result;
     final DoubleMatrix q = qr.getQ();
     final DoubleMatrix r = qr.getR();
@@ -46,11 +47,11 @@ public class QRDecompositionCommonsTest {
   private void checkEquals(final DoubleMatrix x, final DoubleMatrix y) {
     final int n = x.rowCount();
     final int m = x.columnCount();
-    assertEquals(n, y.rowCount());
-    assertEquals(m, y.columnCount());
+    assertThat(n).isEqualTo(y.rowCount());
+    assertThat(m).isEqualTo(y.columnCount());
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
-        assertEquals(x.get(i, j), y.get(i, j), EPS);
+        assertThat(x.get(i, j)).isCloseTo(y.get(i, j), offset(EPS));
       }
     }
   }

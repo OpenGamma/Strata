@@ -5,17 +5,16 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GaussJacobiWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final QuadratureWeightAndAbscissaFunction GAUSS_LEGENDRE = new GaussLegendreWeightAndAbscissaFunction();
   private static final QuadratureWeightAndAbscissaFunction GAUSS_JACOBI_GL_EQUIV = new GaussJacobiWeightAndAbscissaFunction(0, 0);
@@ -32,11 +31,11 @@ public class GaussJacobiWeightAndAbscissaFunctionTest extends WeightAndAbscissaF
     final double[] w2 = f2.getWeights();
     final double[] x1 = f1.getAbscissas();
     final double[] x2 = f2.getAbscissas();
-    assertTrue(w1.length == w2.length);
-    assertTrue(x1.length == x2.length);
+    assertThat(w1.length == w2.length).isTrue();
+    assertThat(x1.length == x2.length).isTrue();
     for (int i = 0; i < n; i++) {
-      assertEquals(w1[i], w2[i], EPS);
-      assertEquals(x1[i], -x2[i], EPS);
+      assertThat(w1[i]).isCloseTo(w2[i], offset(EPS));
+      assertThat(x1[i]).isCloseTo(-x2[i], offset(EPS));
     }
     final double[] w3 = f3.getWeights();
     final double[] x3 = f3.getAbscissas();
@@ -50,8 +49,8 @@ public class GaussJacobiWeightAndAbscissaFunctionTest extends WeightAndAbscissaF
 
     };
     for (int i = 0; i < n; i++) {
-      assertEquals(chebyshevWeight, w3[i], EPS);
-      assertEquals(chebyshevAbscissa.apply(i), -x3[i], EPS);
+      assertThat(chebyshevWeight).isCloseTo(w3[i], offset(EPS));
+      assertThat(chebyshevAbscissa.apply(i)).isCloseTo(-x3[i], offset(EPS));
     }
   }
 

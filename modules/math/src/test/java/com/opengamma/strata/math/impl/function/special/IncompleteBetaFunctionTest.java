@@ -5,17 +5,18 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class IncompleteBetaFunctionTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
@@ -25,44 +26,52 @@ public class IncompleteBetaFunctionTest {
   private static final int MAX_ITER = 10000;
   private static final Function<Double, Double> BETA = new IncompleteBetaFunction(A, B);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeA1() {
-    new IncompleteBetaFunction(-A, B);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteBetaFunction(-A, B));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeA2() {
-    new IncompleteBetaFunction(-A, B, EPS, MAX_ITER);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteBetaFunction(-A, B, EPS, MAX_ITER));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeB1() {
-    new IncompleteBetaFunction(A, -B);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteBetaFunction(A, -B));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeB2() {
-    new IncompleteBetaFunction(A, -B, EPS, MAX_ITER);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteBetaFunction(A, -B, EPS, MAX_ITER));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeEps() {
-    new IncompleteBetaFunction(A, B, -EPS, MAX_ITER);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteBetaFunction(A, B, -EPS, MAX_ITER));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeIter() {
-    new IncompleteBetaFunction(A, B, EPS, -MAX_ITER);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new IncompleteBetaFunction(A, B, EPS, -MAX_ITER));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testLow() {
-    BETA.apply(-0.3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BETA.apply(-0.3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testHigh() {
-    BETA.apply(1.5);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BETA.apply(1.5));
   }
 
   @Test
@@ -72,8 +81,8 @@ public class IncompleteBetaFunctionTest {
     final double x = RANDOM.nextDouble();
     final Function<Double, Double> f1 = new IncompleteBetaFunction(a, b);
     final Function<Double, Double> f2 = new IncompleteBetaFunction(b, a);
-    assertEquals(f1.apply(0.), 0, EPS);
-    assertEquals(f1.apply(1.), 1, EPS);
-    assertEquals(f1.apply(x), 1 - f2.apply(1 - x), EPS);
+    assertThat(f1.apply(0.)).isCloseTo(0, offset(EPS));
+    assertThat(f1.apply(1.)).isCloseTo(1, offset(EPS));
+    assertThat(f1.apply(x)).isCloseTo(1 - f2.apply(1 - x), offset(EPS));
   }
 }

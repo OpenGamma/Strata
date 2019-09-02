@@ -5,14 +5,13 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class SineWeightingFunctionTest extends WeightingFunctionTestCase {
 
   @Override
@@ -20,8 +19,9 @@ public class SineWeightingFunctionTest extends WeightingFunctionTestCase {
     return SineWeightingFunction.INSTANCE;
   }
 
+  @Test
   public void testName() {
-    assertEquals(getInstance().getName(), "Sine");
+    assertThat(getInstance().getName()).isEqualTo("Sine");
   }
 
 }

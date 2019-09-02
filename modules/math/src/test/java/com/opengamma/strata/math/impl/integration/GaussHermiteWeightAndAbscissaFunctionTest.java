@@ -5,12 +5,11 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GaussHermiteWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final double SQRT_PI = Math.sqrt(Math.PI);
   private static final double DENOM1 = 4 * (3 - Math.sqrt(6));

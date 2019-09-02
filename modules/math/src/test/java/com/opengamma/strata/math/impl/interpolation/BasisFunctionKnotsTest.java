@@ -5,15 +5,14 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
-import org.testng.internal.junit.ArrayAsserts;
+import org.junit.jupiter.api.Test;
 
 /**
  * 
  */
-@Test
 public class BasisFunctionKnotsTest {
 
   private static final double[] KNOTS;
@@ -32,79 +31,89 @@ public class BasisFunctionKnotsTest {
     WRONG_ORDER_KNOTS[4] = a;
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullKnots() {
-    BasisFunctionKnots.fromKnots(null, 2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromKnots(null, 2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullInternalKnots() {
-    BasisFunctionKnots.fromInternalKnots(null, 2);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromInternalKnots(null, 2));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegDegree() {
-    BasisFunctionKnots.fromKnots(KNOTS, -1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromKnots(KNOTS, -1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegDegree2() {
-    BasisFunctionKnots.fromInternalKnots(KNOTS, -1);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromInternalKnots(KNOTS, -1));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testWrongOrderUniform() {
-    BasisFunctionKnots.fromUniform(2.0, 1.0, 10, 3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromUniform(2.0, 1.0, 10, 3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testWrongOrderKnots() {
-    BasisFunctionKnots.fromKnots(WRONG_ORDER_KNOTS, 3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromKnots(WRONG_ORDER_KNOTS, 3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testWrongOrderInternalKnots() {
-    BasisFunctionKnots.fromInternalKnots(WRONG_ORDER_KNOTS, 3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromInternalKnots(WRONG_ORDER_KNOTS, 3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDegreeToHigh1() {
-    BasisFunctionKnots.fromUniform(0.0, 10.0, 11, 11);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromUniform(0.0, 10.0, 11, 11));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDegreeToHigh2() {
-    BasisFunctionKnots.fromInternalKnots(KNOTS, 11);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromInternalKnots(KNOTS, 11));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testDegreeToHigh3() {
-    BasisFunctionKnots.fromKnots(KNOTS, 11);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> BasisFunctionKnots.fromKnots(KNOTS, 11));
   }
 
   @Test
   public void testUniform() {
     BasisFunctionKnots knots = BasisFunctionKnots.fromUniform(1.0, 2.0, 10, 3);
-    assertEquals(3, knots.getDegree());
-    assertEquals(16, knots.getNumKnots());
-    assertEquals(12, knots.getNumSplines());
+    assertThat(knots.getDegree()).isEqualTo(3);
+    assertThat(knots.getNumKnots()).isEqualTo(16);
+    assertThat(knots.getNumSplines()).isEqualTo(12);
   }
 
   @Test
   public void testInternalKnots() {
     BasisFunctionKnots knots = BasisFunctionKnots.fromInternalKnots(KNOTS, 2);
-    assertEquals(2, knots.getDegree());
-    assertEquals(15, knots.getNumKnots());
-    assertEquals(12, knots.getNumSplines());
+    assertThat(knots.getDegree()).isEqualTo(2);
+    assertThat(knots.getNumKnots()).isEqualTo(15);
+    assertThat(knots.getNumSplines()).isEqualTo(12);
   }
 
   @Test
   public void testKnots() {
     BasisFunctionKnots knots = BasisFunctionKnots.fromKnots(KNOTS, 3);
-    assertEquals(3, knots.getDegree());
-    assertEquals(11, knots.getNumKnots());
-    assertEquals(7, knots.getNumSplines());
-    ArrayAsserts.assertArrayEquals(KNOTS, knots.getKnots(), 1e-15);
+    assertThat(knots.getDegree()).isEqualTo(3);
+    assertThat(knots.getNumKnots()).isEqualTo(11);
+    assertThat(knots.getNumSplines()).isEqualTo(7);
+    assertThat(knots.getKnots()).usingComparatorWithPrecision(1e-15).containsExactly(KNOTS);
   }
 
 }

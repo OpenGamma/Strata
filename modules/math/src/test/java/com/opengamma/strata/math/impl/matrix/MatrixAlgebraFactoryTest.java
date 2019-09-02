@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.math.impl.matrix;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.array.Matrix;
@@ -16,16 +16,17 @@ import com.opengamma.strata.collect.array.Matrix;
 /**
  * Test.
  */
-@Test
 public class MatrixAlgebraFactoryTest {
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadName() {
-    MatrixAlgebraFactory.getMatrixAlgebra("X");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> MatrixAlgebraFactory.getMatrixAlgebra("X"));
   }
 
+  @Test
   public void testBadClass() {
-    assertNull(MatrixAlgebraFactory.getMatrixAlgebraName(new MatrixAlgebra() {
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebraName(new MatrixAlgebra() {
 
       @Override
       public double getCondition(Matrix m) {
@@ -92,14 +93,15 @@ public class MatrixAlgebraFactoryTest {
         return null;
       }
 
-    }));
+    })).isNull();
   }
 
+  @Test
   public void test() {
-    assertEquals(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.COMMONS), MatrixAlgebraFactory.COMMONS_ALGEBRA);
-    assertEquals(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.OG), MatrixAlgebraFactory.OG_ALGEBRA);
-    assertEquals(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.COMMONS_ALGEBRA), MatrixAlgebraFactory.COMMONS);
-    assertEquals(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.OG_ALGEBRA), MatrixAlgebraFactory.OG);
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.COMMONS)).isEqualTo(MatrixAlgebraFactory.COMMONS_ALGEBRA);
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.OG)).isEqualTo(MatrixAlgebraFactory.OG_ALGEBRA);
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.COMMONS_ALGEBRA)).isEqualTo(MatrixAlgebraFactory.COMMONS);
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.OG_ALGEBRA)).isEqualTo(MatrixAlgebraFactory.OG);
   }
 
 }

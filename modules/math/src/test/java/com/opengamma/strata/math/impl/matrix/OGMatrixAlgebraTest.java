@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.math.impl.matrix;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -19,7 +21,6 @@ import com.opengamma.strata.math.impl.util.AssertMatrix;
 /**
  * Test.
  */
-@Test
 public class OGMatrixAlgebraTest {
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
@@ -31,17 +32,18 @@ public class OGMatrixAlgebraTest {
   private static final DoubleArray E = DoubleArray.of(-1, 2, 3);
   private static final DoubleArray F = DoubleArray.of(2, -2, 1);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testMatrixSizeMismatch() {
-    ALGEBRA.multiply(B, A);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ALGEBRA.multiply(B, A));
   }
 
   @Test
   public void testDotProduct() {
     double res = ALGEBRA.getInnerProduct(E, F);
-    assertEquals(-3.0, res, 1e-15);
+    assertThat(-3.0).isCloseTo(res, offset(1e-15));
     res = ALGEBRA.getNorm2(E);
-    assertEquals(Math.sqrt(14.0), res, 1e-15);
+    assertThat(res).isCloseTo(Math.sqrt(14.0), offset(1e-15));
   }
 
   @Test
@@ -52,7 +54,7 @@ public class OGMatrixAlgebraTest {
     int i, j;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
-        assertEquals(res.get(i, j), E.get(i) * F.get(j), 1e-15);
+        assertThat(res.get(i, j)).isCloseTo(E.get(i) * F.get(j), offset(1e-15));
       }
     }
 
@@ -66,14 +68,14 @@ public class OGMatrixAlgebraTest {
     int i, j;
     for (i = 0; i < rows; i++) {
       for (j = 0; j < cols; j++) {
-        assertEquals(c.get(i, j), C.get(i, j), 1e-15);
+        assertThat(c.get(i, j)).isCloseTo(C.get(i, j), offset(1e-15));
       }
     }
 
     final DoubleArray d = (DoubleArray) ALGEBRA.multiply(A, D);
-    assertEquals(6, d.get(0), 1e-15);
-    assertEquals(0, d.get(1), 1e-15);
-    assertEquals(-3, d.get(2), 1e-15);
+    assertThat(d.get(0)).isCloseTo(6, offset(1e-15));
+    assertThat(d.get(1)).isCloseTo(0, offset(1e-15));
+    assertThat(d.get(2)).isCloseTo(-3, offset(1e-15));
   }
 
   @Test
@@ -100,7 +102,7 @@ public class OGMatrixAlgebraTest {
     DoubleArray y2 = (DoubleArray) ALGEBRA.multiply(full, xVec);
 
     for (int i = 0; i < n; i++) {
-      assertEquals(y1.get(i), y2.get(i), 1e-12);
+      assertThat(y1.get(i)).isCloseTo(y2.get(i), offset(1e-12));
     }
 
   }
@@ -108,11 +110,11 @@ public class OGMatrixAlgebraTest {
   @Test
   public void testTranspose() {
     final DoubleMatrix a = DoubleMatrix.copyOf(new double[][] { {1, 2}, {3, 4}, {5, 6}});
-    assertEquals(3, a.rowCount());
-    assertEquals(2, a.columnCount());
+    assertThat(a.rowCount()).isEqualTo(3);
+    assertThat(a.columnCount()).isEqualTo(2);
     DoubleMatrix aT = ALGEBRA.getTranspose(a);
-    assertEquals(2, aT.rowCount());
-    assertEquals(3, aT.columnCount());
+    assertThat(aT.rowCount()).isEqualTo(2);
+    assertThat(aT.columnCount()).isEqualTo(3);
 
   }
 

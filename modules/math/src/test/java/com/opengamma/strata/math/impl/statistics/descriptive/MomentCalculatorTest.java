@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.math.impl.statistics.descriptive;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.cern.MersenneTwister;
 import com.opengamma.strata.math.impl.cern.MersenneTwister64;
@@ -23,7 +24,6 @@ import com.opengamma.strata.math.impl.statistics.distribution.StudentTDistributi
 /**
  * Test.
  */
-@Test
 public class MomentCalculatorTest {
 
   private static final double STD = 2.;
@@ -71,53 +71,45 @@ public class MomentCalculatorTest {
   }
 
   private void assertNullArg(Function<double[], Double> f) {
-    try {
-      f.apply((double[]) null);
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> f.apply((double[]) null));
   }
 
   private void assertInsufficientData(Function<double[], Double> f) {
-    try {
-      f.apply(new double[] {1.});
-      Assert.fail();
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> f.apply(new double[] {1.}));
   }
 
   @Test
   public void testNormal() {
-    assertEquals(SAMPLE_VARIANCE.apply(NORMAL_DATA), STD * STD, EPS);
-    assertEquals(POPULATION_VARIANCE.apply(NORMAL_DATA), STD * STD, EPS);
-    assertEquals(SAMPLE_STD.apply(NORMAL_DATA), STD, EPS);
-    assertEquals(POPULATION_STD.apply(NORMAL_DATA), STD, EPS);
-    assertEquals(SAMPLE_SKEWNESS.apply(NORMAL_DATA), 0., EPS);
-    assertEquals(SAMPLE_FISHER_KURTOSIS.apply(NORMAL_DATA), 0., EPS);
+    assertThat(SAMPLE_VARIANCE.apply(NORMAL_DATA)).isCloseTo(STD * STD, offset(EPS));
+    assertThat(POPULATION_VARIANCE.apply(NORMAL_DATA)).isCloseTo(STD * STD, offset(EPS));
+    assertThat(SAMPLE_STD.apply(NORMAL_DATA)).isCloseTo(STD, offset(EPS));
+    assertThat(POPULATION_STD.apply(NORMAL_DATA)).isCloseTo(STD, offset(EPS));
+    assertThat(SAMPLE_SKEWNESS.apply(NORMAL_DATA)).isCloseTo(0., offset(EPS));
+    assertThat(SAMPLE_FISHER_KURTOSIS.apply(NORMAL_DATA)).isCloseTo(0., offset(EPS));
   }
 
   @Test
   public void testStudentT() {
     double variance = DOF / (DOF - 2);
-    assertEquals(SAMPLE_VARIANCE.apply(STUDENT_T_DATA), variance, EPS);
-    assertEquals(POPULATION_VARIANCE.apply(STUDENT_T_DATA), variance, EPS);
-    assertEquals(SAMPLE_STD.apply(STUDENT_T_DATA), Math.sqrt(variance), EPS);
-    assertEquals(POPULATION_STD.apply(STUDENT_T_DATA), Math.sqrt(variance), EPS);
-    assertEquals(SAMPLE_SKEWNESS.apply(STUDENT_T_DATA), 0., EPS);
-    assertEquals(SAMPLE_FISHER_KURTOSIS.apply(STUDENT_T_DATA), 6 / (DOF - 4), EPS);
+    assertThat(SAMPLE_VARIANCE.apply(STUDENT_T_DATA)).isCloseTo(variance, offset(EPS));
+    assertThat(POPULATION_VARIANCE.apply(STUDENT_T_DATA)).isCloseTo(variance, offset(EPS));
+    assertThat(SAMPLE_STD.apply(STUDENT_T_DATA)).isCloseTo(Math.sqrt(variance), offset(EPS));
+    assertThat(POPULATION_STD.apply(STUDENT_T_DATA)).isCloseTo(Math.sqrt(variance), offset(EPS));
+    assertThat(SAMPLE_SKEWNESS.apply(STUDENT_T_DATA)).isCloseTo(0., offset(EPS));
+    assertThat(SAMPLE_FISHER_KURTOSIS.apply(STUDENT_T_DATA)).isCloseTo(6 / (DOF - 4), offset(EPS));
   }
 
   @Test
   public void testChiSq() {
     double variance = 2 * DOF;
-    assertEquals(SAMPLE_VARIANCE.apply(CHI_SQ_DATA), variance, EPS);
-    assertEquals(POPULATION_VARIANCE.apply(CHI_SQ_DATA), variance, EPS);
-    assertEquals(SAMPLE_STD.apply(CHI_SQ_DATA), Math.sqrt(variance), EPS);
-    assertEquals(POPULATION_STD.apply(CHI_SQ_DATA), Math.sqrt(variance), EPS);
-    assertEquals(SAMPLE_SKEWNESS.apply(CHI_SQ_DATA), Math.sqrt(8 / DOF), EPS);
-    assertEquals(SAMPLE_FISHER_KURTOSIS.apply(CHI_SQ_DATA), 12 / DOF, EPS);
+    assertThat(SAMPLE_VARIANCE.apply(CHI_SQ_DATA)).isCloseTo(variance, offset(EPS));
+    assertThat(POPULATION_VARIANCE.apply(CHI_SQ_DATA)).isCloseTo(variance, offset(EPS));
+    assertThat(SAMPLE_STD.apply(CHI_SQ_DATA)).isCloseTo(Math.sqrt(variance), offset(EPS));
+    assertThat(POPULATION_STD.apply(CHI_SQ_DATA)).isCloseTo(Math.sqrt(variance), offset(EPS));
+    assertThat(SAMPLE_SKEWNESS.apply(CHI_SQ_DATA)).isCloseTo(Math.sqrt(8 / DOF), offset(EPS));
+    assertThat(SAMPLE_FISHER_KURTOSIS.apply(CHI_SQ_DATA)).isCloseTo(12 / DOF, offset(EPS));
   }
 
 }

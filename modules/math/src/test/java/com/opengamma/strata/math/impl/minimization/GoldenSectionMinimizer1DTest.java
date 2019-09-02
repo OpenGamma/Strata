@@ -5,12 +5,11 @@
  */
 package com.opengamma.strata.math.impl.minimization;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GoldenSectionMinimizer1DTest extends Minimizer1DTestCase {
   private static final ScalarMinimizer MINIMIZER = new GoldenSectionMinimizer1D();
 

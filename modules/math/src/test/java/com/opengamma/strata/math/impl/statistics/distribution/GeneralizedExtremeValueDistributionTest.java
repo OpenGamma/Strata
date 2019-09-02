@@ -5,16 +5,15 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistributionTestCase {
   private static final double MU = 1.5;
   private static final double SIGMA = 0.6;
@@ -22,9 +21,10 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
   private static final GeneralizedExtremeValueDistribution DIST = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
   private static final double LARGE_X = 1e10;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadConstructor() {
-    new GeneralizedExtremeValueDistribution(MU, -SIGMA, KSI);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new GeneralizedExtremeValueDistribution(MU, -SIGMA, KSI));
   }
 
   @Test
@@ -35,18 +35,18 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
 
   @Test
   public void testObject() {
-    assertEquals(MU, DIST.getMu(), 0);
-    assertEquals(SIGMA, DIST.getSigma(), 0);
-    assertEquals(KSI, DIST.getKsi(), 0);
+    assertThat(MU).isEqualTo(DIST.getMu());
+    assertThat(SIGMA).isEqualTo(DIST.getSigma());
+    assertThat(KSI).isEqualTo(DIST.getKsi());
     GeneralizedExtremeValueDistribution other = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
-    assertEquals(DIST, other);
-    assertEquals(DIST.hashCode(), other.hashCode());
+    assertThat(DIST).isEqualTo(other);
+    assertThat(DIST.hashCode()).isEqualTo(other.hashCode());
     other = new GeneralizedExtremeValueDistribution(MU + 1, SIGMA, KSI);
-    assertFalse(other.equals(DIST));
+    assertThat(other.equals(DIST)).isFalse();
     other = new GeneralizedExtremeValueDistribution(MU, SIGMA + 1, KSI);
-    assertFalse(other.equals(DIST));
+    assertThat(other.equals(DIST)).isFalse();
     other = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI + 1);
-    assertFalse(other.equals(DIST));
+    assertThat(other.equals(DIST)).isFalse();
   }
 
   @Test
@@ -54,30 +54,22 @@ public class GeneralizedExtremeValueDistributionTest extends ProbabilityDistribu
     ProbabilityDistribution<Double> dist = new GeneralizedExtremeValueDistribution(MU, SIGMA, KSI);
     double limit = MU - SIGMA / KSI;
     assertLimit(dist, limit - EPS);
-    assertEquals(dist.getCDF(limit + EPS), 0, EPS);
-    assertEquals(dist.getCDF(LARGE_X), 1, EPS);
+    assertThat(dist.getCDF(limit + EPS)).isCloseTo(0, offset(EPS));
+    assertThat(dist.getCDF(LARGE_X)).isCloseTo(1, offset(EPS));
     dist = new GeneralizedExtremeValueDistribution(MU, SIGMA, -KSI);
     limit = MU + SIGMA / KSI;
     assertLimit(dist, limit + EPS);
-    assertEquals(dist.getCDF(-LARGE_X), 0, EPS);
-    assertEquals(dist.getCDF(limit - EPS), 1, EPS);
+    assertThat(dist.getCDF(-LARGE_X)).isCloseTo(0, offset(EPS));
+    assertThat(dist.getCDF(limit - EPS)).isCloseTo(1, offset(EPS));
     dist = new GeneralizedExtremeValueDistribution(MU, SIGMA, 0);
-    assertEquals(dist.getCDF(-LARGE_X), 0, EPS);
-    assertEquals(dist.getCDF(LARGE_X), 1, EPS);
+    assertThat(dist.getCDF(-LARGE_X)).isCloseTo(0, offset(EPS));
+    assertThat(dist.getCDF(LARGE_X)).isCloseTo(1, offset(EPS));
   }
 
   private void assertLimit(final ProbabilityDistribution<Double> dist, final double limit) {
-    try {
-      dist.getCDF(limit);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
-    try {
-      dist.getPDF(limit);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> dist.getCDF(limit));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> dist.getPDF(limit));
   }
 }

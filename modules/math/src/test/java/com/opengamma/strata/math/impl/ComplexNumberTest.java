@@ -5,15 +5,14 @@
  */
 package com.opengamma.strata.math.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class ComplexNumberTest {
 
   private static final ComplexNumber Z1 = new ComplexNumber(1, 2);
@@ -22,44 +21,49 @@ public class ComplexNumberTest {
   private static final ComplexNumber Z4 = new ComplexNumber(2, 2);
   private static final ComplexNumber Z5 = new ComplexNumber(2, 3);
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testByteValue() {
-    Z1.byteValue();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> Z1.byteValue());
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testIntValue() {
-    Z1.intValue();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> Z1.intValue());
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testLongValue() {
-    Z1.longValue();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> Z1.longValue());
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testFloatValue() {
-    Z1.floatValue();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> Z1.floatValue());
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testDoubleValue() {
-    Z1.doubleValue();
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> Z1.doubleValue());
   }
 
   @Test
   public void test() {
-    assertEquals(Double.valueOf(1), Double.valueOf(Z1.getReal()));
-    assertEquals(Double.valueOf(2), Double.valueOf(Z1.getImaginary()));
-    assertEquals(Z1, Z2);
-    assertEquals(Z1.hashCode(), Z2.hashCode());
-    assertEquals("1.0 + 2.0i", Z1.toString());
-    assertEquals("1.0 + 0.0i", new ComplexNumber(1, 0).toString());
-    assertEquals("0.0 + 2.3i", new ComplexNumber(0, 2.3).toString());
-    assertEquals("-1.0 + 0.0i", new ComplexNumber(-1, 0).toString());
-    assertEquals("0.0 - 2.3i", new ComplexNumber(0, -2.3).toString());
-    assertFalse(Z1.equals(Z3));
-    assertFalse(Z1.equals(Z4));
-    assertFalse(Z1.equals(Z5));
+    assertThat(Double.valueOf(1)).isEqualTo(Double.valueOf(Z1.getReal()));
+    assertThat(Double.valueOf(2)).isEqualTo(Double.valueOf(Z1.getImaginary()));
+    assertThat(Z1).isEqualTo(Z2);
+    assertThat(Z1.hashCode()).isEqualTo(Z2.hashCode());
+    assertThat("1.0 + 2.0i").isEqualTo(Z1.toString());
+    assertThat("1.0 + 0.0i").isEqualTo(new ComplexNumber(1, 0).toString());
+    assertThat("0.0 + 2.3i").isEqualTo(new ComplexNumber(0, 2.3).toString());
+    assertThat("-1.0 + 0.0i").isEqualTo(new ComplexNumber(-1, 0).toString());
+    assertThat("0.0 - 2.3i").isEqualTo(new ComplexNumber(0, -2.3).toString());
+    assertThat(Z1.equals(Z3)).isFalse();
+    assertThat(Z1.equals(Z4)).isFalse();
+    assertThat(Z1.equals(Z5)).isFalse();
   }
 }

@@ -5,17 +5,17 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 
 /**
  * Test.
  */
-@Test
 public class ConstrainedCubicSplineInterpolatorTest {
 
   private static final double EPS = 1e-13;
@@ -25,6 +25,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
    * Recovering linear test
    * Note that quadratic function is not generally recovered
    */
+  @Test
   public void linearTest() {
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6. };
     final int nData = xValues.length;
@@ -41,14 +42,14 @@ public class ConstrainedCubicSplineInterpolatorTest {
     PiecewisePolynomialInterpolator interp = new ConstrainedCubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), 1);
-    assertEquals(result.getNumberOfIntervals(), 5);
-    assertEquals(result.getOrder(), 4);
+    assertThat(result.getDimensions()).isEqualTo(1);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(5);
+    assertThat(result.getOrder()).isEqualTo(4);
 
     for (int i = 0; i < result.getNumberOfIntervals(); ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatExp[i][j], offset(ref * EPS));
       }
     }
 
@@ -56,13 +57,14 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 0; i < nKeys; ++i) {
       final double key = 1. + 5. / (nKeys - 1) * i;
       final double ref = key / 7. + 1 / 11.;
-      assertEquals(function.evaluate(result, key).get(0), ref, ref * EPS);
+      assertThat(function.evaluate(result, key).get(0)).isCloseTo(ref, offset(ref * EPS));
     }
   }
 
   /**
    * 
    */
+  @Test
   public void linearMultiTest() {
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6. };
     final int nData = xValues.length;
@@ -81,14 +83,14 @@ public class ConstrainedCubicSplineInterpolatorTest {
     PiecewisePolynomialInterpolator interp = new ConstrainedCubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), 2);
-    assertEquals(result.getNumberOfIntervals(), 5);
-    assertEquals(result.getOrder(), 4);
+    assertThat(result.getDimensions()).isEqualTo(2);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(5);
+    assertThat(result.getOrder()).isEqualTo(4);
 
     for (int i = 0; i < result.getNumberOfIntervals() * result.getDimensions(); ++i) {
       for (int j = 0; j < result.getOrder(); ++j) {
         final double ref = Math.abs(coefsMatExp[i][j]) == 0. ? 1. : Math.abs(coefsMatExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatExp[i][j], offset(ref * EPS));
       }
     }
 
@@ -96,7 +98,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 0; i < nKeys; ++i) {
       final double key = 1. + 5. / (nKeys - 1) * i;
       final double ref = key / 7. + 1 / 11.;
-      assertEquals(function.evaluate(result, key).get(0), ref, ref * EPS);
+      assertThat(function.evaluate(result, key).get(0)).isCloseTo(ref, offset(ref * EPS));
 
     }
   }
@@ -104,6 +106,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
   /**
    * 
    */
+  @Test
   public void extremumTest() {
     final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7. };
     final double[] yValues = new double[] {1., 1., 4., 5., 4., 1., 1. };
@@ -113,15 +116,15 @@ public class ConstrainedCubicSplineInterpolatorTest {
     PiecewisePolynomialInterpolator interp = new ConstrainedCubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
 
-    assertEquals(result.getDimensions(), 1);
-    assertEquals(result.getNumberOfIntervals(), 6);
-    assertEquals(result.getOrder(), 4);
+    assertThat(result.getDimensions()).isEqualTo(1);
+    assertThat(result.getNumberOfIntervals()).isEqualTo(6);
+    assertThat(result.getOrder()).isEqualTo(4);
 
     final int nKeys = 31;
     double key0 = 1.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 1. + 3. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) >= 0.);
+      assertThat(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) >= 0.).isTrue();
       key0 = 1. + 3. / (nKeys - 1) * i;
 
     }
@@ -129,7 +132,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     key0 = 4.;
     for (int i = 1; i < nKeys; ++i) {
       final double key = 4. + 3. / (nKeys - 1) * i;
-      assertTrue(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) <= 0.);
+      assertThat(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) <= 0.).isTrue();
       key0 = 4. + 3. / (nKeys - 1) * i;
 
     }
@@ -138,6 +141,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
   /**
    * Sample data
    */
+  @Test
   public void sampleDataTest() {
     final double[] xValues = new double[] {0., 10., 30., 50., 70., 90., 100. };
     final double[] yValues = new double[] {30., 130., 150., 150., 170., 220., 320. };
@@ -151,7 +155,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 4; ++j) {
         final double ref = Math.abs(coefsMatPartExp[i][j]) == 0. ? 1. : Math.abs(coefsMatPartExp[i][j]);
-        assertEquals(result.getCoefMatrix().get(i, j), coefsMatPartExp[i][j], ref * EPS);
+        assertThat(result.getCoefMatrix().get(i, j)).isCloseTo(coefsMatPartExp[i][j], offset(ref * EPS));
       }
     }
 
@@ -160,7 +164,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
     for (int i = 1; i < nKeys; ++i) {
       final double key = 0. + 100. / (nKeys - 1) * i;
 
-      assertTrue(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) >= -EPS);
+      assertThat(function.evaluate(result, key).get(0) - function.evaluate(result, key0).get(0) >= -EPS).isTrue();
       key0 = 0. + 100. / (nKeys - 1) * i;
     }
   }
@@ -172,244 +176,260 @@ public class ConstrainedCubicSplineInterpolatorTest {
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void dataShortTest() {
     final double[] xValues = new double[] {1. };
     final double[] yValues = new double[] {0., };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void dataShortMultiTest() {
     final double[] xValues = new double[] {1. };
     final double[][] yValues = new double[][] { {0. }, {0.1 } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void dataDiffTest() {
     final double[] xValues = new double[] {1., 2., 3., 4. };
     final double[] yValues = new double[] {0., 0.1, 3. };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void dataDiffMultiTest() {
     final double[] xValues = new double[] {1., 2., 3., 4. };
     final double[][] yValues = new double[][] { {0., 0.1, 3. }, {0., 0.1, 3. } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void coincideDataTest() {
     final double[] xValues = new double[] {1., 1., 3. };
     final double[] yValues = new double[] {0., 0.1, 0.05 };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void coincideDataMultiTest() {
     final double[] xValues = new double[] {1., 2., 2. };
     final double[][] yValues = new double[][] { {0., 0.1, 0.05 }, {0., 0.1, 1.05 } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullXdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = null;
     double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
-    xValues = null;
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullYdataTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
-    yValues = null;
+    double[] yValues = null;
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullXdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = null;
     double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
-    xValues = null;
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nullYdataMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
-    yValues = null;
+    double[][] yValues = null;
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infXdataTest() {
     double[] xValues = new double[] {1., 2., 3., INF };
     double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infYdataTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[] {0.1, 0.05, 0.2, INF };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanXdataTest() {
     double[] xValues = new double[] {1., 2., 3., Double.NaN };
     double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanYdataTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[] yValues = new double[] {0.1, 0.05, 0.2, Double.NaN };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infXdataMultiTest() {
     double[] xValues = new double[] {1., 2., 3., INF };
     double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void infYdataMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[][] { {0.1, 0.05, 0.2, 1. }, {0.1, 0.05, 0.2, INF } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanXdataMultiTest() {
     double[] xValues = new double[] {1., 2., 3., Double.NaN };
     double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void nanYdataMultiTest() {
     double[] xValues = new double[] {1., 2., 3., 4. };
     double[][] yValues = new double[][] { {0.1, 0.05, 0.2, 1.1 }, {0.1, 0.05, 0.2, Double.NaN } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void notReconnectedTest() {
     double[] xValues = new double[] {1., 2., 2.0000001, 4. };
     double[] yValues = new double[] {2., 3., 40000000., 5. };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 
   /**
    * 
    */
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void notReconnectedMultiTest() {
     double[] xValues = new double[] {1., 2., 2.0000001, 4. };
     double[][] yValues = new double[][] {{2., 3., 40000000., 5. } };
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
-    interpPos.interpolate(xValues, yValues);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> interpPos.interpolate(xValues, yValues));
   }
 }

@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Abstract test.
@@ -35,25 +37,30 @@ public abstract class Integrator1DTestCase {
   private static final Double UPPER = 12.;
   private static final double EPS = 1e-5;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    getIntegrator().integrate(null, LOWER, UPPER);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getIntegrator().integrate(null, LOWER, UPPER));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullLowerBound() {
-    getIntegrator().integrate(DF, null, UPPER);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getIntegrator().integrate(DF, null, UPPER));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullUpperBound() {
-    getIntegrator().integrate(DF, LOWER, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> getIntegrator().integrate(DF, LOWER, null));
   }
 
   @Test
   public void test() {
-    assertEquals(getIntegrator().integrate(DF, LOWER, UPPER), F.apply(UPPER) - F.apply(LOWER), EPS);
-    assertEquals(getIntegrator().integrate(DF, UPPER, LOWER), -getIntegrator().integrate(DF, LOWER, UPPER), EPS);
+    assertThat(getIntegrator().integrate(DF, LOWER, UPPER))
+        .isCloseTo(F.apply(UPPER) - F.apply(LOWER), offset(EPS));
+    assertThat(getIntegrator().integrate(DF, UPPER, LOWER))
+        .isCloseTo(-getIntegrator().integrate(DF, LOWER, UPPER), offset(EPS));
   }
 
   protected abstract Integrator1D<Double, Double> getIntegrator();

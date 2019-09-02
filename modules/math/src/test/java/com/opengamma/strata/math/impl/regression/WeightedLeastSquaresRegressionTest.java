@@ -5,16 +5,16 @@
  */
 package com.opengamma.strata.math.impl.regression;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class WeightedLeastSquaresRegressionTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
@@ -49,12 +49,8 @@ public class WeightedLeastSquaresRegressionTest {
     }
     final WeightedLeastSquaresRegression wlsRegression = new WeightedLeastSquaresRegression();
     final OrdinaryLeastSquaresRegression olsRegression = new OrdinaryLeastSquaresRegression();
-    try {
-      wlsRegression.regress(x, (double[]) null, yNoIntercept, false);
-      Assert.fail();
-    } catch (final IllegalArgumentException e) {
-      // Expected
-    }
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> wlsRegression.regress(x, (double[]) null, yNoIntercept, false));
     LeastSquaresRegressionResult wls = wlsRegression.regress(x, w1, yIntercept, true);
     LeastSquaresRegressionResult ols = olsRegression.regress(x, yIntercept, true);
     assertRegressions(n, 4, wls, ols);
@@ -74,7 +70,7 @@ public class WeightedLeastSquaresRegressionTest {
     final double[] r1 = regression1.getResiduals();
     final double[] r2 = regression2.getResiduals();
     for (int i = 0; i < n; i++) {
-      assertEquals(r1[i], r2[i], EPS);
+      assertThat(r1[i]).isCloseTo(r2[i], offset(EPS));
     }
     final double[] b1 = regression1.getBetas();
     final double[] t1 = regression1.getTStatistics();
@@ -85,13 +81,13 @@ public class WeightedLeastSquaresRegressionTest {
     final double[] p2 = regression2.getPValues();
     final double[] s2 = regression2.getStandardErrorOfBetas();
     for (int i = 0; i < k; i++) {
-      assertEquals(b1[i], b2[i], EPS);
-      assertEquals(t1[i], t2[i], EPS);
-      assertEquals(p1[i], p2[i], EPS);
-      assertEquals(s1[i], s2[i], EPS);
+      assertThat(b1[i]).isCloseTo(b2[i], offset(EPS));
+      assertThat(t1[i]).isCloseTo(t2[i], offset(EPS));
+      assertThat(p1[i]).isCloseTo(p2[i], offset(EPS));
+      assertThat(s1[i]).isCloseTo(s2[i], offset(EPS));
     }
-    assertEquals(regression1.getRSquared(), regression2.getRSquared(), EPS);
-    assertEquals(regression1.getAdjustedRSquared(), regression2.getAdjustedRSquared(), EPS);
-    assertEquals(regression1.getMeanSquareError(), regression2.getMeanSquareError(), EPS);
+    assertThat(regression1.getRSquared()).isCloseTo(regression2.getRSquared(), offset(EPS));
+    assertThat(regression1.getAdjustedRSquared()).isCloseTo(regression2.getAdjustedRSquared(), offset(EPS));
+    assertThat(regression1.getMeanSquareError()).isCloseTo(regression2.getMeanSquareError(), offset(EPS));
   }
 }

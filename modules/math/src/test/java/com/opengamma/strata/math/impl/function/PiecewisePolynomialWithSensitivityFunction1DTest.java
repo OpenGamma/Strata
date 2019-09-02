@@ -5,11 +5,12 @@
  */
 package com.opengamma.strata.math.impl.function;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Arrays;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.interpolation.ConstrainedCubicSplineInterpolator;
 import com.opengamma.strata.math.impl.interpolation.CubicSplineInterpolator;
@@ -22,7 +23,6 @@ import com.opengamma.strata.math.impl.interpolation.SemiLocalCubicSplineInterpol
 /**
  * Test.
  */
-@Test
 public class PiecewisePolynomialWithSensitivityFunction1DTest {
   private static final double EPS = 1.e-7;
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNCTION = new PiecewisePolynomialWithSensitivityFunction1D();
@@ -69,9 +69,9 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
           final double resNodeSensitivityXkeyDw = FUNCTION.nodeSensitivity(result, xKeyDw).get(j);
           final double senseFiniteXkey = 0.5 * (resNodeSensitivityXkeyUp - resNodeSensitivityXkeyDw) / EPS / xKeys[i];
           final double resDiffNodeSensitivity = FUNCTION.differentiateNodeSensitivity(result, xKeys[i]).get(j);
-          assertEquals(valueFinite, resNodeSensitivity, Math.max(Math.abs(yValues[j]) * EPS, EPS));
-          assertEquals(senseFinite, resDiffNodeSensitivity, Math.max(Math.abs(yValues[j]) * EPS, EPS));
-          assertEquals(senseFiniteXkey, resDiffNodeSensitivity, Math.max(Math.abs(xKeys[i]) * EPS, EPS));
+          assertThat(valueFinite).isCloseTo(resNodeSensitivity, offset(Math.max(Math.abs(yValues[j]) * EPS, EPS)));
+          assertThat(senseFinite).isCloseTo(resDiffNodeSensitivity, offset(Math.max(Math.abs(yValues[j]) * EPS, EPS)));
+          assertThat(senseFiniteXkey).isCloseTo(resDiffNodeSensitivity, offset(Math.max(Math.abs(xKeys[i]) * EPS, EPS)));
         }
         yValuesUp[j] = yValues[j];
         yValuesDw[j] = yValues[j];
@@ -119,8 +119,8 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
           final double senseFiniteXkey = 0.5 * (resdiffNodeSensitivityXkeyUp - resdiffNodeSensitivityXkeyDw) / EPS / xKeys[i];
           final double resDiffTwiceNodeSensitivity = FUNCTION.differentiateTwiceNodeSensitivity(result, xKeys[i]).get(j);
 
-          assertEquals(senseFinite, resDiffTwiceNodeSensitivity, Math.max(Math.abs(yValues[j]) * EPS, EPS));
-          assertEquals(senseFiniteXkey, resDiffTwiceNodeSensitivity, Math.max(Math.abs(xKeys[i]) * EPS, EPS));
+          assertThat(senseFinite).isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(yValues[j]) * EPS, EPS)));
+          assertThat(senseFiniteXkey).isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(xKeys[i]) * EPS, EPS)));
         }
         yValuesUp[j] = yValues[j];
         yValuesDw[j] = yValues[j];
@@ -173,9 +173,9 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
               final double resNodeSensitivityXkeyDw = FUNCTION.nodeSensitivity(result, xKeyDw).get(j);
               final double senseFiniteXkey = 0.5 * (resNodeSensitivityXkeyUp - resNodeSensitivityXkeyDw) / EPS / xKeys[i];
               final double resDiffNodeSensitivity = FUNCTION.differentiateNodeSensitivity(result, xKeys[i]).get(j);
-              assertEquals(valueFinite, resNodeSensitivity, Math.max(Math.abs(yValues[j + 1]) * EPS, EPS));
-              assertEquals(senseFinite, resDiffNodeSensitivity, Math.max(Math.abs(yValues[j + 1]) * EPS, EPS));
-              assertEquals(senseFiniteXkey, resDiffNodeSensitivity, Math.max(Math.abs(xKeys[i]) * EPS, EPS));
+              assertThat(valueFinite).isCloseTo(resNodeSensitivity, offset(Math.max(Math.abs(yValues[j + 1]) * EPS, EPS)));
+              assertThat(senseFinite).isCloseTo(resDiffNodeSensitivity, offset(Math.max(Math.abs(yValues[j + 1]) * EPS, EPS)));
+              assertThat(senseFiniteXkey).isCloseTo(resDiffNodeSensitivity, offset(Math.max(Math.abs(xKeys[i]) * EPS, EPS)));
             }
             yValuesUp[j + 1] = yValues[j + 1];
             yValuesDw[j + 1] = yValues[j + 1];
@@ -228,8 +228,8 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
               final double senseFiniteXkey = 0.5 * (resdiffNodeSensitivityXkeyUp - resdiffNodeSensitivityXkeyDw) / EPS / xKeys[i];
               final double resDiffTwiceNodeSensitivity = FUNCTION.differentiateTwiceNodeSensitivity(result, xKeys[i]).get(j);
 
-              assertEquals(senseFinite, resDiffTwiceNodeSensitivity, Math.max(Math.abs(yValues[j + 1]) * EPS, EPS));
-              assertEquals(senseFiniteXkey, resDiffTwiceNodeSensitivity, Math.max(Math.abs(xKeys[i]) * EPS, EPS));
+              assertThat(senseFinite).isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(yValues[j + 1]) * EPS, EPS)));
+              assertThat(senseFiniteXkey).isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(xKeys[i]) * EPS, EPS)));
             }
             yValuesUp[j + 1] = yValues[j + 1];
             yValuesDw[j + 1] = yValues[j + 1];

@@ -6,9 +6,10 @@
 package com.opengamma.strata.math.impl.linearalgebra;
 
 import static com.opengamma.strata.math.impl.linearalgebra.TridiagonalSolver.solvTriDag;
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.math.impl.cern.MersenneTwister;
@@ -20,7 +21,6 @@ import com.opengamma.strata.math.impl.statistics.distribution.ProbabilityDistrib
 /**
  * Test.
  */
-@Test
 public class TridiagonalSolverTest {
 
   private static MatrixAlgebra MA = new OGMatrixAlgebra();
@@ -50,12 +50,12 @@ public class TridiagonalSolverTest {
     final double[] xSolv = solvTriDag(m, yVec).toArray();
 
     for (int i = 0; i < n; i++) {
-      assertEquals(x[i], xSolv[i], 1e-9);
+      assertThat(x[i]).isCloseTo(xSolv[i], offset(1e-9));
     }
 
     DoubleArray resi = (DoubleArray) MA.subtract(MA.multiply(m, DoubleArray.copyOf(xSolv)), yVec);
     double err = MA.getNorm2(resi);
-    assertEquals(0.0, err, 1e-14);
+    assertThat(0.0).isCloseTo(err, offset(1e-14));
 
   }
 

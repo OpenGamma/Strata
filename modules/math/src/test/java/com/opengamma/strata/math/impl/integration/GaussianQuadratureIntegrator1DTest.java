@@ -5,16 +5,16 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GaussianQuadratureIntegrator1DTest {
 
   private static final Function<Double, Double> ONE = new Function<Double, Double>() {
@@ -80,10 +80,10 @@ public class GaussianQuadratureIntegrator1DTest {
     double upper = 2;
     double lower = -6;
     final Integrator1D<Double, Double> integrator = new GaussLegendreQuadratureIntegrator1D(6);
-    assertEquals(F1.apply(upper) - F1.apply(lower), integrator.integrate(DF1, lower, upper), EPS);
+    assertThat(F1.apply(upper) - F1.apply(lower)).isCloseTo(integrator.integrate(DF1, lower, upper), offset(EPS));
     lower = -0.56;
     upper = 1.4;
-    assertEquals(F1.apply(upper) - F1.apply(lower), integrator.integrate(DF1, lower, upper), EPS);
+    assertThat(F1.apply(upper) - F1.apply(lower)).isCloseTo(integrator.integrate(DF1, lower, upper), offset(EPS));
   }
 
   @Test
@@ -91,7 +91,7 @@ public class GaussianQuadratureIntegrator1DTest {
     final double upper = Double.POSITIVE_INFINITY;
     final double lower = 0;
     final Integrator1D<Double, Double> integrator = new GaussLaguerreQuadratureIntegrator1D(15);
-    assertEquals(0.5, integrator.integrate(DF2, lower, upper), EPS);
+    assertThat(0.5).isCloseTo(integrator.integrate(DF2, lower, upper), offset(EPS));
   }
 
   @Test
@@ -99,7 +99,7 @@ public class GaussianQuadratureIntegrator1DTest {
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D();
     final double lower = -1;
     final double upper = 2;
-    assertEquals(F1.apply(upper) - F1.apply(lower), integrator.integrate(DF1, lower, upper), EPS);
+    assertThat(F1.apply(upper) - F1.apply(lower)).isCloseTo(integrator.integrate(DF1, lower, upper), offset(EPS));
   }
 
   @Test
@@ -107,7 +107,7 @@ public class GaussianQuadratureIntegrator1DTest {
     final double upper = 12;
     final double lower = -1;
     final Integrator1D<Double, Double> integrator = new GaussJacobiQuadratureIntegrator1D(7);
-    assertEquals(F1.apply(upper) - F1.apply(lower), integrator.integrate(DF1, lower, upper), EPS);
+    assertThat(F1.apply(upper) - F1.apply(lower)).isCloseTo(integrator.integrate(DF1, lower, upper), offset(EPS));
   }
 
   @Test
@@ -116,8 +116,8 @@ public class GaussianQuadratureIntegrator1DTest {
     final double upper = Double.POSITIVE_INFINITY;
     final double lower = Double.NEGATIVE_INFINITY;
     final GaussHermiteQuadratureIntegrator1D integrator = new GaussHermiteQuadratureIntegrator1D(10);
-    assertEquals(rootPI, integrator.integrateFromPolyFunc(ONE), 1e-15);
-    assertEquals(rootPI, integrator.integrate(DF3, lower, upper), EPS);
+    assertThat(rootPI).isCloseTo(integrator.integrateFromPolyFunc(ONE), offset(1e-15));
+    assertThat(rootPI).isCloseTo(integrator.integrate(DF3, lower, upper), offset(EPS));
   }
 
   @Test
@@ -126,9 +126,9 @@ public class GaussianQuadratureIntegrator1DTest {
     final Double expected = 2 * rk.integrate(COS_EXP, 0., 10.);
     final GaussHermiteQuadratureIntegrator1D gh = new GaussHermiteQuadratureIntegrator1D(11);
     final double res1 = gh.integrateFromPolyFunc(COS);
-    assertEquals(expected, res1, 1e-15); //11 points gets you machine precision
+    assertThat(expected).isCloseTo(res1, offset(1e-15)); //11 points gets you machine precision
     final double res2 = gh.integrate(COS_EXP, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-    assertEquals(expected, res2, 1e-15);
+    assertThat(expected).isCloseTo(res2, offset(1e-15));
   }
 
 }

@@ -5,10 +5,12 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Function;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
@@ -16,7 +18,6 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 /**
  * Test {@link ClampedPiecewisePolynomialInterpolator}.
  */
-@Test
 public class ClampedPiecewisePolynomialInterpolatorTest {
   private static final double[] X_VALUES = new double[] {-1.0, -0.04, 0.1, 3.2, 15.0 };
   private static final double[] Y_VALUES = new double[] {12.4, -2.03, 11.41, 11.0, 0.2 };
@@ -29,17 +30,19 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
     new MonotonicityPreservingCubicSplineInterpolator(new CubicSplineInterpolator()) };
   private static final double TOL = 1.0e-14;
 
+  @Test
   public void testInterpolate() {
     for (PiecewisePolynomialInterpolator baseInterp : BASE_INTERP) {
       ClampedPiecewisePolynomialInterpolator interp =
           new ClampedPiecewisePolynomialInterpolator(baseInterp, X_CLAMPED, Y_CLAMPED);
       PiecewisePolynomialResult computed = interp.interpolate(X_VALUES, Y_VALUES);
       PiecewisePolynomialResult expected = baseInterp.interpolate(X_VALUES_TOTAL, Y_VALUES_TOTAL);
-      assertEquals(computed, expected);
-      assertEquals(interp.getPrimaryMethod(), baseInterp);
+      assertThat(computed).isEqualTo(expected);
+      assertThat(interp.getPrimaryMethod()).isEqualTo(baseInterp);
     }
   }
 
+  @Test
   public void testInterpolateWithSensitivity() {
     for (PiecewisePolynomialInterpolator baseInterp : BASE_INTERP) {
       ClampedPiecewisePolynomialInterpolator interp =
@@ -47,17 +50,19 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
       PiecewisePolynomialResultsWithSensitivity computed = interp.interpolateWithSensitivity(X_VALUES, Y_VALUES);
       PiecewisePolynomialResultsWithSensitivity expected =
           baseInterp.interpolateWithSensitivity(X_VALUES_TOTAL, Y_VALUES_TOTAL);
-      assertEquals(computed, expected);
+      assertThat(computed).isEqualTo(expected);
     }
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testInterpolateMultiDim() {
     ClampedPiecewisePolynomialInterpolator interp = new ClampedPiecewisePolynomialInterpolator(
         new NaturalSplineInterpolator(), new double[] {1d }, new double[] {2d });
-    interp.interpolate(X_VALUES, new double[][] {Y_VALUES, Y_VALUES });
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> interp.interpolate(X_VALUES, new double[][] {Y_VALUES, Y_VALUES}));
   }
 
+  @Test
   public void testWrongClampedPoints() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> new ClampedPiecewisePolynomialInterpolator(
@@ -67,6 +72,7 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
             new CubicSplineInterpolator(), new double[] {}, new double[] {}));
   }
 
+  @Test
   public void testFunctionalForm() {
     double[] xValues = new double[] {0.5, 1.0, 3.0, 5.0, 10.0, 30.0 };
     double lambda0 = 0.14;
@@ -103,7 +109,7 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
     for (int i = 0; i < 600; ++i) {
       double tm = 0.05 * i;
       double exp = func.apply(tm);
-      assertEquals(exp, polyFunc.evaluate(result, tm).get(0), Math.abs(exp) * TOL);
+      assertThat(exp).isCloseTo(polyFunc.evaluate(result, tm).get(0), offset(Math.abs(exp) * TOL));
     }
   }
 

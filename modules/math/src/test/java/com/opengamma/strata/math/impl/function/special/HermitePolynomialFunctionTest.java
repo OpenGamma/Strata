@@ -5,16 +5,18 @@
  */
 package com.opengamma.strata.math.impl.function.special;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.math.impl.function.DoubleFunction1D;
 
 /**
  * Test.
  */
-@Test
 public class HermitePolynomialFunctionTest {
 
   private static final DoubleFunction1D H0 = x -> 1d;
@@ -43,29 +45,31 @@ public class HermitePolynomialFunctionTest {
   private static final HermitePolynomialFunction HERMITE = new HermitePolynomialFunction();
   private static final double EPS = 1e-9;
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testBadN() {
-    HERMITE.getPolynomials(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> HERMITE.getPolynomials(-3));
   }
 
-  @Test(expectedExceptions = UnsupportedOperationException.class)
+  @Test
   public void testGetPolynomials() {
-    HERMITE.getPolynomialsAndFirstDerivative(3);
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> HERMITE.getPolynomialsAndFirstDerivative(3));
   }
 
   @Test
   public void test() {
     DoubleFunction1D[] h = HERMITE.getPolynomials(0);
-    assertEquals(h.length, 1);
+    assertThat(h.length).isEqualTo(1);
     final double x = 1.23;
-    assertEquals(h[0].applyAsDouble(x), 1, EPS);
+    assertThat(h[0].applyAsDouble(x)).isCloseTo(1, offset(EPS));
     h = HERMITE.getPolynomials(1);
-    assertEquals(h.length, 2);
-    assertEquals(h[1].applyAsDouble(x), 2 * x, EPS);
+    assertThat(h.length).isEqualTo(2);
+    assertThat(h[1].applyAsDouble(x)).isCloseTo(2 * x, offset(EPS));
     for (int i = 0; i <= 10; i++) {
       h = HERMITE.getPolynomials(i);
       for (int j = 0; j <= i; j++) {
-        assertEquals(H[j].applyAsDouble(x), h[j].applyAsDouble(x), EPS);
+        assertThat(H[j].applyAsDouble(x)).isCloseTo(h[j].applyAsDouble(x), offset(EPS));
       }
     }
   }

@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.math.impl.rootfinding.newton;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -17,7 +19,6 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
 /**
  * Test.
  */
-@Test
 public class JacobianEstimateInitializationFunctionTest {
 
   private static final JacobianEstimateInitializationFunction ESTIMATE = new JacobianEstimateInitializationFunction();
@@ -31,14 +32,16 @@ public class JacobianEstimateInitializationFunctionTest {
 
   private static final DoubleArray X = DoubleArray.of(1, 2);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullFunction() {
-    ESTIMATE.getInitializedMatrix(null, X);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ESTIMATE.getInitializedMatrix(null, X));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullVector() {
-    ESTIMATE.getInitializedMatrix(J, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> ESTIMATE.getInitializedMatrix(J, null));
   }
 
   @Test
@@ -47,7 +50,7 @@ public class JacobianEstimateInitializationFunctionTest {
     DoubleMatrix m2 = J.apply(X);
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
-        assertEquals(m1.get(i, j), m2.get(i, j), 1e-9);
+        assertThat(m1.get(i, j)).isCloseTo(m2.get(i, j), offset(1e-9));
       }
     }
   }

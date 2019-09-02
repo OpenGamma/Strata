@@ -5,12 +5,11 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class GaussLaguerreWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final double[] X2 = new double[] {0.585786, 3.41421 };
   private static final double[] W2 = new double[] {0.853553, 0.146447 };

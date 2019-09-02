@@ -5,7 +5,8 @@
  */
 package com.opengamma.strata.math.impl.util;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -28,10 +29,10 @@ public abstract class AssertMatrix {
     ArgChecker.notNull(v1, "v1");
     ArgChecker.notNull(v2, "v2");
     int size = v1.size();
-    assertEquals("sizes:", size, v2.size());
+    assertThat(v2.size()).isEqualTo(size);
 
     for (int i = 0; i < size; i++) {
-      assertEquals("", v1.get(i), v2.get(i), delta);
+      assertThat(v1.get(i)).isCloseTo(v2.get(i), offset(delta));
     }
   }
 
@@ -48,11 +49,11 @@ public abstract class AssertMatrix {
     ArgChecker.notNull(m2, "m2");
     int rows = m1.rowCount();
     int cols = m1.columnCount();
-    assertEquals("Number of rows:", rows, m2.rowCount());
-    assertEquals("Number of columns:", cols, m2.columnCount());
+    assertThat(rows).isEqualTo(m2.rowCount());
+    assertThat(cols).isEqualTo(m2.columnCount());
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        assertEquals("", m1.get(i, j), m2.get(i, j), delta);
+        assertThat(m1.get(i, j)).isCloseTo(m2.get(i, j), offset(delta));
       }
     }
   }

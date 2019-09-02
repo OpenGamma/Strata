@@ -5,16 +5,17 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class RungeKuttaIntegrator1DTest {
 
   private static final double ROOT_2PI = Math.sqrt(2.0 * java.lang.Math.PI);
@@ -72,19 +73,22 @@ public class RungeKuttaIntegrator1DTest {
 
   };
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeAbsTol() {
-    new RungeKuttaIntegrator1D(-1.0);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new RungeKuttaIntegrator1D(-1.0));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegativeRelTol() {
-    new RungeKuttaIntegrator1D(1e-7, -1.0);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new RungeKuttaIntegrator1D(1e-7, -1.0));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testLessTahnOneStep() {
-    new RungeKuttaIntegrator1D(0);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new RungeKuttaIntegrator1D(0));
   }
 
   @Test
@@ -95,15 +99,15 @@ public class RungeKuttaIntegrator1DTest {
 
     double lower = 0;
     double upper = 2.0;
-    assertEquals(4.0, integrator.integrate(CUBE, lower, upper), eps);
+    assertThat(4.0).isCloseTo(integrator.integrate(CUBE, lower, upper), offset(eps));
 
     lower = 0.0;
     upper = 1.5;
-    assertEquals(0.625, integrator.integrate(TRIANGLE, lower, upper), eps);
+    assertThat(0.625).isCloseTo(integrator.integrate(TRIANGLE, lower, upper), offset(eps));
 
     lower = -30;
     upper = 30;
-    assertEquals(1.0, integrator.integrate(MIX_NORM, lower, upper), eps);
+    assertThat(1.0).isCloseTo(integrator.integrate(MIX_NORM, lower, upper), offset(eps));
   }
 
   @Test
@@ -114,7 +118,7 @@ public class RungeKuttaIntegrator1DTest {
     final Integrator1D<Double, Double> integrator = new RungeKuttaIntegrator1D(eps, eps, minSteps);
     final double lower = -1.0;
     final double upper = 1.0;
-    assertEquals(0.0, integrator.integrate(SIN_INV_X, lower, upper), eps);
+    assertThat(0.0).isCloseTo(integrator.integrate(SIN_INV_X, lower, upper), offset(eps));
 
   }
 

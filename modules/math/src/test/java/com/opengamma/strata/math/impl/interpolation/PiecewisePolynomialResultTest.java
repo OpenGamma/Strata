@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.math.impl.interpolation;
 
-import static org.testng.AssertJUnit.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -42,30 +42,30 @@ public class PiecewisePolynomialResultTest {
     final PiecewisePolynomialResult res6 =
         new PiecewisePolynomialResult(DoubleArray.of(1., 2., 3., 5.), DoubleMatrix.copyOf(matrix1), order, dim1);
 
-    assertTrue(res1.equals(res1));
+    assertThat(res1.equals(res1)).isTrue();
 
-    assertTrue(res1.equals(res2));
-    assertTrue(res2.equals(res1));
-    assertTrue(res2.hashCode() == res1.hashCode());
+    assertThat(res1.equals(res2)).isTrue();
+    assertThat(res2.equals(res1)).isTrue();
+    assertThat(res2.hashCode() == res1.hashCode()).isTrue();
 
-    assertTrue(!(res3.hashCode() == res1.hashCode()));
-    assertTrue(!(res1.equals(res3)));
-    assertTrue(!(res3.equals(res1)));
+    assertThat(!(res3.hashCode() == res1.hashCode())).isTrue();
+    assertThat(!(res1.equals(res3))).isTrue();
+    assertThat(!(res3.equals(res1))).isTrue();
 
-    assertTrue(!(res4.hashCode() == res1.hashCode()));
-    assertTrue(!(res1.equals(res4)));
-    assertTrue(!(res4.equals(res1)));
+    assertThat(!(res4.hashCode() == res1.hashCode())).isTrue();
+    assertThat(!(res1.equals(res4))).isTrue();
+    assertThat(!(res4.equals(res1))).isTrue();
 
-    assertTrue(!(res5.hashCode() == res1.hashCode()));
-    assertTrue(!(res1.equals(res5)));
-    assertTrue(!(res5.equals(res1)));
+    assertThat(!(res5.hashCode() == res1.hashCode())).isTrue();
+    assertThat(!(res1.equals(res5))).isTrue();
+    assertThat(!(res5.equals(res1))).isTrue();
 
-    assertTrue(!(res6.hashCode() == res1.hashCode()));
-    assertTrue(!(res1.equals(res6)));
-    assertTrue(!(res6.equals(res1)));
+    assertThat(!(res6.hashCode() == res1.hashCode())).isTrue();
+    assertThat(!(res1.equals(res6))).isTrue();
+    assertThat(!(res6.equals(res1))).isTrue();
 
-    assertTrue(!(res1.equals(null)));
-    assertTrue(!(res1.equals(ANOTHER_TYPE)));
+    assertThat(!(res1.equals(null))).isTrue();
+    assertThat(!(res1.equals(ANOTHER_TYPE))).isTrue();
 
     final DoubleMatrix[] sense1 = new DoubleMatrix[] {DoubleMatrix.copyOf(matrix1), DoubleMatrix.copyOf(matrix1)};
     final DoubleMatrix[] sense2 =
@@ -80,19 +80,19 @@ public class PiecewisePolynomialResultTest {
     final PiecewisePolynomialResultsWithSensitivity resSen3 =
         new PiecewisePolynomialResultsWithSensitivity(
             DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 1, sense2);
-    assertTrue(resSen1.equals(resSen1));
+    assertThat(resSen1.equals(resSen1)).isTrue();
 
-    assertTrue(!(resSen1.equals(ANOTHER_TYPE)));
+    assertThat(!(resSen1.equals(ANOTHER_TYPE))).isTrue();
 
-    assertTrue(!(resSen1.equals(res5)));
+    assertThat(!(resSen1.equals(res5))).isTrue();
 
-    assertTrue(resSen1.equals(resSen2));
-    assertTrue(resSen2.equals(resSen1));
-    assertTrue(resSen1.hashCode() == resSen2.hashCode());
+    assertThat(resSen1.equals(resSen2)).isTrue();
+    assertThat(resSen2.equals(resSen1)).isTrue();
+    assertThat(resSen1.hashCode() == resSen2.hashCode()).isTrue();
 
-    assertTrue(!(resSen1.hashCode() == resSen3.hashCode()));
-    assertTrue(!(resSen1.equals(resSen3)));
-    assertTrue(!(resSen3.equals(resSen1)));
+    assertThat(!(resSen1.hashCode() == resSen3.hashCode())).isTrue();
+    assertThat(!(resSen1.equals(resSen3))).isTrue();
+    assertThat(!(resSen3.equals(resSen1))).isTrue();
 
     try {
       @SuppressWarnings("unused")
@@ -101,7 +101,7 @@ public class PiecewisePolynomialResultTest {
               DoubleArray.copyOf(knots1), DoubleMatrix.copyOf(matrix1), order, 2, sense1);
       throw new RuntimeException();
     } catch (Exception e) {
-      assertTrue(e instanceof UnsupportedOperationException);
+      assertThat(e instanceof UnsupportedOperationException).isTrue();
     }
   }
 }

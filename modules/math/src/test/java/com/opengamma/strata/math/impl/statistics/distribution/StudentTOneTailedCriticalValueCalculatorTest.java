@@ -5,17 +5,18 @@
  */
 package com.opengamma.strata.math.impl.statistics.distribution;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
 import org.apache.commons.math3.random.Well44497b;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class StudentTOneTailedCriticalValueCalculatorTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
@@ -23,29 +24,34 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
   private static final Function<Double, Double> F = new StudentTOneTailedCriticalValueCalculator(NU);
   private static final ProbabilityDistribution<Double> T = new StudentTDistribution(NU);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNu1() {
-    new StudentTOneTailedCriticalValueCalculator(-3);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new StudentTOneTailedCriticalValueCalculator(-3));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNu2() {
-    new StudentTOneTailedCriticalValueCalculator(-3, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new StudentTOneTailedCriticalValueCalculator(-3, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testEngine() {
-    new StudentTDistribution(3, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> new StudentTDistribution(3, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNull() {
-    F.apply((Double) null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F.apply((Double) null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNegative() {
-    F.apply(-4.);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> F.apply(-4.));
   }
 
   @Test
@@ -54,7 +60,7 @@ public class StudentTOneTailedCriticalValueCalculatorTest {
     final double eps = 1e-5;
     for (int i = 0; i < 100; i++) {
       x = RANDOM.nextDouble();
-      assertEquals(x, F.apply(T.getCDF(x)), eps);
+      assertThat(x).isCloseTo(F.apply(T.getCDF(x)), offset(eps));
     }
   }
 }

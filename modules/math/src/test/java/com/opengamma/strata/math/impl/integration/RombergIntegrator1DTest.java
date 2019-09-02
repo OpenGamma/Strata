@@ -5,12 +5,9 @@
  */
 package com.opengamma.strata.math.impl.integration;
 
-import org.testng.annotations.Test;
-
 /**
  * Test.
  */
-@Test
 public class RombergIntegrator1DTest extends Integrator1DTestCase {
   private static final Integrator1D<Double, Double> INTEGRATOR = new RombergIntegrator1D();
 

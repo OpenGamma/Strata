@@ -5,16 +5,17 @@
  */
 package com.opengamma.strata.math.impl;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test.
  */
-@Test
 public class FunctionUtilsTest {
   private static final double EPS = 1e-15;
 
@@ -23,7 +24,7 @@ public class FunctionUtilsTest {
   public void testSquare() {
     for (int i = 0; i < 100; i++) {
       final double x = Math.random();
-      assertEquals(FunctionUtils.square(x), x * x, EPS);
+      assertThat(FunctionUtils.square(x)).isCloseTo(x * x, offset(EPS));
     }
   }
 
@@ -32,28 +33,32 @@ public class FunctionUtilsTest {
   public void testCube() {
     for (int i = 0; i < 100; i++) {
       final double x = Math.random();
-      assertEquals(FunctionUtils.cube(x), x * x * x, EPS);
+      assertThat(FunctionUtils.cube(x)).isCloseTo(x * x * x, offset(EPS));
     }
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullIndices() {
-    FunctionUtils.toTensorIndex(null, new int[] {1, 2, 3 });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FunctionUtils.toTensorIndex(null, new int[] {1, 2, 3}));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDimensions1() {
-    FunctionUtils.toTensorIndex(new int[] {1, 2, 3 }, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FunctionUtils.toTensorIndex(new int[] {1, 2, 3}, null));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testWrongLength() {
-    FunctionUtils.toTensorIndex(new int[] {1, 2 }, new int[] {1, 2, 3 });
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FunctionUtils.toTensorIndex(new int[] {1, 2}, new int[] {1, 2, 3}));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDimensions2() {
-    FunctionUtils.fromTensorIndex(2, null);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FunctionUtils.fromTensorIndex(2, null));
   }
 
   @Test
@@ -62,10 +67,10 @@ public class FunctionUtilsTest {
     final int[] indices = new int[] {2 };
     final int[] dimensions = new int[] {5 };
     final int index = FunctionUtils.toTensorIndex(indices, dimensions);
-    assertEquals(indices[0], index, 0);
+    assertThat(indices[0]).isEqualTo(index);
 
     final int[] res = FunctionUtils.fromTensorIndex(index, dimensions);
-    assertEquals(indices[0], res[0], 0);
+    assertThat(indices[0]).isEqualTo(res[0]);
 
   }
 
@@ -76,8 +81,8 @@ public class FunctionUtilsTest {
     final int[] dimensions = new int[] {5, 7 };
     final int index = FunctionUtils.toTensorIndex(indices, dimensions);
     final int[] res = FunctionUtils.fromTensorIndex(index, dimensions);
-    assertEquals(indices[0], res[0], 0);
-    assertEquals(indices[1], res[1], 0);
+    assertThat(indices[0]).isEqualTo(res[0]);
+    assertThat(indices[1]).isEqualTo(res[1]);
   }
 
   @Test
@@ -87,53 +92,54 @@ public class FunctionUtilsTest {
     final int[] dimensions = new int[] {5, 7, 3 };
     final int index = FunctionUtils.toTensorIndex(indices, dimensions);
     final int[] res = FunctionUtils.fromTensorIndex(index, dimensions);
-    assertEquals(indices[0], res[0], 0);
-    assertEquals(indices[1], res[1], 0);
-    assertEquals(indices[2], res[2], 0);
+    assertThat(indices[0]).isEqualTo(res[0]);
+    assertThat(indices[1]).isEqualTo(res[1]);
+    assertThat(indices[2]).isEqualTo(res[2]);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testOutOfBounds() {
     final int[] indices = new int[] {2, 7, 1 };
     final int[] dimensions = new int[] {5, 7, 3 };
-    FunctionUtils.toTensorIndex(indices, dimensions);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> FunctionUtils.toTensorIndex(indices, dimensions));
   }
 
   @Test
   public void getLowerBoundIndexTest() {
     int i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1.), -0.);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2.), -0.);
-    assertEquals(i, 0);
+    assertThat(i).isEqualTo(0);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2., 3.), 2.5);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2., 3.), 2.);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(1., 2., 3.), -2.);
-    assertEquals(i, 0);
+    assertThat(i).isEqualTo(0);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., 0.), -0.);
-    assertEquals(i, 2);
+    assertThat(i).isEqualTo(2);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., 0.), 0.);
-    assertEquals(i, 2);
+    assertThat(i).isEqualTo(2);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., 0.), -0.);
-    assertEquals(i, 2);
+    assertThat(i).isEqualTo(2);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-2., -1., -0.), -0.);
-    assertEquals(i, 2);
+    assertThat(i).isEqualTo(2);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., 0., 1.), -0.);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., 0., 1.), 0.);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., -0., 1.), 0.);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-1., -0., 1.), -0.);
-    assertEquals(i, 1);
+    assertThat(i).isEqualTo(1);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(0., 1., 2.), -0.);
-    assertEquals(i, 0);
+    assertThat(i).isEqualTo(0);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(0., 1., 2.), 0.);
-    assertEquals(i, 0);
+    assertThat(i).isEqualTo(0);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-0., 1., 2.), 0.);
-    assertEquals(i, 0);
+    assertThat(i).isEqualTo(0);
     i = FunctionUtils.getLowerBoundIndex(DoubleArray.of(-0., 1., 2.), -0.);
-    assertEquals(i, 0);
+    assertThat(i).isEqualTo(0);
   }
 }
