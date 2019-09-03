@@ -26,13 +26,13 @@ import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConventio
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED_JAPAN;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.MONTHLY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -64,7 +64,6 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 /**
  * Test {@link DiscountingCapitalIndexedBondProductPricer}.
  */
-@Test
 public class DiscountingCapitalIndexedBondProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -145,11 +144,13 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getter() {
-    assertEquals(PRICER.getPeriodPricer(), PERIOD_PRICER);
+    assertThat(PRICER.getPeriodPricer()).isEqualTo(PERIOD_PRICER);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed = PRICER.presentValue(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected = PERIOD_PRICER.presentValue(PRODUCT.getNominalPayment(), RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS);
@@ -158,9 +159,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       CapitalIndexedBondPaymentPeriod payment = PRODUCT.getPeriodicPayments().get(i);
       expected += PERIOD_PRICER.presentValue(payment, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS);
     }
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void test_presentValue_exCoupon() {
     CurrencyAmount computed = PRICER.presentValue(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected = PERIOD_PRICER.presentValue(
@@ -170,9 +172,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       CapitalIndexedBondPaymentPeriod payment = PRODUCT_EX_COUPON.getPeriodicPayments().get(i);
       expected += PERIOD_PRICER.presentValue(payment, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS);
     }
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void test_presentValueWithZSpread() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -184,9 +187,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       expected += PERIOD_PRICER.presentValueWithZSpread(
           payment, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     }
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_exCoupon() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
@@ -198,18 +202,20 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       expected += PERIOD_PRICER.presentValueWithZSpread(
           payment, RATES_PROVIDER, ISSUER_DISCOUNT_FACTORS, Z_SPREAD, CONTINUOUS, 0);
     }
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER).build();
     CurrencyParameterSensitivities computed1 = RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = fdPvSensitivity(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_exCoupon() {
     PointSensitivities point =
         PRICER.presentValueSensitivity(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER).build();
@@ -217,9 +223,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         fdPvSensitivity(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread() {
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0).build();
@@ -227,9 +234,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = fdPvSensitivityWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_exCoupon() {
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
@@ -237,27 +245,30 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = fdPvSensitivityWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zSpreadFromCurvesAndPv() {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     double computed = PRICER.zSpreadFromCurvesAndPv(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_zSpreadFromCurvesAndPv_exCoupon() {
     CurrencyAmount pv = PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     double computed = PRICER.zSpreadFromCurvesAndPv(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, pv, CONTINUOUS, 0);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dirtyNominalPriceFromCurves() {
     double computed = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
@@ -266,9 +277,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected =
         PRICER.presentValue(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, settlement).getAmount() / NOTIONAL / df;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_dirtyNominalPriceFromCurves_exCoupon() {
     double computed = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA);
@@ -277,9 +289,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected =
         PRICER.presentValue(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, settlement).getAmount() / NOTIONAL / df;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_dirtyNominalPriceFromCurvesWithZSpread() {
     double computed = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
@@ -288,9 +301,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected = PRICER.presentValueWithZSpread(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, settlement,
         Z_SPREAD, CONTINUOUS, 0).getAmount() / NOTIONAL / df;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_dirtyNominalPriceFromCurvesWithZSpread_exCoupon() {
     double computed = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -299,10 +313,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD).discountFactor(settlement);
     double expected = PRICER.presentValueWithZSpread(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, settlement,
         Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).getAmount() / NOTIONAL / df;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dirtyPriceNominalPriceFromCurvesSensitivity() {
     PointSensitivities point = PRICER.dirtyNominalPriceSensitivity(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
@@ -310,9 +325,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         fdPriceSensitivity(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_dirtyPriceNominalPriceFromCurvesSensitivity_exCoupon() {
     PointSensitivities point = PRICER.dirtyNominalPriceSensitivity(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA).build();
@@ -320,9 +336,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         fdPriceSensitivity(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_dirtyPriceNominalPriceFromCurvesSensitivityWithZSpread() {
     PointSensitivities point = PRICER.dirtyNominalPriceSensitivityWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
@@ -330,9 +347,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = fdPriceSensitivityWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_dirtyPriceNominalPriceFromCurvesSensitivityWithZSpread_exCoupon() {
     PointSensitivities point = PRICER.dirtyNominalPriceSensitivityWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0).build();
@@ -340,19 +358,21 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     CurrencyParameterSensitivities computed2 = ISSUER_RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = fdPriceSensitivityWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    assertTrue(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL));
+    assertThat(expected.equalWithTolerance(computed1.combinedWith(computed2), EPS * NOTIONAL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computed = PRICER.currencyExposure(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION);
     PointSensitivities point = PRICER.presentValueSensitivity(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER).build();
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point)
         .plus(PRICER.presentValue(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER));
-    assertEquals(computed.getCurrencies().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrencies()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_currencyExposure_exCoupon() {
     MultiCurrencyAmount computed =
         PRICER.currencyExposure(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION);
@@ -360,10 +380,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.presentValueSensitivity(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER).build();
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point)
         .plus(PRICER.presentValue(PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER));
-    assertEquals(computed.getCurrencies().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrencies()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_currencyExposureWithZSpread() {
     MultiCurrencyAmount computed = PRICER.currencyExposureWithZSpread(
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION, Z_SPREAD, CONTINUOUS, 0);
@@ -371,10 +392,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0).build();
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValueWithZSpread(PRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0));
-    assertEquals(computed.getCurrencies().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrencies()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_currencyExposureWithZSpread_exCoupon() {
     MultiCurrencyAmount computed = PRICER.currencyExposureWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -382,33 +404,38 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR).build();
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(PRICER.presentValueWithZSpread(
         PRODUCT_EX_COUPON, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertEquals(computed.getCurrencies().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * TOL);
+    assertThat(computed.getCurrencies()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currentCash() {
     CurrencyAmount computed = PRICER.currentCash(PRODUCT, RATES_PROVIDER, VALUATION);
-    assertEquals(computed.getAmount(), 0d);
+    assertThat(computed.getAmount()).isEqualTo(0d);
   }
 
+  @Test
   public void test_currentCash_exCoupon() {
     CurrencyAmount computed = PRICER.currentCash(PRODUCT_EX_COUPON, RATES_PROVIDER, VALUATION);
-    assertEquals(computed.getAmount(), 0d);
+    assertThat(computed.getAmount()).isEqualTo(0d);
   }
 
+  @Test
   public void test_currentCash_onPayment() {
     CurrencyAmount computed = PRICER.currentCash(PRODUCT, RATES_PROVIDER_ON_PAY, VALUATION_ON_PAY.minusDays(7));
     double expected = PERIOD_PRICER.forecastValue(PRODUCT.getPeriodicPayments().get(15), RATES_PROVIDER_ON_PAY);
-    assertEquals(computed.getAmount(), expected);
+    assertThat(computed.getAmount()).isEqualTo(expected);
   }
 
+  @Test
   public void test_currentCash_onPayment_exCoupon() {
     CurrencyAmount computed = PRICER.currentCash(PRODUCT_EX_COUPON, RATES_PROVIDER_ON_PAY, VALUATION_ON_PAY);
-    assertEquals(computed.getAmount(), 0d);
+    assertThat(computed.getAmount()).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_dirtyPriceFromStandardYield() {
     double yield = 0.0175;
     LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
@@ -425,9 +452,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       expected += REAL_COUPON_VALUE * Math.pow(dscFactor, i);
     }
     expected *= Math.pow(dscFactor, factorToNext);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_modifiedDurationFromStandardYield() {
     double yield = 0.0175;
     LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
@@ -437,10 +465,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double up = PRICER.dirtyPriceFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield + EPS);
     double dw = PRICER.dirtyPriceFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield - EPS);
     double expected = -0.5 * (up - dw) / price / EPS;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
 
   }
 
+  @Test
   public void test_convexityFromStandardYield() {
     double yield = 0.0175;
     LocalDate standardSettle = SETTLE_OFFSET.adjust(VALUATION, REF_DATA);
@@ -449,38 +478,42 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double up = PRICER.modifiedDurationFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield + EPS);
     double dw = PRICER.modifiedDurationFromStandardYield(PRODUCT_EX_COUPON, RATES_PROVIDER, standardSettle, yield - EPS);
     double expected = -0.5 * (up - dw) / EPS + md * md;
-    assertEquals(computed, expected, EPS);
+    assertThat(computed).isCloseTo(expected, offset(EPS));
     double computed1 = PRICER.convexityFromStandardYield(PRODUCT, RATES_PROVIDER, VALUATION, yield);
     double md1 = PRICER.modifiedDurationFromStandardYield(PRODUCT, RATES_PROVIDER, VALUATION, yield);
     double up1 = PRICER.modifiedDurationFromStandardYield(PRODUCT, RATES_PROVIDER, VALUATION, yield + EPS);
     double dw1 = PRICER.modifiedDurationFromStandardYield(PRODUCT, RATES_PROVIDER, VALUATION, yield - EPS);
     double expected1 = -0.5 * (up1 - dw1) / EPS + md1 * md1;
-    assertEquals(computed1, expected1, EPS);
+    assertThat(computed1).isCloseTo(expected1, offset(EPS));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_accruedInterest() {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double computed = PRODUCT.accruedInterest(refDate);
     Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     CapitalIndexedBondPaymentPeriod period = PRODUCT.getPeriodicPayments().get(16);
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
-    assertEquals(computed, factor * REAL_COUPON_VALUE * NOTIONAL * 2d, TOL * REAL_COUPON_VALUE * NOTIONAL);
+    assertThat(computed).isCloseTo(factor * REAL_COUPON_VALUE * NOTIONAL * 2d, offset(TOL * REAL_COUPON_VALUE * NOTIONAL));
   }
 
+  @Test
   public void test_accruedInterest_onPayment() {
     CapitalIndexedBondPaymentPeriod period = PRODUCT.getPeriodicPayments().get(16);
     LocalDate refDate = period.getPaymentDate();
     double computed = PRODUCT.accruedInterest(refDate);
-    assertEquals(computed, 0d, TOL * REAL_COUPON_VALUE * NOTIONAL);
+    assertThat(computed).isCloseTo(0d, offset(TOL * REAL_COUPON_VALUE * NOTIONAL));
   }
 
+  @Test
   public void test_accruedInterest_before() {
     LocalDate refDate = LocalDate.of(2003, 1, 22);
     double computed = PRODUCT.accruedInterest(refDate);
-    assertEquals(computed, 0d, TOL * REAL_COUPON_VALUE * NOTIONAL);
+    assertThat(computed).isCloseTo(0d, offset(TOL * REAL_COUPON_VALUE * NOTIONAL));
   }
 
+  @Test
   public void test_accruedInterest_exCoupon_in() {
     CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.getPeriodicPayments().get(16);
     LocalDate refDate = period.getDetachmentDate();
@@ -489,29 +522,31 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
     double factorTotal =
         ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate(), sch);
-    assertEquals(computed, (factor - factorTotal) * REAL_COUPON_VALUE * NOTIONAL * 2d,
-        TOL * REAL_COUPON_VALUE * NOTIONAL);
+    assertThat(computed).isCloseTo((factor - factorTotal) * REAL_COUPON_VALUE * NOTIONAL * 2d, offset(TOL * REAL_COUPON_VALUE * NOTIONAL));
   }
 
+  @Test
   public void test_accruedInterest_exCoupon_out() {
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     CapitalIndexedBondPaymentPeriod period = PRODUCT_EX_COUPON.getPeriodicPayments().get(16);
     double computed = PRODUCT_EX_COUPON.accruedInterest(refDate);
     Schedule sch = SCHEDULE.createSchedule(REF_DATA).toUnadjusted();
     double factor = ACT_ACT_ICMA.relativeYearFraction(period.getUnadjustedStartDate(), refDate, sch);
-    assertEquals(computed, factor * REAL_COUPON_VALUE * NOTIONAL * 2d, TOL * REAL_COUPON_VALUE * NOTIONAL);
+    assertThat(computed).isCloseTo(factor * REAL_COUPON_VALUE * NOTIONAL * 2d, offset(TOL * REAL_COUPON_VALUE * NOTIONAL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cleanRealPrice_dirtyRealPrice() {
     double dirtyRealPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
     double cleanRealPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT, refDate, dirtyRealPrice);
     double expected = dirtyRealPrice - PRODUCT.accruedInterest(refDate) / NOTIONAL;
-    assertEquals(cleanRealPrice, expected, TOL);
-    assertEquals(PRICER.dirtyRealPriceFromCleanRealPrice(PRODUCT, refDate, cleanRealPrice), dirtyRealPrice, TOL);
+    assertThat(cleanRealPrice).isCloseTo(expected, offset(TOL));
+    assertThat(PRICER.dirtyRealPriceFromCleanRealPrice(PRODUCT, refDate, cleanRealPrice)).isCloseTo(dirtyRealPrice, offset(TOL));
   }
 
+  @Test
   public void test_realPrice_nominalPrice_settleBefore() {
     double realPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
@@ -519,11 +554,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     RateComputation obs = RATE_CALC.createRateComputation(refDate);
     double refRate = RateComputationFn.standard().rate(obs, null, null, RATES_PROVIDER_ON_PAY);
     double expected = realPrice * (refRate + 1d);
-    assertEquals(nominalPrice, expected, TOL);
-    assertEquals(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice),
-        realPrice, TOL);
+    assertThat(nominalPrice).isCloseTo(expected, offset(TOL));
+    assertThat(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER_ON_PAY, refDate, nominalPrice)).isCloseTo(realPrice, offset(TOL));
   }
 
+  @Test
   public void test_realPrice_nominalPrice_settleAfter() {
     double realPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
@@ -531,10 +566,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     RateComputation obs = RATE_CALC.createRateComputation(VALUATION);
     double refRate = RateComputationFn.standard().rate(obs, null, null, RATES_PROVIDER);
     double expected = realPrice * (refRate + 1d);
-    assertEquals(nominalPrice, expected, TOL);
-    assertEquals(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice), realPrice, TOL);
+    assertThat(nominalPrice).isCloseTo(expected, offset(TOL));
+    assertThat(PRICER.realPriceFromNominalPrice(PRODUCT, RATES_PROVIDER, refDate, nominalPrice)).isCloseTo(realPrice, offset(TOL));
   }
 
+  @Test
   public void test_cleanNominalPrice_dirtyNominalPrice() {
     double dirtyNominalPrice = 1.055;
     LocalDate refDate = LocalDate.of(2014, 6, 10);
@@ -543,9 +579,8 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     RateComputation obs = RATE_CALC.createRateComputation(VALUATION);
     double refRate = RateComputationFn.standard().rate(obs, null, null, RATES_PROVIDER);
     double expected = dirtyNominalPrice - PRODUCT.accruedInterest(refDate) * (refRate + 1d) / NOTIONAL;
-    assertEquals(cleanNominalPrice, expected, TOL);
-    assertEquals(PRICER.dirtyNominalPriceFromCleanNominalPrice(PRODUCT, RATES_PROVIDER, refDate, cleanNominalPrice),
-        dirtyNominalPrice, TOL);
+    assertThat(cleanNominalPrice).isCloseTo(expected, offset(TOL));
+    assertThat(PRICER.dirtyNominalPriceFromCleanNominalPrice(PRODUCT, RATES_PROVIDER, refDate, cleanNominalPrice)).isCloseTo(dirtyNominalPrice, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
@@ -585,20 +620,22 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .resolve(REF_DATA);
   private static final double YIELD_US = -0.00189;
 
+  @Test
   public void test_priceFromRealYield_us() {
     LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
-    assertEquals(computed, 1.06, 1.e-2);
+    assertThat(computed).isCloseTo(1.06, offset(1.e-2));
     double computedSmall =
         PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, 0.0);
-    assertEquals(computedSmall, 1.05, 1.e-2);
+    assertThat(computedSmall).isCloseTo(1.05, offset(1.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
     double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_US, standardSettle, dirtyPrice);
-    assertEquals(computed, cleanPrice);
+    assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyPrice);
-    assertEquals(yieldRe, YIELD_US, TOL);
+    assertThat(yieldRe).isCloseTo(YIELD_US, offset(TOL));
   }
 
+  @Test
   public void test_modifiedDuration_convexity_us() {
     double eps = 1.0e-5;
     LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
@@ -609,10 +646,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double price = PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US);
     double up = PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US + eps);
     double dw = PRICER.cleanPriceFromRealYield(PRODUCT_US, RATES_PROVS_US, standardSettle, YIELD_US - eps);
-    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
-    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+    assertThat(mdComputed).isCloseTo(0.5 * (dw - up) / eps / price, offset(eps));
+    assertThat(cvComputed).isCloseTo((up + dw - 2d * price) / price / eps / eps, offset(eps));
   }
 
+  @Test
   public void test_realYieldFromCurves_us() {
     LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_US, RATES_PROVS_US, ISSUER_PROVS_US, REF_DATA);
@@ -621,9 +659,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double dirtyRealPrice =
         PRICER.realPriceFromNominalPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyNominalPrice);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyRealPrice);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void zSpreadFromCurvesAndCleanPrice_us() {
     LocalDate standardSettle = PRODUCT_US.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
@@ -632,14 +671,15 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_US, RATES_PROVS_US, standardSettle, dirtyNominalPrice));
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
         PRODUCT_US, RATES_PROVS_US, ISSUER_PROVS_US, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_accruedInterest_us() {
     double accPositive = PRODUCT_US.accruedInterest(LocalDate.of(2016, 7, 14));
-    assertEquals(accPositive, 6216d, 1.0);
+    assertThat(accPositive).isCloseTo(6216d, offset(1.0));
     double accZero = PRODUCT_US.accruedInterest(LocalDate.of(2016, 7, 15));
-    assertEquals(accZero, 0d);
+    assertThat(accZero).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------
@@ -704,21 +744,23 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .resolve(REF_DATA);
   private static final double YIELD_GOV_OP = -0.0244;
 
+  @Test
   public void test_priceFromRealYield_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
-    assertEquals(computed, 3.60, 1.e-2);
+    assertThat(computed).isCloseTo(3.60, offset(1.e-2));
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(PRODUCT_GOV_OP, RATES_PROVS_GB, PRODUCT_GOV_OP
         .getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA), YIELD_GOV_OP);
-    assertEquals(computedOnePeriod, 3.21, 4.e-2);
+    assertThat(computedOnePeriod).isCloseTo(3.21, offset(4.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double cleanPrice = PRICER.cleanNominalPriceFromDirtyNominalPrice(
         PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
-    assertEquals(computed, cleanPrice);
+    assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyPrice);
-    assertEquals(yieldRe, YIELD_GOV, TOL);
+    assertThat(yieldRe).isCloseTo(YIELD_GOV, offset(TOL));
   }
 
+  @Test
   public void test_modifiedDuration_convexity_ukGov() {
     double eps = 1.0e-5;
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
@@ -729,19 +771,21 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double price = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV);
     double up = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV + eps);
     double dw = PRICER.cleanPriceFromRealYield(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, YIELD_GOV - eps);
-    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
-    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+    assertThat(mdComputed).isCloseTo(0.5 * (dw - up) / eps / price, offset(eps));
+    assertThat(cvComputed).isCloseTo((up + dw - 2d * price) / price / eps / eps, offset(eps));
   }
 
+  @Test
   public void test_realYieldFromCurves_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurves(
         PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void zSpreadFromCurvesAndCleanPrice_ukGov() {
     LocalDate standardSettle = PRODUCT_GOV.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
@@ -750,16 +794,17 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_GOV, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
         PRODUCT_GOV, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanNominalPrice, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_accruedInterest_ukGov() {
     double accPositive = PRODUCT_GOV.accruedInterest(LocalDate.of(2016, 4, 7));
-    assertEquals(accPositive, 11885d, 1.0);
+    assertThat(accPositive).isCloseTo(11885d, offset(1.0));
     double accNegative = PRODUCT_GOV.accruedInterest(LocalDate.of(2016, 4, 8));
-    assertEquals(accNegative, -546.44, 1.0e-2);
+    assertThat(accNegative).isCloseTo(-546.44, offset(1.0e-2));
     double accZero = PRODUCT_GOV.accruedInterest(LocalDate.of(2016, 4, 16));
-    assertEquals(accZero, 0d);
+    assertThat(accZero).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------
@@ -798,20 +843,22 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .resolve(REF_DATA);
   private static final double YIELD_CORP = -0.00842;
 
+  @Test
   public void test_priceFromRealYield_ukCorp() {
     LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
-    assertEquals(computed, 1.39, 1.e-2);
+    assertThat(computed).isCloseTo(1.39, offset(1.e-2));
     double computedOnePeriod = PRICER.cleanPriceFromRealYield(
         PRODUCT_CORP, RATES_PROVS_GB, LocalDate.of(2039, 12, 1), -0.02842);
-    assertEquals(computedOnePeriod, 1.01, 1.e-2);
+    assertThat(computedOnePeriod).isCloseTo(1.01, offset(1.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
     double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_CORP, standardSettle, dirtyPrice);
-    assertEquals(computed, cleanPrice);
+    assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyPrice);
-    assertEquals(yieldRe, YIELD_CORP, TOL);
+    assertThat(yieldRe).isCloseTo(YIELD_CORP, offset(TOL));
   }
 
+  @Test
   public void test_modifiedDuration_convexity_ukCor() {
     double eps = 1.0e-5;
     LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
@@ -822,10 +869,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double price = PRICER.cleanPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP);
     double up = PRICER.cleanPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP + eps);
     double dw = PRICER.cleanPriceFromRealYield(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, YIELD_CORP - eps);
-    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
-    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+    assertThat(mdComputed).isCloseTo(0.5 * (dw - up) / eps / price, offset(eps));
+    assertThat(cvComputed).isCloseTo((up + dw - 2d * price) / price / eps / eps, offset(eps));
   }
 
+  @Test
   public void test_realYieldFromCurves_ukCor() {
     LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_CORP, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA);
@@ -834,9 +882,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double dirtyRealPrice =
         PRICER.realPriceFromNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyNominalPrice);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyRealPrice);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void zSpreadFromCurvesAndCleanPrice_ukCor() {
     LocalDate standardSettle = PRODUCT_CORP.getSettlementDateOffset().adjust(VAL_DATE_GB, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
@@ -845,16 +894,17 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_CORP, RATES_PROVS_GB, standardSettle, dirtyNominalPrice));
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
         PRODUCT_CORP, RATES_PROVS_GB, ISSUER_PROVS_GB, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_accruedInterest_ukCor() {
     double accPositive = PRODUCT_CORP.accruedInterest(LocalDate.of(2016, 3, 13));
-    assertEquals(accPositive, 2971d, 1.0);
+    assertThat(accPositive).isCloseTo(2971d, offset(1.0));
     double accNegative = PRODUCT_CORP.accruedInterest(LocalDate.of(2016, 3, 14));
-    assertEquals(accNegative, -137.37, 1.0e-2);
+    assertThat(accNegative).isCloseTo(-137.37, offset(1.0e-2));
     double accZero = PRODUCT_CORP.accruedInterest(LocalDate.of(2016, 3, 22));
-    assertEquals(accZero, 0d);
+    assertThat(accZero).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------
@@ -895,17 +945,19 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .resolve(REF_DATA);
   private static final double YIELD_JPI = -0.00309;
 
+  @Test
   public void test_priceFromRealYield_jpi() {
     LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
-    assertEquals(computed, 1.04, 1.e-2);
+    assertThat(computed).isCloseTo(1.04, offset(1.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
     double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_JPI, standardSettle, dirtyPrice);
-    assertEquals(computed, cleanPrice);
+    assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyPrice);
-    assertEquals(yieldRe, YIELD_JPI, TOL);
+    assertThat(yieldRe).isCloseTo(YIELD_JPI, offset(TOL));
   }
 
+  @Test
   public void test_modifiedDuration_convexity_jpi() {
     double eps = 1.0e-5;
     LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
@@ -916,10 +968,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double price = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI);
     double up = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI + eps);
     double dw = PRICER.cleanPriceFromRealYield(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, YIELD_JPI - eps);
-    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
-    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+    assertThat(mdComputed).isCloseTo(0.5 * (dw - up) / eps / price, offset(eps));
+    assertThat(cvComputed).isCloseTo((up + dw - 2d * price) / price / eps / eps, offset(eps));
   }
 
+  @Test
   public void test_realYieldFromCurves_jpi() {
     LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_JPI, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA);
@@ -928,9 +981,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double dirtyRealPrice =
         PRICER.realPriceFromNominalPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyNominalPrice);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyRealPrice);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void zSpreadFromCurvesAndCleanPrice_jpi() {
     LocalDate standardSettle = PRODUCT_JPI.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
@@ -939,17 +993,18 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_JPI, RATES_PROVS_JP, standardSettle, dirtyNominalPrice));
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
         PRODUCT_JPI, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_accruedInterest_jpi() {
     double accPositive = PRODUCT_JPI.accruedInterest(LocalDate.of(2016, 3, 9));
     CapitalIndexedBondPaymentPeriod period = PRODUCT_JPI.getPeriodicPayments().get(1);
     double yc = PRODUCT_JPI.getDayCount().relativeYearFraction(period.getStartDate(), period.getEndDate());
     double expected = CPN_VALUE_JPI * 2d * yc * NTNL; // accrual of total period based on ACT/365F
-    assertEquals(accPositive, expected, TOL * NTNL);
+    assertThat(accPositive).isCloseTo(expected, offset(TOL * NTNL));
     double accZero = PRODUCT_JPI.accruedInterest(LocalDate.of(2016, 3, 10));
-    assertEquals(accZero, 0d);
+    assertThat(accZero).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------
@@ -985,17 +1040,19 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
       .resolve(REF_DATA);
   private static final double YIELD_JPW = -0.005;
 
+  @Test
   public void test_priceFromRealYield_jpw() {
     LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
-    assertEquals(computed, 1.10, 1.e-2);
+    assertThat(computed).isCloseTo(1.10, offset(1.e-2));
     double dirtyPrice = PRICER.dirtyPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
     double cleanPrice = PRICER.cleanRealPriceFromDirtyRealPrice(PRODUCT_JPW, standardSettle, dirtyPrice);
-    assertEquals(computed, cleanPrice);
+    assertThat(computed).isEqualTo(cleanPrice);
     double yieldRe = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyPrice);
-    assertEquals(yieldRe, YIELD_JPW, TOL);
+    assertThat(yieldRe).isCloseTo(YIELD_JPW, offset(TOL));
   }
 
+  @Test
   public void test_modifiedDuration_convexity_jpw() {
     double eps = 1.0e-5;
     LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
@@ -1006,10 +1063,11 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double price = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW);
     double up = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW + eps);
     double dw = PRICER.cleanPriceFromRealYield(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, YIELD_JPW - eps);
-    assertEquals(mdComputed, 0.5 * (dw - up) / eps / price, eps);
-    assertEquals(cvComputed, (up + dw - 2d * price) / price / eps / eps, eps);
+    assertThat(mdComputed).isCloseTo(0.5 * (dw - up) / eps / price, offset(eps));
+    assertThat(cvComputed).isCloseTo((up + dw - 2d * price) / price / eps / eps, offset(eps));
   }
 
+  @Test
   public void test_realYieldFromCurves_jpw() {
     LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double computed = PRICER.realYieldFromCurves(PRODUCT_JPW, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA);
@@ -1018,9 +1076,10 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
     double dirtyRealPrice =
         PRICER.realPriceFromNominalPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyNominalPrice);
     double expected = PRICER.realYieldFromDirtyPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyRealPrice);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void zSpreadFromCurvesAndCleanPrice_jpw() {
     LocalDate standardSettle = PRODUCT_JPW.getSettlementDateOffset().adjust(VAL_DATE, REF_DATA);
     double dirtyNominalPrice = PRICER.dirtyNominalPriceFromCurvesWithZSpread(
@@ -1029,17 +1088,18 @@ public class DiscountingCapitalIndexedBondProductPricerTest {
         PRICER.cleanNominalPriceFromDirtyNominalPrice(PRODUCT_JPW, RATES_PROVS_JP, standardSettle, dirtyNominalPrice));
     double computed = PRICER.zSpreadFromCurvesAndCleanPrice(
         PRODUCT_JPW, RATES_PROVS_JP, ISSUER_PROVS_JP, REF_DATA, cleanRealPrice, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed, Z_SPREAD, TOL);
+    assertThat(computed).isCloseTo(Z_SPREAD, offset(TOL));
   }
 
+  @Test
   public void test_accruedInterest_jpw() {
     double accPositive = PRODUCT_JPW.accruedInterest(LocalDate.of(2016, 3, 9));
     CapitalIndexedBondPaymentPeriod period = PRODUCT_JPW.getPeriodicPayments().get(4);
     double yc = PRODUCT_JPW.getDayCount().relativeYearFraction(period.getStartDate(), period.getEndDate());
     double expected = CPN_VALUE_JPW * 2d * yc * NTNL; // accrual of total period based on ACT/365F
-    assertEquals(accPositive, expected, NTNL * NOTIONAL);
+    assertThat(accPositive).isCloseTo(expected, offset(NTNL * NOTIONAL));
     double accZero = PRODUCT_JPW.accruedInterest(LocalDate.of(2016, 3, 10));
-    assertEquals(accZero, 0d);
+    assertThat(accZero).isEqualTo(0d);
   }
 
   //-------------------------------------------------------------------------

@@ -11,14 +11,13 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -42,7 +41,6 @@ import com.opengamma.strata.product.SecurityId;
 /**
  * Test {@link ImmutableLegalEntityDiscountingProvider}.
  */
-@Test
 public class ImmutableLegalEntityDiscountingProviderTest {
 
   private static final LocalDate DATE = date(2015, 6, 4);
@@ -66,6 +64,7 @@ public class ImmutableLegalEntityDiscountingProviderTest {
   private static final LegalEntityId ID_ISSUER = LegalEntityId.of("OG-Ticker", "Issuer-1");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     ImmutableLegalEntityDiscountingProvider test = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
@@ -74,16 +73,14 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         .repoCurveSecurityGroups(ImmutableMap.of(ID_SECURITY, GROUP_REPO_SECURITY))
         .valuationDate(DATE)
         .build();
-    assertEquals(
-        test.issuerCurveDiscountFactors(ID_ISSUER, GBP),
-        IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
-    assertEquals(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP),
-        RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_SECURITY));
+    assertThat(test.issuerCurveDiscountFactors(ID_ISSUER, GBP)).isEqualTo(IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
+    assertThat(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP)).isEqualTo(RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_SECURITY));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.repoCurveDiscountFactors(ID_ISSUER, GBP));
-    assertEquals(test.getValuationDate(), DATE);
+    assertThat(test.getValuationDate()).isEqualTo(DATE);
   }
 
+  @Test
   public void test_builder_noValuationDate() {
     ImmutableLegalEntityDiscountingProvider test = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
@@ -91,28 +88,24 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         .repoCurves(ImmutableMap.of(Pair.of(GROUP_REPO_ISSUER, GBP), DSC_FACTORS_REPO))
         .repoCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_REPO_ISSUER))
         .build();
-    assertEquals(
-        test.issuerCurveDiscountFactors(ID_ISSUER, GBP),
-        IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
-    assertEquals(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP),
-        RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_ISSUER));
-    assertEquals(test.repoCurveDiscountFactors(ID_ISSUER, GBP),
-        RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_ISSUER));
-    assertEquals(test.getValuationDate(), DATE);
+    assertThat(test.issuerCurveDiscountFactors(ID_ISSUER, GBP)).isEqualTo(IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
+    assertThat(test.repoCurveDiscountFactors(ID_SECURITY, ID_ISSUER, GBP)).isEqualTo(RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_ISSUER));
+    assertThat(test.repoCurveDiscountFactors(ID_ISSUER, GBP)).isEqualTo(RepoCurveDiscountFactors.of(DSC_FACTORS_REPO, GROUP_REPO_ISSUER));
+    assertThat(test.getValuationDate()).isEqualTo(DATE);
 
   }
 
+  @Test
   public void test_builder_noRepoRate() {
     ImmutableLegalEntityDiscountingProvider test = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_ISSUER))
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
         .build();
-    assertEquals(
-        test.issuerCurveDiscountFactors(ID_ISSUER, GBP),
-        IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
-    assertEquals(test.getValuationDate(), DATE);
+    assertThat(test.issuerCurveDiscountFactors(ID_ISSUER, GBP)).isEqualTo(IssuerCurveDiscountFactors.of(DSC_FACTORS_ISSUER, GROUP_ISSUER));
+    assertThat(test.getValuationDate()).isEqualTo(DATE);
   }
 
+  @Test
   public void test_builder_fail() {
     // no relevant map for repo curve
     assertThatIllegalArgumentException()
@@ -160,6 +153,7 @@ public class ImmutableLegalEntityDiscountingProviderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_discountFactor_notFound() {
     LegalEntityId issuerId = LegalEntityId.of("OG-Ticker", "Issuer-2");
     LegalEntityGroup issuerGroup = LegalEntityGroup.of("ISSUER2");
@@ -188,6 +182,7 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         .isThrownBy(() -> test.repoCurveDiscountFactors(securityId, issuerId, GBP));
   }
 
+  @Test
   public void test_curveParameterSensitivity() {
     ImmutableLegalEntityDiscountingProvider test = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
@@ -206,9 +201,10 @@ public class ImmutableLegalEntityDiscountingProviderTest {
     CurrencyParameterSensitivities expected =
         DSC_FACTORS_ISSUER.parameterSensitivity(sensi1.createZeroRateSensitivity()).combinedWith(
             DSC_FACTORS_REPO.parameterSensitivity(sensi2.createZeroRateSensitivity()));
-    assertTrue(computed.equalWithTolerance(expected, 1.0e-12));
+    assertThat(computed.equalWithTolerance(expected, 1.0e-12)).isTrue();
   }
 
+  @Test
   public void test_curveParameterSensitivity_noSensi() {
     ImmutableLegalEntityDiscountingProvider test = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
@@ -220,9 +216,10 @@ public class ImmutableLegalEntityDiscountingProviderTest {
     ZeroRateSensitivity sensi =
         ZeroRateSensitivity.of(USD, DSC_FACTORS_ISSUER.relativeYearFraction(date(2018, 11, 24)), 25d);
     CurrencyParameterSensitivities computed = test.parameterSensitivity(sensi.build());
-    assertEquals(computed, CurrencyParameterSensitivities.empty());
+    assertThat(computed).isEqualTo(CurrencyParameterSensitivities.empty());
   }
 
+  @Test
   public void test_findData() {
     ImmutableLegalEntityDiscountingProvider test = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))
@@ -231,12 +228,13 @@ public class ImmutableLegalEntityDiscountingProviderTest {
         .repoCurveGroups(ImmutableMap.of(ID_ISSUER, GROUP_REPO_ISSUER))
         .valuationDate(DATE)
         .build();
-    assertEquals(test.findData(DSC_FACTORS_ISSUER.getCurve().getName()), Optional.of(DSC_FACTORS_ISSUER.getCurve()));
-    assertEquals(test.findData(DSC_FACTORS_REPO.getCurve().getName()), Optional.of(DSC_FACTORS_REPO.getCurve()));
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.findData(DSC_FACTORS_ISSUER.getCurve().getName())).isEqualTo(Optional.of(DSC_FACTORS_ISSUER.getCurve()));
+    assertThat(test.findData(DSC_FACTORS_REPO.getCurve().getName())).isEqualTo(Optional.of(DSC_FACTORS_REPO.getCurve()));
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableLegalEntityDiscountingProvider test1 = ImmutableLegalEntityDiscountingProvider.builder()
         .issuerCurves(ImmutableMap.of(Pair.of(GROUP_ISSUER, GBP), DSC_FACTORS_ISSUER))

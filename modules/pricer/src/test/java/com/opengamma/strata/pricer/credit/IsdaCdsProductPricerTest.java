@@ -12,16 +12,16 @@ import static com.opengamma.strata.pricer.common.PriceType.CLEAN;
 import static com.opengamma.strata.pricer.common.PriceType.DIRTY;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -58,7 +58,6 @@ import com.opengamma.strata.product.credit.ResolvedCds;
  * <p>
  * The numbers in the regression tests are from 2.x.
  */
-@Test
 public class IsdaCdsProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -207,52 +206,55 @@ public class IsdaCdsProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void accFormulaTest() {
-    assertEquals(PRICER.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.ORIGINAL_ISDA);
-    assertEquals(PRICER_FIX.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.MARKIT_FIX);
-    assertEquals(PRICER_CORRECT.getAccrualOnDefaultFormula(), AccrualOnDefaultFormula.CORRECT);
+    assertThat(PRICER.getAccrualOnDefaultFormula()).isEqualTo(AccrualOnDefaultFormula.ORIGINAL_ISDA);
+    assertThat(PRICER_FIX.getAccrualOnDefaultFormula()).isEqualTo(AccrualOnDefaultFormula.MARKIT_FIX);
+    assertThat(PRICER_CORRECT.getAccrualOnDefaultFormula()).isEqualTo(AccrualOnDefaultFormula.CORRECT);
   }
 
+  @Test
   public void endedTest() {
     LocalDate valuationDate = PRODUCT_NEXTDAY.getProtectionEndDate().plusDays(1);
     CreditRatesProvider provider = createCreditRatesProvider(valuationDate);
     double price = PRICER.price(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(price, 0d);
+    assertThat(price).isEqualTo(0d);
     CurrencyAmount pv = PRICER.presentValue(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(pv, CurrencyAmount.zero(USD));
+    assertThat(pv).isEqualTo(CurrencyAmount.zero(USD));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.parSpread(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
     double protectionLeg = PRICER.protectionLeg(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(protectionLeg, 0d);
+    assertThat(protectionLeg).isEqualTo(0d);
     double riskyAnnuity = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(riskyAnnuity, 0d);
+    assertThat(riskyAnnuity).isEqualTo(0d);
     CurrencyAmount rpv01 = PRICER.rpv01(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(rpv01, CurrencyAmount.zero(USD));
+    assertThat(rpv01).isEqualTo(CurrencyAmount.zero(USD));
     CurrencyAmount recovery01 = PRICER.recovery01(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(recovery01, CurrencyAmount.zero(USD));
+    assertThat(recovery01).isEqualTo(CurrencyAmount.zero(USD));
     PointSensitivityBuilder sensi = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(sensi, PointSensitivityBuilder.none());
+    assertThat(sensi).isEqualTo(PointSensitivityBuilder.none());
     PointSensitivityBuilder sensiPrice = PRICER.priceSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(sensiPrice, PointSensitivityBuilder.none());
+    assertThat(sensiPrice).isEqualTo(PointSensitivityBuilder.none());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA));
     JumpToDefault jtd = PRICER.jumpToDefault(PRODUCT_NEXTDAY, provider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(provider.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(jtd, JumpToDefault.of(USD, ImmutableMap.of(LEGAL_ENTITY, 0d)));
+    assertThat(jtd).isEqualTo(JumpToDefault.of(USD, ImmutableMap.of(LEGAL_ENTITY, 0d)));
     CurrencyAmount expectedLoss = PRICER.expectedLoss(PRODUCT_NEXTDAY, provider);
-    assertEquals(expectedLoss, CurrencyAmount.zero(USD));
+    assertThat(expectedLoss).isEqualTo(CurrencyAmount.zero(USD));
   }
 
+  @Test
   public void consistencyTest() {
     double price = PRICER.price(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
@@ -267,14 +269,15 @@ public class IsdaCdsProductPricerTest {
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     double annuity = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(price, protPv - PRODUCT_NEXTDAY.getFixedRate() * annuity, TOL);
-    assertEquals(rpv01.getCurrency(), USD);
-    assertEquals(rpv01.getAmount(), annuity * NOTIONAL, NOTIONAL * TOL);
-    assertEquals(recovery01.getCurrency(), USD);
-    assertEquals(recovery01.getAmount(), -protPv / (1d - RECOVERY_RATES.getRecoveryRate()) * NOTIONAL, NOTIONAL * TOL);
-    assertEquals(spread, protPv / annuity, TOL);
+    assertThat(price).isCloseTo(protPv - PRODUCT_NEXTDAY.getFixedRate() * annuity, offset(TOL));
+    assertThat(rpv01.getCurrency()).isEqualTo(USD);
+    assertThat(rpv01.getAmount()).isCloseTo(annuity * NOTIONAL, offset(NOTIONAL * TOL));
+    assertThat(recovery01.getCurrency()).isEqualTo(USD);
+    assertThat(recovery01.getAmount()).isCloseTo(-protPv / (1d - RECOVERY_RATES.getRecoveryRate()) * NOTIONAL, offset(NOTIONAL * TOL));
+    assertThat(spread).isCloseTo(protPv / annuity, offset(TOL));
   }
 
+  @Test
   public void withCouponTest() {
     double coupon = 0.15;
     double price = PRICER.price(PRODUCT_NEXTDAY, RATES_PROVIDER, coupon,
@@ -283,10 +286,11 @@ public class IsdaCdsProductPricerTest {
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
     double annuity = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(price, protPv - coupon * annuity, TOL);
+    assertThat(price).isCloseTo(protPv - coupon * annuity, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void pvSensitivityTest() {
     PointSensitivityBuilder pointNext = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -313,6 +317,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void pvSensitivityFixTest() {
     PointSensitivityBuilder pointNext = PRICER_FIX.presentValueSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -339,6 +344,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void pvSensitivityCorrectTest() {
     PointSensitivityBuilder pointNext = PRICER_CORRECT.presentValueSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -365,6 +371,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void priceSensitivityTest() {
     PointSensitivityBuilder pointNext = PRICER.priceSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -391,6 +398,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void priceSensitivityFixTest() {
     PointSensitivityBuilder pointNext = PRICER_FIX.priceSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -417,6 +425,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void priceSensitivityCorrectTest() {
     PointSensitivityBuilder pointNext = PRICER_CORRECT.priceSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -443,6 +452,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void parSpreadSensitivityTest() {
     PointSensitivityBuilder pointNext = PRICER.parSpreadSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -469,6 +479,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void parSpreadSensitivityFixTest() {
     PointSensitivityBuilder pointNext = PRICER_FIX.parSpreadSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -495,6 +506,7 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
   public void parSpreadSensitivityCorrectTest() {
     PointSensitivityBuilder pointNext = PRICER_CORRECT.parSpreadSensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
@@ -538,136 +550,142 @@ public class IsdaCdsProductPricerTest {
         mutable.remove(index);
       } else {
         // did not match, so must be zero
-        assertTrue(sens1.getSensitivity().equalZeroWithTolerance(tolerance));
+        assertThat(sens1.getSensitivity().equalZeroWithTolerance(tolerance)).isTrue();
       }
     }
     // all that remain from other instance must be zero
     for (CurrencyParameterSensitivity sens2 : mutable) {
-      assertTrue(sens2.getSensitivity().equalZeroWithTolerance(tolerance));
+      assertThat(sens2.getSensitivity().equalZeroWithTolerance(tolerance)).isTrue();
     }
   }
 
   private void equalZeroWithRelativeTolerance(DoubleArray computed, DoubleArray expected, double tolerance) {
     int size = expected.size();
-    assertEquals(size, computed.size());
+    assertThat(size).isEqualTo(computed.size());
     for (int i = 0; i < size; i++) {
       double ref = Math.max(1d, Math.abs(expected.get(i)));
-      assertEquals(computed.get(i), expected.get(i), tolerance * ref);
+      assertThat(computed.get(i)).isCloseTo(expected.get(i), offset(tolerance * ref));
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void cleanPvTest() {
     double resNext = PRICER.presentValue(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resNext, -0.20208402732565636 * NOTIONAL, TOL * NOTIONAL);
+    assertThat(resNext).isCloseTo(-0.20208402732565636 * NOTIONAL, offset(TOL * NOTIONAL));
     double resBefore = PRICER.presentValue(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resBefore, -0.26741962741508013 * (-NOTIONAL), TOL * NOTIONAL);
+    assertThat(resBefore).isCloseTo(-0.26741962741508013 * (-NOTIONAL), offset(TOL * NOTIONAL));
     double resAfter = PRICER.presentValue(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resAfter, -0.32651549808776237 * NOTIONAL, TOL * NOTIONAL);
+    assertThat(resAfter).isCloseTo(-0.32651549808776237 * NOTIONAL, offset(TOL * NOTIONAL));
     double resNsToday = PRICER.presentValue(PRODUCT_NS_TODAY, RATES_PROVIDER,
         PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resNsToday, -0.2101704800313836 * NOTIONAL, TOL * NOTIONAL);
+    assertThat(resNsToday).isCloseTo(-0.2101704800313836 * NOTIONAL, offset(TOL * NOTIONAL));
     double resNsStepin = PRICER.presentValue(PRODUCT_NS_STEPIN, RATES_PROVIDER,
         PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN,
         REF_DATA).getAmount();
-    assertEquals(resNsStepin, -0.1691072048424866 * (-NOTIONAL), TOL * NOTIONAL);
+    assertThat(resNsStepin).isCloseTo(-0.1691072048424866 * (-NOTIONAL), offset(TOL * NOTIONAL));
     double resNsBtw = PRICER.presentValue(PRODUCT_NS_BTW, RATES_PROVIDER,
         PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resNsBtw, -0.29068253160089597 * NOTIONAL, TOL * NOTIONAL);
+    assertThat(resNsBtw).isCloseTo(-0.29068253160089597 * NOTIONAL, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void cleanPvTruncationTest() {
     CreditRatesProvider ratesAccEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 22));
     double resAccEndDate = PRICER.presentValue(PRODUCT_BEFORE, ratesAccEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesAccEndDate.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resAccEndDate, -0.26418577838510354 * (-NOTIONAL), TOL * NOTIONAL);
+    assertThat(resAccEndDate).isCloseTo(-0.26418577838510354 * (-NOTIONAL), offset(TOL * NOTIONAL));
     CreditRatesProvider ratesEffectiveEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 21));
     double resEffectiveEndDate = PRICER.presentValue(PRODUCT_BEFORE, ratesEffectiveEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesEffectiveEndDate.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resEffectiveEndDate, -0.26422628099362094 * (-NOTIONAL), TOL * NOTIONAL);
+    assertThat(resEffectiveEndDate).isCloseTo(-0.26422628099362094 * (-NOTIONAL), offset(TOL * NOTIONAL));
     CreditRatesProvider ratesProtectionEndDateOne = createCreditRatesProvider(LocalDate.of(2024, 9, 19));
     double resProtectionEndDateOne = PRICER.presentValue(PRODUCT_BEFORE, ratesProtectionEndDateOne,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDateOne.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resProtectionEndDateOne, -1.1814923847919301E-4 * (-NOTIONAL), TOL * NOTIONAL);
+    assertThat(resProtectionEndDateOne).isCloseTo(-1.1814923847919301E-4 * (-NOTIONAL), offset(TOL * NOTIONAL));
     CreditRatesProvider ratesProtectionEndDate = createCreditRatesProvider(LocalDate.of(2024, 9, 20));
     double resProtectionEndDate = PRICER.presentValue(PRODUCT_BEFORE, ratesProtectionEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), CLEAN, REF_DATA)
         .getAmount();
-    assertEquals(resProtectionEndDate, 0d, TOL * NOTIONAL);
+    assertThat(resProtectionEndDate).isCloseTo(0d, offset(TOL * NOTIONAL));
   }
 
+  @Test
   public void protectionLegRegressionTest() {
     double resNext = PRICER.protectionLeg(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(resNext, 0.11770082424693698, TOL);
+    assertThat(resNext).isCloseTo(0.11770082424693698, offset(TOL));
     double resBefore = PRICER.protectionLeg(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(resBefore, 0.19621836970171463, TOL);
+    assertThat(resBefore).isCloseTo(0.19621836970171463, offset(TOL));
     double resAfter = PRICER.protectionLeg(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(resAfter, 0.2744043768251808, TOL);
+    assertThat(resAfter).isCloseTo(0.2744043768251808, offset(TOL));
     double resNsToday = PRICER.protectionLeg(PRODUCT_NS_TODAY, RATES_PROVIDER,
         PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(resNsToday, 0.12920042414763938, TOL);
+    assertThat(resNsToday).isCloseTo(0.12920042414763938, offset(TOL));
     double resNsStepin = PRICER.protectionLeg(PRODUCT_NS_STEPIN, RATES_PROVIDER,
         PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(resNsStepin, 0.07540932150559641, TOL);
+    assertThat(resNsStepin).isCloseTo(0.07540932150559641, offset(TOL));
     double resNsBtw = PRICER.protectionLeg(PRODUCT_NS_BTW, RATES_PROVIDER,
         PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
-    assertEquals(resNsBtw, 0.22727774070157128, TOL);
+    assertThat(resNsBtw).isCloseTo(0.22727774070157128, offset(TOL));
   }
 
+  @Test
   public void premiumLegRegressionTest() {
     double resNext = PRICER.riskyAnnuity(PRODUCT_NEXTDAY, RATES_PROVIDER,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resNext, 6.395697031451866, TOL);
+    assertThat(resNext).isCloseTo(6.395697031451866, offset(TOL));
     double resBefore = PRICER.riskyAnnuity(PRODUCT_BEFORE, RATES_PROVIDER,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resBefore, 9.314426609002561, TOL);
+    assertThat(resBefore).isCloseTo(9.314426609002561, offset(TOL));
     double resAfter = PRICER.riskyAnnuity(PRODUCT_AFTER, RATES_PROVIDER,
         PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resAfter, 12.018397498258862, TOL);
+    assertThat(resAfter).isCloseTo(12.018397498258862, offset(TOL));
     double resNsToday = PRICER.riskyAnnuity(PRODUCT_NS_TODAY, RATES_PROVIDER,
         PRODUCT_NS_TODAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resNsToday, 6.806862528024904, TOL);
+    assertThat(resNsToday).isCloseTo(6.806862528024904, offset(TOL));
     double resNsStepin = PRICER.riskyAnnuity(PRODUCT_NS_STEPIN, RATES_PROVIDER,
         PRODUCT_NS_STEPIN.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resNsStepin, 4.89033052696166, TOL);
+    assertThat(resNsStepin).isCloseTo(4.89033052696166, offset(TOL));
     double resNsBtw = PRICER.riskyAnnuity(PRODUCT_NS_BTW, RATES_PROVIDER,
         PRODUCT_NS_BTW.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resNsBtw, 10.367538779382677, TOL);
+    assertThat(resNsBtw).isCloseTo(10.367538779382677, offset(TOL));
   }
 
+  @Test
   public void truncationRegressionTest() {
     CreditRatesProvider ratesAccEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 22));
     double resAccEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesAccEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesAccEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resAccEndDate, 9.140484282937514, TOL);
+    assertThat(resAccEndDate).isCloseTo(9.140484282937514, offset(TOL));
     CreditRatesProvider ratesEffectiveEndDate = createCreditRatesProvider(LocalDate.of(2014, 3, 21));
     double resEffectiveEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesEffectiveEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesEffectiveEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resEffectiveEndDate, 9.139474456128156, TOL);
+    assertThat(resEffectiveEndDate).isCloseTo(9.139474456128156, offset(TOL));
     CreditRatesProvider ratesProtectionEndDateOne = createCreditRatesProvider(LocalDate.of(2024, 9, 19));
     double resProtectionEndDateOne = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDateOne,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDateOne.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resProtectionEndDateOne, 0.2583274486014851, TOL);
+    assertThat(resProtectionEndDateOne).isCloseTo(0.2583274486014851, offset(TOL));
     CreditRatesProvider ratesProtectionEndDate = createCreditRatesProvider(LocalDate.of(2024, 9, 20));
     double resProtectionEndDate = PRICER.riskyAnnuity(PRODUCT_BEFORE, ratesProtectionEndDate,
         PRODUCT_BEFORE.getSettlementDateOffset().adjust(ratesProtectionEndDate.getValuationDate(), REF_DATA), DIRTY, REF_DATA);
-    assertEquals(resProtectionEndDate, 0d, TOL);
+    assertThat(resProtectionEndDate).isCloseTo(0d, offset(TOL));
   }
 
+  @Test
   public void epsilonTest() {
     // Math.abs(dhrt) < 1e-5 is true
     DoubleArray timeDsc = DoubleArray.of(0.5d, 1d, 3d, 5d, 10d, 20d);
@@ -695,9 +713,9 @@ public class IsdaCdsProductPricerTest {
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
     CurrencyAmount pv3 = PRICER_CORRECT.presentValue(PRODUCT_NEXTDAY, ratesProvider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), CLEAN, REF_DATA);
-    assertEquals(pv1.getAmount(), -0.3728276314104907 * NOTIONAL, NOTIONAL * TOL);
-    assertEquals(pv2.getAmount(), -0.3728585818359114 * NOTIONAL, NOTIONAL * TOL);
-    assertEquals(pv3.getAmount(), -0.3728305887124643 * NOTIONAL, NOTIONAL * TOL);
+    assertThat(pv1.getAmount()).isCloseTo(-0.3728276314104907 * NOTIONAL, offset(NOTIONAL * TOL));
+    assertThat(pv2.getAmount()).isCloseTo(-0.3728585818359114 * NOTIONAL, offset(NOTIONAL * TOL));
+    assertThat(pv3.getAmount()).isCloseTo(-0.3728305887124643 * NOTIONAL, offset(NOTIONAL * TOL));
     // sensitivity
     PointSensitivityBuilder point1 = PRICER.presentValueSensitivity(PRODUCT_NEXTDAY, ratesProvider,
         PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(ratesProvider.getValuationDate(), REF_DATA), REF_DATA);
@@ -722,18 +740,20 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(res3, exp3, NOTIONAL * EPS);
   }
 
+  @Test
   public void accruedInterestTest() {
     double acc = PRODUCT_BEFORE.accruedYearFraction(VALUATION_DATE) * PRODUCT_BEFORE.getFixedRate();
     double accAccEndDate = PRODUCT_BEFORE.accruedYearFraction(LocalDate.of(2014, 3, 22)) * PRODUCT_BEFORE.getFixedRate();
     double accEffectiveEndDateOne = PRODUCT_BEFORE.accruedYearFraction(LocalDate.of(2014, 3, 20)) * PRODUCT_BEFORE.getFixedRate();
     double accEffectiveEndDate = PRODUCT_BEFORE.accruedYearFraction(LocalDate.of(2014, 3, 21)) * PRODUCT_BEFORE.getFixedRate();
-    assertEquals(acc, 0.0019444444444444446, TOL);
-    assertEquals(accAccEndDate, 2.777777777777778E-4, TOL);
-    assertEquals(accEffectiveEndDateOne, 0d, TOL);
-    assertEquals(accEffectiveEndDate, 1.388888888888889E-4, TOL);
+    assertThat(acc).isCloseTo(0.0019444444444444446, offset(TOL));
+    assertThat(accAccEndDate).isCloseTo(2.777777777777778E-4, offset(TOL));
+    assertThat(accEffectiveEndDateOne).isCloseTo(0d, offset(TOL));
+    assertThat(accEffectiveEndDate).isCloseTo(1.388888888888889E-4, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void jumpToDefaultTest() {
     JumpToDefault computed = PRICER.jumpToDefault(PRODUCT_BEFORE, RATES_PROVIDER, VALUATION_DATE, REF_DATA);
     LocalDate stepinDate = PRODUCT_BEFORE.getStepinDateOffset().adjust(VALUATION_DATE, REF_DATA);
@@ -742,17 +762,18 @@ public class IsdaCdsProductPricerTest {
         PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL);
     double protection = PRODUCT_BEFORE.getBuySell().normalize(NOTIONAL) * (1d - RECOVERY_RATES.getRecoveryRate());
     double expected = protection - accrued - dirtyPv;
-    assertEquals(computed.getCurrency(), USD);
-    assertTrue(computed.getAmounts().size() == 1);
-    assertEquals(computed.getAmounts().get(LEGAL_ENTITY), expected, NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(USD);
+    assertThat(computed.getAmounts().size() == 1).isTrue();
+    assertThat(computed.getAmounts().get(LEGAL_ENTITY)).isCloseTo(expected, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void expectedLossTest() {
     CurrencyAmount computed = PRICER.expectedLoss(PRODUCT_BEFORE, RATES_PROVIDER);
     double survivalProb = CREDIT_CRVE.discountFactor(PRODUCT_BEFORE.getProtectionEndDate());
     double expected = NOTIONAL * (1d - RECOVERY_RATES.getRecoveryRate()) * (1d - survivalProb);
-    assertEquals(computed.getCurrency(), USD);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(USD);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------

@@ -1,63 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<launchConfiguration type="org.testng.eclipse.launchconfig">
-    <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
-        <listEntry value="=strata-pricer/src\/main\/java"/>
+<launchConfiguration type="org.eclipse.jdt.junit.launchconfig">
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/strata-pricer"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="4"/>
     </listAttribute>
     <listAttribute key="org.eclipse.eclemma.core.SCOPE_IDS">
         <listEntry value="=strata-pricer/src\/main\/java"/>
     </listAttribute>
+    <stringAttribute key="org.eclipse.jdt.junit.CONTAINER" value="=strata-pricer"/>
+    <booleanAttribute key="org.eclipse.jdt.junit.KEEPRUNNING_ATTR" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.junit.TESTNAME" value=""/>
+    <stringAttribute key="org.eclipse.jdt.junit.TEST_KIND" value="org.eclipse.jdt.junit.loader.junit5"/>
     <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
-    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value=""/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="strata-pricer"/>
     <stringAttribute key="org.eclipse.jdt.launching.SOURCE_PATH_PROVIDER" value="org.eclipse.m2e.launchconfig.sourcepathProvider"/>
-    <mapAttribute key="org.testng.eclipse.ALL_CLASS_METHODS"/>
-    <listAttribute key="org.testng.eclipse.CLASS_TEST_LIST"/>
-    <booleanAttribute key="org.testng.eclipse.DEBUG" value="false"/>
-    <listAttribute key="org.testng.eclipse.GROUP_LIST"/>
-    <listAttribute key="org.testng.eclipse.GROUP_LIST_CLASS"/>
-    <stringAttribute key="org.testng.eclipse.LOG_LEVEL" value="2"/>
-    <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
-    <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
-        <listEntry value="com.opengamma.strata.pricer"/>
-        <listEntry value="com.opengamma.strata.pricer.bond"/>
-        <listEntry value="com.opengamma.strata.pricer.bond.e2e"/>
-        <listEntry value="com.opengamma.strata.pricer.capfloor"/>
-        <listEntry value="com.opengamma.strata.pricer.cms"/>
-        <listEntry value="com.opengamma.strata.pricer.common"/>
-        <listEntry value="com.opengamma.strata.pricer.credit"/>
-        <listEntry value="com.opengamma.strata.pricer.curve"/>
-        <listEntry value="com.opengamma.strata.pricer.datasets"/>
-        <listEntry value="com.opengamma.strata.pricer.deposit"/>
-        <listEntry value="com.opengamma.strata.pricer.dsf"/>
-        <listEntry value="com.opengamma.strata.pricer.fra"/>
-        <listEntry value="com.opengamma.strata.pricer.fx"/>
-        <listEntry value="com.opengamma.strata.pricer.fxopt"/>
-        <listEntry value="com.opengamma.strata.pricer.impl"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.credit.isda"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.credit.isda.e2e"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.model"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.option"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.rate"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.rate.swap"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.swap"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.tree"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.volatility.local"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.volatility.smile.fitting"/>
-        <listEntry value="com.opengamma.strata.pricer.impl.volatility.smile.function"/>
-        <listEntry value="com.opengamma.strata.pricer.index"/>
-        <listEntry value="com.opengamma.strata.pricer.index.e2e"/>
-        <listEntry value="com.opengamma.strata.pricer.model"/>
-        <listEntry value="com.opengamma.strata.pricer.option"/>
-        <listEntry value="com.opengamma.strata.pricer.payment"/>
-        <listEntry value="com.opengamma.strata.pricer.rate"/>
-        <listEntry value="com.opengamma.strata.pricer.sensitivity"/>
-        <listEntry value="com.opengamma.strata.pricer.swap"/>
-        <listEntry value="com.opengamma.strata.pricer.swap.e2e"/>
-        <listEntry value="com.opengamma.strata.pricer.swaption"/>
-    </listAttribute>
-    <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
-    <stringAttribute key="org.testng.eclipse.PRE_DEFINED_LISTENERS" value=""/>
-    <stringAttribute key="org.testng.eclipse.PROTOCOL" value="object"/>
-    <intAttribute key="org.testng.eclipse.TYPE" value="5"/>
-    <booleanAttribute key="org.testng.eclipse.VERBOSE" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>
 </launchConfiguration>

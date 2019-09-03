@@ -8,11 +8,12 @@ package com.opengamma.strata.pricer.impl.swap;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -42,7 +43,6 @@ import com.opengamma.strata.product.swap.KnownAmountSwapPaymentPeriod;
 /**
  * Test {@link DiscountingKnownAmountPaymentPeriodPricer}
  */
-@Test
 public class DiscountingKnownAmountPaymentPeriodPricerTest {
 
   private static final DiscountingKnownAmountPaymentPeriodPricer PRICER = DiscountingKnownAmountPaymentPeriodPricer.DEFAULT;
@@ -82,38 +82,43 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double pvExpected = AMOUNT_1000 * DISCOUNT_FACTOR;
     double pvComputed = PRICER.presentValue(PERIOD, prov);
-    assertEquals(pvComputed, pvExpected, TOLERANCE_PV);
+    assertThat(pvComputed).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_presentValue_inPast() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double pvComputed = PRICER.presentValue(PERIOD_PAST, prov);
-    assertEquals(pvComputed, 0, TOLERANCE_PV);
+    assertThat(pvComputed).isCloseTo(0, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvExpected = AMOUNT_1000;
     double fvComputed = PRICER.forecastValue(PERIOD, prov);
-    assertEquals(fvComputed, fvExpected, TOLERANCE_PV);
+    assertThat(fvComputed).isCloseTo(fvExpected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_forecastValue_inPast() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     double fvComputed = PRICER.forecastValue(PERIOD_PAST, prov);
-    assertEquals(fvComputed, 0, TOLERANCE_PV);
+    assertThat(fvComputed).isCloseTo(0, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
@@ -121,52 +126,58 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     double relativeYearFraction = DAY_COUNT.relativeYearFraction(VAL_DATE, PAYMENT_DATE);
     double expected = -DISCOUNT_FACTOR * relativeYearFraction * AMOUNT_1000;
     ZeroRateSensitivity actual = (ZeroRateSensitivity) point.getSensitivities().get(0);
-    assertEquals(actual.getCurrency(), GBP);
-    assertEquals(actual.getCurveCurrency(), GBP);
-    assertEquals(actual.getYearFraction(), relativeYearFraction);
-    assertEquals(actual.getSensitivity(), expected, AMOUNT_1000 * TOLERANCE_PV);
+    assertThat(actual.getCurrency()).isEqualTo(GBP);
+    assertThat(actual.getCurveCurrency()).isEqualTo(GBP);
+    assertThat(actual.getYearFraction()).isEqualTo(relativeYearFraction);
+    assertThat(actual.getSensitivity()).isCloseTo(expected, offset(AMOUNT_1000 * TOLERANCE_PV));
   }
 
+  @Test
   public void test_presentValueSensitivity_inPast() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
     PointSensitivities computed = PRICER.presentValueSensitivity(PERIOD_PAST, prov)
         .build();
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValueSensitivity() {
     SimpleRatesProvider prov = createProvider(VAL_DATE);
 
-    assertEquals(PRICER.forecastValueSensitivity(PERIOD, prov), PointSensitivityBuilder.none());
+    assertThat(PRICER.forecastValueSensitivity(PERIOD, prov)).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_accruedInterest() {
     LocalDate valDate = PERIOD.getStartDate().plusDays(7);
     SimpleRatesProvider prov = createProvider(valDate);
 
     double expected = AMOUNT_1000 * (7d / (7 + 28 + 31 + 25));
     double computed = PRICER.accruedInterest(PERIOD, prov);
-    assertEquals(computed, expected, TOLERANCE_PV);
+    assertThat(computed).isCloseTo(expected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_accruedInterest_valDateBeforePeriod() {
     SimpleRatesProvider prov = createProvider(PERIOD.getStartDate());
 
     double computed = PRICER.accruedInterest(PERIOD, prov);
-    assertEquals(computed, 0, TOLERANCE_PV);
+    assertThat(computed).isCloseTo(0, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_accruedInterest_valDateAfterPeriod() {
     SimpleRatesProvider prov = createProvider(PERIOD.getEndDate().plusDays(1));
 
     double computed = PRICER.accruedInterest(PERIOD, prov);
-    assertEquals(computed, 0, TOLERANCE_PV);
+    assertThat(computed).isCloseTo(0, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explainPresentValue() {
     RatesProvider prov = createProvider(VAL_DATE);
 
@@ -174,24 +185,25 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     PRICER.explainPresentValue(PERIOD, prov, builder);
     ExplainMap explain = builder.build();
 
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "KnownAmountPaymentPeriod");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PERIOD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("KnownAmountPaymentPeriod");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PERIOD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isCloseTo(DISCOUNT_FACTOR, offset(TOLERANCE_PV));
 
     int daysBetween = (int) DAYS.between(DATE_1, DATE_2);
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), PERIOD.getStartDate());
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), PERIOD.getUnadjustedStartDate());
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), PERIOD.getEndDate());
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), PERIOD.getUnadjustedEndDate());
-    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) daysBetween);
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(PERIOD.getStartDate());
+    assertThat(explain.get(ExplainKey.UNADJUSTED_START_DATE).get()).isEqualTo(PERIOD.getUnadjustedStartDate());
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(PERIOD.getEndDate());
+    assertThat(explain.get(ExplainKey.UNADJUSTED_END_DATE).get()).isEqualTo(PERIOD.getUnadjustedEndDate());
+    assertThat(explain.get(ExplainKey.DAYS).get()).isEqualTo((Integer) daysBetween);
 
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), AMOUNT_1000, TOLERANCE_PV);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), PERIOD.getCurrency());
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), AMOUNT_1000 * DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(AMOUNT_1000, offset(TOLERANCE_PV));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(PERIOD.getCurrency());
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(AMOUNT_1000 * DISCOUNT_FACTOR, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_explainPresentValue_inPast() {
     RatesProvider prov = createProvider(VAL_DATE);
 
@@ -199,24 +211,25 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     PRICER.explainPresentValue(PERIOD_PAST, prov, builder);
     ExplainMap explain = builder.build();
 
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "KnownAmountPaymentPeriod");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), PERIOD_PAST.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), PERIOD_PAST.getCurrency());
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("KnownAmountPaymentPeriod");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(PERIOD_PAST.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(PERIOD_PAST.getCurrency());
 
     int daysBetween = (int) DAYS.between(DATE_1, DATE_2);
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), PERIOD_PAST.getStartDate());
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_START_DATE).get(), PERIOD_PAST.getUnadjustedStartDate());
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), PERIOD_PAST.getEndDate());
-    assertEquals(explain.get(ExplainKey.UNADJUSTED_END_DATE).get(), PERIOD_PAST.getUnadjustedEndDate());
-    assertEquals(explain.get(ExplainKey.DAYS).get(), (Integer) daysBetween);
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(PERIOD_PAST.getStartDate());
+    assertThat(explain.get(ExplainKey.UNADJUSTED_START_DATE).get()).isEqualTo(PERIOD_PAST.getUnadjustedStartDate());
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(PERIOD_PAST.getEndDate());
+    assertThat(explain.get(ExplainKey.UNADJUSTED_END_DATE).get()).isEqualTo(PERIOD_PAST.getUnadjustedEndDate());
+    assertThat(explain.get(ExplainKey.DAYS).get()).isEqualTo((Integer) daysBetween);
 
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0, TOLERANCE_PV);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), PERIOD_PAST.getCurrency());
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0 * DISCOUNT_FACTOR, TOLERANCE_PV);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(PERIOD_PAST.getCurrency());
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(0, offset(TOLERANCE_PV));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(PERIOD_PAST.getCurrency());
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(0 * DISCOUNT_FACTOR, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
@@ -225,23 +238,25 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
     PointSensitivities point = PRICER.presentValueSensitivity(PERIOD, prov).build();
     MultiCurrencyAmount expected = prov.currencyExposure(point)
         .plus(CurrencyAmount.of(GBP, PRICER.presentValue(PERIOD, prov)));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_currentCash_zero() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     double computed = PRICER.currentCash(PERIOD, prov);
-    assertEquals(computed, 0d);
+    assertThat(computed).isEqualTo(0d);
   }
 
+  @Test
   public void test_currentCash_onPayment() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(PERIOD.getPaymentDate())
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     double computed = PRICER.currentCash(PERIOD, prov);
-    assertEquals(computed, AMOUNT_1000);
+    assertThat(computed).isEqualTo(AMOUNT_1000);
   }
 
   //-------------------------------------------------------------------------

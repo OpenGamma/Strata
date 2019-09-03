@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.pricer.impl.tree;
 
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -15,7 +15,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link TrigeorgisLatticeSpecification}.
  */
-@Test
 public class TrigeorgisLatticeSpecificationTest {
 
   private static final int NUM = 35;
@@ -23,6 +22,7 @@ public class TrigeorgisLatticeSpecificationTest {
   private static final double RATE = 0.03;
   private static final double DT = 2d / NUM;
 
+  @Test
   public void test_formula() {
     TrigeorgisLatticeSpecification test = new TrigeorgisLatticeSpecification();
     DoubleArray computed = test.getParametersTrinomial(VOL, RATE, DT);
@@ -34,7 +34,7 @@ public class TrigeorgisLatticeSpecificationTest {
     double dm = 1d - (VOL * VOL * DT + nu * nu * DT * DT) / (dx * dx);
     double dp = 0.5 * ((VOL * VOL * DT + nu * nu * DT * DT) / (dx * dx) - nu * DT / dx);
     DoubleArray expected = DoubleArray.of(u, 1d, d, up, dm, dp);
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected.toArray(), 1.0e-14));
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected.toArray(), 1.0e-14)).isTrue();
   }
 
 }

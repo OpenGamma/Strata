@@ -8,16 +8,14 @@ package com.opengamma.strata.pricer.impl.volatility.smile;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SsviFormulaData}.
  */
-@Test
 public class SsviFormulaDataTest {
 
   private static final double SIGMA = 0.20;
@@ -27,23 +25,23 @@ public class SsviFormulaDataTest {
 
   @Test
   public void test() {
-    assertEquals(DATA.getSigma(), SIGMA, 0);
-    assertEquals(DATA.getRho(), RHO, 0);
-    assertEquals(DATA.getEta(), ETA, 0);
-    assertEquals(DATA.getParameter(0), SIGMA, 0);
-    assertEquals(DATA.getParameter(1), RHO, 0);
-    assertEquals(DATA.getParameter(2), ETA, 0);
-    assertEquals(DATA.getNumberOfParameters(), 3);
+    assertThat(DATA.getSigma()).isEqualTo(SIGMA);
+    assertThat(DATA.getRho()).isEqualTo(RHO);
+    assertThat(DATA.getEta()).isEqualTo(ETA);
+    assertThat(DATA.getParameter(0)).isEqualTo(SIGMA);
+    assertThat(DATA.getParameter(1)).isEqualTo(RHO);
+    assertThat(DATA.getParameter(2)).isEqualTo(ETA);
+    assertThat(DATA.getNumberOfParameters()).isEqualTo(3);
     SsviFormulaData other = SsviFormulaData.of(new double[] {SIGMA, RHO, ETA});
-    assertEquals(other, DATA);
-    assertEquals(other.hashCode(), DATA.hashCode());
+    assertThat(other).isEqualTo(DATA);
+    assertThat(other.hashCode()).isEqualTo(DATA.hashCode());
 
     other = other.with(0, SIGMA - 0.01);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
     other = SsviFormulaData.of(SIGMA * 0.5, RHO, ETA);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
     other = SsviFormulaData.of(SIGMA, RHO * 0.5, ETA);
-    assertFalse(other.equals(DATA));
+    assertThat(other.equals(DATA)).isFalse();
   }
 
   //-------------------------------------------------------------------------
@@ -84,12 +82,14 @@ public class SsviFormulaDataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(DATA);
     SsviFormulaData another = SsviFormulaData.of(1.2, 0.4, 0.2);
     coverBeanEquals(DATA, another);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(DATA);
   }

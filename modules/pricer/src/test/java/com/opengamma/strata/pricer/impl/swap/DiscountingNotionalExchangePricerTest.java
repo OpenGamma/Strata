@@ -8,16 +8,16 @@ package com.opengamma.strata.pricer.impl.swap;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL_EXCHANGE_REC_GBP;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -44,7 +44,6 @@ import com.opengamma.strata.product.swap.NotionalExchange;
 /**
  * Test.
  */
-@Test
 public class DiscountingNotionalExchangePricerTest {
 
   private static final LocalDate VAL_DATE = NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate().minusDays(90);
@@ -62,23 +61,26 @@ public class DiscountingNotionalExchangePricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
     DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
     double calculated = test.presentValue(NOTIONAL_EXCHANGE_REC_GBP, prov);
-    assertEquals(calculated, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * DISCOUNT_FACTOR, 0d);
+    assertThat(calculated).isCloseTo(NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * DISCOUNT_FACTOR, offset(0d));
   }
 
+  @Test
   public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
     DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
     double calculated = test.forecastValue(NOTIONAL_EXCHANGE_REC_GBP, prov);
-    assertEquals(calculated, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), 0d);
+    assertThat(calculated).isCloseTo(NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount(), offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
@@ -87,10 +89,11 @@ public class DiscountingNotionalExchangePricerTest {
 
     double eps = 1.0e-7;
     PointSensitivities senseExpected = PointSensitivities.of(dscSensitivityFD(prov, NOTIONAL_EXCHANGE_REC_GBP, eps));
-    assertTrue(senseComputed.equalWithTolerance(
-        senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
+    assertThat(senseComputed.equalWithTolerance(
+        senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps)).isTrue();
   }
 
+  @Test
   public void test_forecastValueSensitivity() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
@@ -99,8 +102,8 @@ public class DiscountingNotionalExchangePricerTest {
 
     double eps = 1.0e-12;
     PointSensitivities senseExpected = PointSensitivities.empty();
-    assertTrue(senseComputed.equalWithTolerance(
-        senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps));
+    assertThat(senseComputed.equalWithTolerance(
+        senseExpected, NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount() * eps)).isTrue();
   }
 
   private List<ZeroRateSensitivity> dscSensitivityFD(RatesProvider provider, NotionalExchange event, double eps) {
@@ -124,6 +127,7 @@ public class DiscountingNotionalExchangePricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explainPresentValue() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
 
@@ -134,18 +138,19 @@ public class DiscountingNotionalExchangePricerTest {
 
     Currency currency = NOTIONAL_EXCHANGE_REC_GBP.getCurrency();
     CurrencyAmount notional = NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "NotionalExchange");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional.getAmount(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), notional.getAmount(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), notional.getAmount() * DISCOUNT_FACTOR, TOLERANCE);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("NotionalExchange");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount()).isCloseTo(notional.getAmount(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isCloseTo(DISCOUNT_FACTOR, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(notional.getAmount(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(notional.getAmount() * DISCOUNT_FACTOR, offset(TOLERANCE));
   }
 
+  @Test
   public void test_explainPresentValue_paymentDateInPast() {
     SimpleRatesProvider prov = createProvider(NOTIONAL_EXCHANGE_REC_GBP);
     prov.setValuationDate(VAL_DATE.plusYears(1));
@@ -157,18 +162,19 @@ public class DiscountingNotionalExchangePricerTest {
 
     Currency currency = NOTIONAL_EXCHANGE_REC_GBP.getCurrency();
     CurrencyAmount notional = NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "NotionalExchange");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), currency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional.getAmount(), TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), currency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d * DISCOUNT_FACTOR, TOLERANCE);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("NotionalExchange");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount()).isCloseTo(notional.getAmount(), offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(0d, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(currency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(0d * DISCOUNT_FACTOR, offset(TOLERANCE));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
@@ -178,18 +184,20 @@ public class DiscountingNotionalExchangePricerTest {
     PointSensitivities point = test.presentValueSensitivity(NOTIONAL_EXCHANGE_REC_GBP, prov).build();
     MultiCurrencyAmount expected = prov.currencyExposure(point).plus(
         CurrencyAmount.of(NOTIONAL_EXCHANGE_REC_GBP.getCurrency(), test.presentValue(NOTIONAL_EXCHANGE_REC_GBP, prov)));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_currentCash_zero() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
     DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
     double computed = test.currentCash(NOTIONAL_EXCHANGE_REC_GBP, prov);
-    assertEquals(computed, 0d);
+    assertThat(computed).isEqualTo(0d);
   }
 
+  @Test
   public void test_currentCash_onPayment() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(NOTIONAL_EXCHANGE_REC_GBP.getPaymentDate())
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
@@ -197,7 +205,7 @@ public class DiscountingNotionalExchangePricerTest {
     DiscountingNotionalExchangePricer test = DiscountingNotionalExchangePricer.DEFAULT;
     double notional = NOTIONAL_EXCHANGE_REC_GBP.getPaymentAmount().getAmount();
     double computed = test.currentCash(NOTIONAL_EXCHANGE_REC_GBP, prov);
-    assertEquals(computed, notional);
+    assertThat(computed).isEqualTo(notional);
   }
 
   //-------------------------------------------------------------------------

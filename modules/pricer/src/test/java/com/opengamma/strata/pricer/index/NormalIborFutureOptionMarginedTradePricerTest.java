@@ -9,16 +9,16 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -38,7 +38,6 @@ import com.opengamma.strata.product.index.ResolvedIborFutureOptionTrade;
 /**
  * Tests {@link NormalIborFutureOptionMarginedTradePricer}
  */
-@Test
 public class NormalIborFutureOptionMarginedTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -92,6 +91,7 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
 
   // ----------     present value     ----------
 
+  @Test
   public void presentValue_from_option_price_trade_date() {
     double optionPrice = 0.0125;
     double lastClosingPrice = 0.0150;
@@ -99,9 +99,10 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
         .presentValue(FUTURE_OPTION_TRADE_TD, VAL_DATE, optionPrice, lastClosingPrice);
     double pvExpected = (OPTION_PRODUCT_PRICER.marginIndex(OPTION, optionPrice) -
         OPTION_PRODUCT_PRICER.marginIndex(OPTION, TRADE_PRICE)) * OPTION_QUANTITY;
-    assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void presentValue_from_future_price() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
@@ -116,9 +117,10 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
         OPTION_PRODUCT_PRICER.price(OPTION, prov, VOL_SIMPLE_MONEY_PRICE, futurePrice);
     double pvExpected = (OPTION_PRODUCT_PRICER.marginIndex(OPTION, optionPrice) -
         OPTION_PRODUCT_PRICER.marginIndex(OPTION, lastClosingPrice)) * OPTION_QUANTITY;
-    assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void presentValue_from_env() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider(VAL_DATE);
@@ -132,11 +134,12 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
         OPTION_PRODUCT_PRICER.price(OPTION, prov, VOL_SIMPLE_MONEY_PRICE);
     double pvExpected = (OPTION_PRODUCT_PRICER.marginIndex(OPTION, optionPrice) -
         OPTION_PRODUCT_PRICER.marginIndex(OPTION, lastClosingPrice)) * OPTION_QUANTITY;
-    assertEquals(pvComputed.getAmount(), pvExpected, TOLERANCE_PV);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
 
   // ----------     present value sensitivity     ----------
 
+  @Test
   public void presentValueSensitivity_from_env() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -149,11 +152,12 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
         .multipliedBy(OPTION_PRODUCT_PRICER.marginIndex(OPTION, 1) * OPTION_QUANTITY);
     PointSensitivities psComputed = OPTION_TRADE_PRICER
         .presentValueSensitivityRates(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE);
-    assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_PV_DELTA));
+    assertThat(psComputed.equalWithTolerance(psExpected, TOLERANCE_PV_DELTA)).isTrue();
   }
 
   // ----------     present value normal vol sensitivity     ----------
 
+  @Test
   public void presentvalue_normalVolSensitivity_from_env() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -166,8 +170,8 @@ public class NormalIborFutureOptionMarginedTradePricerTest {
         psProduct.getSensitivity() * OPTION_PRODUCT_PRICER.marginIndex(OPTION, 1) * OPTION_QUANTITY);
     IborFutureOptionSensitivity psComputed = OPTION_TRADE_PRICER
         .presentValueSensitivityModelParamsVolatility(FUTURE_OPTION_TRADE, prov, VOL_SIMPLE_MONEY_PRICE);
-    assertTrue(psExpected.compareKey(psComputed) == 0);
-    assertEquals(psComputed.getSensitivity(), psExpected.getSensitivity(), TOLERANCE_PV_DELTA);
+    assertThat(psExpected.compareKey(psComputed) == 0).isTrue();
+    assertThat(psComputed.getSensitivity()).isCloseTo(psExpected.getSensitivity(), offset(TOLERANCE_PV_DELTA));
   }
 
 }

@@ -11,13 +11,12 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
@@ -32,7 +31,6 @@ import com.opengamma.strata.pricer.fx.FxForwardSensitivity;
 /**
  * Test {@link ImmutableCreditRatesProvider}.
  */
-@Test
 public class ImmutableCreditRatesProviderTest {
 
   private static final LocalDate VALUATION = LocalDate.of(2015, 2, 11);
@@ -72,6 +70,7 @@ public class ImmutableCreditRatesProviderTest {
   private static final IsdaCreditDiscountFactors CRD_DEF =
       IsdaCreditDiscountFactors.of(JPY, VALUATION, NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
 
+  @Test
   public void test_getter() {
     ImmutableCreditRatesProvider test = ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
@@ -82,16 +81,13 @@ public class ImmutableCreditRatesProviderTest {
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build();
-    assertEquals(test.discountFactors(USD), DSC_USD);
-    assertEquals(test.discountFactors(JPY), DSC_JPY);
-    assertEquals(test.survivalProbabilities(LEGAL_ENTITY_ABC, USD),
-        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD));
-    assertEquals(test.survivalProbabilities(LEGAL_ENTITY_ABC, JPY),
-        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY));
-    assertEquals(test.survivalProbabilities(LEGAL_ENTITY_DEF, JPY),
-        LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF));
-    assertEquals(test.recoveryRates(LEGAL_ENTITY_ABC), RR_ABC);
-    assertEquals(test.recoveryRates(LEGAL_ENTITY_DEF), RR_DEF);
+    assertThat(test.discountFactors(USD)).isEqualTo(DSC_USD);
+    assertThat(test.discountFactors(JPY)).isEqualTo(DSC_JPY);
+    assertThat(test.survivalProbabilities(LEGAL_ENTITY_ABC, USD)).isEqualTo(LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD));
+    assertThat(test.survivalProbabilities(LEGAL_ENTITY_ABC, JPY)).isEqualTo(LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY));
+    assertThat(test.survivalProbabilities(LEGAL_ENTITY_DEF, JPY)).isEqualTo(LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF));
+    assertThat(test.recoveryRates(LEGAL_ENTITY_ABC)).isEqualTo(RR_ABC);
+    assertThat(test.recoveryRates(LEGAL_ENTITY_DEF)).isEqualTo(RR_DEF);
     StandardId entity = StandardId.of("OG", "NONE");
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.discountFactors(EUR));
@@ -103,6 +99,7 @@ public class ImmutableCreditRatesProviderTest {
         .isThrownBy(() -> test.recoveryRates(entity));
   }
 
+  @Test
   public void test_valuationDateMismatch() {
     ConstantRecoveryRates rr_wrong = ConstantRecoveryRates.of(LEGAL_ENTITY_ABC, VALUATION.plusWeeks(1), RECOVERY_RATE_ABC);
     assertThatIllegalArgumentException()
@@ -141,6 +138,7 @@ public class ImmutableCreditRatesProviderTest {
         .build());
   }
 
+  @Test
   public void test_parameterSensitivity() {
     ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
     CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
@@ -158,9 +156,10 @@ public class ImmutableCreditRatesProviderTest {
         test.parameterSensitivity(zeroPt.combinedWith(creditPt).combinedWith(fxPt).build());
     CurrencyParameterSensitivities expected = DSC_USD.parameterSensitivity(zeroPt).combinedWith(
         LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY).parameterSensitivity(creditPt));
-    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+    assertThat(computed.equalWithTolerance(expected, 1.0e-14)).isTrue();
   }
 
+  @Test
   public void test_singleCreditCurveParameterSensitivity() {
     ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
     CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
@@ -180,9 +179,10 @@ public class ImmutableCreditRatesProviderTest {
         JPY));
     CurrencyParameterSensitivities expected =
         LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY).parameterSensitivity(creditPt);
-    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+    assertThat(computed.equalWithTolerance(expected, 1.0e-14)).isTrue();
   }
 
+  @Test
   public void test_singleDiscountCurveParameterSensitivity() {
     ZeroRateSensitivity zeroPt = ZeroRateSensitivity.of(USD, 10d, 5d);
     CreditCurveZeroRateSensitivity creditPt = CreditCurveZeroRateSensitivity.of(LEGAL_ENTITY_ABC, JPY, 2d, 3d);
@@ -199,10 +199,11 @@ public class ImmutableCreditRatesProviderTest {
     CurrencyParameterSensitivities computed = CurrencyParameterSensitivities.of(
         test.singleDiscountCurveParameterSensitivity(zeroPt.combinedWith(creditPt).combinedWith(fxPt).build(), USD));
     CurrencyParameterSensitivities expected = DSC_USD.parameterSensitivity(zeroPt);
-    assertTrue(computed.equalWithTolerance(expected, 1.0e-14));
+    assertThat(computed.equalWithTolerance(expected, 1.0e-14)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableCreditRatesProvider test1 = ImmutableCreditRatesProvider.builder()
         .creditCurves(

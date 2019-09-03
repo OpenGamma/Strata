@@ -7,8 +7,8 @@ package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -47,7 +47,6 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureOptionTrade;
 /**
  * Test {@link BlackBondFutureOptionMarginedTradePricer}.
  */
-@Test
 public class BlackBondFutureOptionMarginedTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -107,25 +106,28 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
     double expected = (OPTION_PRODUCT_PRICER.price(OPTION_PRODUCT, RATE_PROVIDER, VOLS) - REFERENCE_PRICE)
         * NOTIONAL * QUANTITY;
-    assertEquals(computed.getCurrency(), Currency.EUR);
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
+    assertThat(computed.getCurrency()).isEqualTo(Currency.EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL * QUANTITY));
   }
 
+  @Test
   public void test_presentValue_from_future_price() {
     double futurePrice = 0.975d;
     CurrencyAmount computed =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, futurePrice, REFERENCE_PRICE);
     double expected = NOTIONAL * QUANTITY *
         (OPTION_PRODUCT_PRICER.price(OPTION_PRODUCT, RATE_PROVIDER, VOLS, futurePrice) - REFERENCE_PRICE);
-    assertEquals(computed.getCurrency(), Currency.EUR);
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
+    assertThat(computed.getCurrency()).isEqualTo(Currency.EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL * QUANTITY));
   }
 
+  @Test
   public void test_presentValue_from_prices_date() {
     double currentPrice = 0.0325;
     double lastClosingPrice = 0.03;
@@ -133,17 +135,18 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     CurrencyAmount computed1 =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, valuationDate1, currentPrice, lastClosingPrice);
     double expected2 = NOTIONAL * QUANTITY * (currentPrice - lastClosingPrice);
-    assertEquals(computed1.getCurrency(), Currency.EUR);
-    assertEquals(computed1.getAmount(), expected2, TOL * NOTIONAL * QUANTITY);
+    assertThat(computed1.getCurrency()).isEqualTo(Currency.EUR);
+    assertThat(computed1.getAmount()).isCloseTo(expected2, offset(TOL * NOTIONAL * QUANTITY));
     LocalDate valuationDate2 = LocalDate.of(2014, 3, 31); // equal to trade date
     CurrencyAmount computed2 =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, valuationDate2, currentPrice, lastClosingPrice);
     double expected = NOTIONAL * QUANTITY * (currentPrice - OPTION_TRADE.getTradedPrice().get().getPrice());
-    assertEquals(computed2.getCurrency(), Currency.EUR);
-    assertEquals(computed2.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
+    assertThat(computed2.getCurrency()).isEqualTo(Currency.EUR);
+    assertThat(computed2.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL * QUANTITY));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityBlackVolatility() {
     BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityModelParamsVolatility(
         OPTION_TRADE, RATE_PROVIDER, VOLS);
@@ -151,6 +154,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, (p), REFERENCE_PRICE).getAmount());
   }
 
+  @Test
   public void test_presentValueSensitivityBlackVolatility_from_future_price() {
     double futurePrice = 0.975d;
     BondFutureOptionSensitivity sensi = OPTION_TRADE_PRICER.presentValueSensitivityModelParamsVolatility(
@@ -164,7 +168,7 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
       Function<BlackBondFutureVolatilities, Double> valueFn) {
     List<ParameterMetadata> list = computed.getSensitivities().get(0).getParameterMetadata();
     int nVol = VOL.size();
-    assertEquals(list.size(), nVol);
+    assertThat(list).hasSize(nVol);
     for (int i = 0; i < nVol; ++i) {
       double[] volUp = Arrays.copyOf(VOL.toArray(), nVol);
       double[] volDw = Arrays.copyOf(VOL.toArray(), nVol);
@@ -187,11 +191,12 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
           continue;
         }
       }
-      assertEquals(computed.getSensitivities().get(0).getSensitivity().get(index), expected, EPS * NOTIONAL * QUANTITY);
+      assertThat(computed.getSensitivities().get(0).getSensitivity().get(index)).isCloseTo(expected, offset(EPS * NOTIONAL * QUANTITY));
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities point = OPTION_TRADE_PRICER.presentValueSensitivityRates(OPTION_TRADE, RATE_PROVIDER, VOLS);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
@@ -211,23 +216,25 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
         .multipliedBy(-vega * volSensi * NOTIONAL * QUANTITY);
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         (p) -> OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, (p), VOLS, REFERENCE_PRICE));
-    assertTrue(computed.equalWithTolerance(expected.combinedWith(sensiVol), 30d * EPS * NOTIONAL * QUANTITY));
+    assertThat(computed.equalWithTolerance(expected.combinedWith(sensiVol), 30d * EPS * NOTIONAL * QUANTITY)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount ceComputed = OPTION_TRADE_PRICER.currencyExposure(
         OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
     CurrencyAmount pv = OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
-    assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
+    assertThat(ceComputed).isEqualTo(MultiCurrencyAmount.of(pv));
   }
 
   //-------------------------------------------------------------------------
   // regression to 2.x
+  @Test
   public void regression() {
     CurrencyAmount pv =
         OPTION_TRADE_PRICER.presentValue(OPTION_TRADE, RATE_PROVIDER, VOLS, REFERENCE_PRICE);
-    assertEquals(pv.getAmount(), 1.0044656145806769E7, TOL * NOTIONAL * QUANTITY);
+    assertThat(pv.getAmount()).isCloseTo(1.0044656145806769E7, offset(TOL * NOTIONAL * QUANTITY));
     double[] sensiRepoExpected = new double[] {9266400.007519504, 6037835.299017232, 0.0, 0.0, 0.0, 0.0 };
     double[] sensiIssuerExpected = new double[]
     {0.0, -961498.734103331, -2189527.424010516, -3.7783587809228E7, -3.025330833183195E8, 0.0 };
@@ -235,11 +242,11 @@ public class BlackBondFutureOptionMarginedTradePricerTest {
     CurrencyParameterSensitivities pvSensi = RATE_PROVIDER.parameterSensitivity(point);
     double[] sensiIssuerComputed = pvSensi.getSensitivities().get(0).getSensitivity().toArray();
     double[] sensiRepoComputed = pvSensi.getSensitivities().get(1).getSensitivity().toArray();
-    assertEquals(sensiRepoComputed.length, sensiRepoExpected.length);
-    assertEquals(sensiIssuerComputed.length, sensiIssuerExpected.length);
+    assertThat(sensiRepoComputed.length).isEqualTo(sensiRepoExpected.length);
+    assertThat(sensiIssuerComputed.length).isEqualTo(sensiIssuerExpected.length);
     for (int i = 0; i < 6; ++i) {
-      assertEquals(sensiRepoComputed[i], sensiRepoExpected[i], TOL * NOTIONAL * QUANTITY);
-      assertEquals(sensiIssuerComputed[i], sensiIssuerExpected[i], TOL * NOTIONAL * QUANTITY);
+      assertThat(sensiRepoComputed[i]).isCloseTo(sensiRepoExpected[i], offset(TOL * NOTIONAL * QUANTITY));
+      assertThat(sensiIssuerComputed[i]).isCloseTo(sensiIssuerExpected[i], offset(TOL * NOTIONAL * QUANTITY));
     }
   }
 }

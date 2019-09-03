@@ -8,7 +8,8 @@ package com.opengamma.strata.pricer.swaption;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DAY_COUNT;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -19,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -30,8 +31,8 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -50,7 +51,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Tests {@link SabrSwaptionCalibrator} for a cube. Realistic dimension and data.
  */
-@Test
 public class SabrSwaptionCalibratorCubeBlackExtremeDataTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -171,7 +171,7 @@ public class SabrSwaptionCalibratorCubeBlackExtremeDataTest {
             double priceLogNormal = BlackFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
                 time, DATA_LOGNORMAL_SPARSE[looptenor][loopexpiry][loopmoney], true);
             if (strike > 0.0025) { // Test only for strikes above 25bps
-              assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
+              assertThat(priceComputed).isCloseTo(priceLogNormal, offset(TOLERANCE_PRICE_CALIBRATION_LS));
             }
           }
         }

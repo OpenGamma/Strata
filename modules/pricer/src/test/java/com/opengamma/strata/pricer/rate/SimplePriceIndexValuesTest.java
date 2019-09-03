@@ -11,14 +11,14 @@ import static com.opengamma.strata.basics.index.PriceIndices.US_CPI_U;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.time.temporal.ChronoUnit.MONTHS;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.index.PriceIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -40,7 +40,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 /**
  * Tests {@link SimplePriceIndexValues}.
  */
-@Test
 public class SimplePriceIndexValuesTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 5, 3);
@@ -102,75 +101,85 @@ public class SimplePriceIndexValuesTest {
   private static final double TOLERANCE_DELTA = 1.0E-6;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_noSeasonality() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
-    assertEquals(test.getIndex(), US_CPI_U);
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(test.getCurve(), CURVE_NOFIX);
-    assertEquals(test.getParameterCount(), CURVE_NOFIX.getParameterCount());
-    assertEquals(test.getParameter(0), CURVE_NOFIX.getParameter(0));
-    assertEquals(test.getParameterMetadata(0), CURVE_NOFIX.getParameterMetadata(0));
-    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE_NOFIX.withParameter(0, 1d));
-    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE_NOFIX.withPerturbation((i, v, m) -> v + 1d));
-    assertEquals(test.findData(CURVE_NOFIX.getName()), Optional.of(CURVE_NOFIX));
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getIndex()).isEqualTo(US_CPI_U);
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(test.getCurve()).isEqualTo(CURVE_NOFIX);
+    assertThat(test.getParameterCount()).isEqualTo(CURVE_NOFIX.getParameterCount());
+    assertThat(test.getParameter(0)).isEqualTo(CURVE_NOFIX.getParameter(0));
+    assertThat(test.getParameterMetadata(0)).isEqualTo(CURVE_NOFIX.getParameterMetadata(0));
+    assertThat(test.withParameter(0, 1d).getCurve()).isEqualTo(CURVE_NOFIX.withParameter(0, 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d).getCurve()).isEqualTo(CURVE_NOFIX.withPerturbation((i, v, m) -> v + 1d));
+    assertThat(test.findData(CURVE_NOFIX.getName())).isEqualTo(Optional.of(CURVE_NOFIX));
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
     // check PriceIndexValues
     PriceIndexValues test2 = PriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
-    assertEquals(test, test2);
+    assertThat(test).isEqualTo(test2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_valuePointSensitivity_fixing() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, VAL_MONTH.minusMonths(3));
-    assertEquals(test.valuePointSensitivity(obs), PointSensitivityBuilder.none());
+    assertThat(test.valuePointSensitivity(obs)).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_valuePointSensitivity_forward() {
     YearMonth month = VAL_MONTH.plusMonths(3);
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     PriceIndexObservation obs = PriceIndexObservation.of(US_CPI_U, month);
     InflationRateSensitivity expected = InflationRateSensitivity.of(obs, 1d);
-    assertEquals(test.valuePointSensitivity(obs), expected);
+    assertThat(test.valuePointSensitivity(obs)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
   // proper end-to-end tests are elsewhere
+  @Test
   public void test_parameterSensitivity() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     InflationRateSensitivity point =
         InflationRateSensitivity.of(PriceIndexObservation.of(US_CPI_U, VAL_MONTH.plusMonths(3)), 1d);
-    assertEquals(test.parameterSensitivity(point).size(), 1);
+    assertThat(test.parameterSensitivity(point).size()).isEqualTo(1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createParameterSensitivity() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15, 0.16, 0.17);
     CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
-    assertEquals(sens.getSensitivities().get(0), CURVE_NOFIX.createParameterSensitivity(USD, sensitivities));
+    assertThat(sens.getSensitivities().get(0)).isEqualTo(CURVE_NOFIX.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withCurve() {
     SimplePriceIndexValues test = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS).withCurve(CURVE2_NOFIX);
-    assertEquals(test.getCurve(), CURVE2_NOFIX);
+    assertThat(test.getCurve()).isEqualTo(CURVE2_NOFIX);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parameter_count() {
-    assertEquals(INSTANCE.getParameterCount(), CURVE_NOFIX.getParameterCount());
+    assertThat(INSTANCE.getParameterCount()).isEqualTo(CURVE_NOFIX.getParameterCount());
   }
 
+  @Test
   public void test_parameter() {
-    assertEquals(INSTANCE.getParameter(2), CURVE_NOFIX.getParameter(2));
+    assertThat(INSTANCE.getParameter(2)).isEqualTo(CURVE_NOFIX.getParameter(2));
   }
 
+  @Test
   public void test_parameter_metadata() {
-    assertEquals(INSTANCE.getParameterMetadata(2), CURVE_NOFIX.getParameterMetadata(2));
+    assertThat(INSTANCE.getParameterMetadata(2)).isEqualTo(CURVE_NOFIX.getParameterMetadata(2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_value() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       double valueComputed = INSTANCE.value(TEST_OBS[i]);
@@ -182,11 +191,12 @@ public class SimplePriceIndexValuesTest {
         double x = YearMonth.from(VAL_DATE).until(fixingMonth, MONTHS);
         valueExpected = CURVE_INFL.yValue(x);
       }
-      assertEquals(valueComputed, valueExpected, TOLERANCE_VALUE, "test " + i);
+      assertThat(valueComputed).as("test " + i).isCloseTo(valueExpected, offset(TOLERANCE_VALUE));
     }
   }
   
   /* Test values when a fixing in the futures in present in the TS. */
+  @Test
   public void test_value_futfixing() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       double valueComputed = INSTANCE_WITH_FUTFIXING.value(TEST_OBS[i]);
@@ -198,10 +208,11 @@ public class SimplePriceIndexValuesTest {
         double x = YearMonth.from(VAL_DATE_2).until(fixingMonth, MONTHS);
         valueExpected = CURVE_INFL2.yValue(x);
       }
-      assertEquals(valueComputed, valueExpected, TOLERANCE_VALUE, "test " + i);
+      assertThat(valueComputed).as("test " + i).isCloseTo(valueExpected, offset(TOLERANCE_VALUE));
     }
   }
 
+  @Test
   public void test_value_pts_sensitivity() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       PointSensitivityBuilder ptsComputed = INSTANCE.valuePointSensitivity(TEST_OBS[i]);
@@ -212,10 +223,11 @@ public class SimplePriceIndexValuesTest {
       } else {
         ptsExpected = InflationRateSensitivity.of(TEST_OBS[i], 1d);
       }
-      assertTrue(ptsComputed.build().equalWithTolerance(ptsExpected.build(), TOLERANCE_VALUE), "test " + i);
+      assertThat(ptsComputed.build().equalWithTolerance(ptsExpected.build(), TOLERANCE_VALUE)).as("test " + i).isTrue();
     }
   }
 
+  @Test
   public void test_value_pts_sensitivity_futfixing() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       PointSensitivityBuilder ptsComputed = INSTANCE_WITH_FUTFIXING.valuePointSensitivity(TEST_OBS[i]);
@@ -226,10 +238,11 @@ public class SimplePriceIndexValuesTest {
       } else {
         ptsExpected = InflationRateSensitivity.of(TEST_OBS[i], 1d);
       }
-      assertTrue(ptsComputed.build().equalWithTolerance(ptsExpected.build(), TOLERANCE_VALUE), "test " + i);
+      assertThat(ptsComputed.build().equalWithTolerance(ptsExpected.build(), TOLERANCE_VALUE)).as("test " + i).isTrue();
     }
   }
 
+  @Test
   public void test_value_parameter_sensitivity() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       YearMonth fixingMonth = TEST_OBS[i].getFixingMonth();
@@ -240,11 +253,12 @@ public class SimplePriceIndexValuesTest {
         UnitParameterSensitivities sens1 = UnitParameterSensitivities.of(CURVE_INFL.yValueParameterSensitivity(x));
         CurrencyParameterSensitivities psExpected =
             sens1.multipliedBy(ptsExpected.getCurrency(), ptsExpected.getSensitivity());
-        assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_DELTA), "test " + i);
+        assertThat(psComputed.equalWithTolerance(psExpected, TOLERANCE_DELTA)).as("test " + i).isTrue();
       }
     }
   }
 
+  @Test
   public void test_value_parameter_sensitivity_futfixing() {
     for (int i = 0; i < TEST_MONTHS.length; i++) {
       YearMonth fixingMonth = TEST_OBS[i].getFixingMonth();
@@ -255,12 +269,13 @@ public class SimplePriceIndexValuesTest {
         UnitParameterSensitivities sens1 = UnitParameterSensitivities.of(CURVE_INFL2.yValueParameterSensitivity(x));
         CurrencyParameterSensitivities psExpected =
             sens1.multipliedBy(ptsExpected.getCurrency(), ptsExpected.getSensitivity());
-        assertTrue(psComputed.equalWithTolerance(psExpected, TOLERANCE_DELTA), "test " + i);
+        assertThat(psComputed.equalWithTolerance(psExpected, TOLERANCE_DELTA)).as("test " + i).isTrue();
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SimplePriceIndexValues instance1 = SimplePriceIndexValues.of(US_CPI_U, VAL_DATE, CURVE_NOFIX, USCPI_TS);
     coverImmutableBean(instance1);

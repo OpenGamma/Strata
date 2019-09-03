@@ -10,14 +10,14 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_F
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -40,7 +40,6 @@ import com.opengamma.strata.product.deposit.TermDeposit;
 /**
  * Test {@link DiscountingTermDepositProductPricer}.
  */
-@Test
 public class DiscountingTermDepositProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -82,53 +81,60 @@ public class DiscountingTermDepositProductPricerTest {
   double DF_END = 0.94;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_notStarted() {
     SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     CurrencyAmount computed = PRICER.presentValue(RTERM_DEPOSIT, prov);
     double expected = ((1d + RATE * RTERM_DEPOSIT.getYearFraction()) * DF_END - DF_START) * NOTIONAL;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE * NOTIONAL));
   }
 
+  @Test
   public void test_presentValue_onStart() {
     SimpleRatesProvider prov = provider(START_DATE, 1.0d, DF_END);
     CurrencyAmount computed = PRICER.presentValue(RTERM_DEPOSIT, prov);
     double expected = ((1d + RATE * RTERM_DEPOSIT.getYearFraction()) * DF_END - 1.0d) * NOTIONAL;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE * NOTIONAL));
   }
 
+  @Test
   public void test_presentValue_started() {
     SimpleRatesProvider prov = provider(date(2014, 2, 22), 1.2d, DF_END);
     CurrencyAmount computed = PRICER.presentValue(RTERM_DEPOSIT, prov);
     double expected = (1d + RATE * RTERM_DEPOSIT.getYearFraction()) * DF_END * NOTIONAL;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE * NOTIONAL));
   }
 
+  @Test
   public void test_presentValue_onEnd() {
     SimpleRatesProvider prov = provider(END_DATE, 1.2d, 1.0d);
     CurrencyAmount computed = PRICER.presentValue(RTERM_DEPOSIT, prov);
     double expected = (1d + RATE * RTERM_DEPOSIT.getYearFraction()) * 1.0d * NOTIONAL;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOLERANCE * NOTIONAL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE * NOTIONAL));
   }
 
+  @Test
   public void test_presentValue_ended() {
     SimpleRatesProvider prov = provider(date(2014, 9, 22), 1.2d, 1.1d);
     CurrencyAmount computed = PRICER.presentValue(RTERM_DEPOSIT, prov);
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), 0.0d, TOLERANCE * NOTIONAL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(0.0d, offset(TOLERANCE * NOTIONAL));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER.presentValueSensitivity(RTERM_DEPOSIT, IMM_PROV);
     CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
     CurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> PRICER.presentValue(RTERM_DEPOSIT, (p)));
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD)).isTrue();
   }
 
+  @Test
   public void test_parRate() {
     SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     double parRate = PRICER.parRate(RTERM_DEPOSIT, prov);
@@ -143,9 +149,10 @@ public class DiscountingTermDepositProductPricerTest {
         .rate(parRate)
         .build();
     double pvPar = PRICER.presentValue(depositPar.resolve(REF_DATA), prov).getAmount();
-    assertEquals(pvPar, 0.0, NOTIONAL * TOLERANCE);
+    assertThat(pvPar).isCloseTo(0.0, offset(NOTIONAL * TOLERANCE));
   }
 
+  @Test
   public void test_parSpread() {
     SimpleRatesProvider prov = provider(VAL_DATE, DF_START, DF_END);
     double parSpread = PRICER.parSpread(RTERM_DEPOSIT, prov);
@@ -160,21 +167,23 @@ public class DiscountingTermDepositProductPricerTest {
         .rate(RATE + parSpread)
         .build();
     double pvPar = PRICER.presentValue(depositPar.resolve(REF_DATA), prov).getAmount();
-    assertEquals(pvPar, 0.0, NOTIONAL * TOLERANCE);
+    assertThat(pvPar).isCloseTo(0.0, offset(NOTIONAL * TOLERANCE));
   }
 
+  @Test
   public void test_parSpreadSensitivity() {
     PointSensitivities computed = PRICER.parSpreadSensitivity(RTERM_DEPOSIT, IMM_PROV);
     CurrencyParameterSensitivities sensiComputed = IMM_PROV.parameterSensitivity(computed);
     CurrencyParameterSensitivities sensiExpected =
         CAL_FD.sensitivity(IMM_PROV, (p) -> CurrencyAmount.of(EUR, PRICER.parSpread(RTERM_DEPOSIT, (p))));
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, NOTIONAL * EPS_FD)).isTrue();
   }
 
+  @Test
   public void test_parRateSensitivity() {
     PointSensitivities computedSpread = PRICER.parSpreadSensitivity(RTERM_DEPOSIT, IMM_PROV);
     PointSensitivities computedRate = PRICER.parRateSensitivity(RTERM_DEPOSIT, IMM_PROV);
-    assertTrue(computedSpread.equalWithTolerance(computedRate, NOTIONAL * EPS_FD));
+    assertThat(computedSpread.equalWithTolerance(computedRate, NOTIONAL * EPS_FD)).isTrue();
   }
 
   private SimpleRatesProvider provider(LocalDate valuationDate, double dfStart, double dfEnd) {

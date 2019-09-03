@@ -15,12 +15,12 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -56,7 +56,6 @@ import com.opengamma.strata.product.swap.SwapLeg;
 /**
  * Test {@link DiscountingDsfProductPricer}.
  */
-@Test
 public class DiscountingDsfProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -149,27 +148,30 @@ public class DiscountingDsfProductPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_price() {
     double computed = PRICER.price(FUTURE, PROVIDER);
     double pvSwap = PRICER.getSwapPricer().presentValue(RSWAP, PROVIDER).getAmount(USD).getAmount();
     double yc = ACT_ACT_ISDA.relativeYearFraction(VAL_DATE, DELIVERY);
     double df = Math.exp(-USD_DSC.yValue(yc) * yc);
     double expected = 1d + pvSwap / df;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_priceSensitivity() {
     PointSensitivities point = PRICER.priceSensitivity(FUTURE, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(PROVIDER, (p) -> CurrencyAmount.of(USD, PRICER.price(FUTURE, (p))));
-    assertTrue(computed.equalWithTolerance(expected, 10d * EPS));
+    assertThat(computed.equalWithTolerance(expected, 10d * EPS)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void regression() {
     double price = PRICER.price(FUTURE, PROVIDER);
-    assertEquals(price, 1.022245377054993, TOL); // 2.x
+    assertThat(price).isCloseTo(1.022245377054993, offset(TOL)); // 2.x
   }
 
 }

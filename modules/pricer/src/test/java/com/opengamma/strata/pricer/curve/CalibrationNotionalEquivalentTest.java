@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.pricer.curve;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -17,7 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,12 +32,12 @@ import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.CurveDefinition;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveInfoType;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.CurveParameterSize;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
@@ -56,7 +57,6 @@ import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
  * Test the notional equivalent computation based on present value sensitivity to quote in 
  * the calibrated curves by {@link RatesCurveCalibrator}.
  */  
-@Test
 public class CalibrationNotionalEquivalentTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -98,6 +98,7 @@ public class CalibrationNotionalEquivalentTest {
   private static final double TOLERANCE_PV = 1.0E-8;
   private static final double TOLERANCE_PV_DELTA = 1.0E-2;
 
+  @Test
   public void check_pv_with_measures() {
     ImmutableRatesProvider multicurve =
         CALIBRATOR.calibrate(GROUP_DEFINITION, MARKET_QUOTES, REF_DATA);
@@ -113,10 +114,11 @@ public class CalibrationNotionalEquivalentTest {
     // Check PV = 0
     for (ResolvedTrade trade : trades) {
       double pv = PV_MEASURES.value(trade, multicurve);
-      assertEquals(pv, 0.0, TOLERANCE_PV);
+      assertThat(pv).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
   }
 
+  @Test
   public void check_pv_sensitivity() {
     ImmutableRatesProvider multicurve =
         CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA);
@@ -152,14 +154,15 @@ public class CalibrationNotionalEquivalentTest {
       Optional<Curve> curve = multicurve.findData(cps.getName());
       DoubleArray pvSensitivityExpected = DoubleArray.ofUnsafe(mqsCurve);
       mqsGroup.put(cps.getName(), pvSensitivityExpected);
-      assertTrue(curve.isPresent());
-      assertTrue(curve.get().getMetadata().findInfo(CurveInfoType.PV_SENSITIVITY_TO_MARKET_QUOTE).isPresent());
+      assertThat(curve.isPresent()).isTrue();
+      assertThat(curve.get().getMetadata().findInfo(CurveInfoType.PV_SENSITIVITY_TO_MARKET_QUOTE).isPresent()).isTrue();
       DoubleArray pvSensitivityMetadata =
           curve.get().getMetadata().findInfo(CurveInfoType.PV_SENSITIVITY_TO_MARKET_QUOTE).get();
-      assertTrue(pvSensitivityExpected.equalWithTolerance(pvSensitivityMetadata, 1.0E-10));
+      assertThat(pvSensitivityExpected.equalWithTolerance(pvSensitivityMetadata, 1.0E-10)).isTrue();
     }
   }
 
+  @Test
   public void check_equivalent_notional() {
     ImmutableRatesProvider multicurve =
         CALIBRATOR.calibrate(GROUP_DEFINITION_PV_SENSI, MARKET_QUOTES, REF_DATA);
@@ -173,8 +176,7 @@ public class CalibrationNotionalEquivalentTest {
     CurrencyParameterSensitivities notionalEquivalent = NEC.notionalEquivalent(mqs, multicurve);
     // Check metadata are same as market quote sensitivities.
     for(CurrencyParameterSensitivity sensi: mqs.getSensitivities()){
-      assertEquals(notionalEquivalent.getSensitivity(sensi.getMarketDataName(), sensi.getCurrency()).getParameterMetadata(), 
-          sensi.getParameterMetadata());
+      assertThat(notionalEquivalent.getSensitivity(sensi.getMarketDataName(), sensi.getCurrency()).getParameterMetadata()).isEqualTo(sensi.getParameterMetadata());
     }
     // Check sensitivity: trade sensitivity = sum(notional equivalent sensitivities)
     int totalNbParameters = 0;
@@ -200,11 +202,11 @@ public class CalibrationNotionalEquivalentTest {
       }
     }
     DoubleArray instrumentSensi = PV_MEASURES.derivative(trade, multicurve, order);
-    assertTrue(totalSensitivity.equalWithTolerance(instrumentSensi, TOLERANCE_PV_DELTA));
+    assertThat(totalSensitivity.equalWithTolerance(instrumentSensi, TOLERANCE_PV_DELTA)).isTrue();
   }
 
   @SuppressWarnings("unused")
-  @Test(enabled = false)
+  @Disabled
   public void performance() {
     long start, end;
     int nbRep = 5;

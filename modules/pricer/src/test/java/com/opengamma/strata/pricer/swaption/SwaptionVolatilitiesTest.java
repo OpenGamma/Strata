@@ -6,13 +6,13 @@
 package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.GBP_FIXED_1Y_LIBOR_3M;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
@@ -26,17 +26,17 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 /**
  * Test {@link SwaptionVolatilities}.
  */
-@Test
 public class SwaptionVolatilitiesTest {
 
   private static final ZonedDateTime DATE_TIME = ZonedDateTime.now();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_defaultMethods() {
     SwaptionVolatilities test = new TestingSwaptionVolatilities();
-    assertEquals(test.getValuationDate(), DATE_TIME.toLocalDate());
-    assertEquals(test.volatility(DATE_TIME, 1, 2, 3), 6d);
-    assertEquals(test.parameterSensitivity(), CurrencyParameterSensitivities.empty());
+    assertThat(test.getValuationDate()).isEqualTo(DATE_TIME.toLocalDate());
+    assertThat(test.volatility(DATE_TIME, 1, 2, 3)).isEqualTo(6d);
+    assertThat(test.parameterSensitivity()).isEqualTo(CurrencyParameterSensitivities.empty());
   }
 
   static class TestingSwaptionVolatilities implements SwaptionVolatilities {

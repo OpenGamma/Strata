@@ -12,12 +12,13 @@ import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static com.opengamma.strata.product.common.PutCall.CALL;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -33,7 +34,6 @@ import com.opengamma.strata.product.swap.ResolvedSwapLeg;
 /**
  * Test {@link SabrIborCapFloorProductPricer}.
  */
-@Test
 public class SabrIborCapFloorProductPricerTest {
 
   private static final double NOTIONAL_VALUE = 1.0e6;
@@ -73,73 +73,82 @@ public class SabrIborCapFloorProductPricerTest {
   private static final SabrIborCapFloorLegPricer PRICER_CAP_LEG = SabrIborCapFloorLegPricer.DEFAULT;
   private static final DiscountingSwapLegPricer PRICER_PAY_LEG = DiscountingSwapLegPricer.DEFAULT;
 
+  @Test
   public void test_presentValue() {
     MultiCurrencyAmount computed1 = PRICER.presentValue(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValue(CAP_TWO_LEGS, RATES, VOLS);
     CurrencyAmount cap = PRICER_CAP_LEG.presentValue(CAP_LEG, RATES, VOLS);
     CurrencyAmount pay = PRICER_PAY_LEG.presentValue(PAY_LEG, RATES);
-    assertEquals(computed1, MultiCurrencyAmount.of(cap));
-    assertEquals(computed2, MultiCurrencyAmount.of(cap.plus(pay)));
+    assertThat(computed1).isEqualTo(MultiCurrencyAmount.of(cap));
+    assertThat(computed2).isEqualTo(MultiCurrencyAmount.of(cap.plus(pay)));
   }
 
+  @Test
   public void test_presentValueDelta() {
     MultiCurrencyAmount computed1 = PRICER.presentValueDelta(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueDelta(CAP_TWO_LEGS, RATES, VOLS);
     CurrencyAmount cap = PRICER_CAP_LEG.presentValueDelta(CAP_LEG, RATES, VOLS);
-    assertEquals(computed1, MultiCurrencyAmount.of(cap));
-    assertEquals(computed2, MultiCurrencyAmount.of(cap));
+    assertThat(computed1).isEqualTo(MultiCurrencyAmount.of(cap));
+    assertThat(computed2).isEqualTo(MultiCurrencyAmount.of(cap));
   }
 
+  @Test
   public void test_presentValueGamma() {
     MultiCurrencyAmount computed1 = PRICER.presentValueGamma(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueGamma(CAP_TWO_LEGS, RATES, VOLS);
     CurrencyAmount cap = PRICER_CAP_LEG.presentValueGamma(CAP_LEG, RATES, VOLS);
-    assertEquals(computed1, MultiCurrencyAmount.of(cap));
-    assertEquals(computed2, MultiCurrencyAmount.of(cap));
+    assertThat(computed1).isEqualTo(MultiCurrencyAmount.of(cap));
+    assertThat(computed2).isEqualTo(MultiCurrencyAmount.of(cap));
   }
 
+  @Test
   public void test_presentValueTheta() {
     MultiCurrencyAmount computed1 = PRICER.presentValueTheta(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueTheta(CAP_TWO_LEGS, RATES, VOLS);
     CurrencyAmount cap = PRICER_CAP_LEG.presentValueTheta(CAP_LEG, RATES, VOLS);
-    assertEquals(computed1, MultiCurrencyAmount.of(cap));
-    assertEquals(computed2, MultiCurrencyAmount.of(cap));
+    assertThat(computed1).isEqualTo(MultiCurrencyAmount.of(cap));
+    assertThat(computed2).isEqualTo(MultiCurrencyAmount.of(cap));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityRates(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityRates(CAP_TWO_LEGS, RATES, VOLS);
     PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityRates(CAP_LEG, RATES, VOLS);
     PointSensitivityBuilder pay = PRICER_PAY_LEG.presentValueSensitivity(PAY_LEG, RATES);
-    assertEquals(computed1, cap);
-    assertEquals(computed2, cap.combinedWith(pay));
+    assertThat(computed1).isEqualTo(cap);
+    assertThat(computed2).isEqualTo(cap.combinedWith(pay));
   }
 
+  @Test
   public void test_presentValueSensitivityRatesStickyModel() {
     PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityRatesStickyModel(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityRatesStickyModel(CAP_TWO_LEGS, RATES, VOLS);
     PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityRatesStickyModel(CAP_LEG, RATES, VOLS);
     PointSensitivityBuilder pay = PRICER_PAY_LEG.presentValueSensitivity(PAY_LEG, RATES);
-    assertEquals(computed1, cap);
-    assertEquals(computed2, cap.combinedWith(pay));
+    assertThat(computed1).isEqualTo(cap);
+    assertThat(computed2).isEqualTo(cap.combinedWith(pay));
   }
 
+  @Test
   public void test_presentValueSensitivityVolatility() {
     PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityModelParamsVolatility(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityModelParamsVolatility(CAP_TWO_LEGS, RATES, VOLS);
     PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityModelParamsVolatility(CAP_LEG, RATES, VOLS);
-    assertEquals(computed1, cap);
-    assertEquals(computed2, cap);
+    assertThat(computed1).isEqualTo(cap);
+    assertThat(computed2).isEqualTo(cap);
   }
 
+  @Test
   public void test_presentValueSensitivityModelParamsSabr() {
     PointSensitivityBuilder computed1 = PRICER.presentValueSensitivityModelParamsSabr(CAP_ONE_LEG, RATES, VOLS);
     PointSensitivityBuilder computed2 = PRICER.presentValueSensitivityModelParamsSabr(CAP_TWO_LEGS, RATES, VOLS);
     PointSensitivityBuilder cap = PRICER_CAP_LEG.presentValueSensitivityModelParamsSabr(CAP_LEG, RATES, VOLS);
-    assertEquals(computed1, cap);
-    assertEquals(computed2, cap);
+    assertThat(computed1).isEqualTo(cap);
+    assertThat(computed2).isEqualTo(cap);
   }
 
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computed1 = PRICER.currencyExposure(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.currencyExposure(CAP_TWO_LEGS, RATES, VOLS);
@@ -149,24 +158,26 @@ public class SabrIborCapFloorProductPricerTest {
     PointSensitivityBuilder point2 = PRICER.presentValueSensitivityRates(CAP_TWO_LEGS, RATES, VOLS);
     MultiCurrencyAmount expected1 = RATES.currencyExposure(point1.build()).plus(pv1);
     MultiCurrencyAmount expected2 = RATES.currencyExposure(point2.build()).plus(pv2);
-    assertEquals(computed1.getAmount(EUR).getAmount(), expected1.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
-    assertEquals(computed2.getAmount(EUR).getAmount(), expected2.getAmount(EUR).getAmount(), NOTIONAL_VALUE * TOL);
+    assertThat(computed1.getAmount(EUR).getAmount()).isCloseTo(expected1.getAmount(EUR).getAmount(), offset(NOTIONAL_VALUE * TOL));
+    assertThat(computed2.getAmount(EUR).getAmount()).isCloseTo(expected2.getAmount(EUR).getAmount(), offset(NOTIONAL_VALUE * TOL));
   }
 
+  @Test
   public void test_currentCash() {
     MultiCurrencyAmount cc1 = PRICER.currentCash(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount cc2 = PRICER.currentCash(CAP_TWO_LEGS, RATES, VOLS);
-    assertEquals(cc1, MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
-    assertEquals(cc2, MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
+    assertThat(cc1).isEqualTo(MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
+    assertThat(cc2).isEqualTo(MultiCurrencyAmount.of(CurrencyAmount.zero(EUR)));
   }
 
+  @Test
   public void test_currentCash_onPay() {
     MultiCurrencyAmount cc1 = PRICER.currentCash(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount cc2 = PRICER.currentCash(CAP_TWO_LEGS, RATES_PAY, VOLS_PAY);
     CurrencyAmount ccCap = PRICER_CAP_LEG.currentCash(CAP_LEG, RATES_PAY, VOLS_PAY);
     CurrencyAmount ccPay = PRICER_PAY_LEG.currentCash(PAY_LEG, RATES_PAY);
-    assertEquals(cc1, MultiCurrencyAmount.of(ccCap));
-    assertEquals(cc2, MultiCurrencyAmount.of(ccCap).plus(ccPay));
+    assertThat(cc1).isEqualTo(MultiCurrencyAmount.of(ccCap));
+    assertThat(cc2).isEqualTo(MultiCurrencyAmount.of(ccCap).plus(ccPay));
   }
 
 }

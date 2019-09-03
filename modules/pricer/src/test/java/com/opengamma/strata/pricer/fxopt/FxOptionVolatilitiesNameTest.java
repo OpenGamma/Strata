@@ -5,22 +5,22 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link FxOptionVolatilitiesName}.
  */
-@Test
 public class FxOptionVolatilitiesNameTest {
 
+  @Test
   public void test_of() {
     FxOptionVolatilitiesName test = FxOptionVolatilitiesName.of("Foo");
-    assertEquals(test.getName(), "Foo");
-    assertEquals(test.getMarketDataType(), FxOptionVolatilities.class);
-    assertEquals(test.toString(), "Foo");
-    assertEquals(test.compareTo(FxOptionVolatilitiesName.of("Goo")) < 0, true);
+    assertThat(test.getName()).isEqualTo("Foo");
+    assertThat(test.getMarketDataType()).isEqualTo(FxOptionVolatilities.class);
+    assertThat(test.toString()).isEqualTo("Foo");
+    assertThat(test.compareTo(FxOptionVolatilitiesName.of("Goo")) < 0).isTrue();
   }
 
 }

@@ -16,8 +16,8 @@ import static com.opengamma.strata.market.model.SabrParameterType.BETA;
 import static com.opengamma.strata.market.model.SabrParameterType.NU;
 import static com.opengamma.strata.market.model.SabrParameterType.RHO;
 import static com.opengamma.strata.market.model.SabrParameterType.SHIFT;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,7 +25,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -41,7 +41,6 @@ import com.opengamma.strata.pricer.model.SabrParameters;
 /**
  * Test {@link SabrParametersIborCapletFloorletVolatilities}.
  */
-@Test
 public class SabrParametersIborCapletFloorletVolatilitiesTest {
 
   private static final LocalDate DATE = LocalDate.of(2014, 1, 3);
@@ -60,57 +59,62 @@ public class SabrParametersIborCapletFloorletVolatilitiesTest {
   static final IborCapletFloorletVolatilitiesName NAME2 = IborCapletFloorletVolatilitiesName.of("Test-SABR2");
   private static final double TOLERANCE_VOL = 1.0E-10;
 
+  @Test
   public void test_of() {
     SabrParametersIborCapletFloorletVolatilities test =
         SabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);
-    assertEquals(test.getIndex(), EUR_EURIBOR_3M);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.getParameters(), PARAM);
-    assertEquals(test.getValuationDateTime(), DATE_TIME);
-    assertEquals(test.getParameterCount(), PARAM.getParameterCount());
+    assertThat(test.getIndex()).isEqualTo(EUR_EURIBOR_3M);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.getParameters()).isEqualTo(PARAM);
+    assertThat(test.getValuationDateTime()).isEqualTo(DATE_TIME);
+    assertThat(test.getParameterCount()).isEqualTo(PARAM.getParameterCount());
     int nParams = PARAM.getParameterCount();
     double newValue = 152d;
     for (int i = 0; i < nParams; ++i) {
-      assertEquals(test.getParameter(i), PARAM.getParameter(i));
-      assertEquals(test.getParameterMetadata(i), PARAM.getParameterMetadata(i));
-      assertEquals(test.withParameter(i, newValue), SabrParametersIborCapletFloorletVolatilities.of(
+      assertThat(test.getParameter(i)).isEqualTo(PARAM.getParameter(i));
+      assertThat(test.getParameterMetadata(i)).isEqualTo(PARAM.getParameterMetadata(i));
+      assertThat(test.withParameter(i, newValue)).isEqualTo(SabrParametersIborCapletFloorletVolatilities.of(
           NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM.withParameter(i, newValue)));
-      assertEquals(test.withPerturbation((n, v, m) -> 2d * v), SabrParametersIborCapletFloorletVolatilities.of(
+      assertThat(test.withPerturbation((n, v, m) -> 2d * v)).isEqualTo(SabrParametersIborCapletFloorletVolatilities.of(
           NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM.withPerturbation((n, v, m) -> 2d * v)));
     }
   }
 
+  @Test
   public void test_findData() {
     SabrParametersIborCapletFloorletVolatilities test =
         SabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);
-    assertEquals(test.findData(PARAM.getAlphaCurve().getName()), Optional.of(PARAM.getAlphaCurve()));
-    assertEquals(test.findData(PARAM.getBetaCurve().getName()), Optional.of(PARAM.getBetaCurve()));
-    assertEquals(test.findData(PARAM.getRhoCurve().getName()), Optional.of(PARAM.getRhoCurve()));
-    assertEquals(test.findData(PARAM.getNuCurve().getName()), Optional.of(PARAM.getNuCurve()));
-    assertEquals(test.findData(PARAM.getShiftCurve().getName()), Optional.of(PARAM.getShiftCurve()));
-    assertEquals(test.findData(SurfaceName.of("Rubbish")), Optional.empty());
+    assertThat(test.findData(PARAM.getAlphaCurve().getName())).isEqualTo(Optional.of(PARAM.getAlphaCurve()));
+    assertThat(test.findData(PARAM.getBetaCurve().getName())).isEqualTo(Optional.of(PARAM.getBetaCurve()));
+    assertThat(test.findData(PARAM.getRhoCurve().getName())).isEqualTo(Optional.of(PARAM.getRhoCurve()));
+    assertThat(test.findData(PARAM.getNuCurve().getName())).isEqualTo(Optional.of(PARAM.getNuCurve()));
+    assertThat(test.findData(PARAM.getShiftCurve().getName())).isEqualTo(Optional.of(PARAM.getShiftCurve()));
+    assertThat(test.findData(SurfaceName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_calc() {
     SabrParametersIborCapletFloorletVolatilities test =
         SabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);
-    assertEquals(test.alpha(1.56), PARAM.alpha(1.56));
-    assertEquals(test.beta(1.56), PARAM.beta(1.56));
-    assertEquals(test.rho(1.56), PARAM.rho(1.56));
-    assertEquals(test.nu(1.56), PARAM.nu(1.56));
-    assertEquals(test.shift(1.56), PARAM.shift(1.56));
+    assertThat(test.alpha(1.56)).isEqualTo(PARAM.alpha(1.56));
+    assertThat(test.beta(1.56)).isEqualTo(PARAM.beta(1.56));
+    assertThat(test.rho(1.56)).isEqualTo(PARAM.rho(1.56));
+    assertThat(test.nu(1.56)).isEqualTo(PARAM.nu(1.56));
+    assertThat(test.shift(1.56)).isEqualTo(PARAM.shift(1.56));
   }
 
+  @Test
   public void test_relativeTime() {
     SabrParametersIborCapletFloorletVolatilities prov =
         SabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);
     double test1 = prov.relativeTime(DATE_TIME);
-    assertEquals(test1, 0d);
+    assertThat(test1).isEqualTo(0d);
     double test2 = prov.relativeTime(DATE_TIME.plusYears(2));
     double test3 = prov.relativeTime(DATE_TIME.minusYears(2));
-    assertEquals(test2, -test3, 1e-2);
+    assertThat(test2).isCloseTo(-test3, offset(1e-2));
   }
 
+  @Test
   public void test_volatility() {
     SabrParametersIborCapletFloorletVolatilities prov =
         SabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);
@@ -119,16 +123,17 @@ public class SabrParametersIborCapletFloorletVolatilitiesTest {
         double expiryTime = prov.relativeTime(TEST_OPTION_EXPIRY[i]);
         double volExpected = PARAM.volatility(expiryTime, TEST_STRIKE[j], TEST_FORWARD);
         double volComputed = prov.volatility(TEST_OPTION_EXPIRY[i], TEST_STRIKE[j], TEST_FORWARD);
-        assertEquals(volComputed, volExpected, TOLERANCE_VOL);
+        assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE_VOL));
         ValueDerivatives volAdjExpected = PARAM.volatilityAdjoint(expiryTime, TEST_STRIKE[j], TEST_FORWARD);
         ValueDerivatives volAdjComputed = prov.volatilityAdjoint(expiryTime, TEST_STRIKE[j], TEST_FORWARD);
-        assertEquals(volAdjComputed.getValue(), volExpected, TOLERANCE_VOL);
-        assertTrue(DoubleArrayMath.fuzzyEquals(
-            volAdjComputed.getDerivatives().toArray(), volAdjExpected.getDerivatives().toArray(), TOLERANCE_VOL));
+        assertThat(volAdjComputed.getValue()).isCloseTo(volExpected, offset(TOLERANCE_VOL));
+        assertThat(DoubleArrayMath.fuzzyEquals(
+            volAdjComputed.getDerivatives().toArray(), volAdjExpected.getDerivatives().toArray(), TOLERANCE_VOL)).isTrue();
       }
     }
   }
 
+  @Test
   public void test_parameterSensitivity() {
     double alphaSensi = 2.24, betaSensi = 3.45, rhoSensi = -2.12, nuSensi = -0.56, shiftSensi = 2.5;
     SabrParametersIborCapletFloorletVolatilities prov =
@@ -167,29 +172,30 @@ public class SabrParametersIborCapletFloorletVolatilitiesTest {
       DoubleArray rhoNodeSensiComputed = rhoSensiObj.getSensitivity();
       DoubleArray nuNodeSensiComputed = nuSensiObj.getSensitivity();
       DoubleArray shiftNodeSensiComputed = shiftSensiObj.getSensitivity();
-      assertEquals(alphaSensitivities.getSensitivity().size(), alphaNodeSensiComputed.size());
-      assertEquals(betaSensitivities.getSensitivity().size(), betaNodeSensiComputed.size());
-      assertEquals(rhoSensitivities.getSensitivity().size(), rhoNodeSensiComputed.size());
-      assertEquals(nuSensitivities.getSensitivity().size(), nuNodeSensiComputed.size());
-      assertEquals(shiftSensitivities.getSensitivity().size(), shiftNodeSensiComputed.size());
+      assertThat(alphaSensitivities.getSensitivity().size()).isEqualTo(alphaNodeSensiComputed.size());
+      assertThat(betaSensitivities.getSensitivity().size()).isEqualTo(betaNodeSensiComputed.size());
+      assertThat(rhoSensitivities.getSensitivity().size()).isEqualTo(rhoNodeSensiComputed.size());
+      assertThat(nuSensitivities.getSensitivity().size()).isEqualTo(nuNodeSensiComputed.size());
+      assertThat(shiftSensitivities.getSensitivity().size()).isEqualTo(shiftNodeSensiComputed.size());
       for (int k = 0; k < alphaNodeSensiComputed.size(); ++k) {
-        assertEquals(alphaNodeSensiComputed.get(k), alphaSensitivities.getSensitivity().get(k) * alphaSensi, TOLERANCE_VOL);
+        assertThat(alphaNodeSensiComputed.get(k)).isCloseTo(alphaSensitivities.getSensitivity().get(k) * alphaSensi, offset(TOLERANCE_VOL));
       }
       for (int k = 0; k < betaNodeSensiComputed.size(); ++k) {
-        assertEquals(betaNodeSensiComputed.get(k), betaSensitivities.getSensitivity().get(k) * betaSensi, TOLERANCE_VOL);
+        assertThat(betaNodeSensiComputed.get(k)).isCloseTo(betaSensitivities.getSensitivity().get(k) * betaSensi, offset(TOLERANCE_VOL));
       }
       for (int k = 0; k < rhoNodeSensiComputed.size(); ++k) {
-        assertEquals(rhoNodeSensiComputed.get(k), rhoSensitivities.getSensitivity().get(k) * rhoSensi, TOLERANCE_VOL);
+        assertThat(rhoNodeSensiComputed.get(k)).isCloseTo(rhoSensitivities.getSensitivity().get(k) * rhoSensi, offset(TOLERANCE_VOL));
       }
       for (int k = 0; k < nuNodeSensiComputed.size(); ++k) {
-        assertEquals(nuNodeSensiComputed.get(k), nuSensitivities.getSensitivity().get(k) * nuSensi, TOLERANCE_VOL);
+        assertThat(nuNodeSensiComputed.get(k)).isCloseTo(nuSensitivities.getSensitivity().get(k) * nuSensi, offset(TOLERANCE_VOL));
       }
       for (int k = 0; k < shiftNodeSensiComputed.size(); ++k) {
-        assertEquals(shiftNodeSensiComputed.get(k), shiftSensitivities.getSensitivity().get(k) * shiftSensi, TOLERANCE_VOL);
+        assertThat(shiftNodeSensiComputed.get(k)).isCloseTo(shiftSensitivities.getSensitivity().get(k) * shiftSensi, offset(TOLERANCE_VOL));
       }
     }
   }
 
+  @Test
   public void test_parameterSensitivity_multi() {
     double[] points1 = new double[] {2.24, 3.45, -2.12, -0.56};
     double[] points2 = new double[] {-0.145, 1.01, -5.0, -11.0};
@@ -238,6 +244,7 @@ public class SabrParametersIborCapletFloorletVolatilitiesTest {
     }
   }
 
+  @Test
   public void coverage() {
     SabrParametersIborCapletFloorletVolatilities test1 =
         SabrParametersIborCapletFloorletVolatilities.of(NAME, EUR_EURIBOR_3M, DATE_TIME, PARAM);

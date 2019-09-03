@@ -11,14 +11,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
@@ -28,7 +26,6 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
 /**
  * Test {@link BondFutureOptionSensitivity}.
  */
-@Test
 public class BondFutureOptionSensitivityTest {
   private static final BondFutureVolatilitiesName NAME = BondFutureVolatilitiesName.of("GOVT1-BOND-FUT");
   private static final double OPTION_EXPIRY = 1d;
@@ -37,40 +34,44 @@ public class BondFutureOptionSensitivityTest {
   private static final double FUTURE_PRICE = 0.99;
   private static final double SENSITIVITY = 32d;
 
+  @Test
   public void test_of() {
     BondFutureOptionSensitivity test = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
-    assertEquals(test.getVolatilitiesName(), NAME);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiry(), OPTION_EXPIRY);
-    assertEquals(test.getFutureExpiryDate(), FUTURE_EXPIRY);
-    assertEquals(test.getStrikePrice(), STRIKE_PRICE);
-    assertEquals(test.getFuturePrice(), FUTURE_PRICE);
-    assertEquals(test.getSensitivity(), SENSITIVITY);
+    assertThat(test.getVolatilitiesName()).isEqualTo(NAME);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getExpiry()).isEqualTo(OPTION_EXPIRY);
+    assertThat(test.getFutureExpiryDate()).isEqualTo(FUTURE_EXPIRY);
+    assertThat(test.getStrikePrice()).isEqualTo(STRIKE_PRICE);
+    assertThat(test.getFuturePrice()).isEqualTo(FUTURE_PRICE);
+    assertThat(test.getSensitivity()).isEqualTo(SENSITIVITY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withCurrency() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
-    assertSame(base.withCurrency(GBP), base);
+    assertThat(base.withCurrency(GBP)).isSameAs(base);
     BondFutureOptionSensitivity expected = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, USD, SENSITIVITY);
     BondFutureOptionSensitivity test = base.withCurrency(USD);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withSensitivity() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity expected = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, 20d);
     BondFutureOptionSensitivity test = base.withSensitivity(20d);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareKey() {
     BondFutureOptionSensitivity a1 = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
@@ -89,24 +90,25 @@ public class BondFutureOptionSensitivityTest {
     BondFutureOptionSensitivity g = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, USD, SENSITIVITY);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
-    assertEquals(a1.compareKey(a2), 0);
-    assertEquals(a1.compareKey(b) > 0, true);
-    assertEquals(b.compareKey(a1) < 0, true);
-    assertEquals(a1.compareKey(c) < 0, true);
-    assertEquals(c.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(d) < 0, true);
-    assertEquals(d.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(e) < 0, true);
-    assertEquals(e.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(f) > 0, true);
-    assertEquals(f.compareKey(a1) < 0, true);
-    assertEquals(a1.compareKey(g) < 0, true);
-    assertEquals(g.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(other) < 0, true);
-    assertEquals(other.compareKey(a1) > 0, true);
+    assertThat(a1.compareKey(a2)).isEqualTo(0);
+    assertThat(a1.compareKey(b) > 0).isTrue();
+    assertThat(b.compareKey(a1) < 0).isTrue();
+    assertThat(a1.compareKey(c) < 0).isTrue();
+    assertThat(c.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(d) < 0).isTrue();
+    assertThat(d.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(e) < 0).isTrue();
+    assertThat(e.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(f) > 0).isTrue();
+    assertThat(f.compareKey(a1) < 0).isTrue();
+    assertThat(a1.compareKey(g) < 0).isTrue();
+    assertThat(g.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(other) < 0).isTrue();
+    assertThat(other.compareKey(a1) > 0).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
@@ -115,66 +117,73 @@ public class BondFutureOptionSensitivityTest {
     BondFutureOptionSensitivity test1 = (BondFutureOptionSensitivity) base.convertedTo(USD, matrix);
     BondFutureOptionSensitivity expected = BondFutureOptionSensitivity.of(NAME, OPTION_EXPIRY,
         FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, USD, SENSITIVITY * rate);
-    assertEquals(test1, expected);
+    assertThat(test1).isEqualTo(expected);
     BondFutureOptionSensitivity test2 = (BondFutureOptionSensitivity) base.convertedTo(GBP, matrix);
-    assertEquals(test2, base);
+    assertThat(test2).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity expected = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY * 3.5d);
     BondFutureOptionSensitivity test = base.multipliedBy(3.5d);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapSensitivity() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity expected = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, 1 / SENSITIVITY);
     BondFutureOptionSensitivity test = base.mapSensitivity(s -> 1 / s);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalize() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity test = base.normalize();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_buildInto() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
-    assertSame(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test).isSameAs(combo);
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_build() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     PointSensitivities test = base.build();
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cloned() {
     BondFutureOptionSensitivity base = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
     BondFutureOptionSensitivity test = base.cloned();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BondFutureOptionSensitivity test1 = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);
@@ -190,6 +199,7 @@ public class BondFutureOptionSensitivityTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     BondFutureOptionSensitivity test = BondFutureOptionSensitivity.of(
         NAME, OPTION_EXPIRY, FUTURE_EXPIRY, STRIKE_PRICE, FUTURE_PRICE, GBP, SENSITIVITY);

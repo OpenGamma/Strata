@@ -7,13 +7,14 @@ package com.opengamma.strata.pricer.fxopt;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
@@ -32,7 +33,6 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
  * <p>
  * Further tests with barrier options are in {@link ImpliedTrinomialTreeFxSingleBarrierOptionProductPricerTest}.
  */
-@Test
 public class ImpliedTrinomialTreeFxOptionCalibratorTest {
 
   private static final ZoneId ZONE = ZoneId.of("Z");
@@ -66,6 +66,7 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
       CALIB.calibrateTrinomialTree(CALL, RATE_PROVIDER, VOLS_MRKT);
   private static final TrinomialTree TREE = new TrinomialTree();
 
+  @Test
   public void test_recoverVolatility() {
     int nSteps = TREE_DATA.getNumberOfSteps();
     double spot = TREE_DATA.getSpot();
@@ -79,12 +80,12 @@ public class ImpliedTrinomialTreeFxOptionCalibratorTest {
       double price = TREE.optionPrice(func, TREE_DATA);
       double impliedVol = BlackFormulaRepository.impliedVolatility(price / dfDom, forward, strike, timeToExpiry, true);
       double orgVol = VOLS.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
-      assertEquals(impliedVol, orgVol, orgVol * 0.1); // large tol
+      assertThat(impliedVol).isCloseTo(orgVol, offset(orgVol * 0.1)); // large tol
       double priceMrkt = TREE.optionPrice(func, TREE_DATA_MRKT);
       double impliedVolMrkt =
           BlackFormulaRepository.impliedVolatility(priceMrkt / dfDom, forward, strike, timeToExpiry, true);
       double orgVolMrkt = VOLS_MRKT.volatility(FX_PRODUCT.getCurrencyPair(), timeToExpiry, strike, forward);
-      assertEquals(impliedVolMrkt, orgVolMrkt, orgVolMrkt * 0.1); // large tol
+      assertThat(impliedVolMrkt).isCloseTo(orgVolMrkt, offset(orgVolMrkt * 0.1)); // large tol
     }
   }
 

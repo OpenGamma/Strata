@@ -6,16 +6,17 @@
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
 import static com.opengamma.strata.product.common.PutCall.CALL;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.pricer.impl.option.EuropeanVanillaOption;
 
 /**
  * Test case for SABR volatility function providers.
  */
-@Test
 public abstract class SabrVolatilityFunctionProviderTestCase {
 
   private static final double K = 105;
@@ -29,33 +30,33 @@ public abstract class SabrVolatilityFunctionProviderTestCase {
 
   protected abstract VolatilityFunctionProvider<SabrFormulaData> getFunction();
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullData() {
-    getFunction().volatility(FORWARD, K, T, null);
+    assertThatIllegalArgumentException().isThrownBy(() -> getFunction().volatility(FORWARD, K, T, null));
   }
 
   @Test
   public void testLogNormalEquivalent() {
-    assertEquals(getFunction().volatility(FORWARD, K, T, LOG_NORMAL_EQUIVALENT),
-        LOG_NORMAL_EQUIVALENT.getAlpha(), 0);
+    assertThat(getFunction().volatility(FORWARD, K, T, LOG_NORMAL_EQUIVALENT))
+        .isEqualTo(LOG_NORMAL_EQUIVALENT.getAlpha());
   }
 
   @Test
   public void testApproachingLogNormalEquivalent1() {
-    assertEquals(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT1),
-        LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
+    assertThat(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT1))
+        .isCloseTo(LOG_NORMAL_EQUIVALENT.getAlpha(), offset(1e-5));
   }
 
   @Test
   public void testApproachingLogNormalEquivalent2() {
-    assertEquals(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT2),
-        LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
+    assertThat(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT2))
+        .isCloseTo(LOG_NORMAL_EQUIVALENT.getAlpha(), offset(1e-5));
   }
 
   @Test
   public void testApproachingLogNormalEquivalent3() {
-    assertEquals(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT3),
-        LOG_NORMAL_EQUIVALENT.getAlpha(), 1e-5);
+    assertThat(getFunction().volatility(FORWARD, K, T, APPROACHING_LOG_NORMAL_EQUIVALENT3))
+        .isCloseTo(LOG_NORMAL_EQUIVALENT.getAlpha(), offset(1e-5));
   }
 
   //TODO need to fill in tests

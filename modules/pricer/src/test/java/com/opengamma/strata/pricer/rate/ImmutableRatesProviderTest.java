@@ -16,18 +16,15 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertThrows;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ser.JodaBeanSer;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -52,7 +49,6 @@ import com.opengamma.strata.pricer.fx.DiscountFxForwardRates;
 /**
  * Test {@link ImmutableRatesProvider}.
  */
-@Test
 public class ImmutableRatesProviderTest {
 
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
@@ -75,25 +71,28 @@ public class ImmutableRatesProviderTest {
       Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .timeSeries(GBP_USD_WM, ts)
         .build();
-    assertEquals(test.getValuationDate(), VAL_DATE);
-    assertEquals(ImmutableRatesProvider.meta().timeSeries().get(test), ImmutableMap.of(GBP_USD_WM, ts));
-    assertSame(test.toImmutableRatesProvider(), test);
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(ImmutableRatesProvider.meta().timeSeries().get(test)).isEqualTo(ImmutableMap.of(GBP_USD_WM, ts));
+    assertThat(test.toImmutableRatesProvider()).isSameAs(test);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_discountFactors() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
-    assertEquals(test.discountFactors(GBP).getCurrency(), GBP);
+    assertThat(test.discountFactors(GBP).getCurrency()).isEqualTo(GBP);
   }
 
+  @Test
   public void test_discountFactors_notKnown() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
@@ -104,22 +103,25 @@ public class ImmutableRatesProviderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_fxRate_separate() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .build();
-    assertEquals(test.fxRate(USD, GBP), 1 / FX_GBP_USD, 0d);
-    assertEquals(test.fxRate(USD, USD), 1d, 0d);
+    assertThat(test.fxRate(USD, GBP)).isCloseTo(1 / FX_GBP_USD, offset(0d));
+    assertThat(test.fxRate(USD, USD)).isCloseTo(1d, offset(0d));
   }
 
+  @Test
   public void test_fxRate_pair() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .build();
-    assertEquals(test.fxRate(CurrencyPair.of(USD, GBP)), 1 / FX_GBP_USD, 0d);
+    assertThat(test.fxRate(CurrencyPair.of(USD, GBP))).isCloseTo(1 / FX_GBP_USD, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_fxIndexRates() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
@@ -128,12 +130,13 @@ public class ImmutableRatesProviderTest {
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .timeSeries(GBP_USD_WM, ts)
         .build();
-    assertEquals(test.fxIndexRates(GBP_USD_WM).getIndex(), GBP_USD_WM);
-    assertEquals(test.fxIndexRates(GBP_USD_WM).getFixings(), ts);
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(GBP_USD_WM));
+    assertThat(test.fxIndexRates(GBP_USD_WM).getIndex()).isEqualTo(GBP_USD_WM);
+    assertThat(test.fxIndexRates(GBP_USD_WM).getFixings()).isEqualTo(ts);
+    assertThat(test.getTimeSeriesIndices()).containsOnly(GBP_USD_WM);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_fxForwardRates() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
@@ -141,110 +144,121 @@ public class ImmutableRatesProviderTest {
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
     DiscountFxForwardRates res = (DiscountFxForwardRates) test.fxForwardRates(CurrencyPair.of(GBP, USD));
-    assertEquals(res.getBaseCurrencyDiscountFactors(), ZeroRateDiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
-    assertEquals(res.getCounterCurrencyDiscountFactors(), ZeroRateDiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
-    assertEquals(res.getCurrencyPair(), CurrencyPair.of(GBP, USD));
-    assertEquals(res.getFxRateProvider(), FX_MATRIX);
-    assertEquals(res.getValuationDate(), VAL_DATE);
+    assertThat(res.getBaseCurrencyDiscountFactors()).isEqualTo(ZeroRateDiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
+    assertThat(res.getCounterCurrencyDiscountFactors()).isEqualTo(ZeroRateDiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
+    assertThat(res.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
+    assertThat(res.getFxRateProvider()).isEqualTo(FX_MATRIX);
+    assertThat(res.getValuationDate()).isEqualTo(VAL_DATE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_iborIndexRates() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .iborIndexCurve(USD_LIBOR_3M, USD_LIBOR_CURVE)
         .timeSeries(USD_LIBOR_3M, ts)
         .build();
-    assertEquals(test.iborIndexRates(USD_LIBOR_3M).getIndex(), USD_LIBOR_3M);
-    assertEquals(test.iborIndexRates(USD_LIBOR_3M).getFixings(), ts);
-    assertEquals(test.getIborIndices(), ImmutableSet.of(USD_LIBOR_3M));
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(USD_LIBOR_3M));
+    assertThat(test.iborIndexRates(USD_LIBOR_3M).getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(test.iborIndexRates(USD_LIBOR_3M).getFixings()).isEqualTo(ts);
+    assertThat(test.getIborIndices()).containsOnly(USD_LIBOR_3M);
+    assertThat(test.getTimeSeriesIndices()).containsOnly(USD_LIBOR_3M);
   }
 
+  @Test
   public void test_iborIndexRates_activeNotFound() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrows(IllegalArgumentException.class, () -> test.iborIndexRates(USD_LIBOR_3M));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.iborIndexRates(USD_LIBOR_3M));
   }
 
+  @Test
   public void test_iborIndexRates_inactive() {
     IborIndex inactiveIndex = IborIndex.of("USD-LIBOR-10M");
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .timeSeries(inactiveIndex, ts)
         .build();
-    assertEquals(test.iborIndexRates(inactiveIndex).getIndex(), inactiveIndex);
-    assertEquals(test.iborIndexRates(inactiveIndex).getFixings(), ts);
-    assertEquals(test.getIborIndices(), ImmutableSet.of());
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(inactiveIndex));
-    assertEquals(test.iborIndexRates(inactiveIndex).getClass(), HistoricIborIndexRates.class);
+    assertThat(test.iborIndexRates(inactiveIndex).getIndex()).isEqualTo(inactiveIndex);
+    assertThat(test.iborIndexRates(inactiveIndex).getFixings()).isEqualTo(ts);
+    assertThat(test.getIborIndices()).isEmpty();
+    assertThat(test.getTimeSeriesIndices()).containsOnly(inactiveIndex);
+    assertThat(test.iborIndexRates(inactiveIndex).getClass()).isEqualTo(HistoricIborIndexRates.class);
   }
 
+  @Test
   public void test_iborIndexRates_inactiveNoTimeSeriesNotFound() {
     IborIndex inactiveIndex = IborIndex.of("USD-LIBOR-10M");
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrows(IllegalArgumentException.class, () -> test.iborIndexRates(inactiveIndex));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.iborIndexRates(inactiveIndex));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_overnightIndexRates() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .overnightIndexCurve(USD_FED_FUND, FED_FUND_CURVE)
         .timeSeries(USD_FED_FUND, ts)
         .build();
-    assertEquals(test.overnightIndexRates(USD_FED_FUND).getIndex(), USD_FED_FUND);
-    assertEquals(test.overnightIndexRates(USD_FED_FUND).getFixings(), ts);
-    assertEquals(test.getOvernightIndices(), ImmutableSet.of(USD_FED_FUND));
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(USD_FED_FUND));
+    assertThat(test.overnightIndexRates(USD_FED_FUND).getIndex()).isEqualTo(USD_FED_FUND);
+    assertThat(test.overnightIndexRates(USD_FED_FUND).getFixings()).isEqualTo(ts);
+    assertThat(test.getOvernightIndices()).containsOnly(USD_FED_FUND);
+    assertThat(test.getTimeSeriesIndices()).containsOnly(USD_FED_FUND);
   }
 
+  @Test
   public void test_overnightIndexRates_activeNotFound() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrows(IllegalArgumentException.class, () -> test.overnightIndexRates(USD_FED_FUND));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.overnightIndexRates(USD_FED_FUND));
   }
 
+  @Test
   public void test_overnightIndexRates_inactive() {
     OvernightIndex inactiveIndex = OvernightIndex.of("CHF-TOIS");
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .timeSeries(inactiveIndex, ts)
         .build();
-    assertEquals(test.overnightIndexRates(inactiveIndex).getIndex(), inactiveIndex);
-    assertEquals(test.overnightIndexRates(inactiveIndex).getFixings(), ts);
-    assertEquals(test.getIborIndices(), ImmutableSet.of());
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(inactiveIndex));
-    assertEquals(test.overnightIndexRates(inactiveIndex).getClass(), HistoricOvernightIndexRates.class);
+    assertThat(test.overnightIndexRates(inactiveIndex).getIndex()).isEqualTo(inactiveIndex);
+    assertThat(test.overnightIndexRates(inactiveIndex).getFixings()).isEqualTo(ts);
+    assertThat(test.getIborIndices()).isEmpty();
+    assertThat(test.getTimeSeriesIndices()).containsOnly(inactiveIndex);
+    assertThat(test.overnightIndexRates(inactiveIndex).getClass()).isEqualTo(HistoricOvernightIndexRates.class);
   }
 
+  @Test
   public void test_overnightIndexRates_inactiveNoTimeSeriesNotFound() {
     OvernightIndex inactiveIndex = OvernightIndex.of("CHF-TOIS");
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrows(IllegalArgumentException.class, () -> test.overnightIndexRates(inactiveIndex));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.overnightIndexRates(inactiveIndex));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_priceIndexValues() {
     LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.of(VAL_DATE, 0.62d);
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexCurve(GB_RPI, GBPRI_CURVE)
         .timeSeries(GB_RPI, ts)
         .build();
-    assertEquals(test.priceIndexValues(GB_RPI).getIndex(), GB_RPI);
-    assertEquals(test.priceIndexValues(GB_RPI).getFixings(), ts);
-    assertEquals(test.getPriceIndices(), ImmutableSet.of(GB_RPI));
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(GB_RPI));
+    assertThat(test.priceIndexValues(GB_RPI).getIndex()).isEqualTo(GB_RPI);
+    assertThat(test.priceIndexValues(GB_RPI).getFixings()).isEqualTo(ts);
+    assertThat(test.getPriceIndices()).containsOnly(GB_RPI);
+    assertThat(test.getTimeSeriesIndices()).containsOnly(GB_RPI);
   }
 
+  @Test
   public void test_priceIndexValues_activeNotFound() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrows(IllegalArgumentException.class, () -> test.priceIndexValues(GB_RPI));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.priceIndexValues(GB_RPI));
   }
 
+  @Test
   public void test_priceIndexValues_inactive() {
     PriceIndex inactiveIndex = ImmutablePriceIndex.builder()
         .name("GBP-XXX")
@@ -257,13 +271,14 @@ public class ImmutableRatesProviderTest {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .timeSeries(inactiveIndex, ts)
         .build();
-    assertEquals(test.priceIndexValues(inactiveIndex).getIndex(), inactiveIndex);
-    assertEquals(test.priceIndexValues(inactiveIndex).getFixings(), ts);
-    assertEquals(test.getIborIndices(), ImmutableSet.of());
-    assertEquals(test.getTimeSeriesIndices(), ImmutableSet.of(inactiveIndex));
-    assertEquals(test.priceIndexValues(inactiveIndex).getClass(), HistoricPriceIndexValues.class);
+    assertThat(test.priceIndexValues(inactiveIndex).getIndex()).isEqualTo(inactiveIndex);
+    assertThat(test.priceIndexValues(inactiveIndex).getFixings()).isEqualTo(ts);
+    assertThat(test.getIborIndices()).isEmpty();
+    assertThat(test.getTimeSeriesIndices()).containsOnly(inactiveIndex);
+    assertThat(test.priceIndexValues(inactiveIndex).getClass()).isEqualTo(HistoricPriceIndexValues.class);
   }
 
+  @Test
   public void test_priceIndexValues_inactiveNoTimeSeriesNotFound() {
     PriceIndex inactiveIndex = ImmutablePriceIndex.builder()
         .name("GBP-XXX")
@@ -274,32 +289,35 @@ public class ImmutableRatesProviderTest {
         .build();
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
-    assertThrows(IllegalArgumentException.class, () -> test.priceIndexValues(inactiveIndex));
+    assertThatIllegalArgumentException().isThrownBy(() -> test.priceIndexValues(inactiveIndex));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getCurves() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
-    assertEquals(test.getCurves().size(), 2);
-    assertEquals(test.getCurves().get(DISCOUNT_CURVE_GBP.getName()), DISCOUNT_CURVE_GBP);
-    assertEquals(test.getCurves().get(DISCOUNT_CURVE_USD.getName()), DISCOUNT_CURVE_USD);
+    assertThat(test.getCurves()).hasSize(2);
+    assertThat(test.getCurves().get(DISCOUNT_CURVE_GBP.getName())).isEqualTo(DISCOUNT_CURVE_GBP);
+    assertThat(test.getCurves().get(DISCOUNT_CURVE_USD.getName())).isEqualTo(DISCOUNT_CURVE_USD);
   }
 
+  @Test
   public void test_getCurves_withGroup() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
     CurveGroupName group = CurveGroupName.of("GRP");
-    assertEquals(test.getCurves(group).size(), 2);
-    assertEquals(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_GBP.getName())), DISCOUNT_CURVE_GBP);
-    assertEquals(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_USD.getName())), DISCOUNT_CURVE_USD);
+    assertThat(test.getCurves(group)).hasSize(2);
+    assertThat(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_GBP.getName()))).isEqualTo(DISCOUNT_CURVE_GBP);
+    assertThat(test.getCurves(group).get(CurveId.of(group, DISCOUNT_CURVE_USD.getName()))).isEqualTo(DISCOUNT_CURVE_USD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ImmutableRatesProvider test = ImmutableRatesProvider.builder(VAL_DATE)
         .build();
@@ -310,6 +328,7 @@ public class ImmutableRatesProviderTest {
     coverBeanEquals(test, test2);
   }
   
+  @Test
   public void testSerializeDeserialize() {
     cycleBean(ImmutableRatesProvider.builder(VAL_DATE).build());
   }

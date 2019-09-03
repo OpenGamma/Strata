@@ -9,12 +9,12 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -38,7 +38,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link DiscountingOvernightFutureTradePricer}.
  */
-@Test
 public class DiscountingOvernightFutureTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -93,13 +92,15 @@ public class DiscountingOvernightFutureTradePricerTest {
   private static final double TOLERANCE_PV = 1.0e-4;
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_price() {
     double computed = PRICER_TRADE.price(RESOLVED_TRADE, RATES_PROVIDER);
     double expected = PRICER_PRODUCT.price(RESOLVED_TRADE.getProduct(), RATES_PROVIDER);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     double currentPrice = 0.995;
     double referencePrice = 0.9925;
@@ -107,82 +108,91 @@ public class DiscountingOvernightFutureTradePricerTest {
     double referencePriceIndex = PRICER_PRODUCT.marginIndex(RESOLVED_TRADE.getProduct(), referencePrice);
     double presentValueExpected = (currentPriceIndex - referencePriceIndex) * RESOLVED_TRADE.getQuantity();
     CurrencyAmount presentValueComputed = PRICER_TRADE.presentValue(RESOLVED_TRADE, currentPrice, referencePrice);
-    assertEquals(presentValueComputed.getAmount(), presentValueExpected, TOLERANCE_PV);
+    assertThat(presentValueComputed.getAmount()).isCloseTo(presentValueExpected, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_reference_price_after_trade_date() {
     LocalDate tradeDate = RESOLVED_TRADE.getTradedPrice().get().getTradeDate();
     LocalDate valuationDate = tradeDate.plusDays(1);
     double settlementPrice = 0.995;
     double referencePrice = PRICER_TRADE.referencePrice(RESOLVED_TRADE, valuationDate, settlementPrice);
-    assertEquals(referencePrice, settlementPrice);
+    assertThat(referencePrice).isEqualTo(settlementPrice);
   }
 
+  @Test
   public void test_reference_price_on_trade_date() {
     LocalDate tradeDate = RESOLVED_TRADE.getTradedPrice().get().getTradeDate();
     LocalDate valuationDate = tradeDate;
     double settlementPrice = 0.995;
     double referencePrice = PRICER_TRADE.referencePrice(RESOLVED_TRADE, valuationDate, settlementPrice);
-    assertEquals(referencePrice, RESOLVED_TRADE.getTradedPrice().get().getPrice());
+    assertThat(referencePrice).isEqualTo(RESOLVED_TRADE.getTradedPrice().get().getPrice());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parSpread_after_trade_date() {
     double lastClosingPrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(RESOLVED_TRADE, RATES_PROVIDER_AFTER) - lastClosingPrice;
     double parSpreadComputed = PRICER_TRADE.parSpread(RESOLVED_TRADE, RATES_PROVIDER_AFTER, lastClosingPrice);
-    assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
+    assertThat(parSpreadComputed).isCloseTo(parSpreadExpected, offset(TOLERANCE_PRICE));
   }
 
+  @Test
   public void test_parSpread_on_trade_date() {
     double lastClosingPrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(
         RESOLVED_TRADE, RATES_PROVIDER_ON) - RESOLVED_TRADE.getTradedPrice().get().getPrice();
     double parSpreadComputed = PRICER_TRADE.parSpread(RESOLVED_TRADE, RATES_PROVIDER_ON, lastClosingPrice);
-    assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
+    assertThat(parSpreadComputed).isCloseTo(parSpreadExpected, offset(TOLERANCE_PRICE));
   }
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_presentValue_after_trade_date() {
     double lastClosingPrice = 1.005;
     double expected = (PRICER_PRODUCT.price(RESOLVED_TRADE.getProduct(), RATES_PROVIDER_AFTER) - lastClosingPrice) *
         FUTURE.getAccrualFactor() * FUTURE.getNotional() * RESOLVED_TRADE.getQuantity();
     CurrencyAmount computed = PRICER_TRADE.presentValue(RESOLVED_TRADE, RATES_PROVIDER_AFTER, lastClosingPrice);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * TOL);
-    assertEquals(computed.getCurrency(), FUTURE.getCurrency());
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * TOL));
+    assertThat(computed.getCurrency()).isEqualTo(FUTURE.getCurrency());
   }
 
+  @Test
   public void test_presentValue_on_trade_date() {
     double lastClosingPrice = 1.005;
     double expected = (PRICER_PRODUCT.price(RESOLVED_TRADE.getProduct(), RATES_PROVIDER_ON) -
         RESOLVED_TRADE.getTradedPrice().get().getPrice()) * FUTURE.getAccrualFactor() * FUTURE.getNotional() *
         RESOLVED_TRADE.getQuantity();
     CurrencyAmount computed = PRICER_TRADE.presentValue(RESOLVED_TRADE, RATES_PROVIDER_ON, lastClosingPrice);
-    assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
-    assertEquals(computed.getCurrency(), FUTURE.getCurrency());
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE_PV));
+    assertThat(computed.getCurrency()).isEqualTo(FUTURE.getCurrency());
   }
 
   //-------------------------------------------------------------------------   
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER_TRADE.presentValueSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
     PointSensitivities expected = PRICER_PRODUCT.priceSensitivity(RESOLVED_TRADE.getProduct(), RATES_PROVIDER)
         .multipliedBy(FUTURE.getNotional() * FUTURE.getAccrualFactor() * RESOLVED_TRADE.getQuantity());
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * TOL));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parSpreadSensitivity() {
     PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(RESOLVED_TRADE.getProduct(), RATES_PROVIDER);
     PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOL));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_pricedSensitivity() {
     PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(RESOLVED_TRADE.getProduct(), RATES_PROVIDER);
     PointSensitivities sensiComputed = PRICER_TRADE.priceSensitivity(RESOLVED_TRADE, RATES_PROVIDER);
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOL));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOL)).isTrue();
   }
 
 }

@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.tree;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -18,21 +18,22 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link EuropeanVanillaOptionFunction}.
  */
-@Test
 public class EuropeanVanillaOptionFunctionTest {
 
   private static final double STRIKE = 130d;
   private static final double TIME_TO_EXPIRY = 0.257;
   private static final int NUM = 35;
 
+  @Test
   public void test_of() {
     EuropeanVanillaOptionFunction test = EuropeanVanillaOptionFunction.of(STRIKE, TIME_TO_EXPIRY, PutCall.PUT, NUM);
-    assertEquals(test.getSign(), -1d);
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getTimeToExpiry(), TIME_TO_EXPIRY);
-    assertEquals(test.getNumberOfSteps(), NUM);
+    assertThat(test.getSign()).isEqualTo(-1d);
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getTimeToExpiry()).isEqualTo(TIME_TO_EXPIRY);
+    assertThat(test.getNumberOfSteps()).isEqualTo(NUM);
   }
 
+  @Test
   public void test_optionPrice() {
     double tol = 1.0e-12;
     EuropeanVanillaOptionFunction test = EuropeanVanillaOptionFunction.of(STRIKE, TIME_TO_EXPIRY, PutCall.PUT, NUM);
@@ -46,11 +47,11 @@ public class EuropeanVanillaOptionFunctionTest {
     // test getPayoffAtExpiryTrinomial
     DoubleArray computedPayoff = test.getPayoffAtExpiryTrinomial(spot, d, m);
     int expectedSize = 2 * NUM + 1;
-    assertEquals(computedPayoff.size(), expectedSize);
+    assertThat(computedPayoff.size()).isEqualTo(expectedSize);
     for (int i = 0; i < expectedSize; ++i) {
       double price = spot * Math.pow(u, 0.5 * i) * Math.pow(d, NUM - 0.5 * i);
       double expectedPayoff = Math.max(STRIKE - price, 0d);
-      assertEquals(computedPayoff.get(i), expectedPayoff, tol);
+      assertThat(computedPayoff.get(i)).isCloseTo(expectedPayoff, offset(tol));
     }
     // test getNextOptionValues
     double df = 0.92;
@@ -63,7 +64,7 @@ public class EuropeanVanillaOptionFunctionTest {
         df * (0.1 * dp + 0.05 * mp),
         df * 0.05 * dp,
         0.0);
-    assertTrue(DoubleArrayMath.fuzzyEquals(computedNextValues.toArray(), expectedNextValues.toArray(), tol));
+    assertThat(DoubleArrayMath.fuzzyEquals(computedNextValues.toArray(), expectedNextValues.toArray(), tol)).isTrue();
   }
 
   private static final TrinomialTree TRINOMIAL_TREE = new TrinomialTree();
@@ -74,6 +75,7 @@ public class EuropeanVanillaOptionFunctionTest {
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
   private static final double[] DIVIDENDS = new double[] {0.0, 0.02 };
 
+  @Test
   public void test_trinomialTree() {
     int nSteps = 135;
     LatticeSpecification[] lattices = new LatticeSpecification[]
@@ -89,7 +91,7 @@ public class EuropeanVanillaOptionFunctionTest {
                   BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
               for (LatticeSpecification lattice : lattices) {
                 double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
-                assertEquals(computed, exact, Math.max(exact, 1d) * tol);
+                assertThat(computed).isCloseTo(exact, offset(Math.max(exact, 1d) * tol));
               }
             }
           }

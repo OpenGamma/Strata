@@ -12,12 +12,12 @@ import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.basics.index.PriceIndices.GB_RPI;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -33,7 +33,6 @@ import com.opengamma.strata.pricer.DiscountFactors;
 /**
  * Tests {@link ImmutableRatesProvider}.
  */
-@Test
 public class ImmutableRatesProviderCombineTest {
 
   private static final LocalDate PREV_DATE = LocalDate.of(2014, 6, 27);
@@ -56,6 +55,7 @@ public class ImmutableRatesProviderCombineTest {
       Curves.prices("GB-RPI"), DoubleArray.of(1d, 10d), DoubleArray.of(252d, 252d), INTERPOLATOR);
   private static final LocalDateDoubleTimeSeries TS = LocalDateDoubleTimeSeries.of(PREV_DATE, 0.62d);
 
+  @Test
   public void merge_content_2() {
     ImmutableRatesProvider test1 = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
@@ -69,16 +69,17 @@ public class ImmutableRatesProviderCombineTest {
         .timeSeries(GB_RPI, TS)
         .build();
     ImmutableRatesProvider merged = ImmutableRatesProvider.combined(FX_MATRIX, test1, test2);
-    assertEquals(merged.getValuationDate(), VAL_DATE);
-    assertEquals(merged.discountFactors(USD), DiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
-    assertEquals(merged.discountFactors(GBP), DiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
-    assertEquals(merged.iborIndexRates(USD_LIBOR_3M), IborIndexRates.of(USD_LIBOR_3M, VAL_DATE, USD_LIBOR_CURVE));
-    assertEquals(merged.overnightIndexRates(USD_FED_FUND), OvernightIndexRates.of(USD_FED_FUND, VAL_DATE, FED_FUND_CURVE));
-    assertEquals(merged.priceIndexValues(GB_RPI), PriceIndexValues.of(GB_RPI, VAL_DATE, GBPRI_CURVE, TS));
-    assertEquals(merged.timeSeries(GBP_USD_WM), TS);
-    assertEquals(merged.getFxRateProvider(), FX_MATRIX);
+    assertThat(merged.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(merged.discountFactors(USD)).isEqualTo(DiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
+    assertThat(merged.discountFactors(GBP)).isEqualTo(DiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
+    assertThat(merged.iborIndexRates(USD_LIBOR_3M)).isEqualTo(IborIndexRates.of(USD_LIBOR_3M, VAL_DATE, USD_LIBOR_CURVE));
+    assertThat(merged.overnightIndexRates(USD_FED_FUND)).isEqualTo(OvernightIndexRates.of(USD_FED_FUND, VAL_DATE, FED_FUND_CURVE));
+    assertThat(merged.priceIndexValues(GB_RPI)).isEqualTo(PriceIndexValues.of(GB_RPI, VAL_DATE, GBPRI_CURVE, TS));
+    assertThat(merged.timeSeries(GBP_USD_WM)).isEqualTo(TS);
+    assertThat(merged.getFxRateProvider()).isEqualTo(FX_MATRIX);
   }
 
+  @Test
   public void merge_content_3() {
     ImmutableRatesProvider test1 = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
@@ -94,16 +95,17 @@ public class ImmutableRatesProviderCombineTest {
         .timeSeries(GB_RPI, TS)
         .build();
     ImmutableRatesProvider merged = ImmutableRatesProvider.combined(FX_MATRIX, test1, test2, test3);
-    assertEquals(merged.getValuationDate(), VAL_DATE);
-    assertEquals(merged.discountFactors(USD), DiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
-    assertEquals(merged.discountFactors(GBP), DiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
-    assertEquals(merged.iborIndexRates(USD_LIBOR_3M), IborIndexRates.of(USD_LIBOR_3M, VAL_DATE, USD_LIBOR_CURVE));
-    assertEquals(merged.overnightIndexRates(USD_FED_FUND), OvernightIndexRates.of(USD_FED_FUND, VAL_DATE, FED_FUND_CURVE));
-    assertEquals(merged.priceIndexValues(GB_RPI), PriceIndexValues.of(GB_RPI, VAL_DATE, GBPRI_CURVE, TS));
-    assertEquals(merged.timeSeries(GBP_USD_WM), TS);
-    assertEquals(merged.getFxRateProvider(), FX_MATRIX);
+    assertThat(merged.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(merged.discountFactors(USD)).isEqualTo(DiscountFactors.of(USD, VAL_DATE, DISCOUNT_CURVE_USD));
+    assertThat(merged.discountFactors(GBP)).isEqualTo(DiscountFactors.of(GBP, VAL_DATE, DISCOUNT_CURVE_GBP));
+    assertThat(merged.iborIndexRates(USD_LIBOR_3M)).isEqualTo(IborIndexRates.of(USD_LIBOR_3M, VAL_DATE, USD_LIBOR_CURVE));
+    assertThat(merged.overnightIndexRates(USD_FED_FUND)).isEqualTo(OvernightIndexRates.of(USD_FED_FUND, VAL_DATE, FED_FUND_CURVE));
+    assertThat(merged.priceIndexValues(GB_RPI)).isEqualTo(PriceIndexValues.of(GB_RPI, VAL_DATE, GBPRI_CURVE, TS));
+    assertThat(merged.timeSeries(GBP_USD_WM)).isEqualTo(TS);
+    assertThat(merged.getFxRateProvider()).isEqualTo(FX_MATRIX);
   }
 
+  @Test
   public void merge_illegal_arguments() {
     ImmutableRatesProvider test_dsc = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)

@@ -11,14 +11,15 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -34,7 +35,6 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 /**
  * Test {@link BlackFxOptionFlatVolatilities}.
  */
-@Test
 public class BlackFxOptionFlatVolatilitiesTest {
 
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
@@ -70,31 +70,34 @@ public class BlackFxOptionFlatVolatilitiesTest {
   private static final double EPS = 1.0E-7;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     BlackFxOptionFlatVolatilities test = BlackFxOptionFlatVolatilities.builder()
         .currencyPair(CURRENCY_PAIR)
         .curve(CURVE)
         .valuationDateTime(VAL_DATE_TIME)
         .build();
-    assertEquals(test.getValuationDateTime(), VAL_DATE_TIME);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getName(), FxOptionVolatilitiesName.of(CURVE.getName().getName()));
-    assertEquals(test.getCurve(), CURVE);
-    assertEquals(VOLS, test);
+    assertThat(test.getValuationDateTime()).isEqualTo(VAL_DATE_TIME);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getName()).isEqualTo(FxOptionVolatilitiesName.of(CURVE.getName().getName()));
+    assertThat(test.getCurve()).isEqualTo(CURVE);
+    assertThat(VOLS).isEqualTo(test);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_volatility() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
       for (int j = 0; j < NB_STRIKE; ++j) {
         double volExpected = CURVE.yValue(expiryTime);
         double volComputed = VOLS.volatility(CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i]);
-        assertEquals(volComputed, volExpected, TOLERANCE);
+        assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
       }
     }
   }
 
+  @Test
   public void test_volatility_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       double expiryTime = VOLS.relativeTime(TEST_EXPIRY[i]);
@@ -102,12 +105,13 @@ public class BlackFxOptionFlatVolatilitiesTest {
         double volExpected = CURVE.yValue(expiryTime);
         double volComputed = VOLS
             .volatility(CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i]);
-        assertEquals(volComputed, volExpected, TOLERANCE);
+        assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE));
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parameterSensitivity() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
@@ -120,12 +124,13 @@ public class BlackFxOptionFlatVolatilitiesTest {
           double nodeExpiry = TIMES.get(k);
           double expected = nodeSensitivity(
               VOLS, CURRENCY_PAIR, TEST_EXPIRY[i], TEST_STRIKE[j], FORWARD[i], nodeExpiry);
-          assertEquals(value, expected, EPS);
+          assertThat(value).isCloseTo(expected, offset(EPS));
         }
       }
     }
   }
 
+  @Test
   public void test_parameterSensitivity_inverse() {
     for (int i = 0; i < NB_EXPIRY; i++) {
       for (int j = 0; j < NB_STRIKE; ++j) {
@@ -138,13 +143,14 @@ public class BlackFxOptionFlatVolatilitiesTest {
           double nodeExpiry = TIMES.get(k);
           double expected = nodeSensitivity(
               VOLS, CURRENCY_PAIR.inverse(), TEST_EXPIRY[i], 1d / TEST_STRIKE[j], 1d / FORWARD[i], nodeExpiry);
-          assertEquals(value, expected, EPS);
+          assertThat(value).isCloseTo(expected, offset(EPS));
         }
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BlackFxOptionFlatVolatilities test1 = BlackFxOptionFlatVolatilities.of(CURRENCY_PAIR, VAL_DATE_TIME, CURVE);
     coverImmutableBean(test1);

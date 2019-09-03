@@ -9,12 +9,12 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.BuySell.BUY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -44,7 +44,6 @@ import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 /**
  * Test {@link IsdaHomogenousCdsIndexTradePricer}.
  */
-@Test
 public class IsdaHomogenousCdsIndexTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -135,24 +134,27 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   private static final double TOL = 1.0e-15;
 
+  @Test
   public void test_price() {
     double computed = PRICER.price(TRADE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     double expected = PRICER_PRODUCT.price(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);
     double computedMf = PRICER_MF.price(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     double expectedMf = PRICER_PRODUCT_MF.price(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);
-    assertEquals(computed, expected, TOL);
-    assertEquals(computedMf, expectedMf, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
+    assertThat(computedMf).isCloseTo(expectedMf, offset(TOL));
   }
 
+  @Test
   public void test_parSpread() {
     double computed = PRICER.parSpread(TRADE, RATES_PROVIDER, REF_DATA);
     double expected = PRICER_PRODUCT.parSpread(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
     double computedMf = PRICER_MF.parSpread(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
     double expectedMf = PRICER_PRODUCT_MF.parSpread(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    assertEquals(computed, expected, TOL);
-    assertEquals(computedMf, expectedMf, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
+    assertThat(computedMf).isCloseTo(expectedMf, offset(TOL));
   }
 
+  @Test
   public void test_priceSensitivity() {
     PointSensitivities computed = PRICER.priceSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expected =
@@ -160,10 +162,11 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
     PointSensitivities computedMf = PRICER_MF.priceSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expectedMf =
         PRICER_PRODUCT_MF.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
-    assertTrue(computed.equalWithTolerance(expected, TOL));
-    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+    assertThat(computed.equalWithTolerance(expected, TOL)).isTrue();
+    assertThat(computedMf.equalWithTolerance(expectedMf, TOL)).isTrue();
   }
 
+  @Test
   public void test_parSpreadSensitivity() {
     PointSensitivities computed = PRICER.parSpreadSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expected =
@@ -171,11 +174,12 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
     PointSensitivities computedMf = PRICER_MF.parSpreadSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expectedMf =
         PRICER_PRODUCT_MF.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
-    assertTrue(computed.equalWithTolerance(expected, TOL));
-    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+    assertThat(computed.equalWithTolerance(expected, TOL)).isTrue();
+    assertThat(computedMf.equalWithTolerance(expectedMf, TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed = PRICER.presentValue(TRADE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     CurrencyAmount expected = PRICER_PRODUCT.presentValue(PRODUCT, RATES_PROVIDER, VALUATION_DATE, PriceType.CLEAN, REF_DATA)
@@ -183,10 +187,11 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
     CurrencyAmount computedMf = PRICER_MF.presentValue(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     CurrencyAmount expectedMf =
         PRICER_PRODUCT_MF.presentValue(PRODUCT, RATES_PROVIDER, VALUATION_DATE, PriceType.CLEAN, REF_DATA);
-    assertEquals(computed.getAmount(), expected.getAmount(), TOL);
-    assertEquals(computedMf.getAmount(), expectedMf.getAmount(), TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(TOL));
+    assertThat(computedMf.getAmount()).isCloseTo(expectedMf.getAmount(), offset(TOL));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities computed = PRICER.presentValueSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expected = PRICER_PRODUCT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, VALUATION_DATE, REF_DATA)
@@ -194,39 +199,43 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
     PointSensitivities computedMf = PRICER_MF.presentValueSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expectedMf =
         PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, VALUATION_DATE, REF_DATA).build();
-    assertTrue(computed.equalWithTolerance(expected, TOL));
-    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+    assertThat(computed.equalWithTolerance(expected, TOL)).isTrue();
+    assertThat(computedMf.equalWithTolerance(expectedMf, TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueOnSettle() {
     CurrencyAmount computed = PRICER.presentValueOnSettle(TRADE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     CurrencyAmount expected = PRICER_PRODUCT.presentValue(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);
     CurrencyAmount computedMf = PRICER_MF.presentValueOnSettle(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     CurrencyAmount expectedMf =
         PRICER_PRODUCT_MF.presentValue(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);
-    assertEquals(computed.getAmount(), expected.getAmount(), TOL);
-    assertEquals(computedMf.getAmount(), expectedMf.getAmount(), TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(TOL));
+    assertThat(computedMf.getAmount()).isCloseTo(expectedMf.getAmount(), offset(TOL));
   }
 
+  @Test
   public void test_rpv01OnSettle() {
     CurrencyAmount computed = PRICER.rpv01OnSettle(TRADE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     CurrencyAmount expected = PRICER_PRODUCT.rpv01(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);
     CurrencyAmount computedMf = PRICER_MF.rpv01OnSettle(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, PriceType.CLEAN, REF_DATA);
     CurrencyAmount expectedMf = PRICER_PRODUCT_MF.rpv01(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, PriceType.CLEAN, REF_DATA);
-    assertEquals(computed.getAmount(), expected.getAmount(), TOL);
-    assertEquals(computedMf.getAmount(), expectedMf.getAmount(), TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(TOL));
+    assertThat(computedMf.getAmount()).isCloseTo(expectedMf.getAmount(), offset(TOL));
   }
 
+  @Test
   public void test_recovery01OnSettle() {
     CurrencyAmount computed = PRICER.recovery01OnSettle(TRADE, RATES_PROVIDER, REF_DATA);
     CurrencyAmount expected = PRICER_PRODUCT.recovery01(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
     CurrencyAmount computedMf = PRICER_MF.recovery01OnSettle(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
     CurrencyAmount expectedMf = PRICER_PRODUCT_MF.recovery01(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    assertEquals(computed.getAmount(), expected.getAmount(), TOL);
-    assertEquals(computedMf.getAmount(), expectedMf.getAmount(), TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(TOL));
+    assertThat(computedMf.getAmount()).isCloseTo(expectedMf.getAmount(), offset(TOL));
   }
 
+  @Test
   public void test_presentValueOnSettleSensitivity() {
     PointSensitivities computed = PRICER.presentValueOnSettleSensitivity(TRADE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expected =
@@ -235,21 +244,23 @@ public class IsdaHomogenousCdsIndexTradePricerTest {
         PRICER_MF.presentValueOnSettleSensitivity(TRADE_NO_SETTLE_DATE, RATES_PROVIDER, REF_DATA);
     PointSensitivities expectedMf =
         PRICER_PRODUCT_MF.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA).build();
-    assertTrue(computed.equalWithTolerance(expected, TOL));
-    assertTrue(computedMf.equalWithTolerance(expectedMf, TOL));
+    assertThat(computed.equalWithTolerance(expected, TOL)).isTrue();
+    assertThat(computedMf.equalWithTolerance(expectedMf, TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_jumpToDefault() {
     JumpToDefault computed = PRICER.jumpToDefault(TRADE, RATES_PROVIDER, REF_DATA);
     JumpToDefault expected = PRICER_PRODUCT.jumpToDefault(PRODUCT, RATES_PROVIDER, SETTLEMENT_DATE, REF_DATA);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_expectedLoss() {
     CurrencyAmount computed = PRICER.expectedLoss(TRADE, RATES_PROVIDER);
     CurrencyAmount expected = PRICER_PRODUCT.expectedLoss(PRODUCT, RATES_PROVIDER);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
 }

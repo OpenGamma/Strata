@@ -14,13 +14,13 @@ import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.GB_IL_FLOAT;
 import static com.opengamma.strata.product.bond.CapitalIndexedBondYieldConvention.US_IL_REAL;
 import static com.opengamma.strata.product.swap.PriceIndexCalculationMethod.INTERPOLATED;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -54,7 +54,6 @@ import com.opengamma.strata.product.swap.InflationRateCalculation;
 /**
  * Test {@link DiscountingCapitalIndexedBondTradePricer}.
  */
-@Test
 public class DiscountingCapitalIndexedBondTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -218,31 +217,36 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_netAmount_standard() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_STANDARD, RATES_PROVIDER);
     double expected = PERIOD_PRICER.forecastValue(SETTLE_PERIOD_STANDARD, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(QUANTITY * NOTIONAL * TOL));
   }
 
+  @Test
   public void test_netAmount_late() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_LATE, RATES_PROVIDER);
     double expected = PERIOD_PRICER.forecastValue(SETTLE_PERIOD_LATE, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(QUANTITY * NOTIONAL * TOL));
   }
 
+  @Test
   public void test_netAmountfixed() {
     CurrencyAmount computed = PRICER.netAmount(TRADE_ILF_STANDARD, RATES_PROVIDER);
     double expected = PAYMENT_PRICER.forecastValueAmount(SETTLE_PERIOD_ILF.getPayment(), RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected, QUANTITY * NOTIONAL * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(QUANTITY * NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueFromCleanPrice_standard() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPrice(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
-    assertEquals(computed.getAmount(), 0d, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(0d, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_early() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPrice(
         TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -256,9 +260,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = -pvDiff + QUANTITY * df2 *
         PRICER.forecastValueStandardFromCleanPrice(RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_early_exCoupon() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPrice(
         TRADE_EX_COUPON_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -270,9 +275,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = QUANTITY * df2 * PRICER.forecastValueStandardFromCleanPrice(
         RPRODUCT_EX_COUPON, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_late() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPrice(
         TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -286,9 +292,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = pvDiff + QUANTITY * df2 * PRICER.forecastValueStandardFromCleanPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_standard() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPriceWithZSpread(TRADE_STANDARD, RATES_PROVIDER,
         ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -300,9 +307,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = QUANTITY * df2 * PRICER.forecastValueStandardFromCleanPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_early() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0);
@@ -317,9 +325,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = -pvDiff + QUANTITY * df2 * PRICER.forecastValueStandardFromCleanPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_early_exCoupon() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_EX_COUPON_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0);
@@ -331,9 +340,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = QUANTITY * df2 * PRICER.forecastValueStandardFromCleanPrice(
         RPRODUCT_EX_COUPON, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_late() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0);
@@ -348,16 +358,18 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double expected1 = netAmount.getAmount() * df1;
     double expected2 = pvDiff + QUANTITY * df2 * PRICER.forecastValueStandardFromCleanPrice(
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, TRADE_PRICE).getAmount();
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_fixed() {
     CurrencyAmount computed = PRICER.presentValueFromCleanPrice(
         TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
-    assertEquals(computed.getAmount(), 0d, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(0d, offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityFromCleanPrice_standard() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -367,9 +379,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         p -> PRICER.presentValueFromCleanPrice(TRADE_STANDARD, p, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE))
             .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPrice(TRADE_STANDARD, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPrice_early_exCoupon() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
         TRADE_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -379,9 +392,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         p -> PRICER.presentValueFromCleanPrice(TRADE_EARLY, p, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE))
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPrice(TRADE_EARLY, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPrice_early() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
         TRADE_EX_COUPON_EARLY, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -391,9 +405,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         p -> PRICER.presentValueFromCleanPrice(TRADE_EX_COUPON_EARLY, p, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE))
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPrice(TRADE_EX_COUPON_EARLY, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPrice_late() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
         TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -403,9 +418,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         p -> PRICER.presentValueFromCleanPrice(TRADE_LATE, p, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE))
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPrice(TRADE_LATE, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_standard() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0);
@@ -417,9 +433,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPriceWithZSpread(
                 TRADE_STANDARD, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE, Z_SPREAD, CONTINUOUS, 0)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_early_exCoupon() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(TRADE_EX_COUPON_EARLY,
         RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -432,9 +449,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPriceWithZSpread(
                 TRADE_EX_COUPON_EARLY, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_early() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(TRADE_EARLY,
         RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -446,9 +464,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPriceWithZSpread(
                 TRADE_EARLY, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPriceWithZSpread_late() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPriceWithZSpread(TRADE_LATE,
         RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -460,9 +479,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPriceWithZSpread(
                 TRADE_LATE, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityFromCleanPrice_fixed() {
     PointSensitivities point = PRICER.presentValueSensitivityFromCleanPrice(
         TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -472,10 +492,11 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         p -> PRICER.presentValueFromCleanPrice(TRADE_ILF_STANDARD, p, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE))
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValueFromCleanPrice(TRADE_ILF_STANDARD, RATES_PROVIDER, p, REF_DATA, TRADE_PRICE)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_standard() {
     CurrencyAmount computed = PRICER.presentValue(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected1 = PRODUCT_PRICER.presentValue(
@@ -483,9 +504,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
     double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_STANDARD, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_late() {
     CurrencyAmount computed = PRICER.presentValue(TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected1 = PRODUCT_PRICER.presentValue(
@@ -493,9 +515,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_LATE);
     double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_LATE, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_standard() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, CONTINUOUS, 0);
@@ -504,9 +527,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
     double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_STANDARD, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_late() {
     CurrencyAmount computed = PRICER.presentValueWithZSpread(
         TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -515,9 +539,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_LATE);
     double expected2 = df * PERIOD_PRICER.forecastValue(SETTLE_PERIOD_LATE, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_fixed() {
     CurrencyAmount computed = PRICER.presentValue(TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected1 = PRODUCT_PRICER.presentValue(
@@ -525,17 +550,19 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     double df = ISSUER_RATES_PROVIDER.repoCurveDiscountFactors(SECURITY_ID, LEGAL_ENTITY, USD)
         .discountFactor(SETTLEMENT_STANDARD);
     double expected2 = df * PAYMENT_PRICER.forecastValueAmount(SETTLE_PERIOD_ILF.getPayment(), RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected1 + expected2, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1 + expected2, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_position() {
     CurrencyAmount computed = PRICER.presentValue(POSITION, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     double expected1 = PRODUCT_PRICER.presentValue(
         RPRODUCT, RATES_PROVIDER, ISSUER_RATES_PROVIDER, VALUATION).getAmount() * QUANTITY;
-    assertEquals(computed.getAmount(), expected1, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected1, offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_standard() {
     PointSensitivities point =
         PRICER.presentValueSensitivity(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
@@ -544,9 +571,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
         p -> PRICER.presentValue(TRADE_STANDARD, p, ISSUER_RATES_PROVIDER)).combinedWith(
         FD_CAL.sensitivity(ISSUER_RATES_PROVIDER, p -> PRICER.presentValue(TRADE_STANDARD, RATES_PROVIDER, p)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_late() {
     PointSensitivities point =
         PRICER.presentValueSensitivity(TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
@@ -556,9 +584,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         p -> PRICER.presentValue(TRADE_LATE, p, ISSUER_RATES_PROVIDER)).combinedWith(
         FD_CAL.sensitivity(ISSUER_RATES_PROVIDER,
             p -> PRICER.presentValue(TRADE_LATE, RATES_PROVIDER, p)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_standard() {
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -568,9 +597,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         TRADE_STANDARD, p, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR))
         .combinedWith(FD_CAL.sensitivity(ISSUER_RATES_PROVIDER, p -> PRICER.presentValueWithZSpread(
             TRADE_STANDARD, RATES_PROVIDER, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_late() {
     PointSensitivities point = PRICER.presentValueSensitivityWithZSpread(
         TRADE_LATE, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -580,9 +610,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         TRADE_LATE, p, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)).combinedWith(
         FD_CAL.sensitivity(ISSUER_RATES_PROVIDER, p -> PRICER.presentValueWithZSpread(
             TRADE_LATE, RATES_PROVIDER, p, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_fixed() {
     PointSensitivities point =
         PRICER.presentValueSensitivity(TRADE_ILF_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
@@ -591,9 +622,10 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATES_PROVIDER,
         p -> PRICER.presentValue(TRADE_ILF_STANDARD, p, ISSUER_RATES_PROVIDER)).combinedWith(FD_CAL
         .sensitivity(ISSUER_RATES_PROVIDER, p -> PRICER.presentValue(TRADE_ILF_STANDARD, RATES_PROVIDER, p)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_position() {
     PointSensitivities point = PRICER.presentValueSensitivity(POSITION, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     CurrencyParameterSensitivities computed = ISSUER_RATES_PROVIDER.parameterSensitivity(point)
@@ -603,10 +635,11 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     CurrencyParameterSensitivities fdPrice =
         FD_CAL.sensitivity(ISSUER_RATES_PROVIDER, p -> PRICER.presentValue(POSITION, RATES_PROVIDER, p));
     CurrencyParameterSensitivities expected = fdRates.combinedWith(fdPrice);
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposureFromCleanPrice() {
     MultiCurrencyAmount computed = PRICER.currencyExposureFromCleanPrice(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
@@ -614,10 +647,11 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValueFromCleanPrice(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE));
-    assertEquals(computed.getAmounts().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmounts()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_currencyExposureFromCleanPriceWithZSpread() {
     MultiCurrencyAmount computed = PRICER.currencyExposureFromCleanPriceWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -626,10 +660,11 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValueFromCleanPriceWithZSpread(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER,
             REF_DATA, TRADE_PRICE, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertEquals(computed.getAmounts().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmounts()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computed =
         PRICER.currencyExposure(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
@@ -637,10 +672,11 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(
         PRICER.presentValue(TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER));
-    assertEquals(computed.getAmounts().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmounts()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_currencyExposureWithZSpread() {
     MultiCurrencyAmount computed = PRICER.currencyExposureWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -648,26 +684,29 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     MultiCurrencyAmount expected = RATES_PROVIDER.currencyExposure(point).plus(PRICER.presentValueWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertEquals(computed.getAmounts().size(), 1);
-    assertEquals(computed.getAmount(USD).getAmount(), expected.getAmount(USD).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmounts()).hasSize(1);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected.getAmount(USD).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_currentCash() {
     CurrencyAmount computed = PRICER.currentCash(TRADE_SETTLED, RATES_PROVIDER_ON_PAY);
     CurrencyAmount expected = PRODUCT_PRICER.currentCash(RPRODUCT, RATES_PROVIDER_ON_PAY, SETTLEMENT_BEFORE);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_currentCash_position() {
     CurrencyAmount computed = PRICER.currentCash(POSITION, RATES_PROVIDER_ON_PAY);
     CurrencyAmount expected = PRODUCT_PRICER.currentCash(RPRODUCT, RATES_PROVIDER_ON_PAY, PAYMENT);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_currentCash_early() {
     CurrencyAmount computed = PRICER.currentCash(TRADE_EARLY, RATES_PROVIDER);
     CurrencyAmount expected = PRICER.netAmount(TRADE_EARLY, RATES_PROVIDER);
-    assertEquals(computed.getAmount(), expected.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getAmount()).isCloseTo(expected.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
@@ -688,36 +727,40 @@ public class DiscountingCapitalIndexedBondTradePricerTest {
         RPRODUCT, RATES_PROVIDER, SETTLEMENT_STANDARD, cleanNominalZSpread);
   }
 
+  @Test
   public void test_presentValue_coherency_standard() {
     CurrencyAmount pvFromCleanPrice = PRICER.presentValueFromCleanPrice(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, CLEAN_REAL_FROM_CURVES);
     CurrencyAmount pvFromCurves = PRICER.presentValue(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    assertEquals(pvFromCleanPrice.getAmount(), pvFromCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvFromCleanPrice.getAmount()).isCloseTo(pvFromCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_coherency_exCoupon() {
     CurrencyAmount pvFromCleanPrice = PRICER.presentValueFromCleanPrice(
         TRADE_EX_COUPON_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, CLEAN_REAL_FROM_CURVES);
     CurrencyAmount pvFromCurves = PRICER.presentValue(
         TRADE_EX_COUPON_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER);
-    assertEquals(pvFromCleanPrice.getAmount(), pvFromCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvFromCleanPrice.getAmount()).isCloseTo(pvFromCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_coherency_standard() {
     CurrencyAmount pvFromCleanPrice = PRICER.presentValueFromCleanPriceWithZSpread(TRADE_STANDARD, RATES_PROVIDER,
         ISSUER_RATES_PROVIDER, REF_DATA, CLEAN_REAL_FROM_CURVES_ZSPREAD, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pvFromCurves = PRICER.presentValueWithZSpread(
         TRADE_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(pvFromCleanPrice.getAmount(), pvFromCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvFromCleanPrice.getAmount()).isCloseTo(pvFromCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_coherency_exCoupon() {
     CurrencyAmount pvFromCleanPrice = PRICER.presentValueFromCleanPriceWithZSpread(TRADE_EX_COUPON_STANDARD,
         RATES_PROVIDER, ISSUER_RATES_PROVIDER, REF_DATA, CLEAN_REAL_FROM_CURVES_ZSPREAD, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pvFromCurves = PRICER.presentValueWithZSpread(
         TRADE_EX_COUPON_STANDARD, RATES_PROVIDER, ISSUER_RATES_PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(pvFromCleanPrice.getAmount(), pvFromCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvFromCleanPrice.getAmount()).isCloseTo(pvFromCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
 }

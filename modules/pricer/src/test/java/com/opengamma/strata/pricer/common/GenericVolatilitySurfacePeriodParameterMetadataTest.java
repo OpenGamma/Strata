@@ -8,13 +8,13 @@ package com.opengamma.strata.pricer.common;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.Period;
 
 import org.joda.beans.BeanBuilder;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.option.LogMoneynessStrike;
@@ -25,33 +25,35 @@ import com.opengamma.strata.market.option.Strike;
 /**
  * Test {@link GenericVolatilitySurfacePeriodParameterMetadata}.
  */
-@Test
 public class GenericVolatilitySurfacePeriodParameterMetadataTest {
 
   private static final Period TIME_TO_EXPIRY = Period.ofYears(2);
   private static final LogMoneynessStrike STRIKE1 = LogMoneynessStrike.of(0.98d);
   private static final SimpleStrike STRIKE2 = SimpleStrike.of(1.05);
 
+  @Test
   public void test_of_withStrikeType() {
     GenericVolatilitySurfacePeriodParameterMetadata test =
         GenericVolatilitySurfacePeriodParameterMetadata.of(TIME_TO_EXPIRY, STRIKE1);
-    assertEquals(test.getIdentifier(), Pair.of(TIME_TO_EXPIRY, STRIKE1));
-    assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, STRIKE1.getLabel()).toString());
-    assertEquals(test.getStrike(), STRIKE1);
-    assertEquals(test.getPeriod(), TIME_TO_EXPIRY);
+    assertThat(test.getIdentifier()).isEqualTo(Pair.of(TIME_TO_EXPIRY, STRIKE1));
+    assertThat(test.getLabel()).isEqualTo(Pair.of(TIME_TO_EXPIRY, STRIKE1.getLabel()).toString());
+    assertThat(test.getStrike()).isEqualTo(STRIKE1);
+    assertThat(test.getPeriod()).isEqualTo(TIME_TO_EXPIRY);
   }
 
+  @Test
   public void test_of_withLabel() {
     Pair<Period, Strike> pair = Pair.of(TIME_TO_EXPIRY, STRIKE2);
     String label = "(2, 1.35)";
     GenericVolatilitySurfacePeriodParameterMetadata test =
         GenericVolatilitySurfacePeriodParameterMetadata.of(TIME_TO_EXPIRY, STRIKE2, label);
-    assertEquals(test.getIdentifier(), pair);
-    assertEquals(test.getLabel(), label);
-    assertEquals(test.getStrike(), STRIKE2);
-    assertEquals(test.getPeriod(), TIME_TO_EXPIRY);
+    assertThat(test.getIdentifier()).isEqualTo(pair);
+    assertThat(test.getLabel()).isEqualTo(label);
+    assertThat(test.getStrike()).isEqualTo(STRIKE2);
+    assertThat(test.getPeriod()).isEqualTo(TIME_TO_EXPIRY);
   }
 
+  @Test
   public void test_builder_noLabel() {
     BeanBuilder<? extends GenericVolatilitySurfacePeriodParameterMetadata> builder =
         GenericVolatilitySurfacePeriodParameterMetadata.meta().builder();
@@ -59,12 +61,13 @@ public class GenericVolatilitySurfacePeriodParameterMetadataTest {
     builder.set(GenericVolatilitySurfacePeriodParameterMetadata.meta().period(), TIME_TO_EXPIRY);
     builder.set(GenericVolatilitySurfacePeriodParameterMetadata.meta().strike(), STRIKE1);
     GenericVolatilitySurfacePeriodParameterMetadata test = builder.build();
-    assertEquals(test.getIdentifier(), pair);
-    assertEquals(test.getLabel(), Pair.of(TIME_TO_EXPIRY, STRIKE1.getLabel()).toString());
-    assertEquals(test.getStrike(), STRIKE1);
-    assertEquals(test.getPeriod(), TIME_TO_EXPIRY);
+    assertThat(test.getIdentifier()).isEqualTo(pair);
+    assertThat(test.getLabel()).isEqualTo(Pair.of(TIME_TO_EXPIRY, STRIKE1.getLabel()).toString());
+    assertThat(test.getStrike()).isEqualTo(STRIKE1);
+    assertThat(test.getPeriod()).isEqualTo(TIME_TO_EXPIRY);
   }
 
+  @Test
   public void test_builder_withLabel() {
     BeanBuilder<? extends GenericVolatilitySurfacePeriodParameterMetadata> builder =
         GenericVolatilitySurfacePeriodParameterMetadata.meta().builder();
@@ -74,12 +77,13 @@ public class GenericVolatilitySurfacePeriodParameterMetadataTest {
     builder.set(GenericVolatilitySurfacePeriodParameterMetadata.meta().strike(), STRIKE1);
     builder.set(GenericVolatilitySurfacePeriodParameterMetadata.meta().label(), label);
     GenericVolatilitySurfacePeriodParameterMetadata test = builder.build();
-    assertEquals(test.getIdentifier(), pair);
-    assertEquals(test.getLabel(), label);
-    assertEquals(test.getStrike(), STRIKE1);
-    assertEquals(test.getPeriod(), TIME_TO_EXPIRY);
+    assertThat(test.getIdentifier()).isEqualTo(pair);
+    assertThat(test.getLabel()).isEqualTo(label);
+    assertThat(test.getStrike()).isEqualTo(STRIKE1);
+    assertThat(test.getPeriod()).isEqualTo(TIME_TO_EXPIRY);
   }
 
+  @Test
   public void test_builder_incomplete() {
     BeanBuilder<? extends GenericVolatilitySurfacePeriodParameterMetadata> builder1 =
         GenericVolatilitySurfacePeriodParameterMetadata.meta().builder();
@@ -93,6 +97,7 @@ public class GenericVolatilitySurfacePeriodParameterMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     GenericVolatilitySurfacePeriodParameterMetadata test1 =
         GenericVolatilitySurfacePeriodParameterMetadata.of(TIME_TO_EXPIRY, STRIKE1);
@@ -102,6 +107,7 @@ public class GenericVolatilitySurfacePeriodParameterMetadataTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     GenericVolatilitySurfacePeriodParameterMetadata test =
         GenericVolatilitySurfacePeriodParameterMetadata.of(TIME_TO_EXPIRY, STRIKE1);

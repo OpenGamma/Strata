@@ -11,12 +11,11 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveInfoType.JACOBIAN;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -47,7 +46,6 @@ import com.opengamma.strata.product.SecurityId;
  * Market quote sensitivity calculations with {@code RatesProvider}, {@code CreditRatesProvider} are tested in other unit tests, 
  * e.g., {@link CalibrationDiscountingSimpleEur3Test}, {@code SpreadSensitivityCalculatorTest}, together with curve calibrations.
  */
-@Test
 public class MarketQuoteSensitivityCalculatorTest {
 
   private static final LocalDate DATE = date(2017, 12, 11);
@@ -111,17 +109,18 @@ public class MarketQuoteSensitivityCalculatorTest {
 
   private static final double TOL = 1.0e-14;
 
+  @Test
   public void test_sensitivity_LegalEntityDiscountingProvider() {
     CurrencyParameterSensitivities computed = CALC.sensitivity(PARAMETER_SENSITIVITIES, PROVIDER);
-    assertEquals(computed.getSensitivities().size(), 4);
+    assertThat(computed.getSensitivities()).hasSize(4);
     DoubleArray expected11 = (DoubleArray) MATRIX_ALGEBRA.multiply(SENSI_1, DoubleMatrix.copyOf(MATRIX_11));
     DoubleArray expected12 = (DoubleArray) MATRIX_ALGEBRA.multiply(SENSI_1, DoubleMatrix.copyOf(MATRIX_12));
     DoubleArray expected21 = (DoubleArray) MATRIX_ALGEBRA.multiply(SENSI_2, DoubleMatrix.copyOf(MATRIX_21));
     DoubleArray expected22 = (DoubleArray) MATRIX_ALGEBRA.multiply(SENSI_2, DoubleMatrix.copyOf(MATRIX_22));
-    assertTrue(computed.getSensitivity(CURVE_NAME_1, USD).getSensitivity().equalWithTolerance(expected11, TOL));
-    assertTrue(computed.getSensitivity(CURVE_NAME_1, GBP).getSensitivity().equalWithTolerance(expected21, TOL));
-    assertTrue(computed.getSensitivity(CURVE_NAME_2, USD).getSensitivity().equalWithTolerance(expected12, TOL));
-    assertTrue(computed.getSensitivity(CURVE_NAME_2, GBP).getSensitivity().equalWithTolerance(expected22, TOL));
+    assertThat(computed.getSensitivity(CURVE_NAME_1, USD).getSensitivity().equalWithTolerance(expected11, TOL)).isTrue();
+    assertThat(computed.getSensitivity(CURVE_NAME_1, GBP).getSensitivity().equalWithTolerance(expected21, TOL)).isTrue();
+    assertThat(computed.getSensitivity(CURVE_NAME_2, USD).getSensitivity().equalWithTolerance(expected12, TOL)).isTrue();
+    assertThat(computed.getSensitivity(CURVE_NAME_2, GBP).getSensitivity().equalWithTolerance(expected22, TOL)).isTrue();
   }
 
 }

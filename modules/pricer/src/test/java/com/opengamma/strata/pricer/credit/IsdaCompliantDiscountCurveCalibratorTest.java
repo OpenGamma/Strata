@@ -13,16 +13,16 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -50,7 +50,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
 /**
  * Test {@link IsdaCompliantDiscountCurveCalibrator}.
  */
-@Test
 public class IsdaCompliantDiscountCurveCalibratorTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -88,6 +87,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
   private static final double TOL = 1.0e-10;
   private static final double EPS = 1.0e-5;
 
+  @Test
   public void regressionTest1() {
     // date from ISDA excel
     double[] zeroRates = new double[] {0.00344732957665484, 0.00645427070262317, 0.010390833731528, 0.0137267241507424,
@@ -112,11 +112,12 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, true, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), NUM_TOTAL);
+    assertThat(yc.getParameterCount()).isEqualTo(NUM_TOTAL);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
     testJacobian(yc, spotDate, nodes, ID_VALUES, RATES);
   }
 
+  @Test
   public void regressionTest2() {
     // date from ISDA excel
     double[] times = new double[] {0.0876712328767123, 0.167123287671233, 0.252054794520548, 0.495890410958904,
@@ -159,11 +160,12 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, true, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), nInstruments);
+    assertThat(yc.getParameterCount()).isEqualTo(nInstruments);
     testZeroRates(yc, times, zeroRates);
     testJacobian(yc, spotDate, nodes, idValues, rates);
   }
 
+  @Test
   public void offsetTest() {
     // date from ISDA excel
     double[] zeroRates = new double[] {0.00344732957670444, 0.00344732957670444, 0.00344732957665564, 0.00573603521085939,
@@ -205,7 +207,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, valuationDate, curveDcc, nodes, true, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), NUM_TOTAL);
+    assertThat(yc.getParameterCount()).isEqualTo(NUM_TOTAL);
     int nSamplePoints = zeroRates.length;
     double[] times = new double[nSamplePoints];
     times[0] = 0.0;
@@ -219,6 +221,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     testJacobian(yc, snapDate, nodes, ID_VALUES, RATES);
   }
 
+  @Test
   public void differentSpotDatesTest() {
     double[][] sampleTimes = new double[][] {
         {0.0849315068493151, 0.164383561643836, 0.252054794520548, 0.504109589041096, 0.747945205479452, 1, 1.5041095890411,
@@ -338,11 +341,12 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
           CurveName.of("yield"), USD, spotDate[k], ACT_365F, nodes, false, false);
       IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-      assertEquals(yc.getParameterCount(), nInstruments);
+      assertThat(yc.getParameterCount()).isEqualTo(nInstruments);
       testZeroRates(yc, sampleTimes[k], zeroRates[k]);
     }
   }
 
+  @Test
   public void dayCountTest() {
     LocalDate spotDate = LocalDate.of(2009, 11, 13);
     int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
@@ -416,11 +420,12 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
           CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false, false);
       IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-      assertEquals(yc.getParameterCount(), nInstruments);
+      assertThat(yc.getParameterCount()).isEqualTo(nInstruments);
       testZeroRates(yc, times, zeroRates[j]);
     }
   }
 
+  @Test
   public void onlyMoneyOrSwapTest() {
     // date from ISDA excel
     double[] sampleTimes = new double[] {0.0767123287671233, 0.167123287671233, 0.249315068493151, 0.498630136986301,
@@ -504,9 +509,9 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition2 = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, spotDate, ACT_365F, nodes2, false, false);
     IsdaCreditDiscountFactors yc1 = CALIBRATOR.calibrate(curveDefinition1, quotes1, REF_DATA);
-    assertEquals(yc1.getParameterCount(), nInstruments1);
+    assertThat(yc1.getParameterCount()).isEqualTo(nInstruments1);
     IsdaCreditDiscountFactors yc2 = CALIBRATOR.calibrate(curveDefinition2, quotes2, REF_DATA);
-    assertEquals(yc2.getParameterCount(), nInstruments2);
+    assertThat(yc2.getParameterCount()).isEqualTo(nInstruments2);
     double ref1 = 0.0;
     double ref2 = 0.0;
     int nSamplePoints = sampleTimes.length;
@@ -515,18 +520,19 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       double zr1 = yc1.getCurve().yValue(time);
       double zr2 = yc2.getCurve().yValue(time);
       if (time < 1.) {
-        assertEquals(zeroRates[i], zr2, TOL);
+        assertThat(zeroRates[i]).isCloseTo(zr2, offset(TOL));
         if (i > 0) {
-          assertTrue(zr1 == ref1);
+          assertThat(zr1 == ref1).isTrue();
         }
       }
-      assertTrue(zr1 >= ref1);
-      assertTrue(zr2 >= ref2);
+      assertThat(zr1 >= ref1).isTrue();
+      assertThat(zr2 >= ref2).isTrue();
       ref1 = zr1;
       ref2 = zr2;
     }
   }
 
+  @Test
   public void anotherConventionTest() {
     // date from ISDA excel
     double[] times = new double[] {0.0849315068493151, 0.167123287671233, 0.257534246575342, 0.495890410958904,
@@ -569,10 +575,11 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), nInstruments);
+    assertThat(yc.getParameterCount()).isEqualTo(nInstruments);
     testZeroRates(yc, times, zeroRates);
   }
 
+  @Test
   public void negativeRatesTest() {
     double[] zeroRates = new double[] {-0.021919169445972334, -0.019346997617199872, -0.015724925901986937, -0.011927193964450558,
         -0.00914226190648963, -0.004858408228040751, -0.003177040569633026, -0.0023951619743151106, -9.116564810142423E-4,
@@ -604,10 +611,11 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, false, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), NUM_TOTAL);
+    assertThat(yc.getParameterCount()).isEqualTo(NUM_TOTAL);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
   }
 
+  @Test
   public void twoNodesTest() {
     double[] zeroRates = new double[] {0.010087974088676337, 0.010087974088676337, 0.010087974088676337, 0.010087974088676337,
         0.010087974088676337, 0.010087974088676347, 0.025023916871786102, 0.03249188826334116, 0.037031564191394764,
@@ -637,10 +645,11 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, spotDate, ACT_365F, nodes, false, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), 2);
+    assertThat(yc.getParameterCount()).isEqualTo(2);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
   }
 
+  @Test
   public void trimTest() {
     double[] zeroRates = new double[] {
         0.02464736121066336, 0.02464736121066336, 0.02464736121066336, 0.02464736121066336, 0.02464736121066336,
@@ -669,7 +678,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     IsdaCreditCurveDefinition curveDefinition = IsdaCreditCurveDefinition.of(
         CurveName.of("yield"), USD, valuationDate, ACT_365F, nodes, true, false);
     IsdaCreditDiscountFactors yc = CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA);
-    assertEquals(yc.getParameterCount(), 14);
+    assertThat(yc.getParameterCount()).isEqualTo(14);
     testZeroRates(yc, SAMPLE_TIMES, zeroRates);
     testJacobian(yc, snapDate, nodes, ID_VALUES, RATES);
     // after last curve node
@@ -678,12 +687,13 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         CurveName.of("yield"), USD, valuationDateLate, ACT_365F, nodes, true, false);
     double zeroRateSingle = 0.09122545844959826;
     IsdaCreditDiscountFactors ycSingle = CALIBRATOR.calibrate(curveDefinitionSingle, quotes, REF_DATA);
-    assertEquals(ycSingle.getParameterCount(), 1);
+    assertThat(ycSingle.getParameterCount()).isEqualTo(1);
     testZeroRates(ycSingle, SAMPLE_TIMES, DoubleArray.filled(SAMPLE_TIMES.length, zeroRateSingle).toArray());
     testJacobian(ycSingle, snapDate, nodes, ID_VALUES, RATES);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void OverlappingInstrumentsTest() {
     LocalDate valuationDate = LocalDate.of(2013, 5, 31);
     LocalDate snapDate = LocalDate.of(2013, 5, 30);
@@ -720,6 +730,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         .isThrownBy(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
+  @Test
   public void oneNodeTest() {
     LocalDate valuationDate = LocalDate.of(2013, 5, 31);
     LocalDate snapDate = LocalDate.of(2013, 5, 31);
@@ -740,6 +751,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
         .isThrownBy(() -> CALIBRATOR.calibrate(curveDefinition, quotes, REF_DATA));
   }
 
+  @Test
   public void moneyMarketAfterSwapTest() {
     LocalDate valuationDate = LocalDate.of(2013, 5, 31);
     LocalDate snapDate = LocalDate.of(2013, 5, 30);
@@ -807,7 +819,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
     int nSamplePoints = times.length;
     for (int i = 0; i < nSamplePoints; i++) {
       double zr = yc.getCurve().yValue(times[i]);
-      assertEquals(zeroRates[i], zr, TOL);
+      assertThat(zeroRates[i]).isCloseTo(zr, offset(TOL));
     }
   }
 
@@ -846,7 +858,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
       for (int j = 0; j < nCurveNode; ++j) {
         double computed = curve.getCurve().getMetadata().findInfo(CurveInfoType.JACOBIAN).get().getJacobianMatrix().get(j, i);
         double expected = 0.5 * (hcUp.getCurve().getYValues().get(j) - hcDw.getCurve().getYValues().get(j)) / EPS;
-        assertEquals(computed, expected, EPS * 10d);
+        assertThat(computed).isCloseTo(expected, offset(EPS * 10d));
       }
     }
   }

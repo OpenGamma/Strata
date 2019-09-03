@@ -8,12 +8,12 @@ package com.opengamma.strata.pricer.bond;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
@@ -57,7 +57,6 @@ import com.opengamma.strata.product.bond.ResolvedBillTrade;
 /**
  * Test {@link DiscountingBillTradePricer}
  */
-@Test
 public class DiscountingBillTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -154,37 +153,40 @@ public class DiscountingBillTradePricerTest {
   private static final double TOLERANCE_PVSENSI = 1.0e-2;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_settle_before_val() {
     CurrencyAmount pvComputed = PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_BEFORE_VAL, PROVIDER);
     CurrencyAmount pvExpected = PRICER_PRODUCT.presentValue(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
         .multipliedBy(QUANTITY);
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(BILL_TRADE_SETTLE_BEFORE_VAL, PROVIDER);
-    assertEquals(ceComputed.getCurrencies().size(), 1);
-    assertTrue(ceComputed.contains(EUR));
-    assertEquals(ceComputed.getAmount(EUR).getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(ceComputed.getCurrencies()).hasSize(1);
+    assertThat(ceComputed.contains(EUR)).isTrue();
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     CurrencyAmount cashComputed = PRICER_TRADE.currentCash(BILL_TRADE_SETTLE_BEFORE_VAL, VAL_DATE);
-    assertEquals(cashComputed.getCurrency(), EUR);
-    assertEquals(cashComputed.getAmount(), 0, TOLERANCE_PV);
+    assertThat(cashComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(cashComputed.getAmount()).isCloseTo(0, offset(TOLERANCE_PV));
   }
   
+  @Test
   public void test_presentValue_settle_on_val() {
     CurrencyAmount pvComputed = PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_ON_VAL, PROVIDER);
     CurrencyAmount pvExpected = PRICER_PRODUCT.presentValue(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
         .plus(-PRICE * NOTIONAL_AMOUNT)
         .multipliedBy(QUANTITY);
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(BILL_TRADE_SETTLE_ON_VAL, PROVIDER);
-    assertEquals(ceComputed.getCurrencies().size(), 1);
-    assertTrue(ceComputed.contains(EUR));
-    assertEquals(ceComputed.getAmount(EUR).getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(ceComputed.getCurrencies()).hasSize(1);
+    assertThat(ceComputed.contains(EUR)).isTrue();
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     CurrencyAmount cashComputed = PRICER_TRADE.currentCash(BILL_TRADE_SETTLE_ON_VAL, VAL_DATE);
-    assertEquals(cashComputed.getCurrency(), EUR);
-    assertEquals(cashComputed.getAmount(), -PRICE * NOTIONAL_AMOUNT * QUANTITY, TOLERANCE_PV);
+    assertThat(cashComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(cashComputed.getAmount()).isCloseTo(-PRICE * NOTIONAL_AMOUNT * QUANTITY, offset(TOLERANCE_PV));
   }
   
+  @Test
   public void test_presentValue_settle_after_val() {
     CurrencyAmount pvComputed = PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER);
     CurrencyAmount pvExpected = PRICER_PRODUCT.presentValue(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
@@ -192,39 +194,42 @@ public class DiscountingBillTradePricerTest {
         .plus(PRICER_PAYMENT.presentValue(BILL_TRADE_SETTLE_AFTER_VAL.getSettlement().get(), 
             PROVIDER.repoCurveDiscountFactors(BILL_PRODUCT.getSecurityId(), BILL_PRODUCT.getLegalEntityId(), BILL_PRODUCT.getCurrency())
             .getDiscountFactors()));
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     MultiCurrencyAmount ceComputed = PRICER_TRADE.currencyExposure(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER);
-    assertEquals(ceComputed.getCurrencies().size(), 1);
-    assertTrue(ceComputed.contains(EUR));
-    assertEquals(ceComputed.getAmount(EUR).getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(ceComputed.getCurrencies()).hasSize(1);
+    assertThat(ceComputed.contains(EUR)).isTrue();
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     CurrencyAmount cashComputed = PRICER_TRADE.currentCash(BILL_TRADE_SETTLE_AFTER_VAL, VAL_DATE);
-    assertEquals(cashComputed.getCurrency(), EUR);
-    assertEquals(cashComputed.getAmount(), 0, TOLERANCE_PV);
+    assertThat(cashComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(cashComputed.getAmount()).isCloseTo(0, offset(TOLERANCE_PV));
   }
   
+  @Test
   public void test_currentcash_on_maturity() {
     CurrencyAmount cashComputed = PRICER_TRADE.currentCash(BILL_TRADE_SETTLE_AFTER_VAL, MATURITY_DATE);
-    assertEquals(cashComputed.getCurrency(), EUR);
-    assertEquals(cashComputed.getAmount(), NOTIONAL_AMOUNT * QUANTITY, TOLERANCE_PV);
+    assertThat(cashComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(cashComputed.getAmount()).isCloseTo(NOTIONAL_AMOUNT * QUANTITY, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueZSpread_settle_before_val() {
     CurrencyAmount pvComputed = PRICER_TRADE
         .presentValueWithZSpread(BILL_TRADE_SETTLE_BEFORE_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
     CurrencyAmount pvExpected = PRICER_PRODUCT
         .presentValueWithZSpread(BILL_PRODUCT.resolve(REF_DATA), PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
         .multipliedBy(QUANTITY);
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     MultiCurrencyAmount ceComputed = PRICER_TRADE
         .currencyExposureWithZSpread(BILL_TRADE_SETTLE_BEFORE_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
-    assertEquals(ceComputed.getCurrencies().size(), 1);
-    assertTrue(ceComputed.contains(EUR));
-    assertEquals(ceComputed.getAmount(EUR).getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(ceComputed.getCurrencies()).hasSize(1);
+    assertThat(ceComputed.contains(EUR)).isTrue();
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
   }
   
+  @Test
   public void test_presentValueZSpread_settle_on_val() {
     CurrencyAmount pvComputed = PRICER_TRADE
         .presentValueWithZSpread(BILL_TRADE_SETTLE_ON_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
@@ -232,15 +237,16 @@ public class DiscountingBillTradePricerTest {
         .presentValueWithZSpread(BILL_PRODUCT.resolve(REF_DATA), PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
         .plus(-PRICE * NOTIONAL_AMOUNT)
         .multipliedBy(QUANTITY);
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     MultiCurrencyAmount ceComputed = PRICER_TRADE
         .currencyExposureWithZSpread(BILL_TRADE_SETTLE_ON_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
-    assertEquals(ceComputed.getCurrencies().size(), 1);
-    assertTrue(ceComputed.contains(EUR));
-    assertEquals(ceComputed.getAmount(EUR).getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(ceComputed.getCurrencies()).hasSize(1);
+    assertThat(ceComputed.contains(EUR)).isTrue();
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
   }
   
+  @Test
   public void test_presentValueZSpread_settle_after_val() {
     CurrencyAmount pvComputed = PRICER_TRADE
         .presentValueWithZSpread(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
@@ -250,27 +256,29 @@ public class DiscountingBillTradePricerTest {
         .plus(PRICER_PAYMENT.presentValue(BILL_TRADE_SETTLE_AFTER_VAL.getSettlement().get(), 
             PROVIDER.repoCurveDiscountFactors(BILL_PRODUCT.getSecurityId(), BILL_PRODUCT.getLegalEntityId(), BILL_PRODUCT.getCurrency())
             .getDiscountFactors()));
-    assertEquals(pvComputed.getCurrency(), EUR);
-    assertEquals(pvComputed.getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(pvComputed.getCurrency()).isEqualTo(EUR);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
     MultiCurrencyAmount ceComputed = PRICER_TRADE
         .currencyExposureWithZSpread(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
-    assertEquals(ceComputed.getCurrencies().size(), 1);
-    assertTrue(ceComputed.contains(EUR));
-    assertEquals(ceComputed.getAmount(EUR).getAmount(), pvExpected.getAmount(), TOLERANCE_PV);
+    assertThat(ceComputed.getCurrencies()).hasSize(1);
+    assertThat(ceComputed.contains(EUR)).isTrue();
+    assertThat(ceComputed.getAmount(EUR).getAmount()).isCloseTo(pvExpected.getAmount(), offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_pvsensi_settle_before_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE.presentValueSensitivity(BILL_TRADE_SETTLE_BEFORE_VAL, PROVIDER);
     PointSensitivities pvsensiExpected = PRICER_PRODUCT.presentValueSensitivity(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
         .multipliedBy(QUANTITY);
-    assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    assertThat(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER, p -> PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_BEFORE_VAL, p));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY)).isTrue();
   }
   
+  @Test
   public void test_pvsensi_settle_on_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE.presentValueSensitivity(BILL_TRADE_SETTLE_ON_VAL, PROVIDER);
     PointSensitivities pvsensiExpected = PRICER_PRODUCT.presentValueSensitivity(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
@@ -284,13 +292,14 @@ public class DiscountingBillTradePricerTest {
                     BILL_PRODUCT.getCurrency())
                     .getDiscountFactors()),
             GROUP_REPO).build());
-    assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    assertThat(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER, p -> PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_ON_VAL, p));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY)).isTrue();
   }
   
+  @Test
   public void test_pvsensi_settle_after_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE.presentValueSensitivity(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER);
     PointSensitivities pvsensiExpected = PRICER_PRODUCT.presentValueSensitivity(BILL_PRODUCT.resolve(REF_DATA), PROVIDER)
@@ -304,28 +313,30 @@ public class DiscountingBillTradePricerTest {
                     BILL_PRODUCT.getCurrency())
                     .getDiscountFactors()),
             GROUP_REPO).build());
-    assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    assertThat(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER, p -> PRICER_TRADE.presentValue(BILL_TRADE_SETTLE_AFTER_VAL, p));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_pvsensiZSpread_settle_before_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE
         .presentValueSensitivityWithZSpread(BILL_TRADE_SETTLE_BEFORE_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
     PointSensitivities pvsensiExpected = PRICER_PRODUCT
         .presentValueSensitivityWithZSpread(BILL_PRODUCT.resolve(REF_DATA), PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0)
         .multipliedBy(QUANTITY);
-    assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    assertThat(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER,
         p -> PRICER_TRADE.presentValueWithZSpread(BILL_TRADE_SETTLE_BEFORE_VAL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY)).isTrue();
   }
   
+  @Test
   public void test_pvsensiZSpread_settle_on_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE
         .presentValueSensitivityWithZSpread(BILL_TRADE_SETTLE_ON_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
@@ -341,14 +352,15 @@ public class DiscountingBillTradePricerTest {
                     BILL_PRODUCT.getCurrency())
                     .getDiscountFactors()),
             GROUP_REPO).build());
-    assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    assertThat(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER,
         p -> PRICER_TRADE.presentValueWithZSpread(BILL_TRADE_SETTLE_ON_VAL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY)).isTrue();
   }
   
+  @Test
   public void test_pvsensiZSpread_settle_after_val() {
     PointSensitivities pvsensiComputed = PRICER_TRADE
         .presentValueSensitivityWithZSpread(BILL_TRADE_SETTLE_AFTER_VAL, PROVIDER, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0);
@@ -364,12 +376,12 @@ public class DiscountingBillTradePricerTest {
                     BILL_PRODUCT.getCurrency())
                     .getDiscountFactors()),
             GROUP_REPO).build());
-    assertTrue(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI));
+    assertThat(pvsensiComputed.equalWithTolerance(pvsensiExpected, TOLERANCE_PVSENSI)).isTrue();
     CurrencyParameterSensitivities paramSensiComputed = PROVIDER.parameterSensitivity(pvsensiComputed);
     CurrencyParameterSensitivities paramSensiExpected = FD_CALC.sensitivity(
         PROVIDER,
         p -> PRICER_TRADE.presentValueWithZSpread(BILL_TRADE_SETTLE_AFTER_VAL, p, Z_SPREAD, CompoundedRateType.CONTINUOUS, 0));
-    assertTrue(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY));
+    assertThat(paramSensiComputed.equalWithTolerance(paramSensiExpected, EPS * NOTIONAL_AMOUNT * QUANTITY)).isTrue();
   }
   
 }

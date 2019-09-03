@@ -9,12 +9,12 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -39,7 +39,6 @@ import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 /**
  * Test {@link DiscountingOvernightFutureProductPricer}.
  */
-@Test
 public class DiscountingOvernightFutureProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -79,39 +78,43 @@ public class DiscountingOvernightFutureProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CALC = new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_marginIndex() {
     double notional = FUTURE.getNotional();
     double accrualFactor = FUTURE.getAccrualFactor();
     double price = 0.99;
     double marginIndexExpected = price * notional * accrualFactor;
     double marginIndexComputed = PRICER.marginIndex(FUTURE, price);
-    assertEquals(marginIndexComputed, marginIndexExpected);
+    assertThat(marginIndexComputed).isEqualTo(marginIndexExpected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marginIndexSensitivity() {
     double notional = FUTURE.getNotional();
     double accrualFactor = FUTURE.getAccrualFactor();
     PointSensitivities priceSensitivity = PRICER.priceSensitivity(FUTURE, RATES_PROVIDER);
     PointSensitivities sensiComputed = PRICER.marginIndexSensitivity(FUTURE, priceSensitivity);
-    assertTrue(sensiComputed.equalWithTolerance(priceSensitivity.multipliedBy(accrualFactor * notional), TOL * notional));
+    assertThat(sensiComputed.equalWithTolerance(priceSensitivity.multipliedBy(accrualFactor * notional), TOL * notional)).isTrue();
   }
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_price() {
     double computed = PRICER.price(FUTURE, RATES_PROVIDER);
     double rate = DispatchingRateComputationFn.DEFAULT.rate(FUTURE.getOvernightRate(), START_DATE, END_DATE, RATES_PROVIDER);
     double expected = 1d - rate;
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_priceSensitivity() {
     PointSensitivities points = PRICER.priceSensitivity(FUTURE, RATES_PROVIDER);
     CurrencyParameterSensitivities computed = RATES_PROVIDER.parameterSensitivity(points);
     CurrencyParameterSensitivities expected = FD_CALC.sensitivity(
         RATES_PROVIDER, r -> CurrencyAmount.of(USD, PRICER.price(FUTURE, r)));
-    assertTrue(computed.equalWithTolerance(expected, EPS));
+    assertThat(computed.equalWithTolerance(expected, EPS)).isTrue();
   }
 
 }

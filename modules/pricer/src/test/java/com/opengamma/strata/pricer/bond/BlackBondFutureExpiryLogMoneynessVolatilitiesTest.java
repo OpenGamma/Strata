@@ -12,7 +12,8 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,7 +22,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
@@ -38,7 +39,6 @@ import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionPa
 /**
  * Test {@link BlackBondFutureExpiryLogMoneynessVolatilities}.
  */
-@Test
 public class BlackBondFutureExpiryLogMoneynessVolatilitiesTest {
 
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
@@ -88,10 +88,12 @@ public class BlackBondFutureExpiryLogMoneynessVolatilitiesTest {
   private static final double TOLERANCE_VOL = 1.0E-10;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_valuationDate() {
-    assertEquals(VOLS.getValuationDateTime(), VAL_DATE_TIME);
+    assertThat(VOLS.getValuationDateTime()).isEqualTo(VAL_DATE_TIME);
   }
 
+  @Test
   public void test_volatility() {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
@@ -99,10 +101,11 @@ public class BlackBondFutureExpiryLogMoneynessVolatilitiesTest {
           / TEST_FUTURE_PRICE[i]));
       double volComputed = VOLS.volatility(
           TEST_OPTION_EXPIRY[i], TEST_FUTURE_EXPIRY[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
-      assertEquals(volComputed, volExpected, TOLERANCE_VOL);
+      assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE_VOL));
     }
   }
 
+  @Test
   public void test_volatility_sensitivity() {
     double eps = 1.0e-6;
     int nData = TIME.size();
@@ -133,12 +136,13 @@ public class BlackBondFutureExpiryLogMoneynessVolatilitiesTest {
         double volDw = provDw.volatility(
             expiry, TEST_FUTURE_EXPIRY[i], TEST_STRIKE_PRICE[i], TEST_FUTURE_PRICE[i]);
         double fd = 0.5 * (volUp - volDw) / eps;
-        assertEquals(computed[j], fd, eps);
+        assertThat(computed[j]).isCloseTo(fd, offset(eps));
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BlackBondFutureExpiryLogMoneynessVolatilities test1 = BlackBondFutureExpiryLogMoneynessVolatilities.of(
         VAL_DATE_TIME, SURFACE);

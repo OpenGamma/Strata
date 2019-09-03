@@ -15,9 +15,8 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.collect.TestHelper.dateUtc;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -26,7 +25,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -46,7 +45,6 @@ import com.opengamma.strata.product.common.PutCall;
 /**
  * Test {@link ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities}.
  */
-@Test
 public class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
 
   private static final SurfaceInterpolator INTERPOLATOR_2D = GridSurfaceInterpolator.of(LINEAR, LINEAR);
@@ -87,73 +85,68 @@ public class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
 
   private static final double TOLERANCE_VOL = 1.0E-10;
 
+  @Test
   public void test_getter() {
-    assertEquals(VOLS.getValuationDate(), VAL_DATE);
-    assertEquals(VOLS.getIndex(), GBP_LIBOR_3M);
-    assertEquals(VOLS.getSurface(), SURFACE);
-    assertEquals(VOLS.getParameterCount(), TIME.size());
-    assertEquals(VOLS.findData(CURVE.getName()).get(), CURVE);
-    assertEquals(VOLS.findData(SURFACE.getName()).get(), SURFACE);
-    assertFalse(VOLS.findData(CurveName.of("foo")).isPresent());
+    assertThat(VOLS.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(VOLS.getIndex()).isEqualTo(GBP_LIBOR_3M);
+    assertThat(VOLS.getSurface()).isEqualTo(SURFACE);
+    assertThat(VOLS.getParameterCount()).isEqualTo(TIME.size());
+    assertThat(VOLS.findData(CURVE.getName()).get()).isEqualTo(CURVE);
+    assertThat(VOLS.findData(SURFACE.getName()).get()).isEqualTo(SURFACE);
+    assertThat(VOLS.findData(CurveName.of("foo")).isPresent()).isFalse();
     int nParams = VOLS.getParameterCount();
     double newValue = 152d;
     for (int i = 0; i < nParams; ++i) {
-      assertEquals(VOLS.getParameter(i), SURFACE.getParameter(i));
-      assertEquals(VOLS.getParameterMetadata(i), SURFACE.getParameterMetadata(i));
-      assertEquals(VOLS.withParameter(i, newValue), ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
+      assertThat(VOLS.getParameter(i)).isEqualTo(SURFACE.getParameter(i));
+      assertThat(VOLS.getParameterMetadata(i)).isEqualTo(SURFACE.getParameterMetadata(i));
+      assertThat(VOLS.withParameter(i, newValue)).isEqualTo(ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
           GBP_LIBOR_3M, VAL_DATE_TIME, SURFACE.withParameter(i, newValue), CURVE));
-      assertEquals(VOLS.withPerturbation((n, v, m) -> 2d * v), ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
+      assertThat(VOLS.withPerturbation((n, v, m) -> 2d * v)).isEqualTo(ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities.of(
           GBP_LIBOR_3M, VAL_DATE_TIME, SURFACE.withPerturbation((n, v, m) -> 2d * v), CURVE));
     }
   }
 
+  @Test
   public void test_price_formula() {
     double sampleVol = 0.2;
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
       for (int j = 0; j < NB_TEST; j++) {
         for (PutCall putCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
-          assertEquals(
-              VOLS.price(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
-              BlackFormulaRepository.price(
-                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
-          assertEquals(
-              VOLS.priceDelta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
-              BlackFormulaRepository.delta(
-                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
-          assertEquals(
-              VOLS.priceGamma(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
-              BlackFormulaRepository.gamma(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
-          assertEquals(
-              VOLS.priceTheta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
-              BlackFormulaRepository.driftlessTheta(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
-          assertEquals(
-              VOLS.priceVega(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol),
-              BlackFormulaRepository.vega(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
+          assertThat(VOLS.price(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.price(
+              TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
+          assertThat(VOLS.priceDelta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.delta(
+              TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
+          assertThat(VOLS.priceGamma(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.gamma(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
+          assertThat(VOLS.priceTheta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.driftlessTheta(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
+          assertThat(VOLS.priceVega(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.vega(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
         }
       }
     }
   }
 
+  @Test
   public void test_relativeTime() {
     double test1 = VOLS.relativeTime(VAL_DATE_TIME);
-    assertEquals(test1, 0d);
+    assertThat(test1).isEqualTo(0d);
     double test2 = VOLS.relativeTime(date(2018, 2, 17).atStartOfDay(LONDON_ZONE));
     double test3 = VOLS.relativeTime(date(2012, 2, 17).atStartOfDay(LONDON_ZONE));
-    assertEquals(test2, -test3); // consistency checked
+    assertThat(test2).isEqualTo(-test3); // consistency checked
   }
 
+  @Test
   public void test_volatility() {
     for (int i = 0; i < NB_TEST; i++) {
       double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
       for (int j = 0; j < NB_TEST; ++j) {
         double volExpected = SURFACE.zValue(expiryTime, TEST_STRIKE[j] + SHIFT);
         double volComputed = VOLS.volatility(TEST_OPTION_EXPIRY[i], TEST_STRIKE[j], TEST_FORWARD);
-        assertEquals(volComputed, volExpected, TOLERANCE_VOL);
+        assertThat(volComputed).isCloseTo(volExpected, offset(TOLERANCE_VOL));
       }
     }
   }
 
+  @Test
   public void test_volatility_sensitivity() {
     double eps = 1.0e-6;
     int nData = TIME.size();
@@ -181,12 +174,13 @@ public class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
         }
         CurrencyParameterSensitivity sensActual = VOLS.parameterSensitivity(point).getSensitivities().get(0);
         double[] computed = sensActual.getSensitivity().toArray();
-        assertTrue(DoubleArrayMath.fuzzyEquals(computed, sensFd, eps));
+        assertThat(DoubleArrayMath.fuzzyEquals(computed, sensFd, eps)).isTrue();
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(VOLS);
     ShiftedBlackIborCapletFloorletExpiryStrikeVolatilities vols =

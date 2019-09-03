@@ -5,12 +5,13 @@
  */
 package com.opengamma.strata.pricer.impl.option;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -23,7 +24,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link BlackBarrierPriceFormulaRepository}.
  */
-@Test
 public class BlackBarrierPriceFormulaRepositoryTest {
   private static final ZonedDateTime REFERENCE_DATE = TestHelper.dateUtc(2011, 7, 1);
   private static final ZonedDateTime EXPIRY_DATE = TestHelper.dateUtc(2015, 1, 2);
@@ -59,6 +59,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * Check "in + out = vanilla" is satisfied.
    */
+  @Test
   public void inOutParity() {
     for (double strike : STRIKES) {
     // call
@@ -91,6 +92,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * Upper barrier level is very high: knock-in is close to 0, knock-out is close to vanilla.
    */
+  @Test
   public void largeBarrierTest() {
     SimpleConstantContinuousBarrier upIn = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 1.0e4);
     SimpleConstantContinuousBarrier upOut = SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, 1.0e4);
@@ -113,6 +115,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * Lower barrier level is very small: knock-in is close to 0, knock-out is close to vanilla.
    */
+  @Test
   public void smallBarrierTest() {
     SimpleConstantContinuousBarrier dwIn =
         SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_IN, 0.1d);
@@ -137,6 +140,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * Greeks against finite difference approximation.
    */
+  @Test
   public void greekfdTest() {
     for (double strike : STRIKES) {
       // call
@@ -155,6 +159,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * smoothly connected to limiting cases.
    */
+  @Test
   public void smallsigmaTTest() {
     for (double strike : STRIKES) {
       // call
@@ -173,6 +178,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * Barrier event has occured already.
    */
+  @Test
   public void illegalBarrierLevelTest() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BARRIER_PRICER.price(BARRIER_UP_IN.getBarrierLevel() + 0.1, STRIKE_MID,
@@ -191,6 +197,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
   /**
    * Regression to 2.x, including rebate.
    */
+  @Test
   public void adjointPriceRegression() {
     BlackOneTouchCashPriceFormulaRepository rebate = new BlackOneTouchCashPriceFormulaRepository();
     double[] priceDIExp = new double[] {6.625939880275156, 8.17524397035564, 3.51889794875554, 16.046696834562567,
@@ -298,7 +305,7 @@ public class BlackBarrierPriceFormulaRepositoryTest {
 
   //-------------------------------------------------------------------------
   private void assertRelative(double val1, double val2) {
-    assertEquals(val1, val2, Math.max(Math.abs(val2), 1d) * TOL);
+    assertThat(val1).isCloseTo(val2, offset(Math.max(Math.abs(val2), 1d) * TOL));
   }
 
   private void testDerivatives(double strike, boolean isCall, SimpleConstantContinuousBarrier barrier) {
@@ -332,13 +339,13 @@ public class BlackBarrierPriceFormulaRepositoryTest {
         SPOT + EPS_FD, strike, EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, isCall, barrier);
     ValueDerivatives spotDw1 = BARRIER_PRICER.priceAdjoint(
         SPOT - EPS_FD, strike, EXPIRY_TIME, COST_OF_CARRY, RATE_DOM, VOLATILITY, isCall, barrier);
-    assertEquals(computed.getDerivative(0), 0.5 * (spotUp - spotDw) / EPS_FD, EPS_FD);
-    assertEquals(computed.getDerivative(1), 0.5 * (strikeUp - strikeDw) / EPS_FD, EPS_FD);
-    assertEquals(computed.getDerivative(2), 0.5 * (rateUp - rateDw) / EPS_FD, EPS_FD);
-    assertEquals(computed.getDerivative(3), 0.5 * (costUp - costDw) / EPS_FD, EPS_FD);
-    assertEquals(computed.getDerivative(4), 0.5 * (volUp - volDw) / EPS_FD, EPS_FD);
-    assertEquals(computed.getDerivative(5), 0.5 * (timeUp - timeDw) / EPS_FD, EPS_FD);
-    assertEquals(computed.getDerivative(6), 0.5 * (spotUp1.getDerivative(0) - spotDw1.getDerivative(0)) / EPS_FD, EPS_FD);
+    assertThat(computed.getDerivative(0)).isCloseTo(0.5 * (spotUp - spotDw) / EPS_FD, offset(EPS_FD));
+    assertThat(computed.getDerivative(1)).isCloseTo(0.5 * (strikeUp - strikeDw) / EPS_FD, offset(EPS_FD));
+    assertThat(computed.getDerivative(2)).isCloseTo(0.5 * (rateUp - rateDw) / EPS_FD, offset(EPS_FD));
+    assertThat(computed.getDerivative(3)).isCloseTo(0.5 * (costUp - costDw) / EPS_FD, offset(EPS_FD));
+    assertThat(computed.getDerivative(4)).isCloseTo(0.5 * (volUp - volDw) / EPS_FD, offset(EPS_FD));
+    assertThat(computed.getDerivative(5)).isCloseTo(0.5 * (timeUp - timeDw) / EPS_FD, offset(EPS_FD));
+    assertThat(computed.getDerivative(6)).isCloseTo(0.5 * (spotUp1.getDerivative(0) - spotDw1.getDerivative(0)) / EPS_FD, offset(EPS_FD));
   }
 
   private void testSmallValues(double strike, boolean isCall, SimpleConstantContinuousBarrier barrier) {

@@ -5,10 +5,10 @@
  */
 package com.opengamma.strata.pricer.impl.tree;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -22,7 +22,6 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 /**
  * Test {@link ConstantContinuousSingleBarrierKnockoutFunction}.
  */
-@Test
 public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
 
   private static final double STRIKE = 130d;
@@ -32,20 +31,22 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
   private static final double REBATE_AMOUNT = 5d;
   private static final DoubleArray REBATE = DoubleArray.of(NUM + 1, i -> REBATE_AMOUNT);
 
+  @Test
   public void test_of() {
     ConstantContinuousSingleBarrierKnockoutFunction test = ConstantContinuousSingleBarrierKnockoutFunction.of(
         STRIKE, TIME_TO_EXPIRY, PutCall.PUT, NUM, BarrierType.UP, BARRIER, REBATE);
-    assertEquals(test.getSign(), -1d);
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getTimeToExpiry(), TIME_TO_EXPIRY);
-    assertEquals(test.getNumberOfSteps(), NUM);
-    assertEquals(test.getBarrierLevel(), BARRIER);
-    assertEquals(test.getBarrierLevel(23), BARRIER);
-    assertEquals(test.getBarrierType(), BarrierType.UP);
-    assertEquals(test.getRebate(), REBATE);
-    assertEquals(test.getRebate(14), REBATE_AMOUNT);
+    assertThat(test.getSign()).isEqualTo(-1d);
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getTimeToExpiry()).isEqualTo(TIME_TO_EXPIRY);
+    assertThat(test.getNumberOfSteps()).isEqualTo(NUM);
+    assertThat(test.getBarrierLevel()).isEqualTo(BARRIER);
+    assertThat(test.getBarrierLevel(23)).isEqualTo(BARRIER);
+    assertThat(test.getBarrierType()).isEqualTo(BarrierType.UP);
+    assertThat(test.getRebate()).isEqualTo(REBATE);
+    assertThat(test.getRebate(14)).isEqualTo(REBATE_AMOUNT);
   }
 
+  @Test
   public void test_optionPrice_up() {
     double tol = 1.0e-12;
     ConstantContinuousSingleBarrierKnockoutFunction test = ConstantContinuousSingleBarrierKnockoutFunction.of(
@@ -60,7 +61,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
     // test getPayoffAtExpiryTrinomial
     DoubleArray computedPayoff = test.getPayoffAtExpiryTrinomial(spot, d, m);
     int expectedSize = 2 * NUM + 1;
-    assertEquals(computedPayoff.size(), expectedSize);
+    assertThat(computedPayoff.size()).isEqualTo(expectedSize);
     double[] price = new double[expectedSize];
     for (int i = 0; i < expectedSize; ++i) {
       price[i] = spot * Math.pow(u, 0.5 * i) * Math.pow(d, NUM - 0.5 * i);
@@ -71,7 +72,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
         expectedPayoff = 0.5 * ((BARRIER - price[i]) * expectedPayoff + (price[i + 1] - BARRIER) * REBATE_AMOUNT) /
             (price[i + 1] - price[i]) + 0.5 * expectedPayoff;
       }
-      assertEquals(computedPayoff.get(i), expectedPayoff, tol);
+      assertThat(computedPayoff.get(i)).isCloseTo(expectedPayoff, offset(tol));
     }
     // test getNextOptionValues
     double df = 0.92;
@@ -86,9 +87,10 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
         0.5 * ((BARRIER / spot - u * m) * tmp + (u * u - BARRIER / spot) * REBATE_AMOUNT) / (u * u - u * m)
             + 0.5 * tmp,
         REBATE_AMOUNT);
-    assertTrue(DoubleArrayMath.fuzzyEquals(computedNextValues.toArray(), expectedNextValues.toArray(), tol));
+    assertThat(DoubleArrayMath.fuzzyEquals(computedNextValues.toArray(), expectedNextValues.toArray(), tol)).isTrue();
   }
 
+  @Test
   public void test_optionPrice_down() {
     double tol = 1.0e-12;
     double barrier = 97d;
@@ -104,7 +106,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
     // test getPayoffAtExpiryTrinomial
     DoubleArray computedPayoff = test.getPayoffAtExpiryTrinomial(spot, d, m);
     int expectedSize = 2 * NUM + 1;
-    assertEquals(computedPayoff.size(), expectedSize);
+    assertThat(computedPayoff.size()).isEqualTo(expectedSize);
     double[] price = new double[expectedSize];
     for (int i = 0; i < expectedSize; ++i) {
       price[i] = spot * Math.pow(u, 0.5 * i) * Math.pow(d, NUM - 0.5 * i);
@@ -115,7 +117,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
         expectedPayoff = 0.5 * (expectedPayoff * (price[i] - barrier) + REBATE_AMOUNT * (barrier - price[i - 1])) /
                 (price[i] - price[i - 1]) + 0.5 * expectedPayoff;
       }
-      assertEquals(computedPayoff.get(i), expectedPayoff, tol);
+      assertThat(computedPayoff.get(i)).isCloseTo(expectedPayoff, offset(tol));
     }
     // test getNextOptionValues
     double df = 0.92;
@@ -130,7 +132,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
         df * (0.1 * dp + 0.05 * mp),
         df * 0.05 * dp,
         0.0);
-    assertTrue(DoubleArrayMath.fuzzyEquals(computedNextValues.toArray(), expectedNextValues.toArray(), tol));
+    assertThat(DoubleArrayMath.fuzzyEquals(computedNextValues.toArray(), expectedNextValues.toArray(), tol)).isTrue();
   }
 
   private static final TrinomialTree TRINOMIAL_TREE = new TrinomialTree();
@@ -144,6 +146,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
   private static final BlackBarrierPriceFormulaRepository BARRIER_PRICER = new BlackBarrierPriceFormulaRepository();
   private static final BlackOneTouchCashPriceFormulaRepository REBATE_PRICER = new BlackOneTouchCashPriceFormulaRepository();
 
+  @Test
   public void test_trinomialTree_up() {
     int nSteps = 133;
     LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
@@ -163,7 +166,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
                       REBATE_PRICER.price(SPOT, TIME, interest - dividend, interest, vol, barrier.inverseKnockType())
                   +BARRIER_PRICER.price(SPOT, strike, TIME, interest - dividend, interest, vol, isCall, barrier);
               double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
-              assertEquals(computed, exact, Math.max(exact, 1d) * tol);
+              assertThat(computed).isCloseTo(exact, offset(Math.max(exact, 1d) * tol));
             }
           }
         }
@@ -171,6 +174,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
     }
   }
 
+  @Test
   public void test_trinomialTree_down() {
     int nSteps = 133;
     LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
@@ -190,7 +194,7 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
                   REBATE_PRICER.price(SPOT, TIME, interest - dividend, interest, vol, barrier.inverseKnockType())
                   + BARRIER_PRICER.price(SPOT, strike, TIME, interest - dividend, interest, vol, isCall, barrier);
               double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
-              assertEquals(computed, exact, Math.max(exact, 1d) * tol);
+              assertThat(computed).isCloseTo(exact, offset(Math.max(exact, 1d) * tol));
             }
           }
         }

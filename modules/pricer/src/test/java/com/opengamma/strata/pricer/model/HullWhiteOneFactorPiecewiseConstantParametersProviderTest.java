@@ -10,14 +10,14 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -26,7 +26,6 @@ import com.opengamma.strata.pricer.impl.rate.model.HullWhiteOneFactorPiecewiseCo
 /**
  * Test {@link HullWhiteOneFactorPiecewiseConstantParametersProvider}.
  */
-@Test
 public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
 
   private static final double MEAN_REVERSION = 0.01;
@@ -39,22 +38,25 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
   private static final ZoneId ZONE = ZoneId.of("GMT+05");
   private static final ZonedDateTime DATE_TIME = VAL_DATE.atTime(TIME).atZone(ZONE);
 
+  @Test
   public void test_of_ZonedDateTime() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getParameters(), PARAMETERS);
-    assertEquals(test.getValuationDateTime(), DATE_TIME);
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getParameters()).isEqualTo(PARAMETERS);
+    assertThat(test.getValuationDateTime()).isEqualTo(DATE_TIME);
   }
 
+  @Test
   public void test_of_LocalDateAndTime() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, VAL_DATE, TIME, ZONE);
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getParameters(), PARAMETERS);
-    assertEquals(test.getValuationDateTime(), VAL_DATE.atTime(TIME).atZone(ZONE));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getParameters()).isEqualTo(PARAMETERS);
+    assertThat(test.getValuationDateTime()).isEqualTo(VAL_DATE.atTime(TIME).atZone(ZONE));
   }
 
+  @Test
   public void test_futuresConvexityFactor() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);
@@ -65,9 +67,10 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
     double expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.futuresConvexityFactor(PARAMETERS,
         ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
         ACT_360.relativeYearFraction(VAL_DATE, data3));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_futuresConvexityFactorAdjoint() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);
@@ -78,9 +81,10 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
     ValueDerivatives expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT
         .futuresConvexityFactorAdjoint(PARAMETERS, ACT_360.relativeYearFraction(VAL_DATE, data1),
             ACT_360.relativeYearFraction(VAL_DATE, data2), ACT_360.relativeYearFraction(VAL_DATE, data3));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_alpha() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);
@@ -92,9 +96,10 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
     double expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.alpha(PARAMETERS,
         ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
         ACT_360.relativeYearFraction(VAL_DATE, data3), ACT_360.relativeYearFraction(VAL_DATE, data4));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_alphaAdjoint() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider provider =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);
@@ -106,10 +111,11 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
     ValueDerivatives expected = HullWhiteOneFactorPiecewiseConstantInterestRateModel.DEFAULT.alphaAdjoint(
         PARAMETERS, ACT_360.relativeYearFraction(VAL_DATE, data1), ACT_360.relativeYearFraction(VAL_DATE, data2),
         ACT_360.relativeYearFraction(VAL_DATE, data3), ACT_360.relativeYearFraction(VAL_DATE, data4));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test1 =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);
@@ -121,6 +127,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     HullWhiteOneFactorPiecewiseConstantParametersProvider test =
         HullWhiteOneFactorPiecewiseConstantParametersProvider.of(PARAMETERS, ACT_360, DATE_TIME);

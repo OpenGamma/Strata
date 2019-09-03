@@ -8,14 +8,14 @@ package com.opengamma.strata.pricer.cms;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -44,7 +44,6 @@ import com.opengamma.strata.product.swap.SwapIndices;
 /**
  * Test {@link DiscountingCmsLegPricer}.
  */
-@Test
 public class DiscountingCmsLegPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -106,6 +105,7 @@ public class DiscountingCmsLegPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed = LEG_PRICER.presentValue(COUPON_LEG, RATES_PROVIDER);
     double expected = 0d;
@@ -114,10 +114,11 @@ public class DiscountingCmsLegPricerTest {
     for (int i = 0; i < size; ++i) {
       expected += PERIOD_PRICER.presentValue(cms.get(i), RATES_PROVIDER).getAmount();
     }
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_presentValue_afterPay() {
     CurrencyAmount computed = LEG_PRICER.presentValue(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD);
     double expected = 0d;
@@ -127,47 +128,53 @@ public class DiscountingCmsLegPricerTest {
       expected += PERIOD_PRICER.presentValue(
           cms.get(i), RATES_PROVIDER_AFTER_PERIOD).getAmount();
     }
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE_PV));
   }
 
+  @Test
   public void test_presentValue_ended() {
     CurrencyAmount computed = LEG_PRICER.presentValue(COUPON_LEG, RATES_PROVIDER_ENDED);
-    assertEquals(computed, CurrencyAmount.zero(EUR));
+    assertThat(computed).isEqualTo(CurrencyAmount.zero(EUR));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder point = LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER);
     CurrencyParameterSensitivities computed = RATES_PROVIDER.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATES_PROVIDER, p -> LEG_PRICER.presentValue(COUPON_LEG, p));
-    assertTrue(computed.equalWithTolerance(expected, TOLERANCE_DELTA));
+    assertThat(computed.equalWithTolerance(expected, TOLERANCE_DELTA)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_afterPay() {
     PointSensitivityBuilder point =
         LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER_AFTER_PERIOD);
     CurrencyParameterSensitivities computed = RATES_PROVIDER_AFTER_PERIOD.parameterSensitivity(point.build());
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(
         RATES_PROVIDER_AFTER_PERIOD, p -> LEG_PRICER.presentValue(COUPON_LEG, p));
-    assertTrue(computed.equalWithTolerance(expected, TOLERANCE_DELTA));
+    assertThat(computed.equalWithTolerance(expected, TOLERANCE_DELTA)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_ended() {
     PointSensitivityBuilder computed = LEG_PRICER.presentValueSensitivity(COUPON_LEG, RATES_PROVIDER_ENDED);
-    assertEquals(computed, PointSensitivityBuilder.none());
+    assertThat(computed).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currentCash() {
     CurrencyAmount computed = LEG_PRICER.currentCash(COUPON_LEG, RATES_PROVIDER);
-    assertEquals(computed, CurrencyAmount.zero(EUR));
+    assertThat(computed).isEqualTo(CurrencyAmount.zero(EUR));
   }
 
+  @Test
   public void test_currentCash_onPay() {
     CurrencyAmount computed = LEG_PRICER.currentCash(COUPON_LEG, RATES_PROVIDER_ON_PAY);
-    assertEquals(computed.getAmount(), -NOTIONAL_VALUE_1 * OBS_INDEX * 367d / 360d, TOLERANCE_PV);
+    assertThat(computed.getAmount()).isCloseTo(-NOTIONAL_VALUE_1 * OBS_INDEX * 367d / 360d, offset(TOLERANCE_PV));
   }
 
 }

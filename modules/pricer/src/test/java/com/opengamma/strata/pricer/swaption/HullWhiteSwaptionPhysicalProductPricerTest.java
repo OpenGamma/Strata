@@ -16,14 +16,14 @@ import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -73,7 +73,6 @@ import com.opengamma.strata.product.swaption.Swaption;
 /**
  * Test {@link HullWhiteSwaptionPhysicalProductPricer}. 
  */
-@Test
 public class HullWhiteSwaptionPhysicalProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -224,12 +223,14 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   //-------------------------------------------------------------------------
+  @Test
   public void validate_physical_settlement() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValue(SWAPTION_CASH, RATE_PROVIDER, HW_PROVIDER));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount computedRec = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     CurrencyAmount computedPay = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
@@ -252,44 +253,48 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       expectedRec += discountedCashFlow[loopcf] * NORMAL.getCDF((kappa + alpha[loopcf]));
       expectedPay += discountedCashFlow[loopcf] * NORMAL.getCDF(omegaPay * (kappa + alpha[loopcf]));
     }
-    assertEquals(computedRec.getCurrency(), EUR);
-    assertEquals(computedRec.getAmount(), expectedRec, NOTIONAL * TOL);
-    assertEquals(computedPay.getCurrency(), EUR);
-    assertEquals(computedPay.getAmount(), expectedPay, NOTIONAL * TOL);
+    assertThat(computedRec.getCurrency()).isEqualTo(EUR);
+    assertThat(computedRec.getAmount()).isCloseTo(expectedRec, offset(NOTIONAL * TOL));
+    assertThat(computedPay.getCurrency()).isEqualTo(EUR);
+    assertThat(computedPay.getAmount()).isCloseTo(expectedPay, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_atMaturity() {
     CurrencyAmount computedRec =
         PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
     CurrencyAmount computedPay =
         PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
     double swapPv = SWAP_PRICER.presentValue(RSWAP_REC, RATES_PROVIDER_AT_MATURITY).getAmount(EUR).getAmount();
-    assertEquals(computedRec.getAmount(), swapPv, NOTIONAL * TOL);
-    assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(computedRec.getAmount()).isCloseTo(swapPv, offset(NOTIONAL * TOL));
+    assertThat(computedPay.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_afterExpiry() {
     CurrencyAmount computedRec =
         PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY);
     CurrencyAmount computedPay =
         PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY);
-    assertEquals(computedRec.getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(computedPay.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(computedRec.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(computedPay.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_parity() {
     CurrencyAmount pvRecLong = PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     CurrencyAmount pvRecShort = PRICER.presentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, HW_PROVIDER);
     CurrencyAmount pvPayLong = PRICER.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER);
     CurrencyAmount pvPayShort = PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(pvRecLong.getAmount(), -pvRecShort.getAmount(), NOTIONAL * TOL);
-    assertEquals(pvPayLong.getAmount(), -pvPayShort.getAmount(), NOTIONAL * TOL);
+    assertThat(pvRecLong.getAmount()).isCloseTo(-pvRecShort.getAmount(), offset(NOTIONAL * TOL));
+    assertThat(pvPayLong.getAmount()).isCloseTo(-pvPayShort.getAmount(), offset(NOTIONAL * TOL));
     double swapPv = SWAP_PRICER.presentValue(RSWAP_PAY, RATE_PROVIDER).getAmount(EUR).getAmount();
-    assertEquals(pvPayLong.getAmount() - pvRecLong.getAmount(), swapPv, NOTIONAL * TOL);
-    assertEquals(pvPayShort.getAmount() - pvRecShort.getAmount(), -swapPv, NOTIONAL * TOL);
+    assertThat(pvPayLong.getAmount() - pvRecLong.getAmount()).isCloseTo(swapPv, offset(NOTIONAL * TOL));
+    assertThat(pvPayShort.getAmount() - pvRecShort.getAmount()).isCloseTo(-swapPv, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount computedRec = PRICER.currencyExposure(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     MultiCurrencyAmount computedPay = PRICER.currencyExposure(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
@@ -297,16 +302,17 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValueSensitivityRates(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     MultiCurrencyAmount expectedRec = RATE_PROVIDER.currencyExposure(pointRec.build())
         .plus(PRICER.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER));
-    assertEquals(computedRec.size(), 1);
-    assertEquals(computedRec.getAmount(EUR).getAmount(), expectedRec.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertThat(computedRec.size()).isEqualTo(1);
+    assertThat(computedRec.getAmount(EUR).getAmount()).isCloseTo(expectedRec.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
     PointSensitivityBuilder pointPay =
         PRICER.presentValueSensitivityRates(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
     MultiCurrencyAmount expectedPay = RATE_PROVIDER.currencyExposure(pointPay.build())
         .plus(PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER));
-    assertEquals(computedPay.size(), 1);
-    assertEquals(computedPay.getAmount(EUR).getAmount(), expectedPay.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertThat(computedPay.size()).isEqualTo(1);
+    assertThat(computedPay.getAmount(EUR).getAmount()).isCloseTo(expectedPay.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_currencyExposure_atMaturity() {
     MultiCurrencyAmount computedRec = PRICER.currencyExposure(
         SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
@@ -316,43 +322,46 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValueSensitivityRates(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
     MultiCurrencyAmount expectedRec = RATE_PROVIDER.currencyExposure(pointRec.build())
         .plus(PRICER.presentValue(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY));
-    assertEquals(computedRec.size(), 1);
-    assertEquals(computedRec.getAmount(EUR).getAmount(), expectedRec.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertThat(computedRec.size()).isEqualTo(1);
+    assertThat(computedRec.getAmount(EUR).getAmount()).isCloseTo(expectedRec.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
     PointSensitivityBuilder pointPay =
         PRICER.presentValueSensitivityRates(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
     MultiCurrencyAmount expectedPay = RATE_PROVIDER.currencyExposure(pointPay.build())
         .plus(PRICER.presentValue(SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY));
-    assertEquals(computedPay.size(), 1);
-    assertEquals(computedPay.getAmount(EUR).getAmount(), expectedPay.getAmount(EUR).getAmount(), NOTIONAL * TOL);
+    assertThat(computedPay.size()).isEqualTo(1);
+    assertThat(computedPay.getAmount(EUR).getAmount()).isCloseTo(expectedPay.getAmount(EUR).getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_currencyExposure_afterMaturity() {
     MultiCurrencyAmount computedRec = PRICER.currencyExposure(
         SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY);
     MultiCurrencyAmount computedPay = PRICER.currencyExposure(
         SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY);
-    assertEquals(computedRec.size(), 1);
-    assertEquals(computedRec.getAmount(EUR).getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(computedPay.size(), 1);
-    assertEquals(computedPay.getAmount(EUR).getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(computedRec.size()).isEqualTo(1);
+    assertThat(computedRec.getAmount(EUR).getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(computedPay.size()).isEqualTo(1);
+    assertThat(computedPay.getAmount(EUR).getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder pointRec =
         PRICER.presentValueSensitivityRates(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computedRec = RATE_PROVIDER.parameterSensitivity(pointRec.build());
     CurrencyParameterSensitivities expectedRec =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> PRICER.presentValue(SWAPTION_REC_LONG, (p), HW_PROVIDER));
-    assertTrue(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_TOL * 1000d));
+    assertThat(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_TOL * 1000d)).isTrue();
     PointSensitivityBuilder pointPay =
         PRICER.presentValueSensitivityRates(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computedPay = RATE_PROVIDER.parameterSensitivity(pointPay.build());
     CurrencyParameterSensitivities expectedPay =
         FD_CAL.sensitivity(RATE_PROVIDER, (p) -> PRICER.presentValue(SWAPTION_PAY_SHORT, (p), HW_PROVIDER));
-    assertTrue(computedPay.equalWithTolerance(expectedPay, NOTIONAL * FD_TOL * 1000d));
+    assertThat(computedPay.equalWithTolerance(expectedPay, NOTIONAL * FD_TOL * 1000d)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_atMaturity() {
     PointSensitivityBuilder pointRec =
         PRICER.presentValueSensitivityRates(SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
@@ -360,27 +369,29 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         RATES_PROVIDER_AT_MATURITY.parameterSensitivity(pointRec.build());
     CurrencyParameterSensitivities expectedRec = FD_CAL.sensitivity(
         RATES_PROVIDER_AT_MATURITY, (p) -> PRICER.presentValue(SWAPTION_REC_LONG, (p), HW_PROVIDER_AT_MATURITY));
-    assertTrue(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_TOL * 1000d));
+    assertThat(computedRec.equalWithTolerance(expectedRec, NOTIONAL * FD_TOL * 1000d)).isTrue();
     PointSensitivities pointPay = PRICER.presentValueSensitivityRates(SWAPTION_PAY_SHORT,
         RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY).build();
     for (PointSensitivity sensi : pointPay.getSensitivities()) {
-      assertEquals(Math.abs(sensi.getSensitivity()), 0d);
+      assertThat(Math.abs(sensi.getSensitivity())).isEqualTo(0d);
     }
   }
 
+  @Test
   public void test_presentValueSensitivity_afterMaturity() {
     PointSensitivities pointRec = PRICER.presentValueSensitivityRates(
         SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY).build();
     for (PointSensitivity sensi : pointRec.getSensitivities()) {
-      assertEquals(Math.abs(sensi.getSensitivity()), 0d);
+      assertThat(Math.abs(sensi.getSensitivity())).isEqualTo(0d);
     }
     PointSensitivities pointPay = PRICER.presentValueSensitivityRates(
         SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY).build();
     for (PointSensitivity sensi : pointPay.getSensitivities()) {
-      assertEquals(Math.abs(sensi.getSensitivity()), 0d);
+      assertThat(Math.abs(sensi.getSensitivity())).isEqualTo(0d);
     }
   }
 
+  @Test
   public void test_presentValueSensitivity_parity() {
     CurrencyParameterSensitivities pvSensiRecLong = RATE_PROVIDER.parameterSensitivity(
         PRICER.presentValueSensitivityRates(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER).build());
@@ -390,15 +401,16 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValueSensitivityRates(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER).build());
     CurrencyParameterSensitivities pvSensiPayShort = RATE_PROVIDER.parameterSensitivity(
         PRICER.presentValueSensitivityRates(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER).build());
-    assertTrue(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL));
-    assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL));
+    assertThat(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL)).isTrue();
+    assertThat(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL)).isTrue();
     PointSensitivities expectedPoint = SWAP_PRICER.presentValueSensitivity(RSWAP_PAY, RATE_PROVIDER).build();
     CurrencyParameterSensitivities expected = RATE_PROVIDER.parameterSensitivity(expectedPoint);
-    assertTrue(expected.equalWithTolerance(pvSensiPayLong.combinedWith(pvSensiRecLong.multipliedBy(-1d)), NOTIONAL * TOL));
-    assertTrue(expected.equalWithTolerance(pvSensiRecShort.combinedWith(pvSensiPayShort.multipliedBy(-1d)), NOTIONAL * TOL));
+    assertThat(expected.equalWithTolerance(pvSensiPayLong.combinedWith(pvSensiRecLong.multipliedBy(-1d)), NOTIONAL * TOL)).isTrue();
+    assertThat(expected.equalWithTolerance(pvSensiRecShort.combinedWith(pvSensiPayShort.multipliedBy(-1d)), NOTIONAL * TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivityHullWhiteParameter() {
     DoubleArray computedRec =
         PRICER.presentValueSensitivityModelParamsHullWhite(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
@@ -428,28 +440,31 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       expectedPay[i] = 0.5 * (PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, provUp).getAmount() -
           PRICER.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, provDw).getAmount()) / FD_TOL;
     }
-    assertTrue(DoubleArrayMath.fuzzyEquals(computedRec.toArray(), expectedRec, NOTIONAL * FD_TOL));
-    assertTrue(DoubleArrayMath.fuzzyEquals(computedPay.toArray(), expectedPay, NOTIONAL * FD_TOL));
+    assertThat(DoubleArrayMath.fuzzyEquals(computedRec.toArray(), expectedRec, NOTIONAL * FD_TOL)).isTrue();
+    assertThat(DoubleArrayMath.fuzzyEquals(computedPay.toArray(), expectedPay, NOTIONAL * FD_TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityHullWhiteParameter_atMaturity() {
     DoubleArray pvSensiRec = PRICER.presentValueSensitivityModelParamsHullWhite(
         SWAPTION_REC_LONG, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
-    assertTrue(pvSensiRec.equalZeroWithTolerance(NOTIONAL * TOL));
+    assertThat(pvSensiRec.equalZeroWithTolerance(NOTIONAL * TOL)).isTrue();
     DoubleArray pvSensiPay = PRICER.presentValueSensitivityModelParamsHullWhite(
         SWAPTION_PAY_SHORT, RATES_PROVIDER_AT_MATURITY, HW_PROVIDER_AT_MATURITY);
-    assertTrue(pvSensiPay.equalZeroWithTolerance(NOTIONAL * TOL));
+    assertThat(pvSensiPay.equalZeroWithTolerance(NOTIONAL * TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityHullWhiteParameter_afterMaturity() {
     DoubleArray pvSensiRec = PRICER.presentValueSensitivityModelParamsHullWhite(
         SWAPTION_REC_LONG, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY);
-    assertTrue(pvSensiRec.equalZeroWithTolerance(NOTIONAL * TOL));
+    assertThat(pvSensiRec.equalZeroWithTolerance(NOTIONAL * TOL)).isTrue();
     DoubleArray pvSensiPay = PRICER.presentValueSensitivityModelParamsHullWhite(
         SWAPTION_PAY_SHORT, RATES_PROVIDER_AFTER_MATURITY, HW_PROVIDER_AFTER_MATURITY);
-    assertTrue(pvSensiPay.equalZeroWithTolerance(NOTIONAL * TOL));
+    assertThat(pvSensiPay.equalZeroWithTolerance(NOTIONAL * TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityHullWhiteParameter_parity() {
     DoubleArray pvSensiRecLong =
         PRICER.presentValueSensitivityModelParamsHullWhite(SWAPTION_REC_LONG, RATE_PROVIDER, HW_PROVIDER);
@@ -459,33 +474,36 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
         PRICER.presentValueSensitivityModelParamsHullWhite(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER);
     DoubleArray pvSensiPayShort =
         PRICER.presentValueSensitivityModelParamsHullWhite(SWAPTION_PAY_SHORT, RATE_PROVIDER, HW_PROVIDER);
-    assertTrue(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL));
-    assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL));
-    assertTrue(pvSensiPayLong.equalWithTolerance(pvSensiRecLong, NOTIONAL * TOL));
-    assertTrue(pvSensiRecShort.equalWithTolerance(pvSensiPayShort, NOTIONAL * TOL));
+    assertThat(pvSensiRecLong.equalWithTolerance(pvSensiRecShort.multipliedBy(-1d), NOTIONAL * TOL)).isTrue();
+    assertThat(pvSensiPayLong.equalWithTolerance(pvSensiPayShort.multipliedBy(-1d), NOTIONAL * TOL)).isTrue();
+    assertThat(pvSensiPayLong.equalWithTolerance(pvSensiRecLong, NOTIONAL * TOL)).isTrue();
+    assertThat(pvSensiRecShort.equalWithTolerance(pvSensiPayShort, NOTIONAL * TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void regression_pv() {
     CurrencyAmount pv = PRICER.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(pv.getAmount(), 4213670.335092038, NOTIONAL * TOL);
+    assertThat(pv.getAmount()).isCloseTo(4213670.335092038, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void regression_curveSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivityRates(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER).build();
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double[] dscExp = new double[] {0.0, 0.0, 0.0, 0.0, -1.4127023229222856E7, -1.744958350376594E7};
     double[] fwdExp = new double[] {0.0, 0.0, 0.0, 0.0, -2.0295973516660026E8, 4.12336887967829E8};
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.DSC_NAME, EUR)
-        .getSensitivity().toArray(), dscExp, NOTIONAL * TOL));
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD6_NAME, EUR)
-        .getSensitivity().toArray(), fwdExp, NOTIONAL * TOL));
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.DSC_NAME, EUR)
+        .getSensitivity().toArray(), dscExp, NOTIONAL * TOL)).isTrue();
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD6_NAME, EUR)
+        .getSensitivity().toArray(), fwdExp, NOTIONAL * TOL)).isTrue();
   }
 
+  @Test
   public void regression_hullWhiteSensitivity() {
     DoubleArray computed = PRICER.presentValueSensitivityModelParamsHullWhite(SWAPTION_PAY_LONG, RATE_PROVIDER, HW_PROVIDER);
     double[] expected = new double[] {
         2.9365484063149095E7, 3.262667329294093E7, 7.226220286364576E7, 2.4446925038968167E8, 120476.73820821749};
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, NOTIONAL * TOL));
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, NOTIONAL * TOL)).isTrue();
   }
 }

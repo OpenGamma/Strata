@@ -12,7 +12,8 @@ import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.MONEYNESS;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.TENORS;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -20,7 +21,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -29,8 +30,8 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.DefaultSurfaceMetadata;
@@ -51,7 +52,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Tests {@link SabrSwaptionCalibrator} for a cube. Realistic dimension and data.
  */
-@Test
 public class SabrSwaptionCalibratorCubeNormalTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -123,7 +123,7 @@ public class SabrSwaptionCalibratorCubeNormalTest {
                 time, volBlack, true);
             double priceNormal = NormalFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
                 time, DATA_ARRAY_SPARSE[looptenor][loopexpiry][loopmoney], PutCall.CALL);
-            assertEquals(priceComputed, priceNormal, TOLERANCE_PRICE_CALIBRATION_LS);
+            assertThat(priceComputed).isCloseTo(priceNormal, offset(TOLERANCE_PRICE_CALIBRATION_LS));
           }
         }
       }

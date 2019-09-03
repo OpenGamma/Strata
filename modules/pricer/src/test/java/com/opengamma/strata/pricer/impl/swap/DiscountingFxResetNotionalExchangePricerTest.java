@@ -14,15 +14,14 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.FX_RESET_NOTIONAL_EXCHANGE_REC_USD;
 import static com.opengamma.strata.pricer.swap.SwapDummyData.NOTIONAL;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.ReferenceData;
@@ -56,7 +55,6 @@ import com.opengamma.strata.product.swap.FxResetNotionalExchange;
 /**
  * Test.
  */
-@Test
 public class DiscountingFxResetNotionalExchangePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -85,15 +83,17 @@ public class DiscountingFxResetNotionalExchangePricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     double calculated = test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
-    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE * DISCOUNT_FACTOR, 0d);
+    assertThat(calculated).isCloseTo(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE * DISCOUNT_FACTOR, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
@@ -111,21 +111,23 @@ public class DiscountingFxResetNotionalExchangePricerTest {
           pointSensitivityComputed.build());
       CurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
           prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.presentValue(fxReset, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(
-          parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(
+          parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0)).isTrue();
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValue() {
     SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
 
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     double calculated = test.forecastValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
-    assertEquals(calculated, FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE, 0d);
+    assertThat(calculated).isCloseTo(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional() * FX_RATE, offset(0d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_forecastValueSensitivity() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
@@ -143,12 +145,13 @@ public class DiscountingFxResetNotionalExchangePricerTest {
           pointSensitivityComputed.build());
       CurrencyParameterSensitivities parameterSensitivityExpected = FD_CALCULATOR.sensitivity(
           prov, (p) -> CurrencyAmount.of(fxReset.getCurrency(), test.forecastValue(fxReset, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(
-          parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(
+          parameterSensitivityExpected, Math.abs(expanded[i].getNotional()) * EPS_FD * 10.0)).isTrue();
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explainPresentValue() {
     SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
 
@@ -161,18 +164,19 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     Currency notionalCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getReferenceCurrency();
     double notional = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional();
     double convertedNotional = notional * FX_RATE;
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FxResetNotionalExchange");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), notionalCurrency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), DISCOUNT_FACTOR, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), convertedNotional, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), convertedNotional * DISCOUNT_FACTOR, TOLERANCE);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FxResetNotionalExchange");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(paymentCurrency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency()).isEqualTo(notionalCurrency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount()).isCloseTo(notional, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isCloseTo(DISCOUNT_FACTOR, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(paymentCurrency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(convertedNotional, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(paymentCurrency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(convertedNotional * DISCOUNT_FACTOR, offset(TOLERANCE));
   }
 
+  @Test
   public void test_explainPresentValue_paymentDateInPast() {
     SimpleRatesProvider prov = createProvider(FX_RESET_NOTIONAL_EXCHANGE_REC_USD);
     prov.setValuationDate(VAL_DATE.plusYears(1));
@@ -185,18 +189,19 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     Currency paymentCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getCurrency();
     Currency notionalCurrency = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getReferenceCurrency();
     double notional = FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getNotional();
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "FxResetNotionalExchange");
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate());
-    assertEquals(explain.get(ExplainKey.PAYMENT_CURRENCY).get(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency(), notionalCurrency);
-    assertEquals(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount(), notional, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount(), 0d, TOLERANCE);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency(), paymentCurrency);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount(), 0d * DISCOUNT_FACTOR, TOLERANCE);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("FxResetNotionalExchange");
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate());
+    assertThat(explain.get(ExplainKey.PAYMENT_CURRENCY).get()).isEqualTo(paymentCurrency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getCurrency()).isEqualTo(notionalCurrency);
+    assertThat(explain.get(ExplainKey.TRADE_NOTIONAL).get().getAmount()).isCloseTo(notional, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getCurrency()).isEqualTo(paymentCurrency);
+    assertThat(explain.get(ExplainKey.FORECAST_VALUE).get().getAmount()).isCloseTo(0d, offset(TOLERANCE));
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getCurrency()).isEqualTo(paymentCurrency);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get().getAmount()).isCloseTo(0d * DISCOUNT_FACTOR, offset(TOLERANCE));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     double eps = 1.0e-14;
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
@@ -210,15 +215,15 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     PointSensitivities pointUSD = test.presentValueSensitivity(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov).build();
     MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).plus(CurrencyAmount.of(
         FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getCurrency(), test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov)));
-    assertFalse(computedUSD.contains(GBP)); // 0 GBP
-    assertEquals(computedUSD.getAmount(USD).getAmount(), expectedUSD.getAmount(USD).getAmount(), eps * NOTIONAL);
+    assertThat(computedUSD.contains(GBP)).isFalse(); // 0 GBP
+    assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedUSD.getAmount(USD).getAmount(), offset(eps * NOTIONAL));
     // GBP
     MultiCurrencyAmount computedGBP = test.currencyExposure(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov);
     PointSensitivities pointGBP = test.presentValueSensitivity(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov).build();
     MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).plus(CurrencyAmount.of(
         FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP.getCurrency(), test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov)));
-    assertFalse(computedGBP.contains(USD)); // 0 USD
-    assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), eps * NOTIONAL);
+    assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
+    assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
     ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(VAL_DATE)
@@ -228,12 +233,13 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .build();
     double expectedFdUSD = -(test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, provUp) -
         test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov)) * FX_RATE * FX_RATE / EPS_FD;
-    assertEquals(computedUSD.getAmount(USD).getAmount(), expectedFdUSD, EPS_FD * NOTIONAL);
+    assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedFdUSD, offset(EPS_FD * NOTIONAL));
     double expectedFdGBP = (test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, provUp) -
         test.presentValue(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov)) / EPS_FD;
-    assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedFdGBP, EPS_FD * NOTIONAL);
+    assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedFdGBP, offset(EPS_FD * NOTIONAL));
   }
 
+  @Test
   public void test_currencyExposureBetweenFixingAndPayment() {
     double eps = 1.0e-14;
     LocalDate valuationDate = date(2014, 6, 30);
@@ -256,15 +262,15 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     PointSensitivities pointUSD = test.presentValueSensitivity(resetNotionalUSD, prov).build();
     MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).plus(CurrencyAmount.of(
         resetNotionalUSD.getCurrency(), test.presentValue(resetNotionalUSD, prov)));
-    assertFalse(computedUSD.contains(USD)); // 0 USD
-    assertEquals(computedUSD.getAmount(GBP).getAmount(), expectedUSD.getAmount(GBP).getAmount(), eps * NOTIONAL);
+    assertThat(computedUSD.contains(USD)).isFalse(); // 0 USD
+    assertThat(computedUSD.getAmount(GBP).getAmount()).isCloseTo(expectedUSD.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
     // GBP
     MultiCurrencyAmount computedGBP = test.currencyExposure(resetNotionalGBP, prov);
     PointSensitivities pointGBP = test.presentValueSensitivity(resetNotionalGBP, prov).build();
     MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).plus(CurrencyAmount.of(
         resetNotionalGBP.getCurrency(), test.presentValue(resetNotionalGBP, prov)));
-    assertFalse(computedGBP.contains(GBP)); // 0 GBP
-    assertEquals(computedGBP.getAmount(USD).getAmount(), expectedGBP.getAmount(USD).getAmount(), eps * NOTIONAL);
+    assertThat(computedGBP.contains(GBP)).isFalse(); // 0 GBP
+    assertThat(computedGBP.getAmount(USD).getAmount()).isCloseTo(expectedGBP.getAmount(USD).getAmount(), offset(eps * NOTIONAL));
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
     ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
@@ -275,12 +281,13 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .build();
     double expectedFdUSD = -(test.presentValue(resetNotionalUSD, provUp) -
         test.presentValue(resetNotionalUSD, prov)) * FX_RATE * FX_RATE / EPS_FD;
-    assertTrue(!computedUSD.contains(USD) && DoubleMath.fuzzyEquals(expectedFdUSD, 0d, eps));
+    assertThat(!computedUSD.contains(USD) && DoubleMath.fuzzyEquals(expectedFdUSD, 0d, eps)).isTrue();
     double expectedFdGBP = (test.presentValue(resetNotionalGBP, provUp) -
         test.presentValue(resetNotionalGBP, prov)) / EPS_FD;
-    assertTrue(!computedGBP.contains(GBP) && DoubleMath.fuzzyEquals(expectedFdGBP, 0d, eps));
+    assertThat(!computedGBP.contains(GBP) && DoubleMath.fuzzyEquals(expectedFdGBP, 0d, eps)).isTrue();
   }
 
+  @Test
   public void test_currencyExposureOnFixing_noTimeSeries() {
     double eps = 1.0e-14;
     LocalDate valuationDate = date(2014, 6, 27);
@@ -301,15 +308,15 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     PointSensitivities pointUSD = test.presentValueSensitivity(resetNotionalUSD, prov).build();
     MultiCurrencyAmount expectedUSD = prov.currencyExposure(pointUSD.convertedTo(USD, prov)).plus(CurrencyAmount.of(
         resetNotionalUSD.getCurrency(), test.presentValue(resetNotionalUSD, prov)));
-    assertFalse(computedUSD.contains(GBP)); // 0 GBP
-    assertEquals(computedUSD.getAmount(USD).getAmount(), expectedUSD.getAmount(USD).getAmount(), eps * NOTIONAL);
+    assertThat(computedUSD.contains(GBP)).isFalse(); // 0 GBP
+    assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedUSD.getAmount(USD).getAmount(), offset(eps * NOTIONAL));
     // GBP
     MultiCurrencyAmount computedGBP = test.currencyExposure(resetNotionalGBP, prov);
     PointSensitivities pointGBP = test.presentValueSensitivity(resetNotionalGBP, prov).build();
     MultiCurrencyAmount expectedGBP = prov.currencyExposure(pointGBP.convertedTo(GBP, prov)).plus(CurrencyAmount.of(
         resetNotionalGBP.getCurrency(), test.presentValue(resetNotionalGBP, prov)));
-    assertFalse(computedGBP.contains(USD)); // 0 USD
-    assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedGBP.getAmount(GBP).getAmount(), eps * NOTIONAL);
+    assertThat(computedGBP.contains(USD)).isFalse(); // 0 USD
+    assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedGBP.getAmount(GBP).getAmount(), offset(eps * NOTIONAL));
     // FD approximation
     FxMatrix fxMatrixUp = FxMatrix.of(GBP, USD, FX_RATE + EPS_FD);
     ImmutableRatesProvider provUp = ImmutableRatesProvider.builder(valuationDate)
@@ -319,12 +326,13 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .build();
     double expectedFdUSD = -(test.presentValue(resetNotionalUSD, provUp) -
         test.presentValue(resetNotionalUSD, prov)) * FX_RATE * FX_RATE / EPS_FD;
-    assertEquals(computedUSD.getAmount(USD).getAmount(), expectedFdUSD, EPS_FD * NOTIONAL);
+    assertThat(computedUSD.getAmount(USD).getAmount()).isCloseTo(expectedFdUSD, offset(EPS_FD * NOTIONAL));
     double expectedFdGBP = (test.presentValue(resetNotionalGBP, provUp) -
         test.presentValue(resetNotionalGBP, prov)) / EPS_FD;
-    assertEquals(computedGBP.getAmount(GBP).getAmount(), expectedFdGBP, EPS_FD * NOTIONAL);
+    assertThat(computedGBP.getAmount(GBP).getAmount()).isCloseTo(expectedFdGBP, offset(EPS_FD * NOTIONAL));
   }
 
+  @Test
   public void test_currentCash_zero() {
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
@@ -333,9 +341,10 @@ public class DiscountingFxResetNotionalExchangePricerTest {
         .build();
     DiscountingFxResetNotionalExchangePricer test = new DiscountingFxResetNotionalExchangePricer();
     double cc = test.currentCash(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
-    assertEquals(cc, 0d);
+    assertThat(cc).isEqualTo(0d);
   }
 
+  @Test
   public void test_currentCash_onPayment() {
     double eps = 1.0e-14;
     ImmutableRatesProvider prov = ImmutableRatesProvider.builder(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getPaymentDate())
@@ -347,9 +356,9 @@ public class DiscountingFxResetNotionalExchangePricerTest {
     double rate = prov.fxIndexRates(FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getObservation().getIndex()).rate(
         FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getObservation(), FX_RESET_NOTIONAL_EXCHANGE_REC_USD.getReferenceCurrency());
     double ccUSD = test.currentCash(FX_RESET_NOTIONAL_EXCHANGE_REC_USD, prov);
-    assertEquals(ccUSD, NOTIONAL * rate, eps);
+    assertThat(ccUSD).isCloseTo(NOTIONAL * rate, offset(eps));
     double ccGBP = test.currentCash(FX_RESET_NOTIONAL_EXCHANGE_PAY_GBP, prov);
-    assertEquals(ccGBP, -NOTIONAL / rate, eps);
+    assertThat(ccGBP).isCloseTo(-NOTIONAL / rate, offset(eps));
   }
 
   //-------------------------------------------------------------------------

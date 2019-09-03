@@ -8,12 +8,11 @@ package com.opengamma.strata.pricer.credit;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SimpleCreditCurveCalibrator}.
  */
-@Test
 public class SimpleCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCalibratorBase {
 
   // calibrators
@@ -24,6 +23,7 @@ public class SimpleCreditCurveCalibratorTest extends IsdaCompliantCreditCurveCal
 
   private static final double TOL = 1e-14;
 
+  @Test
   public void regression_consistency_test() {
     testCalibrationAgainstISDA(BUILDER_ISDA, ACT_365F, EUR, TOL);
     testCalibrationAgainstISDA(BUILDER_MARKIT, ACT_365F, EUR, TOL);

@@ -10,12 +10,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -61,7 +61,6 @@ import com.opengamma.strata.product.bond.ResolvedFixedCouponBondTrade;
 /**
  * Test {@link DiscountingFixedCouponBondTradePricer}.
  */
-@Test
 public class DiscountingFixedCouponBondTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -180,15 +179,16 @@ public class DiscountingFixedCouponBondTradePricerTest {
   private static final int PERIOD_PER_YEAR = 4;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValue(TRADE, PROVIDER);
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER, SETTLEMENT);
     CurrencyAmount pvPayment =
         PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
-    assertEquals(computedTrade.getAmount(),
-        computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_continuous() {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValueWithZSpread(
         TRADE, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
@@ -196,10 +196,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         PRODUCT_PRICER.presentValueWithZSpread(PRODUCT, PROVIDER, Z_SPREAD, CONTINUOUS, 0, SETTLEMENT);
     CurrencyAmount pvPayment =
         PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
-    assertEquals(computedTrade.getAmount(),
-        computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_periodic() {
     CurrencyAmount computedTrade =
         TRADE_PRICER.presentValueWithZSpread(TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -207,19 +207,19 @@ public class DiscountingFixedCouponBondTradePricerTest {
         PRODUCT, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR, SETTLEMENT);
     CurrencyAmount pvPayment =
         PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
-    assertEquals(computedTrade.getAmount(),
-        computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_noExcoupon() {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValue(TRADE_NO_EXCOUPON, PROVIDER);
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT_NO_EXCOUPON, PROVIDER, SETTLEMENT);
     CurrencyAmount pvPayment =
         PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
-    assertEquals(computedTrade.getAmount(),
-        computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_continuous_noExcoupon() {
     CurrencyAmount computedTrade =
         TRADE_PRICER.presentValueWithZSpread(TRADE_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
@@ -227,10 +227,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0, SETTLEMENT);
     CurrencyAmount pvPayment =
         PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
-    assertEquals(computedTrade.getAmount(),
-        computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueWithZSpread_periodic_noExcoupon() {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValueWithZSpread(
         TRADE_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -238,11 +238,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
         PRODUCT_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR, SETTLEMENT);
     CurrencyAmount pvPayment =
         PRICER_NOMINAL.presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO));
-    assertEquals(computedTrade.getAmount(),
-        computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).plus(pvPayment).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue_dateLogic() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -259,8 +259,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedTradeBefore = TRADE_PRICER_NO_UPFRONT.presentValue(tradeBefore, PROVIDER_BEFORE);
     FixedCouponBondPaymentPeriod periodExtra = findPeriod(PRODUCT, SETTLE_BEFORE, SETTLEMENT);
     double pvExtra = COUPON_PRICER.presentValue(periodExtra, PROVIDER_BEFORE.issuerCurveDiscountFactors(ISSUER_ID, EUR));
-    assertEquals(computedTradeBefore.getAmount(), computedTradeAfter.plus(pvExtra * QUANTITY).getAmount(),
-        NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeBefore.getAmount()).isCloseTo(computedTradeAfter.plus(pvExtra * QUANTITY).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
     // settle on detachment date
     ResolvedFixedCouponBondTrade tradeOnDetachment = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -268,7 +267,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_ON_DETACHMENT, CLEAN_PRICE))
         .build();
     CurrencyAmount computedTradeOnDetachment = TRADE_PRICER_NO_UPFRONT.presentValue(tradeOnDetachment, PROVIDER_BEFORE);
-    assertEquals(computedTradeOnDetachment.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeOnDetachment.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
     // settle between detachment date and coupon date
     ResolvedFixedCouponBondTrade tradeBtwnDetachmentCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -277,9 +276,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .build();
     CurrencyAmount computedTradeBtwnDetachmentCoupon =
         TRADE_PRICER_NO_UPFRONT.presentValue(tradeBtwnDetachmentCoupon, PROVIDER_BEFORE);
-    assertEquals(computedTradeBtwnDetachmentCoupon.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeBtwnDetachmentCoupon.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_dateLogic_pastSettle() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -294,7 +294,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_BEFORE, CLEAN_PRICE))
         .build();
     CurrencyAmount computedTradeBefore = TRADE_PRICER_NO_UPFRONT.presentValue(tradeBefore, PROVIDER);
-    assertEquals(computedTradeBefore.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeBefore.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
     // settle on detachment date
     ResolvedFixedCouponBondTrade tradeOnDetachment = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -302,7 +302,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_ON_DETACHMENT, CLEAN_PRICE))
         .build();
     CurrencyAmount computedTradeOnDetachment = TRADE_PRICER_NO_UPFRONT.presentValue(tradeOnDetachment, PROVIDER);
-    assertEquals(computedTradeOnDetachment.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeOnDetachment.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
     // settle between detachment date and coupon date
     ResolvedFixedCouponBondTrade tradeBtwnDetachmentCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -311,9 +311,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .build();
     CurrencyAmount computedTradeBtwnDetachmentCoupon =
         TRADE_PRICER_NO_UPFRONT.presentValue(tradeBtwnDetachmentCoupon, PROVIDER);
-    assertEquals(computedTradeBtwnDetachmentCoupon.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeBtwnDetachmentCoupon.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_dateLogic_noExcoupon() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -330,8 +331,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computedTradeBefore = TRADE_PRICER_NO_UPFRONT.presentValue(tradeBefore, PROVIDER_BEFORE);
     FixedCouponBondPaymentPeriod periodExtra = findPeriod(PRODUCT_NO_EXCOUPON, SETTLE_BEFORE, SETTLEMENT);
     double pvExtra = COUPON_PRICER.presentValue(periodExtra, PROVIDER_BEFORE.issuerCurveDiscountFactors(ISSUER_ID, EUR));
-    assertEquals(computedTradeBefore.getAmount(), computedTradeAfter.plus(pvExtra * QUANTITY).getAmount(),
-        NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeBefore.getAmount()).isCloseTo(computedTradeAfter.plus(pvExtra * QUANTITY).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
     // settle on coupon date
     ResolvedFixedCouponBondTrade tradeOnCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -339,9 +339,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_ON_COUPON, CLEAN_PRICE))
         .build();
     CurrencyAmount computedTradeOnCoupon = TRADE_PRICER_NO_UPFRONT.presentValue(tradeOnCoupon, PROVIDER_BEFORE);
-    assertEquals(computedTradeOnCoupon.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeOnCoupon.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_dateLogic_pastSettle_noExcoupon() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -356,8 +357,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_BEFORE, CLEAN_PRICE))
         .build();
     CurrencyAmount computedTradeBefore = TRADE_PRICER_NO_UPFRONT.presentValue(tradeBefore, PROVIDER);
-    assertEquals(computedTradeBefore.getAmount(), computedTradeAfter.getAmount(),
-        NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeBefore.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
     // settle on coupon date
     ResolvedFixedCouponBondTrade tradeOnCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -365,16 +365,18 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_ON_COUPON, CLEAN_PRICE))
         .build();
     CurrencyAmount computedTradeOnCoupon = TRADE_PRICER_NO_UPFRONT.presentValue(tradeOnCoupon, PROVIDER);
-    assertEquals(computedTradeOnCoupon.getAmount(), computedTradeAfter.getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTradeOnCoupon.getAmount()).isCloseTo(computedTradeAfter.getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValue_position() {
     CurrencyAmount computedTrade = TRADE_PRICER.presentValue(POSITION, PROVIDER);
     CurrencyAmount computedProduct = PRODUCT_PRICER.presentValue(PRODUCT, PROVIDER, VAL_DATE);
-    assertEquals(computedTrade.getAmount(), computedProduct.multipliedBy(QUANTITY).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computedTrade.getAmount()).isCloseTo(computedProduct.multipliedBy(QUANTITY).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueFromCleanPrice() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPrice(TRADE, PROVIDER, REF_DATA, cleanPrice);
@@ -384,10 +386,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double pvPayment = PRICER_NOMINAL
         .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_continuous() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
@@ -398,10 +401,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double pvPayment = PRICER_NOMINAL
         .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_periodic() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
@@ -412,10 +416,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double pvPayment = PRICER_NOMINAL
         .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_noExcoupon() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPrice(TRADE_NO_EXCOUPON, PROVIDER, REF_DATA, cleanPrice);
@@ -425,10 +430,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double pvPayment = PRICER_NOMINAL
         .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_continuous_noExcoupon() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
@@ -439,10 +445,11 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double pvPayment = PRICER_NOMINAL
         .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_periodic_noExcoupon() {
     double cleanPrice = 0.985;
     CurrencyAmount computed = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
@@ -453,11 +460,12 @@ public class DiscountingFixedCouponBondTradePricerTest {
     double pvPayment = PRICER_NOMINAL
         .presentValue(UPFRONT_PAYMENT, ZeroRateDiscountFactors.of(EUR, VAL_DATE, CURVE_REPO)).getAmount();
     double expected = QUANTITY * (cleanPrice * df * NOTIONAL + accruedInterest * df) + pvPayment;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueFromCleanPrice_dateLogic() {
     double cleanPrice = 0.985;
     FixedCouponBondPaymentPeriod periodExtra = findPeriod(PRODUCT, SETTLE_BEFORE, SETTLEMENT);
@@ -483,9 +491,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade1, provider1, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed1Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade1, provider1, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed1.getAmount(), QUANTITY * (basePv1 + pvExtra1), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed1Continuous.getAmount(), QUANTITY * (basePv1 + pvExtra1Continuous), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed1Periodic.getAmount(), QUANTITY * (basePv1 + pvExtra1Periodic), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed1.getAmount()).isCloseTo(QUANTITY * (basePv1 + pvExtra1), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed1Continuous.getAmount()).isCloseTo(QUANTITY * (basePv1 + pvExtra1Continuous), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed1Periodic.getAmount()).isCloseTo(QUANTITY * (basePv1 + pvExtra1Periodic), offset(NOTIONAL * QUANTITY * TOL));
     // detachment date < trade settlement < standard settlement (tradeDate = valuation1)
     ResolvedFixedCouponBondTrade trade2 = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -497,9 +505,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade2, provider1, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed2Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade2, provider1, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed2.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed2Continuous.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed2Periodic.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed2.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed2Continuous.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed2Periodic.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
     // detachment date < standard settlement < trade sinfo (tradeDate = valuation1)
     ResolvedFixedCouponBondTrade trade3 = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -511,9 +519,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade3, provider1, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed3Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade3, provider1, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed3.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed3Continuous.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed3Periodic.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed3.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed3Continuous.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed3Periodic.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
 
     // standard settlement < detachment date < trade settlement (tradeDate = TRADE_BEFORE)
     LocalDate settlement4 = SETTLE_ON_DETACHMENT.plusDays(1);
@@ -537,9 +545,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount computed4Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade4, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
 
-    assertEquals(computed4.getAmount(), QUANTITY * (basePv4 - pvExtra4), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed4Continuous.getAmount(), QUANTITY * (basePv4 - pvExtra4Continuous), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed4Periodic.getAmount(), QUANTITY * (basePv4 - pvExtra4Periodic), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed4.getAmount()).isCloseTo(QUANTITY * (basePv4 - pvExtra4), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed4Continuous.getAmount()).isCloseTo(QUANTITY * (basePv4 - pvExtra4Continuous), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed4Periodic.getAmount()).isCloseTo(QUANTITY * (basePv4 - pvExtra4Periodic), offset(NOTIONAL * QUANTITY * TOL));
     // standard settlement < trade settlement < detachment date (tradeDate = TRADE_BEFORE)
     LocalDate settlement5 = TRADE_BEFORE.plusDays(7);
     ResolvedFixedCouponBondTrade trade5 = ResolvedFixedCouponBondTrade.builder()
@@ -552,9 +560,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade5, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed5Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade5, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed5.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed5Continuous.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed5Periodic.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed5.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed5Continuous.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed5Periodic.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
     // trade settlement < standard settlement < detachment date
     ResolvedFixedCouponBondTrade trade6 = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -566,11 +574,12 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade6, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed6Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade6, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed6.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed6Continuous.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed6Periodic.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed6.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed6Continuous.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed6Periodic.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_dateLogic_noExcoupon() {
     double cleanPrice = 0.985;
     FixedCouponBondPaymentPeriod periodExtra = findPeriod(PRODUCT_NO_EXCOUPON, SETTLE_BEFORE, SETTLEMENT);
@@ -596,9 +605,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade1, provider1, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed1Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade1, provider1, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed1.getAmount(), QUANTITY * (basePv1 + pvExtra1), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed1Continuous.getAmount(), QUANTITY * (basePv1 + pvExtra1Continuous), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed1Periodic.getAmount(), QUANTITY * (basePv1 + pvExtra1Periodic), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed1.getAmount()).isCloseTo(QUANTITY * (basePv1 + pvExtra1), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed1Continuous.getAmount()).isCloseTo(QUANTITY * (basePv1 + pvExtra1Continuous), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed1Periodic.getAmount()).isCloseTo(QUANTITY * (basePv1 + pvExtra1Periodic), offset(NOTIONAL * QUANTITY * TOL));
     // coupon date < trade settlement < standard settlement (tradeDate = valuation1)
     LocalDate settlement2 = SETTLE_ON_COUPON.plusDays(2);
     ResolvedFixedCouponBondTrade trade2 = ResolvedFixedCouponBondTrade.builder()
@@ -611,9 +620,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade2, provider1, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed2Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade2, provider1, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed2.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed2Continuous.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed2Periodic.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed2.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed2Continuous.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed2Periodic.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
     // coupon date < standard settlement < trade settlement (tradeDate = valuation1)
     LocalDate settlement3 = SETTLE_ON_COUPON.plusDays(7);
     ResolvedFixedCouponBondTrade trade3 = ResolvedFixedCouponBondTrade.builder()
@@ -626,9 +635,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade3, provider1, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed3Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade3, provider1, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed3.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed3Continuous.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed3Periodic.getAmount(), QUANTITY * basePv1, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed3.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed3Continuous.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed3Periodic.getAmount()).isCloseTo(QUANTITY * basePv1, offset(NOTIONAL * QUANTITY * TOL));
 
     // standard settlement < coupon date < trade settlement (tradeDate = TRADE_BEFORE)
     LocalDate settlement4 = SETTLE_ON_COUPON.plusDays(1);
@@ -652,9 +661,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade4, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed4Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade4, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed4.getAmount(), QUANTITY * (basePv4 - pvExtra4), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed4Continuous.getAmount(), QUANTITY * (basePv4 - pvExtra4Continuous), NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed4Periodic.getAmount(), QUANTITY * (basePv4 - pvExtra4Periodic), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed4.getAmount()).isCloseTo(QUANTITY * (basePv4 - pvExtra4), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed4Continuous.getAmount()).isCloseTo(QUANTITY * (basePv4 - pvExtra4Continuous), offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed4Periodic.getAmount()).isCloseTo(QUANTITY * (basePv4 - pvExtra4Periodic), offset(NOTIONAL * QUANTITY * TOL));
     // standard settlement < trade settlement < coupon date (tradeDate = TRADE_BEFORE)
     LocalDate settlement5 = TRADE_BEFORE.plusDays(7);
     ResolvedFixedCouponBondTrade trade5 = ResolvedFixedCouponBondTrade.builder()
@@ -667,9 +676,9 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade5, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed5Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade5, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed5.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed5Continuous.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed5Periodic.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed5.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed5Continuous.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed5Periodic.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
     // trade settlement < standard settlement < coupon date
     ResolvedFixedCouponBondTrade trade6 = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -681,21 +690,23 @@ public class DiscountingFixedCouponBondTradePricerTest {
         trade6, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount computed6Periodic = TRADE_PRICER_NO_UPFRONT.presentValueFromCleanPriceWithZSpread(
         trade6, PROVIDER_BEFORE, REF_DATA, cleanPrice, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(computed6.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed6Continuous.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
-    assertEquals(computed6Periodic.getAmount(), QUANTITY * basePv4, NOTIONAL * QUANTITY * TOL);
+    assertThat(computed6.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed6Continuous.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
+    assertThat(computed6Periodic.getAmount()).isCloseTo(QUANTITY * basePv4, offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueFromCleanPrice_coherency() {
     double priceDirty = PRODUCT_PRICER.dirtyPriceFromCurves(PRODUCT, PROVIDER, REF_DATA);
     LocalDate standardSettlementDate = PRODUCT.getSettlementDateOffset().adjust(PROVIDER.getValuationDate(), REF_DATA);
     double priceCleanComputed = PRODUCT_PRICER.cleanPriceFromDirtyPrice(PRODUCT, standardSettlementDate, priceDirty);
     CurrencyAmount pvCleanPrice = TRADE_PRICER.presentValueFromCleanPrice(TRADE, PROVIDER, REF_DATA, priceCleanComputed);
     CurrencyAmount pvCurves = TRADE_PRICER.presentValue(TRADE, PROVIDER);
-    assertEquals(pvCleanPrice.getAmount(), pvCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvCleanPrice.getAmount()).isCloseTo(pvCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_continuous_coherency() {
     double priceDirty = PRODUCT_PRICER
         .dirtyPriceFromCurvesWithZSpread(PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
@@ -704,9 +715,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount pvCleanPrice = TRADE_PRICER.presentValueFromCleanPriceWithZSpread(
         TRADE, PROVIDER, REF_DATA, priceCleanComputed, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount pvCurves = TRADE_PRICER.presentValueWithZSpread(TRADE, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    assertEquals(pvCleanPrice.getAmount(), pvCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvCleanPrice.getAmount()).isCloseTo(pvCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_periodic_coherency() {
     double priceDirty = PRODUCT_PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -716,9 +728,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         TRADE, PROVIDER, REF_DATA, priceCleanComputed, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pvCurves = TRADE_PRICER
         .presentValueWithZSpread(TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(pvCleanPrice.getAmount(), pvCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvCleanPrice.getAmount()).isCloseTo(pvCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPrice_noExcoupon_coherency() {
     double priceDirty = PRODUCT_PRICER.dirtyPriceFromCurves(PRODUCT_NO_EXCOUPON, PROVIDER, REF_DATA);
     LocalDate standardSettlementDate = PRODUCT.getSettlementDateOffset().adjust(PROVIDER.getValuationDate(), REF_DATA);
@@ -726,9 +739,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
     CurrencyAmount pvCleanPrice = TRADE_PRICER.presentValueFromCleanPrice(
         TRADE_NO_EXCOUPON, PROVIDER, REF_DATA, priceCleanComputed);
     CurrencyAmount pvCurves = TRADE_PRICER.presentValue(TRADE_NO_EXCOUPON, PROVIDER);
-    assertEquals(pvCleanPrice.getAmount(), pvCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvCleanPrice.getAmount()).isCloseTo(pvCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_continuous_noExcoupon_coherency() {
     double priceDirty = PRODUCT_PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, REF_DATA, Z_SPREAD, CONTINUOUS, 0);
@@ -738,9 +752,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         TRADE_NO_EXCOUPON, PROVIDER, REF_DATA, priceCleanComputed, Z_SPREAD, CONTINUOUS, 0);
     CurrencyAmount pvCurves = TRADE_PRICER
         .presentValueWithZSpread(TRADE_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
-    assertEquals(pvCleanPrice.getAmount(), pvCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvCleanPrice.getAmount()).isCloseTo(pvCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValueFromCleanPriceWithZSpread_periodic_noExcoupon_coherency() {
     double priceDirty = PRODUCT_PRICER.dirtyPriceFromCurvesWithZSpread(
         PRODUCT_NO_EXCOUPON, PROVIDER, REF_DATA, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
@@ -750,63 +765,70 @@ public class DiscountingFixedCouponBondTradePricerTest {
         TRADE_NO_EXCOUPON, PROVIDER, REF_DATA, priceCleanComputed, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pvCurves = TRADE_PRICER.presentValueWithZSpread(
         TRADE_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(pvCleanPrice.getAmount(), pvCurves.getAmount(), NOTIONAL * TOL);
+    assertThat(pvCleanPrice.getAmount()).isCloseTo(pvCurves.getAmount(), offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities pointTrade = TRADE_PRICER.presentValueSensitivity(TRADE, PROVIDER);
     CurrencyParameterSensitivities computedTrade = PROVIDER.parameterSensitivity(pointTrade);
     CurrencyParameterSensitivities expectedTrade = FD_CAL.sensitivity(PROVIDER,
         (p) -> TRADE_PRICER.presentValue(TRADE, (p)));
-    assertTrue(computedTrade.equalWithTolerance(expectedTrade, 30d * NOTIONAL * QUANTITY * EPS));
+    assertThat(computedTrade.equalWithTolerance(expectedTrade, 30d * NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_continuous() {
     PointSensitivities pointTrade =
         TRADE_PRICER.presentValueSensitivityWithZSpread(TRADE, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurrencyParameterSensitivities computedTrade = PROVIDER.parameterSensitivity(pointTrade);
     CurrencyParameterSensitivities expectedTrade = FD_CAL.sensitivity(
         PROVIDER, (p) -> TRADE_PRICER.presentValueWithZSpread(TRADE, (p), Z_SPREAD, CONTINUOUS, 0));
-    assertTrue(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS));
+    assertThat(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_periodic() {
     PointSensitivities pointTrade =
         TRADE_PRICER.presentValueSensitivityWithZSpread(TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computedTrade = PROVIDER.parameterSensitivity(pointTrade);
     CurrencyParameterSensitivities expectedTrade = FD_CAL.sensitivity(PROVIDER,
         (p) -> TRADE_PRICER.presentValueWithZSpread(TRADE, (p), Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertTrue(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS));
+    assertThat(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueProductSensitivity_noExcoupon() {
     PointSensitivities pointTrade = TRADE_PRICER.presentValueSensitivity(TRADE_NO_EXCOUPON, PROVIDER);
     CurrencyParameterSensitivities computedTrade = PROVIDER.parameterSensitivity(pointTrade);
     CurrencyParameterSensitivities expectedTrade = FD_CAL.sensitivity(
         PROVIDER, (p) -> TRADE_PRICER.presentValue(TRADE_NO_EXCOUPON, (p)));
-    assertTrue(computedTrade.equalWithTolerance(expectedTrade, 30d * NOTIONAL * QUANTITY * EPS));
+    assertThat(computedTrade.equalWithTolerance(expectedTrade, 30d * NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_continuous_noExcoupon() {
     PointSensitivities pointTrade =
         TRADE_PRICER.presentValueSensitivityWithZSpread(TRADE_NO_EXCOUPON, PROVIDER, Z_SPREAD, CONTINUOUS, 0);
     CurrencyParameterSensitivities computedTrade = PROVIDER.parameterSensitivity(pointTrade);
     CurrencyParameterSensitivities expectedTrade = FD_CAL.sensitivity(PROVIDER, (p) ->
         TRADE_PRICER.presentValueWithZSpread(TRADE_NO_EXCOUPON, (p), Z_SPREAD, CONTINUOUS, 0));
-    assertTrue(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS));
+    assertThat(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityWithZSpread_periodic_noExcoupon() {
     PointSensitivities pointTrade = TRADE_PRICER.presentValueSensitivityWithZSpread(
         TRADE_NO_EXCOUPON, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyParameterSensitivities computedTrade = PROVIDER.parameterSensitivity(pointTrade);
     CurrencyParameterSensitivities expectedTrade = FD_CAL.sensitivity(PROVIDER, (p) ->
         TRADE_PRICER.presentValueWithZSpread(TRADE_NO_EXCOUPON, (p), Z_SPREAD, PERIODIC, PERIOD_PER_YEAR));
-    assertTrue(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS));
+    assertThat(computedTrade.equalWithTolerance(expectedTrade, 20d * NOTIONAL * QUANTITY * EPS)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity_dateLogic() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -825,8 +847,8 @@ public class DiscountingFixedCouponBondTradePricerTest {
     FixedCouponBondPaymentPeriod periodExtra = findPeriod(PRODUCT, SETTLE_BEFORE, SETTLEMENT);
     PointSensitivities sensiExtra = COUPON_PRICER
         .presentValueSensitivity(periodExtra, PROVIDER_BEFORE.issuerCurveDiscountFactors(ISSUER_ID, EUR)).build();
-    assertTrue(computedTradeBefore.normalized().equalWithTolerance(
-        computedTradeAfter.combinedWith(sensiExtra.multipliedBy(QUANTITY)).normalized(), NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeBefore.normalized().equalWithTolerance(
+        computedTradeAfter.combinedWith(sensiExtra.multipliedBy(QUANTITY)).normalized(), NOTIONAL * QUANTITY * TOL)).isTrue();
     // settle on detachment date
     ResolvedFixedCouponBondTrade tradeOnDetachment = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -835,7 +857,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .build();
     PointSensitivities computedTradeOnDetachment =
         TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeOnDetachment, PROVIDER_BEFORE);
-    assertTrue(computedTradeOnDetachment.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeOnDetachment.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
     // settle between detachment date and coupon date
     ResolvedFixedCouponBondTrade tradeBtwnDetachmentCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -844,9 +866,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .build();
     PointSensitivities computedTradeBtwnDetachmentCoupon =
         TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeBtwnDetachmentCoupon, PROVIDER_BEFORE);
-    assertTrue(computedTradeBtwnDetachmentCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeBtwnDetachmentCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_dateLogic_pastSettle() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -861,7 +884,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_BEFORE, CLEAN_PRICE))
         .build();
     PointSensitivities computedTradeBefore = TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeBefore, PROVIDER);
-    assertTrue(computedTradeBefore.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeBefore.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
     // settle on detachment date
     ResolvedFixedCouponBondTrade tradeOnDetachment = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -870,7 +893,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .build();
     PointSensitivities computedTradeOnDetachment =
         TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeOnDetachment, PROVIDER);
-    assertTrue(computedTradeOnDetachment.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeOnDetachment.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
     // settle between detachment date and coupon date
     ResolvedFixedCouponBondTrade tradeBtwnDetachmentCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT)
@@ -879,9 +902,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .build();
     PointSensitivities computedTradeBtwnDetachmentCoupon =
         TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeBtwnDetachmentCoupon, PROVIDER);
-    assertTrue(computedTradeBtwnDetachmentCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeBtwnDetachmentCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_dateLogic_noExcoupon() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -900,8 +924,8 @@ public class DiscountingFixedCouponBondTradePricerTest {
     FixedCouponBondPaymentPeriod periodExtra = findPeriod(PRODUCT_NO_EXCOUPON, SETTLE_BEFORE, SETTLEMENT);
     PointSensitivities sensiExtra = COUPON_PRICER
         .presentValueSensitivity(periodExtra, PROVIDER_BEFORE.issuerCurveDiscountFactors(ISSUER_ID, EUR)).build();
-    assertTrue(computedTradeBefore.normalized().equalWithTolerance(
-        computedTradeAfter.combinedWith(sensiExtra.multipliedBy(QUANTITY)).normalized(), NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeBefore.normalized().equalWithTolerance(
+        computedTradeAfter.combinedWith(sensiExtra.multipliedBy(QUANTITY)).normalized(), NOTIONAL * QUANTITY * TOL)).isTrue();
     // settle on coupon date
     ResolvedFixedCouponBondTrade tradeOnCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -909,9 +933,10 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_ON_COUPON, CLEAN_PRICE))
         .build();
     PointSensitivities computedTradeOnCoupon = TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeOnCoupon, PROVIDER_BEFORE);
-    assertTrue(computedTradeOnCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeOnCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_dateLogic_pastSettle_noExcoupon() {
     ResolvedFixedCouponBondTrade tradeAfter = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -926,7 +951,7 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_BEFORE, CLEAN_PRICE))
         .build();
     PointSensitivities computedTradeBefore = TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeBefore, PROVIDER);
-    assertTrue(computedTradeBefore.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeBefore.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
     // settle on coupon date
     ResolvedFixedCouponBondTrade tradeOnCoupon = ResolvedFixedCouponBondTrade.builder()
         .product(PRODUCT_NO_EXCOUPON)
@@ -934,74 +959,84 @@ public class DiscountingFixedCouponBondTradePricerTest {
         .settlement(ResolvedFixedCouponBondSettlement.of(SETTLE_ON_COUPON, CLEAN_PRICE))
         .build();
     PointSensitivities computedTradeOnCoupon = TRADE_PRICER_NO_UPFRONT.presentValueSensitivity(tradeOnCoupon, PROVIDER);
-    assertTrue(computedTradeOnCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL));
+    assertThat(computedTradeOnCoupon.equalWithTolerance(computedTradeAfter, NOTIONAL * QUANTITY * TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyExposure() {
     MultiCurrencyAmount ceComputed = TRADE_PRICER.currencyExposure(TRADE, PROVIDER);
     CurrencyAmount pv = TRADE_PRICER.presentValue(TRADE, PROVIDER);
-    assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
+    assertThat(ceComputed).isEqualTo(MultiCurrencyAmount.of(pv));
   }
 
+  @Test
   public void test_currencyExposureWithZSpread() {
     MultiCurrencyAmount ceComputed = TRADE_PRICER.currencyExposureWithZSpread(
         TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
     CurrencyAmount pv = TRADE_PRICER.presentValueWithZSpread(TRADE, PROVIDER, Z_SPREAD, PERIODIC, PERIOD_PER_YEAR);
-    assertEquals(ceComputed, MultiCurrencyAmount.of(pv));
+    assertThat(ceComputed).isEqualTo(MultiCurrencyAmount.of(pv));
   }
 
+  @Test
   public void test_currentCash_zero() {
     CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE, VAL_DATE);
-    assertEquals(ccComputed, CurrencyAmount.zero(EUR));
+    assertThat(ccComputed).isEqualTo(CurrencyAmount.zero(EUR));
   }
 
+  @Test
   public void test_currentCash_valuationAtSettlement() {
     CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE, SETTLEMENT);
-    assertEquals(ccComputed, UPFRONT_PAYMENT.getValue());
+    assertThat(ccComputed).isEqualTo(UPFRONT_PAYMENT.getValue());
   }
 
+  @Test
   public void test_currentCash_valuationAtPayment() {
     LocalDate paymentDate = LocalDate.of(2016, 10, 12);
     CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE, paymentDate);
-    assertEquals(ccComputed, CurrencyAmount.zero(EUR));
+    assertThat(ccComputed).isEqualTo(CurrencyAmount.zero(EUR));
   }
 
+  @Test
   public void test_currentCash_valuationAtPayment_noExcoupon() {
     LocalDate startDate = LocalDate.of(2016, 4, 12);
     LocalDate paymentDate = LocalDate.of(2016, 10, 12);
     double yc = DAY_COUNT.relativeYearFraction(startDate, paymentDate);
     CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE_NO_EXCOUPON, paymentDate);
-    assertEquals(ccComputed, CurrencyAmount.of(EUR, FIXED_RATE * NOTIONAL * yc * QUANTITY));
+    assertThat(ccComputed).isEqualTo(CurrencyAmount.of(EUR, FIXED_RATE * NOTIONAL * yc * QUANTITY));
   }
 
+  @Test
   public void test_currentCash_valuationAtMaturity() {
     LocalDate paymentDate = LocalDate.of(2025, 4, 14);
     CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE, paymentDate);
-    assertEquals(ccComputed, CurrencyAmount.of(EUR, NOTIONAL * QUANTITY));
+    assertThat(ccComputed).isEqualTo(CurrencyAmount.of(EUR, NOTIONAL * QUANTITY));
   }
 
+  @Test
   public void test_currentCash_valuationAtMaturity_noExcoupon() {
     LocalDate startDate = LocalDate.of(2024, 10, 14);
     LocalDate paymentDate = LocalDate.of(2025, 4, 14);
     double yc = DAY_COUNT.relativeYearFraction(startDate, paymentDate);
     CurrencyAmount ccComputed = TRADE_PRICER.currentCash(TRADE_NO_EXCOUPON, paymentDate);
-    assertEquals(ccComputed, CurrencyAmount.of(EUR, NOTIONAL * (1d + yc * FIXED_RATE) * QUANTITY));
+    assertThat(ccComputed).isEqualTo(CurrencyAmount.of(EUR, NOTIONAL * (1d + yc * FIXED_RATE) * QUANTITY));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_upfrontPayment() {
     Payment payment = TRADE_PRICER.upfrontPayment(TRADE);
-    assertEquals(payment.getCurrency(), EUR);
-    assertEquals(payment.getAmount(), -NOTIONAL * QUANTITY * DIRTY_PRICE, TOL);
-    assertEquals(payment.getDate(), SETTLEMENT);
+    assertThat(payment.getCurrency()).isEqualTo(EUR);
+    assertThat(payment.getAmount()).isCloseTo(-NOTIONAL * QUANTITY * DIRTY_PRICE, offset(TOL));
+    assertThat(payment.getDate()).isEqualTo(SETTLEMENT);
   }
 
+  @Test
   public void test_upfrontPayment_position() {
     Payment payment = TRADE_PRICER.upfrontPayment(POSITION);
-    assertEquals(payment.getCurrency(), EUR);
-    assertEquals(payment.getAmount(), 0, TOL);
-    assertEquals(payment.getDate(), POSITION.getProduct().getStartDate());
+    assertThat(payment.getCurrency()).isEqualTo(EUR);
+    assertThat(payment.getAmount()).isCloseTo(0, offset(TOL));
+    assertThat(payment.getDate()).isEqualTo(POSITION.getProduct().getStartDate());
   }
 
   //-------------------------------------------------------------------------

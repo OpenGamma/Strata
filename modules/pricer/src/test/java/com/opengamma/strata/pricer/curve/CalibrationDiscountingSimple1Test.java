@@ -9,7 +9,8 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -20,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -34,13 +36,13 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveMetadata;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.DefaultCurveMetadata;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -64,7 +66,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 /**
  * Test curve calibration
  */
-@Test
 public class CalibrationDiscountingSimple1Test {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 7, 21);
@@ -182,6 +183,7 @@ public class CalibrationDiscountingSimple1Test {
           .addCurve(CURVE_DEFN, USD, USD_LIBOR_3M).build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_present_value() {
     RatesProvider result2 =
         CALIBRATOR.calibrate(CURVE_GROUP_DEFN, ALL_QUOTES, REF_DATA);
@@ -194,23 +196,23 @@ public class CalibrationDiscountingSimple1Test {
     // Fixing 
     CurrencyAmount pvFixing2 = FIXING_PRICER.presentValue(
         ((ResolvedIborFixingDepositTrade) fwd3Trades.get(0)).getProduct(), result2);
-    assertEquals(pvFixing2.getAmount(), 0.0, TOLERANCE_PV);
+    assertThat(pvFixing2.getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     // FRA
     for (int i = 0; i < FWD3_NB_FRA_NODES; i++) {
       CurrencyAmount pvFra2 = FRA_PRICER.presentValue(
           ((ResolvedFraTrade) fwd3Trades.get(i + 1)), result2);
-      assertEquals(pvFra2.getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvFra2.getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // IRS
     for (int i = 0; i < FWD3_NB_IRS_NODES; i++) {
       MultiCurrencyAmount pvIrs2 = SWAP_PRICER.presentValue(
           ((ResolvedSwapTrade) fwd3Trades.get(i + 1 + FWD3_NB_FRA_NODES)).getProduct(), result2);
-      assertEquals(pvIrs2.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvIrs2.getAmount(USD).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Disabled
   void performance() {
     long startTime, endTime;
     int nbTests = 100;

@@ -13,13 +13,14 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
@@ -35,7 +36,6 @@ import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 /**
  * Test {@link SimpleDiscountFactors}.
  */
-@Test
 public class SimpleDiscountFactorsTest {
 
   private static final LocalDate DATE_VAL = date(2015, 6, 4);
@@ -56,20 +56,22 @@ public class SimpleDiscountFactorsTest {
   private static final double EPS = 1.0e-6;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getCurve(), CURVE);
-    assertEquals(test.getParameterCount(), CURVE.getParameterCount());
-    assertEquals(test.getParameter(0), CURVE.getParameter(0));
-    assertEquals(test.getParameterMetadata(0), CURVE.getParameterMetadata(0));
-    assertEquals(test.withParameter(0, 1d).getCurve(), CURVE.withParameter(0, 1d));
-    assertEquals(test.withPerturbation((i, v, m) -> v + 1d).getCurve(), CURVE.withPerturbation((i, v, m) -> v + 1d));
-    assertEquals(test.findData(CURVE.getName()), Optional.of(CURVE));
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
+    assertThat(test.getCurve()).isEqualTo(CURVE);
+    assertThat(test.getParameterCount()).isEqualTo(CURVE.getParameterCount());
+    assertThat(test.getParameter(0)).isEqualTo(CURVE.getParameter(0));
+    assertThat(test.getParameterMetadata(0)).isEqualTo(CURVE.getParameterMetadata(0));
+    assertThat(test.withParameter(0, 1d).getCurve()).isEqualTo(CURVE.withParameter(0, 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d).getCurve()).isEqualTo(CURVE.withPerturbation((i, v, m) -> v + 1d));
+    assertThat(test.findData(CURVE.getName())).isEqualTo(Optional.of(CURVE));
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_of_badCurve() {
     InterpolatedNodalCurve notYearFraction = InterpolatedNodalCurve.of(
         Curves.prices(NAME), DoubleArray.of(0, 10), DoubleArray.of(1, 2), INTERPOLATOR);
@@ -91,38 +93,43 @@ public class SimpleDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_discountFactor() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double expected = CURVE.yValue(relativeYearFraction);
-    assertEquals(test.discountFactor(DATE_AFTER), expected);
+    assertThat(test.discountFactor(DATE_AFTER)).isEqualTo(expected);
   }
   
+  @Test
   public void test_discountFactorTimeDerivative() {
     DiscountFactors test = DiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double expectedP = test.discountFactor(relativeYearFraction + EPS);
     double expectedM = test.discountFactor(relativeYearFraction - EPS);
-    assertEquals(test.discountFactorTimeDerivative(relativeYearFraction), (expectedP - expectedM) / (2 * EPS), TOL_FD);
+    assertThat(test.discountFactorTimeDerivative(relativeYearFraction)).isCloseTo((expectedP - expectedM) / (2 * EPS), offset(TOL_FD));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zeroRate() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double discountFactor = test.discountFactor(DATE_AFTER);
     double zeroRate = test.zeroRate(DATE_AFTER);
-    assertEquals(Math.exp(-zeroRate * relativeYearFraction), discountFactor);
+    assertThat(Math.exp(-zeroRate * relativeYearFraction)).isEqualTo(discountFactor);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_discountFactor_withSpread_continuous() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double expected = CURVE.yValue(relativeYearFraction) * Math.exp(-SPREAD * relativeYearFraction);
-    assertEquals(test.discountFactorWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0), expected, TOL);
+    assertThat(test.discountFactorWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0)).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_discountFactor_withSpread_periodic() {
     int periodPerYear = 4;
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
@@ -130,12 +137,13 @@ public class SimpleDiscountFactorsTest {
     double discountFactorBase = test.discountFactor(DATE_AFTER);
     double rate = (Math.pow(discountFactorBase, -1d / periodPerYear / relativeYearFraction) - 1d) * periodPerYear;
     double expected = discountFactorFromPeriodicallyCompoundedRate(rate + SPREAD, periodPerYear, relativeYearFraction);
-    assertEquals(test.discountFactorWithSpread(DATE_AFTER, SPREAD, PERIODIC, periodPerYear), expected, TOL);
+    assertThat(test.discountFactorWithSpread(DATE_AFTER, SPREAD, PERIODIC, periodPerYear)).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_discountFactor_withSpread_smallYearFraction() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
-    assertEquals(test.discountFactorWithSpread(DATE_VAL, SPREAD, PERIODIC, 2), 1d);
+    assertThat(test.discountFactorWithSpread(DATE_VAL, SPREAD, PERIODIC, 2)).isEqualTo(1d);
   }
 
   private double discountFactorFromPeriodicallyCompoundedRate(double rate, double periodPerYear, double time) {
@@ -143,39 +151,44 @@ public class SimpleDiscountFactorsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zeroRatePointSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = CURVE.yValue(relativeYearFraction);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, -df * relativeYearFraction);
-    assertEquals(test.zeroRatePointSensitivity(DATE_AFTER), expected);
+    assertThat(test.zeroRatePointSensitivity(DATE_AFTER)).isEqualTo(expected);
   }
 
+  @Test
   public void test_zeroRatePointSensitivity_sensitivityCurrency() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = CURVE.yValue(relativeYearFraction);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, USD, -df * relativeYearFraction);
-    assertEquals(test.zeroRatePointSensitivity(DATE_AFTER, USD), expected);
+    assertThat(test.zeroRatePointSensitivity(DATE_AFTER, USD)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_zeroRatePointSensitivityWithSpread_continuous() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = CURVE.yValue(relativeYearFraction) * Math.exp(-SPREAD * relativeYearFraction);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, -df * relativeYearFraction);
-    assertEquals(test.zeroRatePointSensitivityWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0), expected);
+    assertThat(test.zeroRatePointSensitivityWithSpread(DATE_AFTER, SPREAD, CONTINUOUS, 0)).isEqualTo(expected);
   }
 
+  @Test
   public void test_zeroRatePointSensitivityWithSpread_sensitivityCurrency_continuous() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = CURVE.yValue(relativeYearFraction) * Math.exp(-SPREAD * relativeYearFraction);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, relativeYearFraction, USD, -df * relativeYearFraction);
-    assertEquals(test.zeroRatePointSensitivityWithSpread(DATE_AFTER, USD, SPREAD, CONTINUOUS, 1), expected);
+    assertThat(test.zeroRatePointSensitivityWithSpread(DATE_AFTER, USD, SPREAD, CONTINUOUS, 1)).isEqualTo(expected);
   }
 
+  @Test
   public void test_zeroRatePointSensitivityWithSpread_periodic() {
     int periodPerYear = 4;
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
@@ -190,12 +203,13 @@ public class SimpleDiscountFactorsTest {
         discountFactorFromPeriodicallyCompoundedRate(rateDw + SPREAD, periodPerYear, relativeYearFraction));
     ZeroRateSensitivity computed = test.zeroRatePointSensitivityWithSpread(
         DATE_AFTER, SPREAD, PERIODIC, periodPerYear);
-    assertEquals(computed.getSensitivity(), expectedValue, EPS);
-    assertEquals(computed.getCurrency(), GBP);
-    assertEquals(computed.getCurveCurrency(), GBP);
-    assertEquals(computed.getYearFraction(), relativeYearFraction);
+    assertThat(computed.getSensitivity()).isCloseTo(expectedValue, offset(EPS));
+    assertThat(computed.getCurrency()).isEqualTo(GBP);
+    assertThat(computed.getCurveCurrency()).isEqualTo(GBP);
+    assertThat(computed.getYearFraction()).isEqualTo(relativeYearFraction);
   }
 
+  @Test
   public void test_zeroRatePointSensitivityWithSpread_sensitivityCurrency_periodic() {
     int periodPerYear = 4;
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
@@ -210,25 +224,28 @@ public class SimpleDiscountFactorsTest {
         discountFactorFromPeriodicallyCompoundedRate(rateDw + SPREAD, periodPerYear, relativeYearFraction));
     ZeroRateSensitivity computed = test
         .zeroRatePointSensitivityWithSpread(DATE_AFTER, USD, SPREAD, PERIODIC, periodPerYear);
-    assertEquals(computed.getSensitivity(), expectedValue, EPS);
-    assertEquals(computed.getCurrency(), USD);
-    assertEquals(computed.getCurveCurrency(), GBP);
-    assertEquals(computed.getYearFraction(), relativeYearFraction);
+    assertThat(computed.getSensitivity()).isCloseTo(expectedValue, offset(EPS));
+    assertThat(computed.getCurrency()).isEqualTo(USD);
+    assertThat(computed.getCurveCurrency()).isEqualTo(GBP);
+    assertThat(computed.getYearFraction()).isEqualTo(relativeYearFraction);
   }
 
+  @Test
   public void test_zeroRatePointSensitivityWithSpread_smallYearFraction() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, -0d);
-    assertEquals(test.zeroRatePointSensitivityWithSpread(DATE_VAL, SPREAD, CONTINUOUS, 0), expected);
+    assertThat(test.zeroRatePointSensitivityWithSpread(DATE_VAL, SPREAD, CONTINUOUS, 0)).isEqualTo(expected);
   }
 
+  @Test
   public void test_zeroRatePointSensitivityWithSpread_sensitivityCurrency_smallYearFraction() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity expected = ZeroRateSensitivity.of(GBP, 0d, USD, -0d);
-    assertEquals(test.zeroRatePointSensitivityWithSpread(DATE_VAL, USD, SPREAD, PERIODIC, 2), expected);
+    assertThat(test.zeroRatePointSensitivityWithSpread(DATE_VAL, USD, SPREAD, PERIODIC, 2)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyParameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_AFTER);
@@ -239,40 +256,45 @@ public class SimpleDiscountFactorsTest {
         CURVE.yValueParameterSensitivity(relativeYearFraction)
             .multipliedBy(-1d / discountFactor / relativeYearFraction)
             .multipliedBy(sens.getCurrency(), sens.getSensitivity()));
-    assertEquals(test.parameterSensitivity(sens), expected);
+    assertThat(test.parameterSensitivity(sens)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currencyParameterSensitivity_val_date() {
     // Discount factor at valuation date is always 0, no sensitivity.
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity sens = test.zeroRatePointSensitivity(DATE_VAL);
-    assertEquals(test.parameterSensitivity(sens), CurrencyParameterSensitivities.empty());
+    assertThat(test.parameterSensitivity(sens)).isEqualTo(CurrencyParameterSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
   // proper end-to-end FD tests are elsewhere
+  @Test
   public void test_parameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     ZeroRateSensitivity point = ZeroRateSensitivity.of(GBP, 1d, 1d);
-    assertEquals(test.parameterSensitivity(point).size(), 1);
+    assertThat(test.parameterSensitivity(point).size()).isEqualTo(1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_createParameterSensitivity() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     DoubleArray sensitivities = DoubleArray.of(0.12, 0.15);
     CurrencyParameterSensitivities sens = test.createParameterSensitivity(USD, sensitivities);
-    assertEquals(sens.getSensitivities().get(0), CURVE.createParameterSensitivity(USD, sensitivities));
+    assertThat(sens.getSensitivities().get(0)).isEqualTo(CURVE.createParameterSensitivity(USD, sensitivities));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withCurve() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE).withCurve(CURVE2);
-    assertEquals(test.getCurve(), CURVE2);
+    assertThat(test.getCurve()).isEqualTo(CURVE2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SimpleDiscountFactors test = SimpleDiscountFactors.of(GBP, DATE_VAL, CURVE);
     coverImmutableBean(test);

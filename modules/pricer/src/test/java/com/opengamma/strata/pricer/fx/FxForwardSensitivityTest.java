@@ -13,15 +13,13 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
@@ -32,33 +30,35 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
 /**
  * Test {@link FxForwardSensitivity}.
  */
-@Test
 public class FxForwardSensitivityTest {
 
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, GBP);
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2015, 11, 23);
   private static final double SENSITIVITY = 1.34d;
 
+  @Test
   public void test_of_withoutCurrency() {
     FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getReferenceCounterCurrency(), EUR);
-    assertEquals(test.getReferenceCurrency(), GBP);
-    assertEquals(test.getReferenceDate(), REFERENCE_DATE);
-    assertEquals(test.getSensitivity(), SENSITIVITY);
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getReferenceCounterCurrency()).isEqualTo(EUR);
+    assertThat(test.getReferenceCurrency()).isEqualTo(GBP);
+    assertThat(test.getReferenceDate()).isEqualTo(REFERENCE_DATE);
+    assertThat(test.getSensitivity()).isEqualTo(SENSITIVITY);
   }
 
+  @Test
   public void test_of_withCurrency() {
     FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, EUR, REFERENCE_DATE, USD, SENSITIVITY);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getReferenceCounterCurrency(), GBP);
-    assertEquals(test.getReferenceCurrency(), EUR);
-    assertEquals(test.getReferenceDate(), REFERENCE_DATE);
-    assertEquals(test.getSensitivity(), SENSITIVITY);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getReferenceCounterCurrency()).isEqualTo(GBP);
+    assertThat(test.getReferenceCurrency()).isEqualTo(EUR);
+    assertThat(test.getReferenceDate()).isEqualTo(REFERENCE_DATE);
+    assertThat(test.getSensitivity()).isEqualTo(SENSITIVITY);
   }
 
+  @Test
   public void test_of_wrongRefCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxForwardSensitivity.of(CURRENCY_PAIR, USD, REFERENCE_DATE, SENSITIVITY));
@@ -67,36 +67,40 @@ public class FxForwardSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withCurrency_same() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.withCurrency(EUR);
-    assertEquals(test, base);
+    assertThat(test).isEqualTo(base);
   }
 
+  @Test
   public void test_withCurrency_other() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.withCurrency(USD);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getReferenceCounterCurrency(), EUR);
-    assertEquals(test.getReferenceCurrency(), GBP);
-    assertEquals(test.getReferenceDate(), REFERENCE_DATE);
-    assertEquals(test.getSensitivity(), SENSITIVITY);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getReferenceCounterCurrency()).isEqualTo(EUR);
+    assertThat(test.getReferenceCurrency()).isEqualTo(GBP);
+    assertThat(test.getReferenceDate()).isEqualTo(REFERENCE_DATE);
+    assertThat(test.getSensitivity()).isEqualTo(SENSITIVITY);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withSensitivity() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.withSensitivity(13.5d);
-    assertEquals(test.getCurrency(), EUR);
-    assertEquals(test.getCurrencyPair(), CURRENCY_PAIR);
-    assertEquals(test.getReferenceCounterCurrency(), EUR);
-    assertEquals(test.getReferenceCurrency(), GBP);
-    assertEquals(test.getReferenceDate(), REFERENCE_DATE);
-    assertEquals(test.getSensitivity(), 13.5d);
+    assertThat(test.getCurrency()).isEqualTo(EUR);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getReferenceCounterCurrency()).isEqualTo(EUR);
+    assertThat(test.getReferenceCurrency()).isEqualTo(GBP);
+    assertThat(test.getReferenceDate()).isEqualTo(REFERENCE_DATE);
+    assertThat(test.getSensitivity()).isEqualTo(13.5d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareKey() {
     FxForwardSensitivity a1 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, EUR, SENSITIVITY);
     FxForwardSensitivity a2 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, EUR, SENSITIVITY);
@@ -105,20 +109,21 @@ public class FxForwardSensitivityTest {
     FxForwardSensitivity d = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, JPY, SENSITIVITY);
     FxForwardSensitivity e = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, date(2015, 9, 27), SENSITIVITY);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, SENSITIVITY);
-    assertEquals(a1.compareKey(a2), 0);
-    assertEquals(a1.compareKey(b) < 0, true);
-    assertEquals(b.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(c) < 0, true);
-    assertEquals(c.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(d) < 0, true);
-    assertEquals(d.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(e) > 0, true);
-    assertEquals(e.compareKey(a1) < 0, true);
-    assertEquals(a1.compareKey(other) < 0, true);
-    assertEquals(other.compareKey(a1) > 0, true);
+    assertThat(a1.compareKey(a2)).isEqualTo(0);
+    assertThat(a1.compareKey(b) < 0).isTrue();
+    assertThat(b.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(c) < 0).isTrue();
+    assertThat(c.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(d) < 0).isTrue();
+    assertThat(d.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(e) > 0).isTrue();
+    assertThat(e.compareKey(a1) < 0).isTrue();
+    assertThat(a1.compareKey(other) < 0).isTrue();
+    assertThat(other.compareKey(a1) > 0).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     double rate = 1.4d;
@@ -126,76 +131,85 @@ public class FxForwardSensitivityTest {
     FxForwardSensitivity test1 = (FxForwardSensitivity) base.convertedTo(USD, matrix);
     FxForwardSensitivity expected = FxForwardSensitivity.of(
         CURRENCY_PAIR, GBP, REFERENCE_DATE, USD, SENSITIVITY * rate);
-    assertEquals(test1, expected);
+    assertThat(test1).isEqualTo(expected);
     FxForwardSensitivity test2 = (FxForwardSensitivity) base.convertedTo(EUR, matrix);
-    assertEquals(test2, base);
+    assertThat(test2).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.multipliedBy(2.4d);
     FxForwardSensitivity expected = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY * 2.4d);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapSensitivity() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.mapSensitivity(s -> 1d / s);
     FxForwardSensitivity expected = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, 1d / SENSITIVITY);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalize() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.normalize();
-    assertEquals(test, base);
+    assertThat(test).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith() {
     FxForwardSensitivity base1 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity base2 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, 1.56d);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base1).add(base2);
     PointSensitivityBuilder test = base1.combinedWith(base2);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
+  @Test
   public void test_combinedWith_mutable() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     MutablePointSensitivities expected = new MutablePointSensitivities();
     expected.add(base);
     PointSensitivityBuilder test = base.combinedWith(new MutablePointSensitivities());
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_buildInto() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
-    assertSame(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test).isSameAs(combo);
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_build() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     PointSensitivities test = base.build();
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cloned() {
     FxForwardSensitivity base = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     FxForwardSensitivity test = base.cloned();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxForwardSensitivity test1 = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     coverImmutableBean(test1);
@@ -203,6 +217,7 @@ public class FxForwardSensitivityTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxForwardSensitivity test = FxForwardSensitivity.of(CURRENCY_PAIR, GBP, REFERENCE_DATE, SENSITIVITY);
     assertSerialization(test);

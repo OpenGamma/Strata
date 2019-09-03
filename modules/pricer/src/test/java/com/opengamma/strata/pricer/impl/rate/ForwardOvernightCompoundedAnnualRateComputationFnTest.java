@@ -7,15 +7,15 @@ package com.opengamma.strata.pricer.impl.rate;
 
 import static com.opengamma.strata.basics.index.OvernightIndices.BRL_CDI;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -45,7 +45,6 @@ import com.opengamma.strata.product.rate.OvernightCompoundedAnnualRateComputatio
 /**
  * Test {@link ForwardOvernightCompoundedAnnualRateComputationFn}.
  */
-@Test
 public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -79,6 +78,7 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
   private static final ForwardOvernightCompoundedAnnualRateComputationFn OBS_BRL_FWD_ONCMP =
       ForwardOvernightCompoundedAnnualRateComputationFn.DEFAULT;
 
+  @Test
   public void test_rateForward() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedAnnualRateComputation ro =
@@ -93,20 +93,21 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_BRL_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
 
     // explain
     ExplainMapBuilder builder = ExplainMap.builder();
     double explainedRate = OBS_BRL_FWD_ONCMP.explainRate(
         ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv, builder);
-    assertEquals(explainedRate, rateExpected, TOLERANCE_RATE);
+    assertThat(explainedRate).isCloseTo(rateExpected, offset(TOLERANCE_RATE));
 
     ExplainMap built = builder.build();
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), false);
-    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, TOLERANCE_RATE);
+    assertThat(built.get(ExplainKey.OBSERVATIONS)).isNotPresent();
+    assertThat(built.get(ExplainKey.COMBINED_RATE).get().doubleValue()).isCloseTo(rateExpected, offset(TOLERANCE_RATE));
   }
 
+  @Test
   public void test_rateForwardSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedAnnualRateComputation ro =
@@ -137,11 +138,12 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(BRL_OBS[1], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_BRL_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
+  @Test
   public void test_rateForwardOneFixing() {
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedAnnualRateComputation ro =
@@ -178,10 +180,11 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_BRL_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
+  @Test
   public void test_rateForwardOneFixingSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
     OvernightCompoundedAnnualRateComputation ro =
@@ -227,11 +230,12 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(BRL_OBS[2], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_BRL_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
+  @Test
   public void test_rateAllFixed() {
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedAnnualRateComputation ro =
@@ -265,10 +269,11 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < valuationDate.length; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_BRL_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
+  @Test
   public void test_rateAllFixedSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 16), date(2015, 1, 17)};
     OvernightCompoundedAnnualRateComputation ro =
@@ -287,10 +292,11 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityComputed = OBS_BRL_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(sensitivityComputed, PointSensitivityBuilder.none());
+      assertThat(sensitivityComputed).isEqualTo(PointSensitivityBuilder.none());
     }
   }
 
+  @Test
   public void test_rateAndSensitivityMissingFixing() {
     LocalDate valuationDate = date(2015, 1, 13);
     OvernightCompoundedAnnualRateComputation ro =
@@ -333,6 +339,7 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
+  @Test
   public void test_rateParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
@@ -353,7 +360,7 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
       CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(BRL_CDI.getCurrency(),
               OBS_BRL_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0)).isTrue();
     }
   }
 

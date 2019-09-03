@@ -5,9 +5,11 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.value.ValueDerivatives;
@@ -20,7 +22,6 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 /**
  * Test {@link SmileDeltaParameters}.
  */
-@Test
 public class SmileDeltaParametersTest {
 
   private static final double TIME_TO_EXPIRY = 2.0;
@@ -39,65 +40,64 @@ public class SmileDeltaParametersTest {
   private static final SmileDeltaParameters SMILE = SmileDeltaParameters.of(
       TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testNullDelta() {
-    SmileDeltaParameters.of(TIME_TO_EXPIRY, ATM, null, RISK_REVERSAL, STRANGLE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SmileDeltaParameters.of(TIME_TO_EXPIRY, ATM, null, RISK_REVERSAL, STRANGLE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testRRLength() {
-    SmileDeltaParameters.of(TIME_TO_EXPIRY, ATM, DELTA, DoubleArray.filled(3), STRANGLE);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SmileDeltaParameters.of(TIME_TO_EXPIRY, ATM, DELTA, DoubleArray.filled(3), STRANGLE));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void testStrangleLength() {
-    SmileDeltaParameters.of(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, DoubleArray.filled(3));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> SmileDeltaParameters.of(TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, DoubleArray.filled(3)));
   }
 
   /**
    * Tests the constructor directly from volatilities (not RR and S).
    */
+  @Test
   public void constructorVolatility() {
     DoubleArray volatility = SMILE.getVolatility();
     SmileDeltaParameters smileFromVolatility =
         SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, volatility, PARAMETER_METADATA);
-    assertEquals(smileFromVolatility, SMILE, "Smile by delta: constructor");
+    assertThat(smileFromVolatility).as("Smile by delta: constructor").isEqualTo(SMILE);
   }
 
   /**
    * Tests the getters.
    */
+  @Test
   public void getter() {
-    assertEquals(SMILE.getExpiry(), TIME_TO_EXPIRY, "Smile by delta: time to expiry");
-    assertEquals(SMILE.getDelta(), DELTA, "Smile by delta: delta");
+    assertThat(SMILE.getExpiry()).as("Smile by delta: time to expiry").isEqualTo(TIME_TO_EXPIRY);
+    assertThat(SMILE.getDelta()).as("Smile by delta: delta").isEqualTo(DELTA);
     SmileDeltaParameters smile2 = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
-    assertEquals(smile2.getVolatility(), SMILE.getVolatility(), "Smile by delta: volatility");
+    assertThat(smile2.getVolatility()).as("Smile by delta: volatility").isEqualTo(SMILE.getVolatility());
   }
 
   /**
    * Tests the volatility computations.
    */
+  @Test
   public void volatility() {
     DoubleArray volatility = SMILE.getVolatility();
     int nbDelta = DELTA.size();
-    assertEquals(volatility.get(nbDelta), ATM, "Volatility: ATM");
+    assertThat(volatility.get(nbDelta)).as("Volatility: ATM").isEqualTo(ATM);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
-      assertEquals(
-          volatility.get(2 * nbDelta - loopdelta) - volatility.get(loopdelta),
-          RISK_REVERSAL.get(loopdelta),
-          1e-8,
-          "Volatility: Risk Reversal " + loopdelta);
-      assertEquals(
-          (volatility.get(2 * nbDelta - loopdelta) + volatility.get(loopdelta)) / 2 - volatility.get(nbDelta),
-          STRANGLE.get(loopdelta),
-          1e-8,
-          "Volatility: Strangle " + loopdelta);
+      assertThat(volatility.get(2 * nbDelta - loopdelta) - volatility.get(loopdelta)).as("Volatility: Risk Reversal " + loopdelta).isCloseTo(RISK_REVERSAL.get(loopdelta), offset(1e-8));
+      assertThat((volatility.get(2 * nbDelta - loopdelta) + volatility.get(loopdelta)) / 2 - volatility.get(nbDelta)).as("Volatility: Strangle " + loopdelta).isCloseTo(STRANGLE.get(loopdelta), offset(1e-8));
     }
   }
 
   /**
    * Tests the strikes computations.
    */
+  @Test
   public void strike() {
     double[] strike = SMILE.strike(FORWARD).toArrayUnsafe();
     DoubleArray volatility = SMILE.getVolatility();
@@ -105,16 +105,16 @@ public class SmileDeltaParametersTest {
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
           FORWARD, strike[loopdelta], TIME_TO_EXPIRY, volatility.get(loopdelta), false);
-      assertEquals(-DELTA.get(loopdelta), dPut.getDerivative(0), 1e-8, "Strike: Put " + loopdelta);
+      assertThat(-DELTA.get(loopdelta)).as("Strike: Put " + loopdelta).isCloseTo(dPut.getDerivative(0), offset(1e-8));
       ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
           FORWARD, strike[2 * nbDelta - loopdelta], TIME_TO_EXPIRY, volatility.get(2 * nbDelta - loopdelta), true);
-      assertEquals(DELTA.get(loopdelta), dCall.getDerivative(0), 1e-8, "Strike: Call " + loopdelta);
+      assertThat(DELTA.get(loopdelta)).as("Strike: Call " + loopdelta).isCloseTo(dCall.getDerivative(0), offset(1e-8));
     }
     ValueDerivatives dPut = BlackFormulaRepository.priceAdjoint(
         FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), false);
     ValueDerivatives dCall = BlackFormulaRepository.priceAdjoint(
         FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), true);
-    assertEquals(0.0, dCall.getDerivative(0) + dPut.getDerivative(0), 1e-8, "Strike: ATM");
+    assertThat(0.0).as("Strike: ATM").isCloseTo(dCall.getDerivative(0) + dPut.getDerivative(0), offset(1e-8));
   }
 
 }

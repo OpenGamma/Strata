@@ -5,15 +5,16 @@
  */
 package com.opengamma.strata.pricer.impl.volatility.smile;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.function.Function;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
-import org.testng.annotations.Test;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -29,7 +30,6 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsW
  * 
  * @param <T> the smile model data
  */
-@Test
 public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
   protected static double TIME_TO_EXPIRY = 7.0;
@@ -82,6 +82,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     _nosiyFitter = getFitter(F, STRIKES, TIME_TO_EXPIRY, _noisyVols, _errors, model);
   }
 
+  @Test
   @SuppressWarnings("unused")
   public void testExactFit() {
     double[][] start = getStartValues();
@@ -91,16 +92,17 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     for (int trys = 0; trys < nStartPoints; trys++) {
       LeastSquareResultsWithTransform results = _fitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
       DoubleArray res = results.getModelParameters();
-      assertEquals(0.0, results.getChiSq(), _chiSqEps);
+      assertThat(0.0).isCloseTo(results.getChiSq(), offset(_chiSqEps));
       int n = res.size();
       T data = getModelData();
-      assertEquals(data.getNumberOfParameters(), n);
+      assertThat(data.getNumberOfParameters()).isEqualTo(n);
       for (int i = 0; i < n; i++) {
-        assertEquals(data.getParameter(i), res.get(i), _paramValueEps);
+        assertThat(data.getParameter(i)).isCloseTo(res.get(i), offset(_paramValueEps));
       }
     }
   }
 
+  @Test
   public void testNoisyFit() {
     double[][] start = getStartValues();
     BitSet[] fixed = getFixedValues();
@@ -110,16 +112,17 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       LeastSquareResultsWithTransform results = _nosiyFitter.solve(DoubleArray.copyOf(start[trys]), fixed[trys]);
       DoubleArray res = results.getModelParameters();
       double eps = 1e-2;
-      assertTrue(results.getChiSq() < 7);
+      assertThat(results.getChiSq() < 7).isTrue();
       int n = res.size();
       T data = getModelData();
-      assertEquals(data.getNumberOfParameters(), n);
+      assertThat(data.getNumberOfParameters()).isEqualTo(n);
       for (int i = 0; i < n; i++) {
-        assertEquals(data.getParameter(i), res.get(i), eps);
+        assertThat(data.getParameter(i)).isCloseTo(res.get(i), offset(eps));
       }
     }
   }
 
+  @Test
   public void timeTest() {
     long start = 0;
     int hotspotWarmupCycles = 200;
@@ -136,6 +139,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     getlogger().info("time per fit: " + ((double) time) / benchmarkCycles / nStarts + "ms");
   }
 
+  @Test
   public void horribleMarketDataTest() {
     double forward = 0.0059875;
     double[] strikes = new double[] {0.0012499999999999734, 0.0024999999999999467, 0.003750000000000031,
@@ -172,10 +176,11 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
       }
     }
     if (best != null) {
-      assertTrue(best.getChiSq() < 24000); //average error 31.6% - not a good fit, but the data is horrible
+      assertThat(best.getChiSq() < 24000).isTrue(); //average error 31.6% - not a good fit, but the data is horrible
     }
   }
 
+  @Test
   public void testJacobian() {
     T data = getModelData();
     int n = data.getNumberOfParameters();
@@ -189,7 +194,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   // random test to be turned off
-  @Test(enabled = false)
+  @Disabled
   public void testRandomJacobian() {
     for (int i = 0; i < 10; i++) {
       double[] temp = getRandomStartValues();
@@ -214,13 +219,13 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
     int rows = jacFD.rowCount();
     int cols = jacFD.columnCount();
 
-    assertEquals(_cleanVols.length, rows);
-    assertEquals(n, cols);
-    assertEquals(rows, jac.rowCount());
-    assertEquals(cols, jac.columnCount());
+    assertThat(_cleanVols.length).isEqualTo(rows);
+    assertThat(n).isEqualTo(cols);
+    assertThat(rows).isEqualTo(jac.rowCount());
+    assertThat(cols).isEqualTo(jac.columnCount());
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        assertEquals(jacFD.get(i, j), jac.get(i, j), 2e-2);
+        assertThat(jacFD.get(i, j)).isCloseTo(jac.get(i, j), offset(2e-2));
       }
     }
   }

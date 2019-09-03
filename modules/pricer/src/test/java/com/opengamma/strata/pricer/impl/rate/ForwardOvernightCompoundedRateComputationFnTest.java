@@ -11,14 +11,14 @@ import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.TestHelper.assertThrows;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -47,7 +47,6 @@ import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
 /**
  * Test {@link ForwardOvernightCompoundedRateComputationFn}.
  */
-@Test
 @SuppressWarnings("deprecation")
 public class ForwardOvernightCompoundedRateComputationFnTest {
 
@@ -103,6 +102,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       ForwardOvernightCompoundedRateComputationFn.DEFAULT;
 
   /** No cutoff period and the period entirely forward. Test the forward part only. */
+  @Test
   public void rateFedFundNoCutOffForward() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateComputation ro =
@@ -117,21 +117,22 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
 
     // explain
     ExplainMapBuilder builder = ExplainMap.builder();
     double explainedRate = OBS_FWD_ONCMP.explainRate(
         ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv, builder);
-    assertEquals(explainedRate, rateExpected, TOLERANCE_RATE);
+    assertThat(explainedRate).isCloseTo(rateExpected, offset(TOLERANCE_RATE));
 
     ExplainMap built = builder.build();
-    assertEquals(built.get(ExplainKey.OBSERVATIONS).isPresent(), false);
-    assertEquals(built.get(ExplainKey.COMBINED_RATE).get().doubleValue(), rateExpected, TOLERANCE_RATE);
+    assertThat(built.get(ExplainKey.OBSERVATIONS)).isNotPresent();
+    assertThat(built.get(ExplainKey.COMBINED_RATE).get().doubleValue()).isCloseTo(rateExpected, offset(TOLERANCE_RATE));
   }
 
   /** No cutoff period and the period entirely forward. Test the forward part only against FD approximation. */
+  @Test
   public void rateFedFundNoCutOffForwardSensitivity() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateComputation ro =
@@ -165,12 +166,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(USD_OBS[1], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
   /** No cutoff period and the period entirely forward. One day period. */
+  @Test
   public void rateFedFundNoCutOffForward1d() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateComputation ro =
@@ -185,11 +187,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** No cutoff period and the period entirely forward. Test the forward part only against FD approximation. */
+  @Test
   public void rateFedFundNoCutOffForwardSensitivit1dy() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateComputation ro =
@@ -223,13 +226,14 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(USD_OBS[5], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), 10*EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), 10 * EPS_FD)).isTrue();
     }
   }
 
   /** Two days cutoff and the period is entirely forward. Test forward part plus cutoff specifics.
    * Almost all Overnight Compounding coupon (OIS) don't use cutoff period.*/
+  @Test
   public void rateFedFund2CutOffForward() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateComputation ro =
@@ -259,12 +263,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Two days cutoff and the period is entirely forward. Test forward part plus cutoff specifics against FD.
    * Almost all Overnight Compounding coupon (OIS) don't use cutoff period.*/
+  @Test
   public void rateFedFund2CutOffForwardSensitivity() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     OvernightCompoundedRateComputation ro =
@@ -355,12 +360,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
           .combinedWith(sensitivityBuilderExpected2);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
   /** No cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate.*/
+  @Test
   public void rateFedFund0CutOffValuation1() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 1
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -399,11 +405,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** No cutoff and one already fixed ON rate. Test the already fixed portion with only one fixed ON rate against FD.*/
+  @Test
   public void rateFedFund0CutOffValuation1Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 1
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -450,13 +457,14 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(USD_OBS[2], FIXING_END_DATE, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
   //-------------------------------------------------------------------------
   /** No cutoff period and two already fixed ON rate. ON index is EONIA. */
+  @Test
   public void rateEonia0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -502,12 +510,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Test rate sensitivity against FD approximation.
    * No cutoff period and two already fixed ON rate. ON index is SONIA. */
+  @Test
   public void rateEonia0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -556,13 +565,14 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(GBP_OBS[lastFixing], FIXING_DATES[6], sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
   //-------------------------------------------------------------------------
   /** No cutoff period and two already fixed ON rate. ON index is TOIS (with a effective offset of 1; TN rate). */
+  @Test
   public void rateTois0CutOffValuation2() {
     // publication=0, cutoff=0, effective offset=1, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -617,12 +627,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Test rate sensitivity against FD approximation.
    * No cutoff period and two already fixed ON rate. ON index is TOIS (with a effective offset of 1; TN rate). */
+  @Test
   public void rateTois0CutOffValuation2Sensitivity() {
     // publication=0, cutoff=0, effective offset=1, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 9), date(2015, 1, 12)};
@@ -678,13 +689,14 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
           OvernightRateSensitivity.ofPeriod(obs, dateMat, sensitivityExpected);
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
   //-------------------------------------------------------------------------
   /** No cutoff and two already fixed ON rate. ON index is Fed Fund. */
+  @Test
   public void rateFedFund0CutOffValuation2() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
@@ -730,12 +742,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Test rate sensitivity against FD approximation.
    * No cutoff and two already fixed ON rate. ON index is Fed Fund. */
+  @Test
   public void rateFedFund0CutOffValuation2Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate[] valuationDate = {date(2015, 1, 12), date(2015, 1, 13)};
@@ -785,12 +798,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       PointSensitivityBuilder sensitivityBuilderComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
 
-      assertTrue(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
-          sensitivityBuilderExpected.build().normalized(), EPS_FD));
+      assertThat(sensitivityBuilderComputed.build().normalized().equalWithTolerance(
+          sensitivityBuilderExpected.build().normalized(), EPS_FD)).isTrue();
     }
   }
 
   /** No cutoff, all ON rates already fixed. Time series up to 14-Jan (last fixing date used). */
+  @Test
   public void rateFedFund0CutOffValuationEndTs14() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
@@ -825,12 +839,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < valuationDate.length; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Test rate sensitivity. No cutoff, all ON rates already fixed. Thus expected sensitivity is none.
    * Time series up to 14-Jan (last fixing date used). */
+  @Test
   public void rateFedFund0CutOffValuationEndTs14Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
@@ -850,11 +865,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(sensitivityComputed, PointSensitivityBuilder.none());
+      assertThat(sensitivityComputed).isEqualTo(PointSensitivityBuilder.none());
     }
   }
 
   /** No cutoff, all ON rates already fixed. Time series up to 15-Jan (one day after the last fixing date). */
+  @Test
   public void rateFedFund0CutOffValuationEndTs15() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 16), date(2015, 1, 17)};
@@ -889,12 +905,13 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < valuationDate.length; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Test rate sensitivity. No cutoff, all ON rates already fixed. Thus expected sensitivity is none.
    * Time series up to 15-Jan (one day after the last fixing date). */
+  @Test
   public void rateFedFund0CutOffValuationEndTs15Sensitivity() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 16), date(2015, 1, 17)};
@@ -914,11 +931,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(sensitivityComputed, PointSensitivityBuilder.none());
+      assertThat(sensitivityComputed).isEqualTo(PointSensitivityBuilder.none());
     }
   }
 
   /** Two days cutoff, all ON rates already fixed. */
+  @Test
   public void rateFedFund2CutOffValuationEnd() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 14), date(2015, 1, 15), date(2015, 1, 16)};
@@ -958,11 +976,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int loopvaldate = 0; loopvaldate < 3; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(rateExpected, rateComputed, TOLERANCE_RATE);
+      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
 
   /** Test rate sensitivity. Two days cutoff, all ON rates already fixed. Thus none is expected. */
+  @Test
   public void rateFedFund2CutOffValuationEndSensitivity() {
     // publication=1, cutoff=2, effective offset=0, TS: Fixing all
     LocalDate[] valuationDate = {date(2015, 1, 14), date(2015, 1, 15), date(2015, 1, 16)};
@@ -982,11 +1001,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
       PointSensitivityBuilder sensitivityComputed = OBS_FWD_ONCMP.rateSensitivity(ro,
           DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertEquals(sensitivityComputed, PointSensitivityBuilder.none());
+      assertThat(sensitivityComputed).isEqualTo(PointSensitivityBuilder.none());
     }
   }
 
   /** One past fixing missing. Checking the error thrown. */
+  @Test
   public void rateFedFund0CutOffValuation2MissingFixing() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
     LocalDate valuationDate = date(2015, 1, 13);
@@ -1031,6 +1051,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
   /** Test parameter sensitivity with fd calculator. No cutoff. */
+  @Test
   public void rateNoCutOffForwardParameterSensitivity() { // publication=1, cutoff=0, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
@@ -1051,11 +1072,12 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0)).isTrue();
     }
   }
 
   /** Test parameter sensitivity with fd calculator. Two days cutoff. */
+  @Test
   public void rate2CutOffForwardParameterSensitivity() { // publication=1, cutoff=2, effective offset=0, Forward
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
     DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
@@ -1076,7 +1098,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       CurrencyParameterSensitivities parameterSensitivityExpected =
           CAL_FD.sensitivity(prov, (p) -> CurrencyAmount.of(USD_FED_FUND.getCurrency(),
               OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, (p))));
-      assertTrue(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0));
+      assertThat(parameterSensitivityComputed.equalWithTolerance(parameterSensitivityExpected, EPS_FD * 10.0)).isTrue();
     }
   }
 

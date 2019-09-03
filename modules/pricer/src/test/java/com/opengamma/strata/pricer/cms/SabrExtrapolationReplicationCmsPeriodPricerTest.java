@@ -8,14 +8,14 @@ package com.opengamma.strata.pricer.cms;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.product.swap.SwapIndices.EUR_EURIBOR_1100_5Y;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -55,7 +55,6 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 /**
  * Test {@link SabrExtrapolationReplicationCmsPeriodPricer}.
  */
-@Test
 public class SabrExtrapolationReplicationCmsPeriodPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -136,20 +135,22 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private static final DiscountingSwapProductPricer PRICER_SWAP =
       DiscountingSwapProductPricer.DEFAULT;
 
+  @Test
   public void test_presentValue_zero() {
     CurrencyAmount pv = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvCaplet = PRICER.presentValue(CAPLET_ZERO, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvFloorlet = PRICER.presentValue(FLOORLET_ZERO, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(pv.getAmount(), pvCaplet.getAmount(), NOTIONAL * TOL);
-    assertEquals(pvFloorlet.getAmount(), 0d, 2.0d * NOTIONAL * TOL);
+    assertThat(pv.getAmount()).isCloseTo(pvCaplet.getAmount(), offset(NOTIONAL * TOL));
+    assertThat(pvFloorlet.getAmount()).isCloseTo(0d, offset(2.0d * NOTIONAL * TOL));
     CurrencyAmount pvShift = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvCapletShift = PRICER.presentValue(CAPLET_SHIFT, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvFloorletShift = PRICER.presentValue(FLOORLET_SHIFT, RATES_PROVIDER, VOLATILITIES_SHIFT);
     double dfPayment = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
-    assertEquals(pvShift.getAmount(), pvCapletShift.getAmount() - SHIFT * dfPayment * NOTIONAL * ACC_FACTOR, NOTIONAL * TOL);
-    assertEquals(pvFloorletShift.getAmount(), 0d, 2.0d * NOTIONAL * TOL);
+    assertThat(pvShift.getAmount()).isCloseTo(pvCapletShift.getAmount() - SHIFT * dfPayment * NOTIONAL * ACC_FACTOR, offset(NOTIONAL * TOL));
+    assertThat(pvFloorletShift.getAmount()).isCloseTo(0d, offset(2.0d * NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_buySell() {
     CurrencyAmount pvBuy = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvCapletBuy = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES);
@@ -157,11 +158,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pvSell = PRICER.presentValue(COUPON_SELL, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvCapletSell = PRICER.presentValue(CAPLET_SELL, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvFloorletSell = PRICER.presentValue(FLOORLET_SELL, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(pvBuy.getAmount(), -pvSell.getAmount(), NOTIONAL * TOL);
-    assertEquals(pvCapletBuy.getAmount(), -pvCapletSell.getAmount(), NOTIONAL * TOL);
-    assertEquals(pvFloorletBuy.getAmount(), -pvFloorletSell.getAmount(), NOTIONAL * TOL);
+    assertThat(pvBuy.getAmount()).isCloseTo(-pvSell.getAmount(), offset(NOTIONAL * TOL));
+    assertThat(pvCapletBuy.getAmount()).isCloseTo(-pvCapletSell.getAmount(), offset(NOTIONAL * TOL));
+    assertThat(pvFloorletBuy.getAmount()).isCloseTo(-pvFloorletSell.getAmount(), offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_afterFix() {
     CurrencyAmount pv = PRICER.presentValue(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     CurrencyAmount pvCapletOtm = PRICER.presentValue(CAPLET, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
@@ -169,13 +171,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pvFloorletItm = PRICER.presentValue(FLOORLET, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     CurrencyAmount pvFloorletOtm = PRICER.presentValue(FLOORLET_NEGATIVE, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     double factor = RATES_PROVIDER_AFTER_FIX.discountFactor(EUR, PAYMENT) * NOTIONAL * COUPON.getYearFraction();
-    assertEquals(pv.getAmount(), OBS_INDEX * factor, NOTIONAL * TOL);
-    assertEquals(pvCapletOtm.getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(pvCapletItm.getAmount(), (OBS_INDEX - STRIKE_NEGATIVE) * factor, NOTIONAL * TOL);
-    assertEquals(pvFloorletItm.getAmount(), (STRIKE - OBS_INDEX) * factor, NOTIONAL * TOL);
-    assertEquals(pvFloorletOtm.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(pv.getAmount()).isCloseTo(OBS_INDEX * factor, offset(NOTIONAL * TOL));
+    assertThat(pvCapletOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(pvCapletItm.getAmount()).isCloseTo((OBS_INDEX - STRIKE_NEGATIVE) * factor, offset(NOTIONAL * TOL));
+    assertThat(pvFloorletItm.getAmount()).isCloseTo((STRIKE - OBS_INDEX) * factor, offset(NOTIONAL * TOL));
+    assertThat(pvFloorletOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_onPayment() {
     CurrencyAmount pv = PRICER.presentValue(COUPON, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     CurrencyAmount pvCapletOtm = PRICER.presentValue(CAPLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_AFTER_FIX);
@@ -183,22 +186,24 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     CurrencyAmount pvFloorletItm = PRICER.presentValue(FLOORLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     CurrencyAmount pvFloorletOtm = PRICER.presentValue(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     double factor = NOTIONAL * COUPON.getYearFraction();
-    assertEquals(pv.getAmount(), OBS_INDEX * factor, NOTIONAL * TOL);
-    assertEquals(pvCapletOtm.getAmount(), 0d, NOTIONAL * TOL);
-    assertEquals(pvCapletItm.getAmount(), (OBS_INDEX - STRIKE_NEGATIVE) * factor, NOTIONAL * TOL);
-    assertEquals(pvFloorletItm.getAmount(), (STRIKE - OBS_INDEX) * factor, NOTIONAL * TOL);
-    assertEquals(pvFloorletOtm.getAmount(), 0d, NOTIONAL * TOL);
+    assertThat(pv.getAmount()).isCloseTo(OBS_INDEX * factor, offset(NOTIONAL * TOL));
+    assertThat(pvCapletOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+    assertThat(pvCapletItm.getAmount()).isCloseTo((OBS_INDEX - STRIKE_NEGATIVE) * factor, offset(NOTIONAL * TOL));
+    assertThat(pvFloorletItm.getAmount()).isCloseTo((STRIKE - OBS_INDEX) * factor, offset(NOTIONAL * TOL));
+    assertThat(pvFloorletOtm.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
+  @Test
   public void test_presentValue_afterPayment() {
     CurrencyAmount pv = PRICER.presentValue(COUPON, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     CurrencyAmount pvCaplet = PRICER.presentValue(CAPLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     CurrencyAmount pvFloorlet = PRICER.presentValue(FLOORLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    assertEquals(pv, CurrencyAmount.zero(EUR));
-    assertEquals(pvCaplet, CurrencyAmount.zero(EUR));
-    assertEquals(pvFloorlet, CurrencyAmount.zero(EUR));
+    assertThat(pv).isEqualTo(CurrencyAmount.zero(EUR));
+    assertThat(pvCaplet).isEqualTo(CurrencyAmount.zero(EUR));
+    assertThat(pvFloorlet).isEqualTo(CurrencyAmount.zero(EUR));
   }
 
+  @Test
   public void test_presentValue_afterFix_noTimeSeries() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValue(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
@@ -208,45 +213,48 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .isThrownBy(() -> PRICER.presentValue(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
   
-  public void test_presentValue_cap_floor_parity() { 
+  @Test
+  public void test_presentValue_cap_floor_parity() {
     // Cap/Floor parity is not perfect as the cash swaption standard formula is not arbitrage free.
     CurrencyAmount pvCap = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvFloor = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvCpn = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     double pvStrike = STRIKE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
-    assertEquals(pvCap.getAmount() - pvFloor.getAmount(), pvCpn.getAmount() - pvStrike, 1.0E+3);    
+    assertThat(pvCap.getAmount() - pvFloor.getAmount()).isCloseTo(pvCpn.getAmount() - pvStrike, offset(1.0E+3));
     CurrencyAmount pvCap1 = PRICER.presentValue(CAPLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvFloor1 = PRICER.presentValue(FLOORLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyAmount pvCpn1 = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     double pvStrike1 = STRIKE_NEGATIVE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
-    assertEquals(pvCap1.getAmount() - pvFloor1.getAmount(), pvCpn1.getAmount() - pvStrike1, 1.0E+3);
+    assertThat(pvCap1.getAmount() - pvFloor1.getAmount()).isCloseTo(pvCpn1.getAmount() - pvStrike1, offset(1.0E+3));
     CurrencyAmount pvCap2 = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvFloor2 = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES);
     CurrencyAmount pvCpn2 = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES);
     double pvStrike2 = STRIKE * NOTIONAL * ACC_FACTOR * RATES_PROVIDER.discountFactor(EUR, PAYMENT);
-    assertEquals(pvCap2.getAmount() - pvFloor2.getAmount(), pvCpn2.getAmount() - pvStrike2, 1.0E+3);
+    assertThat(pvCap2.getAmount() - pvFloor2.getAmount()).isCloseTo(pvCpn2.getAmount() - pvStrike2, offset(1.0E+3));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivityBuilder pvPointCoupon = PRICER.presentValueSensitivityRates(COUPON_SELL, RATES_PROVIDER, VOLATILITIES);
     CurrencyParameterSensitivities computedCoupon = RATES_PROVIDER
         .parameterSensitivity(pvPointCoupon.build());
     CurrencyParameterSensitivities expectedCoupon = FD_CAL.sensitivity(
         RATES_PROVIDER, p -> PRICER.presentValue(COUPON_SELL, p, VOLATILITIES));
-    assertTrue(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL * 50d));
+    assertThat(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL * 50d)).isTrue();
     PointSensitivityBuilder pvCapPoint = PRICER.presentValueSensitivityRates(CAPLET_SELL, RATES_PROVIDER, VOLATILITIES);
     CurrencyParameterSensitivities computedCap = RATES_PROVIDER.parameterSensitivity(pvCapPoint.build());
     CurrencyParameterSensitivities expectedCap = FD_CAL.sensitivity(
         RATES_PROVIDER, p -> PRICER.presentValue(CAPLET_SELL, p, VOLATILITIES));
-    assertTrue(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL * 50d));
+    assertThat(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL * 50d)).isTrue();
     PointSensitivityBuilder pvFloorPoint = PRICER.presentValueSensitivityRates(FLOORLET_SELL, RATES_PROVIDER, VOLATILITIES);
     CurrencyParameterSensitivities computedFloor = RATES_PROVIDER.parameterSensitivity(pvFloorPoint.build());
     CurrencyParameterSensitivities expectedFloor = FD_CAL.sensitivity(
         RATES_PROVIDER, p -> PRICER.presentValue(FLOORLET_SELL, p, VOLATILITIES));
-    assertTrue(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL * 10d));
+    assertThat(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL * 10d)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_shift() {
 //    CurrencyAmount tmp = PRICER.presentValue(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
     PointSensitivityBuilder pvPointCoupon = PRICER.presentValueSensitivityRates(COUPON, RATES_PROVIDER, VOLATILITIES_SHIFT);
@@ -254,19 +262,20 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .parameterSensitivity(pvPointCoupon.build());
     CurrencyParameterSensitivities expectedCoupon = FD_CAL.sensitivity(
         RATES_PROVIDER, p -> PRICER.presentValue(COUPON, p, VOLATILITIES_SHIFT));
-    assertTrue(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL * 50d));
+    assertThat(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL * 50d)).isTrue();
     PointSensitivityBuilder pvCapPoint = PRICER.presentValueSensitivityRates(CAPLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyParameterSensitivities computedCap = RATES_PROVIDER.parameterSensitivity(pvCapPoint.build());
     CurrencyParameterSensitivities expectedCap = FD_CAL.sensitivity(
         RATES_PROVIDER, p -> PRICER.presentValue(CAPLET_NEGATIVE, p, VOLATILITIES_SHIFT));
-    assertTrue(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL * 50d));
+    assertThat(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL * 50d)).isTrue();
     PointSensitivityBuilder pvFloorPoint = PRICER.presentValueSensitivityRates(FLOORLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CurrencyParameterSensitivities computedFloor = RATES_PROVIDER.parameterSensitivity(pvFloorPoint.build());
     CurrencyParameterSensitivities expectedFloor = FD_CAL.sensitivity(
         RATES_PROVIDER, p -> PRICER.presentValue(FLOORLET_NEGATIVE, p, VOLATILITIES_SHIFT));
-    assertTrue(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL * 10d));
+    assertThat(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL * 10d)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_onFix() {
     PointSensitivityBuilder pvPointCoupon =
         PRICER.presentValueSensitivityRates(COUPON_SELL, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX);
@@ -274,23 +283,24 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         RATES_PROVIDER_ON_FIX.parameterSensitivity(pvPointCoupon.build());
     CurrencyParameterSensitivities expectedCoupon =
         FD_CAL.sensitivity(RATES_PROVIDER_ON_FIX, p -> PRICER.presentValue(COUPON_SELL, p, VOLATILITIES_ON_FIX));
-    assertTrue(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL * 50d));
+    assertThat(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL * 50d)).isTrue();
     PointSensitivityBuilder pvCapPoint =
         PRICER.presentValueSensitivityRates(CAPLET_SELL, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX);
     CurrencyParameterSensitivities computedCap =
         RATES_PROVIDER_ON_FIX.parameterSensitivity(pvCapPoint.build());
     CurrencyParameterSensitivities expectedCap =
         FD_CAL.sensitivity(RATES_PROVIDER_ON_FIX, p -> PRICER.presentValue(CAPLET_SELL, p, VOLATILITIES_ON_FIX));
-    assertTrue(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL * 80d));
+    assertThat(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL * 80d)).isTrue();
     PointSensitivityBuilder pvFloorPoint =
         PRICER.presentValueSensitivityRates(FLOORLET_SELL, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX);
     CurrencyParameterSensitivities computedFloor =
         RATES_PROVIDER_ON_FIX.parameterSensitivity(pvFloorPoint.build());
     CurrencyParameterSensitivities expectedFloor =
         FD_CAL.sensitivity(RATES_PROVIDER_ON_FIX, p -> PRICER.presentValue(FLOORLET_SELL, p, VOLATILITIES_ON_FIX));
-    assertTrue(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL * 50d));
+    assertThat(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL * 50d)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_afterFix() {
     PointSensitivityBuilder pvPointCoupon =
         PRICER.presentValueSensitivityRates(COUPON_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
@@ -298,23 +308,24 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         RATES_PROVIDER_AFTER_FIX.parameterSensitivity(pvPointCoupon.build());
     CurrencyParameterSensitivities expectedCoupon =
         FD_CAL.sensitivity(RATES_PROVIDER_AFTER_FIX, p -> PRICER.presentValue(COUPON_SELL, p, VOLATILITIES_AFTER_FIX));
-    assertTrue(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL));
+    assertThat(computedCoupon.equalWithTolerance(expectedCoupon, EPS * NOTIONAL)).isTrue();
     PointSensitivityBuilder pvCapPoint =
         PRICER.presentValueSensitivityRates(CAPLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     CurrencyParameterSensitivities computedCap =
         RATES_PROVIDER_AFTER_FIX.parameterSensitivity(pvCapPoint.build());
     CurrencyParameterSensitivities expectedCap =
         FD_CAL.sensitivity(RATES_PROVIDER_AFTER_FIX, p -> PRICER.presentValue(CAPLET_SELL, p, VOLATILITIES_AFTER_FIX));
-    assertTrue(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL));
+    assertThat(computedCap.equalWithTolerance(expectedCap, EPS * NOTIONAL)).isTrue();
     PointSensitivityBuilder pvFloorPoint =
         PRICER.presentValueSensitivityRates(FLOORLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     CurrencyParameterSensitivities computedFloor =
         RATES_PROVIDER_AFTER_FIX.parameterSensitivity(pvFloorPoint.build());
     CurrencyParameterSensitivities expectedFloor =
         FD_CAL.sensitivity(RATES_PROVIDER_AFTER_FIX, p -> PRICER.presentValue(FLOORLET_SELL, p, VOLATILITIES_AFTER_FIX));
-    assertTrue(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL));
+    assertThat(computedFloor.equalWithTolerance(expectedFloor, EPS * NOTIONAL)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_onPayment() {
     PointSensitivityBuilder pvSensi = PRICER
         .presentValueSensitivityRates(COUPON, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
@@ -328,13 +339,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         PRICER.presentValueSensitivityRates(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     double paymentTime = RATES_PROVIDER_ON_PAY.discountFactors(EUR).relativeYearFraction(PAYMENT);
     PointSensitivityBuilder expected = ZeroRateSensitivity.of(EUR, paymentTime, -0d);
-    assertEquals(pvSensi, expected);
-    assertEquals(pvSensiCapletOtm, expected);
-    assertEquals(pvSensiCapletItm, expected);
-    assertEquals(pvSensiFloorletItm, expected);
-    assertEquals(pvSensiFloorletOtm, expected);
+    assertThat(pvSensi).isEqualTo(expected);
+    assertThat(pvSensiCapletOtm).isEqualTo(expected);
+    assertThat(pvSensiCapletItm).isEqualTo(expected);
+    assertThat(pvSensiFloorletItm).isEqualTo(expected);
+    assertThat(pvSensiFloorletOtm).isEqualTo(expected);
   }
 
+  @Test
   public void test_presentValueSensitivity_afterFix_noTimeSeries() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValueSensitivityRates(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
@@ -344,18 +356,20 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .isThrownBy(() -> PRICER.presentValueSensitivityRates(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
 
+  @Test
   public void test_presentValueSensitivity_afterPayment() {
     PointSensitivityBuilder pt = PRICER.presentValueSensitivityRates(COUPON, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     PointSensitivityBuilder ptCap = 
         PRICER.presentValueSensitivityRates(CAPLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     PointSensitivityBuilder ptFloor =
         PRICER.presentValueSensitivityRates(FLOORLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    assertEquals(pt, PointSensitivityBuilder.none());
-    assertEquals(ptCap, PointSensitivityBuilder.none());
-    assertEquals(ptFloor, PointSensitivityBuilder.none());
+    assertThat(pt).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(ptCap).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(ptFloor).isEqualTo(PointSensitivityBuilder.none());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueSensitivitySabrParameter() {
     testPresentValueSensitivitySabrParameter(
         COUPON_SELL, CAPLET_SELL, FLOORLET_SELL, RATES_PROVIDER, VOLATILITIES);
@@ -365,6 +379,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         COUPON_SELL, CAPLET_SELL, FLOORLET_SELL, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX);
   }
 
+  @Test
   public void test_presentValueSensitivitySabrParameter_afterFix() {
     PointSensitivityBuilder pvCouponPoint =
         PRICER.presentValueSensitivityModelParamsSabr(COUPON_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
@@ -372,11 +387,12 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         PRICER.presentValueSensitivityModelParamsSabr(CAPLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
     PointSensitivityBuilder pvFloorPoint =
         PRICER.presentValueSensitivityModelParamsSabr(FLOORLET_SELL, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
-    assertEquals(pvCouponPoint, PointSensitivityBuilder.none());
-    assertEquals(pvCapPoint, PointSensitivityBuilder.none());
-    assertEquals(pvFloorPoint, PointSensitivityBuilder.none());
+    assertThat(pvCouponPoint).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(pvCapPoint).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(pvFloorPoint).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_presentValueSensitivitySabrParameter_onPayment() {
     PointSensitivityBuilder pvSensi = PRICER
         .presentValueSensitivityModelParamsSabr(COUPON, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
@@ -388,13 +404,14 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         PRICER.presentValueSensitivityModelParamsSabr(FLOORLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     PointSensitivityBuilder pvSensiFloorletOtm =
         PRICER.presentValueSensitivityModelParamsSabr(FLOORLET_NEGATIVE, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
-    assertEquals(pvSensi, PointSensitivityBuilder.none());
-    assertEquals(pvSensiCapletOtm, PointSensitivityBuilder.none());
-    assertEquals(pvSensiCapletItm, PointSensitivityBuilder.none());
-    assertEquals(pvSensiFloorletItm, PointSensitivityBuilder.none());
-    assertEquals(pvSensiFloorletOtm, PointSensitivityBuilder.none());
+    assertThat(pvSensi).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(pvSensiCapletOtm).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(pvSensiCapletItm).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(pvSensiFloorletItm).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(pvSensiFloorletOtm).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_presentValueSensitivitySabrParameter_afterFix_noTimeSeries() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValueSensitivityModelParamsSabr(COUPON, RATES_PROVIDER_NO_TS,
@@ -407,6 +424,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         VOLATILITIES_NO_TS));
   }
 
+  @Test
   public void test_presentValueSensitivitySabrParameter_afterPayment() {
     PointSensitivityBuilder sensi =
         PRICER.presentValueSensitivityModelParamsSabr(COUPON, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
@@ -414,41 +432,46 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         PRICER.presentValueSensitivityModelParamsSabr(CAPLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     PointSensitivityBuilder sensiFloor =
         PRICER.presentValueSensitivityModelParamsSabr(FLOORLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    assertEquals(sensi, PointSensitivityBuilder.none());
-    assertEquals(sensiCap, PointSensitivityBuilder.none());
-    assertEquals(sensiFloor, PointSensitivityBuilder.none());
+    assertThat(sensi).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(sensiCap).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(sensiFloor).isEqualTo(PointSensitivityBuilder.none());
   }
   
+  @Test
   public void test_adjusted_forward_rate() {
     CmsPeriod coupon1 = COUPON.toBuilder().notional(1.0).yearFraction(1.0).build();
     CurrencyAmount pvBuy = PRICER.presentValue(coupon1, RATES_PROVIDER, VOLATILITIES);
     double df = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
     double adjustedForwardRateExpected = pvBuy.getAmount() / df;
     double adjustedForwardRateComputed = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(adjustedForwardRateComputed, adjustedForwardRateExpected, TOL);
+    assertThat(adjustedForwardRateComputed).isCloseTo(adjustedForwardRateExpected, offset(TOL));
   }
   
+  @Test
   public void test_adjustment_forward_rate() {
     double adjustedForwardRateComputed = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
     double forward = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
     double adjustmentComputed = PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(adjustmentComputed, adjustedForwardRateComputed - forward, TOL);
+    assertThat(adjustmentComputed).isCloseTo(adjustedForwardRateComputed - forward, offset(TOL));
   }
   
 
+  @Test
   public void test_adjusted_forward_rate_cap_floor() {
     double adjustedForwardRateCoupon = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER, VOLATILITIES);
     double adjustedForwardRateFloor = PRICER.adjustedForwardRate(FLOORLET, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(adjustedForwardRateCoupon, adjustedForwardRateFloor, TOL);
+    assertThat(adjustedForwardRateCoupon).isCloseTo(adjustedForwardRateFloor, offset(TOL));
     double adjustedForwardRateCap = PRICER.adjustedForwardRate(CAPLET, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(adjustedForwardRateCoupon, adjustedForwardRateCap, TOL);
+    assertThat(adjustedForwardRateCoupon).isCloseTo(adjustedForwardRateCap, offset(TOL));
   }
   
+  @Test
   public void test_adjusted_forward_rate_afterFix() {
     double adjustedForward = PRICER.adjustedForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
-    assertEquals(adjustedForward, OBS_INDEX , TOL);    
+    assertThat(adjustedForward).isCloseTo(OBS_INDEX, offset(TOL));
   }
 
+  @Test
   public void test_adjusted_rate_error() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.adjustmentToForwardRate(COUPON, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX));
@@ -460,46 +483,50 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private static final CmsPeriod FLOORLET_UP = createCmsFloorlet(true, STRIKE + EPS);
   private static final CmsPeriod FLOORLET_DW = createCmsFloorlet(true, STRIKE - EPS);
 
+  @Test
   public void test_presentValueSensitivityStrike() {
     double computedCaplet = PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER, VOLATILITIES);
     double expectedCaplet = 0.5 * (PRICER.presentValue(CAPLET_UP, RATES_PROVIDER, VOLATILITIES).getAmount()
         - PRICER.presentValue(CAPLET_DW, RATES_PROVIDER, VOLATILITIES).getAmount()) / EPS;
-    assertEquals(computedCaplet, expectedCaplet, NOTIONAL * EPS);
+    assertThat(computedCaplet).isCloseTo(expectedCaplet, offset(NOTIONAL * EPS));
     double computedFloorlet = PRICER.presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER, VOLATILITIES);
     double expectedFloorlet = 0.5 * (PRICER.presentValue(FLOORLET_UP, RATES_PROVIDER, VOLATILITIES).getAmount()
         - PRICER.presentValue(FLOORLET_DW, RATES_PROVIDER, VOLATILITIES).getAmount()) / EPS;
-    assertEquals(computedFloorlet, expectedFloorlet, NOTIONAL * EPS);
+    assertThat(computedFloorlet).isCloseTo(expectedFloorlet, offset(NOTIONAL * EPS));
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_shift() {
     double computedCaplet = PRICER.presentValueSensitivityStrike(CAPLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CmsPeriod capletUp = createCmsCaplet(true, STRIKE_NEGATIVE + EPS);
     CmsPeriod capletDw = createCmsCaplet(true, STRIKE_NEGATIVE - EPS);
     double expectedCaplet = 0.5 * (PRICER.presentValue(capletUp, RATES_PROVIDER, VOLATILITIES_SHIFT).getAmount()
         - PRICER.presentValue(capletDw, RATES_PROVIDER, VOLATILITIES_SHIFT).getAmount()) / EPS;
-    assertEquals(computedCaplet, expectedCaplet, NOTIONAL * EPS);
+    assertThat(computedCaplet).isCloseTo(expectedCaplet, offset(NOTIONAL * EPS));
     double computedFloorlet = PRICER.presentValueSensitivityStrike(FLOORLET_NEGATIVE, RATES_PROVIDER, VOLATILITIES_SHIFT);
     CmsPeriod floorletUp = createCmsFloorlet(true, STRIKE_NEGATIVE + EPS);
     CmsPeriod floorletDw = createCmsFloorlet(true, STRIKE_NEGATIVE - EPS);
     double expectedFloorlet = 0.5 * (PRICER.presentValue(floorletUp, RATES_PROVIDER, VOLATILITIES_SHIFT).getAmount()
         - PRICER.presentValue(floorletDw, RATES_PROVIDER, VOLATILITIES_SHIFT).getAmount()) / EPS;
-    assertEquals(computedFloorlet, expectedFloorlet, NOTIONAL * EPS);
+    assertThat(computedFloorlet).isCloseTo(expectedFloorlet, offset(NOTIONAL * EPS));
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_onFix() {
     double computedCaplet = PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX);
     double expectedCaplet = 0.5 *
         (PRICER.presentValue(CAPLET_UP, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX).getAmount()
         - PRICER.presentValue(CAPLET_DW, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX).getAmount()) / EPS;
-    assertEquals(computedCaplet, expectedCaplet, NOTIONAL * EPS);
+    assertThat(computedCaplet).isCloseTo(expectedCaplet, offset(NOTIONAL * EPS));
     double computedFloorlet = PRICER
         .presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX);
     double expectedFloorlet = 0.5 *
         (PRICER.presentValue(FLOORLET_UP, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX).getAmount()
         - PRICER.presentValue(FLOORLET_DW, RATES_PROVIDER_ON_FIX, VOLATILITIES_ON_FIX).getAmount()) / EPS;
-    assertEquals(computedFloorlet, expectedFloorlet, NOTIONAL * EPS * 10d);
+    assertThat(computedFloorlet).isCloseTo(expectedFloorlet, offset(NOTIONAL * EPS * 10d));
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_afterFix() {
     double cmpCapletOtm =
         PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX);
@@ -519,24 +546,26 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     double expFloorletOtm = (PRICER.presentValue(createCmsFloorlet(true, STRIKE_NEGATIVE + EPS), RATES_PROVIDER_AFTER_FIX,
         VOLATILITIES_AFTER_FIX).getAmount() - PRICER.presentValue(createCmsFloorlet(true, STRIKE_NEGATIVE - EPS),
         RATES_PROVIDER_AFTER_FIX, VOLATILITIES_AFTER_FIX).getAmount()) * 0.5 / EPS;
-    assertEquals(cmpCapletOtm, expCapletOtm, NOTIONAL * EPS);
-    assertEquals(cmpCapletItm, expCapletItm, NOTIONAL * EPS);
-    assertEquals(cmpFloorletOtm, expFloorletOtm, NOTIONAL * EPS);
-    assertEquals(cmpFloorletItm, expFloorletItm, NOTIONAL * EPS);
+    assertThat(cmpCapletOtm).isCloseTo(expCapletOtm, offset(NOTIONAL * EPS));
+    assertThat(cmpCapletItm).isCloseTo(expCapletItm, offset(NOTIONAL * EPS));
+    assertThat(cmpFloorletOtm).isCloseTo(expFloorletOtm, offset(NOTIONAL * EPS));
+    assertThat(cmpFloorletItm).isCloseTo(expFloorletItm, offset(NOTIONAL * EPS));
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_onPayment() {
     double computedCaplet = PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     double expectedCaplet = (PRICER.presentValue(CAPLET_UP, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY).getAmount()
         - PRICER.presentValue(CAPLET_DW, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY).getAmount()) * 0.5 / EPS;
-    assertEquals(computedCaplet, expectedCaplet, NOTIONAL * EPS);
+    assertThat(computedCaplet).isCloseTo(expectedCaplet, offset(NOTIONAL * EPS));
     double computedFloorlet = PRICER
         .presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY);
     double expectedFloorlet = (PRICER.presentValue(FLOORLET_UP, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY).getAmount()
         - PRICER.presentValue(FLOORLET_DW, RATES_PROVIDER_ON_PAY, VOLATILITIES_ON_PAY).getAmount()) * 0.5 / EPS;
-    assertEquals(computedFloorlet, expectedFloorlet, NOTIONAL * EPS);
+    assertThat(computedFloorlet).isCloseTo(expectedFloorlet, offset(NOTIONAL * EPS));
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_afterFix_noTimeSeries() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValueSensitivityStrike(COUPON, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
@@ -546,13 +575,15 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         .isThrownBy(() -> PRICER.presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_NO_TS, VOLATILITIES_NO_TS));
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_afterPayment() {
     double sensiCap = PRICER.presentValueSensitivityStrike(CAPLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
     double sensiFloor = PRICER.presentValueSensitivityStrike(FLOORLET, RATES_PROVIDER_AFTER_PAY, VOLATILITIES_AFTER_PAY);
-    assertEquals(sensiCap, 0d);
-    assertEquals(sensiFloor, 0d);
+    assertThat(sensiCap).isEqualTo(0d);
+    assertThat(sensiFloor).isEqualTo(0d);
   }
 
+  @Test
   public void test_presentValueSensitivityStrike_coupon() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.presentValueSensitivityStrike(COUPON, RATES_PROVIDER, VOLATILITIES));
@@ -673,9 +704,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         - PRICER.presentValue(caplet, ratesProvider, volsDw).getAmount()) / EPS;
     double expectedFloor = 0.5 * (PRICER.presentValue(floorlet, ratesProvider, volsUp).getAmount()
         - PRICER.presentValue(floorlet, ratesProvider, volsDw).getAmount()) / EPS;
-    assertEquals(computedCouponSensi.get(index), expectedCoupon, EPS * NOTIONAL * 10d);
-    assertEquals(computedCapSensi.get(index), expectedCap, EPS * NOTIONAL * 10d);
-    assertEquals(computedFloorSensi.get(index), expectedFloor, EPS * NOTIONAL * 10d);
+    assertThat(computedCouponSensi.get(index)).isCloseTo(expectedCoupon, offset(EPS * NOTIONAL * 10d));
+    assertThat(computedCapSensi.get(index)).isCloseTo(expectedCap, offset(EPS * NOTIONAL * 10d));
+    assertThat(computedFloorSensi.get(index)).isCloseTo(expectedFloor, offset(EPS * NOTIONAL * 10d));
   }
 
   private static CmsPeriod createCmsCoupon(boolean isBuy) {
@@ -743,6 +774,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   private static final double TOLERANCE_PV = 1.0E+0;
 
   /* Check that the internal function used in the integrant (h, G and k in the documentation) are correctly implemented. */
+  @Test
   public void integrant_internal() {
     SwapIndex index = CAPLET.getIndex();
     LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
@@ -758,22 +790,23 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     // Integrant internal
     double h = integrant.h(STRIKE);
     double hExpected = Math.pow(1 + STRIKE, -delta);
-    assertEquals(h, hExpected, TOLERANCE_K_P);
+    assertThat(h).isCloseTo(hExpected, offset(TOLERANCE_K_P));
     double g = integrant.g(STRIKE);
     double gExpected = (1.0 - 1.0 / Math.pow(1 + STRIKE, tenor)) / STRIKE;
-    assertEquals(g, gExpected, TOLERANCE_K_P);
+    assertThat(g).isCloseTo(gExpected, offset(TOLERANCE_K_P));
     double kExpected = integrant.h(STRIKE) / integrant.g(STRIKE);
     double k = integrant.k(STRIKE);
-    assertEquals(k, kExpected, TOLERANCE_K_P);
+    assertThat(k).isCloseTo(kExpected, offset(TOLERANCE_K_P));
     double shiftFd = 1.0E-5;
     double kP = integrant.h(STRIKE + shiftFd) / integrant.g(STRIKE + shiftFd);
     double kM = integrant.h(STRIKE - shiftFd) / integrant.g(STRIKE - shiftFd);
     double[] kpkpp = integrant.kpkpp(STRIKE);
-    assertEquals(kpkpp[0], (kP - kM) / (2 * shiftFd), TOLERANCE_K_P);
-    assertEquals(kpkpp[1], (kP + kM - 2 * k) / (shiftFd * shiftFd), TOLERANCE_K_PP);
+    assertThat(kpkpp[0]).isCloseTo((kP - kM) / (2 * shiftFd), offset(TOLERANCE_K_P));
+    assertThat(kpkpp[1]).isCloseTo((kP + kM - 2 * k) / (shiftFd * shiftFd), offset(TOLERANCE_K_PP));
   }
 
   /* Check the present value v.  */
+  @Test
   public void test_presentValue_replication_cap() {
     SwapIndex index = CAPLET.getIndex();
     LocalDate effectiveDate = CAPLET.getUnderlyingSwap().getStartDate();
@@ -798,30 +831,31 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     double integralPart = ptp * integrator.integrate(integrant.integrant(), STRIKE, 100.0);
     double pvExpected = (strikePart + integralPart) * NOTIONAL * ACC_FACTOR;
     CurrencyAmount pvComputed = PRICER.presentValue(CAPLET, RATES_PROVIDER, VOLATILITIES_SHIFT);
-    assertEquals(pvComputed.getAmount(),  pvExpected, TOLERANCE_PV);    
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
 
   //---------------------------------------------------------------------
+  @Test
   public void test_explainPresentValue() {
     ExplainMapBuilder builder = ExplainMap.builder();
     PRICER.explainPresentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES, builder);
     ExplainMap explain = builder.build();
     //Test a CMS Floorlet Period.
-    assertEquals(explain.get(ExplainKey.ENTRY_TYPE).get(), "CmsFloorletPeriod");
-    assertEquals(explain.get(ExplainKey.STRIKE_VALUE).get(), 0.04d);
-    assertEquals(explain.get(ExplainKey.NOTIONAL).get().getAmount(), 10000000d);
-    assertEquals(explain.get(ExplainKey.PAYMENT_DATE).get(), LocalDate.of(2021, 04, 28));
-    assertEquals(explain.get(ExplainKey.DISCOUNT_FACTOR).get(), 0.8518053333230845d);
-    assertEquals(explain.get(ExplainKey.START_DATE).get(), LocalDate.of(2020, 04, 28));
-    assertEquals(explain.get(ExplainKey.END_DATE).get(), LocalDate.of(2021, 04, 28));
-    assertEquals(explain.get(ExplainKey.FIXING_DATE).get(), LocalDate.of(2020, 04, 24));
-    assertEquals(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get(), 1.0138888888888888d);
+    assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("CmsFloorletPeriod");
+    assertThat(explain.get(ExplainKey.STRIKE_VALUE).get()).isEqualTo(0.04d);
+    assertThat(explain.get(ExplainKey.NOTIONAL).get().getAmount()).isEqualTo(10000000d);
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(LocalDate.of(2021, 04, 28));
+    assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isEqualTo(0.8518053333230845d);
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(LocalDate.of(2020, 04, 28));
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(LocalDate.of(2021, 04, 28));
+    assertThat(explain.get(ExplainKey.FIXING_DATE).get()).isEqualTo(LocalDate.of(2020, 04, 24));
+    assertThat(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get()).isEqualTo(1.0138888888888888d);
     double forwardSwapRate = PRICER_SWAP.parRate(FLOORLET.getUnderlyingSwap(), RATES_PROVIDER);
-    assertEquals(explain.get(ExplainKey.FORWARD_RATE).get(), forwardSwapRate);
+    assertThat(explain.get(ExplainKey.FORWARD_RATE).get()).isEqualTo(forwardSwapRate);
     CurrencyAmount pv = PRICER.presentValue(FLOORLET, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(explain.get(ExplainKey.PRESENT_VALUE).get(), pv);
+    assertThat(explain.get(ExplainKey.PRESENT_VALUE).get()).isEqualTo(pv);
     double adjustedForwardRate = PRICER.adjustedForwardRate(FLOORLET, RATES_PROVIDER, VOLATILITIES);
-    assertEquals(explain.get(ExplainKey.CONVEXITY_ADJUSTED_RATE).get(), adjustedForwardRate);
+    assertThat(explain.get(ExplainKey.CONVEXITY_ADJUSTED_RATE).get()).isEqualTo(adjustedForwardRate);
     
   }
   

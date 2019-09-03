@@ -11,14 +11,12 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
 import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
@@ -28,47 +26,50 @@ import com.opengamma.strata.pricer.ZeroRateSensitivity;
 /**
  * Tests {@link IborFutureOptionSensitivity}.
  */
-@Test
 public class IborFutureOptionSensitivityTest {
 
   private static final IborFutureOptionVolatilitiesName NAME = IborFutureOptionVolatilitiesName.of("Test");
   private static final IborFutureOptionVolatilitiesName NAME2 = IborFutureOptionVolatilitiesName.of("Test2");
 
+  @Test
   public void test_of() {
     IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    assertEquals(test.getVolatilitiesName(), NAME);
-    assertEquals(test.getCurrency(), GBP);
-    assertEquals(test.getExpiry(), 12d);
-    assertEquals(test.getFixingDate(), date(2015, 8, 28));
-    assertEquals(test.getStrikePrice(), 0.98);
-    assertEquals(test.getFuturePrice(), 0.99);
-    assertEquals(test.getSensitivity(), 32d);
+    assertThat(test.getVolatilitiesName()).isEqualTo(NAME);
+    assertThat(test.getCurrency()).isEqualTo(GBP);
+    assertThat(test.getExpiry()).isEqualTo(12d);
+    assertThat(test.getFixingDate()).isEqualTo(date(2015, 8, 28));
+    assertThat(test.getStrikePrice()).isEqualTo(0.98);
+    assertThat(test.getFuturePrice()).isEqualTo(0.99);
+    assertThat(test.getSensitivity()).isEqualTo(32d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withCurrency() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
-    assertSame(base.withCurrency(GBP), base);
+    assertThat(base.withCurrency(GBP)).isSameAs(base);
 
     IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, USD, 32d);
     IborFutureOptionSensitivity test = base.withCurrency(USD);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withSensitivity() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 20d);
     IborFutureOptionSensitivity test = base.withSensitivity(20d);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_compareKey() {
     IborFutureOptionSensitivity a1 = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
@@ -87,24 +88,25 @@ public class IborFutureOptionSensitivityTest {
     IborFutureOptionSensitivity g = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, USD, 32d);
     ZeroRateSensitivity other = ZeroRateSensitivity.of(GBP, 2d, 32d);
-    assertEquals(a1.compareKey(a2), 0);
-    assertEquals(a1.compareKey(b) < 0, true);
-    assertEquals(b.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(c) < 0, true);
-    assertEquals(c.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(d) < 0, true);
-    assertEquals(d.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(e) < 0, true);
-    assertEquals(e.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(f) < 0, true);
-    assertEquals(f.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(g) < 0, true);
-    assertEquals(g.compareKey(a1) > 0, true);
-    assertEquals(a1.compareKey(other) < 0, true);
-    assertEquals(other.compareKey(a1) > 0, true);
+    assertThat(a1.compareKey(a2)).isEqualTo(0);
+    assertThat(a1.compareKey(b) < 0).isTrue();
+    assertThat(b.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(c) < 0).isTrue();
+    assertThat(c.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(d) < 0).isTrue();
+    assertThat(d.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(e) < 0).isTrue();
+    assertThat(e.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(f) < 0).isTrue();
+    assertThat(f.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(g) < 0).isTrue();
+    assertThat(g.compareKey(a1) > 0).isTrue();
+    assertThat(a1.compareKey(other) < 0).isTrue();
+    assertThat(other.compareKey(a1) > 0).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     LocalDate fixingDate = date(2015, 8, 28);
     double strike = 0.98d;
@@ -117,66 +119,73 @@ public class IborFutureOptionSensitivityTest {
     IborFutureOptionSensitivity test1 = (IborFutureOptionSensitivity) base.convertedTo(USD, matrix);
     IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
         NAME, 12d, fixingDate, strike, forward, USD, sensi * rate);
-    assertEquals(test1, expected);
+    assertThat(test1).isEqualTo(expected);
     IborFutureOptionSensitivity test2 = (IborFutureOptionSensitivity) base.convertedTo(GBP, matrix);
-    assertEquals(test2, base);
+    assertThat(test2).isEqualTo(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d * 3.5d);
     IborFutureOptionSensitivity test = base.multipliedBy(3.5d);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapSensitivity() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity expected = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 1 / 32d);
     IborFutureOptionSensitivity test = base.mapSensitivity(s -> 1 / s);
-    assertEquals(test, expected);
+    assertThat(test).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalize() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity test = base.normalize();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_buildInto() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
-    assertSame(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test).isSameAs(combo);
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_build() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     PointSensitivities test = base.build();
-    assertEquals(test.getSensitivities(), ImmutableList.of(base));
+    assertThat(test.getSensitivities()).containsExactly(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cloned() {
     IborFutureOptionSensitivity base = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
     IborFutureOptionSensitivity test = base.cloned();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);
@@ -186,6 +195,7 @@ public class IborFutureOptionSensitivityTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborFutureOptionSensitivity test = IborFutureOptionSensitivity.of(
         NAME, 12d, date(2015, 8, 28), 0.98, 0.99, GBP, 32d);

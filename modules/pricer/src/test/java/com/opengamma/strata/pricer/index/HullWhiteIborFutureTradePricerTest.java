@@ -6,12 +6,12 @@
 package com.opengamma.strata.pricer.index;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -30,7 +30,6 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 /**
  * Test {@link HullWhiteIborFutureTradePricer}.
  */
-@Test
 public class HullWhiteIborFutureTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -51,34 +50,39 @@ public class HullWhiteIborFutureTradePricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(TOL_FD);
 
+  @Test
   public void test_price() {
     double computed = PRICER.price(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     double expected = PRICER_PRODUCT.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
-    assertEquals(computed, expected, TOL);
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed = PRICER.presentValue(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE);
     double price = PRICER_PRODUCT.price(FUTURE, RATE_PROVIDER, HW_PROVIDER);
     double expected = (price - LAST_PRICE) * FUTURE.getAccrualFactor() * NOTIONAL * QUANTITY;
-    assertEquals(computed.getCurrency(), EUR);
-    assertEquals(computed.getAmount(), expected, TOL * NOTIONAL * QUANTITY);
+    assertThat(computed.getCurrency()).isEqualTo(EUR);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOL * NOTIONAL * QUANTITY));
   }
 
+  @Test
   public void test_parSpread() {
     double computed = PRICER.parSpread(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE);
     CurrencyAmount pv = PRICER.presentValue(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE + computed);
-    assertEquals(pv.getAmount(), 0d, TOL * NOTIONAL * QUANTITY);
+    assertThat(pv.getAmount()).isCloseTo(0d, offset(TOL * NOTIONAL * QUANTITY));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected =
         FD_CAL.sensitivity(RATE_PROVIDER, p -> PRICER.presentValue(FUTURE_TRADE, p, HW_PROVIDER, LAST_PRICE));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * TOL_FD));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * TOL_FD)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivityHullWhiteParameter() {
     DoubleArray computed = PRICER.presentValueSensitivityModelParamsHullWhite(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     DoubleArray vols = HW_PROVIDER.getParameters().getVolatility();
@@ -103,38 +107,42 @@ public class HullWhiteIborFutureTradePricerTest {
       double priceDw = PRICER.presentValue(FUTURE_TRADE, RATE_PROVIDER, provDw, LAST_PRICE).getAmount();
       expected[i] = 0.5 * (priceUp - priceDw) / TOL_FD;
     }
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, NOTIONAL * QUANTITY * TOL_FD));
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected, NOTIONAL * QUANTITY * TOL_FD)).isTrue();
   }
 
+  @Test
   public void test_parSpreadSensitivity() {
     PointSensitivities point = PRICER.parSpreadSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = FD_CAL.sensitivity(RATE_PROVIDER,
         p -> CurrencyAmount.of(EUR, PRICER.parSpread(FUTURE_TRADE, p, HW_PROVIDER, LAST_PRICE)));
-    assertTrue(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * TOL_FD));
+    assertThat(computed.equalWithTolerance(expected, NOTIONAL * QUANTITY * TOL_FD)).isTrue();
   }
 
+  @Test
   public void test_currencyExposure() {
     PointSensitivities point = PRICER.presentValueSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     MultiCurrencyAmount expected = RATE_PROVIDER.currencyExposure(point)
         .plus(PRICER.presentValue(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE));
     MultiCurrencyAmount computed = PRICER.currencyExposure(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE);
-    assertEquals(computed.size(), 1);
-    assertEquals(computed.getAmount(EUR).getAmount(), expected.getAmount(EUR).getAmount(), NOTIONAL * QUANTITY * TOL);
+    assertThat(computed.size()).isEqualTo(1);
+    assertThat(computed.getAmount(EUR).getAmount()).isCloseTo(expected.getAmount(EUR).getAmount(), offset(NOTIONAL * QUANTITY * TOL));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void regression_pv() {
     CurrencyAmount pv = PRICER.presentValue(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER, LAST_PRICE);
-    assertEquals(pv.getAmount(), 23383.551159035414, NOTIONAL * QUANTITY * TOL);
+    assertThat(pv.getAmount()).isCloseTo(23383.551159035414, offset(NOTIONAL * QUANTITY * TOL));
   }
 
+  @Test
   public void regression_pvSensi() {
     PointSensitivities point = PRICER.presentValueSensitivityRates(FUTURE_TRADE, RATE_PROVIDER, HW_PROVIDER);
     CurrencyParameterSensitivities computed = RATE_PROVIDER.parameterSensitivity(point);
     double[] expected = new double[] {0.0, 0.0, 9.514709785770103E7, -1.939992074119211E8, 0.0, 0.0, 0.0, 0.0 };
-    assertEquals(computed.size(), 1);
-    assertTrue(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD3_NAME, EUR)
-        .getSensitivity().toArray(), expected, NOTIONAL * QUANTITY * TOL));
+    assertThat(computed.size()).isEqualTo(1);
+    assertThat(DoubleArrayMath.fuzzyEquals(computed.getSensitivity(HullWhiteIborFutureDataSet.FWD3_NAME, EUR)
+        .getSensitivity().toArray(), expected, NOTIONAL * QUANTITY * TOL)).isTrue();
   }
 }

@@ -13,7 +13,8 @@ import static com.opengamma.strata.product.deposit.type.TermDepositConventions.U
 import static com.opengamma.strata.product.deposit.type.TermDepositConventions.USD_SHORT_DEPOSIT_T1;
 import static com.opengamma.strata.product.fx.type.FxSwapConventions.EUR_USD;
 import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -25,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -42,11 +43,11 @@ import com.opengamma.strata.data.ImmutableMarketDataBuilder;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
 import com.opengamma.strata.market.curve.CurveNode;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurveDefinition;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -75,7 +76,6 @@ import com.opengamma.strata.product.swap.type.FixedOvernightSwapTemplate;
  * Test for curve calibration in USD and EUR.
  * The USD curve is obtained by OIS and the EUR one by FX Swaps from USD.
  */
-@Test
 public class CalibrationZeroRateUsdEur2OisFxTest {
 
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 11, 2);
@@ -217,6 +217,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
           .addDiscountCurve(EUR_DSC_CURVE_DEFN, EUR).build();
   
   //-------------------------------------------------------------------------
+  @Test
   public void calibration_present_value_oneGroup() {
     RatesProvider result =
         CALIBRATOR.calibrate(CURVE_GROUP_CONFIG, ALL_QUOTES, REF_DATA);
@@ -233,13 +234,13 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     for (int i = 0; i < USD_DSC_NB_DEPO_NODES; i++) {
       CurrencyAmount pvDep = DEPO_PRICER.presentValue(
           ((ResolvedTermDepositTrade) usdTrades.get(i)).getProduct(), result);
-      assertEquals(pvDep.getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvDep.getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // OIS
     for (int i = 0; i < USD_DSC_NB_OIS_NODES; i++) {
       MultiCurrencyAmount pvOis = SWAP_PRICER.presentValue(
           ((ResolvedSwapTrade) usdTrades.get(USD_DSC_NB_DEPO_NODES + i)).getProduct(), result);
-      assertEquals(pvOis.getAmount(USD).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvOis.getAmount(USD).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
     // Test PV EUR;
     List<ResolvedTrade> eurTrades = new ArrayList<>();
@@ -250,10 +251,11 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {
       MultiCurrencyAmount pvFx = FX_PRICER.presentValue(
           ((ResolvedFxSwapTrade) eurTrades.get(i)).getProduct(), result);
-      assertEquals(pvFx.convertedTo(USD, result).getAmount(), 0.0, TOLERANCE_PV);
+      assertThat(pvFx.convertedTo(USD, result).getAmount()).isCloseTo(0.0, offset(TOLERANCE_PV));
     }
   }
   
+  @Test
   public void calibration_market_quote_sensitivity_one_group() {
     double shift = 1.0E-6;
     Function<MarketData, RatesProvider> f =
@@ -285,7 +287,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = FX_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(USD).getAmount();
-      assertEquals(mqsUsd1Computed[i], (pvS - pvUsd) / shift, TOLERANCE_PV_DELTA);
+      assertThat(mqsUsd1Computed[i]).isCloseTo((pvS - pvUsd) / shift, offset(TOLERANCE_PV_DELTA));
     }
     double[] mqsUsd2Computed = mqs.getSensitivity(USD_DSCON_CURVE_NAME, EUR).getSensitivity().toArray();
     for (int i = 0; i < USD_DSC_NB_NODES; i++) {
@@ -294,11 +296,11 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
       ImmutableMarketData ov = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(ov);
       double pvS = FX_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(EUR).getAmount();
-      assertEquals(mqsUsd2Computed[i], (pvS - pvEur) / shift, TOLERANCE_PV_DELTA);
+      assertThat(mqsUsd2Computed[i]).isCloseTo((pvS - pvEur) / shift, offset(TOLERANCE_PV_DELTA));
     }
     double[] mqsEur1Computed = mqs.getSensitivity(EUR_DSC_CURVE_NAME, USD).getSensitivity().toArray();
     for (int i = 0; i < EUR_DSC_NB_NODES; i++) {
-      assertEquals(mqsEur1Computed[i], 0.0 , TOLERANCE_PV_DELTA);      
+      assertThat(mqsEur1Computed[i]).isCloseTo(0.0, offset(TOLERANCE_PV_DELTA));
     }
     double[] mqsEur2Computed = mqs.getSensitivity(EUR_DSC_CURVE_NAME, EUR).getSensitivity().toArray();
     for (int i = 0; i < EUR_DSC_NB_NODES; i++) {
@@ -307,7 +309,7 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
       ImmutableMarketData marketData = ImmutableMarketData.of(VAL_DATE, map);
       RatesProvider rpShifted = calibrator.apply(marketData);
       double pvS = FX_PRICER.presentValue(trade.getProduct(), rpShifted).getAmount(EUR).getAmount();
-      assertEquals(mqsEur2Computed[i], (pvS - pvEur) / shift, TOLERANCE_PV_DELTA, "Node " + i);
+      assertThat(mqsEur2Computed[i]).as("Node " + i).isCloseTo((pvS - pvEur) / shift, offset(TOLERANCE_PV_DELTA));
     }
   }
 

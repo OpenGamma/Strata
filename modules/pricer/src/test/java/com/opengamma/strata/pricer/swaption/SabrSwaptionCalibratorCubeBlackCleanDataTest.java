@@ -12,8 +12,8 @@ import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.DAY_COUNT;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.EXPIRIES_SIMPLE_2;
 import static com.opengamma.strata.pricer.swaption.SwaptionCubeData.TENORS_SIMPLE;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.EUR_FIXED_1Y_EURIBOR_6M;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -37,8 +38,8 @@ import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.loader.csv.QuotesCsvLoader;
 import com.opengamma.strata.loader.csv.RatesCalibrationCsvLoader;
 import com.opengamma.strata.market.ValueType;
-import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
+import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.ConstantSurface;
@@ -60,7 +61,6 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Tests {@link SabrSwaptionCalibrator} for a cube. Reduced and simplify data set to avoid very slow test.
  */
-@Test
 public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -157,14 +157,14 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
                 time, volBlack, true);
             double priceLogNormal = BlackFormulaRepository.price(parRate, parRate + MONEYNESS.get(loopmoney),
                 time, DATA_LOGNORMAL[looptenor][loopexpiry][loopmoney], true);
-            assertEquals(priceComputed, priceLogNormal, TOLERANCE_PRICE_CALIBRATION_LS);
+            assertThat(priceComputed).isCloseTo(priceLogNormal, offset(TOLERANCE_PRICE_CALIBRATION_LS));
           }
         }
       }
     }
   }
 
-  @Test(enabled = true)
+  @Disabled
   public void log_normal_atm() {
     double beta = 0.50;
     Surface betaSurface = ConstantSurface.of("Beta", beta)
@@ -198,7 +198,7 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
         double priceComputed = calibratedAtm.price(time, tenor, PutCall.CALL, parRate, parRate, volBlack);
         double priceBlack = BlackFormulaRepository.price(parRate, parRate, time,
             DATA_LOGNORMAL_ATM_SIMPLE[looptenor + loopexpiry * nbTenor], true);
-        assertEquals(priceComputed, priceBlack, TOLERANCE_PRICE_CALIBRATION_ROOT);
+        assertThat(priceComputed).isCloseTo(priceBlack, offset(TOLERANCE_PRICE_CALIBRATION_ROOT));
       }
     }
   }
@@ -225,17 +225,17 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
 
     SurfaceMetadata alphaMetadata = calibrated.getParameters().getAlphaSurface().getMetadata();
     Optional<List<ParameterMetadata>> alphaParameterMetadataOption = alphaMetadata.getParameterMetadata();
-    assertTrue(alphaParameterMetadataOption.isPresent());
+    assertThat(alphaParameterMetadataOption.isPresent()).isTrue();
     List<ParameterMetadata> alphaParameterMetadata = alphaParameterMetadataOption.get();
     List<DoubleArray> alphaJacobian = calibrated.getDataSensitivityAlpha().get();
     SurfaceMetadata rhoMetadata = calibrated.getParameters().getRhoSurface().getMetadata();
     Optional<List<ParameterMetadata>> rhoParameterMetadataOption = rhoMetadata.getParameterMetadata();
-    assertTrue(rhoParameterMetadataOption.isPresent());
+    assertThat(rhoParameterMetadataOption.isPresent()).isTrue();
     List<ParameterMetadata> rhoParameterMetadata = rhoParameterMetadataOption.get();
     List<DoubleArray> rhoJacobian = calibrated.getDataSensitivityRho().get();
     SurfaceMetadata nuMetadata = calibrated.getParameters().getNuSurface().getMetadata();
     Optional<List<ParameterMetadata>> nuParameterMetadataOption = nuMetadata.getParameterMetadata();
-    assertTrue(nuParameterMetadataOption.isPresent());
+    assertThat(nuParameterMetadataOption.isPresent()).isTrue();
     List<ParameterMetadata> nuParameterMetadata = nuParameterMetadataOption.get();
     List<DoubleArray> nuJacobian = calibrated.getDataSensitivityNu().get();
 
@@ -253,22 +253,22 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
           int availableDataIndex = 0;
 
           ParameterMetadata alphaPM = alphaParameterMetadata.get(surfacePointIndex);
-          assertTrue(alphaPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata);
+          assertThat(alphaPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata).isTrue();
           SwaptionSurfaceExpiryTenorParameterMetadata pmAlphaSabr = (SwaptionSurfaceExpiryTenorParameterMetadata) alphaPM;
-          assertEquals(tenorYears, pmAlphaSabr.getTenor());
-          assertEquals(time, pmAlphaSabr.getYearFraction(), TOLERANCE_EXPIRY);
+          assertThat(tenorYears).isEqualTo(pmAlphaSabr.getTenor());
+          assertThat(time).isCloseTo(pmAlphaSabr.getYearFraction(), offset(TOLERANCE_EXPIRY));
           DoubleArray alphaSensitivityToData = alphaJacobian.get(surfacePointIndex);
           ParameterMetadata rhoPM = rhoParameterMetadata.get(surfacePointIndex);
-          assertTrue(rhoPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata);
+          assertThat(rhoPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata).isTrue();
           SwaptionSurfaceExpiryTenorParameterMetadata pmRhoSabr = (SwaptionSurfaceExpiryTenorParameterMetadata) rhoPM;
-          assertEquals(tenorYears, pmRhoSabr.getTenor());
-          assertEquals(time, pmRhoSabr.getYearFraction(), TOLERANCE_EXPIRY);
+          assertThat(tenorYears).isEqualTo(pmRhoSabr.getTenor());
+          assertThat(time).isCloseTo(pmRhoSabr.getYearFraction(), offset(TOLERANCE_EXPIRY));
           DoubleArray rhoSensitivityToData = rhoJacobian.get(surfacePointIndex);
           ParameterMetadata nuPM = nuParameterMetadata.get(surfacePointIndex);
-          assertTrue(nuPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata);
+          assertThat(nuPM instanceof SwaptionSurfaceExpiryTenorParameterMetadata).isTrue();
           SwaptionSurfaceExpiryTenorParameterMetadata pmNuSabr = (SwaptionSurfaceExpiryTenorParameterMetadata) nuPM;
-          assertEquals(tenorYears, pmNuSabr.getTenor());
-          assertEquals(time, pmNuSabr.getYearFraction(), TOLERANCE_EXPIRY);
+          assertThat(tenorYears).isEqualTo(pmNuSabr.getTenor());
+          assertThat(time).isCloseTo(pmNuSabr.getYearFraction(), offset(TOLERANCE_EXPIRY));
           DoubleArray nuSensitivityToData = nuJacobian.get(surfacePointIndex);
 
           for (int loopmoney = 0; loopmoney < MONEYNESS.size(); loopmoney++) {
@@ -308,9 +308,8 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   }
 
   private static void checkAcceptable(double computed, double actual, double tolerance, String msg) {
-    assertTrue((Math.abs(computed - actual) < tolerance) ||
-        (Math.abs((computed - actual) / actual) < tolerance),
-        msg);
+    assertThat((Math.abs(computed - actual) < tolerance) ||
+        (Math.abs((computed - actual) / actual) < tolerance)).as(msg).isTrue();
   }
 
 }

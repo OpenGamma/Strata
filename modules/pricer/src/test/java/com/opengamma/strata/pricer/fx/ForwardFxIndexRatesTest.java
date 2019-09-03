@@ -14,13 +14,14 @@ import static com.opengamma.strata.basics.index.FxIndices.GBP_USD_WM;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -40,7 +41,6 @@ import com.opengamma.strata.pricer.ZeroRateDiscountFactors;
 /**
  * Test {@link ForwardFxIndexRates}.
  */
-@Test
 public class ForwardFxIndexRatesTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -86,32 +86,33 @@ public class ForwardFxIndexRatesTest {
       DiscountFxForwardRates.of(PAIR_EUR_GBP, FX_RATE_EUR_GBP, DFCURVE_EUR, DFCURVE_GBP);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_withoutFixings() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES);
-    assertEquals(test.getIndex(), GBP_USD_WM);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES_EMPTY);
-    assertEquals(test.getFxForwardRates(), FWD_RATES);
-    assertEquals(test.findData(CURVE1.getName()), Optional.of(CURVE1));
-    assertEquals(test.findData(CURVE2.getName()), Optional.of(CURVE2));
-    assertEquals(test.findData(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.getParameterCount(), FWD_RATES.getParameterCount());
-    assertEquals(test.getParameter(0), FWD_RATES.getParameter(0));
-    assertEquals(test.getParameterMetadata(0), FWD_RATES.getParameterMetadata(0));
-    assertEquals(test.withParameter(0, 1d).getFxForwardRates(), FWD_RATES.withParameter(0, 1d));
-    assertEquals(
-        test.withPerturbation((i, v, m) -> v + 1d).getFxForwardRates(),
-        FWD_RATES.withPerturbation((i, v, m) -> v + 1d));
+    assertThat(test.getIndex()).isEqualTo(GBP_USD_WM);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
+    assertThat(test.getFixings()).isEqualTo(SERIES_EMPTY);
+    assertThat(test.getFxForwardRates()).isEqualTo(FWD_RATES);
+    assertThat(test.findData(CURVE1.getName())).isEqualTo(Optional.of(CURVE1));
+    assertThat(test.findData(CURVE2.getName())).isEqualTo(Optional.of(CURVE2));
+    assertThat(test.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.getParameterCount()).isEqualTo(FWD_RATES.getParameterCount());
+    assertThat(test.getParameter(0)).isEqualTo(FWD_RATES.getParameter(0));
+    assertThat(test.getParameterMetadata(0)).isEqualTo(FWD_RATES.getParameterMetadata(0));
+    assertThat(test.withParameter(0, 1d).getFxForwardRates()).isEqualTo(FWD_RATES.withParameter(0, 1d));
+    assertThat(test.withPerturbation((i, v, m) -> v + 1d).getFxForwardRates()).isEqualTo(FWD_RATES.withPerturbation((i, v, m) -> v + 1d));
   }
 
+  @Test
   public void test_of_withFixings() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertEquals(test.getIndex(), GBP_USD_WM);
-    assertEquals(test.getValuationDate(), DATE_VAL);
-    assertEquals(test.getFixings(), SERIES);
-    assertEquals(test.getFxForwardRates(), FWD_RATES);
+    assertThat(test.getIndex()).isEqualTo(GBP_USD_WM);
+    assertThat(test.getValuationDate()).isEqualTo(DATE_VAL);
+    assertThat(test.getFixings()).isEqualTo(SERIES);
+    assertThat(test.getFxForwardRates()).isEqualTo(FWD_RATES);
   }
 
+  @Test
   public void test_of_nonMatchingCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES_USD_GBP, SERIES));
@@ -120,50 +121,57 @@ public class ForwardFxIndexRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_rate_beforeValuation_fixing() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertEquals(test.rate(OBS_BEFORE, GBP), RATE_BEFORE);
-    assertEquals(test.rate(OBS_BEFORE, USD), 1d / RATE_BEFORE);
+    assertThat(test.rate(OBS_BEFORE, GBP)).isEqualTo(RATE_BEFORE);
+    assertThat(test.rate(OBS_BEFORE, USD)).isEqualTo(1d / RATE_BEFORE);
   }
 
+  @Test
   public void test_rate_beforeValuation_noFixing_emptySeries() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_EMPTY);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.rate(OBS_BEFORE, GBP));
   }
 
+  @Test
   public void test_rate_beforeValuation_noFixing_notEmptySeries() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_MINIMAL);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.rate(OBS_BEFORE, GBP));
   }
 
+  @Test
   public void test_rate_onValuation_fixing() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertEquals(test.rate(OBS_VAL, GBP), RATE_VAL);
-    assertEquals(test.rate(OBS_VAL, USD), 1d / RATE_VAL);
+    assertThat(test.rate(OBS_VAL, GBP)).isEqualTo(RATE_VAL);
+    assertThat(test.rate(OBS_VAL, USD)).isEqualTo(1d / RATE_VAL);
   }
 
+  @Test
   public void test_rate_onValuation_noFixing() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_EMPTY);
     LocalDate maturityDate = GBP_USD_WM.calculateMaturityFromFixing(DATE_VAL, REF_DATA);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
-    assertEquals(test.rate(OBS_VAL, GBP), expected, 1e-8);
-    assertEquals(test.rate(OBS_VAL, USD), 1d / expected, 1e-8);
+    assertThat(test.rate(OBS_VAL, GBP)).isCloseTo(expected, offset(1e-8));
+    assertThat(test.rate(OBS_VAL, USD)).isCloseTo(1d / expected, offset(1e-8));
   }
 
+  @Test
   public void test_rate_afterValuation() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
     LocalDate maturityDate = GBP_USD_WM.calculateMaturityFromFixing(DATE_AFTER, REF_DATA);
     double dfCcyBaseAtMaturity = DFCURVE_GBP.discountFactor(maturityDate);
     double dfCcyCounterAtMaturity = DFCURVE_USD.discountFactor(maturityDate);
     double expected = FX_RATE.fxRate(GBP, USD) * (dfCcyBaseAtMaturity / dfCcyCounterAtMaturity);
-    assertEquals(test.rate(OBS_AFTER, GBP), expected, 1e-8);
-    assertEquals(test.rate(OBS_AFTER, USD), 1d / expected, 1e-8);
+    assertThat(test.rate(OBS_AFTER, GBP)).isCloseTo(expected, offset(1e-8));
+    assertThat(test.rate(OBS_AFTER, USD)).isCloseTo(1d / expected, offset(1e-8));
   }
 
+  @Test
   public void test_rate_nonMatchingCurrency() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
     assertThatIllegalArgumentException()
@@ -171,24 +179,28 @@ public class ForwardFxIndexRatesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ratePointSensitivity_fixing() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertEquals(test.ratePointSensitivity(OBS_BEFORE, GBP), PointSensitivityBuilder.none());
-    assertEquals(test.ratePointSensitivity(OBS_VAL, GBP), PointSensitivityBuilder.none());
+    assertThat(test.ratePointSensitivity(OBS_BEFORE, GBP)).isEqualTo(PointSensitivityBuilder.none());
+    assertThat(test.ratePointSensitivity(OBS_VAL, GBP)).isEqualTo(PointSensitivityBuilder.none());
   }
 
+  @Test
   public void test_ratePointSensitivity_onValuation_noFixing() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES_EMPTY);
-    assertEquals(test.ratePointSensitivity(OBS_VAL, GBP), FxIndexSensitivity.of(OBS_VAL, GBP, 1d));
-    assertEquals(test.ratePointSensitivity(OBS_VAL, USD), FxIndexSensitivity.of(OBS_VAL, USD, 1d));
+    assertThat(test.ratePointSensitivity(OBS_VAL, GBP)).isEqualTo(FxIndexSensitivity.of(OBS_VAL, GBP, 1d));
+    assertThat(test.ratePointSensitivity(OBS_VAL, USD)).isEqualTo(FxIndexSensitivity.of(OBS_VAL, USD, 1d));
   }
 
+  @Test
   public void test_ratePointSensitivity_afterValuation() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
-    assertEquals(test.ratePointSensitivity(OBS_AFTER, GBP), FxIndexSensitivity.of(OBS_AFTER, GBP, 1d));
-    assertEquals(test.ratePointSensitivity(OBS_AFTER, USD), FxIndexSensitivity.of(OBS_AFTER, USD, 1d));
+    assertThat(test.ratePointSensitivity(OBS_AFTER, GBP)).isEqualTo(FxIndexSensitivity.of(OBS_AFTER, GBP, 1d));
+    assertThat(test.ratePointSensitivity(OBS_AFTER, USD)).isEqualTo(FxIndexSensitivity.of(OBS_AFTER, USD, 1d));
   }
 
+  @Test
   public void test_ratePointSensitivity_nonMatchingCurrency() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
     assertThatIllegalArgumentException()
@@ -197,15 +209,17 @@ public class ForwardFxIndexRatesTest {
 
   //-------------------------------------------------------------------------
   //proper end-to-end tests are elsewhere
+  @Test
   public void test_parameterSensitivity() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
     FxIndexSensitivity point = FxIndexSensitivity.of(OBS_VAL, GBP, 1d);
-    assertEquals(test.parameterSensitivity(point).size(), 2);
+    assertThat(test.parameterSensitivity(point).size()).isEqualTo(2);
     FxIndexSensitivity point2 = FxIndexSensitivity.of(OBS_VAL, USD, 1d);
-    assertEquals(test.parameterSensitivity(point2).size(), 2);
+    assertThat(test.parameterSensitivity(point2).size()).isEqualTo(2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ForwardFxIndexRates test = ForwardFxIndexRates.of(GBP_USD_WM, FWD_RATES, SERIES);
     coverImmutableBean(test);

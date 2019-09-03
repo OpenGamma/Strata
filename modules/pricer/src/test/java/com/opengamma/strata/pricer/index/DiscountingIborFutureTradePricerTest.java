@@ -5,15 +5,15 @@
  */
 package com.opengamma.strata.pricer.index;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -26,7 +26,6 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 /**
  * Test {@link DiscountingIborFutureTradePricer}.
  */
-@Test
 public class DiscountingIborFutureTradePricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -43,16 +42,18 @@ public class DiscountingIborFutureTradePricerTest {
   private static final double TOLERANCE_PV_DELTA = 1.0e-2;
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_price() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
     prov.setIborRates(mockIbor);
     when(mockIbor.rate(FUTURE.getIborRate().getObservation())).thenReturn(RATE);
 
-    assertEquals(PRICER_TRADE.price(FUTURE_TRADE, prov), 1.0 - RATE, TOLERANCE_PRICE);
+    assertThat(PRICER_TRADE.price(FUTURE_TRADE, prov)).isCloseTo(1.0 - RATE, offset(TOLERANCE_PRICE));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     double currentPrice = 0.995;
     double referencePrice = 0.9925;
@@ -60,26 +61,29 @@ public class DiscountingIborFutureTradePricerTest {
     double referencePriceIndex = PRICER_PRODUCT.marginIndex(FUTURE_TRADE.getProduct(), referencePrice);
     double presentValueExpected = (currentPriceIndex - referencePriceIndex) * FUTURE_TRADE.getQuantity();
     CurrencyAmount presentValueComputed = PRICER_TRADE.presentValue(FUTURE_TRADE, currentPrice, referencePrice);
-    assertEquals(presentValueComputed.getAmount(), presentValueExpected, TOLERANCE_PV);
+    assertThat(presentValueComputed.getAmount()).isCloseTo(presentValueExpected, offset(TOLERANCE_PV));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_reference_price_after_trade_date() {
     LocalDate tradeDate = FUTURE_TRADE.getTradedPrice().get().getTradeDate();
     LocalDate valuationDate = tradeDate.plusDays(1);
     double settlementPrice = 0.995;
     double referencePrice = PRICER_TRADE.referencePrice(FUTURE_TRADE, valuationDate, settlementPrice);
-    assertEquals(referencePrice, settlementPrice);
+    assertThat(referencePrice).isEqualTo(settlementPrice);
   }
 
+  @Test
   public void test_reference_price_on_trade_date() {
     LocalDate tradeDate = FUTURE_TRADE.getTradedPrice().get().getTradeDate();
     LocalDate valuationDate = tradeDate;
     double settlementPrice = 0.995;
     double referencePrice = PRICER_TRADE.referencePrice(FUTURE_TRADE, valuationDate, settlementPrice);
-    assertEquals(referencePrice, FUTURE_TRADE.getTradedPrice().get().getPrice());
+    assertThat(referencePrice).isEqualTo(FUTURE_TRADE.getTradedPrice().get().getPrice());
   }
 
+  @Test
   public void test_reference_price_val_date_not_null() {
     double settlementPrice = 0.995;
     assertThatIllegalArgumentException()
@@ -87,6 +91,7 @@ public class DiscountingIborFutureTradePricerTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parSpread_after_trade_date() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -96,9 +101,10 @@ public class DiscountingIborFutureTradePricerTest {
     double lastClosingPrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - lastClosingPrice;
     double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, lastClosingPrice);
-    assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
+    assertThat(parSpreadComputed).isCloseTo(parSpreadExpected, offset(TOLERANCE_PRICE));
   }
   
+  @Test
   public void test_parSpread_on_trade_date() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -109,10 +115,11 @@ public class DiscountingIborFutureTradePricerTest {
     double lastClosingPrice = 0.99;
     double parSpreadExpected = PRICER_TRADE.price(FUTURE_TRADE, prov) - FUTURE_TRADE.getTradedPrice().get().getPrice();
     double parSpreadComputed = PRICER_TRADE.parSpread(FUTURE_TRADE, prov, lastClosingPrice);
-    assertEquals(parSpreadComputed, parSpreadExpected, TOLERANCE_PRICE);
+    assertThat(parSpreadComputed).isCloseTo(parSpreadExpected, offset(TOLERANCE_PRICE));
   }
 
   //------------------------------------------------------------------------- 
+  @Test
   public void test_presentValue_after_trade_date() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -125,10 +132,11 @@ public class DiscountingIborFutureTradePricerTest {
     double expected = ((1.0 - RATE) - lastClosingPrice) *
         FUTURE.getAccrualFactor() * FUTURE.getNotional() * FUTURE_TRADE.getQuantity();
     CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, prov, lastClosingPrice);
-    assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
-    assertEquals(computed.getCurrency(), FUTURE.getCurrency());
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE_PV));
+    assertThat(computed.getCurrency()).isEqualTo(FUTURE.getCurrency());
   }
 
+  @Test
   public void test_presentValue_on_trade_date() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -141,11 +149,12 @@ public class DiscountingIborFutureTradePricerTest {
     double expected = ((1.0 - RATE) - FUTURE_TRADE.getTradedPrice().get().getPrice()) *
         FUTURE.getAccrualFactor() * FUTURE.getNotional() * FUTURE_TRADE.getQuantity();
     CurrencyAmount computed = pricerFn.presentValue(FUTURE_TRADE, prov, lastClosingPrice);
-    assertEquals(computed.getAmount(), expected, TOLERANCE_PV);
-    assertEquals(computed.getCurrency(), FUTURE.getCurrency());
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(TOLERANCE_PV));
+    assertThat(computed.getCurrency()).isEqualTo(FUTURE.getCurrency());
   }
 
   //-------------------------------------------------------------------------   
+  @Test
   public void test_presentValueSensitivity() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -155,10 +164,11 @@ public class DiscountingIborFutureTradePricerTest {
     PointSensitivities sensiPresentValueExpected = sensiPrice.multipliedBy(
         FUTURE.getNotional() * FUTURE.getAccrualFactor() * FUTURE_TRADE.getQuantity());
     PointSensitivities sensiPresentValueComputed = PRICER_TRADE.presentValueSensitivity(FUTURE_TRADE, prov);
-    assertTrue(sensiPresentValueComputed.equalWithTolerance(sensiPresentValueExpected, TOLERANCE_PV_DELTA));
+    assertThat(sensiPresentValueComputed.equalWithTolerance(sensiPresentValueExpected, TOLERANCE_PV_DELTA)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parSpreadSensitivity() {
     IborIndexRates mockIbor = mock(IborIndexRates.class);
     SimpleRatesProvider prov = new SimpleRatesProvider();
@@ -166,7 +176,7 @@ public class DiscountingIborFutureTradePricerTest {
 
     PointSensitivities sensiExpected = PRICER_PRODUCT.priceSensitivity(FUTURE, prov);
     PointSensitivities sensiComputed = PRICER_TRADE.parSpreadSensitivity(FUTURE_TRADE, prov);
-    assertTrue(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA));
+    assertThat(sensiComputed.equalWithTolerance(sensiExpected, TOLERANCE_PRICE_DELTA)).isTrue();
   }
 
 }

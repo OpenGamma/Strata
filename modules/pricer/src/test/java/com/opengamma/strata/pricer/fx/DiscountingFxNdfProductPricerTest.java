@@ -6,12 +6,12 @@
 package com.opengamma.strata.pricer.fx;
 
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -34,7 +34,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSingle;
 /**
  * Test {@link DiscountingFxNdfProductPricer}.
  */
-@Test
 public class DiscountingFxNdfProductPricerTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -76,24 +75,27 @@ public class DiscountingFxNdfProductPricerTest {
   private static final RatesFiniteDifferenceSensitivityCalculator CAL_FD =
       new RatesFiniteDifferenceSensitivityCalculator(EPS_FD);
 
+  @Test
   public void test_presentValue() {
     CurrencyAmount computed = PRICER.presentValue(NDF, PROVIDER);
     double dscUsd = PROVIDER.discountFactor(USD, NDF.getPaymentDate());
     double dscKrw = PROVIDER.discountFactor(KRW, NDF.getPaymentDate());
     double expected = NOMINAL_USD * (dscUsd - dscKrw * FX_RATE / PROVIDER.fxRate(CurrencyPair.of(USD, KRW)));
-    assertEquals(computed.getCurrency(), USD);
-    assertEquals(computed.getAmount(), expected, NOMINAL_USD * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(USD);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValue_inverse() {
     CurrencyAmount computed = PRICER.presentValue(NDF_INVERSE, PROVIDER);
     double dscUsd = PROVIDER.discountFactor(USD, NDF_INVERSE.getPaymentDate());
     double dscKrw = PROVIDER.discountFactor(KRW, NDF_INVERSE.getPaymentDate());
     double expected = NOMINAL_USD * FX_RATE * (dscKrw - dscUsd * 1 / FX_RATE / PROVIDER.fxRate(CurrencyPair.of(KRW, USD)));
-    assertEquals(computed.getCurrency(), KRW);
-    assertEquals(computed.getAmount(), expected, NOMINAL_USD * FX_RATE * TOL);
+    assertThat(computed.getCurrency()).isEqualTo(KRW);
+    assertThat(computed.getAmount()).isCloseTo(expected, offset(NOMINAL_USD * FX_RATE * TOL));
   }
 
+  @Test
   public void test_presentValue_ended() {
     ResolvedFxNdf ndf = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
@@ -102,9 +104,10 @@ public class DiscountingFxNdfProductPricerTest {
         .paymentDate(PAYMENT_DATE_PAST)
         .build();
     CurrencyAmount computed = PRICER.presentValue(ndf, PROVIDER);
-    assertEquals(computed.getAmount(), 0d);
+    assertThat(computed.getAmount()).isEqualTo(0d);
   }
 
+  @Test
   public void test_forwardValue() {
     FxRate computed = PRICER.forwardFxRate(NDF, PROVIDER);
     ResolvedFxNdf ndfFwd = ResolvedFxNdf.builder()
@@ -114,16 +117,18 @@ public class DiscountingFxNdfProductPricerTest {
         .paymentDate(PAYMENT_DATE)
         .build();
     CurrencyAmount computedFwd = PRICER.presentValue(ndfFwd, PROVIDER);
-    assertEquals(computedFwd.getAmount(), 0d, NOMINAL_USD * TOL);
+    assertThat(computedFwd.getAmount()).isCloseTo(0d, offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_presentValueSensitivity() {
     PointSensitivities point = PRICER.presentValueSensitivity(NDF, PROVIDER);
     CurrencyParameterSensitivities computed = PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities expected = CAL_FD.sensitivity(PROVIDER, (p) -> PRICER.presentValue(NDF, (p)));
-    assertTrue(computed.equalWithTolerance(expected, NOMINAL_USD * EPS_FD));
+    assertThat(computed.equalWithTolerance(expected, NOMINAL_USD * EPS_FD)).isTrue();
   }
 
+  @Test
   public void test_presentValueSensitivity_ended() {
     ResolvedFxNdf ndf = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
@@ -132,18 +137,20 @@ public class DiscountingFxNdfProductPricerTest {
         .paymentDate(PAYMENT_DATE_PAST)
         .build();
     PointSensitivities computed = PRICER.presentValueSensitivity(ndf, PROVIDER);
-    assertEquals(computed, PointSensitivities.empty());
+    assertThat(computed).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
 
+  @Test
   public void test_currencyExposure() {
     CurrencyAmount pv = PRICER.presentValue(NDF, PROVIDER);
     MultiCurrencyAmount ce = PRICER.currencyExposure(NDF, PROVIDER);
     CurrencyAmount ceConverted = ce.convertedTo(pv.getCurrency(), PROVIDER);
-    assertEquals(pv.getAmount(), ceConverted.getAmount(), NOMINAL_USD * TOL);
+    assertThat(pv.getAmount()).isCloseTo(ceConverted.getAmount(), offset(NOMINAL_USD * TOL));
   }
 
+  @Test
   public void test_currencyExposure_ended() {
     ResolvedFxNdf ndf = ResolvedFxNdf.builder()
         .settlementCurrencyNotional(CURRENCY_NOTIONAL)
@@ -152,29 +159,29 @@ public class DiscountingFxNdfProductPricerTest {
         .paymentDate(LocalDate.of(2011, 5, 4))
         .build();
     MultiCurrencyAmount computed = PRICER.currencyExposure(ndf, PROVIDER);
-    assertEquals(computed.size(), 0);
+    assertThat(computed.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_currencyExposure_from_pt_sensitivity() {
     MultiCurrencyAmount ceDirect = PRICER.currencyExposure(NDF, PROVIDER);
     PointSensitivities pts = PRICER.presentValueSensitivity(NDF, PROVIDER);
     MultiCurrencyAmount cePts = PROVIDER.currencyExposure(pts);
     CurrencyAmount cePv = PRICER.presentValue(NDF, PROVIDER);
     MultiCurrencyAmount ceExpected = cePts.plus(cePv);
-    assertEquals(ceDirect.getAmount(USD).getAmount(), ceExpected.getAmount(USD).getAmount(), NOMINAL_USD * TOL);
-    assertEquals(ceDirect.getAmount(KRW).getAmount(), ceExpected.getAmount(KRW).getAmount(),
-        NOMINAL_USD * TOL * FX_MATRIX.fxRate(USD, KRW));
+    assertThat(ceDirect.getAmount(USD).getAmount()).isCloseTo(ceExpected.getAmount(USD).getAmount(), offset(NOMINAL_USD * TOL));
+    assertThat(ceDirect.getAmount(KRW).getAmount()).isCloseTo(ceExpected.getAmount(KRW).getAmount(), offset(NOMINAL_USD * TOL * FX_MATRIX.fxRate(USD, KRW)));
   }
 
+  @Test
   public void test_currencyExposure_from_pt_sensitivity_inverse() {
     MultiCurrencyAmount ceDirect = PRICER.currencyExposure(NDF_INVERSE, PROVIDER);
     PointSensitivities pts = PRICER.presentValueSensitivity(NDF_INVERSE, PROVIDER);
     MultiCurrencyAmount cePts = PROVIDER.currencyExposure(pts);
     CurrencyAmount cePv = PRICER.presentValue(NDF_INVERSE, PROVIDER);
     MultiCurrencyAmount ceExpected = cePts.plus(cePv);
-    assertEquals(ceDirect.getAmount(USD).getAmount(), ceExpected.getAmount(USD).getAmount(), NOMINAL_USD * TOL);
-    assertEquals(ceDirect.getAmount(KRW).getAmount(), ceExpected.getAmount(KRW).getAmount(),
-        NOMINAL_USD * TOL * FX_MATRIX.fxRate(USD, KRW));
+    assertThat(ceDirect.getAmount(USD).getAmount()).isCloseTo(ceExpected.getAmount(USD).getAmount(), offset(NOMINAL_USD * TOL));
+    assertThat(ceDirect.getAmount(KRW).getAmount()).isCloseTo(ceExpected.getAmount(KRW).getAmount(), offset(NOMINAL_USD * TOL * FX_MATRIX.fxRate(USD, KRW)));
   }
 
   //-------------------------------------------------------------------------
@@ -183,51 +190,53 @@ public class DiscountingFxNdfProductPricerTest {
   private static final DiscountingFxSingleProductPricer PRICER_FX = DiscountingFxSingleProductPricer.DEFAULT;
 
   // Checks that the NDF present value is coherent with the standard FX forward present value.
+  @Test
   public void test_presentValueVsForex() {
     CurrencyAmount pvNDF = PRICER.presentValue(NDF, PROVIDER);
     MultiCurrencyAmount pvFX = PRICER_FX.presentValue(FOREX, PROVIDER);
-    assertEquals(
-        pvNDF.getAmount(),
-        pvFX.getAmount(USD).getAmount() + pvFX.getAmount(KRW).getAmount() * FX_MATRIX.fxRate(KRW, USD),
-        NOMINAL_USD * TOL);
+    assertThat(pvNDF.getAmount()).isCloseTo(pvFX.getAmount(USD).getAmount() + pvFX.getAmount(KRW).getAmount() * FX_MATRIX.fxRate(KRW, USD), offset(NOMINAL_USD * TOL));
   }
 
   // Checks that the NDF currency exposure is coherent with the standard FX forward present value.
+  @Test
   public void test_currencyExposureVsForex() {
     MultiCurrencyAmount pvNDF = PRICER.currencyExposure(NDF, PROVIDER);
     MultiCurrencyAmount pvFX = PRICER_FX.currencyExposure(FOREX, PROVIDER);
-    assertEquals(pvNDF.getAmount(USD).getAmount(), pvFX.getAmount(USD).getAmount(), NOMINAL_USD * TOL);
-    assertEquals(pvNDF.getAmount(KRW).getAmount(), pvFX.getAmount(KRW).getAmount(),
-        NOMINAL_USD * TOL * FX_MATRIX.fxRate(USD, KRW));
+    assertThat(pvNDF.getAmount(USD).getAmount()).isCloseTo(pvFX.getAmount(USD).getAmount(), offset(NOMINAL_USD * TOL));
+    assertThat(pvNDF.getAmount(KRW).getAmount()).isCloseTo(pvFX.getAmount(KRW).getAmount(), offset(NOMINAL_USD * TOL * FX_MATRIX.fxRate(USD, KRW)));
   }
 
   // Checks that the NDF forward rate is coherent with the standard FX forward present value.
+  @Test
   public void test_forwardRateVsForex() {
     FxRate fwdNDF = PRICER.forwardFxRate(NDF, PROVIDER);
     FxRate fwdFX = PRICER_FX.forwardFxRate(FOREX, PROVIDER);
-    assertEquals(fwdNDF.fxRate(fwdNDF.getPair()), fwdFX.fxRate(fwdFX.getPair()), 1e-10);
+    assertThat(fwdNDF.fxRate(fwdNDF.getPair())).isCloseTo(fwdFX.fxRate(fwdFX.getPair()), offset(1e-10));
   }
 
   // Checks that the NDF present value sensitivity is coherent with the standard FX forward present value.
+  @Test
   public void test_presentValueCurveSensitivityVsForex() {
     PointSensitivities pvcsNDF = PRICER.presentValueSensitivity(NDF, PROVIDER).normalized();
     CurrencyParameterSensitivities sensiNDF = PROVIDER.parameterSensitivity(pvcsNDF);
     PointSensitivities pvcsFX = PRICER_FX.presentValueSensitivity(FOREX, PROVIDER).normalized();
     CurrencyParameterSensitivities sensiFX = PROVIDER.parameterSensitivity(pvcsFX);
-    assertTrue(sensiNDF.equalWithTolerance(sensiFX.convertedTo(USD, PROVIDER), NOMINAL_USD * TOL));
+    assertThat(sensiNDF.equalWithTolerance(sensiFX.convertedTo(USD, PROVIDER), NOMINAL_USD * TOL)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_currentCash_zero() {
     CurrencyAmount computed = PRICER.currentCash(NDF, PROVIDER);
-    assertEquals(computed, CurrencyAmount.zero(NDF.getSettlementCurrency()));
+    assertThat(computed).isEqualTo(CurrencyAmount.zero(NDF.getSettlementCurrency()));
   }
 
+  @Test
   public void test_currentCash_onPayment() {
     double rate = 1111.2;
     LocalDate paymentDate = NDF.getPaymentDate();
     RatesProvider provider = RatesProviderFxDataSets.createProvider(paymentDate, NDF.getIndex(), rate);
     CurrencyAmount computed = PRICER.currentCash(NDF, provider);
-    assertEquals(computed, CurrencyAmount.of(NDF.getSettlementCurrency(), NOMINAL_USD * (1d - FX_RATE / rate)));
+    assertThat(computed).isEqualTo(CurrencyAmount.of(NDF.getSettlementCurrency(), NOMINAL_USD * (1d - FX_RATE / rate)));
   }
 }

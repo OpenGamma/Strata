@@ -8,7 +8,7 @@ package com.opengamma.strata.pricer.curve;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.pricer.datasets.ImmutableRatesProviderSimpleData;
@@ -23,10 +23,10 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 /**
  * Test {@link CalibrationMeasures}.
  */
-@Test
 public class CalibrationMeasuresTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_PAR_SPREAD() {
     assertThat(CalibrationMeasures.PAR_SPREAD.getName()).isEqualTo("ParSpread");
     assertThat(CalibrationMeasures.PAR_SPREAD.getTradeTypes()).contains(
@@ -38,6 +38,7 @@ public class CalibrationMeasuresTest {
         ResolvedTermDepositTrade.class);
   }
 
+  @Test
   public void test_MARKET_QUOTE() {
     assertThat(CalibrationMeasures.MARKET_QUOTE.getName()).isEqualTo("MarketQuote");
     assertThat(CalibrationMeasures.MARKET_QUOTE.getTradeTypes()).contains(
@@ -49,6 +50,7 @@ public class CalibrationMeasuresTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_array() {
     CalibrationMeasures test = CalibrationMeasures.of(
         "Test",
@@ -59,6 +61,7 @@ public class CalibrationMeasuresTest {
     assertThat(test.toString()).isEqualTo("Test");
   }
 
+  @Test
   public void test_of_list() {
     CalibrationMeasures test = CalibrationMeasures.of(
         "Test",
@@ -68,6 +71,7 @@ public class CalibrationMeasuresTest {
     assertThat(test.toString()).isEqualTo("Test");
   }
 
+  @Test
   public void test_of_duplicate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CalibrationMeasures.of(
@@ -77,6 +81,7 @@ public class CalibrationMeasuresTest {
             "Test", ImmutableList.of(TradeCalibrationMeasure.FRA_PAR_SPREAD, TradeCalibrationMeasure.FRA_PAR_SPREAD)));
   }
 
+  @Test
   public void test_measureNotKnown() {
     CalibrationMeasures test = CalibrationMeasures.of("Test", TradeCalibrationMeasure.FRA_PAR_SPREAD);
     assertThatIllegalArgumentException()
