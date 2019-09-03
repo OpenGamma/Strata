@@ -92,8 +92,6 @@
     <jpms.module.name>com.opengamma.strata.calc</jpms.module.name>
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/../..</root.dir>
-    <!-- Properties for maven-surefire-plugin -->
-    <tests.testng.threads>1</tests.testng.threads>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata Calculation Runner</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata Engine</h1>]]></doctitle>
