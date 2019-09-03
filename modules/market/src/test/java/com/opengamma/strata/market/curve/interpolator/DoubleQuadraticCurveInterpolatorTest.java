@@ -6,18 +6,18 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.Random;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link DoubleQuadraticCurveInterpolator}.
  */
-@Test
 public class DoubleQuadraticCurveInterpolatorTest {
 
   private static final Random RANDOM = new Random(0L);
@@ -46,40 +46,45 @@ public class DoubleQuadraticCurveInterpolatorTest {
     Y_SENS = DoubleArray.copyOf(y);
   }
 
+  @Test
   public void test_basics() {
-    assertEquals(DQ_INTERPOLATOR.getName(), DoubleQuadraticCurveInterpolator.NAME);
-    assertEquals(DQ_INTERPOLATOR.toString(), DoubleQuadraticCurveInterpolator.NAME);
+    assertThat(DQ_INTERPOLATOR.getName()).isEqualTo(DoubleQuadraticCurveInterpolator.NAME);
+    assertThat(DQ_INTERPOLATOR.toString()).isEqualTo(DoubleQuadraticCurveInterpolator.NAME);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_interpolation() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     for (int i = 0; i < X_TEST.length; i++) {
-      assertEquals(bci.interpolate(X_TEST[i]), Y_TEST[i], 1e-8);
+      assertThat(bci.interpolate(X_TEST[i])).isCloseTo(Y_TEST[i], offset(1e-8));
     }
   }
 
+  @Test
   public void test_oneInterval() {
     DoubleArray x = DoubleArray.of(1.4, 1.8);
     DoubleArray y = DoubleArray.of(0.34, 0.56);
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(x, y, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     double value = bci.interpolate(1.6);
-    assertEquals((y.get(0) + y.get(1)) / 2, value, 0.0);
+    assertThat((y.get(0) + y.get(1)) / 2).isCloseTo(value, offset(0.0));
 
     double m = (y.get(1) - y.get(0)) / (x.get(1) - x.get(0));
-    assertEquals(bci.firstDerivative(1.5), m, 0.0);
-    assertEquals(bci.firstDerivative(x.get(1)), m, 0.0);
+    assertThat(bci.firstDerivative(1.5)).isCloseTo(m, offset(0.0));
+    assertThat(bci.firstDerivative(x.get(1))).isCloseTo(m, offset(0.0));
   }
 
+  @Test
   public void test_firstDerivative() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     double eps = 1e-8;
     double lo = bci.interpolate(0.2);
     double hi = bci.interpolate(0.2 + eps);
     double deriv = (hi - lo) / eps;
-    assertEquals(bci.firstDerivative(0.2), deriv, 1e-6);
+    assertThat(bci.firstDerivative(0.2)).isCloseTo(deriv, offset(1e-6));
   }
 
+  @Test
   public void test_firstDerivative2() {
     double a = 1.34;
     double b = 7.0 / 3.0;
@@ -93,51 +98,57 @@ public class DoubleQuadraticCurveInterpolatorTest {
     BoundCurveInterpolator bci =
         DQ_INTERPOLATOR.bind(DoubleArray.copyOf(x), DoubleArray.copyOf(y), FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     double grad = bci.firstDerivative(x[n - 1]);
-    assertEquals(b + 2 * c * x[n - 1], grad, 1e-15);
+    assertThat(b + 2 * c * x[n - 1]).isCloseTo(grad, offset(1e-15));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_sensitivities() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_SENS, Y_SENS, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     double lastXValue = X_SENS.get(X_SENS.size() - 1);
     for (int i = 0; i < 100; i++) {
       double t = lastXValue * RANDOM.nextDouble();
       DoubleArray sensitivity = bci.parameterSensitivity(t);
-      assertEquals(sensitivity.sum(), 1d, TOL);
+      assertThat(sensitivity.sum()).isCloseTo(1d, offset(TOL));
     }
   }
 
+  @Test
   public void test_sensitivityEdgeCase() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_SENS, Y_SENS, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     double lastXValue = X_SENS.get(X_SENS.size() - 1);
     DoubleArray sensitivity = bci.parameterSensitivity(lastXValue);
     for (int i = 0; i < sensitivity.size() - 1; i++) {
-      assertEquals(0, sensitivity.get(i), EPS);
+      assertThat(sensitivity.get(i)).isCloseTo(0, offset(EPS));
     }
-    assertEquals(1.0, sensitivity.get(sensitivity.size() - 1), EPS);
+    assertThat(sensitivity.get(sensitivity.size() - 1)).isCloseTo(1, offset(EPS));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_firstNode() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    assertEquals(bci.interpolate(0.0), 3.0, TOL);
-    assertEquals(bci.firstDerivative(0.0), bci.firstDerivative(0.00000001), 1e-6);
+    assertThat(bci.interpolate(0.0)).isCloseTo(3.0, offset(TOL));
+    assertThat(bci.firstDerivative(0.0)).isCloseTo(bci.firstDerivative(0.00000001), offset(1e-6));
   }
 
+  @Test
   public void test_allNodes() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     for (int i = 0; i < X_DATA.size(); i++) {
-      assertEquals(bci.interpolate(X_DATA.get(i)), Y_DATA.get(i), TOL);
+      assertThat(bci.interpolate(X_DATA.get(i))).isCloseTo(Y_DATA.get(i), offset(TOL));
     }
   }
 
+  @Test
   public void test_lastNode() {
     BoundCurveInterpolator bci = DQ_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    assertEquals(bci.interpolate(5.0), 2.0, TOL);
-    assertEquals(bci.firstDerivative(5.0), bci.firstDerivative(4.99999999), 1e-6);
+    assertThat(bci.interpolate(5.0)).isCloseTo(2.0, offset(TOL));
+    assertThat(bci.firstDerivative(5.0)).isCloseTo(bci.firstDerivative(4.99999999), offset(1e-6));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(DQ_INTERPOLATOR);
   }

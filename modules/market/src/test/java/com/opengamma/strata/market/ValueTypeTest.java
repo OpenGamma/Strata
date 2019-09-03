@@ -7,17 +7,17 @@ package com.opengamma.strata.market;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ValueType}.
  */
-@Test
 public class ValueTypeTest {
 
+  @Test
   public void test_validation() {
     assertThatIllegalArgumentException().isThrownBy(() -> ValueType.of(null));
     assertThatIllegalArgumentException().isThrownBy(() -> ValueType.of(""));
@@ -39,6 +39,7 @@ public class ValueTypeTest {
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void checkEquals() {
     ValueType test = ValueType.of("Foo");
     test.checkEquals(test, "Error");
@@ -46,9 +47,10 @@ public class ValueTypeTest {
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void coverage() {
     ValueType test = ValueType.of("Foo");
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.toString()).isEqualTo("Foo");
     assertSerialization(test);
     assertJodaConvert(ValueType.class, test);
   }

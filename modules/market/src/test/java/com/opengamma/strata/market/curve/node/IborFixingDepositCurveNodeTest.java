@@ -12,15 +12,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -48,7 +48,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link IborFixingDepositCurveNode}.
  */
-@Test
 public class IborFixingDepositCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -59,6 +58,7 @@ public class IborFixingDepositCurveNodeTest {
   private static final String LABEL_AUTO = "3M";
   private static final IborFixingDepositTemplate TEMPLATE = IborFixingDepositTemplate.of(EUR_LIBOR_3M);
 
+  @Test
   public void test_builder() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.builder()
         .label(LABEL)
@@ -66,45 +66,50 @@ public class IborFixingDepositCurveNodeTest {
         .template(TEMPLATE)
         .additionalSpread(SPREAD)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.END);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
   }
 
+  @Test
   public void test_of_noSpread() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), 0.0);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(0.0);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpread() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpreadAndLabel() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_requirements() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     Set<ObservableId> set = test.requirements();
     Iterator<ObservableId> itr = set.iterator();
-    assertEquals(itr.next(), QUOTE_ID);
-    assertFalse(itr.hasNext());
+    assertThat(itr.next()).isEqualTo(QUOTE_ID);
+    assertThat(itr.hasNext()).isFalse();
   }
 
+  @Test
   public void test_trade() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
@@ -126,10 +131,11 @@ public class IborFixingDepositCurveNodeTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(valuationDate)
         .build();
-    assertEquals(trade.getProduct(), depositExpected);
-    assertEquals(trade.getInfo(), tradeInfoExpected);
+    assertThat(trade.getProduct()).isEqualTo(depositExpected);
+    assertThat(trade.getInfo()).isEqualTo(tradeInfoExpected);
   }
 
+  @Test
   public void test_trade_noMarketData() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     MarketData marketData = MarketData.empty(VAL_DATE);
@@ -137,33 +143,36 @@ public class IborFixingDepositCurveNodeTest {
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
+  @Test
   public void test_initialGuess() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), rate);
-    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR),
-        Math.exp(-rate * 0.25d), 1.0E-12);
+    assertThat(node.initialGuess(marketData, ValueType.ZERO_RATE)).isEqualTo(rate);
+    assertThat(node.initialGuess(marketData, ValueType.FORWARD_RATE)).isEqualTo(rate);
+    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR)).isCloseTo(Math.exp(-rate * 0.25d), offset(1.0E-12));
   }
 
+  @Test
   public void test_metadata_end() {
     IborFixingDepositCurveNode node = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.TENOR_3M);
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(LocalDate.of(2015, 4, 27));
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(Tenor.TENOR_3M);
   }
 
+  @Test
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     IborFixingDepositCurveNode node =
         IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.of(nodeDate));
     DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
-    assertEquals(metadata.getDate(), nodeDate);
-    assertEquals(metadata.getLabel(), node.getLabel());
+    assertThat(metadata.getDate()).isEqualTo(nodeDate);
+    assertThat(metadata.getLabel()).isEqualTo(node.getLabel());
   }
 
+  @Test
   public void test_metadata_last_fixing() {
     IborFixingDepositCurveNode node =
         IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
@@ -172,11 +181,12 @@ public class IborFixingDepositCurveNodeTest {
     ResolvedIborFixingDeposit product = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateComputation) product.getFloatingRate()).getFixingDate();
     DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), fixingDate);
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor().getPeriod(), TEMPLATE.getDepositPeriod());
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(fixingDate);
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor().getPeriod()).isEqualTo(TEMPLATE.getDepositPeriod());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
@@ -185,6 +195,7 @@ public class IborFixingDepositCurveNodeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     IborFixingDepositCurveNode test = IborFixingDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertSerialization(test);

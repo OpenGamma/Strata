@@ -7,14 +7,14 @@ package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -28,7 +28,6 @@ import com.opengamma.strata.market.curve.CurveName;
 /**
  * Test {@link CurrencyParameterSensitivities}.
  */
-@Test
 public class CurrencyParameterSensitivitiesTest {
 
   private static final double FACTOR1 = 3.14;
@@ -85,43 +84,50 @@ public class CurrencyParameterSensitivitiesTest {
   private static final double TOLERENCE_CMP = 1.0E-8;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_empty() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.empty();
-    assertEquals(test.size(), 0);
-    assertEquals(test.getSensitivities().size(), 0);
+    assertThat(test.size()).isEqualTo(0);
+    assertThat(test.getSensitivities()).hasSize(0);
   }
 
+  @Test
   public void test_of_single() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_USD);
-    assertEquals(test.size(), 1);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD));
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD);
   }
 
+  @Test
   public void test_of_array_none() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of();
-    assertEquals(test.size(), 0);
+    assertThat(test.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_of_list_none() {
     ImmutableList<CurrencyParameterSensitivity> list = ImmutableList.of();
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(list);
-    assertEquals(test.size(), 0);
+    assertThat(test.size()).isEqualTo(0);
   }
 
+  @Test
   public void test_of_list_notNormalized() {
     ImmutableList<CurrencyParameterSensitivity> list = ImmutableList.of(ENTRY_USD, ENTRY_EUR);
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(list);
-    assertEquals(test.size(), 2);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD, ENTRY_EUR));
+    assertThat(test.size()).isEqualTo(2);
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD, ENTRY_EUR);
   }
 
+  @Test
   public void test_of_list_normalized() {
     ImmutableList<CurrencyParameterSensitivity> list = ImmutableList.of(ENTRY_USD, ENTRY_USD2);
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(list);
-    assertEquals(test.size(), 1);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD_TOTAL));
+    assertThat(test.size()).isEqualTo(1);
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD_TOTAL);
   }
 
+  @Test
   public void test_of_list_normalizeNotPossible() {
     ImmutableList<CurrencyParameterSensitivity> list = ImmutableList.of(ENTRY_USD, ENTRY_USD_SMALL);
     assertThatIllegalArgumentException()
@@ -129,6 +135,7 @@ public class CurrencyParameterSensitivitiesTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, VECTOR_USD1);
@@ -139,15 +146,17 @@ public class CurrencyParameterSensitivitiesTest {
         .add(CurrencyParameterSensitivities.of(entry1))
         .add(entry2)
         .build();
-    assertEquals(test.getSensitivities().size(), 1);
-    assertEquals(test.getSensitivities().get(0).getParameterMetadata(), METADATA1B);
-    assertEquals(test.getSensitivities().get(0).getSensitivity(), DoubleArray.of(300, 600, 600, 246));
+    assertThat(test.getSensitivities()).hasSize(1);
+    assertThat(test.getSensitivities().get(0).getParameterMetadata()).isEqualTo(METADATA1B);
+    assertThat(test.getSensitivities().get(0).getSensitivity()).isEqualTo(DoubleArray.of(300, 600, 600, 246));
   }
 
+  @Test
   public void test_builder_emptyMetadata() {
-    assertThrows(IllegalArgumentException.class, () -> CurrencyParameterSensitivities.builder().add(ENTRY_USD));
+    assertThatIllegalArgumentException().isThrownBy(() -> CurrencyParameterSensitivities.builder().add(ENTRY_USD));
   }
 
+  @Test
   public void test_builder_mapMetadata() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, DoubleArray.of(0, 1, 2, 3));
@@ -157,10 +166,11 @@ public class CurrencyParameterSensitivitiesTest {
         .add(entry1)
         .mapMetadata(md -> TENOR_MD_1Y)
         .build();
-    assertEquals(test.getSensitivities().size(), 1);
-    assertEquals(test.getSensitivities().get(0), expected);
+    assertThat(test.getSensitivities()).hasSize(1);
+    assertThat(test.getSensitivities().get(0)).isEqualTo(expected);
   }
 
+  @Test
   public void test_builder_filterSensitivity() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, DoubleArray.of(0, 1, 2, 3));
@@ -170,10 +180,11 @@ public class CurrencyParameterSensitivitiesTest {
         .add(entry1)
         .filterSensitivity(v -> v != 0)
         .build();
-    assertEquals(test.getSensitivities().size(), 1);
-    assertEquals(test.getSensitivities().get(0), expected);
+    assertThat(test.getSensitivities()).hasSize(1);
+    assertThat(test.getSensitivities().get(0)).isEqualTo(expected);
   }
 
+  @Test
   public void test_builder_filterSensitivity_remove() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, DoubleArray.of(1, 1, 1, 1));
@@ -181,13 +192,14 @@ public class CurrencyParameterSensitivitiesTest {
         .add(entry1)
         .filterSensitivity(v -> v != 1)
         .build();
-    assertEquals(test.getSensitivities().size(), 0);
+    assertThat(test.getSensitivities()).hasSize(0);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_getSensitivity() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_USD);
-    assertEquals(test.getSensitivity(NAME1, USD), ENTRY_USD);
+    assertThat(test.getSensitivity(NAME1, USD)).isEqualTo(ENTRY_USD);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getSensitivity(NAME1, EUR));
     assertThatIllegalArgumentException()
@@ -196,46 +208,54 @@ public class CurrencyParameterSensitivitiesTest {
         .isThrownBy(() -> test.getSensitivity(NAME0, EUR));
   }
 
+  @Test
   public void test_findSensitivity() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_USD);
-    assertEquals(test.findSensitivity(NAME1, USD), Optional.of(ENTRY_USD));
-    assertEquals(test.findSensitivity(NAME1, EUR), Optional.empty());
-    assertEquals(test.findSensitivity(NAME0, USD), Optional.empty());
-    assertEquals(test.findSensitivity(NAME0, EUR), Optional.empty());
+    assertThat(test.findSensitivity(NAME1, USD)).isEqualTo(Optional.of(ENTRY_USD));
+    assertThat(test.findSensitivity(NAME1, EUR)).isEqualTo(Optional.empty());
+    assertThat(test.findSensitivity(NAME0, USD)).isEqualTo(Optional.empty());
+    assertThat(test.findSensitivity(NAME0, EUR)).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith_one_notNormalized() {
     CurrencyParameterSensitivities test = SENSI_1.combinedWith(ENTRY_EUR);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD, ENTRY_EUR));
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD, ENTRY_EUR);
   }
 
+  @Test
   public void test_combinedWith_one_normalized() {
     CurrencyParameterSensitivities test = SENSI_1.combinedWith(ENTRY_USD2);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD_TOTAL));
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD_TOTAL);
   }
 
+  @Test
   public void test_combinedWith_one_sizeMismatch() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> SENSI_1.combinedWith(ENTRY_USD_SMALL));
   }
 
+  @Test
   public void test_combinedWith_other() {
     CurrencyParameterSensitivities test = SENSI_1.combinedWith(SENSI_2);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD_TOTAL, ENTRY_EUR));
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD_TOTAL, ENTRY_EUR);
   }
 
+  @Test
   public void test_combinedWith_otherEmpty() {
     CurrencyParameterSensitivities test = SENSI_1.combinedWith(CurrencyParameterSensitivities.empty());
-    assertEquals(test, SENSI_1);
+    assertThat(test).isEqualTo(SENSI_1);
   }
 
+  @Test
   public void test_combinedWith_empty() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.empty().combinedWith(SENSI_1);
-    assertEquals(test, SENSI_1);
+    assertThat(test).isEqualTo(SENSI_1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mergedWith() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, VECTOR_USD1);
@@ -244,103 +264,118 @@ public class CurrencyParameterSensitivitiesTest {
     CurrencyParameterSensitivities base1 = CurrencyParameterSensitivities.of(entry1);
     CurrencyParameterSensitivities base2 = CurrencyParameterSensitivities.of(entry2);
     CurrencyParameterSensitivities test = base1.mergedWith(base2);
-    assertEquals(test.getSensitivities().size(), 1);
-    assertEquals(test.getSensitivities().get(0).getParameterMetadata(), METADATA1B);
-    assertEquals(test.getSensitivities().get(0).getSensitivity(), DoubleArray.of(200, 400, 300, 123));
+    assertThat(test.getSensitivities()).hasSize(1);
+    assertThat(test.getSensitivities().get(0).getParameterMetadata()).isEqualTo(METADATA1B);
+    assertThat(test.getSensitivities().get(0).getSensitivity()).isEqualTo(DoubleArray.of(200, 400, 300, 123));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withMarketDataNames() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, DoubleArray.of(0, 1, 2, 3));
     CurrencyParameterSensitivities base = CurrencyParameterSensitivities.of(entry1);
     CurrencyParameterSensitivities test = base.withMarketDataNames(name -> NAME2);
-    assertEquals(SENSI_1.getSensitivities().get(0).getMarketDataName(), NAME1);
-    assertEquals(test.getSensitivities().get(0).getMarketDataName(), NAME2);
+    assertThat(SENSI_1.getSensitivities().get(0).getMarketDataName()).isEqualTo(NAME1);
+    assertThat(test.getSensitivities().get(0).getMarketDataName()).isEqualTo(NAME2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withParameterMetadatas() {
     CurrencyParameterSensitivity entry1 =
         CurrencyParameterSensitivity.of(NAME1, METADATA1B, USD, DoubleArray.of(0, 1, 2, 3));
     CurrencyParameterSensitivities base = CurrencyParameterSensitivities.of(entry1);
     CurrencyParameterSensitivities test = base.withParameterMetadatas(md -> TENOR_MD_1Y);
-    assertEquals(test.getSensitivities().get(0).getParameterMetadata().size(), 1);
-    assertEquals(test.getSensitivities().get(0).getParameterMetadata(0), TENOR_MD_1Y);
-    assertEquals(test.getSensitivities().get(0).getSensitivity(), DoubleArray.of(6));
+    assertThat(test.getSensitivities().get(0).getParameterMetadata()).hasSize(1);
+    assertThat(test.getSensitivities().get(0).getParameterMetadata(0)).isEqualTo(TENOR_MD_1Y);
+    assertThat(test.getSensitivities().get(0).getSensitivity()).isEqualTo(DoubleArray.of(6));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo_singleCurrency() {
     CurrencyParameterSensitivities test = SENSI_1.convertedTo(USD, FxMatrix.empty());
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD));
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD);
   }
 
+  @Test
   public void test_convertedTo_multipleCurrency() {
     CurrencyParameterSensitivities test = SENSI_2.convertedTo(USD, FX_RATE);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD2, ENTRY_EUR_IN_USD));
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD2, ENTRY_EUR_IN_USD);
   }
 
+  @Test
   public void test_convertedTo_multipleCurrency_mergeWhenSameName() {
     CurrencyParameterSensitivities test = SENSI_1.combinedWith(ENTRY_USD2_IN_EUR).convertedTo(USD, FX_RATE);
-    assertEquals(test.getSensitivities(), ImmutableList.of(ENTRY_USD_TOTAL));
+    assertThat(test.getSensitivities()).containsExactly(ENTRY_USD_TOTAL);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_total_singleCurrency() {
-    assertEquals(SENSI_1.total(USD, FxMatrix.empty()).getAmount(), VECTOR_USD1.sum(), 1e-8);
+    assertThat(SENSI_1.total(USD, FxMatrix.empty()).getAmount()).isCloseTo(VECTOR_USD1.sum(), offset(1e-8));
   }
 
+  @Test
   public void test_total_multipleCurrency() {
-    assertEquals(SENSI_2.total(USD, FX_RATE).getAmount(), VECTOR_USD2.sum() + VECTOR_EUR1.sum() * 1.6d, 1e-8);
+    assertThat(SENSI_2.total(USD, FX_RATE).getAmount()).isCloseTo(VECTOR_USD2.sum() + VECTOR_EUR1.sum() * 1.6d, offset(1e-8));
   }
 
+  @Test
   public void test_totalMulti_singleCurrency() {
-    assertEquals(SENSI_1.total().size(), 1);
-    assertEquals(SENSI_1.total().getAmount(USD).getAmount(), VECTOR_USD1.sum(), 1e-8);
+    assertThat(SENSI_1.total().size()).isEqualTo(1);
+    assertThat(SENSI_1.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD1.sum(), offset(1e-8));
   }
 
+  @Test
   public void test_totalMulti_multipleCurrency() {
-    assertEquals(SENSI_2.total().size(), 2);
-    assertEquals(SENSI_2.total().getAmount(USD).getAmount(), VECTOR_USD2.sum(), 1e-8);
-    assertEquals(SENSI_2.total().getAmount(EUR).getAmount(), VECTOR_EUR1.sum(), 1e-8);
+    assertThat(SENSI_2.total().size()).isEqualTo(2);
+    assertThat(SENSI_2.total().getAmount(USD).getAmount()).isCloseTo(VECTOR_USD2.sum(), offset(1e-8));
+    assertThat(SENSI_2.total().getAmount(EUR).getAmount()).isCloseTo(VECTOR_EUR1.sum(), offset(1e-8));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     CurrencyParameterSensitivities multiplied = SENSI_1.multipliedBy(FACTOR1);
     DoubleArray test = multiplied.getSensitivities().get(0).getSensitivity();
     for (int i = 0; i < VECTOR_USD1.size(); i++) {
-      assertEquals(test.get(i), VECTOR_USD1.get(i) * FACTOR1);
+      assertThat(test.get(i)).isEqualTo(VECTOR_USD1.get(i) * FACTOR1);
     }
   }
 
+  @Test
   public void test_mapSensitivities() {
     CurrencyParameterSensitivities multiplied = SENSI_1.mapSensitivities(a -> 1 / a);
     DoubleArray test = multiplied.getSensitivities().get(0).getSensitivity();
     for (int i = 0; i < VECTOR_USD1.size(); i++) {
-      assertEquals(test.get(i), 1 / VECTOR_USD1.get(i));
+      assertThat(test.get(i)).isEqualTo(1 / VECTOR_USD1.get(i));
     }
   }
 
+  @Test
   public void test_multipliedBy_vs_combinedWith() {
     CurrencyParameterSensitivities multiplied = SENSI_2.multipliedBy(2d);
     CurrencyParameterSensitivities added = SENSI_2.combinedWith(SENSI_2);
-    assertEquals(multiplied, added);
+    assertThat(multiplied).isEqualTo(added);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_split() {
     CurrencyParameterSensitivities test = CurrencyParameterSensitivities.of(ENTRY_COMBINED).split();
-    assertEquals(test, CurrencyParameterSensitivities.of(ENTRY_USD, ENTRY_EUR_IN_USD));
+    assertThat(test).isEqualTo(CurrencyParameterSensitivities.of(ENTRY_USD, ENTRY_EUR_IN_USD));
   }
 
+  @Test
   public void test_split_noSplit() {
     CurrencyParameterSensitivities test = SENSI_1.split();
-    assertEquals(test, SENSI_1);
+    assertThat(test).isEqualTo(SENSI_1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalWithTolerance() {
     CurrencyParameterSensitivities sensUsdTotal = CurrencyParameterSensitivities.of(ENTRY_USD_TOTAL);
     CurrencyParameterSensitivities sensEur = CurrencyParameterSensitivities.of(ENTRY_EUR);
@@ -352,58 +387,59 @@ public class CurrencyParameterSensitivitiesTest {
     CurrencyParameterSensitivities sens1plus2plus0 = SENSI_1
         .combinedWith(ENTRY_USD2).combinedWith(ENTRY_ZERO0).combinedWith(ENTRY_ZERO3);
     CurrencyParameterSensitivities sens2plus0 = SENSI_2.combinedWith(sensZeroA);
-    assertEquals(SENSI_1.equalWithTolerance(sensZeroA, TOLERENCE_CMP), false);
-    assertEquals(SENSI_1.equalWithTolerance(SENSI_1, TOLERENCE_CMP), true);
-    assertEquals(SENSI_1.equalWithTolerance(SENSI_2, TOLERENCE_CMP), false);
-    assertEquals(SENSI_1.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP), false);
-    assertEquals(SENSI_1.equalWithTolerance(sensEur, TOLERENCE_CMP), false);
-    assertEquals(SENSI_1.equalWithTolerance(sens1plus2, TOLERENCE_CMP), false);
-    assertEquals(SENSI_1.equalWithTolerance(sens2plus0, TOLERENCE_CMP), false);
+    assertThat(SENSI_1.equalWithTolerance(sensZeroA, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isTrue();
+    assertThat(SENSI_1.equalWithTolerance(SENSI_2, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(sensEur, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_1.equalWithTolerance(sens2plus0, TOLERENCE_CMP)).isFalse();
 
-    assertEquals(SENSI_2.equalWithTolerance(sensZeroA, TOLERENCE_CMP), false);
-    assertEquals(SENSI_2.equalWithTolerance(SENSI_1, TOLERENCE_CMP), false);
-    assertEquals(SENSI_2.equalWithTolerance(SENSI_2, TOLERENCE_CMP), true);
-    assertEquals(SENSI_2.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP), false);
-    assertEquals(SENSI_2.equalWithTolerance(sensEur, TOLERENCE_CMP), false);
-    assertEquals(SENSI_2.equalWithTolerance(sens1plus2, TOLERENCE_CMP), false);
-    assertEquals(SENSI_2.equalWithTolerance(sens2plus0, TOLERENCE_CMP), true);
+    assertThat(SENSI_2.equalWithTolerance(sensZeroA, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_2.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_2.equalWithTolerance(SENSI_2, TOLERENCE_CMP)).isTrue();
+    assertThat(SENSI_2.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_2.equalWithTolerance(sensEur, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_2.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isFalse();
+    assertThat(SENSI_2.equalWithTolerance(sens2plus0, TOLERENCE_CMP)).isTrue();
 
-    assertEquals(sensZeroA.equalWithTolerance(sensZeroA, TOLERENCE_CMP), true);
-    assertEquals(sensZeroA.equalWithTolerance(SENSI_1, TOLERENCE_CMP), false);
-    assertEquals(sensZeroA.equalWithTolerance(SENSI_2, TOLERENCE_CMP), false);
-    assertEquals(sensZeroA.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP), false);
-    assertEquals(sensZeroA.equalWithTolerance(sensEur, TOLERENCE_CMP), false);
-    assertEquals(sensZeroA.equalWithTolerance(sens1plus2, TOLERENCE_CMP), false);
-    assertEquals(sensZeroA.equalWithTolerance(sens2plus0, TOLERENCE_CMP), false);
-    assertEquals(sensZeroA.equalWithTolerance(sensZeroB, TOLERENCE_CMP), true);
+    assertThat(sensZeroA.equalWithTolerance(sensZeroA, TOLERENCE_CMP)).isTrue();
+    assertThat(sensZeroA.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroA.equalWithTolerance(SENSI_2, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroA.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroA.equalWithTolerance(sensEur, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroA.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroA.equalWithTolerance(sens2plus0, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroA.equalWithTolerance(sensZeroB, TOLERENCE_CMP)).isTrue();
 
-    assertEquals(sensZeroB.equalWithTolerance(sensZeroB, TOLERENCE_CMP), true);
-    assertEquals(sensZeroB.equalWithTolerance(SENSI_1, TOLERENCE_CMP), false);
-    assertEquals(sensZeroB.equalWithTolerance(SENSI_2, TOLERENCE_CMP), false);
-    assertEquals(sensZeroB.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP), false);
-    assertEquals(sensZeroB.equalWithTolerance(sensEur, TOLERENCE_CMP), false);
-    assertEquals(sensZeroB.equalWithTolerance(sens1plus2, TOLERENCE_CMP), false);
-    assertEquals(sensZeroB.equalWithTolerance(sens2plus0, TOLERENCE_CMP), false);
-    assertEquals(sensZeroB.equalWithTolerance(sensZeroA, TOLERENCE_CMP), true);
+    assertThat(sensZeroB.equalWithTolerance(sensZeroB, TOLERENCE_CMP)).isTrue();
+    assertThat(sensZeroB.equalWithTolerance(SENSI_1, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroB.equalWithTolerance(SENSI_2, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroB.equalWithTolerance(sensUsdTotal, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroB.equalWithTolerance(sensEur, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroB.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroB.equalWithTolerance(sens2plus0, TOLERENCE_CMP)).isFalse();
+    assertThat(sensZeroB.equalWithTolerance(sensZeroA, TOLERENCE_CMP)).isTrue();
 
-    assertEquals(sens1plus2.equalWithTolerance(sens1plus2, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2.equalWithTolerance(sens1plus2plus0a, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2.equalWithTolerance(sens1plus2plus0b, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0a.equalWithTolerance(sens1plus2, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0a.equalWithTolerance(sens1plus2plus0, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0a.equalWithTolerance(sens1plus2plus0a, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0a.equalWithTolerance(sens1plus2plus0b, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0b.equalWithTolerance(sens1plus2, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0b.equalWithTolerance(sens1plus2plus0, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0b.equalWithTolerance(sens1plus2plus0a, TOLERENCE_CMP), true);
-    assertEquals(sens1plus2plus0b.equalWithTolerance(sens1plus2plus0b, TOLERENCE_CMP), true);
-    assertEquals(sens2plus0.equalWithTolerance(sens2plus0, TOLERENCE_CMP), true);
+    assertThat(sens1plus2.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2.equalWithTolerance(sens1plus2plus0a, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2.equalWithTolerance(sens1plus2plus0b, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0a.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0a.equalWithTolerance(sens1plus2plus0, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0a.equalWithTolerance(sens1plus2plus0a, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0a.equalWithTolerance(sens1plus2plus0b, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0b.equalWithTolerance(sens1plus2, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0b.equalWithTolerance(sens1plus2plus0, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0b.equalWithTolerance(sens1plus2plus0a, TOLERENCE_CMP)).isTrue();
+    assertThat(sens1plus2plus0b.equalWithTolerance(sens1plus2plus0b, TOLERENCE_CMP)).isTrue();
+    assertThat(sens2plus0.equalWithTolerance(sens2plus0, TOLERENCE_CMP)).isTrue();
 
-    assertEquals(sensZeroA.equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERENCE_CMP), true);
-    assertEquals(CurrencyParameterSensitivities.empty().equalWithTolerance(sensZeroA, TOLERENCE_CMP), true);
+    assertThat(sensZeroA.equalWithTolerance(CurrencyParameterSensitivities.empty(), TOLERENCE_CMP)).isTrue();
+    assertThat(CurrencyParameterSensitivities.empty().equalWithTolerance(sensZeroA, TOLERENCE_CMP)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(CurrencyParameterSensitivities.empty());
     coverImmutableBean(SENSI_1);

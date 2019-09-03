@@ -8,11 +8,11 @@ package com.opengamma.strata.market.param;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 /**
  * Test {@link ResolvedTradeParameterMetadata}.
  */
-@Test
 public class ResolvedTradeParameterMetadataTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -40,14 +39,16 @@ public class ResolvedTradeParameterMetadataTest {
           .build()
           .resolve(REF_DATA));
 
+  @Test
   public void test_of() {
     ResolvedTradeParameterMetadata test = ResolvedTradeParameterMetadata.of(TRADE, "Label");
-    assertEquals(test.getLabel(), "Label");
-    assertEquals(test.getIdentifier(), "Label");
-    assertEquals(test.getTrade(), TRADE);
+    assertThat(test.getLabel()).isEqualTo("Label");
+    assertThat(test.getIdentifier()).isEqualTo("Label");
+    assertThat(test.getTrade()).isEqualTo(TRADE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ResolvedTradeParameterMetadata test1 = ResolvedTradeParameterMetadata.of(TRADE, "Label");
     coverImmutableBean(test1);
@@ -63,6 +64,7 @@ public class ResolvedTradeParameterMetadataTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ResolvedTradeParameterMetadata test = ResolvedTradeParameterMetadata.of(TRADE, "Label");
     assertSerialization(test);

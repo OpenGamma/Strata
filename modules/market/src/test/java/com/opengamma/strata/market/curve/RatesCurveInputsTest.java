@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
@@ -22,7 +22,6 @@ import com.opengamma.strata.market.observable.QuoteId;
 /**
  * Test {@link RatesCurveInputs}.
  */
-@Test
 public class RatesCurveInputsTest {
 
   private static final Map<MarketDataId<?>, Object> DATA_MAP =
@@ -33,12 +32,14 @@ public class RatesCurveInputsTest {
   private static final CurveMetadata METADATA2 = DefaultCurveMetadata.of("Test2");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     RatesCurveInputs test = RatesCurveInputs.of(DATA_MAP, METADATA);
     assertThat(test.getMarketData()).isEqualTo(DATA_MAP);
     assertThat(test.getCurveMetadata()).isEqualTo(METADATA);
   }
 
+  @Test
   public void test_builder() {
     RatesCurveInputs test = RatesCurveInputs.builder().marketData(DATA_MAP).curveMetadata(METADATA).build();
     assertThat(test.getMarketData()).isEqualTo(DATA_MAP);
@@ -46,6 +47,7 @@ public class RatesCurveInputsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RatesCurveInputs test = RatesCurveInputs.of(DATA_MAP, METADATA);
     coverImmutableBean(test);
@@ -53,6 +55,7 @@ public class RatesCurveInputsTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RatesCurveInputs test = RatesCurveInputs.of(DATA_MAP, METADATA);
     assertSerialization(test);

@@ -22,9 +22,8 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
 import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -33,11 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.Tenor;
@@ -59,7 +57,6 @@ import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 /**
  * Test {@link RatesCurveGroupDefinition}.
  */
-@Test
 public class RatesCurveGroupDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -121,6 +118,7 @@ public class RatesCurveGroupDefinitionTest {
   private static final SeasonalityDefinition SEASONALITY_ADDITIVE_DEF =
       SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ShiftType.SCALED);
 
+  @Test
   public void test_builder1() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -129,56 +127,59 @@ public class RatesCurveGroupDefinitionTest {
         .addForwardCurve(CURVE_DEFN1, GBP_LIBOR_1W)
         .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getName(), CurveGroupName.of("Test"));
-    assertEquals(test.getEntries(), ImmutableList.of(ENTRY1, ENTRY2));
-    assertEquals(test.findDiscountCurveName(GBP), Optional.of(CURVE_NAME1));
-    assertEquals(test.findDiscountCurveName(USD), Optional.empty());
-    assertEquals(test.findForwardCurveName(GBP_LIBOR_1W), Optional.of(CURVE_NAME1));
-    assertEquals(test.findForwardCurveName(GBP_LIBOR_1M), Optional.of(CURVE_NAME2));
-    assertEquals(test.findForwardCurveName(GBP_LIBOR_6M), Optional.empty());
-    assertEquals(test.findForwardCurveNames(GBP_LIBOR), ImmutableSet.of(CURVE_NAME1, CURVE_NAME2));
-    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY1));
-    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
-    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
-    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.of(CURVE_DEFN2));
-    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getName()).isEqualTo(CurveGroupName.of("Test"));
+    assertThat(test.getEntries()).containsExactly(ENTRY1, ENTRY2);
+    assertThat(test.findDiscountCurveName(GBP)).isEqualTo(Optional.of(CURVE_NAME1));
+    assertThat(test.findDiscountCurveName(USD)).isEqualTo(Optional.empty());
+    assertThat(test.findForwardCurveName(GBP_LIBOR_1W)).isEqualTo(Optional.of(CURVE_NAME1));
+    assertThat(test.findForwardCurveName(GBP_LIBOR_1M)).isEqualTo(Optional.of(CURVE_NAME2));
+    assertThat(test.findForwardCurveName(GBP_LIBOR_6M)).isEqualTo(Optional.empty());
+    assertThat(test.findForwardCurveNames(GBP_LIBOR)).containsOnly(CURVE_NAME1, CURVE_NAME2);
+    assertThat(test.findEntry(CurveName.of("Test"))).isEqualTo(Optional.of(ENTRY1));
+    assertThat(test.findEntry(CurveName.of("Test2"))).isEqualTo(Optional.of(ENTRY2));
+    assertThat(test.findEntry(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.findCurveDefinition(CurveName.of("Test"))).isEqualTo(Optional.of(CURVE_DEFN1));
+    assertThat(test.findCurveDefinition(CurveName.of("Test2"))).isEqualTo(Optional.of(CURVE_DEFN2));
+    assertThat(test.findCurveDefinition(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder2() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getName(), CurveGroupName.of("Test"));
-    assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
-    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY3));
-    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
-    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getName()).isEqualTo(CurveGroupName.of("Test"));
+    assertThat(test.getEntries()).containsExactly(ENTRY3);
+    assertThat(test.findEntry(CurveName.of("Test"))).isEqualTo(Optional.of(ENTRY3));
+    assertThat(test.findEntry(CurveName.of("Test2"))).isEqualTo(Optional.empty());
+    assertThat(test.findEntry(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.findCurveDefinition(CurveName.of("Test"))).isEqualTo(Optional.of(CURVE_DEFN1));
+    assertThat(test.findCurveDefinition(CurveName.of("Test2"))).isEqualTo(Optional.empty());
+    assertThat(test.findCurveDefinition(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_seasonality() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .addSeasonality(CURVE_NAME_I, SEASONALITY_ADDITIVE_DEF)
         .build();
-    assertEquals(test.getName(), CurveGroupName.of("Test"));
-    assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
-    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY3));
-    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
-    assertEquals(test.findCurveDefinition(CurveName.of("Test")), Optional.of(CURVE_DEFN1));
-    assertEquals(test.findCurveDefinition(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.findCurveDefinition(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getName()).isEqualTo(CurveGroupName.of("Test"));
+    assertThat(test.getEntries()).containsExactly(ENTRY3);
+    assertThat(test.findEntry(CurveName.of("Test"))).isEqualTo(Optional.of(ENTRY3));
+    assertThat(test.findEntry(CurveName.of("Test2"))).isEqualTo(Optional.empty());
+    assertThat(test.findEntry(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
+    assertThat(test.findCurveDefinition(CurveName.of("Test"))).isEqualTo(Optional.of(CURVE_DEFN1));
+    assertThat(test.findCurveDefinition(CurveName.of("Test2"))).isEqualTo(Optional.empty());
+    assertThat(test.findCurveDefinition(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
     ImmutableMap<CurveName, SeasonalityDefinition> seasonMap = test.getSeasonalityDefinitions();
-    assertTrue(seasonMap.size() == 1);
-    assertEquals(seasonMap.get(CURVE_NAME_I), SEASONALITY_ADDITIVE_DEF);
+    assertThat(seasonMap.size() == 1).isTrue();
+    assertThat(seasonMap.get(CURVE_NAME_I)).isEqualTo(SEASONALITY_ADDITIVE_DEF);
   }
 
+  @Test
   public void test_builder3() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -187,25 +188,27 @@ public class RatesCurveGroupDefinitionTest {
         .addForwardCurve(CURVE_NAME1, GBP_LIBOR_1W)
         .addForwardCurve(CURVE_NAME2, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getName(), CurveGroupName.of("Test"));
-    assertEquals(test.getEntries(), ImmutableList.of(ENTRY1, ENTRY2));
-    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY1));
-    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.of(ENTRY2));
-    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getName()).isEqualTo(CurveGroupName.of("Test"));
+    assertThat(test.getEntries()).containsExactly(ENTRY1, ENTRY2);
+    assertThat(test.findEntry(CurveName.of("Test"))).isEqualTo(Optional.of(ENTRY1));
+    assertThat(test.findEntry(CurveName.of("Test2"))).isEqualTo(Optional.of(ENTRY2));
+    assertThat(test.findEntry(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder4() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
         .addCurve(CURVE_NAME1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
-    assertEquals(test.getName(), CurveGroupName.of("Test"));
-    assertEquals(test.getEntries(), ImmutableList.of(ENTRY3));
-    assertEquals(test.findEntry(CurveName.of("Test")), Optional.of(ENTRY3));
-    assertEquals(test.findEntry(CurveName.of("Test2")), Optional.empty());
-    assertEquals(test.findEntry(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(test.getName()).isEqualTo(CurveGroupName.of("Test"));
+    assertThat(test.getEntries()).containsExactly(ENTRY3);
+    assertThat(test.findEntry(CurveName.of("Test"))).isEqualTo(Optional.of(ENTRY3));
+    assertThat(test.findEntry(CurveName.of("Test2"))).isEqualTo(Optional.empty());
+    assertThat(test.findEntry(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_missingEntries() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> RatesCurveGroupDefinition.of(
@@ -216,6 +219,7 @@ public class RatesCurveGroupDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, GBP_LIBOR_1M_ID);
@@ -242,10 +246,11 @@ public class RatesCurveGroupDefinitionTest {
         .addCurve(curveDefn.filtered(valuationDate, REF_DATA), GBP, GBP_LIBOR_1M, GBP_LIBOR_3M)
         .build();
 
-    assertEquals(test.filtered(valuationDate, REF_DATA), expected);
+    assertThat(test.filtered(valuationDate, REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_metadata() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -254,10 +259,11 @@ public class RatesCurveGroupDefinitionTest {
 
     LocalDate valuationDate = date(2015, 6, 30);
     CurveMetadata meta = CURVE_DEFN1.metadata(valuationDate, REF_DATA);
-    assertEquals(test.metadata(valuationDate, REF_DATA), ImmutableList.of(meta));
+    assertThat(test.metadata(valuationDate, REF_DATA)).containsExactly(meta);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_tradesInitialGuesses() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -268,12 +274,13 @@ public class RatesCurveGroupDefinitionTest {
         date(2015, 6, 30), ImmutableMap.of(GBP_LIBOR_1M_ID, 0.5d, GBP_LIBOR_3M_ID, 1.5d));
     Trade trade1 = NODE1.trade(1d, marketData, REF_DATA);
     Trade trade2 = NODE2.trade(1d, marketData, REF_DATA);
-    assertEquals(test.getTotalParameterCount(), 2);
-    assertEquals(test.resolvedTrades(marketData, REF_DATA), ImmutableList.of(trade1, trade2));
-    assertEquals(test.initialGuesses(marketData), ImmutableList.of(0.5d, 1.5d));
+    assertThat(test.getTotalParameterCount()).isEqualTo(2);
+    assertThat(test.resolvedTrades(marketData, REF_DATA)).isEqualTo(ImmutableList.of(trade1, trade2));
+    assertThat(test.initialGuesses(marketData)).containsExactly(0.5d, 1.5d);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_bind() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -290,18 +297,19 @@ public class RatesCurveGroupDefinitionTest {
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
     RatesCurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<CurveDefinition> list = testBound.getCurveDefinitions();
-    assertEquals(list.size(), 2);
-    assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
-    assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
+    assertThat(list).hasSize(2);
+    assertThat(list.get(0) instanceof InterpolatedNodalCurveDefinition).isTrue();
+    assertThat(list.get(1) instanceof InflationNodalCurveDefinition).isTrue();
     InflationNodalCurveDefinition seasonDef = (InflationNodalCurveDefinition) list.get(1);
-    assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
-    assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(lastFixingDate));
-    assertEquals(seasonDef.getLastFixingValue(), lastFixingValue);
-    assertEquals(seasonDef.getName(), CURVE_NAME_I);
-    assertEquals(seasonDef.getSeasonalityDefinition(), SEASONALITY_ADDITIVE_DEF);
-    assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
+    assertThat(seasonDef.getCurveWithoutFixingDefinition()).isEqualTo(CURVE_DEFN_I);
+    assertThat(seasonDef.getLastFixingMonth()).isEqualTo(YearMonth.from(lastFixingDate));
+    assertThat(seasonDef.getLastFixingValue()).isEqualTo(lastFixingValue);
+    assertThat(seasonDef.getName()).isEqualTo(CURVE_NAME_I);
+    assertThat(seasonDef.getSeasonalityDefinition()).isEqualTo(SEASONALITY_ADDITIVE_DEF);
+    assertThat(seasonDef.getYValueType()).isEqualTo(ValueType.PRICE_INDEX);
   }
 
+  @Test
   public void test_bind_after_last_fixing() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -320,18 +328,19 @@ public class RatesCurveGroupDefinitionTest {
             .put(other2FixingDate, lastFixingValue - 2.0).build());
     RatesCurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<CurveDefinition> list = testBound.getCurveDefinitions();
-    assertEquals(list.size(), 2);
-    assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
-    assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
+    assertThat(list).hasSize(2);
+    assertThat(list.get(0) instanceof InterpolatedNodalCurveDefinition).isTrue();
+    assertThat(list.get(1) instanceof InflationNodalCurveDefinition).isTrue();
     InflationNodalCurveDefinition seasonDef = (InflationNodalCurveDefinition) list.get(1);
-    assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
-    assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(otherFixingDate));
-    assertEquals(seasonDef.getLastFixingValue(), lastFixingValue - 1.0);
-    assertEquals(seasonDef.getName(), CURVE_NAME_I);
-    assertEquals(seasonDef.getSeasonalityDefinition(), SEASONALITY_ADDITIVE_DEF);
-    assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
+    assertThat(seasonDef.getCurveWithoutFixingDefinition()).isEqualTo(CURVE_DEFN_I);
+    assertThat(seasonDef.getLastFixingMonth()).isEqualTo(YearMonth.from(otherFixingDate));
+    assertThat(seasonDef.getLastFixingValue()).isEqualTo(lastFixingValue - 1.0);
+    assertThat(seasonDef.getName()).isEqualTo(CURVE_NAME_I);
+    assertThat(seasonDef.getSeasonalityDefinition()).isEqualTo(SEASONALITY_ADDITIVE_DEF);
+    assertThat(seasonDef.getYValueType()).isEqualTo(ValueType.PRICE_INDEX);
   }
 
+  @Test
   public void test_bind_no_seasonality() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -347,22 +356,23 @@ public class RatesCurveGroupDefinitionTest {
             .put(lastFixingDate, 234.56).put(otherFixingDate, lastFixingValue - 1).build());
     RatesCurveGroupDefinition testBound = test.bindTimeSeries(valuationDate, map);
     List<CurveDefinition> list = testBound.getCurveDefinitions();
-    assertEquals(list.size(), 2);
-    assertTrue(list.get(0) instanceof InterpolatedNodalCurveDefinition);
-    assertTrue(list.get(1) instanceof InflationNodalCurveDefinition);
+    assertThat(list).hasSize(2);
+    assertThat(list.get(0) instanceof InterpolatedNodalCurveDefinition).isTrue();
+    assertThat(list.get(1) instanceof InflationNodalCurveDefinition).isTrue();
     InflationNodalCurveDefinition seasonDef = (InflationNodalCurveDefinition) list.get(1);
-    assertEquals(seasonDef.getCurveWithoutFixingDefinition(), CURVE_DEFN_I);
-    assertEquals(seasonDef.getLastFixingMonth(), YearMonth.from(lastFixingDate));
-    assertEquals(seasonDef.getLastFixingValue(), lastFixingValue);
-    assertEquals(seasonDef.getName(), CURVE_NAME_I);
-    assertEquals(seasonDef.getYValueType(), ValueType.PRICE_INDEX);
+    assertThat(seasonDef.getCurveWithoutFixingDefinition()).isEqualTo(CURVE_DEFN_I);
+    assertThat(seasonDef.getLastFixingMonth()).isEqualTo(YearMonth.from(lastFixingDate));
+    assertThat(seasonDef.getLastFixingValue()).isEqualTo(lastFixingValue);
+    assertThat(seasonDef.getName()).isEqualTo(CURVE_NAME_I);
+    assertThat(seasonDef.getYValueType()).isEqualTo(ValueType.PRICE_INDEX);
     // Check the default
-    assertTrue(seasonDef.getSeasonalityDefinition().getSeasonalityMonthOnMonth()
-        .equalWithTolerance(DoubleArray.filled(12, 1d), 1.0E-10));
-    assertEquals(seasonDef.getSeasonalityDefinition().getAdjustmentType(), ShiftType.SCALED);
+    assertThat(seasonDef.getSeasonalityDefinition().getSeasonalityMonthOnMonth()
+        .equalWithTolerance(DoubleArray.filled(12, 1d), 1.0E-10)).isTrue();
+    assertThat(seasonDef.getSeasonalityDefinition().getAdjustmentType()).isEqualTo(ShiftType.SCALED);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith_sameCurveNames() {
     RatesCurveGroupDefinition base1 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -378,9 +388,10 @@ public class RatesCurveGroupDefinitionTest {
         .addCurve(CURVE_DEFN1, GBP, GBP_LIBOR_1M, GBP_LIBOR_3M, GBP_LIBOR_6M)
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
         .build();
-    assertEquals(base1.combinedWith(base2), expected);
+    assertThat(base1.combinedWith(base2)).isEqualTo(expected);
   }
 
+  @Test
   public void test_combinedWith_differentCurveNames() {
     RatesCurveGroupDefinition base1 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -397,9 +408,10 @@ public class RatesCurveGroupDefinitionTest {
         .addForwardCurve(CURVE_DEFN_I, GB_RPI)
         .addForwardCurve(CURVE_DEFN2, GBP_LIBOR_6M)
         .build();
-    assertEquals(base1.combinedWith(base2), expected);
+    assertThat(base1.combinedWith(base2)).isEqualTo(expected);
   }
 
+  @Test
   public void test_combinedWith_sameCurveNamesClash() {
     RatesCurveGroupDefinition base1 = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -415,6 +427,7 @@ public class RatesCurveGroupDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -428,6 +441,7 @@ public class RatesCurveGroupDefinitionTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -436,6 +450,7 @@ public class RatesCurveGroupDefinitionTest {
     assertSerialization(test);
   }
 
+  @Test
   public void test_withName() {
     RatesCurveGroupDefinition test = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("Test"))
@@ -446,6 +461,6 @@ public class RatesCurveGroupDefinitionTest {
         .addDiscountCurve(CURVE_DEFN1, GBP)
         .build();
     RatesCurveGroupDefinition withNewName = test.withName(CurveGroupName.of("NewName"));
-    assertEquals(withNewName, expected);
+    assertThat(withNewName).isEqualTo(expected);
   }
 }

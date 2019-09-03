@@ -8,16 +8,15 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.data.ObservableSource;
 
 /**
  * Test {@link RatesCurveGroupId}.
  */
-@Test
 public class RatesCurveGroupIdTest {
 
   private static final CurveGroupName GROUP1 = CurveGroupName.of("Group1");
@@ -25,31 +24,35 @@ public class RatesCurveGroupIdTest {
   private static final ObservableSource OBS_SOURCE2 = ObservableSource.of("Vendor");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_String() {
     RatesCurveGroupId test = RatesCurveGroupId.of(GROUP1.toString());
-    assertEquals(test.getCurveGroupName(), GROUP1);
-    assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getMarketDataType(), RatesCurveGroup.class);
-    assertEquals(test.toString(), "RatesCurveGroupId:Group1");
+    assertThat(test.getCurveGroupName()).isEqualTo(GROUP1);
+    assertThat(test.getObservableSource()).isEqualTo(ObservableSource.NONE);
+    assertThat(test.getMarketDataType()).isEqualTo(RatesCurveGroup.class);
+    assertThat(test.toString()).isEqualTo("RatesCurveGroupId:Group1");
   }
 
+  @Test
   public void test_of_Type() {
     RatesCurveGroupId test = RatesCurveGroupId.of(GROUP1);
-    assertEquals(test.getCurveGroupName(), GROUP1);
-    assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getMarketDataType(), RatesCurveGroup.class);
-    assertEquals(test.toString(), "RatesCurveGroupId:Group1");
+    assertThat(test.getCurveGroupName()).isEqualTo(GROUP1);
+    assertThat(test.getObservableSource()).isEqualTo(ObservableSource.NONE);
+    assertThat(test.getMarketDataType()).isEqualTo(RatesCurveGroup.class);
+    assertThat(test.toString()).isEqualTo("RatesCurveGroupId:Group1");
   }
 
+  @Test
   public void test_of_TypeSource() {
     RatesCurveGroupId test = RatesCurveGroupId.of(GROUP1, OBS_SOURCE2);
-    assertEquals(test.getCurveGroupName(), GROUP1);
-    assertEquals(test.getObservableSource(), OBS_SOURCE2);
-    assertEquals(test.getMarketDataType(), RatesCurveGroup.class);
-    assertEquals(test.toString(), "RatesCurveGroupId:Group1/Vendor");
+    assertThat(test.getCurveGroupName()).isEqualTo(GROUP1);
+    assertThat(test.getObservableSource()).isEqualTo(OBS_SOURCE2);
+    assertThat(test.getMarketDataType()).isEqualTo(RatesCurveGroup.class);
+    assertThat(test.toString()).isEqualTo("RatesCurveGroupId:Group1/Vendor");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RatesCurveGroupId test = RatesCurveGroupId.of(GROUP1);
     coverImmutableBean(test);
@@ -57,6 +60,7 @@ public class RatesCurveGroupIdTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RatesCurveGroupId test = RatesCurveGroupId.of(GROUP1);
     assertSerialization(test);

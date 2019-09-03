@@ -16,16 +16,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -53,7 +52,6 @@ import com.opengamma.strata.product.rate.IborRateComputation;
 /**
  * Test {@link FraCurveNode}.
  */
-@Test
 public class FraCurveNodeTest {
 
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
@@ -68,6 +66,7 @@ public class FraCurveNodeTest {
   private static final String LABEL_AUTO = "5M";
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
+  @Test
   public void test_builder() {
     FraCurveNode test = FraCurveNode.builder()
         .label(LABEL)
@@ -76,13 +75,14 @@ public class FraCurveNodeTest {
         .additionalSpread(SPREAD)
         .date(CurveNodeDate.LAST_FIXING)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.LAST_FIXING);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.LAST_FIXING);
   }
 
+  @Test
   public void test_builder_defaults() {
     FraCurveNode test = FraCurveNode.builder()
         .label(LABEL)
@@ -90,45 +90,50 @@ public class FraCurveNodeTest {
         .rateId(QUOTE_ID)
         .additionalSpread(SPREAD)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.END);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
   }
 
+  @Test
   public void test_of_noSpread() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_ID);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), 0.0d);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(0.0d);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpread() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpreadAndLabel() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_requirements() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     Set<ObservableId> set = test.requirements();
     Iterator<ObservableId> itr = set.iterator();
-    assertEquals(itr.next(), QUOTE_ID);
-    assertFalse(itr.hasNext());
+    assertThat(itr.next()).isEqualTo(QUOTE_ID);
+    assertThat(itr.hasNext()).isFalse();
   }
 
+  @Test
   public void test_trade() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
@@ -153,10 +158,11 @@ public class FraCurveNodeTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(valuationDate)
         .build();
-    assertEquals(trade.getProduct(), productExpected);
-    assertEquals(trade.getInfo(), tradeInfoExpected);
+    assertThat(trade.getProduct()).isEqualTo(productExpected);
+    assertThat(trade.getInfo()).isEqualTo(tradeInfoExpected);
   }
 
+  @Test
   public void test_trade_noMarketData() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
@@ -165,35 +171,39 @@ public class FraCurveNodeTest {
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
+  @Test
   public void test_initialGuess() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), rate);
+    assertThat(node.initialGuess(marketData, ValueType.ZERO_RATE)).isEqualTo(rate);
+    assertThat(node.initialGuess(marketData, ValueType.FORWARD_RATE)).isEqualTo(rate);
     double approximateMaturity = TEMPLATE.getPeriodToEnd().toTotalMonths() / 12.0d;
     double df = Math.exp(-approximateMaturity * rate);
-    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR), df);
-    assertEquals(node.initialGuess(marketData, ValueType.PRICE_INDEX), 0d);
+    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR)).isEqualTo(df);
+    assertThat(node.initialGuess(marketData, ValueType.PRICE_INDEX)).isEqualTo(0d);
   }
 
+  @Test
   public void test_metadata_end() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = OFFSET.adjust(valuationDate, REF_DATA).plus(PERIOD_TO_START).plusMonths(3);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), endDate);
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), TENOR_5M);
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(endDate);
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(TENOR_5M);
   }
 
+  @Test
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.of(nodeDate));
     DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
-    assertEquals(metadata.getDate(), nodeDate);
-    assertEquals(metadata.getLabel(), node.getLabel());
+    assertThat(metadata.getDate()).isEqualTo(nodeDate);
+    assertThat(metadata.getLabel()).isEqualTo(node.getLabel());
   }
 
+  @Test
   public void test_metadata_last_fixing() {
     FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
@@ -202,11 +212,12 @@ public class FraCurveNodeTest {
     ResolvedFra resolved = trade.getProduct().resolve(REF_DATA);
     LocalDate fixingDate = ((IborRateComputation) (resolved.getFloatingRate())).getFixingDate();
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), fixingDate);
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), TENOR_5M);
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(fixingDate);
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(TENOR_5M);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
@@ -215,6 +226,7 @@ public class FraCurveNodeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FraCurveNode test = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertSerialization(test);

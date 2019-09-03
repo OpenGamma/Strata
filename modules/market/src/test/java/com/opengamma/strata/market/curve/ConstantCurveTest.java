@@ -10,14 +10,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
  * Test {@link ConstantCurve}.
  */
-@Test
 public class ConstantCurveTest {
 
   private static final String NAME = "TestCurve";
@@ -27,6 +26,7 @@ public class ConstantCurveTest {
   private static final double VALUE = 6d;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_String() {
     ConstantCurve test = ConstantCurve.of(NAME, VALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
@@ -40,6 +40,7 @@ public class ConstantCurveTest {
     assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantCurve.of(METADATA2, VALUE));
   }
 
+  @Test
   public void test_of_CurveName() {
     ConstantCurve test = ConstantCurve.of(CURVE_NAME, VALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
@@ -52,6 +53,7 @@ public class ConstantCurveTest {
     assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantCurve.of(METADATA2, VALUE));
   }
 
+  @Test
   public void test_of_CurveMetadata() {
     ConstantCurve test = ConstantCurve.of(METADATA, VALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
@@ -65,6 +67,7 @@ public class ConstantCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_lookup() {
     ConstantCurve test = ConstantCurve.of(CURVE_NAME, VALUE);
     assertThat(test.yValue(0d)).isEqualTo(VALUE);
@@ -81,6 +84,7 @@ public class ConstantCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ConstantCurve test = ConstantCurve.of(CURVE_NAME, VALUE);
     coverImmutableBean(test);
@@ -88,6 +92,7 @@ public class ConstantCurveTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ConstantCurve test = ConstantCurve.of(CURVE_NAME, VALUE);
     assertSerialization(test);

@@ -8,20 +8,19 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test {@link CurveNodeClashAction}.
  */
-@Test
 public class CurveNodeClashActionTest {
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {CurveNodeClashAction.DROP_THIS, "DropThis"},
@@ -30,35 +29,42 @@ public class CurveNodeClashActionTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(CurveNodeClashAction convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(CurveNodeClashAction convention, String name) {
-    assertEquals(CurveNodeClashAction.of(name), convention);
+    assertThat(CurveNodeClashAction.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurveNodeClashAction.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurveNodeClashAction.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(CurveNodeClashAction.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(CurveNodeClashAction.DROP_THIS);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(CurveNodeClashAction.class, CurveNodeClashAction.DROP_THIS);
   }

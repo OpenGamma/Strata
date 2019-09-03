@@ -8,23 +8,24 @@ package com.opengamma.strata.market.param;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link LabelParameterMetadata}.
  */
-@Test
 public class LabelParameterMetadataTest {
 
+  @Test
   public void test_of() {
     LabelParameterMetadata test = LabelParameterMetadata.of("Label");
-    assertEquals(test.getLabel(), "Label");
-    assertEquals(test.getIdentifier(), "Label");
+    assertThat(test.getLabel()).isEqualTo("Label");
+    assertThat(test.getIdentifier()).isEqualTo("Label");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     LabelParameterMetadata test = LabelParameterMetadata.of("Label");
     coverImmutableBean(test);
@@ -32,6 +33,7 @@ public class LabelParameterMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     LabelParameterMetadata test = LabelParameterMetadata.of("Label");
     assertSerialization(test);

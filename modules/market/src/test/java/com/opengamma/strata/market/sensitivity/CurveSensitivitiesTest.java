@@ -12,19 +12,18 @@ import static com.opengamma.strata.market.sensitivity.CurveSensitivitiesType.ZER
 import static com.opengamma.strata.market.sensitivity.CurveSensitivitiesType.ZERO_RATE_GAMMA;
 import static com.opengamma.strata.product.AttributeType.DESCRIPTION;
 import static com.opengamma.strata.product.AttributeType.NAME;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -45,7 +44,6 @@ import com.opengamma.strata.product.ProductType;
 /**
  * Test {@link CurveSensitivities}.
  */
-@Test
 public class CurveSensitivitiesTest {
 
   private static final TenorParameterMetadata TENOR_MD_1M = TenorParameterMetadata.of(Tenor.TENOR_1M);
@@ -90,33 +88,37 @@ public class CurveSensitivitiesTest {
       .withAttribute(DESCRIPTION, "2");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_empty() {
     CurveSensitivities test = CurveSensitivities.empty();
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
-    assertEquals(test.getTypedSensitivities(), ImmutableMap.of());
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty());
+    assertThat(test.getTypedSensitivities()).isEmpty();
   }
 
+  @Test
   public void test_of_single() {
     CurveSensitivities test = sut();
-    assertEquals(test.getId(), Optional.empty());
-    assertEquals(test.getInfo(), INFO1);
-    assertEquals(test.getTypedSensitivities(), ImmutableMap.of(ZERO_RATE_DELTA, SENSI1));
-    assertEquals(test.getTypedSensitivity(ZERO_RATE_DELTA), SENSI1);
-    assertThrows(IllegalArgumentException.class, () -> test.getTypedSensitivity(ZERO_RATE_GAMMA));
-    assertEquals(test.findTypedSensitivity(ZERO_RATE_DELTA), Optional.of(SENSI1));
-    assertEquals(test.findTypedSensitivity(ZERO_RATE_GAMMA), Optional.empty());
+    assertThat(test.getId()).isEqualTo(Optional.empty());
+    assertThat(test.getInfo()).isEqualTo(INFO1);
+    assertThat(test.getTypedSensitivities()).isEqualTo(ImmutableMap.of(ZERO_RATE_DELTA, SENSI1));
+    assertThat(test.getTypedSensitivity(ZERO_RATE_DELTA)).isEqualTo(SENSI1);
+    assertThatIllegalArgumentException().isThrownBy(() -> test.getTypedSensitivity(ZERO_RATE_GAMMA));
+    assertThat(test.findTypedSensitivity(ZERO_RATE_DELTA)).isEqualTo(Optional.of(SENSI1));
+    assertThat(test.findTypedSensitivity(ZERO_RATE_GAMMA)).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_of_map() {
     CurveSensitivities test = sut2();
-    assertEquals(test.getId(), Optional.of(ID2));
-    assertEquals(test.getInfo(), INFO2);
-    assertEquals(test.getTypedSensitivities(), ImmutableMap.of(ZERO_RATE_DELTA, SENSI1, ZERO_RATE_GAMMA, SENSI2));
-    assertEquals(test.getTypedSensitivity(ZERO_RATE_DELTA), SENSI1);
-    assertEquals(test.getTypedSensitivity(ZERO_RATE_GAMMA), SENSI2);
+    assertThat(test.getId()).isEqualTo(Optional.of(ID2));
+    assertThat(test.getInfo()).isEqualTo(INFO2);
+    assertThat(test.getTypedSensitivities()).isEqualTo(ImmutableMap.of(ZERO_RATE_DELTA, SENSI1, ZERO_RATE_GAMMA, SENSI2));
+    assertThat(test.getTypedSensitivity(ZERO_RATE_DELTA)).isEqualTo(SENSI1);
+    assertThat(test.getTypedSensitivity(ZERO_RATE_GAMMA)).isEqualTo(SENSI2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toMergedSensitivities() {
     CurveName curveName = CurveName.of("WEIRD");
     CurveSensitivities base = CurveSensitivities.builder(PortfolioItemInfo.empty())
@@ -128,24 +130,26 @@ public class CurveSensitivitiesTest {
         .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1W, 2)
         .build();
     CurveSensitivities test = Stream.of(base, other).collect(CurveSensitivities.toMergedSensitivities());
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
-    assertEquals(test.getTypedSensitivities().size(), 1);
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty());
+    assertThat(test.getTypedSensitivities()).hasSize(1);
     CurrencyParameterSensitivities sens = test.getTypedSensitivity(ZERO_RATE_DELTA);
-    assertEquals(sens.getSensitivities().size(), 1);
+    assertThat(sens.getSensitivities()).hasSize(1);
     CurrencyParameterSensitivity singleSens = sens.getSensitivity(curveName, GBP);
-    assertEquals(singleSens.getSensitivity(), DoubleArray.of(3, 4, 2));
-    assertEquals(singleSens.getParameterMetadata(0), TENOR_MD_1W);
-    assertEquals(singleSens.getParameterMetadata(1), TENOR_MD_1M);
-    assertEquals(singleSens.getParameterMetadata(2), TENOR_MD_1Y);
+    assertThat(singleSens.getSensitivity()).isEqualTo(DoubleArray.of(3, 4, 2));
+    assertThat(singleSens.getParameterMetadata(0)).isEqualTo(TENOR_MD_1W);
+    assertThat(singleSens.getParameterMetadata(1)).isEqualTo(TENOR_MD_1M);
+    assertThat(singleSens.getParameterMetadata(2)).isEqualTo(TENOR_MD_1Y);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_empty() {
     CurveSensitivities test = CurveSensitivities.builder(PortfolioItemInfo.empty()).build();
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
-    assertEquals(test.getTypedSensitivities(), ImmutableMap.of());
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty());
+    assertThat(test.getTypedSensitivities()).isEmpty();
   }
 
+  @Test
   public void test_builder_tenors() {
     CurveName curveName = CurveName.of("GBP");
     CurrencyParameterSensitivity sens1Y = CurrencyParameterSensitivity.of(
@@ -157,35 +161,37 @@ public class CurveSensitivitiesTest {
         .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1W, 2)
         .add(ZERO_RATE_DELTA, sens1Y)
         .build();
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
-    assertEquals(test.getTypedSensitivities().size(), 1);
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty());
+    assertThat(test.getTypedSensitivities()).hasSize(1);
     CurrencyParameterSensitivities sens = test.getTypedSensitivity(ZERO_RATE_DELTA);
-    assertEquals(sens.getSensitivities().size(), 1);
+    assertThat(sens.getSensitivities()).hasSize(1);
     CurrencyParameterSensitivity singleSens = sens.getSensitivity(curveName, GBP);
-    assertEquals(singleSens.getSensitivity(), DoubleArray.of(3, 4, 5));
-    assertEquals(singleSens.getParameterMetadata(0), TENOR_MD_1W);
-    assertEquals(singleSens.getParameterMetadata(1), TENOR_MD_1M);
-    assertEquals(singleSens.getParameterMetadata(2), TENOR_MD_1Y);
+    assertThat(singleSens.getSensitivity()).isEqualTo(DoubleArray.of(3, 4, 5));
+    assertThat(singleSens.getParameterMetadata(0)).isEqualTo(TENOR_MD_1W);
+    assertThat(singleSens.getParameterMetadata(1)).isEqualTo(TENOR_MD_1M);
+    assertThat(singleSens.getParameterMetadata(2)).isEqualTo(TENOR_MD_1Y);
   }
 
+  @Test
   public void test_builder_mixCurrency() {
     CurveName curveName = CurveName.of("WEIRD");
     CurveSensitivities test = CurveSensitivities.builder(PortfolioItemInfo.empty())
         .add(ZERO_RATE_DELTA, curveName, GBP, TENOR_MD_1Y, 1)
         .add(ZERO_RATE_DELTA, curveName, USD, TENOR_MD_1Y, 2)
         .build();
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
-    assertEquals(test.getTypedSensitivities().size(), 1);
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty());
+    assertThat(test.getTypedSensitivities()).hasSize(1);
     CurrencyParameterSensitivities sens = test.getTypedSensitivity(ZERO_RATE_DELTA);
-    assertEquals(sens.getSensitivities().size(), 2);
+    assertThat(sens.getSensitivities()).hasSize(2);
     CurrencyParameterSensitivity sensGbp = sens.getSensitivity(curveName, GBP);
-    assertEquals(sensGbp.getSensitivity(), DoubleArray.of(1));
-    assertEquals(sensGbp.getParameterMetadata(0), TENOR_MD_1Y);
+    assertThat(sensGbp.getSensitivity()).isEqualTo(DoubleArray.of(1));
+    assertThat(sensGbp.getParameterMetadata(0)).isEqualTo(TENOR_MD_1Y);
     CurrencyParameterSensitivity sensUsd = sens.getSensitivity(curveName, USD);
-    assertEquals(sensUsd.getSensitivity(), DoubleArray.of(2));
-    assertEquals(sensUsd.getParameterMetadata(0), TENOR_MD_1Y);
+    assertThat(sensUsd.getSensitivity()).isEqualTo(DoubleArray.of(2));
+    assertThat(sensUsd.getParameterMetadata(0)).isEqualTo(TENOR_MD_1Y);
   }
 
+  @Test
   public void test_builder_curveSensitivities() {
     CurveName curveName = CurveName.of("WEIRD");
     CurveSensitivities base = CurveSensitivities.builder(PortfolioItemInfo.empty())
@@ -200,104 +206,108 @@ public class CurveSensitivitiesTest {
         .add(base)
         .add(other)
         .build();
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty());
-    assertEquals(test.getTypedSensitivities().size(), 1);
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty());
+    assertThat(test.getTypedSensitivities()).hasSize(1);
     CurrencyParameterSensitivities sens = test.getTypedSensitivity(ZERO_RATE_DELTA);
-    assertEquals(sens.getSensitivities().size(), 1);
+    assertThat(sens.getSensitivities()).hasSize(1);
     CurrencyParameterSensitivity singleSens = sens.getSensitivity(curveName, GBP);
-    assertEquals(singleSens.getSensitivity(), DoubleArray.of(3, 4, 2));
-    assertEquals(singleSens.getParameterMetadata(0), TENOR_MD_1W);
-    assertEquals(singleSens.getParameterMetadata(1), TENOR_MD_1M);
-    assertEquals(singleSens.getParameterMetadata(2), TENOR_MD_1Y);
+    assertThat(singleSens.getSensitivity()).isEqualTo(DoubleArray.of(3, 4, 2));
+    assertThat(singleSens.getParameterMetadata(0)).isEqualTo(TENOR_MD_1W);
+    assertThat(singleSens.getParameterMetadata(1)).isEqualTo(TENOR_MD_1M);
+    assertThat(singleSens.getParameterMetadata(2)).isEqualTo(TENOR_MD_1Y);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mergedWith_map_empty() {
     CurveSensitivities base = sut();
     Map<CurveSensitivitiesType, CurrencyParameterSensitivities> additional = ImmutableMap.of();
     CurveSensitivities test = base.mergedWith(additional);
-    assertEquals(test, base);
+    assertThat(test).isEqualTo(base);
   }
 
+  @Test
   public void test_mergedWith_map_mergeAndAdd() {
     CurveSensitivities base1 = sut();
     CurveSensitivities base2 = sut2();
     CurveSensitivities test = base1.mergedWith(base2.getTypedSensitivities());
-    assertEquals(test.getInfo(), base1.getInfo());
-    assertEquals(test.getTypedSensitivities().keySet(), ImmutableSet.of(ZERO_RATE_DELTA, ZERO_RATE_GAMMA));
-    assertEquals(test.getTypedSensitivities().get(ZERO_RATE_DELTA), SENSI1.multipliedBy(2));
-    assertEquals(test.getTypedSensitivities().get(ZERO_RATE_GAMMA), SENSI2);
+    assertThat(test.getInfo()).isEqualTo(base1.getInfo());
+    assertThat(test.getTypedSensitivities().keySet()).containsOnly(ZERO_RATE_DELTA, ZERO_RATE_GAMMA);
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA)).isEqualTo(SENSI1.multipliedBy(2));
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_GAMMA)).isEqualTo(SENSI2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mergedWith_sens_empty() {
     CurveSensitivities base = sut();
     CurveSensitivities test = base.mergedWith(CurveSensitivities.empty());
-    assertEquals(test, base);
+    assertThat(test).isEqualTo(base);
   }
 
+  @Test
   public void test_mergedWith_sens_mergeAndAdd() {
     CurveSensitivities base1 = sut();
     CurveSensitivities base2 = sut2();
     CurveSensitivities test = base1.mergedWith(base2);
-    assertEquals(test.getInfo(), PortfolioItemInfo.empty()
+    assertThat(test.getInfo()).isEqualTo(PortfolioItemInfo.empty()
         .withId(ID2)
         .withAttribute(NAME, "2")
         .withAttribute(DESCRIPTION, "1"));
-    assertEquals(test.getTypedSensitivities().keySet(), ImmutableSet.of(ZERO_RATE_DELTA, ZERO_RATE_GAMMA));
-    assertEquals(test.getTypedSensitivities().get(ZERO_RATE_DELTA), SENSI1.multipliedBy(2));
-    assertEquals(test.getTypedSensitivities().get(ZERO_RATE_GAMMA), SENSI2);
+    assertThat(test.getTypedSensitivities().keySet()).containsOnly(ZERO_RATE_DELTA, ZERO_RATE_GAMMA);
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA)).isEqualTo(SENSI1.multipliedBy(2));
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_GAMMA)).isEqualTo(SENSI2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withMarketDataNames() {
     CurveSensitivities base = sut();
     CurveSensitivities test = base.withMarketDataNames(name -> NAME2);
-    assertEquals(
-        base.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getMarketDataName(),
-        NAME1);
-    assertEquals(
-        test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getMarketDataName(),
-        NAME2);
+    assertThat(base.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getMarketDataName()).isEqualTo(NAME1);
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0).getMarketDataName()).isEqualTo(NAME2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withParameterMetadatas() {
     CurveSensitivities base = sut();
     CurveSensitivities test = base.withParameterMetadatas(md -> TENOR_MD_1Y);
     CurrencyParameterSensitivity testSens = test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities().get(0);
-    assertEquals(testSens.getParameterMetadata(), ImmutableList.of(TENOR_MD_1Y));
-    assertEquals(testSens.getSensitivity(), DoubleArray.of(723));
+    assertThat(testSens.getParameterMetadata()).containsExactly(TENOR_MD_1Y);
+    assertThat(testSens.getSensitivity()).isEqualTo(DoubleArray.of(723));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo_singleCurrency() {
     CurveSensitivities base = sut();
     CurveSensitivities test = base.convertedTo(USD, FxMatrix.empty());
-    assertEquals(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities(), ImmutableList.of(ENTRY_USD));
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities()).containsExactly(ENTRY_USD);
   }
 
+  @Test
   public void test_convertedTo_multipleCurrency() {
     CurveSensitivities base = sut2();
     CurveSensitivities test = base.convertedTo(USD, FX_RATE);
-    assertEquals(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities(), ImmutableList.of(ENTRY_USD));
-    assertEquals(
-        test.getTypedSensitivities().get(ZERO_RATE_GAMMA).getSensitivities(),
-        ImmutableList.of(ENTRY_USD2, ENTRY_EUR_IN_USD));
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities()).containsExactly(ENTRY_USD);
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_GAMMA).getSensitivities()).containsExactly(ENTRY_USD2, ENTRY_EUR_IN_USD);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_summarize() {
     CurveSensitivities base = sut2();
     PortfolioItemSummary test = base.summarize();
-    assertEquals(test.getId(), Optional.of(ID2));
-    assertEquals(test.getPortfolioItemType(), PortfolioItemType.SENSITIVITIES);
-    assertEquals(test.getProductType(), ProductType.SENSITIVITIES);
-    assertEquals(test.getCurrencies(), ImmutableSet.of(EUR, USD));
-    assertEquals(test.getDescription(), "CurveSensitivities[ZeroRateDelta, ZeroRateGamma]");
+    assertThat(test.getId()).isEqualTo(Optional.of(ID2));
+    assertThat(test.getPortfolioItemType()).isEqualTo(PortfolioItemType.SENSITIVITIES);
+    assertThat(test.getProductType()).isEqualTo(ProductType.SENSITIVITIES);
+    assertThat(test.getCurrencies()).containsOnly(EUR, USD);
+    assertThat(test.getDescription()).isEqualTo("CurveSensitivities[ZeroRateDelta, ZeroRateGamma]");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(sut());
     coverBeanEquals(sut(), sut2());

@@ -8,26 +8,28 @@ package com.opengamma.strata.market.option;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SimpleStrike}.
  */
-@Test
 public class SimpleStrikeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     SimpleStrike test = SimpleStrike.of(0.6d);
-    assertEquals(test.getType(), StrikeType.STRIKE);
-    assertEquals(test.getValue(), 0.6d, 0d);
-    assertEquals(test.getLabel(), "Strike=0.6");
-    assertEquals(test.withValue(0.2d), SimpleStrike.of(0.2d));
+    assertThat(test.getType()).isEqualTo(StrikeType.STRIKE);
+    assertThat(test.getValue()).isCloseTo(0.6d, offset(0d));
+    assertThat(test.getLabel()).isEqualTo("Strike=0.6");
+    assertThat(test.withValue(0.2d)).isEqualTo(SimpleStrike.of(0.2d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SimpleStrike test = SimpleStrike.of(0.6d);
     coverImmutableBean(test);
@@ -35,6 +37,7 @@ public class SimpleStrikeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     SimpleStrike test = SimpleStrike.of(0.6d);
     assertSerialization(test);

@@ -8,28 +8,29 @@ package com.opengamma.strata.market.param;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.market.curve.CurveName;
 
 /**
  * Test {@link ParameterSize}.
  */
-@Test
 public class ParameterSizeTest {
 
   private static final CurveName CURVE_NAME = CurveName.of("Test");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ParameterSize test = ParameterSize.of(CURVE_NAME, 3);
-    assertEquals(test.getName(), CURVE_NAME);
-    assertEquals(test.getParameterCount(), 3);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getParameterCount()).isEqualTo(3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ParameterSize test = ParameterSize.of(CURVE_NAME, 3);
     coverImmutableBean(test);
@@ -37,6 +38,7 @@ public class ParameterSizeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ParameterSize test = ParameterSize.of(CURVE_NAME, 3);
     assertSerialization(test);

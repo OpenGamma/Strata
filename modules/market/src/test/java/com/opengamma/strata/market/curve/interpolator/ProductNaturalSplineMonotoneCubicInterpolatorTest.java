@@ -6,13 +6,13 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -28,7 +28,6 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
 /**
  * Test {@link ProductNaturalSplineMonotoneCubicInterpolator}.
  */
-@Test
 public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
 
   private static final CurveInterpolator INTERP =
@@ -44,6 +43,7 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
   private static final ScalarFieldFirstOrderDifferentiator SENS_CALC =
       new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
 
+  @Test
   public void sampleDataTest() {
     DoubleArray xValues = DoubleArray.of(0.5, 1.0, 2.5, 4.2, 10.0, 15.0, 30.0);
     DoubleArray yValues = DoubleArray.of(4.0, 2.0, 1.0, 5.0, 10.0, 3.5, -2.0);
@@ -63,21 +63,19 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertEquals(
-          bound.interpolate(keys.get(i)),
-          FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i),
-          TOL);
+      assertThat(bound.interpolate(keys.get(i))).isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
-      assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
+      assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
       // parameter sensitivity
       int index = i;
       Function<DoubleArray, Double> funcSensi = x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS)).isTrue();
     }
   }
 
+  @Test
   public void negativeDataTest() {
     DoubleArray xValues = DoubleArray.of(-34.5, -27.0, -22.5, -14.2, -10.0, -5.0, -0.3);
     DoubleArray yValues = DoubleArray.of(4.0, 2.0, 1.0, 5.0, 10.0, 3.5, -2.0);
@@ -97,21 +95,19 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertEquals(
-          bound.interpolate(keys.get(i)),
-          FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i),
-          TOL);
+      assertThat(bound.interpolate(keys.get(i))).isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
-      assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
+      assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
       // parameter sensitivity
       int index = i;
       Function<DoubleArray, Double> funcSensi = x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS)).isTrue();
     }
   }
 
+  @Test
   public void linearDataTest() {
     DoubleArray xValues = DoubleArray.of(0.5, 2.0, 3.0, 4.0, 5.0);
     DoubleArray yValues = DoubleArray.of(1.0, 4.0, 6.0, 8.0, 10.0);
@@ -131,23 +127,21 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertEquals(
-          bound.interpolate(keys.get(i)),
-          FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i),
-          TOL);
+      assertThat(bound.interpolate(keys.get(i))).isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
-      assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
+      assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
       // parameter sensitivity
       int index = i;
       Function<DoubleArray, Double> funcSensi =
           x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(),
-          sensExp.toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(),
+          sensExp.toArray(), EPS)).isTrue();
     }
   }
 
+  @Test
   public void smallKeyTest() {
     DoubleArray xValues = DoubleArray.of(1e-13, 3e-10, 3e-8, 2e-5, 3e-5);
     DoubleArray yValues = DoubleArray.of(1.0, -12.5, 13.2, 1.5, -1.5);
@@ -161,11 +155,13 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
         .isThrownBy(() -> bound.parameterSensitivity(keyDw));
   }
 
+  @Test
   public void getterTest() {
-    assertEquals(INTERP.getName(), ProductNaturalSplineMonotoneCubicInterpolator.NAME);
-    assertEquals(INTERP.toString(), ProductNaturalSplineMonotoneCubicInterpolator.NAME);
+    assertThat(INTERP.getName()).isEqualTo(ProductNaturalSplineMonotoneCubicInterpolator.NAME);
+    assertThat(INTERP.toString()).isEqualTo(ProductNaturalSplineMonotoneCubicInterpolator.NAME);
   }
 
+  @Test
   public void serializationTest() {
     assertSerialization(INTERP);
   }

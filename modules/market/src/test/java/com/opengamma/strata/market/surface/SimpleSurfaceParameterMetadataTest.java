@@ -8,30 +8,31 @@ package com.opengamma.strata.market.surface;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.market.ValueType;
 
 /**
  * Test {@link SimpleSurfaceParameterMetadata}.
  */
-@Test
 public class SimpleSurfaceParameterMetadataTest {
 
+  @Test
   public void test_of() {
     SimpleSurfaceParameterMetadata test = SimpleSurfaceParameterMetadata.of(
         ValueType.YEAR_FRACTION, 1d, ValueType.STRIKE, 3d);
-    assertEquals(test.getXValueType(), ValueType.YEAR_FRACTION);
-    assertEquals(test.getXValue(), 1d);
-    assertEquals(test.getYValueType(), ValueType.STRIKE);
-    assertEquals(test.getYValue(), 3d);
-    assertEquals(test.getLabel(), "YearFraction=1.0, Strike=3.0");
-    assertEquals(test.getIdentifier(), "YearFraction=1.0, Strike=3.0");
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getXValue()).isEqualTo(1d);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.STRIKE);
+    assertThat(test.getYValue()).isEqualTo(3d);
+    assertThat(test.getLabel()).isEqualTo("YearFraction=1.0, Strike=3.0");
+    assertThat(test.getIdentifier()).isEqualTo("YearFraction=1.0, Strike=3.0");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SimpleSurfaceParameterMetadata test = SimpleSurfaceParameterMetadata.of(
         ValueType.YEAR_FRACTION, 1d, ValueType.STRIKE, 3d);
@@ -41,6 +42,7 @@ public class SimpleSurfaceParameterMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     SimpleSurfaceParameterMetadata test = SimpleSurfaceParameterMetadata.of(
         ValueType.YEAR_FRACTION, 1d, ValueType.STRIKE, 3d);

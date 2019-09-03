@@ -8,9 +8,9 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
@@ -18,7 +18,6 @@ import com.opengamma.strata.market.ShiftType;
 /**
  * Test {@link SeasonalityDefinition}.
  */
-@Test
 public class SeasonalityDefinitionTest {
 
   private static final DoubleArray SEASONALITY_ADDITIVE = DoubleArray.of(
@@ -27,19 +26,22 @@ public class SeasonalityDefinitionTest {
       0.5, 1.0, 1.0, -2.5);
   private static final ShiftType ADDITIVE = ShiftType.ABSOLUTE;
 
+  @Test
   public void test_builder1() {
     SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
-    assertEquals(test.getSeasonalityMonthOnMonth(), SEASONALITY_ADDITIVE);
-    assertEquals(test.getAdjustmentType(), ADDITIVE);
+    assertThat(test.getSeasonalityMonthOnMonth()).isEqualTo(SEASONALITY_ADDITIVE);
+    assertThat(test.getAdjustmentType()).isEqualTo(ADDITIVE);
   }
 
+  @Test
   public void test_of() {
     SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
-    assertEquals(test.getSeasonalityMonthOnMonth(), SEASONALITY_ADDITIVE);
-    assertEquals(test.getAdjustmentType(), ADDITIVE);
+    assertThat(test.getSeasonalityMonthOnMonth()).isEqualTo(SEASONALITY_ADDITIVE);
+    assertThat(test.getAdjustmentType()).isEqualTo(ADDITIVE);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
     coverImmutableBean(test);
@@ -51,6 +53,7 @@ public class SeasonalityDefinitionTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     SeasonalityDefinition test = SeasonalityDefinition.of(SEASONALITY_ADDITIVE, ADDITIVE);
     assertSerialization(test);

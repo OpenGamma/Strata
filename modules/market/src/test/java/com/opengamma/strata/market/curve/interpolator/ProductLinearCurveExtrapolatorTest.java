@@ -6,13 +6,13 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -23,7 +23,6 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferenti
 /**
  * Test {@link ProductLinearCurveExtrapolator}.
  */
-@Test
 public class ProductLinearCurveExtrapolatorTest {
 
   private static final CurveExtrapolator EXTRAP = ProductLinearCurveExtrapolator.INSTANCE;
@@ -38,11 +37,13 @@ public class ProductLinearCurveExtrapolatorTest {
   private static final ScalarFieldFirstOrderDifferentiator SENS_CALC =
       new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
 
+  @Test
   public void test_basics() {
-    assertEquals(EXTRAP.getName(), ProductLinearCurveExtrapolator.NAME);
-    assertEquals(EXTRAP.toString(), ProductLinearCurveExtrapolator.NAME);
+    assertThat(EXTRAP.getName()).isEqualTo(ProductLinearCurveExtrapolator.NAME);
+    assertThat(EXTRAP.toString()).isEqualTo(ProductLinearCurveExtrapolator.NAME);
   }
 
+  @Test
   public void test_extrapolation() {
     BoundCurveInterpolator bind =
         CurveInterpolators.DOUBLE_QUADRATIC.bind(X_DATA, Y_DATA, EXTRAP, EXTRAP);
@@ -51,7 +52,7 @@ public class ProductLinearCurveExtrapolatorTest {
     for (int i = 0; i < X_LEFT_TEST.size(); ++i) {
       double xyLeft = gradLeft * (X_LEFT_TEST.get(i) - X_DATA.get(0)) + Y_DATA.get(0) * X_DATA.get(0);
       double expected = xyLeft / X_LEFT_TEST.get(i);
-      assertEquals(bind.interpolate(X_LEFT_TEST.get(i)), expected, 10d * Math.abs(expected) * EPS);
+      assertThat(bind.interpolate(X_LEFT_TEST.get(i))).isCloseTo(expected, offset(10d * Math.abs(expected) * EPS));
     }
     double gradRight = (Y_DATA.get(SIZE - 1) * X_DATA.get(SIZE - 1) -
         bind.interpolate(X_DATA.get(SIZE - 1) - EPS) * (X_DATA.get(SIZE - 1) - EPS)) / EPS;
@@ -59,35 +60,35 @@ public class ProductLinearCurveExtrapolatorTest {
       double xyRight = gradRight * (X_RIGHT_TEST.get(i) - X_DATA.get(SIZE - 1)) +
           Y_DATA.get(SIZE - 1) * X_DATA.get(SIZE - 1);
       double expected = xyRight / X_RIGHT_TEST.get(i);
-      assertEquals(bind.interpolate(X_RIGHT_TEST.get(i)), expected, 10d * Math.abs(expected) * EPS);
+      assertThat(bind.interpolate(X_RIGHT_TEST.get(i))).isCloseTo(expected, offset(10d * Math.abs(expected) * EPS));
     }
   }
 
+  @Test
   public void test_derivative_sensitivity() {
     BoundCurveInterpolator bind =
         CurveInterpolators.DOUBLE_QUADRATIC.bind(X_DATA, Y_DATA, EXTRAP, EXTRAP);
     Function<Double, Double> derivFunc = x -> bind.interpolate(x);
 
     for (int i = 0; i < X_LEFT_TEST.size(); ++i) {
-      assertEquals(bind.firstDerivative(X_LEFT_TEST.get(i)),
-          DIFF_CALC.differentiate(derivFunc).apply(X_LEFT_TEST.get(i)), EPS);
+      assertThat(bind.firstDerivative(X_LEFT_TEST.get(i))).isCloseTo(DIFF_CALC.differentiate(derivFunc).apply(X_LEFT_TEST.get(i)), offset(EPS));
       int index = i;
       Function<DoubleArray, Double> sensFunc =
           y -> CurveInterpolators.DOUBLE_QUADRATIC.bind(X_DATA, y, EXTRAP, EXTRAP).interpolate(X_LEFT_TEST.get(index));
-      assertTrue(DoubleArrayMath.fuzzyEquals(bind.parameterSensitivity(X_LEFT_TEST.get(index)).toArray(),
-          SENS_CALC.differentiate(sensFunc).apply(Y_DATA).toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bind.parameterSensitivity(X_LEFT_TEST.get(index)).toArray(),
+          SENS_CALC.differentiate(sensFunc).apply(Y_DATA).toArray(), EPS)).isTrue();
     }
     for (int i = 0; i < X_RIGHT_TEST.size(); ++i) {
-      assertEquals(bind.firstDerivative(X_RIGHT_TEST.get(i)),
-          DIFF_CALC.differentiate(derivFunc).apply(X_RIGHT_TEST.get(i)), EPS);
+      assertThat(bind.firstDerivative(X_RIGHT_TEST.get(i))).isCloseTo(DIFF_CALC.differentiate(derivFunc).apply(X_RIGHT_TEST.get(i)), offset(EPS));
       int index = i;
       Function<DoubleArray, Double> sensFunc =
           y -> CurveInterpolators.DOUBLE_QUADRATIC.bind(X_DATA, y, EXTRAP, EXTRAP).interpolate(X_RIGHT_TEST.get(index));
-      assertTrue(DoubleArrayMath.fuzzyEquals(bind.parameterSensitivity(X_RIGHT_TEST.get(index)).toArray(),
-          SENS_CALC.differentiate(sensFunc).apply(Y_DATA).toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bind.parameterSensitivity(X_RIGHT_TEST.get(index)).toArray(),
+          SENS_CALC.differentiate(sensFunc).apply(Y_DATA).toArray(), EPS)).isTrue();
     }
   }
 
+  @Test
   public void errorTest() {
     DoubleArray xValues1 = DoubleArray.of(1, 2, 3);
     DoubleArray xValues2 = DoubleArray.of(-3, -2, -1);
@@ -110,11 +111,13 @@ public class ProductLinearCurveExtrapolatorTest {
         .isThrownBy(() -> bind2.parameterSensitivity(1));
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(EXTRAP);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void sampleDataTest() {
     DoubleArray xValues = DoubleArray.of(0.5, 1.0, 5.0, 10.0);
     DoubleArray yValues = DoubleArray.of(0.02, 0.05, 0.015, 0.01);
@@ -130,9 +133,9 @@ public class ProductLinearCurveExtrapolatorTest {
     };
     for (int i = 1; i < 3; ++i) {
       // constant forward
-      assertEquals(fwdFunc.apply(rightKeys.get(0)), fwdFunc.apply(rightKeys.get(i)), EPS);
+      assertThat(fwdFunc.apply(rightKeys.get(0))).isCloseTo(fwdFunc.apply(rightKeys.get(i)), offset(EPS));
       // constant zero
-      assertEquals(bind.interpolate(leftKeys.get(0)), bind.interpolate(leftKeys.get(i)), EPS);
+      assertThat(bind.interpolate(leftKeys.get(0))).isCloseTo(bind.interpolate(leftKeys.get(i)), offset(EPS));
     }
   }
 

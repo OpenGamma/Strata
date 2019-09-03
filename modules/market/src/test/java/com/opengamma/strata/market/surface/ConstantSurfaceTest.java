@@ -10,7 +10,7 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.tuple.DoublesPair;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -18,7 +18,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link ConstantSurface}.
  */
-@Test
 public class ConstantSurfaceTest {
 
   private static final String NAME = "TestSurface";
@@ -28,6 +27,7 @@ public class ConstantSurfaceTest {
   private static final double VALUE = 6d;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_String() {
     ConstantSurface test = ConstantSurface.of(NAME, VALUE);
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
@@ -41,6 +41,7 @@ public class ConstantSurfaceTest {
     assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantSurface.of(METADATA2, VALUE));
   }
 
+  @Test
   public void test_of_SurfaceName() {
     ConstantSurface test = ConstantSurface.of(SURFACE_NAME, VALUE);
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
@@ -54,6 +55,7 @@ public class ConstantSurfaceTest {
     assertThat(test.withMetadata(METADATA2)).isEqualTo(ConstantSurface.of(METADATA2, VALUE));
   }
 
+  @Test
   public void test_of_SurfaceMetadata() {
     ConstantSurface test = ConstantSurface.of(METADATA, VALUE);
     assertThat(test.getName()).isEqualTo(SURFACE_NAME);
@@ -68,6 +70,7 @@ public class ConstantSurfaceTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_lookup() {
     ConstantSurface test = ConstantSurface.of(SURFACE_NAME, VALUE);
     assertThat(test.zValue(0d, 0d)).isEqualTo(VALUE);
@@ -79,6 +82,7 @@ public class ConstantSurfaceTest {
     assertThat(test.zValueParameterSensitivity(100d, -100d).getSensitivity().get(0)).isEqualTo(1d);
   }
 
+  @Test
   public void test_lookup_byPair() {
     ConstantSurface test = ConstantSurface.of(SURFACE_NAME, VALUE);
     assertThat(test.zValue(DoublesPair.of(0d, 0d))).isEqualTo(VALUE);
@@ -91,6 +95,7 @@ public class ConstantSurfaceTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ConstantSurface test = ConstantSurface.of(SURFACE_NAME, VALUE);
     coverImmutableBean(test);
@@ -98,6 +103,7 @@ public class ConstantSurfaceTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ConstantSurface test = ConstantSurface.of(SURFACE_NAME, VALUE);
     assertSerialization(test);

@@ -6,22 +6,23 @@
 package com.opengamma.strata.market.model;
 
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SabrParameterType}.
  */
-@Test
 public class SabrParameterTypeTest {
 
+  @Test
   public void test_basics() {
-    assertEquals(SabrParameterType.ALPHA.name(), "ALPHA");
-    assertEquals(SabrParameterType.ALPHA.toString(), "Alpha");
-    assertEquals(SabrParameterType.BETA.toString(), "Beta");
+    assertThat(SabrParameterType.ALPHA.name()).isEqualTo("ALPHA");
+    assertThat(SabrParameterType.ALPHA.toString()).isEqualTo("Alpha");
+    assertThat(SabrParameterType.BETA.toString()).isEqualTo("Beta");
   }
 
+  @Test
   public void coverage() {
     coverEnum(SabrParameterType.class);
   }

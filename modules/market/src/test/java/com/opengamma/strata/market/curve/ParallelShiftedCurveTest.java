@@ -11,7 +11,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ShiftType;
@@ -20,7 +20,6 @@ import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
 
-@Test
 public class ParallelShiftedCurveTest {
 
   private static final CurveMetadata METADATA = DefaultCurveMetadata.of("Test");
@@ -28,6 +27,7 @@ public class ParallelShiftedCurveTest {
   private static final Curve CONSTANT_CURVE2 = ConstantCurve.of(METADATA, 5d);
 
   //-------------------------------------------------------------------------
+  @Test
   public void absolute() {
     ParallelShiftedCurve test = ParallelShiftedCurve.absolute(CONSTANT_CURVE, 1d);
     assertThat(test.getUnderlyingCurve()).isEqualTo(CONSTANT_CURVE);
@@ -47,6 +47,7 @@ public class ParallelShiftedCurveTest {
     assertThat(test.yValue(1)).isEqualTo(4d);
   }
 
+  @Test
   public void relative() {
     ParallelShiftedCurve test = ParallelShiftedCurve.relative(CONSTANT_CURVE, 0.1d);
     assertThat(test.getUnderlyingCurve()).isEqualTo(CONSTANT_CURVE);
@@ -66,6 +67,7 @@ public class ParallelShiftedCurveTest {
     assertThat(test.yValue(1)).isEqualTo(3.3d, offset(1e-10d));
   }
 
+  @Test
   public void test_of() {
     Curve test = ParallelShiftedCurve.of(CONSTANT_CURVE, ShiftType.RELATIVE, 0.1d);
     assertThat(test.yValue(0)).isEqualTo(3.3d, offset(1e-10));
@@ -80,6 +82,7 @@ public class ParallelShiftedCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_yValueParameterSensitivity() {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         METADATA,
@@ -95,6 +98,7 @@ public class ParallelShiftedCurveTest {
     assertThat(relativeShiftedCurve.yValueParameterSensitivity(0.1)).isEqualTo(expected);
   }
 
+  @Test
   public void test_firstDerivative() {
     InterpolatedNodalCurve curve = InterpolatedNodalCurve.of(
         METADATA,
@@ -111,6 +115,7 @@ public class ParallelShiftedCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ParallelShiftedCurve test = ParallelShiftedCurve.absolute(CONSTANT_CURVE, 1);
     coverImmutableBean(test);
@@ -118,6 +123,7 @@ public class ParallelShiftedCurveTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ParallelShiftedCurve test = ParallelShiftedCurve.absolute(CONSTANT_CURVE, 1);
     assertSerialization(test);

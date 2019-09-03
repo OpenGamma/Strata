@@ -8,11 +8,11 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.function.BiFunction;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -24,7 +24,6 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 /**
  * Test {@link ParameterizedFunctionalCurve}.
  */
-@Test
 public class ParameterizedFunctionalCurveTest {
   private static final DoubleArray PARAMETERS = DoubleArray.of(1.2, -10.4, 8.9);
   private static final CurveMetadata METADATA;
@@ -62,40 +61,44 @@ public class ParameterizedFunctionalCurveTest {
       };
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     ParameterizedFunctionalCurve test = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
-    assertEquals(test.getValueFunction(), VALUE_FUNCTION);
-    assertEquals(test.getDerivativeFunction(), DERIVATIVE_FUNCTION);
-    assertEquals(test.getSensitivityFunction(), SENSITIVITY_FUNCTION);
-    assertEquals(test.getMetadata(), METADATA);
-    assertEquals(test.getName(), METADATA.getCurveName());
-    assertEquals(test.getParameter(2), PARAMETERS.get(2));
-    assertEquals(test.getParameterCount(), PARAMETERS.size());
-    assertEquals(test.getParameterMetadata(1), METADATA.getParameterMetadata(1));
-    assertEquals(test.getParameters(), PARAMETERS);
+    assertThat(test.getValueFunction()).isEqualTo(VALUE_FUNCTION);
+    assertThat(test.getDerivativeFunction()).isEqualTo(DERIVATIVE_FUNCTION);
+    assertThat(test.getSensitivityFunction()).isEqualTo(SENSITIVITY_FUNCTION);
+    assertThat(test.getMetadata()).isEqualTo(METADATA);
+    assertThat(test.getName()).isEqualTo(METADATA.getCurveName());
+    assertThat(test.getParameter(2)).isEqualTo(PARAMETERS.get(2));
+    assertThat(test.getParameterCount()).isEqualTo(PARAMETERS.size());
+    assertThat(test.getParameterMetadata(1)).isEqualTo(METADATA.getParameterMetadata(1));
+    assertThat(test.getParameters()).isEqualTo(PARAMETERS);
   }
 
   //-------------------------------------------------------------------------
 
+  @Test
   public void test_withParameter() {
     ParameterizedFunctionalCurve base = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
     DoubleArray parameters = DoubleArray.of(1.2, 1d, 8.9);
     ParameterizedFunctionalCurve expected = ParameterizedFunctionalCurve.of(
         METADATA, parameters, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
-    assertEquals(base.withParameter(1, 1d), expected);
+    assertThat(base.withParameter(1, 1d)).isEqualTo(expected);
   }
 
+  @Test
   public void test_withPerturbation() {
     ParameterizedFunctionalCurve base = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
     DoubleArray parameters = PARAMETERS.minus(2d);
     ParameterizedFunctionalCurve expected = ParameterizedFunctionalCurve.of(
         METADATA, parameters, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
-    assertEquals(base.withPerturbation((i, v, m) -> v - 2d), expected);
+    assertThat(base.withPerturbation((i, v, m) -> v - 2d)).isEqualTo(expected);
   }
 
+  @Test
   public void test_withMetadata() {
     ParameterizedFunctionalCurve base = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
@@ -106,40 +109,42 @@ public class ParameterizedFunctionalCurveTest {
         .build();
     ParameterizedFunctionalCurve expected = ParameterizedFunctionalCurve.of(
         metadata, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
-    assertEquals(base.withMetadata(metadata), expected);
+    assertThat(base.withMetadata(metadata)).isEqualTo(expected);
   }
 
+  @Test
   public void test_withParameters() {
     ParameterizedFunctionalCurve base = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
     DoubleArray parameters = DoubleArray.of(1d, 2d, 3d);
     ParameterizedFunctionalCurve expected = ParameterizedFunctionalCurve.of(
         METADATA, parameters, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
-    assertEquals(base.withParameters(parameters), expected);
+    assertThat(base.withParameters(parameters)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_values() {
     ParameterizedFunctionalCurve test = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
     double x = 5.2;
-    assertEquals(test.yValue(x), VALUE_FUNCTION.apply(PARAMETERS, x));
-    assertEquals(test.firstDerivative(x), DERIVATIVE_FUNCTION.apply(PARAMETERS, x));
-    assertEquals(test.yValueParameterSensitivity(x), UnitParameterSensitivity.of(
+    assertThat(test.yValue(x)).isEqualTo(VALUE_FUNCTION.apply(PARAMETERS, x));
+    assertThat(test.firstDerivative(x)).isEqualTo(DERIVATIVE_FUNCTION.apply(PARAMETERS, x));
+    assertThat(test.yValueParameterSensitivity(x)).isEqualTo(UnitParameterSensitivity.of(
         METADATA.getCurveName(), METADATA.getParameterMetadata().get(), SENSITIVITY_FUNCTION.apply(PARAMETERS, x)));
   }
 
+  @Test
   public void test_sensitivities() {
     ParameterizedFunctionalCurve test = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
     DoubleArray sensiVal = DoubleArray.of(1d, 2d, 3d);
-    assertEquals(test.createParameterSensitivity(sensiVal),
-        UnitParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), sensiVal));
-    assertEquals(test.createParameterSensitivity(USD, sensiVal), 
-        CurrencyParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), USD, sensiVal));
+    assertThat(test.createParameterSensitivity(sensiVal)).isEqualTo(UnitParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), sensiVal));
+    assertThat(test.createParameterSensitivity(USD, sensiVal)).isEqualTo(CurrencyParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), USD, sensiVal));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ParameterizedFunctionalCurve test1 = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);

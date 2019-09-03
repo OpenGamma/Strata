@@ -15,14 +15,14 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_OTHER;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.EXCEPTION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -36,7 +36,6 @@ import com.opengamma.strata.market.observable.QuoteId;
 /**
  * Test {@link InterpolatedNodalCurveDefinition}.
  */
-@Test
 public class InterpolatedNodalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -55,6 +54,7 @@ public class InterpolatedNodalCurveDefinitionTest {
   private static final CurveNodeDateOrder DROP_OTHER_2D = CurveNodeDateOrder.of(2, DROP_OTHER);
   private static final CurveNodeDateOrder EXCEPTION_2D = CurveNodeDateOrder.of(2, EXCEPTION);
 
+  @Test
   public void test_builder() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
@@ -66,18 +66,19 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.getName(), CURVE_NAME);
-    assertEquals(test.getXValueType(), ValueType.YEAR_FRACTION);
-    assertEquals(test.getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(test.getDayCount(), Optional.of(ACT_365F));
-    assertEquals(test.getNodes(), NODES);
-    assertEquals(test.getInterpolator(), CurveInterpolators.LINEAR);
-    assertEquals(test.getExtrapolatorLeft(), CurveExtrapolators.FLAT);
-    assertEquals(test.getExtrapolatorRight(), CurveExtrapolators.FLAT);
-    assertEquals(test.getParameterCount(), 2);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.ZERO_RATE);
+    assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_365F));
+    assertThat(test.getNodes()).isEqualTo(NODES);
+    assertThat(test.getInterpolator()).isEqualTo(CurveInterpolators.LINEAR);
+    assertThat(test.getExtrapolatorLeft()).isEqualTo(CurveExtrapolators.FLAT);
+    assertThat(test.getExtrapolatorRight()).isEqualTo(CurveExtrapolators.FLAT);
+    assertThat(test.getParameterCount()).isEqualTo(2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropThis_atStart() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER, DROP_THIS_2D);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(4), GBP_LIBOR_1M, TICKER);
@@ -94,9 +95,10 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node2, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node2, node3);
   }
 
+  @Test
   public void test_filtered_dropOther_atStart() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER, DROP_OTHER_2D);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(4), GBP_LIBOR_1M, TICKER);
@@ -113,9 +115,10 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node3);
   }
 
+  @Test
   public void test_filtered_exception_atStart() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER, EXCEPTION_2D);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(4), GBP_LIBOR_1M, TICKER);
@@ -138,6 +141,7 @@ public class InterpolatedNodalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropThis_middle() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(4), GBP_LIBOR_1M, TICKER, DROP_THIS_2D);
@@ -154,9 +158,10 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node3);
   }
 
+  @Test
   public void test_filtered_dropOther_middle() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(4), GBP_LIBOR_1M, TICKER, DROP_OTHER_2D);
@@ -173,10 +178,11 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node2, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node2, node3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropThis_atEnd() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -193,9 +199,10 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node2));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node2);
   }
 
+  @Test
   public void test_filtered_dropOther_atEnd() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -212,9 +219,10 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node3);
   }
 
+  @Test
   public void test_filtered_exception_atEnd() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -237,6 +245,7 @@ public class InterpolatedNodalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropOther_multiple() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -256,10 +265,11 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node4, node6));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node4, node6);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_metadata() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
@@ -278,10 +288,11 @@ public class InterpolatedNodalCurveDefinitionTest {
         .dayCount(ACT_365F)
         .parameterMetadata(NODES.get(0).metadata(VAL_DATE, REF_DATA), NODES.get(1).metadata(VAL_DATE, REF_DATA))
         .build();
-    assertEquals(test.metadata(VAL_DATE, REF_DATA), expected);
+    assertThat(test.metadata(VAL_DATE, REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_curve() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
@@ -308,10 +319,11 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.curve(VAL_DATE, metadata, DoubleArray.of(1d, 1.5d)), expected);
+    assertThat(test.curve(VAL_DATE, metadata, DoubleArray.of(1d, 1.5d))).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toCurveParameterSize() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
@@ -323,10 +335,11 @@ public class InterpolatedNodalCurveDefinitionTest {
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .build();
-    assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
+    assertThat(test.toCurveParameterSize()).isEqualTo(CurveParameterSize.of(CURVE_NAME, NODES.size()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)
@@ -349,6 +362,7 @@ public class InterpolatedNodalCurveDefinitionTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     InterpolatedNodalCurveDefinition test = InterpolatedNodalCurveDefinition.builder()
         .name(CURVE_NAME)

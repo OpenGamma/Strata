@@ -12,7 +12,7 @@ import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -22,7 +22,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link ConstantNodalCurve}.
  */
-@Test
 public class ConstantNodalCurveTest {
 
   private static final int SIZE = 1;
@@ -43,6 +42,7 @@ public class ConstantNodalCurveTest {
   private static final DoubleArray YVALUE_BUMPED_ARRAY = DoubleArray.of(YVALUE_BUMPED);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_CurveMetadata() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
     ConstantNodalCurve testRe = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
@@ -63,6 +63,7 @@ public class ConstantNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(YVALUE_ARRAY);
   }
 
+  @Test
   public void test_of_noCurveMetadata() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA_NOPARAM, XVALUE, YVALUE);
     assertThat(test.getName()).isEqualTo(CURVE_NAME);
@@ -72,6 +73,7 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withNode() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
     SimpleCurveParameterMetadata param = SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, XVALUE);
@@ -81,6 +83,7 @@ public class ConstantNodalCurveTest {
     assertThat(test.getParameterMetadata(0)).isEqualTo(param);
   }
 
+  @Test
   public void test_withNode_invalid() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA_ENTRIES, XVALUE, YVALUE);
     assertThatIllegalArgumentException()
@@ -88,6 +91,7 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_values() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     assertThat(test.yValue(10.2421)).isEqualTo(YVALUE);
@@ -98,6 +102,7 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withMetadata() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     ConstantNodalCurve test = base.withMetadata(METADATA_ENTRIES);
@@ -108,6 +113,7 @@ public class ConstantNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(YVALUE_ARRAY);
   }
 
+  @Test
   public void test_withMetadata_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     assertThatIllegalArgumentException()
@@ -115,6 +121,7 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withValues() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     ConstantNodalCurve test = base.withYValues(YVALUE_BUMPED_ARRAY);
@@ -125,6 +132,7 @@ public class ConstantNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(YVALUE_BUMPED_ARRAY);
   }
 
+  @Test
   public void test_withValues_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     assertThatIllegalArgumentException()
@@ -134,6 +142,7 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withValuesXy() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     ConstantNodalCurve test = base.withValues(XVALUE_ARRAY_NEW, YVALUE_BUMPED_ARRAY);
@@ -144,6 +153,7 @@ public class ConstantNodalCurveTest {
     assertThat(test.getYValues()).isEqualTo(YVALUE_BUMPED_ARRAY);
   }
 
+  @Test
   public void test_withValuesXy_badSize() {
     ConstantNodalCurve base = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     assertThatIllegalArgumentException()
@@ -153,6 +163,7 @@ public class ConstantNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     coverImmutableBean(test);
@@ -160,6 +171,7 @@ public class ConstantNodalCurveTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     ConstantNodalCurve test = ConstantNodalCurve.of(METADATA, XVALUE, YVALUE);
     assertSerialization(test);

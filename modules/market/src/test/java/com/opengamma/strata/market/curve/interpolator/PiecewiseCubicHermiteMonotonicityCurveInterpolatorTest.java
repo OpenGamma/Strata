@@ -7,10 +7,10 @@ package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.INTERPOLATOR;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -22,7 +22,6 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
 /**
  * Test {@link PiecewiseCubicHermiteMonotonicityCurveInterpolator}.
  */
-@Test
 public class PiecewiseCubicHermiteMonotonicityCurveInterpolatorTest {
 
   private final static PiecewiseCubicHermiteSplineInterpolatorWithSensitivity BASE =
@@ -47,12 +46,14 @@ public class PiecewiseCubicHermiteMonotonicityCurveInterpolatorTest {
   }
   private static final double TOL = 1.0e-14;
 
+  @Test
   public void test_basics() {
-    assertEquals(PCHIP.getName(), PiecewiseCubicHermiteMonotonicityCurveInterpolator.NAME);
-    assertEquals(PCHIP.toString(), PiecewiseCubicHermiteMonotonicityCurveInterpolator.NAME);
+    assertThat(PCHIP.getName()).isEqualTo(PiecewiseCubicHermiteMonotonicityCurveInterpolator.NAME);
+    assertThat(PCHIP.toString()).isEqualTo(PiecewiseCubicHermiteMonotonicityCurveInterpolator.NAME);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void baseInterpolationTest() {
     int nExamples = Y.length;
     int n = XX.length;
@@ -63,14 +64,15 @@ public class PiecewiseCubicHermiteMonotonicityCurveInterpolatorTest {
       for (int i = 0; i < n; i++) {
         double computedValue = bound.interpolate(XX[i]);
         double expectedValue = PPVAL.evaluate(pp, XX[i]).get(0);
-        assertEquals(computedValue, expectedValue, 1e-14);
+        assertThat(computedValue).isCloseTo(expectedValue, offset(1e-14));
         double computedDerivative = bound.firstDerivative(XX[i]);
         double expectedDerivative = PPVAL.differentiate(pp, XX[i]).get(0);
-        assertEquals(computedDerivative, expectedDerivative, 1e-14);
+        assertThat(computedDerivative).isCloseTo(expectedDerivative, offset(1e-14));
       }
     }
   }
 
+  @Test
   public void sensitivityTest() {
     int nExamples = Y.length;
     int n = XX.length;
@@ -83,13 +85,14 @@ public class PiecewiseCubicHermiteMonotonicityCurveInterpolatorTest {
         DoubleArray computed = bound.parameterSensitivity(XX[i]);
         DoubleArray expected = PPVAL.nodeSensitivity(pp, XX[i]);
         for (int j = 0; j < nData; j++) {
-          assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected.toArray(), TOL));
+          assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), expected.toArray(), TOL)).isTrue();
         }
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(PCHIP);
   }

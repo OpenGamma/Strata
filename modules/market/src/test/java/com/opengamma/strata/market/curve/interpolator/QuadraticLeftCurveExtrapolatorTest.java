@@ -6,17 +6,17 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link QuadraticLeftCurveExtrapolator}.
  */
-@Test
 public class QuadraticLeftCurveExtrapolatorTest {
 
   private static final CurveExtrapolator QL_EXTRAPOLATOR = QuadraticLeftCurveExtrapolator.INSTANCE;
@@ -27,11 +27,13 @@ public class QuadraticLeftCurveExtrapolatorTest {
   private static final double EPS = 1.e-7;
   private static final double TOL = 1.e-12;
 
+  @Test
   public void test_basics() {
-    assertEquals(QL_EXTRAPOLATOR.getName(), QuadraticLeftCurveExtrapolator.NAME);
-    assertEquals(QL_EXTRAPOLATOR.toString(), QuadraticLeftCurveExtrapolator.NAME);
+    assertThat(QL_EXTRAPOLATOR.getName()).isEqualTo(QuadraticLeftCurveExtrapolator.NAME);
+    assertThat(QL_EXTRAPOLATOR.toString()).isEqualTo(QuadraticLeftCurveExtrapolator.NAME);
   }
 
+  @Test
   public void sameIntervalsTest() {
     DoubleArray xValues = DoubleArray.of(1., 2., 3., 4., 5., 6., 7., 8.);
     DoubleArray[] yValues = new DoubleArray[] {
@@ -57,10 +59,10 @@ public class QuadraticLeftCurveExtrapolatorTest {
           xValues, yValues[k], extrap, CurveExtrapolators.LOG_LINEAR);
 
       // Check C0 continuity
-      assertEquals(bci.interpolate(xValues.get(0) - 1.e-14), bci.interpolate(xValues.get(0)), TOL);
+      assertThat(bci.interpolate(xValues.get(0) - 1.e-14)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Check C1 continuity
-      assertEquals(bci.firstDerivative(xValues.get(0) - TOL), bci.firstDerivative(xValues.get(0)), TOL * 1.e2);
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)), offset(TOL * 1.e2));
 
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
@@ -74,8 +76,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
             xValues, DoubleArray.ofUnsafe(yValues1Dw), extrap, CurveExtrapolators.LOG_LINEAR);
         for (int i = 0; i < nKeys; ++i) {
           double res1 = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
-          assertEquals(res1, bci.parameterSensitivity(xKeys[i]).get(j),
-              Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2);//because gradient is NOT exact
+          assertThat(res1).isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j), offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -83,6 +84,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
     }
   }
 
+  @Test
   public void differentIntervalsTest() {
     DoubleArray xValues = DoubleArray.of(
         1.0328724558967068, 1.2692381049172323, 2.8611430465380905, 4.296118458251132, 7.011992052151352,
@@ -111,10 +113,10 @@ public class QuadraticLeftCurveExtrapolatorTest {
           xValues, yValues[k], extrap, CurveExtrapolators.LOG_LINEAR);
 
       // Check C0 continuity
-      assertEquals(bci.interpolate(xValues.get(0) - 1.e-14), bci.interpolate(xValues.get(0)), TOL);
+      assertThat(bci.interpolate(xValues.get(0) - 1.e-14)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Check C1 continuity
-      assertEquals(bci.firstDerivative(xValues.get(0) - TOL), bci.firstDerivative(xValues.get(0)), TOL * 1.e2);
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)), offset(TOL * 1.e2));
 
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
@@ -129,8 +131,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
         for (int i = 0; i < nKeys; ++i) {
           double res1 =
               0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
-          assertEquals(res1, bci.parameterSensitivity(xKeys[i]).get(j),
-              Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2);//because gradient is NOT exact
+          assertThat(res1).isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j), offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -138,6 +139,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
     }
   }
 
+  @Test
   public void test_noRight() {
     BoundCurveInterpolator bci =
         CurveInterpolators.LINEAR.bind(X_DATA, Y_DATA, QL_EXTRAPOLATOR, QL_EXTRAPOLATOR);
@@ -150,6 +152,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(QL_EXTRAPOLATOR);
   }

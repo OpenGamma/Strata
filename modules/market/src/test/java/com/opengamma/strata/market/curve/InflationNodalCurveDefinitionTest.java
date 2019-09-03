@@ -11,13 +11,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.swap.type.FixedInflationSwapConventions.GBP_FIXED_ZC_GB_RPI;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -35,7 +35,6 @@ import com.opengamma.strata.product.swap.type.FixedInflationSwapTemplate;
 /**
  * Test {@link InflationNodalCurveDefinition}.
  */
-@Test
 public class InflationNodalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -65,16 +64,18 @@ public class InflationNodalCurveDefinitionTest {
   private static final YearMonth LAST_FIX_MONTH = YearMonth.of(2015, 7);
   private static final double LAST_FIX_VALUE = 240.0d;
 
+  @Test
   public void test_builder() {
     InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
-    assertEquals(test.getCurveWithoutFixingDefinition(), UNDERLYING_DEF);
-    assertEquals(test.getLastFixingMonth(), LAST_FIX_MONTH);
-    assertEquals(test.getLastFixingValue(), LAST_FIX_VALUE);
-    assertEquals(test.getSeasonalityDefinition(), SEASONALITY_DEF);
+    assertThat(test.getCurveWithoutFixingDefinition()).isEqualTo(UNDERLYING_DEF);
+    assertThat(test.getLastFixingMonth()).isEqualTo(LAST_FIX_MONTH);
+    assertThat(test.getLastFixingValue()).isEqualTo(LAST_FIX_VALUE);
+    assertThat(test.getSeasonalityDefinition()).isEqualTo(SEASONALITY_DEF);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_metadata() {
     InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
@@ -85,10 +86,11 @@ public class InflationNodalCurveDefinitionTest {
         .dayCount(ACT_365F)
         .parameterMetadata(NODES.get(0).metadata(VAL_DATE, REF_DATA), NODES.get(1).metadata(VAL_DATE, REF_DATA))
         .build();
-    assertEquals(test.metadata(VAL_DATE, REF_DATA), expected);
+    assertThat(test.metadata(VAL_DATE, REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_curve() {
     InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
@@ -112,17 +114,19 @@ public class InflationNodalCurveDefinitionTest {
         .build();
     InflationNodalCurve expected = InflationNodalCurve
         .of(expectedUnderlying, VAL_DATE, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
-    assertEquals(test.curve(VAL_DATE, metadata, param), expected);
+    assertThat(test.curve(VAL_DATE, metadata, param)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toCurveParameterSize() {
     InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
-    assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, NODES.size()));
+    assertThat(test.toCurveParameterSize()).isEqualTo(CurveParameterSize.of(CURVE_NAME, NODES.size()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);
@@ -144,6 +148,7 @@ public class InflationNodalCurveDefinitionTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     InflationNodalCurveDefinition test = new InflationNodalCurveDefinition(
         UNDERLYING_DEF, LAST_FIX_MONTH, LAST_FIX_VALUE, SEASONALITY_DEF);

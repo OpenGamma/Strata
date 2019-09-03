@@ -9,13 +9,13 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.Guavate.casting;
 import static com.opengamma.strata.collect.Guavate.filtering;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
-import static org.testng.Assert.assertEquals;
 
 import java.time.YearMonth;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
@@ -55,7 +55,6 @@ import com.opengamma.strata.product.etd.EtdVariant;
 /**
  * Test {@link PositionCsvLoader}.
  */
-@Test
 public class PositionCsvLoaderTest {
 
   private static final EtdContractCode FGBL = EtdContractCode.of("FGBL");
@@ -102,12 +101,14 @@ public class PositionCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/positions.csv");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isKnownFormat() {
     PositionCsvLoader test = PositionCsvLoader.standard();
-    assertEquals(test.isKnownFormat(FILE.getCharSource()), true);
+    assertThat(test.isKnownFormat(FILE.getCharSource())).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_security() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.load(FILE);
@@ -115,12 +116,13 @@ public class PositionCsvLoaderTest {
     List<SecurityPosition> filtered = trades.getValue().stream()
         .flatMap(filtering(SecurityPosition.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 2);
+    assertThat(filtered).hasSize(2);
 
     assertBeanEquals(SECURITY1, filtered.get(0));
     assertBeanEquals(SECURITY2, filtered.get(1));
   }
 
+  @Test
   public void test_load_genericSecurity() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.load(FILE);
@@ -128,20 +130,22 @@ public class PositionCsvLoaderTest {
     List<GenericSecurityPosition> filtered = trades.getValue().stream()
         .flatMap(filtering(GenericSecurityPosition.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 1);
+    assertThat(filtered).hasSize(1);
 
     assertBeanEquals(SECURITY3FULL, filtered.get(0));
   }
 
+  @Test
   public void test_parseFiltering() {
     PositionCsvLoader test = PositionCsvLoader.standard();
-    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource())).getValue().size(), 3);  // 7 errors
-    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource()), SecurityPosition.class).getValue().size(), 10);
-    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource()), ResolvableSecurityPosition.class).getValue().size(), 3);
-    assertEquals(test.parse(ImmutableList.of(FILE.getCharSource()), GenericSecurityPosition.class).getValue().size(), 1);
+    assertThat(test.parse(ImmutableList.of(FILE.getCharSource())).getValue()).hasSize(3);  // 7 errors
+    assertThat(test.parse(ImmutableList.of(FILE.getCharSource()), SecurityPosition.class).getValue()).hasSize(10);
+    assertThat(test.parse(ImmutableList.of(FILE.getCharSource()), ResolvableSecurityPosition.class).getValue()).hasSize(3);
+    assertThat(test.parse(ImmutableList.of(FILE.getCharSource()), GenericSecurityPosition.class).getValue()).hasSize(1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parse_future() {
     EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
     EtdContractSpec contract = EtdContractSpec.builder()
@@ -157,7 +161,7 @@ public class PositionCsvLoaderTest {
     ValueWithFailures<List<EtdFuturePosition>> trades =
         test.parse(ImmutableList.of(FILE.getCharSource()), EtdFuturePosition.class);
     List<EtdFuturePosition> filtered = trades.getValue();
-    assertEquals(filtered.size(), 4);
+    assertThat(filtered).hasSize(4);
 
     EtdFuturePosition expected1 = EtdFuturePosition.builder()
         .info(PositionInfo.builder()
@@ -201,6 +205,7 @@ public class PositionCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parse_option() {
     EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "O-ECAG-OGBL");
     EtdContractSpec contract = EtdContractSpec.builder()
@@ -217,7 +222,7 @@ public class PositionCsvLoaderTest {
         test.parse(ImmutableList.of(FILE.getCharSource()), EtdOptionPosition.class);
 
     List<EtdOptionPosition> filtered = trades.getValue();
-    assertEquals(filtered.size(), 3);
+    assertThat(filtered).hasSize(3);
 
     EtdOptionPosition expected1 = EtdOptionPosition.builder()
         .info(PositionInfo.builder()
@@ -258,6 +263,7 @@ public class PositionCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   @SuppressWarnings("deprecation")
   public void test_parseLightweight() {
     PositionCsvLoader test = PositionCsvLoader.standard();
@@ -266,6 +272,7 @@ public class PositionCsvLoaderTest {
     assertLightweight(filtered);
   }
 
+  @Test
   public void test_parse_lightweightResolver() {
     PositionCsvLoader test = PositionCsvLoader.of(LightweightPositionCsvInfoResolver.standard());
     ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(FILE.getCharSource()));
@@ -276,7 +283,7 @@ public class PositionCsvLoaderTest {
   }
 
   private void assertLightweight(List<SecurityPosition> filtered) {
-    assertEquals(filtered.size(), 10);
+    assertThat(filtered).hasSize(10);
     assertBeanEquals(SECURITY1, filtered.get(0));
     assertBeanEquals(SECURITY2, filtered.get(1));
     assertBeanEquals(SECURITY3, filtered.get(2));
@@ -363,36 +370,40 @@ public class PositionCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_invalidNoHeader() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage().contains("CSV file could not be parsed"), true);
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage().contains("CSV file could not be parsed")).isTrue();
   }
 
+  @Test
   public void test_load_invalidNoType() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("Id")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage().contains("CSV file does not contain 'Strata Position Type' header"), true);
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage().contains("CSV file does not contain 'Strata Position Type' header")).isTrue();
   }
 
+  @Test
   public void test_load_invalidUnknownType() {
     PositionCsvLoader test = PositionCsvLoader.standard();
     ValueWithFailures<List<Position>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Position Type\nFoo")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(), "CSV file position type 'Foo' is not known at line 2");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file position type 'Foo' is not known at line 2");
   }
 
+  @Test
   public void test_load_invalidNoQuantity() {
     EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
     EtdContractSpec contract = EtdContractSpec.builder()
@@ -409,12 +420,11 @@ public class PositionCsvLoaderTest {
         test.parse(
             ImmutableList.of(CharSource.wrap("Strata Position Type,Exchange,Contract Code,Expiry\nFUT,ECAG,FGBL,2017-06")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(),
-        "CSV file position could not be parsed at line 2: " +
-            "Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file position could not be parsed at line 2: " +
+        "Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
   }
 
 }

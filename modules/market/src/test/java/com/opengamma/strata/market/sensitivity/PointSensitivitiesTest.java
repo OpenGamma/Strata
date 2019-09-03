@@ -11,13 +11,10 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -25,7 +22,6 @@ import com.opengamma.strata.basics.currency.FxMatrix;
 /**
  * Test {@link PointSensitivities}.
  */
-@Test
 public class PointSensitivitiesTest {
 
   private static final PointSensitivity CS1 = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 12d);
@@ -34,82 +30,91 @@ public class PointSensitivitiesTest {
   private static final PointSensitivity CS3B = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 3d);
   private static final PointSensitivity CS4 = DummyPointSensitivity.of(GBP, date(2015, 8, 30), USD, 4d);
 
+  @Test
   public void test_of_array() {
     PointSensitivities test = PointSensitivities.of(CS1, CS2);
-    assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2));
-    assertEquals(test.size(), 2);
+    assertThat(test.getSensitivities()).containsExactly(CS1, CS2);
+    assertThat(test.size()).isEqualTo(2);
   }
 
+  @Test
   public void test_of_List() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS1, CS2));
-    assertEquals(test.getSensitivities(), ImmutableList.of(CS1, CS2));
-    assertEquals(test.size(), 2);
+    assertThat(test.getSensitivities()).containsExactly(CS1, CS2);
+    assertThat(test.size()).isEqualTo(2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS2, CS1));
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3));
-    assertEquals(test.combinedWith(test2).getSensitivities(), ImmutableList.of(CS2, CS1, CS3));
+    assertThat(test.combinedWith(test2).getSensitivities()).containsExactly(CS2, CS1, CS3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
-    assertEquals(
-        test.multipliedBy(2d).getSensitivities(),
-        ImmutableList.of(CS3.withSensitivity(64d), CS2.withSensitivity(44d), CS1.withSensitivity(24d)));
+    assertThat(test.multipliedBy(2d).getSensitivities()).containsExactly(CS3.withSensitivity(64d), CS2.withSensitivity(44d), CS1.withSensitivity(24d));
   }
 
+  @Test
   public void test_mapSensitivities() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
-    assertEquals(
-        test.mapSensitivities(s -> s / 2).getSensitivities(),
-        ImmutableList.of(CS3.withSensitivity(16d), CS2.withSensitivity(11d), CS1.withSensitivity(6d)));
+    assertThat(test.mapSensitivities(s -> s / 2).getSensitivities()).containsExactly(CS3.withSensitivity(16d), CS2.withSensitivity(11d), CS1.withSensitivity(6d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalized_sorts() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
-    assertEquals(test.normalized().getSensitivities(), ImmutableList.of(CS1, CS2, CS3));
+    assertThat(test.normalized().getSensitivities()).containsExactly(CS1, CS2, CS3);
   }
 
+  @Test
   public void test_normalized_merges() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1, CS3B));
-    assertEquals(test.normalized().getSensitivities(), ImmutableList.of(CS1, CS2, CS3.withSensitivity(35d)));
+    assertThat(test.normalized().getSensitivities()).containsExactly(CS1, CS2, CS3.withSensitivity(35d));
   }
 
+  @Test
   public void test_normalized_empty() {
-    assertEquals(PointSensitivities.empty().normalized(), PointSensitivities.empty());
+    assertThat(PointSensitivities.empty().normalized()).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_equalWithTolerance_length() {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, CS2)).normalized();
-    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));
+    assertThat(test1.equalWithTolerance(test2, 1.0E+1)).isFalse();
   }
 
+  @Test
   public void test_equalWithTolerance_date() {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, CS2)).normalized();
-    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));
+    assertThat(test1.equalWithTolerance(test2, 1.0E+1)).isFalse();
   }
 
+  @Test
   public void test_equalWithTolerance_value() {
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3B, CS1)).normalized();
-    assertFalse(test1.equalWithTolerance(test2, 1.0E+1));
+    assertThat(test1.equalWithTolerance(test2, 1.0E+1)).isFalse();
   }
 
+  @Test
   public void test_equalWithTolerance_true() {
     PointSensitivity cs1b = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 12.1d);
     PointSensitivities test1 = PointSensitivities.of(Lists.newArrayList(CS3, CS1)).normalized();
     PointSensitivities test2 = PointSensitivities.of(Lists.newArrayList(CS3, cs1b)).normalized();
-    assertTrue(test1.equalWithTolerance(test2, 1.0E-1));
+    assertThat(test1.equalWithTolerance(test2, 1.0E-1)).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo_singleCurrency() {
     double rate = 1.5d;
     FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
@@ -119,11 +124,12 @@ public class PointSensitivitiesTest {
     PointSensitivity c2Conv = CS2.convertedTo(USD, matrix);
     PointSensitivity c3Conv = CS3.convertedTo(USD, matrix);
     PointSensitivities expected = PointSensitivities.of(Lists.newArrayList(c3Conv, c2Conv, c1Conv));
-    assertEquals(test1.normalized(), expected.normalized());
+    assertThat(test1.normalized()).isEqualTo(expected.normalized());
     PointSensitivities test2 = base.convertedTo(GBP, matrix);
-    assertEquals(test2.normalized(), base.normalized());
+    assertThat(test2.normalized()).isEqualTo(base.normalized());
   }
 
+  @Test
   public void test_convertedTo_multipleCurrency() {
     double rate = 1.5d;
     FxMatrix matrix = FxMatrix.of(CurrencyPair.of(GBP, USD), rate);
@@ -133,25 +139,28 @@ public class PointSensitivitiesTest {
     PointSensitivity c3Conv = CS3.convertedTo(USD, matrix);
     PointSensitivity c3c4Usd = c3Conv.withSensitivity(c3Conv.getSensitivity() + CS4.getSensitivity());
     PointSensitivities expected1 = PointSensitivities.of(Lists.newArrayList(c3c4Usd, c1Conv));
-    assertEquals(test1.normalized(), expected1.normalized());
+    assertThat(test1.normalized()).isEqualTo(expected1.normalized());
     PointSensitivities test2 = base.convertedTo(GBP, matrix);
     PointSensitivity c4Conv = CS4.convertedTo(GBP, matrix);
     PointSensitivity c3c4GBP = CS3.withSensitivity(CS3.getSensitivity() + c4Conv.getSensitivity());
     PointSensitivities expected2 = PointSensitivities.of(Lists.newArrayList(c3c4GBP, CS1));
-    assertEquals(test2.normalized(), expected2.normalized());
+    assertThat(test2.normalized()).isEqualTo(expected2.normalized());
   }
 
+  @Test
   public void test_convertedTo_empty() {
-    assertEquals(PointSensitivities.empty().convertedTo(GBP, FxMatrix.empty()), PointSensitivities.empty());
+    assertThat(PointSensitivities.empty().convertedTo(GBP, FxMatrix.empty())).isEqualTo(PointSensitivities.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toMutable() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
-    assertEquals(test.toMutable().getSensitivities(), ImmutableList.of(CS3, CS2, CS1));
+    assertThat(test.toMutable().getSensitivities()).containsExactly(CS3, CS2, CS1);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
     coverImmutableBean(test);
@@ -159,6 +168,7 @@ public class PointSensitivitiesTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     PointSensitivities test = PointSensitivities.of(Lists.newArrayList(CS3, CS2, CS1));
     assertSerialization(test);

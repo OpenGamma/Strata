@@ -11,14 +11,13 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -28,7 +27,6 @@ import com.opengamma.strata.collect.tuple.Pair;
 /**
  * Test {@link LegalEntityCurveGroup}.
  */
-@Test
 public class LegalEntityCurveGroupTest {
 
   private static final CurveGroupName NAME1 = CurveGroupName.of("TestGroup1");
@@ -52,36 +50,39 @@ public class LegalEntityCurveGroupTest {
       Pair.of(LEGAL_ENTITY_GROUP1, USD), ISSUER_CURVE2,
       Pair.of(LEGAL_ENTITY_GROUP2, GBP), ISSUER_CURVE3);
 
+  @Test
   public void test_of() {
     LegalEntityCurveGroup test = LegalEntityCurveGroup.of(NAME1, REPO_CURVES, ISSUER_CURVES);
-    assertEquals(test.getName(), NAME1);
-    assertEquals(test.getRepoCurves(), REPO_CURVES);
-    assertEquals(test.getIssuerCurves(), ISSUER_CURVES);
-    assertEquals(test.findCurve(REPO_NAME).get(), REPO_CURVE);
-    assertEquals(test.findCurve(ISSUER_NAME1).get(), ISSUER_CURVE1);
-    assertEquals(test.findCurve(ISSUER_NAME2).get(), ISSUER_CURVE2);
-    assertEquals(test.findCurve(ISSUER_NAME3).get(), ISSUER_CURVE3);
-    assertFalse(test.findCurve(CurveName.of("foo")).isPresent());
-    assertEquals(test.findRepoCurve(REPO_GROUP, GBP).get(), REPO_CURVE);
-    assertEquals(test.findRepoCurve(REPO_GROUP, USD).get(), REPO_CURVE);
-    assertFalse(test.findRepoCurve(REPO_GROUP, JPY).isPresent());
-    assertEquals(test.findIssuerCurve(LEGAL_ENTITY_GROUP1, GBP).get(), ISSUER_CURVE1);
-    assertEquals(test.findIssuerCurve(LEGAL_ENTITY_GROUP1, USD).get(), ISSUER_CURVE2);
-    assertEquals(test.findIssuerCurve(LEGAL_ENTITY_GROUP2, GBP).get(), ISSUER_CURVE3);
-    assertFalse(test.findIssuerCurve(LEGAL_ENTITY_GROUP2, USD).isPresent());
+    assertThat(test.getName()).isEqualTo(NAME1);
+    assertThat(test.getRepoCurves()).isEqualTo(REPO_CURVES);
+    assertThat(test.getIssuerCurves()).isEqualTo(ISSUER_CURVES);
+    assertThat(test.findCurve(REPO_NAME).get()).isEqualTo(REPO_CURVE);
+    assertThat(test.findCurve(ISSUER_NAME1).get()).isEqualTo(ISSUER_CURVE1);
+    assertThat(test.findCurve(ISSUER_NAME2).get()).isEqualTo(ISSUER_CURVE2);
+    assertThat(test.findCurve(ISSUER_NAME3).get()).isEqualTo(ISSUER_CURVE3);
+    assertThat(test.findCurve(CurveName.of("foo")).isPresent()).isFalse();
+    assertThat(test.findRepoCurve(REPO_GROUP, GBP).get()).isEqualTo(REPO_CURVE);
+    assertThat(test.findRepoCurve(REPO_GROUP, USD).get()).isEqualTo(REPO_CURVE);
+    assertThat(test.findRepoCurve(REPO_GROUP, JPY).isPresent()).isFalse();
+    assertThat(test.findIssuerCurve(LEGAL_ENTITY_GROUP1, GBP).get()).isEqualTo(ISSUER_CURVE1);
+    assertThat(test.findIssuerCurve(LEGAL_ENTITY_GROUP1, USD).get()).isEqualTo(ISSUER_CURVE2);
+    assertThat(test.findIssuerCurve(LEGAL_ENTITY_GROUP2, GBP).get()).isEqualTo(ISSUER_CURVE3);
+    assertThat(test.findIssuerCurve(LEGAL_ENTITY_GROUP2, USD).isPresent()).isFalse();
   }
 
+  @Test
   public void test_builder() {
     LegalEntityCurveGroup test = LegalEntityCurveGroup.builder()
         .name(NAME2)
         .repoCurves(REPO_CURVES)
         .issuerCurves(ISSUER_CURVES)
         .build();
-    assertEquals(test.getName(), NAME2);
-    assertEquals(test.getRepoCurves(), REPO_CURVES);
-    assertEquals(test.getIssuerCurves(), ISSUER_CURVES);
+    assertThat(test.getName()).isEqualTo(NAME2);
+    assertThat(test.getRepoCurves()).isEqualTo(REPO_CURVES);
+    assertThat(test.getIssuerCurves()).isEqualTo(ISSUER_CURVES);
   }
 
+  @Test
   public void stream() {
     LegalEntityCurveGroup test = LegalEntityCurveGroup.of(NAME1, REPO_CURVES, ISSUER_CURVES);
     List<Curve> expectedAll = ImmutableList.<Curve>builder()
@@ -104,6 +105,7 @@ public class LegalEntityCurveGroupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     LegalEntityCurveGroup test1 = LegalEntityCurveGroup.of(NAME1, REPO_CURVES, ISSUER_CURVES);
     coverImmutableBean(test1);
@@ -111,6 +113,7 @@ public class LegalEntityCurveGroupTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     LegalEntityCurveGroup test = LegalEntityCurveGroup.of(NAME1, REPO_CURVES, ISSUER_CURVES);
     assertSerialization(test);

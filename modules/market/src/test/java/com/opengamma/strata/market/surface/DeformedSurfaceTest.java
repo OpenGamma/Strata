@@ -9,13 +9,12 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.DoubleArrayMath;
@@ -28,7 +27,6 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 /**
  * Test {@link DeformedSurface}.
  */
-@Test
 public class DeformedSurfaceTest {
 
   private static final int SIZE = 9;
@@ -55,17 +53,19 @@ public class DeformedSurfaceTest {
   };
   private static final SurfaceMetadata METADATA = DefaultSurfaceMetadata.of("DeformedTestSurface");
 
+  @Test
   public void test_of() {
     DeformedSurface test = DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION);
-    assertEquals(test.getDeformationFunction(), FUNCTION);
-    assertEquals(test.getMetadata(), METADATA);
-    assertEquals(test.getName(), METADATA.getSurfaceName());
-    assertEquals(test.getOriginalSurface(), SURFACE_ORG);
-    assertEquals(test.getParameterCount(), SIZE);
-    assertEquals(test.getParameter(2), SURFACE_ORG.getParameter(2));
-    assertEquals(test.getParameterMetadata(2), SURFACE_ORG.getParameterMetadata(2));
+    assertThat(test.getDeformationFunction()).isEqualTo(FUNCTION);
+    assertThat(test.getMetadata()).isEqualTo(METADATA);
+    assertThat(test.getName()).isEqualTo(METADATA.getSurfaceName());
+    assertThat(test.getOriginalSurface()).isEqualTo(SURFACE_ORG);
+    assertThat(test.getParameterCount()).isEqualTo(SIZE);
+    assertThat(test.getParameter(2)).isEqualTo(SURFACE_ORG.getParameter(2));
+    assertThat(test.getParameterMetadata(2)).isEqualTo(SURFACE_ORG.getParameterMetadata(2));
   }
 
+  @Test
   public void test_zValue() {
     double tol = 1.0e-14;
     double x = 2.5;
@@ -76,20 +76,22 @@ public class DeformedSurfaceTest {
     UnitParameterSensitivity computedSensi1 = test.zValueParameterSensitivity(x, y);
     UnitParameterSensitivity computedSensi2 = test.zValueParameterSensitivity(DoublesPair.of(x, y));
     ValueDerivatives expected = FUNCTION.apply(DoublesPair.of(x, y));
-    assertEquals(computedValue1, expected.getValue());
-    assertEquals(computedValue2, expected.getValue());
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        computedSensi1.getSensitivity().toArray(), expected.getDerivatives().toArray(), tol));
-    assertTrue(DoubleArrayMath.fuzzyEquals(
-        computedSensi2.getSensitivity().toArray(), expected.getDerivatives().toArray(), tol));
+    assertThat(computedValue1).isEqualTo(expected.getValue());
+    assertThat(computedValue2).isEqualTo(expected.getValue());
+    assertThat(DoubleArrayMath.fuzzyEquals(
+        computedSensi1.getSensitivity().toArray(), expected.getDerivatives().toArray(), tol)).isTrue();
+    assertThat(DoubleArrayMath.fuzzyEquals(
+        computedSensi2.getSensitivity().toArray(), expected.getDerivatives().toArray(), tol)).isTrue();
   }
 
+  @Test
   public void test_withParameter() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION).withParameter(1, 1.2d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DeformedSurface test1 = DeformedSurface.of(METADATA, SURFACE_ORG, FUNCTION);
     coverImmutableBean(test1);

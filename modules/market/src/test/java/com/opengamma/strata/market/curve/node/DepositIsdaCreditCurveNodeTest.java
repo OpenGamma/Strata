@@ -11,11 +11,11 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -31,7 +31,6 @@ import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 /**
  * Test {@link DepositIsdaCreditCurveNode}.
  */
-@Test
 public class DepositIsdaCreditCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -41,19 +40,21 @@ public class DepositIsdaCreditCurveNodeTest {
   private static final DaysAdjustment ADJ_3D = DaysAdjustment.ofBusinessDays(3, SAT_SUN);
   private static final LocalDate TRADE_DATE = LocalDate.of(2016, 9, 29);
 
+  @Test
   public void test_of() {
     DepositIsdaCreditCurveNode test = DepositIsdaCreditCurveNode.of(OBS_ID, ADJ_3D, BUS_ADJ, TENOR, ACT_360);
-    assertEquals(test.getBusinessDayAdjustment(), BUS_ADJ);
-    assertEquals(test.getDayCount(), ACT_360);
-    assertEquals(test.getLabel(), TENOR.toString());
-    assertEquals(test.getObservableId(), OBS_ID);
-    assertEquals(test.getSpotDateOffset(), ADJ_3D);
-    assertEquals(test.getTenor(), TENOR);
-    assertEquals(test.date(TRADE_DATE, REF_DATA), LocalDate.of(2017, 1, 4));
-    assertEquals(test.metadata(LocalDate.of(2017, 1, 4)), TenorDateParameterMetadata.of(LocalDate.of(2017, 1, 4), TENOR));
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BUS_ADJ);
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getLabel()).isEqualTo(TENOR.toString());
+    assertThat(test.getObservableId()).isEqualTo(OBS_ID);
+    assertThat(test.getSpotDateOffset()).isEqualTo(ADJ_3D);
+    assertThat(test.getTenor()).isEqualTo(TENOR);
+    assertThat(test.date(TRADE_DATE, REF_DATA)).isEqualTo(LocalDate.of(2017, 1, 4));
+    assertThat(test.metadata(LocalDate.of(2017, 1, 4))).isEqualTo(TenorDateParameterMetadata.of(LocalDate.of(2017, 1, 4), TENOR));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DepositIsdaCreditCurveNode test1 = DepositIsdaCreditCurveNode.of(OBS_ID, ADJ_3D, BUS_ADJ, TENOR, ACT_360);
     coverImmutableBean(test1);
@@ -68,6 +69,7 @@ public class DepositIsdaCreditCurveNodeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     DepositIsdaCreditCurveNode test = DepositIsdaCreditCurveNode.of(OBS_ID, ADJ_3D, BUS_ADJ, TENOR, ACT_360);
     assertSerialization(test);

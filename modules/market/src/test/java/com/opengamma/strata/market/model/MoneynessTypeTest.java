@@ -6,23 +6,24 @@
 package com.opengamma.strata.market.model;
 
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link MoneynessType}.
  */
-@Test
 public class MoneynessTypeTest {
 
+  @Test
   public void test_basics() {
-    assertEquals(MoneynessType.of("Price"), MoneynessType.PRICE);
-    assertEquals(MoneynessType.of("Rates"), MoneynessType.RATES);
-    assertEquals(MoneynessType.PRICE.toString(), "Price");
-    assertEquals(MoneynessType.RATES.toString(), "Rates");
+    assertThat(MoneynessType.of("Price")).isEqualTo(MoneynessType.PRICE);
+    assertThat(MoneynessType.of("Rates")).isEqualTo(MoneynessType.RATES);
+    assertThat(MoneynessType.PRICE.toString()).isEqualTo("Price");
+    assertThat(MoneynessType.RATES.toString()).isEqualTo("Rates");
   }
 
+  @Test
   public void coverage() {
     coverEnum(MoneynessType.class);
   }

@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -25,11 +25,11 @@ import com.opengamma.strata.product.swap.SwapPaymentPeriod;
 /**
  * Test {@link SwapLegAmount}.
  */
-@Test
 public class SwapLegAmountTest {
 
   private static final CurrencyAmount CURRENCY_AMOUNT = CurrencyAmount.of(Currency.USD, 123.45);
 
+  @Test
   public void test_of() {
     SwapPaymentPeriod pp = mock(SwapPaymentPeriod.class);
     when(pp.getCurrency()).thenReturn(Currency.GBP);
@@ -49,6 +49,7 @@ public class SwapLegAmountTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void convertedTo() {
     SwapLegAmount legAmount = SwapLegAmount.builder()
         .amount(CurrencyAmount.of(Currency.GBP, 10))
@@ -66,6 +67,7 @@ public class SwapLegAmountTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SwapLegAmount la1 = SwapLegAmount.builder()
         .amount(CURRENCY_AMOUNT)
@@ -83,6 +85,7 @@ public class SwapLegAmountTest {
     coverBeanEquals(la1, la2);
   }
 
+  @Test
   public void test_serialization() {
     SwapLegAmount la = SwapLegAmount.builder()
         .amount(CURRENCY_AMOUNT)

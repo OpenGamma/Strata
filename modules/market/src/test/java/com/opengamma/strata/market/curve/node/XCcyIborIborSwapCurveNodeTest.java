@@ -11,16 +11,15 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
@@ -47,7 +46,6 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
 /**
  * Test {@link XCcyIborIborSwapCurveNode}.
  */
-@Test
 public class XCcyIborIborSwapCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -72,6 +70,7 @@ public class XCcyIborIborSwapCurveNodeTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
         .label(LABEL)
@@ -80,62 +79,69 @@ public class XCcyIborIborSwapCurveNodeTest {
         .spreadId(SPREAD_ID)
         .additionalSpread(SPREAD_ADJ)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getFxRateId(), FX_RATE_ID2);
-    assertEquals(test.getSpreadId(), SPREAD_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.END);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getFxRateId()).isEqualTo(FX_RATE_ID2);
+    assertThat(test.getSpreadId()).isEqualTo(SPREAD_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD_ADJ);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
   }
 
+  @Test
   public void test_builder_defaults() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.builder()
         .template(TEMPLATE)
         .spreadId(SPREAD_ID)
         .build();
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getFxRateId(), FX_RATE_ID);
-    assertEquals(test.getSpreadId(), SPREAD_ID);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.END);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getFxRateId()).isEqualTo(FX_RATE_ID);
+    assertThat(test.getSpreadId()).isEqualTo(SPREAD_ID);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
   }
 
+  @Test
   public void test_builder_noTemplate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> XCcyIborIborSwapCurveNode.builder().label(LABEL).spreadId(SPREAD_ID).build());
   }
 
+  @Test
   public void test_of_noSpread() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getSpreadId(), SPREAD_ID);
-    assertEquals(test.getAdditionalSpread(), 0.0d);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getSpreadId()).isEqualTo(SPREAD_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(0.0d);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpread() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getSpreadId(), SPREAD_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getSpreadId()).isEqualTo(SPREAD_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD_ADJ);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpreadAndLabel() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ, LABEL);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getSpreadId(), SPREAD_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD_ADJ);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getSpreadId()).isEqualTo(SPREAD_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD_ADJ);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_requirements() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     Set<? extends MarketDataId<?>> setExpected = ImmutableSet.of(SPREAD_ID, FX_RATE_ID);
     Set<? extends MarketDataId<?>> set = test.requirements();
-    assertTrue(set.equals(setExpected));
+    assertThat(set.equals(setExpected)).isTrue();
   }
 
+  @Test
   public void test_trade() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     double quantity = -1234.56;
@@ -143,10 +149,11 @@ public class XCcyIborIborSwapCurveNodeTest {
     double rate = FX_EUR_USD.fxRate(Currency.EUR, Currency.USD);
     SwapTrade expected = TEMPLATE.createTrade(
         VAL_DATE, BUY, -quantity, -quantity * rate, SPREAD_XCS + SPREAD_ADJ, REF_DATA);
-    assertEquals(trade, expected);
-    assertEquals(node.resolvedTrade(quantity, MARKET_DATA, REF_DATA), trade.resolve(REF_DATA));
+    assertThat(trade).isEqualTo(expected);
+    assertThat(node.resolvedTrade(quantity, MARKET_DATA, REF_DATA)).isEqualTo(trade.resolve(REF_DATA));
   }
 
+  @Test
   public void test_trade_noMarketData() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     MarketData marketData = MarketData.empty(VAL_DATE);
@@ -154,41 +161,46 @@ public class XCcyIborIborSwapCurveNodeTest {
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
+  @Test
   public void test_initialGuess() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
-    assertEquals(node.initialGuess(MARKET_DATA, ValueType.ZERO_RATE), 0d);
-    assertEquals(node.initialGuess(MARKET_DATA, ValueType.DISCOUNT_FACTOR), 1.0d);
+    assertThat(node.initialGuess(MARKET_DATA, ValueType.ZERO_RATE)).isEqualTo(0d);
+    assertThat(node.initialGuess(MARKET_DATA, ValueType.DISCOUNT_FACTOR)).isEqualTo(1.0d);
   }
 
+  @Test
   public void test_metadata_end() {
     XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     // 2015-01-22 is Thursday, start is 2015-01-26, but 2025-01-26 is Sunday, so end is 2025-01-27
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2025, 1, 27));
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.TENOR_10Y);
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(LocalDate.of(2025, 1, 27));
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(Tenor.TENOR_10Y);
   }
 
+  @Test
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     XCcyIborIborSwapCurveNode node =
         XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ, LABEL).withDate(CurveNodeDate.of(nodeDate));
     DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
-    assertEquals(metadata.getDate(), nodeDate);
-    assertEquals(metadata.getLabel(), node.getLabel());
+    assertThat(metadata.getDate()).isEqualTo(nodeDate);
+    assertThat(metadata.getLabel()).isEqualTo(node.getLabel());
   }
 
+  @Test
   public void test_metadata_last_fixing() {
     XCcyIborIborSwapCurveNode node =
         XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ, LABEL).withDate(CurveNodeDate.LAST_FIXING);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
     LocalDate fixingExpected = LocalDate.of(2024, 10, 24);
-    assertEquals(metadata.getDate(), fixingExpected);
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), TENOR_10Y);
+    assertThat(metadata.getDate()).isEqualTo(fixingExpected);
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(TENOR_10Y);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     coverImmutableBean(test);
@@ -203,6 +215,7 @@ public class XCcyIborIborSwapCurveNodeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     XCcyIborIborSwapCurveNode test = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
     assertSerialization(test);

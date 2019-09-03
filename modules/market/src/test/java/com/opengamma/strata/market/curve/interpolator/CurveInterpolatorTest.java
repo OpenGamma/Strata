@@ -19,14 +19,13 @@ import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_NATURAL_SPLINE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.SQUARE_LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -34,13 +33,11 @@ import com.opengamma.strata.collect.array.DoubleArray;
 /**
  * Test {@link CurveInterpolator}.
  */
-@Test
 public class CurveInterpolatorTest {
 
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {LINEAR, "Linear"},
@@ -57,96 +54,107 @@ public class CurveInterpolatorTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_name(CurveInterpolator convention, String name) {
-    assertEquals(convention.getName(), name);
+    assertThat(convention.getName()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(CurveInterpolator convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(CurveInterpolator convention, String name) {
-    assertEquals(CurveInterpolator.of(name), convention);
+    assertThat(CurveInterpolator.of(name)).isEqualTo(convention);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_extendedEnum(CurveInterpolator convention, String name) {
     ImmutableMap<String, CurveInterpolator> map = CurveInterpolator.extendedEnum().lookupAll();
-    assertEquals(map.get(name), convention);
+    assertThat(map.get(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurveInterpolator.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurveInterpolator.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_bind() {
     DoubleArray xValues = DoubleArray.of(1, 2, 3);
     DoubleArray yValues = DoubleArray.of(2, 4, 5);
     BoundCurveInterpolator bound = LINEAR.bind(xValues, yValues, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertEquals(bound.interpolate(0.5), 2d, 0d);
-    assertEquals(bound.interpolate(1), 2d, 0d);
-    assertEquals(bound.interpolate(1.5), 3d, 0d);
-    assertEquals(bound.interpolate(2), 4d, 0d);
-    assertEquals(bound.interpolate(2.5), 4.5d, 0d);
-    assertEquals(bound.interpolate(3), 5d, 0d);
-    assertEquals(bound.interpolate(3.5), 5d, 0d);
+    assertThat(bound.interpolate(0.5)).isCloseTo(2d, offset(0d));
+    assertThat(bound.interpolate(1)).isCloseTo(2d, offset(0d));
+    assertThat(bound.interpolate(1.5)).isCloseTo(3d, offset(0d));
+    assertThat(bound.interpolate(2)).isCloseTo(4d, offset(0d));
+    assertThat(bound.interpolate(2.5)).isCloseTo(4.5d, offset(0d));
+    assertThat(bound.interpolate(3)).isCloseTo(5d, offset(0d));
+    assertThat(bound.interpolate(3.5)).isCloseTo(5d, offset(0d));
     // coverage
-    assertEquals(bound.parameterSensitivity(0.5).size(), 3);
-    assertEquals(bound.parameterSensitivity(2).size(), 3);
-    assertEquals(bound.parameterSensitivity(3.5).size(), 3);
-    assertEquals(bound.firstDerivative(0.5), 0d, 0d);
-    assertTrue(bound.firstDerivative(2) != 0d);
-    assertEquals(bound.firstDerivative(3.5), 0d, 0d);
-    assertNotNull(bound.toString());
+    assertThat(bound.parameterSensitivity(0.5).size()).isEqualTo(3);
+    assertThat(bound.parameterSensitivity(2).size()).isEqualTo(3);
+    assertThat(bound.parameterSensitivity(3.5).size()).isEqualTo(3);
+    assertThat(bound.firstDerivative(0.5)).isCloseTo(0d, offset(0d));
+    assertThat(bound.firstDerivative(2) != 0d).isTrue();
+    assertThat(bound.firstDerivative(3.5)).isCloseTo(0d, offset(0d));
+    assertThat(bound.toString()).isNotNull();
   }
 
+  @Test
   public void test_lowerBound() {
     // bad input, but still produces good output
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[] {1, 2, 3}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.5d, new double[] {1, 2, 3}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.9999d, new double[] {1, 2, 3}), 0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[]{1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.5d, new double[]{1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.9999d, new double[]{1, 2, 3})).isEqualTo(0);
     // good input
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[] {1, 2, 3}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0001d, new double[] {1, 2, 3}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.9999d, new double[] {1, 2, 3}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0d, new double[] {1, 2, 3}), 1);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0001d, new double[] {1, 2, 3}), 1);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(2.9999d, new double[] {1, 2, 3}), 1);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0d, new double[] {1, 2, 3}), 2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[]{1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0001d, new double[]{1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.9999d, new double[]{1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0d, new double[]{1, 2, 3})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0001d, new double[]{1, 2, 3})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.9999d, new double[]{1, 2, 3})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0d, new double[]{1, 2, 3})).isEqualTo(2);
     // bad input, but still produces good output
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0001d, new double[] {1, 2, 3}), 2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0001d, new double[]{1, 2, 3})).isEqualTo(2);
     // check zero
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-1.0d, new double[] {-1, 0, 1}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.9999d, new double[] {-1, 0, 1}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0001d, new double[] {-1, 0, 1}), 0);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0d, new double[] {-1, 0, 1}), 1);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[] {-1, 0, 1}), 1);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[] {-1, 0, 1}), 2);
-    assertEquals(AbstractBoundCurveInterpolator.lowerBoundIndex(1.5d, new double[] {-1, 0, 1}), 2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-1.0d, new double[]{-1, 0, 1})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.9999d, new double[]{-1, 0, 1})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0001d, new double[]{-1, 0, 1})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0d, new double[]{-1, 0, 1})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[]{-1, 0, 1})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[]{-1, 0, 1})).isEqualTo(2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.5d, new double[]{-1, 0, 1})).isEqualTo(2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(CurveInterpolators.class);
     coverPrivateConstructor(StandardCurveInterpolators.class);
-    assertFalse(LINEAR.equals(null));
-    assertFalse(LINEAR.equals(ANOTHER_TYPE));
+    assertThat(LINEAR.equals(null)).isFalse();
+    assertThat(LINEAR.equals(ANOTHER_TYPE)).isFalse();
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(LINEAR);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(CurveInterpolator.class, LINEAR);
     assertJodaConvert(CurveInterpolator.class, LOG_LINEAR);

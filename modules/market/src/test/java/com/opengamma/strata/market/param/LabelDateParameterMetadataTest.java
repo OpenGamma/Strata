@@ -9,36 +9,38 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link LabelDateParameterMetadata}.
  */
-@Test
 public class LabelDateParameterMetadataTest {
 
   private static final LocalDate DATE = date(2015, 7, 30);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_1arg() {
     LabelDateParameterMetadata test = LabelDateParameterMetadata.of(DATE);
-    assertEquals(test.getDate(), DATE);
-    assertEquals(test.getLabel(), DATE.toString());
-    assertEquals(test.getIdentifier(), DATE.toString());
+    assertThat(test.getDate()).isEqualTo(DATE);
+    assertThat(test.getLabel()).isEqualTo(DATE.toString());
+    assertThat(test.getIdentifier()).isEqualTo(DATE.toString());
   }
 
+  @Test
   public void test_of_2args() {
     LabelDateParameterMetadata test = LabelDateParameterMetadata.of(DATE, "Label");
-    assertEquals(test.getDate(), DATE);
-    assertEquals(test.getLabel(), "Label");
-    assertEquals(test.getIdentifier(), "Label");
+    assertThat(test.getDate()).isEqualTo(DATE);
+    assertThat(test.getLabel()).isEqualTo("Label");
+    assertThat(test.getIdentifier()).isEqualTo("Label");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     LabelDateParameterMetadata test = LabelDateParameterMetadata.of(DATE, "Label");
     coverImmutableBean(test);
@@ -46,6 +48,7 @@ public class LabelDateParameterMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     LabelDateParameterMetadata test = LabelDateParameterMetadata.of(DATE, "Label");
     assertSerialization(test);

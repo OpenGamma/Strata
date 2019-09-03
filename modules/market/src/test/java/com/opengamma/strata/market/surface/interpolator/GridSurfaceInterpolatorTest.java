@@ -13,17 +13,17 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LOG_LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link GridSurfaceInterpolator}.
  */
-@Test
 public class GridSurfaceInterpolatorTest {
 
   private static final DoubleArray X_DATA = DoubleArray.of(0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 3.0);
@@ -46,44 +46,49 @@ public class GridSurfaceInterpolatorTest {
   private static final double TOL = 1.e-12;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of2() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, LINEAR);
-    assertEquals(test.getXInterpolator(), LINEAR);
-    assertEquals(test.getXExtrapolatorLeft(), FLAT);
-    assertEquals(test.getXExtrapolatorRight(), FLAT);
-    assertEquals(test.getYInterpolator(), LINEAR);
-    assertEquals(test.getYExtrapolatorLeft(), FLAT);
-    assertEquals(test.getYExtrapolatorRight(), FLAT);
+    assertThat(test.getXInterpolator()).isEqualTo(LINEAR);
+    assertThat(test.getXExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getXExtrapolatorRight()).isEqualTo(FLAT);
+    assertThat(test.getYInterpolator()).isEqualTo(LINEAR);
+    assertThat(test.getYExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getYExtrapolatorRight()).isEqualTo(FLAT);
   }
 
+  @Test
   public void test_of4() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, EXPONENTIAL, LINEAR, EXPONENTIAL);
-    assertEquals(test.getXInterpolator(), LINEAR);
-    assertEquals(test.getXExtrapolatorLeft(), EXPONENTIAL);
-    assertEquals(test.getXExtrapolatorRight(), EXPONENTIAL);
-    assertEquals(test.getYInterpolator(), LINEAR);
-    assertEquals(test.getYExtrapolatorLeft(), EXPONENTIAL);
-    assertEquals(test.getYExtrapolatorRight(), EXPONENTIAL);
+    assertThat(test.getXInterpolator()).isEqualTo(LINEAR);
+    assertThat(test.getXExtrapolatorLeft()).isEqualTo(EXPONENTIAL);
+    assertThat(test.getXExtrapolatorRight()).isEqualTo(EXPONENTIAL);
+    assertThat(test.getYInterpolator()).isEqualTo(LINEAR);
+    assertThat(test.getYExtrapolatorLeft()).isEqualTo(EXPONENTIAL);
+    assertThat(test.getYExtrapolatorRight()).isEqualTo(EXPONENTIAL);
   }
 
+  @Test
   public void test_of6() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
         LINEAR, EXPONENTIAL, EXPONENTIAL, LINEAR, EXPONENTIAL, EXPONENTIAL);
-    assertEquals(test.getXInterpolator(), LINEAR);
-    assertEquals(test.getXExtrapolatorLeft(), EXPONENTIAL);
-    assertEquals(test.getXExtrapolatorRight(), EXPONENTIAL);
-    assertEquals(test.getYInterpolator(), LINEAR);
-    assertEquals(test.getYExtrapolatorLeft(), EXPONENTIAL);
-    assertEquals(test.getYExtrapolatorRight(), EXPONENTIAL);
+    assertThat(test.getXInterpolator()).isEqualTo(LINEAR);
+    assertThat(test.getXExtrapolatorLeft()).isEqualTo(EXPONENTIAL);
+    assertThat(test.getXExtrapolatorRight()).isEqualTo(EXPONENTIAL);
+    assertThat(test.getYInterpolator()).isEqualTo(LINEAR);
+    assertThat(test.getYExtrapolatorLeft()).isEqualTo(EXPONENTIAL);
+    assertThat(test.getYExtrapolatorRight()).isEqualTo(EXPONENTIAL);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_bind_invalidXValues() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, LINEAR);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.bind(DoubleArray.of(1d, 1d), DoubleArray.of(1d, 2d), DoubleArray.of(1d, 1d)));
   }
 
+  @Test
   public void test_bind_invalidOrder() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, LINEAR);
     assertThatIllegalArgumentException()
@@ -95,19 +100,21 @@ public class GridSurfaceInterpolatorTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_interpolation() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
         LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
     BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
     for (int i = 0; i < X_DATA.size(); i++) {
-      assertEquals(bci.interpolate(X_DATA.get(i), Y_DATA.get(i)), Z_DATA.get(i), TOL);
+      assertThat(bci.interpolate(X_DATA.get(i), Y_DATA.get(i))).isCloseTo(Z_DATA.get(i), offset(TOL));
     }
     for (int i = 0; i < X_TEST.size(); i++) {
-      assertEquals(bci.interpolate(X_TEST.get(i), Y_TEST.get(i)), Z_TEST.get(i), TOL);
+      assertThat(bci.interpolate(X_TEST.get(i), Y_TEST.get(i))).isCloseTo(Z_TEST.get(i), offset(TOL));
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
         LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
@@ -117,6 +124,7 @@ public class GridSurfaceInterpolatorTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
         LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);

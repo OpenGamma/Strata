@@ -6,28 +6,29 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link InterpolatorCurveExtrapolator}.
  */
-@Test
 public class InterpolatorCurveExtrapolatorTest {
 
   private static final CurveExtrapolator INT_EXTRAPOLATOR = InterpolatorCurveExtrapolator.INSTANCE;
 
   private static final double TOL = 1.e-14;
 
+  @Test
   public void test_basics() {
-    assertEquals(INT_EXTRAPOLATOR.getName(), InterpolatorCurveExtrapolator.NAME);
-    assertEquals(INT_EXTRAPOLATOR.toString(), InterpolatorCurveExtrapolator.NAME);
+    assertThat(INT_EXTRAPOLATOR.getName()).isEqualTo(InterpolatorCurveExtrapolator.NAME);
+    assertThat(INT_EXTRAPOLATOR.toString()).isEqualTo(InterpolatorCurveExtrapolator.NAME);
   }
 
+  @Test
   public void sameIntervalsTest() {
     DoubleArray xValues = DoubleArray.of(-1., 0., 1., 2., 3., 4., 5., 6., 7., 8.);
     DoubleArray[] yValues = new DoubleArray[] {
@@ -49,15 +50,16 @@ public class InterpolatorCurveExtrapolatorTest {
       AbstractBoundCurveInterpolator baseInterp = (AbstractBoundCurveInterpolator) boundInterp;
       for (int j = 0; j < nKeys; ++j) {
         // value
-        assertEquals(boundInterp.interpolate(keys[j]), baseInterp.doInterpolate(keys[j]), TOL);
+        assertThat(boundInterp.interpolate(keys[j])).isCloseTo(baseInterp.doInterpolate(keys[j]), offset(TOL));
         // derivative 
-        assertEquals(boundInterp.firstDerivative(keys[j]), baseInterp.doFirstDerivative(keys[j]), TOL);
+        assertThat(boundInterp.firstDerivative(keys[j])).isCloseTo(baseInterp.doFirstDerivative(keys[j]), offset(TOL));
         // sensitivity
-        assertTrue(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL));
+        assertThat(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL)).isTrue();
       }
     }
   }
 
+  @Test
   public void differentIntervalsTest() {
     DoubleArray xValues = DoubleArray.of(
         1.0328724558967068, 1.2692381049172323, 2.8611430465380905, 4.296118458251132, 7.011992052151352,
@@ -84,15 +86,16 @@ public class InterpolatorCurveExtrapolatorTest {
       AbstractBoundCurveInterpolator baseInterp = (AbstractBoundCurveInterpolator) boundInterp;
       for (int j = 0; j < nKeys; ++j) {
         // value
-        assertEquals(boundInterp.interpolate(keys[j]), baseInterp.doInterpolate(keys[j]), TOL);
+        assertThat(boundInterp.interpolate(keys[j])).isCloseTo(baseInterp.doInterpolate(keys[j]), offset(TOL));
         // derivative 
-        assertEquals(boundInterp.firstDerivative(keys[j]), baseInterp.doFirstDerivative(keys[j]), TOL);
+        assertThat(boundInterp.firstDerivative(keys[j])).isCloseTo(baseInterp.doFirstDerivative(keys[j]), offset(TOL));
         // sensitivity
-        assertTrue(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL));
+        assertThat(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL)).isTrue();
       }
     }
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(INT_EXTRAPOLATOR);
   }

@@ -6,11 +6,10 @@
 package com.opengamma.strata.market.surface;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -19,32 +18,34 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 /**
  * Test {@link Surface}.
  */
-@Test
 public class SurfaceTest {
 
   private static final SurfaceName SURFACE_NAME = SurfaceName.of("Surface");
   private static final LabelParameterMetadata PARAM_META = LabelParameterMetadata.of("TestParam");
 
+  @Test
   public void test_withPerturbation() {
     Surface test = new TestingSurface(2d);
-    assertEquals(test.withPerturbation((i, v, m) -> v + 1).getParameter(0), 3d);
+    assertThat(test.withPerturbation((i, v, m) -> v + 1).getParameter(0)).isEqualTo(3d);
   }
 
+  @Test
   public void test_createParameterSensitivity_unit() {
     Surface test = new TestingSurface(2d);
-    assertEquals(test.createParameterSensitivity(DoubleArray.of(2d)).getMarketDataName(), SURFACE_NAME);
-    assertEquals(test.createParameterSensitivity(DoubleArray.of(2d)).getParameterCount(), 1);
-    assertEquals(test.createParameterSensitivity(DoubleArray.of(2d)).getParameterMetadata(), ImmutableList.of(PARAM_META));
-    assertEquals(test.createParameterSensitivity(DoubleArray.of(2d)).getSensitivity(), DoubleArray.of(2d));
+    assertThat(test.createParameterSensitivity(DoubleArray.of(2d)).getMarketDataName()).isEqualTo(SURFACE_NAME);
+    assertThat(test.createParameterSensitivity(DoubleArray.of(2d)).getParameterCount()).isEqualTo(1);
+    assertThat(test.createParameterSensitivity(DoubleArray.of(2d)).getParameterMetadata()).containsExactly(PARAM_META);
+    assertThat(test.createParameterSensitivity(DoubleArray.of(2d)).getSensitivity()).isEqualTo(DoubleArray.of(2d));
   }
 
+  @Test
   public void test_createParameterSensitivity_currency() {
     Surface test = new TestingSurface(2d);
-    assertEquals(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getMarketDataName(), SURFACE_NAME);
-    assertEquals(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getParameterCount(), 1);
-    assertEquals(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getParameterMetadata(), ImmutableList.of(PARAM_META));
-    assertEquals(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getCurrency(), USD);
-    assertEquals(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getSensitivity(), DoubleArray.of(2d));
+    assertThat(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getMarketDataName()).isEqualTo(SURFACE_NAME);
+    assertThat(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getParameterCount()).isEqualTo(1);
+    assertThat(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getParameterMetadata()).containsExactly(PARAM_META);
+    assertThat(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getCurrency()).isEqualTo(USD);
+    assertThat(test.createParameterSensitivity(USD, DoubleArray.of(2d)).getSensitivity()).isEqualTo(DoubleArray.of(2d));
   }
 
   //-------------------------------------------------------------------------

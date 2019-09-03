@@ -5,22 +5,22 @@
  */
 package com.opengamma.strata.market.surface;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link SurfaceName}.
  */
-@Test
 public class SurfaceNameTest {
 
+  @Test
   public void test_of() {
     SurfaceName test = SurfaceName.of("Foo");
-    assertEquals(test.getName(), "Foo");
-    assertEquals(test.getMarketDataType(), Surface.class);
-    assertEquals(test.toString(), "Foo");
-    assertEquals(test.compareTo(SurfaceName.of("Goo")) < 0, true);
+    assertThat(test.getName()).isEqualTo("Foo");
+    assertThat(test.getMarketDataType()).isEqualTo(Surface.class);
+    assertThat(test.toString()).isEqualTo("Foo");
+    assertThat(test.compareTo(SurfaceName.of("Goo")) < 0).isTrue();
   }
 
 }

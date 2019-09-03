@@ -7,9 +7,9 @@ package com.opengamma.strata.market.curve;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.DayCounts;
@@ -20,11 +20,11 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 /**
  * Test {@link CurveParallelShifts}.
  */
-@Test
 public class CurveParallelShiftsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 
+  @Test
   public void test_absolute() {
     CurveParallelShifts test = CurveParallelShifts.absolute(1d, 2d, 4d);
 
@@ -36,11 +36,12 @@ public class CurveParallelShiftsTest {
 
     MarketDataBox<Curve> shiftedCurveBox = test.applyTo(MarketDataBox.ofSingleValue(baseCurve), REF_DATA);
 
-    assertEquals(shiftedCurveBox.getValue(0), ParallelShiftedCurve.absolute(baseCurve, 1d));
-    assertEquals(shiftedCurveBox.getValue(1), ParallelShiftedCurve.absolute(baseCurve, 2d));
-    assertEquals(shiftedCurveBox.getValue(2), ParallelShiftedCurve.absolute(baseCurve, 4d));
+    assertThat(shiftedCurveBox.getValue(0)).isEqualTo(ParallelShiftedCurve.absolute(baseCurve, 1d));
+    assertThat(shiftedCurveBox.getValue(1)).isEqualTo(ParallelShiftedCurve.absolute(baseCurve, 2d));
+    assertThat(shiftedCurveBox.getValue(2)).isEqualTo(ParallelShiftedCurve.absolute(baseCurve, 4d));
   }
 
+  @Test
   public void test_relative() {
     CurveParallelShifts test = CurveParallelShifts.relative(0.1d, 0.2d, 0.4d);
 
@@ -52,12 +53,13 @@ public class CurveParallelShiftsTest {
 
     MarketDataBox<Curve> shiftedCurveBox = test.applyTo(MarketDataBox.ofSingleValue(baseCurve), REF_DATA);
 
-    assertEquals(shiftedCurveBox.getValue(0), ParallelShiftedCurve.relative(baseCurve, 0.1d));
-    assertEquals(shiftedCurveBox.getValue(1), ParallelShiftedCurve.relative(baseCurve, 0.2d));
-    assertEquals(shiftedCurveBox.getValue(2), ParallelShiftedCurve.relative(baseCurve, 0.4d));
+    assertThat(shiftedCurveBox.getValue(0)).isEqualTo(ParallelShiftedCurve.relative(baseCurve, 0.1d));
+    assertThat(shiftedCurveBox.getValue(1)).isEqualTo(ParallelShiftedCurve.relative(baseCurve, 0.2d));
+    assertThat(shiftedCurveBox.getValue(2)).isEqualTo(ParallelShiftedCurve.relative(baseCurve, 0.4d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CurveParallelShifts test = CurveParallelShifts.absolute(1d, 2d, 4d);
     coverImmutableBean(test);

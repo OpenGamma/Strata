@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -32,7 +32,6 @@ import com.opengamma.strata.basics.index.Index;
 /**
  * Test {@link RatesCurveGroup}.
  */
-@Test
 public class RatesCurveGroupTest {
 
   private static final CurveGroupName NAME = CurveGroupName.of("TestGroup");
@@ -47,6 +46,7 @@ public class RatesCurveGroupTest {
   private static final Map<Index, Curve> IBOR_CURVES = ImmutableMap.of(GBP_LIBOR_3M, IBOR_CURVE);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     assertThat(test.getName()).isEqualTo(NAME);
@@ -61,6 +61,7 @@ public class RatesCurveGroupTest {
     assertThat(test.findForwardCurve(CHF_LIBOR_3M)).isEmpty();
   }
 
+  @Test
   public void test_builder() {
     RatesCurveGroup test = RatesCurveGroup.builder()
         .name(NAME)
@@ -76,6 +77,7 @@ public class RatesCurveGroupTest {
     assertThat(test.findForwardCurve(CHF_LIBOR_3M)).isEmpty();
   }
 
+  @Test
   public void test_ofCurves() {
     RatesCurveGroupDefinition definition = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("group"))
@@ -90,6 +92,7 @@ public class RatesCurveGroupTest {
     assertThat(group.findForwardCurve(EUR_EONIA)).hasValue(OVERNIGHT_CURVE);
   }
 
+  @Test
   public void test_ofCurves_duplicateCurveName() {
     RatesCurveGroupDefinition definition = RatesCurveGroupDefinition.builder()
         .name(CurveGroupName.of("group"))
@@ -100,6 +103,7 @@ public class RatesCurveGroupTest {
     assertThat(group.findForwardCurve(USD_LIBOR_2M)).hasValue(IBOR_CURVE);
   }
 
+  @Test
   public void stream() {
     RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     List<Curve> expected = ImmutableList.<Curve>builder()
@@ -110,6 +114,7 @@ public class RatesCurveGroupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     coverImmutableBean(test);
@@ -117,6 +122,7 @@ public class RatesCurveGroupTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RatesCurveGroup test = RatesCurveGroup.of(NAME, DISCOUNT_CURVES, IBOR_CURVES);
     assertSerialization(test);

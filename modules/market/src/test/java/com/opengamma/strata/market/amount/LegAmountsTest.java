@@ -9,11 +9,10 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertEquals;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -25,7 +24,6 @@ import com.opengamma.strata.product.swap.SwapLegType;
 /**
  * Test {@LegAmounts}.
  */
-@Test
 public class LegAmountsTest {
 
   private static final LegAmount LEG_AMOUNT_1 = SwapLegAmount.builder()
@@ -42,22 +40,25 @@ public class LegAmountsTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_arrayAmounts() {
     LegAmounts test = LegAmounts.of(LEG_AMOUNT_1, LEG_AMOUNT_2);
-    assertEquals(test.getAmounts().size(), 2);
-    assertEquals(test.getAmounts().get(0), LEG_AMOUNT_1);
-    assertEquals(test.getAmounts().get(1), LEG_AMOUNT_2);
+    assertThat(test.getAmounts()).hasSize(2);
+    assertThat(test.getAmounts().get(0)).isEqualTo(LEG_AMOUNT_1);
+    assertThat(test.getAmounts().get(1)).isEqualTo(LEG_AMOUNT_2);
   }
 
+  @Test
   public void test_of_list() {
     List<LegAmount> list = ImmutableList.of(LEG_AMOUNT_1, LEG_AMOUNT_2);
     LegAmounts test = LegAmounts.of(list);
-    assertEquals(test.getAmounts().size(), 2);
-    assertEquals(test.getAmounts().get(0), LEG_AMOUNT_1);
-    assertEquals(test.getAmounts().get(1), LEG_AMOUNT_2);
+    assertThat(test.getAmounts()).hasSize(2);
+    assertThat(test.getAmounts().get(0)).isEqualTo(LEG_AMOUNT_1);
+    assertThat(test.getAmounts().get(1)).isEqualTo(LEG_AMOUNT_2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void convertedTo() {
     LegAmounts base = LegAmounts.of(LEG_AMOUNT_1, LEG_AMOUNT_2);
     LegAmounts test = base.convertedTo(Currency.GBP, FxRate.of(Currency.USD, Currency.GBP, 0.7));
@@ -69,6 +70,7 @@ public class LegAmountsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     LegAmounts test1 = LegAmounts.of(LEG_AMOUNT_1, LEG_AMOUNT_2);
     coverImmutableBean(test1);
@@ -83,6 +85,7 @@ public class LegAmountsTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     LegAmounts test = LegAmounts.of(LEG_AMOUNT_1, LEG_AMOUNT_2);
     assertSerialization(test);

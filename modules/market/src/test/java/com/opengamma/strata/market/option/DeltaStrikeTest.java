@@ -8,26 +8,28 @@ package com.opengamma.strata.market.option;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link DeltaStrike}.
  */
-@Test
 public class DeltaStrikeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     DeltaStrike test = DeltaStrike.of(0.6d);
-    assertEquals(test.getType(), StrikeType.DELTA);
-    assertEquals(test.getValue(), 0.6d, 0d);
-    assertEquals(test.getLabel(), "Delta=0.6");
-    assertEquals(test.withValue(0.2d), DeltaStrike.of(0.2d));
+    assertThat(test.getType()).isEqualTo(StrikeType.DELTA);
+    assertThat(test.getValue()).isCloseTo(0.6d, offset(0d));
+    assertThat(test.getLabel()).isEqualTo("Delta=0.6");
+    assertThat(test.withValue(0.2d)).isEqualTo(DeltaStrike.of(0.2d));
   }
 
+  @Test
   public void test_of_invalid() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DeltaStrike.of(-0.001d));
@@ -36,6 +38,7 @@ public class DeltaStrikeTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DeltaStrike test = DeltaStrike.of(0.6d);
     coverImmutableBean(test);
@@ -43,6 +46,7 @@ public class DeltaStrikeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     DeltaStrike test = DeltaStrike.of(0.6d);
     assertSerialization(test);
