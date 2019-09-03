@@ -79,6 +79,7 @@ public class HolidayCalendarIniLookupTest {
     assertThat(lookup1).isEqualTo(lookup2);
   }
 
+  @Test
   public synchronized void test_invalid1_invalidYear() {
     List<LogRecord> captured = caputureLog(
         HolidayCalendarIniLookup.class,
@@ -89,6 +90,7 @@ public class HolidayCalendarIniLookupTest {
     assertThat(record.getThrown().getMessage().contains("Parsed date had incorrect year")).isTrue();
   }
 
+  @Test
   public synchronized void test_invalid1_invalidDayOfWeek() {
     List<LogRecord> captured = caputureLog(
         HolidayCalendarIniLookup.class,
@@ -101,6 +103,7 @@ public class HolidayCalendarIniLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public synchronized void test_defaultByCurrency_valid() {
     ImmutableMap<Currency, HolidayCalendarId> test =
         HolidayCalendarIniLookup.loadDefaultsFromIni("HolidayCalendarDefaultDataValid.ini");
@@ -110,6 +113,7 @@ public class HolidayCalendarIniLookupTest {
     assertThat(test.get(Currency.USD)).isEqualTo(HolidayCalendarIds.NYSE);
   }
 
+  @Test
   public synchronized void test_defaultByCurrency_invalid() {
     List<LogRecord> captured = caputureLog(
         HolidayCalendarIniLookup.class,

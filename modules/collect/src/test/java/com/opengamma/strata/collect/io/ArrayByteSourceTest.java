@@ -253,6 +253,7 @@ public class ArrayByteSourceTest {
     assertThat(roundtrip).isEqualTo(test);
   }
 
+  @Test
   public void test_load() {
     byte[] bytes = new byte[] {65, 66, 67, 99};
     ArrayByteSource test = ArrayByteSource.copyOf(bytes);

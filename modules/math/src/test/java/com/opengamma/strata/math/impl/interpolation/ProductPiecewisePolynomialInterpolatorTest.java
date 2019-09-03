@@ -202,6 +202,7 @@ public class ProductPiecewisePolynomialInterpolatorTest {
   /**
    * Test linear extrapolation with clamped points
    */
+  @Test
   public void linearExtrapolationClampedTest() {
     double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
     double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1 };
