@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -53,7 +53,6 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
 /**
  * Test {@link FraTradeCalculationFunction}.
  */
-@Test
 public class FraTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -71,6 +70,7 @@ public class FraTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getStartDate().minusDays(7);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -82,6 +82,7 @@ public class FraTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -123,6 +124,7 @@ public class FraTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     FraTradeCalculationFunction function = new FraTradeCalculationFunction();
     ScenarioMarketData md = marketData();

@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.index;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -27,7 +27,6 @@ import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
 /**
  * Test {@link IborFutureTradeCalculations}.
  */
-@Test
 public class IborFutureTradeCalculationsTest {
 
   private static final ResolvedIborFutureTrade RTRADE = IborFutureTradeCalculationFunctionTest.RTRADE;
@@ -35,6 +34,7 @@ public class IborFutureTradeCalculationsTest {
   private static final double SETTLEMENT_PRICE = 0.9942;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = IborFutureTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -42,14 +42,11 @@ public class IborFutureTradeCalculationsTest {
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, SETTLEMENT_PRICE);
     double expectedParSpread = pricer.parSpread(RTRADE, provider, SETTLEMENT_PRICE);
 
-    assertEquals(
-        IborFutureTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        IborFutureTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md),
-        DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = IborFutureTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -59,12 +56,8 @@ public class IborFutureTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        IborFutureTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        IborFutureTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

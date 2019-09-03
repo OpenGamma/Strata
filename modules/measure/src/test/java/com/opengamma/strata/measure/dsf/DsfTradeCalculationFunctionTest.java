@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -65,7 +65,6 @@ import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
 /**
  * Test {@link DsfTradeCalculationFunction}.
  */
-@Test
 public class DsfTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -110,6 +109,7 @@ public class DsfTradeCalculationFunctionTest {
   private static final QuoteId QUOTE_KEY = QuoteId.of(DSF_ID, FieldName.SETTLEMENT_PRICE);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     DsfTradeCalculationFunction<DsfTrade> function = DsfTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -121,6 +121,7 @@ public class DsfTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     DsfTradeCalculationFunction<DsfTrade> function = DsfTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -146,6 +147,7 @@ public class DsfTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     DsfTradeCalculationFunction<DsfTrade> function = DsfTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();

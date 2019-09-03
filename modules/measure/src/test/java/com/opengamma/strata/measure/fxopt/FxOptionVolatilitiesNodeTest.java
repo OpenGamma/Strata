@@ -15,13 +15,13 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -40,7 +40,6 @@ import com.opengamma.strata.market.option.Strike;
 /**
  * Test {@link FxOptionVolatilitiesNode}.
  */
-@Test
 public class FxOptionVolatilitiesNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -55,6 +54,7 @@ public class FxOptionVolatilitiesNodeTest {
   private static final QuoteId QUOTE_ID = QuoteId.of(StandardId.of("OG", "TEST"));
   private static final Strike STRIKE = SimpleStrike.of(0.95);
 
+  @Test
   public void test_builder() {
     FxOptionVolatilitiesNode test = FxOptionVolatilitiesNode.builder()
         .currencyPair(EUR_GBP)
@@ -67,16 +67,17 @@ public class FxOptionVolatilitiesNodeTest {
         .tenor(Tenor.TENOR_3M)
         .strike(STRIKE)
         .build();
-    assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getCurrencyPair(), EUR_GBP);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getQuoteValueType(), ValueType.BLACK_VOLATILITY);
-    assertEquals(test.getSpotDateOffset(), SPOT_DATE_OFFSET);
-    assertEquals(test.getExpiryDateOffset(), EXPIRY_DATE_OFFSET);
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getTenor(), Tenor.TENOR_3M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_GBP);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getQuoteValueType()).isEqualTo(ValueType.BLACK_VOLATILITY);
+    assertThat(test.getSpotDateOffset()).isEqualTo(SPOT_DATE_OFFSET);
+    assertThat(test.getExpiryDateOffset()).isEqualTo(EXPIRY_DATE_OFFSET);
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getTenor()).isEqualTo(Tenor.TENOR_3M);
   }
 
+  @Test
   public void test_builder_noExp() {
     FxOptionVolatilitiesNode test = FxOptionVolatilitiesNode.builder()
         .currencyPair(EUR_GBP)
@@ -88,29 +89,31 @@ public class FxOptionVolatilitiesNodeTest {
         .tenor(Tenor.TENOR_3M)
         .strike(STRIKE)
         .build();
-    assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getCurrencyPair(), EUR_GBP);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getQuoteValueType(), ValueType.BLACK_VOLATILITY);
-    assertEquals(test.getSpotDateOffset(), SPOT_DATE_OFFSET);
-    assertEquals(test.getExpiryDateOffset(), DaysAdjustment.ofBusinessDays(-2, LO_TA));
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getTenor(), Tenor.TENOR_3M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_GBP);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getQuoteValueType()).isEqualTo(ValueType.BLACK_VOLATILITY);
+    assertThat(test.getSpotDateOffset()).isEqualTo(SPOT_DATE_OFFSET);
+    assertThat(test.getExpiryDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, LO_TA));
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getTenor()).isEqualTo(Tenor.TENOR_3M);
   }
 
+  @Test
   public void test_of() {
     FxOptionVolatilitiesNode test = FxOptionVolatilitiesNode.of(
         EUR_GBP, SPOT_DATE_OFFSET, BDA, ValueType.BLACK_VOLATILITY, QUOTE_ID, Tenor.TENOR_3M, STRIKE);
-    assertEquals(test.getBusinessDayAdjustment(), BDA);
-    assertEquals(test.getCurrencyPair(), EUR_GBP);
-    assertEquals(test.getLabel(), QUOTE_ID.toString());
-    assertEquals(test.getQuoteValueType(), ValueType.BLACK_VOLATILITY);
-    assertEquals(test.getSpotDateOffset(), SPOT_DATE_OFFSET);
-    assertEquals(test.getExpiryDateOffset(), DaysAdjustment.ofBusinessDays(-2, LO_TA));
-    assertEquals(test.getStrike(), STRIKE);
-    assertEquals(test.getTenor(), Tenor.TENOR_3M);
+    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
+    assertThat(test.getCurrencyPair()).isEqualTo(EUR_GBP);
+    assertThat(test.getLabel()).isEqualTo(QUOTE_ID.toString());
+    assertThat(test.getQuoteValueType()).isEqualTo(ValueType.BLACK_VOLATILITY);
+    assertThat(test.getSpotDateOffset()).isEqualTo(SPOT_DATE_OFFSET);
+    assertThat(test.getExpiryDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, LO_TA));
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getTenor()).isEqualTo(Tenor.TENOR_3M);
   }
 
+  @Test
   public void test_expiry() {
     FxOptionVolatilitiesNode test = FxOptionVolatilitiesNode.of(
         EUR_GBP, SPOT_DATE_OFFSET, BDA, ValueType.BLACK_VOLATILITY, QUOTE_ID, Tenor.TENOR_3M, STRIKE);
@@ -121,9 +124,10 @@ public class FxOptionVolatilitiesNodeTest {
         dateTime.toLocalDate(),
         expAdj.adjust(BDA.adjust(SPOT_DATE_OFFSET.adjust(dateTime.toLocalDate(), REF_DATA).plus(Tenor.TENOR_3M), REF_DATA),
             REF_DATA));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_expiry_standard() {
     DaysAdjustment spotLag = DaysAdjustment.ofBusinessDays(2, LO_NY);
     BusinessDayAdjustment bda = BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, LO_NY);
@@ -139,11 +143,12 @@ public class FxOptionVolatilitiesNodeTest {
     for (int i = 0; i < expDates.length; ++i) {
       double computed = nodes[i].timeToExpiry(valDates[i], ACT_365F, REF_DATA);
       double expected = ACT_365F.relativeYearFraction(valDates[i].toLocalDate(), expDates[i]);
-      assertEquals(computed, expected);
+      assertThat(computed).isEqualTo(expected);
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxOptionVolatilitiesNode test1 = FxOptionVolatilitiesNode.of(
         EUR_GBP, SPOT_DATE_OFFSET, BDA, ValueType.BLACK_VOLATILITY, QUOTE_ID, Tenor.TENOR_3M, STRIKE);
@@ -158,6 +163,7 @@ public class FxOptionVolatilitiesNodeTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void serialization() {
     FxOptionVolatilitiesNode test = FxOptionVolatilitiesNode.of(
         EUR_GBP, SPOT_DATE_OFFSET, BDA, ValueType.BLACK_VOLATILITY, QUOTE_ID, Tenor.TENOR_3M, STRIKE);

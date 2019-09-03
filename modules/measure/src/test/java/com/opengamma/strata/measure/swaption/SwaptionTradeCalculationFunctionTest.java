@@ -16,7 +16,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -62,7 +62,6 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Test {@link SwaptionTradeCalculationFunction}.
  */
-@Test
 public class SwaptionTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -105,6 +104,7 @@ public class SwaptionTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = NORMAL_VOL_SWAPTION_PROVIDER_USD.getValuationDate();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     SwaptionTradeCalculationFunction function = new SwaptionTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -116,6 +116,7 @@ public class SwaptionTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     SwaptionTradeCalculationFunction function = new SwaptionTradeCalculationFunction();
     ScenarioMarketData md = marketData();

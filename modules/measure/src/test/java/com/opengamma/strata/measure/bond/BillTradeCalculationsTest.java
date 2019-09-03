@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.bond;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -26,7 +26,6 @@ import com.opengamma.strata.product.bond.ResolvedBillTrade;
 /**
  * Test {@link BillTradeCalculations}.
  */
-@Test
 public class BillTradeCalculationsTest {
 
   private static final ResolvedBillTrade RTRADE = BillTradeCalculationFunctionTest.RTRADE;
@@ -36,6 +35,7 @@ public class BillTradeCalculationsTest {
   private static final MarketQuoteSensitivityCalculator MQ_CALC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = BillTradeCalculationFunctionTest.marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
@@ -43,20 +43,15 @@ public class BillTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = PRICER.currencyExposure(RTRADE, provider);
     CurrencyAmount expectedCurrentCash = PRICER.currentCash(RTRADE, provider.getValuationDate());
 
-    assertEquals(
-        CALC.presentValue(RTRADE, LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        CALC.currencyExposure(RTRADE, LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        CALC.currentCash(RTRADE, LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
-    assertEquals(CALC.presentValue(RTRADE, provider), expectedPv);
-    assertEquals(CALC.currencyExposure(RTRADE, provider), expectedCurrencyExposure);
-    assertEquals(CALC.currentCash(RTRADE, provider), expectedCurrentCash);
+    assertThat(CALC.presentValue(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(CALC.currencyExposure(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(CALC.currentCash(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(CALC.presentValue(RTRADE, provider)).isEqualTo(expectedPv);
+    assertThat(CALC.currencyExposure(RTRADE, provider)).isEqualTo(expectedCurrencyExposure);
+    assertThat(CALC.currentCash(RTRADE, provider)).isEqualTo(expectedCurrentCash);
   }
 
+  @Test
   public void test_pv01_calibrated() {
     ScenarioMarketData md = BillTradeCalculationFunctionTest.marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
@@ -65,16 +60,13 @@ public class BillTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
-    assertEquals(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, provider), expectedPv01Cal);
-    assertEquals(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, provider), expectedPv01CalBucketed);
+    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, provider)).isEqualTo(expectedPv01Cal);
+    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, provider)).isEqualTo(expectedPv01CalBucketed);
   }
 
+  @Test
   public void test_pv01_quote() {
     ScenarioMarketData md = BillTradeCalculationFunctionTest.marketData();
     LegalEntityDiscountingProvider provider = LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
@@ -83,14 +75,10 @@ public class BillTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = MQ_CALC.sensitivity(pvParamSens, provider).multipliedBy(1e-4);
     MultiCurrencyAmount expectedPv01Cal = expectedPv01CalBucketed.total();
 
-    assertEquals(
-        BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
-    assertEquals(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, provider), expectedPv01Cal);
-    assertEquals(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, provider), expectedPv01CalBucketed);
+    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, provider)).isEqualTo(expectedPv01Cal);
+    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, provider)).isEqualTo(expectedPv01CalBucketed);
   }
 
 }

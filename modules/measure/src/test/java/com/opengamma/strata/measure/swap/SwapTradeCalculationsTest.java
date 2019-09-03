@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.swap;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -27,13 +27,13 @@ import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 /**
  * Test {@link SwapTradeCalculations}.
  */
-@Test
 public class SwapTradeCalculationsTest {
 
   private static final ResolvedSwapTrade RTRADE = SwapTradeCalculationFunctionTest.RTRADE;
   private static final RatesMarketDataLookup RATES_LOOKUP = SwapTradeCalculationFunctionTest.RATES_LOOKUP;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = SwapTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -46,29 +46,16 @@ public class SwapTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider);
     MultiCurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider);
 
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.explainPresentValue(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.parRate(RTRADE, RATES_LOOKUP, md),
-        DoubleScenarioArray.of(ImmutableList.of(expectedParRate)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md),
-        DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(SwapTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(SwapTradeCalculations.DEFAULT.explainPresentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
+    assertThat(SwapTradeCalculations.DEFAULT.parRate(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParRate)));
+    assertThat(SwapTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
+    assertThat(SwapTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
+    assertThat(SwapTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(SwapTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = SwapTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -78,12 +65,8 @@ public class SwapTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        SwapTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(SwapTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(SwapTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

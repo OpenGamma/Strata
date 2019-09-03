@@ -12,10 +12,10 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.StandardId;
@@ -49,7 +49,6 @@ import com.opengamma.strata.pricer.credit.LegalEntitySurvivalProbabilities;
 /**
  * Test {@link CreditRatesMarketDataLookup}.
  */
-@Test
 public class CreditRatesMarketDataLookupTest {
 
   private static final StandardId ISSUER_A = StandardId.of("OG-LegEnt", "A");
@@ -78,44 +77,33 @@ public class CreditRatesMarketDataLookupTest {
     LOOKUP = CreditRatesMarketDataLookup.of(creditCurve, discoutCurve, recoveryCurve);
   }
 
+  @Test
   public void test_map() {
-    assertEquals(LOOKUP.queryType(), CreditRatesMarketDataLookup.class);
-    assertEquals(
-        LOOKUP_WITH_SOURCE.requirements(ISSUER_A, USD),
-        FunctionRequirements.builder()
+    assertThat(LOOKUP.queryType()).isEqualTo(CreditRatesMarketDataLookup.class);
+    assertThat(LOOKUP_WITH_SOURCE.requirements(ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder()
             .observableSource(OBS_SOURCE)
             .valueRequirements(CC_A_USD, DC_USD, RC_A)
             .outputCurrencies(USD)
             .build());
-    assertEquals(
-        LOOKUP_WITH_SOURCE.requirements(ISSUER_A, GBP),
-        FunctionRequirements.builder()
+    assertThat(LOOKUP_WITH_SOURCE.requirements(ISSUER_A, GBP)).isEqualTo(FunctionRequirements.builder()
             .observableSource(OBS_SOURCE)
             .valueRequirements(CC_A_GBP, DC_GBP, RC_A)
             .outputCurrencies(GBP)
             .build());
-    assertEquals(
-        LOOKUP_WITH_SOURCE.requirements(ISSUER_B, GBP),
-        FunctionRequirements.builder()
+    assertThat(LOOKUP_WITH_SOURCE.requirements(ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder()
             .observableSource(OBS_SOURCE)
             .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
             .outputCurrencies(GBP)
             .build());
-    assertEquals(
-        LOOKUP.requirements(ISSUER_A, USD),
-        FunctionRequirements.builder()
+    assertThat(LOOKUP.requirements(ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder()
             .valueRequirements(CC_A_USD, DC_USD, RC_A)
             .outputCurrencies(USD)
             .build());
-    assertEquals(
-        LOOKUP.requirements(ISSUER_A, GBP),
-        FunctionRequirements.builder()
+    assertThat(LOOKUP.requirements(ISSUER_A, GBP)).isEqualTo(FunctionRequirements.builder()
             .valueRequirements(CC_A_GBP, DC_GBP, RC_A)
             .outputCurrencies(GBP)
             .build());
-    assertEquals(
-        LOOKUP.requirements(ISSUER_B, GBP),
-        FunctionRequirements.builder()
+    assertThat(LOOKUP.requirements(ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder()
             .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
             .outputCurrencies(GBP)
             .build());
@@ -123,25 +111,25 @@ public class CreditRatesMarketDataLookupTest {
         .isThrownBy(() -> LOOKUP.requirements(ISSUER_A, EUR));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LOOKUP.requirements(ISSUER_C, USD));
-    assertEquals(
-        LOOKUP.creditRatesProvider(MOCK_MARKET_DATA),
-        DefaultLookupCreditRatesProvider.of((DefaultCreditRatesMarketDataLookup) LOOKUP, MOCK_MARKET_DATA));
+    assertThat(LOOKUP.creditRatesProvider(MOCK_MARKET_DATA)).isEqualTo(DefaultLookupCreditRatesProvider.of((DefaultCreditRatesMarketDataLookup) LOOKUP, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marketDataView() {
     LocalDate valDate = LocalDate.of(2015, 6, 30);
     ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     CreditRatesScenarioMarketData multiScenario = LOOKUP_WITH_SOURCE.marketDataView(md);
-    assertEquals(multiScenario.getLookup(), LOOKUP_WITH_SOURCE);
-    assertEquals(multiScenario.getMarketData(), md);
-    assertEquals(multiScenario.getScenarioCount(), 1);
+    assertThat(multiScenario.getLookup()).isEqualTo(LOOKUP_WITH_SOURCE);
+    assertThat(multiScenario.getMarketData()).isEqualTo(md);
+    assertThat(multiScenario.getScenarioCount()).isEqualTo(1);
     CreditRatesMarketData scenario = multiScenario.scenario(0);
-    assertEquals(scenario.getLookup(), LOOKUP_WITH_SOURCE);
-    assertEquals(scenario.getMarketData(), md.scenario(0));
-    assertEquals(scenario.getValuationDate(), valDate);
+    assertThat(scenario.getLookup()).isEqualTo(LOOKUP_WITH_SOURCE);
+    assertThat(scenario.getMarketData()).isEqualTo(md.scenario(0));
+    assertThat(scenario.getValuationDate()).isEqualTo(valDate);
   }
 
+  @Test
   public void test_bondDiscountingProvider() {
     LocalDate valDate = LocalDate.of(2015, 6, 30);
     Curve ccAUsd = ConstantNodalCurve.of(Curves.zeroRates(CC_A_USD.getCurveName(), ACT_365F), 0.5d, 1.5d);
@@ -162,32 +150,33 @@ public class CreditRatesMarketDataLookupTest {
     MarketData md = ImmutableMarketData.of(valDate, ImmutableMap.copyOf(curveMap));
     CreditRatesProvider provider = LOOKUP_WITH_SOURCE.creditRatesProvider(md);
 
-    assertEquals(provider.getValuationDate(), valDate);
-    assertEquals(provider.findData(CC_A_USD.getCurveName()), Optional.of(ccAUsd));
-    assertEquals(provider.findData(DC_USD.getCurveName()), Optional.of(dcUsd));
-    assertEquals(provider.findData(RC_B.getCurveName()), Optional.of(rcB));
-    assertEquals(provider.findData(CurveName.of("Rubbish")), Optional.empty());
+    assertThat(provider.getValuationDate()).isEqualTo(valDate);
+    assertThat(provider.findData(CC_A_USD.getCurveName())).isEqualTo(Optional.of(ccAUsd));
+    assertThat(provider.findData(DC_USD.getCurveName())).isEqualTo(Optional.of(dcUsd));
+    assertThat(provider.findData(RC_B.getCurveName())).isEqualTo(Optional.of(rcB));
+    assertThat(provider.findData(CurveName.of("Rubbish"))).isEqualTo(Optional.empty());
     // check credit curve
     LegalEntitySurvivalProbabilities cc = provider.survivalProbabilities(ISSUER_A, GBP);
     IsdaCreditDiscountFactors ccUnder = (IsdaCreditDiscountFactors) cc.getSurvivalProbabilities();
-    assertEquals(ccUnder.getCurve().getName(), ccAGbp.getName());
+    assertThat(ccUnder.getCurve().getName()).isEqualTo(ccAGbp.getName());
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(() -> provider.survivalProbabilities(ISSUER_B, USD));
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(() -> provider.survivalProbabilities(ISSUER_C, USD));
     // check discount curve
     IsdaCreditDiscountFactors dc = (IsdaCreditDiscountFactors) provider.discountFactors(USD);
-    assertEquals(dc.getCurve().getName(), dcUsd.getName());
+    assertThat(dc.getCurve().getName()).isEqualTo(dcUsd.getName());
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(() -> provider.discountFactors(EUR));
     // check recovery rate curve
     ConstantRecoveryRates rc = (ConstantRecoveryRates) provider.recoveryRates(ISSUER_B);
-    assertEquals(rc.getRecoveryRate(), rcB.getParameter(0));
+    assertThat(rc.getRecoveryRate()).isEqualTo(rcB.getParameter(0));
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(() -> provider.recoveryRates(ISSUER_C));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean((ImmutableBean) LOOKUP_WITH_SOURCE);
     ImmutableMap<Pair<StandardId, Currency>, CurveId> ccMap = ImmutableMap.of(
@@ -206,6 +195,7 @@ public class CreditRatesMarketDataLookupTest {
     DefaultLookupCreditRatesProvider.meta();
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(LOOKUP_WITH_SOURCE);
   }

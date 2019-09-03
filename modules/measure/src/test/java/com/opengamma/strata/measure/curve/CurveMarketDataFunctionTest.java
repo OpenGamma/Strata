@@ -6,15 +6,14 @@
 package com.opengamma.strata.measure.curve;
 
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.marketdata.MarketDataConfig;
@@ -35,7 +34,6 @@ import com.opengamma.strata.market.curve.RatesCurveGroupId;
 /**
  * Test {@link CurveMarketDataFunction}.
  */
-@Test
 public class CurveMarketDataFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -47,6 +45,7 @@ public class CurveMarketDataFunctionTest {
   private static final ObservableSource OBS_SOURCE = ObservableSource.of("Vendor");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_singleCurve() {
     Curve curve = ConstantCurve.of(CURVE_NAME1, (double) 1);
     CurveId curveId1 = CurveId.of(GROUP_NAME, CURVE_NAME1, OBS_SOURCE);
@@ -64,15 +63,16 @@ public class CurveMarketDataFunctionTest {
 
     CurveMarketDataFunction test = new CurveMarketDataFunction();
     MarketDataRequirements reqs = test.requirements(curveId1, config);
-    assertEquals(reqs.getNonObservables(), ImmutableSet.of(groupId));
+    assertThat(reqs.getNonObservables()).containsOnly(groupId);
     MarketDataBox<Curve> result = test.build(curveId1, config, marketData, REF_DATA);
-    assertEquals(result, MarketDataBox.ofSingleValue(curve));
+    assertThat(result).isEqualTo(MarketDataBox.ofSingleValue(curve));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.build(curveId2, config, marketData, REF_DATA));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.build(curveId3, config, marketData, REF_DATA));
   }
 
+  @Test
   public void test_multipleCurves() {
     Curve curve1 = ConstantCurve.of(CURVE_NAME1, (double) 1);
     Curve curve2 = ConstantCurve.of(CURVE_NAME2, (double) 2);
@@ -90,9 +90,9 @@ public class CurveMarketDataFunctionTest {
 
     CurveMarketDataFunction test = new CurveMarketDataFunction();
     MarketDataBox<Curve> result1 = test.build(curveId1, config, marketData, REF_DATA);
-    assertEquals(result1, MarketDataBox.ofSingleValue(curve1));
+    assertThat(result1).isEqualTo(MarketDataBox.ofSingleValue(curve1));
     MarketDataBox<Curve> result2 = test.build(curveId2, config, marketData, REF_DATA);
-    assertEquals(result2, MarketDataBox.ofSingleValue(curve2));
+    assertThat(result2).isEqualTo(MarketDataBox.ofSingleValue(curve2));
   }
 
 }

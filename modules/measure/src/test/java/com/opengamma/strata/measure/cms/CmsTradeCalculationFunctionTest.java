@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,7 +64,6 @@ import com.opengamma.strata.product.swap.SwapIndices;
 /**
  * Test {@link CmsTradeCalculationFunction}.
  */
-@Test
 public class CmsTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -115,6 +114,7 @@ public class CmsTradeCalculationFunctionTest {
   public static final SabrSwaptionVolatilities VOLS = SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE, false);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     CmsTradeCalculationFunction function = new CmsTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -126,6 +126,7 @@ public class CmsTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     CmsTradeCalculationFunction function = new CmsTradeCalculationFunction();
     ScenarioMarketData md = marketData();

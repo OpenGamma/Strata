@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -53,7 +53,6 @@ import com.opengamma.strata.product.payment.ResolvedBulletPaymentTrade;
 /**
  * Test {@link BulletPaymentTradeCalculationFunction}.
  */
-@Test
 public class BulletPaymentTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -80,6 +79,7 @@ public class BulletPaymentTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getDate().getUnadjusted().minusDays(7);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     BulletPaymentTradeCalculationFunction function = new BulletPaymentTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -90,6 +90,7 @@ public class BulletPaymentTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     BulletPaymentTradeCalculationFunction function = new BulletPaymentTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -113,6 +114,7 @@ public class BulletPaymentTradeCalculationFunctionTest {
 
   }
 
+  @Test
   public void test_pv01() {
     BulletPaymentTradeCalculationFunction function = new BulletPaymentTradeCalculationFunction();
     ScenarioMarketData md = marketData();

@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -38,7 +38,6 @@ import com.opengamma.strata.product.SecurityInfo;
 /**
  * Test {@link GenericSecurityPositionCalculationFunction}.
  */
-@Test
 public class GenericSecurityPositionCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -59,6 +58,7 @@ public class GenericSecurityPositionCalculationFunctionTest {
   private static final LocalDate VAL_DATE = LocalDate.of(2013, 12, 8);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     GenericSecurityPositionCalculationFunction function = new GenericSecurityPositionCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -69,6 +69,7 @@ public class GenericSecurityPositionCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_presentValue() {
     GenericSecurityPositionCalculationFunction function = new GenericSecurityPositionCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -92,6 +93,7 @@ public class GenericSecurityPositionCalculationFunctionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(SecurityMeasureCalculations.class);
   }

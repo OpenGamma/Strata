@@ -20,14 +20,14 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.DOUBLE_QUADRATIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -52,7 +52,6 @@ import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceYearFractionParamete
 /**
  * Test {@link BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification}.
  */
-@Test
 public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest {
 
   private static final FxOptionVolatilitiesName VOL_NAME = FxOptionVolatilitiesName.of("test");
@@ -81,6 +80,7 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
     QUOTE_IDS = quoteIdBuilder.build();
   }
 
+  @Test
   public void test_builder() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test =
         BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
@@ -95,20 +95,21 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
             .strikeExtrapolatorLeft(FLAT)
             .strikeExtrapolatorRight(LINEAR)
             .build();
-    assertEquals(test.getCurrencyPair(), GBP_USD);
-    assertEquals(test.getDayCount(), ACT_365F);
-    assertEquals(test.getName(), VOL_NAME);
-    assertEquals(test.getNodes(), NODES);
-    assertEquals(test.getParameterCount(), NODES.size());
-    assertEquals(test.getStrikeInterpolator(), DOUBLE_QUADRATIC);
-    assertEquals(test.getStrikeExtrapolatorLeft(), FLAT);
-    assertEquals(test.getStrikeExtrapolatorRight(), LINEAR);
-    assertEquals(test.getTimeInterpolator(), PCHIP);
-    assertEquals(test.getTimeExtrapolatorLeft(), LINEAR);
-    assertEquals(test.getTimeExtrapolatorRight(), FLAT);
-    assertEquals(test.volatilitiesInputs(), QUOTE_IDS);
+    assertThat(test.getCurrencyPair()).isEqualTo(GBP_USD);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getName()).isEqualTo(VOL_NAME);
+    assertThat(test.getNodes()).isEqualTo(NODES);
+    assertThat(test.getParameterCount()).isEqualTo(NODES.size());
+    assertThat(test.getStrikeInterpolator()).isEqualTo(DOUBLE_QUADRATIC);
+    assertThat(test.getStrikeExtrapolatorLeft()).isEqualTo(FLAT);
+    assertThat(test.getStrikeExtrapolatorRight()).isEqualTo(LINEAR);
+    assertThat(test.getTimeInterpolator()).isEqualTo(PCHIP);
+    assertThat(test.getTimeExtrapolatorLeft()).isEqualTo(LINEAR);
+    assertThat(test.getTimeExtrapolatorRight()).isEqualTo(FLAT);
+    assertThat(test.volatilitiesInputs()).isEqualTo(QUOTE_IDS);
   }
 
+  @Test
   public void test_volatilities() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification base =
         BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
@@ -141,10 +142,11 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
         DoubleArray.ofUnsafe(expiries), DoubleArray.ofUnsafe(strikes), parameters,
         GridSurfaceInterpolator.of(PCHIP, DOUBLE_QUADRATIC));
     BlackFxOptionSurfaceVolatilities expected = BlackFxOptionSurfaceVolatilities.of(VOL_NAME, GBP_USD, dateTime, surface);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test1 =
         BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()
@@ -182,6 +184,7 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void serialization() {
     BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification test =
         BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification.builder()

@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.fra;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -29,13 +29,13 @@ import com.opengamma.strata.product.fra.ResolvedFraTrade;
 /**
  * Test {@link FraTradeCalculations}.
  */
-@Test
 public class FraTradeCalculationsTest {
 
   private static final ResolvedFraTrade RTRADE = FraTradeCalculationFunctionTest.RTRADE;
   private static final RatesMarketDataLookup RATES_LOOKUP = FraTradeCalculationFunctionTest.RATES_LOOKUP;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = FraTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -48,29 +48,16 @@ public class FraTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider);
 
-    assertEquals(
-        FraTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.explainPresentValue(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.parRate(RTRADE, RATES_LOOKUP, md),
-        DoubleScenarioArray.of(ImmutableList.of(expectedParRate)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md),
-        DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(FraTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(FraTradeCalculations.DEFAULT.explainPresentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
+    assertThat(FraTradeCalculations.DEFAULT.parRate(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParRate)));
+    assertThat(FraTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
+    assertThat(FraTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
+    assertThat(FraTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(FraTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = FraTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -80,12 +67,8 @@ public class FraTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        FraTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        FraTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(FraTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(FraTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

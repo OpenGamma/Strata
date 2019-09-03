@@ -8,23 +8,21 @@ package com.opengamma.strata.measure;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.data.scenario.MarketDataBox;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
  * Test {@link ValuationZoneTimeDefinition}.
  */
-@Test
 public class ValuationZoneTimeDefinitionTest {
 
   private static final LocalTime LOCAL_TIME_1 = LocalTime.of(12, 20);
@@ -33,14 +31,16 @@ public class ValuationZoneTimeDefinitionTest {
   private static final LocalTime LOCAL_TIME_4 = LocalTime.of(15, 12);
   private static final ZoneId ZONE_ID = ZoneId.of("America/Chicago");
 
+  @Test
   public void test_of() {
     ValuationZoneTimeDefinition test = ValuationZoneTimeDefinition.of(
         LocalTime.MIDNIGHT, ZONE_ID, LOCAL_TIME_1, LOCAL_TIME_2, LOCAL_TIME_3);
-    assertEquals(test.getLocalTimes(), ImmutableList.of(LOCAL_TIME_1, LOCAL_TIME_2, LOCAL_TIME_3));
-    assertEquals(test.getZoneId(), ZONE_ID);
+    assertThat(test.getLocalTimes()).containsExactly(LOCAL_TIME_1, LOCAL_TIME_2, LOCAL_TIME_3);
+    assertThat(test.getZoneId()).isEqualTo(ZONE_ID);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toZonedDateTime_scenario() {
     ValuationZoneTimeDefinition test = ValuationZoneTimeDefinition.of(
         LocalTime.MIDNIGHT, ZONE_ID, LOCAL_TIME_1, LOCAL_TIME_2, LOCAL_TIME_3);
@@ -51,9 +51,10 @@ public class ValuationZoneTimeDefinitionTest {
         dates.getValue(0).atTime(LOCAL_TIME_1).atZone(ZONE_ID),
         dates.getValue(1).atTime(LOCAL_TIME_2).atZone(ZONE_ID),
         dates.getValue(2).atTime(LOCAL_TIME_3).atZone(ZONE_ID)));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_toZonedDateTime_scenario_default() {
     ValuationZoneTimeDefinition test = ValuationZoneTimeDefinition.of(LOCAL_TIME_1, ZONE_ID);
     MarketDataBox<LocalDate> dates = MarketDataBox.ofScenarioValues(
@@ -63,9 +64,10 @@ public class ValuationZoneTimeDefinitionTest {
         dates.getValue(0).atTime(LOCAL_TIME_1).atZone(ZONE_ID),
         dates.getValue(1).atTime(LOCAL_TIME_1).atZone(ZONE_ID),
         dates.getValue(2).atTime(LOCAL_TIME_1).atZone(ZONE_ID)));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_toZonedDateTime_scenario_long() {
     ValuationZoneTimeDefinition test = ValuationZoneTimeDefinition.of(
         LOCAL_TIME_1, ZONE_ID, LOCAL_TIME_1, LOCAL_TIME_2);
@@ -76,19 +78,21 @@ public class ValuationZoneTimeDefinitionTest {
         dates.getValue(0).atTime(LOCAL_TIME_1).atZone(ZONE_ID),
         dates.getValue(1).atTime(LOCAL_TIME_2).atZone(ZONE_ID),
         dates.getValue(2).atTime(LOCAL_TIME_1).atZone(ZONE_ID)));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_toZonedDateTime_single() {
     ValuationZoneTimeDefinition test = ValuationZoneTimeDefinition.of(LOCAL_TIME_4, ZONE_ID);
     MarketDataBox<LocalDate> dates = MarketDataBox.ofSingleValue(LocalDate.of(2016, 10, 21));
     MarketDataBox<ZonedDateTime> computed = test.toZonedDateTime(dates);
     MarketDataBox<ZonedDateTime> expected = MarketDataBox.ofSingleValue(
         dates.getSingleValue().atTime(LOCAL_TIME_4).atZone(ZONE_ID));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ValuationZoneTimeDefinition test1 = ValuationZoneTimeDefinition.of(LOCAL_TIME_1, ZONE_ID, LOCAL_TIME_2);
     coverImmutableBean(test1);
@@ -96,6 +100,7 @@ public class ValuationZoneTimeDefinitionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     ValuationZoneTimeDefinition test = ValuationZoneTimeDefinition.of(LOCAL_TIME_1, ZONE_ID);
     assertSerialization(test);

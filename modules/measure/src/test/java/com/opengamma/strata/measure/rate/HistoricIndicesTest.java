@@ -10,13 +10,13 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -64,9 +64,9 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Test historic indices.
  */
-@Test
 public class HistoricIndicesTest {
 
+  @Test
   @SuppressWarnings("deprecation")
   public void testHistoricIndex() {
     
@@ -156,7 +156,7 @@ public class HistoricIndicesTest {
     }
     
     // assert result is succes
-    assertTrue(results.get(0, 0).isSuccess());
+    assertThat(results.get(0, 0).isSuccess()).isTrue();
   }
 
 }

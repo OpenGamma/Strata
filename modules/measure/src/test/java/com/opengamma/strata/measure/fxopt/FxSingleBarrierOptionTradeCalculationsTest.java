@@ -6,9 +6,9 @@
 package com.opengamma.strata.measure.fxopt;
 
 import static com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionMethod.BLACK;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -28,7 +28,6 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
 /**
  * Test {@link FxSingleBarrierOptionTradeCalculations}.
  */
-@Test
 public class FxSingleBarrierOptionTradeCalculationsTest {
 
   private static final ResolvedFxSingleBarrierOptionTrade RTRADE = FxSingleBarrierOptionTradeCalculationFunctionTest.RTRADE;
@@ -38,6 +37,7 @@ public class FxSingleBarrierOptionTradeCalculationsTest {
   private static final BlackFxOptionVolatilities VOLS = FxSingleBarrierOptionTradeCalculationFunctionTest.VOLS;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = FxSingleBarrierOptionTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -46,17 +46,12 @@ public class FxSingleBarrierOptionTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider, VOLS);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider.getValuationDate());
 
-    assertEquals(
-        FxSingleBarrierOptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        FxSingleBarrierOptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        FxSingleBarrierOptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(FxSingleBarrierOptionTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(FxSingleBarrierOptionTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(FxSingleBarrierOptionTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = FxSingleBarrierOptionTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -66,14 +61,10 @@ public class FxSingleBarrierOptionTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        FxSingleBarrierOptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(
-            RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        FxSingleBarrierOptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(
-            RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(FxSingleBarrierOptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(
+            RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(FxSingleBarrierOptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(
+            RTRADE, RATES_LOOKUP, FX_OPTION_LOOKUP, md, BLACK)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

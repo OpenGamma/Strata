@@ -17,13 +17,13 @@ import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.RISK_REVERSAL;
 import static com.opengamma.strata.market.ValueType.STRANGLE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -43,7 +43,6 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesName;
 /**
  * Test {@link FxOptionVolatilitiesDefinition}.
  */
-@Test
 public class FxOptionVolatilitiesDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -84,17 +83,19 @@ public class FxOptionVolatilitiesDefinitionTest {
       .strikeInterpolator(LINEAR)
       .build();
 
+  @Test
   public void test_of() {
     FxOptionVolatilitiesDefinition test = FxOptionVolatilitiesDefinition.of(SPEC);
-    assertEquals(test.getSpecification(), SPEC);
-    assertEquals(test.getParameterCount(), SPEC.getParameterCount());
-    assertEquals(test.volatilitiesInputs(), SPEC.volatilitiesInputs());
+    assertThat(test.getSpecification()).isEqualTo(SPEC);
+    assertThat(test.getParameterCount()).isEqualTo(SPEC.getParameterCount());
+    assertThat(test.volatilitiesInputs()).isEqualTo(SPEC.volatilitiesInputs());
     ZonedDateTime dateTime = LocalDate.of(2017, 9, 25).atStartOfDay().atZone(ZoneId.of("Europe/London"));
     DoubleArray parameters = DoubleArray.of(0.05, -0.05, 0.15, 0.25, 0.1, -0.1);
-    assertEquals(test.volatilities(dateTime, parameters, REF_DATA), SPEC.volatilities(dateTime, parameters, REF_DATA));
+    assertThat(test.volatilities(dateTime, parameters, REF_DATA)).isEqualTo(SPEC.volatilities(dateTime, parameters, REF_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxOptionVolatilitiesDefinition test1 = FxOptionVolatilitiesDefinition.of(SPEC);
     coverImmutableBean(test1);
@@ -110,6 +111,7 @@ public class FxOptionVolatilitiesDefinitionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void serialization() {
     FxOptionVolatilitiesDefinition test = FxOptionVolatilitiesDefinition.of(SPEC);
     assertSerialization(test);

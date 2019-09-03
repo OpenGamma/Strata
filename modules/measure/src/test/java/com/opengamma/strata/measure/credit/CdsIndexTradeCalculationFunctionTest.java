@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -40,7 +40,6 @@ import com.opengamma.strata.product.credit.ResolvedCdsIndexTrade;
 /**
  * Test {@link CdsIndexTradeCalculationFunction}.
  */
-@Test
 public class CdsIndexTradeCalculationFunctionTest {
 
   private static final CdsIndexTrade TRADE = CreditDataSet.INDEX_TRADE;
@@ -54,6 +53,7 @@ public class CdsIndexTradeCalculationFunctionTest {
       new AnalyticSpreadSensitivityCalculator(AccrualOnDefaultFormula.CORRECT);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     Set<Measure> measures = FUNCTION.supportedMeasures();
     FunctionRequirements reqs = FUNCTION.requirements(TRADE, measures, CreditDataSet.INDEX_PARAMS, CreditDataSet.REF_DATA);
@@ -67,6 +67,7 @@ public class CdsIndexTradeCalculationFunctionTest {
     assertThat(FUNCTION.naturalCurrency(TRADE, CreditDataSet.REF_DATA)).isEqualTo(USD);
   }
 
+  @Test
   public void test_simpleMeasures() {
     CurrencyAmount expectedPv = PRICER.presentValue(RTRADE, RATES_PROVIDER, PriceType.DIRTY, CreditDataSet.REF_DATA);
     CurrencyAmount expectedPr = PRICER.presentValueOnSettle(RTRADE, RATES_PROVIDER, PriceType.CLEAN, CreditDataSet.REF_DATA);
@@ -91,6 +92,7 @@ public class CdsIndexTradeCalculationFunctionTest {
         .containsEntry(CreditMeasures.RECOVERY01, Result.success(CurrencyScenarioArray.of(ImmutableList.of(expectedR01))));
   }
 
+  @Test
   public void test_curveSensitivityMeasures() {
     double oneBp = 1e-4;
     PointSensitivities pvPointSens = PRICER.presentValueSensitivity(RTRADE, RATES_PROVIDER, CreditDataSet.REF_DATA);

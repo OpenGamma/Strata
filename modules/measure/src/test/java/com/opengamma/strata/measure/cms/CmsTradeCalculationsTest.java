@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.cms;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -29,7 +29,6 @@ import com.opengamma.strata.product.cms.ResolvedCmsTrade;
 /**
  * Test {@link CmsTradeCalculations}.
  */
-@Test
 public class CmsTradeCalculationsTest {
 
   private static final ResolvedCmsTrade RTRADE = CmsTradeCalculationFunctionTest.RTRADE;
@@ -39,6 +38,7 @@ public class CmsTradeCalculationsTest {
   private static final SabrSwaptionVolatilities VOLS = CmsTradeCalculationFunctionTest.VOLS;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = CmsTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -51,17 +51,12 @@ public class CmsTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider, VOLS);
 
     CmsTradeCalculations calcs = CmsTradeCalculations.of(CMS_MODEL);
-    assertEquals(
-        calcs.presentValue(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        calcs.currencyExposure(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        calcs.currentCash(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(calcs.presentValue(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(calcs.currencyExposure(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(calcs.currentCash(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = CmsTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -75,12 +70,8 @@ public class CmsTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
     CmsTradeCalculations calcs = CmsTradeCalculations.of(CMS_MODEL);
-    assertEquals(
-        calcs.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        calcs.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(calcs.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(calcs.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

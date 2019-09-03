@@ -12,15 +12,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
 import org.joda.beans.ImmutableBean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -35,7 +35,6 @@ import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesId;
 /**
  * Test {@link FxOptionMarketDataLookup}.
  */
-@Test
 public class FxOptionMarketDataLookupTest {
 
   private static final FxOptionVolatilitiesId VOL_ID1 = FxOptionVolatilitiesId.of("EURUSD1");
@@ -51,63 +50,59 @@ public class FxOptionMarketDataLookupTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_single() {
     FxOptionMarketDataLookup test = FxOptionMarketDataLookup.of(EUR_USD, VOL_ID1);
-    assertEquals(test.queryType(), FxOptionMarketDataLookup.class);
-    assertEquals(test.getVolatilityCurrencyPairs(), ImmutableSet.of(EUR_USD));
-    assertEquals(test.getVolatilityIds(EUR_USD), ImmutableSet.of(VOL_ID1));
+    assertThat(test.queryType()).isEqualTo(FxOptionMarketDataLookup.class);
+    assertThat(test.getVolatilityCurrencyPairs()).containsOnly(EUR_USD);
+    assertThat(test.getVolatilityIds(EUR_USD)).containsOnly(VOL_ID1);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getVolatilityIds(GBP_USD));
 
-    assertEquals(
-        test.requirements(EUR_USD),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertEquals(
-        test.requirements(ImmutableSet.of(EUR_USD)),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(EUR_USD))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
   }
 
+  @Test
   public void test_of_map() {
     ImmutableMap<CurrencyPair, FxOptionVolatilitiesId> ids = ImmutableMap.of(EUR_USD, VOL_ID1, GBP_USD, VOL_ID1);
     FxOptionMarketDataLookup test = FxOptionMarketDataLookup.of(ids);
-    assertEquals(test.queryType(), FxOptionMarketDataLookup.class);
-    assertEquals(test.getVolatilityCurrencyPairs(), ImmutableSet.of(EUR_USD, GBP_USD));
-    assertEquals(test.getVolatilityIds(EUR_USD), ImmutableSet.of(VOL_ID1));
+    assertThat(test.queryType()).isEqualTo(FxOptionMarketDataLookup.class);
+    assertThat(test.getVolatilityCurrencyPairs()).containsOnly(EUR_USD, GBP_USD);
+    assertThat(test.getVolatilityIds(EUR_USD)).containsOnly(VOL_ID1);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.getVolatilityIds(EUR_GBP));
 
-    assertEquals(
-        test.requirements(EUR_USD),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertEquals(
-        test.requirements(ImmutableSet.of(EUR_USD)),
-        FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(EUR_USD))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
 
-    assertEquals(test.volatilities(EUR_USD, MOCK_MARKET_DATA), MOCK_VOLS);
+    assertThat(test.volatilities(EUR_USD, MOCK_MARKET_DATA)).isEqualTo(MOCK_VOLS);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.volatilities(EUR_GBP, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_marketDataView() {
     FxOptionMarketDataLookup test = FxOptionMarketDataLookup.of(EUR_USD, VOL_ID1);
     LocalDate valDate = date(2015, 6, 30);
     ScenarioMarketData md = new TestMarketDataMap(valDate, ImmutableMap.of(), ImmutableMap.of());
     FxOptionScenarioMarketData multiScenario = test.marketDataView(md);
-    assertEquals(multiScenario.getLookup(), test);
-    assertEquals(multiScenario.getMarketData(), md);
-    assertEquals(multiScenario.getScenarioCount(), 1);
+    assertThat(multiScenario.getLookup()).isEqualTo(test);
+    assertThat(multiScenario.getMarketData()).isEqualTo(md);
+    assertThat(multiScenario.getScenarioCount()).isEqualTo(1);
     FxOptionMarketData scenario = multiScenario.scenario(0);
-    assertEquals(scenario.getLookup(), test);
-    assertEquals(scenario.getMarketData(), md.scenario(0));
-    assertEquals(scenario.getValuationDate(), valDate);
+    assertThat(scenario.getLookup()).isEqualTo(test);
+    assertThat(scenario.getMarketData()).isEqualTo(md.scenario(0));
+    assertThat(scenario.getValuationDate()).isEqualTo(valDate);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DefaultFxOptionMarketDataLookup test =
         DefaultFxOptionMarketDataLookup.of(ImmutableMap.of(EUR_USD, VOL_ID1, GBP_USD, VOL_ID1));
@@ -119,6 +114,7 @@ public class FxOptionMarketDataLookupTest {
     coverImmutableBean((ImmutableBean) test.marketDataView(MOCK_MARKET_DATA));
   }
 
+  @Test
   public void test_serialization() {
     DefaultFxOptionMarketDataLookup test =
         DefaultFxOptionMarketDataLookup.of(ImmutableMap.of(EUR_USD, VOL_ID1, GBP_USD, VOL_ID1));

@@ -9,13 +9,14 @@ import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionMethod.BLACK;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.util.Optional;
 
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.CalculationTarget;
 import com.opengamma.strata.measure.Measures;
@@ -24,14 +25,12 @@ import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
 /**
  * Test {@link FxSingleBarrierOptionMethod}.
  */
-@Test
 public class FxSingleBarrierOptionMethodTest {
 
   private static final FxSingleBarrierOptionTrade TRADE = FxSingleBarrierOptionTradeCalculationFunctionTest.TRADE;
   private static final CalculationTarget TARGET = new CalculationTarget() {};
 
   //-------------------------------------------------------------------------
-  @DataProvider(name = "name")
   public static Object[][] data_name() {
     return new Object[][] {
         {FxSingleBarrierOptionMethod.BLACK, "Black"},
@@ -39,39 +38,47 @@ public class FxSingleBarrierOptionMethodTest {
     };
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_toString(FxSingleBarrierOptionMethod convention, String name) {
-    assertEquals(convention.toString(), name);
+    assertThat(convention.toString()).isEqualTo(name);
   }
 
-  @Test(dataProvider = "name")
+  @ParameterizedTest
+  @MethodSource("data_name")
   public void test_of_lookup(FxSingleBarrierOptionMethod convention, String name) {
-    assertEquals(FxSingleBarrierOptionMethod.of(name), convention);
+    assertThat(FxSingleBarrierOptionMethod.of(name)).isEqualTo(convention);
   }
 
+  @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxSingleBarrierOptionMethod.of("Rubbish"));
   }
 
+  @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxSingleBarrierOptionMethod.of(null));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filter() {
-    assertEquals(BLACK.filter(TRADE, Measures.PRESENT_VALUE), Optional.of(BLACK));
-    assertEquals(BLACK.filter(TARGET, Measures.PRESENT_VALUE), Optional.empty());
+    assertThat(BLACK.filter(TRADE, Measures.PRESENT_VALUE)).isEqualTo(Optional.of(BLACK));
+    assertThat(BLACK.filter(TARGET, Measures.PRESENT_VALUE)).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverEnum(FxSingleBarrierOptionMethod.class);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(FxSingleBarrierOptionMethod.BLACK);
   }
 
+  @Test
   public void test_jodaConvert() {
     assertJodaConvert(FxSingleBarrierOptionMethod.class, FxSingleBarrierOptionMethod.BLACK);
   }

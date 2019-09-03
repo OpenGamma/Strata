@@ -8,14 +8,12 @@ package com.opengamma.strata.measure.bond;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -65,7 +63,6 @@ import com.opengamma.strata.product.bond.ResolvedBondFutureTrade;
 /**
  * Test {@link BondFutureTradeCalculationFunction}.
  */
-@Test
 public class BondFutureTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -92,6 +89,7 @@ public class BondFutureTradeCalculationFunctionTest {
   private static final MarketQuoteSensitivityCalculator MQ_CALC = MarketQuoteSensitivityCalculator.DEFAULT;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
@@ -103,6 +101,7 @@ public class BondFutureTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(CURRENCY);
   }
 
+  @Test
   public void test_simpleMeasures() {
     BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -124,6 +123,7 @@ public class BondFutureTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01_calibrated() {
     BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -144,6 +144,7 @@ public class BondFutureTradeCalculationFunctionTest {
             Measures.PV01_CALIBRATED_BUCKETED, Result.success(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed))));
   }
 
+  @Test
   public void test_pv01_quote() {
     BondFutureTradeCalculationFunction<BondFutureTrade> function = BondFutureTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
@@ -162,14 +163,14 @@ public class BondFutureTradeCalculationFunctionTest {
     @SuppressWarnings("unchecked")
     ScenarioArray<CurrencyParameterSensitivities> bucketedComputed =
         (ScenarioArray<CurrencyParameterSensitivities>) computed.get(Measures.PV01_MARKET_QUOTE_BUCKETED).getValue();
-    assertEquals(sumComputed.getScenarioCount(), 1);
-    assertEquals(sumComputed.get(0).getCurrencies(), ImmutableSet.of(USD));
-    assertTrue(DoubleMath.fuzzyEquals(
-        sumComputed.get(0).getAmount(USD).getAmount(),
-        expectedPv01Cal.getAmount(USD).getAmount(),
-        1.0e-10));
-    assertEquals(bucketedComputed.getScenarioCount(), 1);
-    assertTrue(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10));
+    assertThat(sumComputed.getScenarioCount()).isEqualTo(1);
+    assertThat(sumComputed.get(0).getCurrencies()).containsOnly(USD);
+    assertThat(DoubleMath.fuzzyEquals(
+            sumComputed.get(0).getAmount(USD).getAmount(),
+            expectedPv01Cal.getAmount(USD).getAmount(),
+            1.0e-10)).isTrue();
+    assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
+    assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
   }
 
   //-------------------------------------------------------------------------

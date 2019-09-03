@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.measure.fx;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.FxRate;
@@ -25,13 +25,13 @@ import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
 /**
  * Test {@link FxSingleTradeCalculations}.
  */
-@Test
 public class FxSingleTradeCalculationsTest {
 
   private static final ResolvedFxSingleTrade RTRADE = FxSingleTradeCalculationFunctionTest.RTRADE;
   private static final RatesMarketDataLookup RATES_LOOKUP = FxSingleTradeCalculationFunctionTest.RATES_LOOKUP;
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_presentValue() {
     ScenarioMarketData md = FxSingleTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -41,20 +41,13 @@ public class FxSingleTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider);
     FxRate expectedForwardFx = pricer.forwardFxRate(RTRADE, provider);
 
-    assertEquals(
-        FxSingleTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertEquals(
-        FxSingleTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertEquals(
-        FxSingleTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
-    assertEquals(
-        FxSingleTradeCalculations.DEFAULT.forwardFxRate(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedForwardFx)));
+    assertThat(FxSingleTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(FxSingleTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(FxSingleTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(FxSingleTradeCalculations.DEFAULT.forwardFxRate(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedForwardFx)));
   }
 
+  @Test
   public void test_pv01() {
     ScenarioMarketData md = FxSingleTradeCalculationFunctionTest.marketData();
     RatesProvider provider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
@@ -64,12 +57,8 @@ public class FxSingleTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertEquals(
-        FxSingleTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md),
-        MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertEquals(
-        FxSingleTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md),
-        ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(FxSingleTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(FxSingleTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

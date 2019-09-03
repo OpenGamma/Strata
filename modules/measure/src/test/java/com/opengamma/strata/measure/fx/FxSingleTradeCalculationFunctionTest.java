@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -50,7 +50,6 @@ import com.opengamma.strata.product.fx.ResolvedFxSingleTrade;
 /**
  * Test {@link FxSingleTradeCalculationFunction}.
  */
-@Test
 public class FxSingleTradeCalculationFunctionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -68,6 +67,7 @@ public class FxSingleTradeCalculationFunctionTest {
   private static final LocalDate VAL_DATE = TRADE.getProduct().getPaymentDate().minusDays(7);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_requirementsAndCurrency() {
     FxSingleTradeCalculationFunction function = new FxSingleTradeCalculationFunction();
     Set<Measure> measures = function.supportedMeasures();
@@ -79,6 +79,7 @@ public class FxSingleTradeCalculationFunctionTest {
     assertThat(function.naturalCurrency(TRADE, REF_DATA)).isEqualTo(GBP);
   }
 
+  @Test
   public void test_simpleMeasures() {
     FxSingleTradeCalculationFunction function = new FxSingleTradeCalculationFunction();
     ScenarioMarketData md = marketData();
@@ -112,6 +113,7 @@ public class FxSingleTradeCalculationFunctionTest {
             Measures.RESOLVED_TARGET, Result.success(RTRADE));
   }
 
+  @Test
   public void test_pv01() {
     FxSingleTradeCalculationFunction function = new FxSingleTradeCalculationFunction();
     ScenarioMarketData md = marketData();
