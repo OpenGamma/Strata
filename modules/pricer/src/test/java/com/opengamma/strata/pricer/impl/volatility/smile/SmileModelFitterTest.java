@@ -66,7 +66,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
 
   abstract BitSet[] getFixedValues();
 
-  public SmileModelFitterTest() {
+  SmileModelFitterTest() {
     VolatilityFunctionProvider<T> model = getModel();
     T data = getModelData();
     int n = STRIKES.length;

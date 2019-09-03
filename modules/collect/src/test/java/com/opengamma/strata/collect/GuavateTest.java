@@ -440,6 +440,7 @@ public class GuavateTest {
         .isThrownBy(() -> list.stream().collect(Guavate.toImmutableSortedMap(s -> s.length(), s -> "!" + s)));
   }
 
+  @Test
   public void test_toImmutableSortedMap_keyValue_duplicateKeys_merge() {
     List<String> list = Arrays.asList("a", "ab", "c", "bb", "b", "a");
     ImmutableSortedMap<Integer, String> test = list.stream()

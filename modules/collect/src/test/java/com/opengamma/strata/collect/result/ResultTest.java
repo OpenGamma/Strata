@@ -790,6 +790,7 @@ public class ResultTest {
   }
 
   // We can't use assertThrows as that rethrows AssertionError
+  @Test
   public void assert_success_getFailure() {
     Result<String> test = Result.success("success");
     try {

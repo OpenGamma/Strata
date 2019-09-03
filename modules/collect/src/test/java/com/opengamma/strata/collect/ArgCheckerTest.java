@@ -775,36 +775,43 @@ public class ArgCheckerTest {
   }
 
   //-----------------------------------------------------------------------
+  @Test
   public void test_double_noDuplicates() {
     double[] values = {0d, 1d, 10d, 5d};
     assertThat(ArgChecker.noDuplicates(values, "name")).containsExactly(values);
   }
 
+  @Test
   public void test_double_noDuplicates_NaN() {
     double[] values = {0d, 1d, 10d, Double.NaN};
     assertThat(ArgChecker.noDuplicates(values, "name")).containsExactly(values);
   }
 
+  @Test
   public void test_double_noDuplicates_hasDuplicates() {
     double[] values = {0d, 1d, 10d, 5d, 1d};
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.noDuplicates(values, "name"));
   }
 
+  @Test
   public void test_double_noDuplicatesSorted() {
     double[] values = {0d, 1d, 5d, 10d};
     assertThat(ArgChecker.noDuplicatesSorted(values, "name")).containsExactly(values);
   }
 
+  @Test
   public void test_double_noDuplicatesSorted_Nan() {
     double[] values = {0d, 1d, 5d, Double.NaN, 10d};
     assertThat(ArgChecker.noDuplicatesSorted(values, "name")).containsExactly(values);
   }
 
+  @Test
   public void test_double_noDuplicatesSorted_hasDuplicates() {
     double[] values = {0d, 1d, 5d, 5d, 10d};
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.noDuplicatesSorted(values, "name"));
   }
 
+  @Test
   public void test_double_noDuplicatesSorted_notSorted() {
     double[] values = {0d, 1d, 5d, 10d, 4d};
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.noDuplicatesSorted(values, "name"));
