@@ -6,16 +6,16 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link LogLinearCurveInterpolator}.
  */
-@Test
 public class LogLinearCurveInterpolatorTest {
 
   private static final CurveInterpolator LL_INTERPOLATOR = LogLinearCurveInterpolator.INSTANCE;
@@ -28,55 +28,62 @@ public class LogLinearCurveInterpolatorTest {
   private static final double TOL = 1.e-12;
   private static final double EPS = 1e-9;
 
+  @Test
   public void test_basics() {
-    assertEquals(LL_INTERPOLATOR.getName(), LogLinearCurveInterpolator.NAME);
-    assertEquals(LL_INTERPOLATOR.toString(), LogLinearCurveInterpolator.NAME);
+    assertThat(LL_INTERPOLATOR.getName()).isEqualTo(LogLinearCurveInterpolator.NAME);
+    assertThat(LL_INTERPOLATOR.toString()).isEqualTo(LogLinearCurveInterpolator.NAME);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_interpolation() {
     BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     for (int i = 0; i < X_DATA.size(); i++) {
-      assertEquals(bci.interpolate(X_DATA.get(i)), Y_DATA.get(i), TOL);
+      assertThat(bci.interpolate(X_DATA.get(i))).isCloseTo(Y_DATA.get(i), offset(TOL));
     }
     // log-linear same as linear where y-values have had log applied
     BoundCurveInterpolator bciLinear = CurveInterpolators.LINEAR.bind(X_DATA, Y_DATA_LOG, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    assertEquals(Math.log(bci.interpolate(0.2)), bciLinear.interpolate(0.2), EPS);
-    assertEquals(Math.log(bci.interpolate(0.8)), bciLinear.interpolate(0.8), EPS);
-    assertEquals(Math.log(bci.interpolate(1.1)), bciLinear.interpolate(1.1), EPS);
-    assertEquals(Math.log(bci.interpolate(2.1)), bciLinear.interpolate(2.1), EPS);
-    assertEquals(Math.log(bci.interpolate(3.4)), bciLinear.interpolate(3.4), EPS);
+    assertThat(Math.log(bci.interpolate(0.2))).isCloseTo(bciLinear.interpolate(0.2), offset(EPS));
+    assertThat(Math.log(bci.interpolate(0.8))).isCloseTo(bciLinear.interpolate(0.8), offset(EPS));
+    assertThat(Math.log(bci.interpolate(1.1))).isCloseTo(bciLinear.interpolate(1.1), offset(EPS));
+    assertThat(Math.log(bci.interpolate(2.1))).isCloseTo(bciLinear.interpolate(2.1), offset(EPS));
+    assertThat(Math.log(bci.interpolate(3.4))).isCloseTo(bciLinear.interpolate(3.4), offset(EPS));
   }
 
+  @Test
   public void test_firstDerivative() {
     BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     double eps = 1e-8;
     double lo = bci.interpolate(0.2);
     double hi = bci.interpolate(0.2 + eps);
     double deriv = (hi - lo) / eps;
-    assertEquals(bci.firstDerivative(0.2), deriv, 1e-6);
+    assertThat(bci.firstDerivative(0.2)).isCloseTo(deriv, offset(1e-6));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_firstNode() {
     BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    assertEquals(bci.interpolate(0.0), 3.0, TOL);
-    assertEquals(bci.firstDerivative(0.0), bci.firstDerivative(0.00000001), 1e-6);
+    assertThat(bci.interpolate(0.0)).isCloseTo(3.0, offset(TOL));
+    assertThat(bci.firstDerivative(0.0)).isCloseTo(bci.firstDerivative(0.00000001), offset(1e-6));
   }
 
+  @Test
   public void test_allNodes() {
     BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
     for (int i = 0; i < X_DATA.size(); i++) {
-      assertEquals(bci.interpolate(X_DATA.get(i)), Y_DATA.get(i), TOL);
+      assertThat(bci.interpolate(X_DATA.get(i))).isCloseTo(Y_DATA.get(i), offset(TOL));
     }
   }
 
+  @Test
   public void test_lastNode() {
     BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(X_DATA, Y_DATA, FLAT_EXTRAPOLATOR, FLAT_EXTRAPOLATOR);
-    assertEquals(bci.interpolate(5.0), 2.0, TOL);
-    assertEquals(bci.firstDerivative(5.0), bci.firstDerivative(4.99999999), 1e-6);
+    assertThat(bci.interpolate(5.0)).isCloseTo(2.0, offset(TOL));
+    assertThat(bci.firstDerivative(5.0)).isCloseTo(bci.firstDerivative(4.99999999), offset(1e-6));
   }
 
+  @Test
   public void test_interpolatorExtrapolator() {
     DoubleArray xValues = DoubleArray.of(1, 2, 3);
     DoubleArray yValues = DoubleArray.of(2, 3, 5);
@@ -85,16 +92,17 @@ public class LogLinearCurveInterpolatorTest {
     // log-linear same as linear where y-values have had log applied
     BoundCurveInterpolator bciLinear = CurveInterpolators.LINEAR.bind(xValues, yValuesLog, extrap, extrap);
     BoundCurveInterpolator bci = LL_INTERPOLATOR.bind(xValues, yValues, extrap, extrap);
-    assertEquals(Math.log(bci.interpolate(0.5)), bciLinear.interpolate(0.5), EPS);
-    assertEquals(Math.log(bci.interpolate(1)), bciLinear.interpolate(1), EPS);
-    assertEquals(Math.log(bci.interpolate(1.5)), bciLinear.interpolate(1.5), EPS);
-    assertEquals(Math.log(bci.interpolate(2)), bciLinear.interpolate(2), EPS);
-    assertEquals(Math.log(bci.interpolate(2.5)), bciLinear.interpolate(2.5), EPS);
-    assertEquals(Math.log(bci.interpolate(3)), bciLinear.interpolate(3), EPS);
-    assertEquals(Math.log(bci.interpolate(3.5)), bciLinear.interpolate(3.5), EPS);
+    assertThat(Math.log(bci.interpolate(0.5))).isCloseTo(bciLinear.interpolate(0.5), offset(EPS));
+    assertThat(Math.log(bci.interpolate(1))).isCloseTo(bciLinear.interpolate(1), offset(EPS));
+    assertThat(Math.log(bci.interpolate(1.5))).isCloseTo(bciLinear.interpolate(1.5), offset(EPS));
+    assertThat(Math.log(bci.interpolate(2))).isCloseTo(bciLinear.interpolate(2), offset(EPS));
+    assertThat(Math.log(bci.interpolate(2.5))).isCloseTo(bciLinear.interpolate(2.5), offset(EPS));
+    assertThat(Math.log(bci.interpolate(3))).isCloseTo(bciLinear.interpolate(3), offset(EPS));
+    assertThat(Math.log(bci.interpolate(3.5))).isCloseTo(bciLinear.interpolate(3.5), offset(EPS));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_serialization() {
     assertSerialization(LL_INTERPOLATOR);
   }

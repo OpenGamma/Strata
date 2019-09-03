@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,7 +25,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link DefaultSurfaceMetadata}.
  */
-@Test
 public class DefaultSurfaceMetadataTest {
 
   private static final String NAME = "TestSurface";
@@ -33,6 +32,7 @@ public class DefaultSurfaceMetadataTest {
   private static final SurfaceInfoType<String> DESCRIPTION = SurfaceInfoType.of("Description");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_String_noMetadata() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(NAME);
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
@@ -43,6 +43,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
+  @Test
   public void test_of_SurfaceName_noMetadata() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME);
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
@@ -53,6 +54,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
+  @Test
   public void test_builder1() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME.toString())
@@ -76,6 +78,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
+  @Test
   public void test_builder2() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
@@ -101,6 +104,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
+  @Test
   public void test_builder3() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.builder()
         .surfaceName(SURFACE_NAME)
@@ -115,6 +119,7 @@ public class DefaultSurfaceMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withInfo() {
     DefaultSurfaceMetadata base = DefaultSurfaceMetadata.of(SURFACE_NAME);
     assertThat(base.findInfo(SurfaceInfoType.DAY_COUNT).isPresent()).isFalse();
@@ -124,6 +129,7 @@ public class DefaultSurfaceMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withParameterMetadata() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME)
         .withParameterMetadata(ImmutableList.of(ParameterMetadata.empty()));
@@ -135,6 +141,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
+  @Test
   public void test_withParameterMetadata_clearWhenEmpty() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME).withParameterMetadata(null);
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
@@ -144,6 +151,7 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
+  @Test
   public void test_withParameterMetadata_clearWhenNonEmpty() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME)
         .withParameterMetadata(ImmutableList.of(ParameterMetadata.empty()))
@@ -156,6 +164,7 @@ public class DefaultSurfaceMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME);
     coverImmutableBean(test);
@@ -170,6 +179,7 @@ public class DefaultSurfaceMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     DefaultSurfaceMetadata test = DefaultSurfaceMetadata.of(SURFACE_NAME);
     assertSerialization(test);

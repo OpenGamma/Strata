@@ -9,14 +9,14 @@ import static com.opengamma.strata.basics.currency.Currency.JPY;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -39,7 +39,6 @@ import com.opengamma.strata.market.param.LabelDateParameterMetadata;
 /**
  * Test {@link LegalEntityRatesCurvesCsvLoader}.
  */
-@Test
 public class LegalEntityRatesCurvesCsvLoaderTest {
 
   private static final String GROUPS = "classpath:com/opengamma/strata/loader/csv/legal-entity-groups.csv";
@@ -47,23 +46,37 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
   private static final String CURVES_1 = "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-1.csv";
   private static final String CURVES_2 = "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-2.csv";
 
-  private static final String GROUPS_INVALID_CURVE_TYPE = "classpath:com/opengamma/strata/loader/csv/legal-entity-groups-invalid-curve-type.csv";
-  private static final String SETTINGS_INVALID_DCC = "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-day-count.csv";
-  private static final String SETTINGS_INVALID_INTERP = "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-interpolator.csv";
-  private static final String SETTINGS_INVALID_LEFT = "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-left-extrapolator.csv";
-  private static final String SETTINGS_INVALID_RIGHT = "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-right-extrapolator.csv";
-  private static final String SETTINGS_INVALID_VALUE = "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-curve-type.csv";
-  private static final String SETTINGS_MISSING_CURVE_NAME = "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-missing-header.csv";
-  private static final String CURVES_2_REPO_MISSING = "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-2-missing-repo.csv";
-  private static final String CURVES_2_ISSUER_MISSING = "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-2-missing-issuer.csv";
-  private static final String CURVES_1_DEUPLICATE_POINTS = "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-1-duplicate-points.csv";
+  private static final String GROUPS_INVALID_CURVE_TYPE =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-groups-invalid-curve-type.csv";
+  private static final String SETTINGS_INVALID_DCC =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-day-count.csv";
+  private static final String SETTINGS_INVALID_INTERP =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-interpolator.csv";
+  private static final String SETTINGS_INVALID_LEFT =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-left-extrapolator.csv";
+  private static final String SETTINGS_INVALID_RIGHT =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-right-extrapolator.csv";
+  private static final String SETTINGS_INVALID_VALUE =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-invalid-curve-type.csv";
+  private static final String SETTINGS_MISSING_CURVE_NAME =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-settings-missing-header.csv";
+  private static final String CURVES_2_REPO_MISSING =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-2-missing-repo.csv";
+  private static final String CURVES_2_ISSUER_MISSING =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-2-missing-issuer.csv";
+  private static final String CURVES_1_DEUPLICATE_POINTS =
+      "classpath:com/opengamma/strata/loader/csv/legal-entity-curves-1-duplicate-points.csv";
 
   private static final List<LocalDate> ALL_DATES = ImmutableList.copyOf(new LocalDate[] {
-      LocalDate.of(2017, 4, 24), LocalDate.of(2017, 4, 23), LocalDate.of(2017, 4, 22), LocalDate.of(2017, 4, 21), LocalDate.of(2017, 4, 20),
-      LocalDate.of(2017, 4, 19), LocalDate.of(2017, 4, 18), LocalDate.of(2017, 4, 17), LocalDate.of(2017, 4, 16), LocalDate.of(2017, 4, 15),
-      LocalDate.of(2017, 4, 14), LocalDate.of(2017, 4, 13), LocalDate.of(2017, 4, 12), LocalDate.of(2017, 4, 11), LocalDate.of(2017, 4, 10),
+      LocalDate.of(2017, 4, 24), LocalDate.of(2017, 4, 23), LocalDate.of(2017, 4, 22), LocalDate.of(2017, 4, 21),
+      LocalDate.of(2017, 4, 20),
+      LocalDate.of(2017, 4, 19), LocalDate.of(2017, 4, 18), LocalDate.of(2017, 4, 17), LocalDate.of(2017, 4, 16),
+      LocalDate.of(2017, 4, 15),
+      LocalDate.of(2017, 4, 14), LocalDate.of(2017, 4, 13), LocalDate.of(2017, 4, 12), LocalDate.of(2017, 4, 11),
+      LocalDate.of(2017, 4, 10),
       LocalDate.of(2017, 4, 9), LocalDate.of(2017, 4, 8), LocalDate.of(2017, 4, 7), LocalDate.of(2017, 4, 6)});
 
+  @Test
   public void test_loadAllDates() {
     LocalDate sampleDate = ALL_DATES.get(3); // 2017-04-21
     ImmutableList<LocalDate> expDates = ImmutableList.of(
@@ -80,7 +93,8 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
         .mapToObj(n -> LabelDateParameterMetadata.of(expDates.get(n), expTenors.get(n)))
         .collect(Guavate.toImmutableList());
     LegalEntityGroup legalEntityGroup = LegalEntityGroup.of("JP-GOVT");
-    DoubleArray expIssuerXValues = DoubleArray.of(expDates.size(), n -> ACT_365F.relativeYearFraction(sampleDate, expDates.get(n)));
+    DoubleArray expIssuerXValues =
+        DoubleArray.of(expDates.size(), n -> ACT_365F.relativeYearFraction(sampleDate, expDates.get(n)));
     DoubleArray expIssuerYValues = DoubleArray.of(
         -0.0019511690511744527, -0.001497422302092893, -0.0021798583657932176, -0.002215700360912938, -0.0021722324679574866,
         -0.001922059591219172, -0.0015461646763548528, -0.0014835851245462084, -0.001118669580570464, -5.476767138782941E-4,
@@ -94,50 +108,53 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
         ResourceLocator.of(GROUPS),
         ResourceLocator.of(SETTINGS),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
-    assertTrue(allCurves.keySet().containsAll(ALL_DATES));
+    assertThat(allCurves.keySet().containsAll(ALL_DATES)).isTrue();
     ImmutableList<LegalEntityCurveGroup> groups = allCurves.get(sampleDate);
-    assertEquals(groups.size(), 2);
+    assertThat(groups).hasSize(2);
     // group 0
     LegalEntityCurveGroup group0 = groups.get(0);
-    assertEquals(group0.getName(), CurveGroupName.of("Default1"));
+    assertThat(group0.getName()).isEqualTo(CurveGroupName.of("Default1"));
     // repo
-    assertEquals(group0.getRepoCurves().size(), 1);
+    assertThat(group0.getRepoCurves()).hasSize(1);
     Curve repoCurve = group0.getRepoCurves().get(Pair.of(repoGroup, JPY));
     InterpolatedNodalCurve expectedRepoCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("JP-REPO-1"), ACT_365F, expRepoMetadata),
         expRepoXValues, expRepoYValues, CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertEquals(repoCurve, expectedRepoCurve);
+    assertThat(repoCurve).isEqualTo(expectedRepoCurve);
     // issuer
-    assertEquals(group0.getIssuerCurves().size(), 2);
+    assertThat(group0.getIssuerCurves()).hasSize(2);
     Curve issuerCurve = group0.getIssuerCurves().get(Pair.of(legalEntityGroup, JPY));
     InterpolatedNodalCurve expectedIssuerCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("JP-GOVT-1"), ACT_365F, expIssuerMetadata),
         expIssuerXValues, expIssuerYValues, CurveInterpolators.LINEAR, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertEquals(issuerCurve, expectedIssuerCurve);
+    assertThat(issuerCurve).isEqualTo(expectedIssuerCurve);
     Curve usIssuerCurve = group0.getIssuerCurves().get(Pair.of(LegalEntityGroup.of("US-GOVT"), USD));
     expectedIssuerCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("US-GOVT"), ACT_360, expIssuerMetadata),
         DoubleArray.of(expDates.size(), n -> ACT_360.relativeYearFraction(sampleDate, expDates.get(n))),
         expIssuerYValues, CurveInterpolators.NATURAL_SPLINE, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
-    assertEquals(usIssuerCurve, expectedIssuerCurve);
+    assertThat(usIssuerCurve).isEqualTo(expectedIssuerCurve);
     // group 1
     LegalEntityCurveGroup group1 = groups.get(1);
-    assertEquals(group1.getName(), CurveGroupName.of("Default2"));
+    assertThat(group1.getName()).isEqualTo(CurveGroupName.of("Default2"));
     // repo
     repoCurve = group1.getRepoCurves().get(Pair.of(repoGroup, JPY));
     expectedRepoCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("JP-REPO-2"), ACT_365F, expRepoMetadata),
-        expRepoXValues, expRepoYValues, CurveInterpolators.DOUBLE_QUADRATIC, CurveExtrapolators.LINEAR, CurveExtrapolators.LINEAR);
-    assertEquals(repoCurve, expectedRepoCurve);
+        expRepoXValues, expRepoYValues, CurveInterpolators.DOUBLE_QUADRATIC, CurveExtrapolators.LINEAR,
+        CurveExtrapolators.LINEAR);
+    assertThat(repoCurve).isEqualTo(expectedRepoCurve);
     // issuer
-    assertEquals(group1.getIssuerCurves().size(), 1);
+    assertThat(group1.getIssuerCurves()).hasSize(1);
     issuerCurve = group1.getIssuerCurves().get(Pair.of(legalEntityGroup, JPY));
     expectedIssuerCurve = InterpolatedNodalCurve.of(
         Curves.zeroRates(CurveName.of("JP-GOVT-2"), ACT_365F, expIssuerMetadata),
-        expIssuerXValues, expIssuerYValues, CurveInterpolators.DOUBLE_QUADRATIC, CurveExtrapolators.LINEAR, CurveExtrapolators.LINEAR);
-    assertEquals(issuerCurve, expectedIssuerCurve);
+        expIssuerXValues, expIssuerYValues, CurveInterpolators.DOUBLE_QUADRATIC, CurveExtrapolators.LINEAR,
+        CurveExtrapolators.LINEAR);
+    assertThat(issuerCurve).isEqualTo(expectedIssuerCurve);
   }
 
+  @Test
   public void test_load() {
     ImmutableListMultimap<LocalDate, LegalEntityCurveGroup> allCurves = LegalEntityRatesCurvesCsvLoader.loadAllDates(
         ResourceLocator.of(GROUPS),
@@ -149,145 +166,159 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
           ResourceLocator.of(GROUPS),
           ResourceLocator.of(SETTINGS),
           ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
-      assertEquals(oneDayCurves, allCurves.get(date));
+      assertThat(oneDayCurves).isEqualTo(allCurves.get(date));
     }
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_setting_invalid_path() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(4),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of("classpath:invalid"),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(4),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of("classpath:invalid"),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Header not found: 'Curve Name'")
+  @Test
   public void test_invalid_settings_missing_column_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(6),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS_MISSING_CURVE_NAME),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(6),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS_MISSING_CURVE_NAME),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessage("Header not found: 'Curve Name'");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Unknown DayCount value.*")
+  @Test
   public void test_invalid_settings_day_count_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(1),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS_INVALID_DCC),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(1),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS_INVALID_DCC),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessageMatching("Unknown DayCount value.*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "CurveInterpolator name not found: Polynomial")
+  @Test
   public void test_invalid_settings_interpolator_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(6),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS_INVALID_INTERP),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(6),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS_INVALID_INTERP),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessage("CurveInterpolator name not found: Polynomial");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "CurveExtrapolator name not found: Polynomial")
+  @Test
   public void test_invalid_settings_left_extrapolator_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(2),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS_INVALID_LEFT),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(2),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS_INVALID_LEFT),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessage("CurveExtrapolator name not found: Polynomial");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "CurveExtrapolator name not found: Cubic")
+  @Test
   public void test_invalid_settings_right_extrapolator_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(4),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS_INVALID_RIGHT),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(4),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS_INVALID_RIGHT),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessage("CurveExtrapolator name not found: Cubic");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Unsupported Value Type in curve settings: Forward")
+  @Test
   public void test_invalid_settings_value_type_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(0),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS_INVALID_VALUE),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(0),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS_INVALID_VALUE),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessage("Unsupported Value Type in curve settings: Forward");
   }
 
   //-------------------------------------------------------------------------
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_missing_groups_file() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(6),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of("classpath:invalid"),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(6),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of("classpath:invalid"),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))));
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Unsupported curve type: Forward")
+  @Test
   public void test_invalid_curve_type() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(6),
-        ResourceLocator.of(GROUPS_INVALID_CURVE_TYPE),
-        ResourceLocator.of(SETTINGS),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(6),
+            ResourceLocator.of(GROUPS_INVALID_CURVE_TYPE),
+            ResourceLocator.of(SETTINGS),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessage("Unsupported curve type: Forward");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Issuer curve values .*")
+  @Test
   public void test_missing_issuer_curve() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(2),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2_ISSUER_MISSING)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(2),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2_ISSUER_MISSING))))
+        .withMessageMatching("Issuer curve values .*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Repo curve values .*")
+  @Test
   public void test_missing_repo_curve() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(5),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2_REPO_MISSING)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(5),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2_REPO_MISSING))))
+        .withMessageMatching("Repo curve values .*");
   }
 
+  @Test
   public void test_date_outside_range() {
     ImmutableList<LegalEntityCurveGroup> result = LegalEntityRatesCurvesCsvLoader.load(
         LocalDate.of(2017, 1, 24),
         ResourceLocator.of(GROUPS),
         ResourceLocator.of(SETTINGS),
         ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
-    assertTrue(result.isEmpty());
+    assertThat(result.isEmpty()).isTrue();
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class,
-      expectedExceptionsMessageRegExp = "Rates curve loader found multiple curves with the same name: .*")
+  @Test
   public void test_multiple_curves() {
-    LegalEntityRatesCurvesCsvLoader.load(
-        ALL_DATES.get(6),
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS),
-        ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.load(
+            ALL_DATES.get(6),
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS),
+            ImmutableList.of(ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_1), ResourceLocator.of(CURVES_2))))
+        .withMessageMatching("Rates curve loader found multiple curves with the same name: .*");
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test
   public void test_invalid_curve_duplicate_points() {
-    LegalEntityRatesCurvesCsvLoader.loadAllDates(
-        ResourceLocator.of(GROUPS),
-        ResourceLocator.of(SETTINGS),
-        ImmutableList.of(ResourceLocator.of(CURVES_1_DEUPLICATE_POINTS), ResourceLocator.of(CURVES_2)));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LegalEntityRatesCurvesCsvLoader.loadAllDates(
+            ResourceLocator.of(GROUPS),
+            ResourceLocator.of(SETTINGS),
+            ImmutableList.of(ResourceLocator.of(CURVES_1_DEUPLICATE_POINTS), ResourceLocator.of(CURVES_2))));
   }
 
 }

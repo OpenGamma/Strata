@@ -8,34 +8,37 @@ package com.opengamma.strata.market.option;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link LogMoneynessStrike}.
  */
-@Test
 public class LogMoneynessStrikeTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     LogMoneynessStrike test = LogMoneynessStrike.of(0.6d);
-    assertEquals(test.getType(), StrikeType.LOG_MONEYNESS);
-    assertEquals(test.getValue(), 0.6d, 0d);
-    assertEquals(test.getLabel(), "LogMoneyness=0.6");
-    assertEquals(test.withValue(0.2d), LogMoneynessStrike.of(0.2d));
+    assertThat(test.getType()).isEqualTo(StrikeType.LOG_MONEYNESS);
+    assertThat(test.getValue()).isCloseTo(0.6d, offset(0d));
+    assertThat(test.getLabel()).isEqualTo("LogMoneyness=0.6");
+    assertThat(test.withValue(0.2d)).isEqualTo(LogMoneynessStrike.of(0.2d));
   }
 
+  @Test
   public void test_ofStrikeAndForward() {
     LogMoneynessStrike test = LogMoneynessStrike.ofStrikeAndForward(0.6d, 1.2d);
-    assertEquals(test.getType(), StrikeType.LOG_MONEYNESS);
-    assertEquals(test.getValue(), Math.log(0.5d), 0d);
-    assertEquals(test.getLabel(), "LogMoneyness=" + Math.log(0.5d));
-    assertEquals(test.withValue(0.2d), LogMoneynessStrike.of(0.2d));
+    assertThat(test.getType()).isEqualTo(StrikeType.LOG_MONEYNESS);
+    assertThat(test.getValue()).isCloseTo(Math.log(0.5d), offset(0d));
+    assertThat(test.getLabel()).isEqualTo("LogMoneyness=" + Math.log(0.5d));
+    assertThat(test.withValue(0.2d)).isEqualTo(LogMoneynessStrike.of(0.2d));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     LogMoneynessStrike test = LogMoneynessStrike.of(0.6d);
     coverImmutableBean(test);
@@ -43,6 +46,7 @@ public class LogMoneynessStrikeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     LogMoneynessStrike test = LogMoneynessStrike.of(0.6d);
     assertSerialization(test);

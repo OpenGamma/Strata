@@ -5,19 +5,19 @@
  */
 package com.opengamma.strata.market.curve;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link LegalEntityGroup}.
  */
-@Test
 public class LegalEntityGroupTest {
 
+  @Test
   public void coverage() {
     LegalEntityGroup test = LegalEntityGroup.of("Foo");
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.toString()).isEqualTo("Foo");
   }
 
 }

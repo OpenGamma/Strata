@@ -5,22 +5,22 @@
  */
 package com.opengamma.strata.market.curve;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link CurveName}.
  */
-@Test
 public class CurveNameTest {
 
+  @Test
   public void test_of() {
     CurveName test = CurveName.of("Foo");
-    assertEquals(test.getName(), "Foo");
-    assertEquals(test.getMarketDataType(), Curve.class);
-    assertEquals(test.toString(), "Foo");
-    assertEquals(test.compareTo(CurveName.of("Goo")) < 0, true);
+    assertThat(test.getName()).isEqualTo("Foo");
+    assertThat(test.getMarketDataType()).isEqualTo(Curve.class);
+    assertThat(test.toString()).isEqualTo("Foo");
+    assertThat(test.compareTo(CurveName.of("Goo")) < 0).isTrue();
   }
 
 }

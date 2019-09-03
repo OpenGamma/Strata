@@ -10,8 +10,8 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +30,6 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 /**
  * Test {@link ExplainMap}.
  */
-@Test
 public class ExplainMapTest {
 
   private static final String EOL = System.lineSeparator();
@@ -39,40 +38,44 @@ public class ExplainMapTest {
   private static final CurrencyAmount AMOUNT1 = CurrencyAmount.of(GBP, 1000);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     Map<ExplainKey<?>, Object> map = new HashMap<>();
     map.put(ExplainKey.START_DATE, DATE1);
     map.put(ExplainKey.END_DATE, DATE2);
     map.put(ExplainKey.PRESENT_VALUE, AMOUNT1);
     ExplainMap test = ExplainMap.of(map);
-    assertEquals(test.getMap(), map);
-    assertEquals(test.get(ExplainKey.START_DATE), Optional.of(DATE1));
-    assertEquals(test.get(ExplainKey.END_DATE), Optional.of(DATE2));
-    assertEquals(test.get(ExplainKey.ACCRUAL_DAY_COUNT), Optional.empty());
+    assertThat(test.getMap()).isEqualTo(map);
+    assertThat(test.get(ExplainKey.START_DATE)).isEqualTo(Optional.of(DATE1));
+    assertThat(test.get(ExplainKey.END_DATE)).isEqualTo(Optional.of(DATE2));
+    assertThat(test.get(ExplainKey.ACCRUAL_DAY_COUNT)).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder_simple() {
     ExplainMapBuilder builder = ExplainMap.builder();
     builder.put(ExplainKey.ACCRUAL_DAYS, 2);
     ExplainMap test = builder.build();
-    assertEquals(test.getMap().size(), 1);
-    assertEquals(test.get(ExplainKey.ACCRUAL_DAYS), Optional.of(2));
-    assertEquals(test.get(ExplainKey.ACCRUAL_DAY_COUNT), Optional.empty());
+    assertThat(test.getMap()).hasSize(1);
+    assertThat(test.get(ExplainKey.ACCRUAL_DAYS)).isEqualTo(Optional.of(2));
+    assertThat(test.get(ExplainKey.ACCRUAL_DAY_COUNT)).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_builder_openClose() {
     ExplainMapBuilder builder = ExplainMap.builder();
     ExplainMapBuilder child = builder.openListEntry(ExplainKey.LEGS);
     child.put(ExplainKey.ACCRUAL_DAYS, 2);
     ExplainMapBuilder result = child.closeListEntry(ExplainKey.LEGS);
     ExplainMap test = result.build();
-    assertEquals(test.getMap().size(), 1);
-    assertEquals(test.get(ExplainKey.LEGS).isPresent(), true);
-    assertEquals(test.get(ExplainKey.LEGS).get().size(), 1);
-    assertEquals(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS), Optional.of(2));
+    assertThat(test.getMap()).hasSize(1);
+    assertThat(test.get(ExplainKey.LEGS)).isPresent();
+    assertThat(test.get(ExplainKey.LEGS).get()).hasSize(1);
+    assertThat(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS)).isEqualTo(Optional.of(2));
   }
 
+  @Test
   public void test_builder_openClose_wrongCloseKey() {
     ExplainMapBuilder builder = ExplainMap.builder();
     ExplainMapBuilder child = builder.openListEntry(ExplainKey.LEGS);
@@ -81,33 +84,36 @@ public class ExplainMapTest {
         .isThrownBy(() -> child.closeListEntry(ExplainKey.PAYMENT_PERIODS));
   }
 
+  @Test
   public void test_builder_addListEntry() {
     ExplainMapBuilder base = ExplainMap.builder();
     ExplainMapBuilder result1 = base.addListEntry(ExplainKey.LEGS, child -> child.put(ExplainKey.ACCRUAL_DAYS, 2));
     ExplainMapBuilder result2 = result1.addListEntry(ExplainKey.LEGS, child -> child.put(ExplainKey.ACCRUAL_DAYS, 3));
     ExplainMap test = result2.build();
-    assertEquals(test.getMap().size(), 1);
-    assertEquals(test.get(ExplainKey.LEGS).isPresent(), true);
-    assertEquals(test.get(ExplainKey.LEGS).get().size(), 2);
-    assertEquals(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS), Optional.of(2));
-    assertEquals(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ACCRUAL_DAYS), Optional.of(3));
+    assertThat(test.getMap()).hasSize(1);
+    assertThat(test.get(ExplainKey.LEGS)).isPresent();
+    assertThat(test.get(ExplainKey.LEGS).get()).hasSize(2);
+    assertThat(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS)).isEqualTo(Optional.of(2));
+    assertThat(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ACCRUAL_DAYS)).isEqualTo(Optional.of(3));
   }
 
+  @Test
   public void test_builder_addListEntryWithIndex() {
     ExplainMapBuilder base = ExplainMap.builder();
     ExplainMapBuilder result1 = base.addListEntryWithIndex(ExplainKey.LEGS, child -> child.put(ExplainKey.ACCRUAL_DAYS, 2));
     ExplainMapBuilder result2 = result1.addListEntryWithIndex(ExplainKey.LEGS, child -> child.put(ExplainKey.ACCRUAL_DAYS, 3));
     ExplainMap test = result2.build();
-    assertEquals(test.getMap().size(), 1);
-    assertEquals(test.get(ExplainKey.LEGS).isPresent(), true);
-    assertEquals(test.get(ExplainKey.LEGS).get().size(), 2);
-    assertEquals(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ENTRY_INDEX), Optional.of(0));
-    assertEquals(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS), Optional.of(2));
-    assertEquals(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ENTRY_INDEX), Optional.of(1));
-    assertEquals(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ACCRUAL_DAYS), Optional.of(3));
+    assertThat(test.getMap()).hasSize(1);
+    assertThat(test.get(ExplainKey.LEGS)).isPresent();
+    assertThat(test.get(ExplainKey.LEGS).get()).hasSize(2);
+    assertThat(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ENTRY_INDEX)).isEqualTo(Optional.of(0));
+    assertThat(test.get(ExplainKey.LEGS).get().get(0).get(ExplainKey.ACCRUAL_DAYS)).isEqualTo(Optional.of(2));
+    assertThat(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ENTRY_INDEX)).isEqualTo(Optional.of(1));
+    assertThat(test.get(ExplainKey.LEGS).get().get(1).get(ExplainKey.ACCRUAL_DAYS)).isEqualTo(Optional.of(3));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_explanationString() {
     Map<ExplainKey<?>, Object> child1map = new LinkedHashMap<>();
     child1map.put(ExplainKey.PAYMENT_PERIODS, ImmutableList.of(ExplainMap.of(ImmutableMap.of())));
@@ -130,7 +136,7 @@ public class ExplainMapTest {
     map.put(ExplainKey.PRESENT_VALUE, AMOUNT1);
 
     ExplainMap test = ExplainMap.of(map);
-    assertEquals(test.explanationString(), "" +
+    assertThat(test.explanationString()).isEqualTo("" +
         "ExplainMap {" + EOL +
         "  Legs = []," + EOL +
         "  StartDate = 2015-06-30," + EOL +
@@ -148,6 +154,7 @@ public class ExplainMapTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     Map<ExplainKey<?>, Object> map = new HashMap<>();
     map.put(ExplainKey.START_DATE, DATE1);
@@ -160,6 +167,7 @@ public class ExplainMapTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     Map<ExplainKey<?>, Object> map = new HashMap<>();
     map.put(ExplainKey.START_DATE, DATE1);

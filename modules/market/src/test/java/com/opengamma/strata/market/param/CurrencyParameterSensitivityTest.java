@@ -7,15 +7,14 @@ package com.opengamma.strata.market.param;
 
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
-import static org.testng.Assert.assertThrows;
 
 import java.util.List;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -31,7 +30,6 @@ import com.opengamma.strata.market.curve.CurveName;
 /**
  * Test {@link CurrencyParameterSensitivity}.
  */
-@Test
 public class CurrencyParameterSensitivityTest {
 
   private static final double FACTOR1 = 3.14;
@@ -60,109 +58,121 @@ public class CurrencyParameterSensitivityTest {
   private static final List<ParameterSize> PARAM_SPLIT = ImmutableList.of(PARAM1, PARAM2);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_metadata() {
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
-    assertEquals(test.getMarketDataName(), NAME1);
-    assertEquals(test.getParameterCount(), VECTOR_USD1.size());
-    assertEquals(test.getParameterMetadata(), METADATA_USD1);
-    assertEquals(test.getParameterMetadata(0), METADATA_USD1.get(0));
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getSensitivity(), VECTOR_USD1);
+    assertThat(test.getMarketDataName()).isEqualTo(NAME1);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.size());
+    assertThat(test.getParameterMetadata()).isEqualTo(METADATA_USD1);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(METADATA_USD1.get(0));
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
   }
 
+  @Test
   public void test_of_metadata_badMetadata() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurrencyParameterSensitivity.of(NAME1, METADATA_BAD, USD, VECTOR_USD1));
   }
 
+  @Test
   public void test_of_metadataParamSplit() {
     CurrencyParameterSensitivity test =
         CurrencyParameterSensitivity.of(NAME_COMBINED, METADATA_COMBINED, USD, VECTOR_USD_COMBINED, PARAM_SPLIT);
-    assertEquals(test.getMarketDataName(), NAME_COMBINED);
-    assertEquals(test.getParameterCount(), VECTOR_USD_COMBINED.size());
-    assertEquals(test.getParameterMetadata(), METADATA_COMBINED);
-    assertEquals(test.getParameterMetadata(0), METADATA_COMBINED.get(0));
-    assertEquals(test.getSensitivity(), VECTOR_USD_COMBINED);
-    assertEquals(test.getParameterSplit(), Optional.of(PARAM_SPLIT));
+    assertThat(test.getMarketDataName()).isEqualTo(NAME_COMBINED);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD_COMBINED.size());
+    assertThat(test.getParameterMetadata()).isEqualTo(METADATA_COMBINED);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(METADATA_COMBINED.get(0));
+    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD_COMBINED);
+    assertThat(test.getParameterSplit()).isEqualTo(Optional.of(PARAM_SPLIT));
   }
 
+  @Test
   public void test_of_metadataParamSplit_badSplit() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurrencyParameterSensitivity.of(NAME_COMBINED, METADATA_USD1, USD, VECTOR_USD1, PARAM_SPLIT));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_map() {
     ImmutableMap<ParameterMetadata, Double> map = ImmutableMap.of(
         TenorParameterMetadata.of(Tenor.TENOR_1Y), 12d,
         TenorParameterMetadata.of(Tenor.TENOR_2Y), -32d,
         TenorParameterMetadata.of(Tenor.TENOR_5Y), 5d);
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.of(NAME1, USD, map);
-    assertEquals(test.getMarketDataName(), NAME1);
-    assertEquals(test.getParameterCount(), 3);
-    assertEquals(test.getParameterMetadata(), map.keySet().asList());
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getSensitivity(), DoubleArray.copyOf(map.values()));
-    assertEquals(test.sensitivities().toMap(), map);
-    assertEquals(test.toSensitivityMap(Tenor.class), MapStream.of(map).mapKeys(pm -> pm.getIdentifier()).toMap());
+    assertThat(test.getMarketDataName()).isEqualTo(NAME1);
+    assertThat(test.getParameterCount()).isEqualTo(3);
+    assertThat(test.getParameterMetadata()).isEqualTo(map.keySet().asList());
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getSensitivity()).isEqualTo(DoubleArray.copyOf(map.values()));
+    assertThat(test.sensitivities().toMap()).isEqualTo(map);
+    assertThat(test.toSensitivityMap(Tenor.class)).isEqualTo(MapStream.of(map).mapKeys(pm -> pm.getIdentifier()).toMap());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combine() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, METADATA_USD2, USD, VECTOR_USD2);
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2);
-    assertEquals(test.getMarketDataName(), NAME_COMBINED);
-    assertEquals(test.getParameterCount(), VECTOR_USD_COMBINED.size());
-    assertEquals(test.getParameterMetadata(), METADATA_COMBINED);
-    assertEquals(test.getParameterMetadata(0), METADATA_COMBINED.get(0));
-    assertEquals(test.getSensitivity(), VECTOR_USD_COMBINED);
-    assertEquals(test.getParameterSplit(), Optional.of(PARAM_SPLIT));
+    assertThat(test.getMarketDataName()).isEqualTo(NAME_COMBINED);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD_COMBINED.size());
+    assertThat(test.getParameterMetadata()).isEqualTo(METADATA_COMBINED);
+    assertThat(test.getParameterMetadata(0)).isEqualTo(METADATA_COMBINED.get(0));
+    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD_COMBINED);
+    assertThat(test.getParameterSplit()).isEqualTo(Optional.of(PARAM_SPLIT));
   }
 
+  @Test
   public void test_combine_empty() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, ImmutableList.of(), USD, DoubleArray.of());
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2);
-    assertEquals(test.getMarketDataName(), NAME_COMBINED);
-    assertEquals(test.getParameterCount(), VECTOR_USD1.size());
-    assertEquals(test.getParameterMetadata(), METADATA_USD1);
-    assertEquals(test.getSensitivity(), VECTOR_USD1);
-    assertEquals(test.getParameterSplit(), Optional.of(ImmutableList.of(PARAM1)));
+    assertThat(test.getMarketDataName()).isEqualTo(NAME_COMBINED);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.size());
+    assertThat(test.getParameterMetadata()).isEqualTo(METADATA_USD1);
+    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
+    assertThat(test.getParameterSplit()).isEqualTo(Optional.of(ImmutableList.of(PARAM1)));
   }
 
+  @Test
   public void test_combine_onlyEmpty() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, ImmutableList.of(), USD, DoubleArray.of());
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, ImmutableList.of(), USD, DoubleArray.of());
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2);
-    assertEquals(test.getMarketDataName(), NAME_COMBINED);
-    assertEquals(test.getParameterCount(), 0);
-    assertEquals(test.getParameterMetadata(), ImmutableList.of());
-    assertEquals(test.getSensitivity(), DoubleArray.EMPTY);
-    assertEquals(test.getParameterSplit(), Optional.empty());
+    assertThat(test.getMarketDataName()).isEqualTo(NAME_COMBINED);
+    assertThat(test.getParameterCount()).isEqualTo(0);
+    assertThat(test.getParameterMetadata()).isEmpty();
+    assertThat(test.getSensitivity()).isEqualTo(DoubleArray.EMPTY);
+    assertThat(test.getParameterSplit()).isEqualTo(Optional.empty());
   }
 
+  @Test
   public void test_combine_arraySize0() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurrencyParameterSensitivity.combine(NAME_COMBINED));
   }
 
+  @Test
   public void test_combine_arraySize1() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME_COMBINED, base);
-    assertEquals(test.getMarketDataName(), NAME_COMBINED);
-    assertEquals(test.getParameterCount(), VECTOR_USD1.size());
-    assertEquals(test.getParameterMetadata(), METADATA_USD1);
-    assertEquals(test.getSensitivity(), VECTOR_USD1);
-    assertEquals(test.getParameterSplit(), Optional.of(ImmutableList.of(PARAM1)));
+    assertThat(test.getMarketDataName()).isEqualTo(NAME_COMBINED);
+    assertThat(test.getParameterCount()).isEqualTo(VECTOR_USD1.size());
+    assertThat(test.getParameterMetadata()).isEqualTo(METADATA_USD1);
+    assertThat(test.getSensitivity()).isEqualTo(VECTOR_USD1);
+    assertThat(test.getParameterSplit()).isEqualTo(Optional.of(ImmutableList.of(PARAM1)));
   }
 
+  @Test
   public void test_combine_arraySize1_matchingName() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.combine(NAME1, base);
-    assertEquals(test, base);
+    assertThat(test).isEqualTo(base);
   }
 
+  @Test
   public void test_combine_duplicateNames() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD2, USD, VECTOR_USD2);
@@ -171,41 +181,47 @@ public class CurrencyParameterSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_EUR1, EUR, VECTOR_EUR1);
     CurrencyParameterSensitivity test = base.convertedTo(USD, FX_RATE);
-    assertEquals(test, CurrencyParameterSensitivity.of(NAME1, METADATA_EUR1, USD, VECTOR_EUR1_IN_USD));
+    assertThat(test).isEqualTo(CurrencyParameterSensitivity.of(NAME1, METADATA_EUR1, USD, VECTOR_EUR1_IN_USD));
   }
 
+  @Test
   public void test_convertedTo_sameCurrency() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_EUR1, EUR, VECTOR_EUR1);
     CurrencyParameterSensitivity test = base.convertedTo(EUR, FX_RATE);
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = base.multipliedBy(FACTOR1);
-    assertEquals(test, CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD_FACTOR));
+    assertThat(test).isEqualTo(CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD_FACTOR));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withSensitivity() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = base.withSensitivity(VECTOR_USD_FACTOR);
-    assertEquals(test, CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD_FACTOR));
+    assertThat(test).isEqualTo(CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD_FACTOR));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> base.withSensitivity(DoubleArray.of(1d)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus_array() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = base.plus(VECTOR_USD1);
-    assertEquals(test, base.multipliedBy(2));
+    assertThat(test).isEqualTo(base.multipliedBy(2));
   }
 
+  @Test
   public void test_plus_array_wrongSize() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     assertThatIllegalArgumentException()
@@ -213,12 +229,14 @@ public class CurrencyParameterSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_plus_sensitivity() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity test = base1.plus(base1);
-    assertEquals(test, base1.multipliedBy(2));
+    assertThat(test).isEqualTo(base1.multipliedBy(2));
   }
 
+  @Test
   public void test_plus_sensitivity_wrongName() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, METADATA_USD1, USD, VECTOR_USD1);
@@ -227,46 +245,52 @@ public class CurrencyParameterSensitivityTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_split1() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     ImmutableList<CurrencyParameterSensitivity> test = base.split();
-    assertEquals(test.size(), 1);
-    assertEquals(test.get(0), base);
+    assertThat(test).hasSize(1);
+    assertThat(test.get(0)).isEqualTo(base);
   }
 
+  @Test
   public void test_split2() {
     CurrencyParameterSensitivity base1 = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyParameterSensitivity base2 = CurrencyParameterSensitivity.of(NAME2, METADATA_USD2, USD, VECTOR_USD2);
     CurrencyParameterSensitivity combined = CurrencyParameterSensitivity.combine(NAME_COMBINED, base1, base2);
     ImmutableList<CurrencyParameterSensitivity> test = combined.split();
-    assertEquals(test.size(), 2);
-    assertEquals(test.get(0), base1);
-    assertEquals(test.get(1), base2);
+    assertThat(test).hasSize(2);
+    assertThat(test.get(0)).isEqualTo(base1);
+    assertThat(test.get(1)).isEqualTo(base2);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_total() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     CurrencyAmount test = base.total();
-    assertEquals(test.getCurrency(), USD);
+    assertThat(test.getCurrency()).isEqualTo(USD);
     double expected = VECTOR_USD1.get(0) + VECTOR_USD1.get(1) + VECTOR_USD1.get(2) + VECTOR_USD1.get(3);
-    assertEquals(test.getAmount(), expected);
+    assertThat(test.getAmount()).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toSensitivityMap_badType() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
-    assertThrows(ClassCastException.class, () -> base.toSensitivityMap(Tenor.class));
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> base.toSensitivityMap(Tenor.class));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toUnitParameterSensitivity() {
     CurrencyParameterSensitivity base = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     UnitParameterSensitivity test = base.toUnitParameterSensitivity();
-    assertEquals(test, UnitParameterSensitivity.of(NAME1, METADATA_USD1, VECTOR_USD1));
+    assertThat(test).isEqualTo(UnitParameterSensitivity.of(NAME1, METADATA_USD1, VECTOR_USD1));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CurrencyParameterSensitivity test = CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1);
     coverImmutableBean(test);

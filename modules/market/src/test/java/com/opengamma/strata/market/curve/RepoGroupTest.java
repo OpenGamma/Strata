@@ -5,19 +5,19 @@
  */
 package com.opengamma.strata.market.curve;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link RepoGroup}.
  */
-@Test
 public class RepoGroupTest {
 
+  @Test
   public void coverage() {
     RepoGroup test = RepoGroup.of("Foo");
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.toString()).isEqualTo("Foo");
   }
 
 }

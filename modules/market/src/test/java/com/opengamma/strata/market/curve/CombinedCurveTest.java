@@ -19,15 +19,15 @@ import static com.opengamma.strata.market.ValueType.ZERO_RATE;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.NATURAL_CUBIC_SPLINE;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PCHIP;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -40,7 +40,6 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 /**
  * Test {@link CombinedCurve}.
  */
-@Test
 public class CombinedCurveTest {
 
   private static final String BASE_NAME = "BaseCurve";
@@ -87,6 +86,7 @@ public class CombinedCurveTest {
   private static final int NUM_SAMPLES = X_SAMPLES.size();
   private static final double TOL = 1.0e-14;
 
+  @Test
   public void test_of_noMetadata() {
     List<ParameterMetadata> combinedParamMeta = new ArrayList<>();
     combinedParamMeta.addAll(PARAM_METADATA_BASE);
@@ -98,19 +98,18 @@ public class CombinedCurveTest {
         .dayCount(ACT_365F)
         .parameterMetadata(combinedParamMeta)
         .build();
-    assertEquals(COMBINED_CURVE.getBaseCurve(), BASE_CURVE);
-    assertEquals(COMBINED_CURVE.getSpreadCurve(), SPREAD_CURVE);
-    assertEquals(COMBINED_CURVE.getMetadata(), expectedMetadata);
-    assertEquals(COMBINED_CURVE.getName(), expectedMetadata.getCurveName());
-    assertEquals(
-        COMBINED_CURVE.getParameterCount(),
-        BASE_CURVE.getParameterCount() + SPREAD_CURVE.getParameterCount());
-    assertEquals(COMBINED_CURVE.getParameter(1), BASE_CURVE.getParameter(1));
-    assertEquals(COMBINED_CURVE.getParameter(6), SPREAD_CURVE.getParameter(3));
-    assertEquals(COMBINED_CURVE.getParameterMetadata(0), BASE_CURVE.getParameterMetadata(0));
-    assertEquals(COMBINED_CURVE.getParameterMetadata(4), SPREAD_CURVE.getParameterMetadata(1));
+    assertThat(COMBINED_CURVE.getBaseCurve()).isEqualTo(BASE_CURVE);
+    assertThat(COMBINED_CURVE.getSpreadCurve()).isEqualTo(SPREAD_CURVE);
+    assertThat(COMBINED_CURVE.getMetadata()).isEqualTo(expectedMetadata);
+    assertThat(COMBINED_CURVE.getName()).isEqualTo(expectedMetadata.getCurveName());
+    assertThat(COMBINED_CURVE.getParameterCount()).isEqualTo(BASE_CURVE.getParameterCount() + SPREAD_CURVE.getParameterCount());
+    assertThat(COMBINED_CURVE.getParameter(1)).isEqualTo(BASE_CURVE.getParameter(1));
+    assertThat(COMBINED_CURVE.getParameter(6)).isEqualTo(SPREAD_CURVE.getParameter(3));
+    assertThat(COMBINED_CURVE.getParameterMetadata(0)).isEqualTo(BASE_CURVE.getParameterMetadata(0));
+    assertThat(COMBINED_CURVE.getParameterMetadata(4)).isEqualTo(SPREAD_CURVE.getParameterMetadata(1));
   }
 
+  @Test
   public void test_of() {
     CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
         .curveName(BASE_NAME)
@@ -135,20 +134,19 @@ public class CombinedCurveTest {
         .dayCount(ACT_365F)
         .build();
     CombinedCurve test = CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata);
-    assertEquals(test.getBaseCurve(), baseCurve);
-    assertEquals(test.getSpreadCurve(), spreadCurve);
-    assertEquals(test.getMetadata(), combinedMetadata);
-    assertEquals(test.getName(), combinedMetadata.getCurveName());
-    assertEquals(
-        test.getParameterCount(),
-        baseCurve.getParameterCount() + spreadCurve.getParameterCount());
-    assertEquals(test.getParameter(1), baseCurve.getParameter(1));
-    assertEquals(test.getParameter(6), spreadCurve.getParameter(3));
-    assertEquals(test.getParameterMetadata(2), baseCurve.getParameterMetadata(2));
-    assertEquals(test.getParameterMetadata(5), spreadCurve.getParameterMetadata(2));
+    assertThat(test.getBaseCurve()).isEqualTo(baseCurve);
+    assertThat(test.getSpreadCurve()).isEqualTo(spreadCurve);
+    assertThat(test.getMetadata()).isEqualTo(combinedMetadata);
+    assertThat(test.getName()).isEqualTo(combinedMetadata.getCurveName());
+    assertThat(test.getParameterCount()).isEqualTo(baseCurve.getParameterCount() + spreadCurve.getParameterCount());
+    assertThat(test.getParameter(1)).isEqualTo(baseCurve.getParameter(1));
+    assertThat(test.getParameter(6)).isEqualTo(spreadCurve.getParameter(3));
+    assertThat(test.getParameterMetadata(2)).isEqualTo(baseCurve.getParameterMetadata(2));
+    assertThat(test.getParameterMetadata(5)).isEqualTo(spreadCurve.getParameterMetadata(2));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withMetadata() {
     List<ParameterMetadata> combinedParamMeta = new ArrayList<>();
     combinedParamMeta.addAll(PARAM_METADATA_BASE);
@@ -162,45 +160,50 @@ public class CombinedCurveTest {
         .build();
     CombinedCurve computed = COMBINED_CURVE.withMetadata(newMetadata);
     CombinedCurve expected = CombinedCurve.of(BASE_CURVE, SPREAD_CURVE, newMetadata);
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
+  @Test
   public void test_withParameter() {
     CombinedCurve computed1 = COMBINED_CURVE.withParameter(1, 12.5);
     CombinedCurve expected1 = CombinedCurve.of(BASE_CURVE.withParameter(1, 12.5), SPREAD_CURVE);
-    assertEquals(computed1, expected1);
+    assertThat(computed1).isEqualTo(expected1);
     CombinedCurve computed2 = COMBINED_CURVE.withParameter(5, 7.5);
     CombinedCurve expected2 = CombinedCurve.of(
         BASE_CURVE, SPREAD_CURVE.withParameter(5 - BASE_CURVE.getParameterCount(), 7.5));
-    assertEquals(computed2, expected2);
+    assertThat(computed2).isEqualTo(expected2);
   }
 
+  @Test
   public void test_withPerturbation() {
     CombinedCurve computed = COMBINED_CURVE.withPerturbation((i, v, m) -> 2d * v * i);
     CombinedCurve expected = CombinedCurve.of(
         BASE_CURVE.withPerturbation((i, v, m) -> 2d * v * i),
         SPREAD_CURVE.withPerturbation((i, v, m) -> 2d * v * (i + BASE_CURVE.getParameterCount())));
-    assertEquals(computed, expected);
+    assertThat(computed).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_yValue() {
     for (int i = 0; i < NUM_SAMPLES; ++i) {
       double computed = COMBINED_CURVE.yValue(X_SAMPLES.get(i));
       double expected = BASE_CURVE.yValue(X_SAMPLES.get(i)) + SPREAD_CURVE.yValue(X_SAMPLES.get(i));
-      assertEquals(computed, expected, TOL);
+      assertThat(computed).isCloseTo(expected, offset(TOL));
     }
   }
 
+  @Test
   public void test_firstDerivative() {
     for (int i = 0; i < NUM_SAMPLES; ++i) {
       double computed = COMBINED_CURVE.firstDerivative(X_SAMPLES.get(i));
       double expected = BASE_CURVE.firstDerivative(X_SAMPLES.get(i)) +
           SPREAD_CURVE.firstDerivative(X_SAMPLES.get(i));
-      assertEquals(computed, expected, TOL);
+      assertThat(computed).isCloseTo(expected, offset(TOL));
     }
   }
 
+  @Test
   public void test_yValueParameterSensitivity() {
     for (int i = 0; i < NUM_SAMPLES; ++i) {
       UnitParameterSensitivity computed =
@@ -208,10 +211,11 @@ public class CombinedCurveTest {
       UnitParameterSensitivity baseSens = BASE_CURVE.yValueParameterSensitivity(X_SAMPLES.get(i));
       UnitParameterSensitivity spreadSens = SPREAD_CURVE.yValueParameterSensitivity(
           X_SAMPLES.get(i));
-      assertEquals(computed.split(), ImmutableList.of(baseSens, spreadSens));
+      assertThat(computed.split()).containsExactly(baseSens, spreadSens);
     }
   }
 
+  @Test
   public void test_createParameterSensitivity() {
     DoubleArray values = DoubleArray.of(3d, 4d, 6d, 1d, 2d, 5d, 8d);
     DoubleArray valuesBase = DoubleArray.of(3d, 4d, 6d);
@@ -219,9 +223,10 @@ public class CombinedCurveTest {
     UnitParameterSensitivity computed = COMBINED_CURVE.createParameterSensitivity(values);
     UnitParameterSensitivity baseSens = BASE_CURVE.createParameterSensitivity(valuesBase);
     UnitParameterSensitivity spreadSens = SPREAD_CURVE.createParameterSensitivity(valuesSpread);
-    assertEquals(computed.split(), ImmutableList.of(baseSens, spreadSens));
+    assertThat(computed.split()).containsExactly(baseSens, spreadSens);
   }
 
+  @Test
   public void test_createParameterSensitivityWithCurrency() {
     Currency ccy = Currency.USD;
     DoubleArray values = DoubleArray.of(3d, 4d, 6d, 1d, 2d, 5d, 8d);
@@ -231,10 +236,11 @@ public class CombinedCurveTest {
     CurrencyParameterSensitivity baseSens = BASE_CURVE.createParameterSensitivity(ccy, valuesBase);
     CurrencyParameterSensitivity spreadSens =
         SPREAD_CURVE.createParameterSensitivity(ccy, valuesSpread);
-    assertEquals(computed.split(), ImmutableList.of(baseSens, spreadSens));
+    assertThat(computed.split()).containsExactly(baseSens, spreadSens);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_xValueType() {
     CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
         .curveName(BASE_NAME)
@@ -270,6 +276,7 @@ public class CombinedCurveTest {
         .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
   }
 
+  @Test
   public void test_yValueType() {
     CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
         .curveName(BASE_NAME)
@@ -305,6 +312,7 @@ public class CombinedCurveTest {
         .isThrownBy(() -> CombinedCurve.of(baseCurve, spreadCurve, combinedMetadata2));
   }
 
+  @Test
   public void test_dayCount() {
     CurveMetadata baseMetadata = DefaultCurveMetadata.builder()
         .curveName(BASE_NAME)
@@ -341,6 +349,7 @@ public class CombinedCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_underlyingCurves() {
     CurveMetadata metadata = DefaultCurveMetadata.builder()
         .curveName("newCurve")
@@ -351,18 +360,15 @@ public class CombinedCurveTest {
         .build();
     InterpolatedNodalCurve newCurve = InterpolatedNodalCurve.of(
         metadata, XVALUES_SPREAD, YVALUES_SPREAD, NATURAL_CUBIC_SPLINE, LINEAR, LINEAR);
-    assertEquals(
-        COMBINED_CURVE.withUnderlyingCurve(0, newCurve),
-        CombinedCurve.of(newCurve, SPREAD_CURVE, COMBINED_CURVE.getMetadata()));
-    assertEquals(
-        COMBINED_CURVE.withUnderlyingCurve(1, newCurve),
-        CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
-    assertEquals(COMBINED_CURVE.split(), ImmutableList.of(BASE_CURVE, SPREAD_CURVE));
+    assertThat(COMBINED_CURVE.withUnderlyingCurve(0, newCurve)).isEqualTo(CombinedCurve.of(newCurve, SPREAD_CURVE, COMBINED_CURVE.getMetadata()));
+    assertThat(COMBINED_CURVE.withUnderlyingCurve(1, newCurve)).isEqualTo(CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
+    assertThat(COMBINED_CURVE.split()).containsExactly(BASE_CURVE, SPREAD_CURVE);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> COMBINED_CURVE.withUnderlyingCurve(2, newCurve));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(COMBINED_CURVE);
     CombinedCurve test = CombinedCurve.of(

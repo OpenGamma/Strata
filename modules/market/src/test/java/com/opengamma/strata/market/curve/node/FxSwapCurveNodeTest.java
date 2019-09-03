@@ -11,16 +11,15 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
@@ -51,7 +50,6 @@ import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
 /**
  * Test {@link FxSwapCurveNode}.
  */
-@Test
 public class FxSwapCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -79,6 +77,7 @@ public class FxSwapCurveNodeTest {
       .build();
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_builder() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
         .label(LABEL)
@@ -87,62 +86,69 @@ public class FxSwapCurveNodeTest {
         .farForwardPointsId(QUOTE_ID_PTS)
         .date(CurveNodeDate.LAST_FIXING)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getFxRateId(), FX_RATE_ID2);
-    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.LAST_FIXING);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getFxRateId()).isEqualTo(FX_RATE_ID2);
+    assertThat(test.getFarForwardPointsId()).isEqualTo(QUOTE_ID_PTS);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.LAST_FIXING);
   }
 
+  @Test
   public void test_builder_defaults() {
     FxSwapCurveNode test = FxSwapCurveNode.builder()
         .template(TEMPLATE)
         .farForwardPointsId(QUOTE_ID_PTS)
         .build();
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getFxRateId(), FX_RATE_ID);
-    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.END);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getFxRateId()).isEqualTo(FX_RATE_ID);
+    assertThat(test.getFarForwardPointsId()).isEqualTo(QUOTE_ID_PTS);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
   }
 
+  @Test
   public void test_builder_noTemplate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxSwapCurveNode.builder().label(LABEL).farForwardPointsId(QUOTE_ID_PTS).build());
   }
 
+  @Test
   public void test_of() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getFxRateId(), FX_RATE_ID);
-    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getFxRateId()).isEqualTo(FX_RATE_ID);
+    assertThat(test.getFarForwardPointsId()).isEqualTo(QUOTE_ID_PTS);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withLabel() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS, LABEL);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getFxRateId(), FX_RATE_ID);
-    assertEquals(test.getFarForwardPointsId(), QUOTE_ID_PTS);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getFxRateId()).isEqualTo(FX_RATE_ID);
+    assertThat(test.getFarForwardPointsId()).isEqualTo(QUOTE_ID_PTS);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_requirements() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     Set<? extends MarketDataId<?>> setExpected = ImmutableSet.of(FX_RATE_ID, QUOTE_ID_PTS);
     Set<? extends MarketDataId<?>> set = test.requirements();
-    assertTrue(set.equals(setExpected));
+    assertThat(set.equals(setExpected)).isTrue();
   }
 
+  @Test
   public void test_trade() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     FxSwapTrade trade = node.trade(1d, MARKET_DATA, REF_DATA);
     double rate = FX_RATE_NEAR.fxRate(EUR_USD);
     FxSwapTrade expected = TEMPLATE.createTrade(VAL_DATE, BuySell.BUY, 1.0, rate, FX_RATE_PTS, REF_DATA);
-    assertEquals(trade, expected);
-    assertEquals(node.resolvedTrade(1d, MARKET_DATA, REF_DATA), trade.resolve(REF_DATA));
+    assertThat(trade).isEqualTo(expected);
+    assertThat(node.resolvedTrade(1d, MARKET_DATA, REF_DATA)).isEqualTo(trade.resolve(REF_DATA));
   }
 
+  @Test
   public void test_trade_noMarketData() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     MarketData marketData = MarketData.empty(VAL_DATE);
@@ -150,31 +156,35 @@ public class FxSwapCurveNodeTest {
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
+  @Test
   public void test_initialGuess() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
-    assertEquals(node.initialGuess(MARKET_DATA, ValueType.ZERO_RATE), 0.0d);
-    assertEquals(node.initialGuess(MARKET_DATA, ValueType.DISCOUNT_FACTOR), 1.0d);
+    assertThat(node.initialGuess(MARKET_DATA, ValueType.ZERO_RATE)).isEqualTo(0.0d);
+    assertThat(node.initialGuess(MARKET_DATA, ValueType.DISCOUNT_FACTOR)).isEqualTo(1.0d);
   }
 
+  @Test
   public void test_metadata_end() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     LocalDate endDate = CONVENTION.getBusinessDayAdjustment()
         .adjust(CONVENTION.getSpotDateOffset().adjust(valuationDate, REF_DATA).plus(FAR_PERIOD), REF_DATA);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), endDate);
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.of(FAR_PERIOD));
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(endDate);
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(Tenor.of(FAR_PERIOD));
   }
 
+  @Test
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(metadata.getDate(), nodeDate);
-    assertEquals(metadata.getLabel(), node.getLabel());
+    assertThat(metadata.getDate()).isEqualTo(nodeDate);
+    assertThat(metadata.getLabel()).isEqualTo(node.getLabel());
   }
 
+  @Test
   public void test_metadata_last_fixing() {
     FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS).withDate(CurveNodeDate.LAST_FIXING);
     assertThatExceptionOfType(UnsupportedOperationException.class)
@@ -182,6 +192,7 @@ public class FxSwapCurveNodeTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     coverImmutableBean(test);
@@ -195,6 +206,7 @@ public class FxSwapCurveNodeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     FxSwapCurveNode test = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
     assertSerialization(test);

@@ -8,17 +8,16 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
@@ -30,7 +29,6 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 /**
  * Test {@link AddFixedCurve}.
  */
-@Test
 public class AddFixedCurveTest {
 
   private static final String NAME_FIXED = "FixedCurve";
@@ -72,6 +70,7 @@ public class AddFixedCurveTest {
 
   private static final double TOLERANCE_Y = 1.0E-10;
 
+  @Test
   public void test_invalid() {
     // null fixed
     assertThatIllegalArgumentException()
@@ -81,45 +80,48 @@ public class AddFixedCurveTest {
         .isThrownBy(() -> AddFixedCurve.of(FIXED_CURVE, null));
   }
 
+  @Test
   public void getter() {
-    assertEquals(ADD_FIXED_CURVE.getMetadata(), METADATA_SPREAD);
-    assertEquals(ADD_FIXED_CURVE.getParameterCount(), XVALUES_SPREAD.size());
-    assertEquals(ADD_FIXED_CURVE.getParameter(0), ADD_FIXED_CURVE.getSpreadCurve().getParameter(0));
-    assertEquals(ADD_FIXED_CURVE.getParameterMetadata(0), ADD_FIXED_CURVE.getSpreadCurve().getParameterMetadata(0));
-    assertEquals(ADD_FIXED_CURVE.withParameter(0, 9d), AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withParameter(0, 9d)));
-    assertEquals(ADD_FIXED_CURVE.withPerturbation((i, v, m) -> v + 1d),
-        AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withPerturbation((i, v, m) -> v + 1d)));
-    assertEquals(ADD_FIXED_CURVE.withMetadata(METADATA_FIXED),
-        AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withMetadata(METADATA_FIXED)));
+    assertThat(ADD_FIXED_CURVE.getMetadata()).isEqualTo(METADATA_SPREAD);
+    assertThat(ADD_FIXED_CURVE.getParameterCount()).isEqualTo(XVALUES_SPREAD.size());
+    assertThat(ADD_FIXED_CURVE.getParameter(0)).isEqualTo(ADD_FIXED_CURVE.getSpreadCurve().getParameter(0));
+    assertThat(ADD_FIXED_CURVE.getParameterMetadata(0)).isEqualTo(ADD_FIXED_CURVE.getSpreadCurve().getParameterMetadata(0));
+    assertThat(ADD_FIXED_CURVE.withParameter(0, 9d)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withParameter(0, 9d)));
+    assertThat(ADD_FIXED_CURVE.withPerturbation((i, v, m) -> v + 1d)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withPerturbation((i, v, m) -> v + 1d)));
+    assertThat(ADD_FIXED_CURVE.withMetadata(METADATA_FIXED)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withMetadata(METADATA_FIXED)));
   }
 
+  @Test
   public void yValue() {
     for (int i = 0; i < NB_X_SAMPLE; i++) {
       double yComputed = ADD_FIXED_CURVE.yValue(X_SAMPLE[i]);
       double yExpected = FIXED_CURVE.yValue(X_SAMPLE[i]) + SPREAD_CURVE.yValue(X_SAMPLE[i]);
-      assertEquals(yComputed, yExpected, TOLERANCE_Y);
+      assertThat(yComputed).isCloseTo(yExpected, offset(TOLERANCE_Y));
     }
   }
 
+  @Test
   public void firstDerivative() {
     for (int i = 0; i < NB_X_SAMPLE; i++) {
       double dComputed = ADD_FIXED_CURVE.firstDerivative(X_SAMPLE[i]);
       double dExpected = FIXED_CURVE.firstDerivative(X_SAMPLE[i]) + SPREAD_CURVE.firstDerivative(X_SAMPLE[i]);
-      assertEquals(dComputed, dExpected, TOLERANCE_Y);
+      assertThat(dComputed).isCloseTo(dExpected, offset(TOLERANCE_Y));
     }
   }
 
+  @Test
   public void yParameterSensitivity() {
     for (int i = 0; i < X_SAMPLE.length; i++) {
       UnitParameterSensitivity dComputed = ADD_FIXED_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
       UnitParameterSensitivity dExpected = SPREAD_CURVE.yValueParameterSensitivity(X_SAMPLE[i]);
-      assertTrue(dComputed.compareKey(dExpected) == 0);
-      assertTrue(dComputed.getSensitivity().equalWithTolerance(dExpected.getSensitivity(), TOLERANCE_Y));
+      assertThat(dComputed.compareKey(dExpected) == 0).isTrue();
+      assertThat(dComputed.getSensitivity().equalWithTolerance(dExpected.getSensitivity(), TOLERANCE_Y)).isTrue();
     }
   }
 
+  @Test
   public void underlyingCurve() {
-    assertEquals(ADD_FIXED_CURVE.split(), ImmutableList.of(FIXED_CURVE, SPREAD_CURVE));
+    assertThat(ADD_FIXED_CURVE.split()).containsExactly(FIXED_CURVE, SPREAD_CURVE);
     CurveMetadata metadata = DefaultCurveMetadata.builder()
         .curveName(CurveName.of("newCurve"))
         .xValueType(ValueType.YEAR_FRACTION)
@@ -129,17 +131,14 @@ public class AddFixedCurveTest {
         .build();
     InterpolatedNodalCurve newCurve = InterpolatedNodalCurve.of(
         metadata, XVALUES_SPREAD, YVALUES_SPREAD, INTERPOLATOR);
-    assertEquals(
-        ADD_FIXED_CURVE.withUnderlyingCurve(0, newCurve),
-        AddFixedCurve.of(newCurve, SPREAD_CURVE));
-    assertEquals(
-        ADD_FIXED_CURVE.withUnderlyingCurve(1, newCurve),
-        AddFixedCurve.of(FIXED_CURVE, newCurve));
+    assertThat(ADD_FIXED_CURVE.withUnderlyingCurve(0, newCurve)).isEqualTo(AddFixedCurve.of(newCurve, SPREAD_CURVE));
+    assertThat(ADD_FIXED_CURVE.withUnderlyingCurve(1, newCurve)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, newCurve));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ADD_FIXED_CURVE.withUnderlyingCurve(2, newCurve));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverImmutableBean(ADD_FIXED_CURVE);
     coverBeanEquals(ADD_FIXED_CURVE, AddFixedCurve.of(SPREAD_CURVE, FIXED_CURVE));

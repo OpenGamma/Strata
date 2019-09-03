@@ -13,8 +13,8 @@ import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_OTHER;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.DROP_THIS;
 import static com.opengamma.strata.market.curve.CurveNodeClashAction.EXCEPTION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -38,7 +38,6 @@ import com.opengamma.strata.market.param.TenorParameterMetadata;
 /**
  * Test {@link ParameterizedFunctionalCurveDefinition}.
  */
-@Test
 public class ParameterizedFunctionalCurveDefinitionTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -87,6 +86,7 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         }
       };
 
+  @Test
   public void test_builder() {
     ParameterizedFunctionalCurveDefinition test = ParameterizedFunctionalCurveDefinition.builder()
         .dayCount(ACT_365F)
@@ -100,19 +100,20 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.getName(), CURVE_NAME);
-    assertEquals(test.getXValueType(), ValueType.YEAR_FRACTION);
-    assertEquals(test.getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(test.getDayCount(), Optional.of(ACT_365F));
-    assertEquals(test.getNodes(), NODES);
-    assertEquals(test.getValueFunction(), VALUE_FUNCTION);
-    assertEquals(test.getDerivativeFunction(), DERIVATIVE_FUNCTION);
-    assertEquals(test.getSensitivityFunction(), SENSITIVITY_FUNCTION);
-    assertEquals(test.getInitialGuess(), INITIAL_PARAMS);
-    assertEquals(test.getParameterCount(), 3);
-    assertEquals(test.getParameterMetadata(), PARAM_METADATA);
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.ZERO_RATE);
+    assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_365F));
+    assertThat(test.getNodes()).isEqualTo(NODES);
+    assertThat(test.getValueFunction()).isEqualTo(VALUE_FUNCTION);
+    assertThat(test.getDerivativeFunction()).isEqualTo(DERIVATIVE_FUNCTION);
+    assertThat(test.getSensitivityFunction()).isEqualTo(SENSITIVITY_FUNCTION);
+    assertThat(test.getInitialGuess()).isEqualTo(INITIAL_PARAMS);
+    assertThat(test.getParameterCount()).isEqualTo(3);
+    assertThat(test.getParameterMetadata()).isEqualTo(PARAM_METADATA);
   }
 
+  @Test
   public void test_builder_noParamMetadata() {
     ParameterizedFunctionalCurveDefinition test = ParameterizedFunctionalCurveDefinition.builder()
         .dayCount(ACT_365F)
@@ -125,20 +126,21 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.getName(), CURVE_NAME);
-    assertEquals(test.getXValueType(), ValueType.YEAR_FRACTION);
-    assertEquals(test.getYValueType(), ValueType.ZERO_RATE);
-    assertEquals(test.getDayCount(), Optional.of(ACT_365F));
-    assertEquals(test.getNodes(), NODES);
-    assertEquals(test.getValueFunction(), VALUE_FUNCTION);
-    assertEquals(test.getDerivativeFunction(), DERIVATIVE_FUNCTION);
-    assertEquals(test.getSensitivityFunction(), SENSITIVITY_FUNCTION);
-    assertEquals(test.getInitialGuess(), INITIAL_PARAMS);
-    assertEquals(test.getParameterCount(), 3);
-    assertEquals(test.getParameterMetadata(), ParameterMetadata.listOfEmpty(3));
+    assertThat(test.getName()).isEqualTo(CURVE_NAME);
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getYValueType()).isEqualTo(ValueType.ZERO_RATE);
+    assertThat(test.getDayCount()).isEqualTo(Optional.of(ACT_365F));
+    assertThat(test.getNodes()).isEqualTo(NODES);
+    assertThat(test.getValueFunction()).isEqualTo(VALUE_FUNCTION);
+    assertThat(test.getDerivativeFunction()).isEqualTo(DERIVATIVE_FUNCTION);
+    assertThat(test.getSensitivityFunction()).isEqualTo(SENSITIVITY_FUNCTION);
+    assertThat(test.getInitialGuess()).isEqualTo(INITIAL_PARAMS);
+    assertThat(test.getParameterCount()).isEqualTo(3);
+    assertThat(test.getParameterMetadata()).isEqualTo(ParameterMetadata.listOfEmpty(3));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropThis_atStart() {
     DummyFraCurveNode node1 =
         DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER, DROP_THIS_2D);
@@ -158,9 +160,10 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node2, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node2, node3);
   }
 
+  @Test
   public void test_filtered_dropOther_atStart() {
     DummyFraCurveNode node1 =
         DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER, DROP_OTHER_2D);
@@ -180,9 +183,10 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node3);
   }
 
+  @Test
   public void test_filtered_exception_atStart() {
     DummyFraCurveNode node1 =
         DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER, EXCEPTION_2D);
@@ -208,6 +212,7 @@ public class ParameterizedFunctionalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropThis_middle() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 =
@@ -227,9 +232,10 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node3);
   }
 
+  @Test
   public void test_filtered_dropOther_middle() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(3), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 =
@@ -249,10 +255,11 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node2, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node2, node3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropThis_atEnd() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -272,9 +279,10 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node2));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node2);
   }
 
+  @Test
   public void test_filtered_dropOther_atEnd() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -294,9 +302,10 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(), ImmutableList.of(node1, node3));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node3);
   }
 
+  @Test
   public void test_filtered_exception_atEnd() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -322,6 +331,7 @@ public class ParameterizedFunctionalCurveDefinitionTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_filtered_dropOther_multiple() {
     DummyFraCurveNode node1 = DummyFraCurveNode.of(Period.ofDays(5), GBP_LIBOR_1M, TICKER);
     DummyFraCurveNode node2 = DummyFraCurveNode.of(Period.ofDays(10), GBP_LIBOR_1M, TICKER);
@@ -345,11 +355,11 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.filtered(VAL_DATE, REF_DATA).getNodes(),
-        ImmutableList.of(node1, node4, node6));
+    assertThat(test.filtered(VAL_DATE, REF_DATA).getNodes()).containsExactly(node1, node4, node6);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_metadata() {
     ParameterizedFunctionalCurveDefinition test = ParameterizedFunctionalCurveDefinition.builder()
         .dayCount(ACT_365F)
@@ -370,10 +380,11 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .dayCount(ACT_365F)
         .parameterMetadata(PARAM_METADATA)
         .build();
-    assertEquals(test.metadata(VAL_DATE, REF_DATA), expected);
+    assertThat(test.metadata(VAL_DATE, REF_DATA)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_curve() {
     ParameterizedFunctionalCurveDefinition test = ParameterizedFunctionalCurveDefinition.builder()
         .dayCount(ACT_365F)
@@ -402,10 +413,11 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .sensitivityFunction(SENSITIVITY_FUNCTION)
         .parameters(parameters)
         .build();
-    assertEquals(test.curve(VAL_DATE, metadata, parameters), expected);
+    assertThat(test.curve(VAL_DATE, metadata, parameters)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toCurveParameterSize() {
     ParameterizedFunctionalCurveDefinition test = ParameterizedFunctionalCurveDefinition.builder()
         .dayCount(ACT_365F)
@@ -419,10 +431,11 @@ public class ParameterizedFunctionalCurveDefinitionTest {
         .xValueType(ValueType.YEAR_FRACTION)
         .yValueType(ValueType.ZERO_RATE)
         .build();
-    assertEquals(test.toCurveParameterSize(), CurveParameterSize.of(CURVE_NAME, INITIAL_PARAMS.size()));
+    assertThat(test.toCurveParameterSize()).isEqualTo(CurveParameterSize.of(CURVE_NAME, INITIAL_PARAMS.size()));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     ParameterizedFunctionalCurveDefinition test = ParameterizedFunctionalCurveDefinition.builder()
         .dayCount(ACT_365F)

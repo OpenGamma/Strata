@@ -8,13 +8,13 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -26,7 +26,6 @@ import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
 /**
  * Test {@link RatesCurveGroupDefinitionCsvLoader}.
  */
-@Test
 public class RatesCurveGroupDefinitionCsvLoaderTest {
 
   private static final String GROUPS_1 = "classpath:com/opengamma/strata/loader/csv/groups.csv";
@@ -36,22 +35,24 @@ public class RatesCurveGroupDefinitionCsvLoaderTest {
   private static final LocalDate CURVE_DATE = LocalDate.of(2009, 7, 31);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_loadCurveGroupDefinition() {
     List<RatesCurveGroupDefinition> defns =
         RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
-    assertEquals(defns.size(), 1);
+    assertThat(defns).hasSize(1);
     RatesCurveGroupDefinition defn = defns.get(0);
-    assertEquals(defn.getEntries().get(0), RatesCurveGroupEntry.builder()
+    assertThat(defn.getEntries().get(0)).isEqualTo(RatesCurveGroupEntry.builder()
         .curveName(CurveName.of("USD-Disc"))
         .discountCurrencies(USD)
         .build());
-    assertEquals(defn.getEntries().get(1), RatesCurveGroupEntry.builder()
+    assertThat(defn.getEntries().get(1)).isEqualTo(RatesCurveGroupEntry.builder()
         .curveName(CurveName.of("USD-3ML"))
         .indices(USD_LIBOR_3M)
         .build());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_writeCurveGroupDefinition() {
     RatesCurveGroupDefinition defn =
         RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1)).get(0);
@@ -63,9 +64,10 @@ public class RatesCurveGroupDefinitionCsvLoaderTest {
             "Default,discount,USD,USD-Disc" + System.lineSeparator() +
             "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator() +
             "Default,forward,US-CPI-U,USD-CPI" + System.lineSeparator();
-    assertEquals(created, expected);
+    assertThat(created).isEqualTo(expected);
   }
 
+  @Test
   public void test_writeCurveGroup() {
     List<RatesCurveGroup> curveGroups = RatesCurvesCsvLoader.load(
         CURVE_DATE,
@@ -79,19 +81,21 @@ public class RatesCurveGroupDefinitionCsvLoaderTest {
         "Group Name,Curve Type,Reference,Curve Name" + System.lineSeparator() +
             "Default,discount,USD,USD-Disc" + System.lineSeparator() +
             "Default,forward,USD-LIBOR-3M,USD-3ML" + System.lineSeparator();
-    assertEquals(created, expected);
+    assertThat(created).isEqualTo(expected);
   }
 
+  @Test
   public void test_test_writeCurveGroupDefinition_roundtrip() throws Exception {
     List<RatesCurveGroupDefinition> defn =
         RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.of(GROUPS_1));
     File tempFile = File.createTempFile("TestCurveGroupLoading", "csv");
     tempFile.deleteOnExit();
     RatesCurveGroupDefinitionCsvLoader.writeCurveGroupDefinition(tempFile, defn.get(0));
-    assertEquals(RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.ofFile(tempFile)), defn);
+    assertThat(RatesCurveGroupDefinitionCsvLoader.loadCurveGroupDefinitions(ResourceLocator.ofFile(tempFile))).isEqualTo(defn);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(RatesCurveGroupDefinitionCsvLoader.class);
   }

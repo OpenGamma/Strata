@@ -26,8 +26,8 @@ import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.joda.beans.Bean;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
@@ -139,7 +139,6 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Test {@link TradeCsvLoader}.
  */
-@Test
 public class TradeCsvLoaderTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -153,17 +152,19 @@ public class TradeCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/trades-cpty2.csv");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_isKnownFormat() {
     TradeCsvLoader test = TradeCsvLoader.standard();
-    assertEquals(test.isKnownFormat(FILE.getCharSource()), true);
+    assertThat(test.isKnownFormat(FILE.getCharSource())).isTrue();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_failures() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
 
-    assertEquals(trades.getFailures().size(), 0, trades.getFailures().toString());
+    assertThat(trades.getFailures().size()).as(trades.getFailures().toString()).isEqualTo(0);
   }
 
   @Test
@@ -172,10 +173,10 @@ public class TradeCsvLoaderTest {
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<FxSingleTrade>> loadedData = standard.parse(charSources, FxSingleTrade.class);
-    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxSingleTrade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 2);
+    assertThat(loadedTrades).hasSize(2);
 
     FxSingleTrade expected0 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -209,25 +210,24 @@ public class TradeCsvLoaderTest {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades_legs_same_direction.csv");
     ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
-    assertEquals(loadedData.getFailures().size(), 1, loadedData.getFailures().toString());
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(1);
     FailureItem failureItem = loadedData.getFailures().get(0);
-    assertEquals(failureItem.getReason().toString(), "PARSING");
-    assertEquals(
-        failureItem.getMessage(),
-        "CSV file trade could not be parsed at line 2: FxSingle legs must not have the same direction: Pay, Pay");
+    assertThat(failureItem.getReason().toString()).isEqualTo("PARSING");
+    assertThat(failureItem.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: FxSingle legs must not have the same direction: Pay, Pay");
     List<Trade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 0);
+    assertThat(loadedTrades).hasSize(0);
   }
 
+  @Test
   public void test_load_fx_forwards_fullFormat() throws Exception {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<FxSingleTrade>> loadedData = standard.parse(charSources, FxSingleTrade.class);
-    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxSingleTrade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 5);
+    assertThat(loadedTrades).hasSize(5);
 
     FxSingleTrade expectedTrade1 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -239,7 +239,7 @@ public class TradeCsvLoaderTest {
             CurrencyAmount.of(Currency.INR, 715405000),
             LocalDate.parse("2017-12-08")))
         .build();
-    assertEquals(loadedTrades.get(0), expectedTrade1);
+    assertThat(loadedTrades.get(0)).isEqualTo(expectedTrade1);
 
     FxSingleTrade expectedTrade2 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -251,7 +251,7 @@ public class TradeCsvLoaderTest {
             CurrencyAmount.of(Currency.TWD, 95703040),
             LocalDate.parse("2017-07-13")))
         .build();
-    assertEquals(loadedTrades.get(1), expectedTrade2);
+    assertThat(loadedTrades.get(1)).isEqualTo(expectedTrade2);
 
     FxSingleTrade expectedTrade3 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -266,7 +266,7 @@ public class TradeCsvLoaderTest {
             LocalDate.parse("2018-01-29"),
             BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, EUTA.combinedWith(CZPR))))
         .build();
-    assertEquals(loadedTrades.get(2), expectedTrade3);
+    assertThat(loadedTrades.get(2)).isEqualTo(expectedTrade3);
 
     FxSingleTrade expectedTrade4 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -278,7 +278,7 @@ public class TradeCsvLoaderTest {
             CurrencyAmount.of(Currency.CZK, 12256000),
             LocalDate.parse("2018-01-29")))
         .build();
-    assertEquals(loadedTrades.get(3), expectedTrade4);
+    assertThat(loadedTrades.get(3)).isEqualTo(expectedTrade4);
 
     FxSingleTrade expectedTrade5 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
@@ -290,7 +290,7 @@ public class TradeCsvLoaderTest {
             Payment.of(Currency.CZK, -12256000, LocalDate.parse("2018-01-30")),
             BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, EUTA.combinedWith(CZPR))))
         .build();
-    assertEquals(loadedTrades.get(4), expectedTrade5);
+    assertThat(loadedTrades.get(4)).isEqualTo(expectedTrade5);
   }
 
   //-------------------------------------------------------------------------
@@ -300,10 +300,10 @@ public class TradeCsvLoaderTest {
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<FxSwapTrade>> loadedData = standard.parse(charSources, FxSwapTrade.class);
-    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxSwapTrade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 2);
+    assertThat(loadedTrades).hasSize(2);
 
     FxSingle near1 = FxSingle.of(CurrencyAmount.of(USD, 120000), FxRate.of(USD, CAD, 1.31), LocalDate.parse("2016-12-08"));
     FxSingle far1 = FxSingle.of(CurrencyAmount.of(USD, -120000), FxRate.of(USD, CAD, 1.34), LocalDate.parse("2017-01-08"));
@@ -332,15 +332,16 @@ public class TradeCsvLoaderTest {
     checkRoundtrip(FxSwapTrade.class, loadedTrades, expected0, expected1);
   }
 
+  @Test
   public void test_load_fx_swaps_fullFormat() throws Exception {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<FxSwapTrade>> loadedData = standard.parse(charSources, FxSwapTrade.class);
-    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxSwapTrade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 1);
+    assertThat(loadedTrades).hasSize(1);
 
     FxSingle near1 = FxSingle.of(
         Payment.of(EUR, 1920000, LocalDate.parse("2018-01-29")),
@@ -367,10 +368,10 @@ public class TradeCsvLoaderTest {
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<FxVanillaOptionTrade>> loadedData = standard.parse(charSources, FxVanillaOptionTrade.class);
-    assertEquals(loadedData.getFailures().size(), 0, loadedData.getFailures().toString());
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxVanillaOptionTrade> loadedTrades = loadedData.getValue();
-    assertEquals(loadedTrades.size(), 1);
+    assertThat(loadedTrades).hasSize(1);
 
     FxVanillaOptionTrade expectedTrade0 = FxVanillaOptionTrade.builder()
         .info(TradeInfo.builder()
@@ -396,6 +397,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_fra() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -403,7 +405,7 @@ public class TradeCsvLoaderTest {
     List<FraTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(FraTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 3);
+    assertThat(filtered).hasSize(3);
 
     FraTrade expected0 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
         .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
@@ -451,6 +453,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_fra_bothCounterpartyColumnsPresent() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY);
@@ -458,7 +461,7 @@ public class TradeCsvLoaderTest {
     List<FraTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(FraTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 3);
+    assertThat(filtered).hasSize(3);
 
     FraTrade expected1 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
         .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
@@ -506,6 +509,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_fra_counterpartyColumnPresentNoScheme() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE_CPTY2);
@@ -513,7 +517,7 @@ public class TradeCsvLoaderTest {
     List<FraTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(FraTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 3);
+    assertThat(filtered).hasSize(3);
 
     FraTrade expected1 = FraConventions.of(IborIndices.GBP_LIBOR_3M)
         .createTrade(date(2017, 6, 1), Period.ofMonths(2), BUY, 1_000_000, 0.005, REF_DATA)
@@ -561,6 +565,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_swap() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -568,7 +573,7 @@ public class TradeCsvLoaderTest {
     List<SwapTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(SwapTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), NUMBER_SWAPS);
+    assertThat(filtered).hasSize(NUMBER_SWAPS);
 
     SwapTrade expected0 = expectedSwap0();
     SwapTrade expected1 = expectedSwap1();
@@ -865,6 +870,7 @@ public class TradeCsvLoaderTest {
         .build();
   }
 
+  @Test
   public void test_load_swap_all() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
@@ -1005,8 +1011,8 @@ public class TradeCsvLoaderTest {
 
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
-    assertEquals(result.getFailures().size(), 0, result.getFailures().toString());
-    assertEquals(result.getValue().size(), 1);
+    assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(0);
+    assertThat(result.getValue()).hasSize(1);
 
     Swap expectedSwap = Swap.builder()
         .legs(
@@ -1211,6 +1217,7 @@ public class TradeCsvLoaderTest {
     checkRoundtrip(SwapTrade.class, result.getValue(), expected);
   }
 
+  @Test
   public void test_load_swap_defaultFixedLegDayCount() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
@@ -1244,8 +1251,8 @@ public class TradeCsvLoaderTest {
 
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
-    assertEquals(result.getFailures().size(), 0, result.getFailures().toString());
-    assertEquals(result.getValue().size(), 1);
+    assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(0);
+    assertThat(result.getValue()).hasSize(1);
 
     Swap expectedSwap = Swap.builder()
         .legs(
@@ -1304,6 +1311,7 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected, result.getValue().get(0));
   }
 
+  @Test
   public void test_load_swap_knownAmount() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
@@ -1336,8 +1344,8 @@ public class TradeCsvLoaderTest {
 
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
-    assertEquals(result.getFailures().size(), 0, result.getFailures().toString());
-    assertEquals(result.getValue().size(), 1);
+    assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(0);
+    assertThat(result.getValue()).hasSize(1);
 
     Swap expectedSwap = Swap.builder()
         .legs(
@@ -1390,6 +1398,7 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected, result.getValue().get(0));
   }
 
+  @Test
   public void test_load_swap_knownAmountAndFixedRate() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
@@ -1424,14 +1433,13 @@ public class TradeCsvLoaderTest {
 
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
-    assertEquals(result.getFailures().size(), 1, result.getFailures().toString());
+    assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(1);
     FailureItem failure = result.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(
-        failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
   }
 
+  @Test
   public void test_load_swap_knownAmountAndIndex() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
@@ -1466,14 +1474,13 @@ public class TradeCsvLoaderTest {
 
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
-    assertEquals(result.getFailures().size(), 1, result.getFailures().toString());
+    assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(1);
     FailureItem failure = result.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(
-        failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
   }
 
+  @Test
   public void test_load_swap_fixedRateAndIndex() {
     ImmutableMap<String, String> csvMap = ImmutableMap.<String, String>builder()
         .put("Strata Trade Type", "Swap")
@@ -1508,15 +1515,14 @@ public class TradeCsvLoaderTest {
 
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<SwapTrade>> result = test.parse(ImmutableList.of(CharSource.wrap(csv)), SwapTrade.class);
-    assertEquals(result.getFailures().size(), 1, result.getFailures().toString());
+    assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(1);
     FailureItem failure = result.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(
-        failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_swaption() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1524,7 +1530,7 @@ public class TradeCsvLoaderTest {
     List<SwaptionTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(SwaptionTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 3);
+    assertThat(filtered).hasSize(3);
 
     SwaptionTrade expected0 = expectedSwaption0();
     SwaptionTrade expected1 = expectedSwaption1();
@@ -1581,12 +1587,13 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_bulletPayment() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<BulletPaymentTrade>> loadedData = test.parse(charSources, BulletPaymentTrade.class);
-    assertEquals(loadedData.getValue().size(), 2);
+    assertThat(loadedData.getValue()).hasSize(2);
 
     BulletPaymentTrade expected0 = BulletPaymentTrade.builder()
         .info(TradeInfo.builder()
@@ -1618,6 +1625,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_termDeposit() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1625,7 +1633,7 @@ public class TradeCsvLoaderTest {
     List<TermDepositTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(TermDepositTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 3);
+    assertThat(filtered).hasSize(3);
 
     TermDepositTrade expected0 = TermDepositConventions.GBP_SHORT_DEPOSIT_T0
         .createTrade(date(2017, 6, 1), Period.ofWeeks(2), SELL, 400_000, 0.002, REF_DATA)
@@ -1669,6 +1677,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_cds() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1676,7 +1685,7 @@ public class TradeCsvLoaderTest {
     List<CdsTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(CdsTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 4);
+    assertThat(filtered).hasSize(4);
 
     CdsTrade expected0 = expectedCds0();
     CdsTrade expected1 = expectedCds1();
@@ -1772,6 +1781,7 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_cdsIndex() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1779,7 +1789,7 @@ public class TradeCsvLoaderTest {
     List<CdsIndexTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(CdsIndexTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 2);
+    assertThat(filtered).hasSize(2);
 
     CdsIndexTrade expected0 = expectedCdsIndex0();
 
@@ -1817,18 +1827,19 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_filtered() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
-    assertEquals(trades.getValue().size(), 6);
-    assertEquals(trades.getFailures().size(), 20);
-    assertEquals(trades.getFailures().get(0).getMessage(),
-        "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
+    assertThat(trades.getValue()).hasSize(6);
+    assertThat(trades.getFailures()).hasSize(20);
+    assertThat(trades.getFailures().get(0).getMessage()).isEqualTo("Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_resolver() {
     AtomicInteger fraCount = new AtomicInteger();
     AtomicInteger termCount = new AtomicInteger();
@@ -1852,11 +1863,12 @@ public class TradeCsvLoaderTest {
     };
     TradeCsvLoader test = TradeCsvLoader.of(resolver);
     test.parse(ImmutableList.of(FILE.getCharSource()));
-    assertEquals(fraCount.get(), 3);
-    assertEquals(termCount.get(), 3);
+    assertThat(fraCount.get()).isEqualTo(3);
+    assertThat(termCount.get()).isEqualTo(3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_security() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1864,7 +1876,7 @@ public class TradeCsvLoaderTest {
     List<SecurityTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(SecurityTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 2);
+    assertThat(filtered).hasSize(2);
 
     SecurityTrade expected0 = SecurityTrade.builder()
         .info(TradeInfo.builder()
@@ -1893,6 +1905,7 @@ public class TradeCsvLoaderTest {
     checkRoundtrip(SecurityTrade.class, filtered, expected0, expected1);
   }
 
+  @Test
   public void test_load_genericSecurity() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.load(FILE);
@@ -1900,7 +1913,7 @@ public class TradeCsvLoaderTest {
     List<GenericSecurityTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(GenericSecurityTrade.class))
         .collect(toImmutableList());
-    assertEquals(filtered.size(), 1);
+    assertThat(filtered).hasSize(1);
 
     GenericSecurityTrade expected0 = GenericSecurityTrade.builder()
         .info(TradeInfo.builder()
@@ -1922,36 +1935,40 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_invalidNoHeader() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage().contains("CSV file could not be parsed"), true);
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage().contains("CSV file could not be parsed")).isTrue();
   }
 
+  @Test
   public void test_load_invalidNoType() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Id")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage().contains("CSV file does not contain 'Strata Trade Type' header"), true);
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage().contains("CSV file does not contain 'Strata Trade Type' header")).isTrue();
   }
 
+  @Test
   public void test_load_invalidUnknownType() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFoo")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(), "CSV file trade type 'Foo' is not known at line 2");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade type 'Foo' is not known at line 2");
   }
 
+  @Test
   public void test_load_unknownTypeNotFixedViaResolver() {
     AtomicReference<String> foundType = new AtomicReference<>();
     TradeCsvLoader test = TradeCsvLoader.of(new TradeCsvInfoResolver() {
@@ -1968,13 +1985,14 @@ public class TradeCsvLoaderTest {
     });
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFoo")));
 
-    assertEquals(foundType.get(), "FOO");
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(foundType.get()).isEqualTo("FOO");
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(), "CSV file trade type 'Foo' is not known at line 2");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade type 'Foo' is not known at line 2");
   }
 
+  @Test
   public void test_load_unknownTypeFixedViaResolver() {
     Trade trade = new Trade() {
       @Override
@@ -2000,52 +2018,55 @@ public class TradeCsvLoaderTest {
     });
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFoo")));
 
-    assertEquals(trades.getFailures().size(), 0);
-    assertEquals(trades.getValue().size(), 1);
+    assertThat(trades.getFailures()).hasSize(0);
+    assertThat(trades.getValue()).hasSize(1);
   }
 
+  @Test
   public void test_load_invalidFra() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nFra,Buy")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(), "CSV file trade could not be parsed at line 2: Header not found: 'Notional'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Header not found: 'Notional'");
   }
 
+  @Test
   public void test_load_invalidSwap() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nSwap,Buy")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(),
-        "CSV file trade could not be parsed at line 2: Swap trade had invalid combination of fields. " +
-            "Must include either 'Convention' or '" + "Leg 1 Direction'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap trade had invalid combination of fields. " +
+        "Must include either 'Convention' or '" + "Leg 1 Direction'");
   }
 
+  @Test
   public void test_load_invalidBulletPayment() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades =
         test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Direction\nBulletPayment,Pay")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(), "CSV file trade could not be parsed at line 2: Header not found: 'Currency'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Header not found: 'Currency'");
   }
 
+  @Test
   public void test_load_invalidTermDeposit() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades =
         test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nTermDeposit,Buy")));
 
-    assertEquals(trades.getFailures().size(), 1);
+    assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
-    assertEquals(failure.getReason(), FailureReason.PARSING);
-    assertEquals(failure.getMessage(), "CSV file trade could not be parsed at line 2: Header not found: 'Notional'");
+    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
+    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Header not found: 'Notional'");
   }
 
   //-------------------------------------------------------------------------
@@ -2059,15 +2080,16 @@ public class TradeCsvLoaderTest {
     TradeCsvWriter.standard().write(loadedTrades, buf);
     List<CharSource> writtenCsv = ImmutableList.of(CharSource.wrap(buf.toString()));
     ValueWithFailures<List<T>> roundtrip = TradeCsvLoader.standard().parse(writtenCsv, type);
-    assertEquals(roundtrip.getFailures().size(), 0, roundtrip.getFailures().toString());
+    assertThat(roundtrip.getFailures().size()).as(roundtrip.getFailures().toString()).isEqualTo(0);
     List<T> roundtripTrades = roundtrip.getValue();
-    assertEquals(roundtripTrades.size(), expectedTrades.length);
+    assertThat(roundtripTrades).hasSize(expectedTrades.length);
     for (int i = 0; i < roundtripTrades.size(); i++) {
       assertBeanEquals(expectedTrades[i], roundtripTrades.get(i));
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(BulletPaymentTradeCsvPlugin.class);
     coverPrivateConstructor(FraTradeCsvPlugin.class);

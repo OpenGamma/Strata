@@ -17,7 +17,7 @@ import java.time.LocalDate;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.FxMatrix;
@@ -26,7 +26,6 @@ import com.opengamma.strata.basics.currency.FxRate;
 /**
  * Test {@link CashFlow}.
  */
-@Test
 public class CashFlowTest {
 
   private static final Offset<Double> TOLERANCE = Assertions.offset(1e-8);
@@ -38,6 +37,7 @@ public class CashFlowTest {
   private static final CurrencyAmount PRESENT_AMOUNT = CurrencyAmount.of(GBP, PRESENT_VALUE);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_ofPresentValue_CurrencyAmount() {
     CashFlow test = CashFlow.ofPresentValue(PAYMENT_DATE, PRESENT_AMOUNT, DISCOUNT_FACTOR);
     assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
@@ -48,6 +48,7 @@ public class CashFlowTest {
     assertThat(test.getDiscountFactor()).isCloseTo(DISCOUNT_FACTOR, TOLERANCE);
   }
 
+  @Test
   public void test_ofPresentValue_Currency() {
     CashFlow test = CashFlow.ofPresentValue(PAYMENT_DATE, GBP, PRESENT_VALUE, DISCOUNT_FACTOR);
     assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
@@ -58,6 +59,7 @@ public class CashFlowTest {
     assertThat(test.getDiscountFactor()).isCloseTo(DISCOUNT_FACTOR, TOLERANCE);
   }
 
+  @Test
   public void test_ofForecastValue_CurrencyAmount() {
     CashFlow test = CashFlow.ofForecastValue(PAYMENT_DATE, FUTURE_AMOUNT, DISCOUNT_FACTOR);
     assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
@@ -68,6 +70,7 @@ public class CashFlowTest {
     assertThat(test.getDiscountFactor()).isCloseTo(DISCOUNT_FACTOR, TOLERANCE);
   }
 
+  @Test
   public void test_ofForecastValue_Currency() {
     CashFlow test = CashFlow.ofForecastValue(PAYMENT_DATE, GBP, FORECAST_VALUE, DISCOUNT_FACTOR);
     assertThat(test.getPaymentDate()).isEqualTo(PAYMENT_DATE);
@@ -79,6 +82,7 @@ public class CashFlowTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_convertedTo() {
     CashFlow base = CashFlow.ofForecastValue(PAYMENT_DATE, GBP, FORECAST_VALUE, DISCOUNT_FACTOR);
     CashFlow test = base.convertedTo(USD, FxRate.of(GBP, USD, 1.5));
@@ -90,6 +94,7 @@ public class CashFlowTest {
     assertThat(test.getDiscountFactor()).isCloseTo(DISCOUNT_FACTOR, TOLERANCE);
   }
 
+  @Test
   public void test_convertedTo_noConversion() {
     CashFlow base = CashFlow.ofForecastValue(PAYMENT_DATE, GBP, FORECAST_VALUE, DISCOUNT_FACTOR);
     CashFlow test = base.convertedTo(GBP, FxMatrix.empty());
@@ -102,6 +107,7 @@ public class CashFlowTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CashFlow test1 = CashFlow.ofForecastValue(PAYMENT_DATE, USD, FORECAST_VALUE, DISCOUNT_FACTOR);
     coverImmutableBean(test1);
@@ -109,6 +115,7 @@ public class CashFlowTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     CashFlow test = CashFlow.ofForecastValue(PAYMENT_DATE, USD, FORECAST_VALUE, DISCOUNT_FACTOR);
     assertSerialization(test);

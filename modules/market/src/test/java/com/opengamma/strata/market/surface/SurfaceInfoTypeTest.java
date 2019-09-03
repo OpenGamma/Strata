@@ -5,9 +5,9 @@
  */
 package com.opengamma.strata.market.surface;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.market.model.MoneynessType;
@@ -15,22 +15,24 @@ import com.opengamma.strata.market.model.MoneynessType;
 /**
  * Test {@link SurfaceInfoType}.
  */
-@Test
 public class SurfaceInfoTypeTest {
 
+  @Test
   public void test_DAY_COUNT() {
     SurfaceInfoType<DayCount> test = SurfaceInfoType.DAY_COUNT;
-    assertEquals(test.toString(), "DayCount");
+    assertThat(test.toString()).isEqualTo("DayCount");
   }
 
+  @Test
   public void test_MONEYNESS_TYPE() {
     SurfaceInfoType<MoneynessType> test = SurfaceInfoType.MONEYNESS_TYPE;
-    assertEquals(test.toString(), "MoneynessType");
+    assertThat(test.toString()).isEqualTo("MoneynessType");
   }
 
+  @Test
   public void coverage() {
     SurfaceInfoType<String> test = SurfaceInfoType.of("Foo");
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.toString()).isEqualTo("Foo");
   }
 
 }

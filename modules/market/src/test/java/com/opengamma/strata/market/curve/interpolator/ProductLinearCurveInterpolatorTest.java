@@ -6,13 +6,13 @@
 package com.opengamma.strata.market.curve.interpolator;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.assertj.core.data.Offset.offset;
 
 import java.util.function.Function;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -23,7 +23,6 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferenti
 /**
  * Test {@link ProductLinearCurveInterpolator}.
  */
-@Test
 public class ProductLinearCurveInterpolatorTest {
 
   private static final CurveInterpolator INTERP = ProductLinearCurveInterpolator.INSTANCE;
@@ -35,6 +34,7 @@ public class ProductLinearCurveInterpolatorTest {
   private static final ScalarFieldFirstOrderDifferentiator SENS_CALC =
       new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
 
+  @Test
   public void positiveDataTest() {
     DoubleArray xValues = DoubleArray.of(0.5, 1.0, 2.5, 4.2, 10.0, 15.0, 30.0);
     DoubleArray yValues = DoubleArray.of(4.0, 2.0, 1.0, 5.0, 10.0, 3.5, -2.0);
@@ -53,18 +53,19 @@ public class ProductLinearCurveInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertEquals(bound.interpolate(keys.get(i)), boundBase.interpolate(keys.get(i)) / keys.get(i), TOL);
+      assertThat(bound.interpolate(keys.get(i))).isCloseTo(boundBase.interpolate(keys.get(i)) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
-      assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
+      assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
       // parameter sensitivity
       int index = i;
       Function<DoubleArray, Double> funcSensi = x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS)).isTrue();
     }
   }
 
+  @Test
   public void negativeDataTest() {
     DoubleArray xValues = DoubleArray.of(-34.5, -27.0, -22.5, -14.2, -10.0, -5.0, -0.3);
     DoubleArray yValues = DoubleArray.of(4.0, 2.0, 1.0, 5.0, 10.0, 3.5, -2.0);
@@ -83,19 +84,20 @@ public class ProductLinearCurveInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertEquals(bound.interpolate(keys.get(i)), boundBase.interpolate(keys.get(i)) / keys.get(i), TOL);
+      assertThat(bound.interpolate(keys.get(i))).isCloseTo(boundBase.interpolate(keys.get(i)) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
-      assertEquals(bound.firstDerivative(keys.get(i)), firstExp, EPS);
+      assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
       // parameter sensitivity
       int index = i;
       Function<DoubleArray, Double> funcSensi = x -> INTERP.bind(xValues, x).interpolate(keys.get(index));
       DoubleArray sensExp = SENS_CALC.differentiate(funcSensi).apply(yValues);
-      assertTrue(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(bound.parameterSensitivity(keys.get(i)).toArray(), sensExp.toArray(), EPS)).isTrue();
     }
   }
 
   // regression to ISDA curve
+  @Test
   public void curveRegressionTest() {
     double[] xValues = new double[] {0.08767123287671233, 0.1726027397260274, 0.2602739726027397, 0.5095890410958904,
         1.010958904109589, 2.010958904109589, 3.0136986301369864, 4.0191780821917815, 5.016438356164384, 6.013698630136987,
@@ -115,7 +117,7 @@ public class ProductLinearCurveInterpolatorTest {
         0.03768939749254428, 0.037969928846136244, 0.038322391316033835};
     for (int i = 0; i < keys.length; ++i) {
       double computed = interp.interpolate(keys[i]);
-      assertEquals(computed, expected[i], EPS);
+      assertThat(computed).isCloseTo(expected[i], offset(EPS));
     }
     // sensitivity
     double[][] sensiExp = new double[][] {
@@ -133,7 +135,7 @@ public class ProductLinearCurveInterpolatorTest {
         {0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, -1.1506122199305884, 2.1506122199305886}};
     for (int i = 0; i < keys.length; ++i) {
       DoubleArray computed = interp.parameterSensitivity(keys[i]);
-      assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), sensiExp[i], EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), sensiExp[i], EPS)).isTrue();
     }
     // fwd rate
     double[] fwdExp = new double[] {0.0015967771993938666, 0.0015967771993938666, 0.0015967771993938666, 0.004355764791085397,
@@ -143,11 +145,12 @@ public class ProductLinearCurveInterpolatorTest {
       double value = interp.interpolate(keys[i]);
       double deriv = interp.firstDerivative(keys[i]);
       double computed = deriv * keys[i] + value;
-      assertEquals(computed, fwdExp[i], EPS);
+      assertThat(computed).isCloseTo(fwdExp[i], offset(EPS));
     }
   }
 
   // regression to ISDA curve
+  @Test
   public void curveNegativeRateRegressionTest() {
     double[] xValues = new double[] {0.09589041095890412, 0.1726027397260274, 0.2547945205479452, 0.5041095890410959,
         0.7561643835616438, 1.0082191780821919, 2.0136986301369864, 3.0109589041095894, 4.008219178082192, 5.010958904109589,
@@ -168,7 +171,7 @@ public class ProductLinearCurveInterpolatorTest {
         0.01271200378309255, 0.016480992621622493, 0.016557789252559695, 0.016654277327326956};
     for (int i = 0; i < keys.length; ++i) {
       double computed = interp.interpolate(keys[i]);
-      assertEquals(computed, expected[i], EPS);
+      assertThat(computed).isCloseTo(expected[i], offset(EPS));
     }
     // sensitivity
     double[][] sensiExp = new double[][] {
@@ -186,7 +189,7 @@ public class ProductLinearCurveInterpolatorTest {
         {0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, 0d, -0.4598524762908325, 1.4598524762908325}};
     for (int i = 0; i < keys.length; ++i) {
       DoubleArray computed = interp.parameterSensitivity(keys[i]);
-      assertTrue(DoubleArrayMath.fuzzyEquals(computed.toArray(), sensiExp[i], EPS));
+      assertThat(DoubleArrayMath.fuzzyEquals(computed.toArray(), sensiExp[i], EPS)).isTrue();
     }
     // fwd rate
     double[] fwdExp = new double[] {-0.0020786675364765166, -0.0020786675364765166, -0.0020786675364765166,
@@ -196,10 +199,11 @@ public class ProductLinearCurveInterpolatorTest {
       double value = interp.interpolate(keys[i]);
       double deriv = interp.firstDerivative(keys[i]);
       double computed = deriv * keys[i] + value;
-      assertEquals(computed, fwdExp[i], EPS);
+      assertThat(computed).isCloseTo(fwdExp[i], offset(EPS));
     }
   }
 
+  @Test
   public void smallKeyTest() {
     DoubleArray xValues = DoubleArray.of(1e-13, 3e-8, 2e-5);
     DoubleArray yValues = DoubleArray.of(1.0, 13.2, 1.5);
@@ -213,11 +217,13 @@ public class ProductLinearCurveInterpolatorTest {
         .isThrownBy(() -> bound.parameterSensitivity(keyDw));
   }
 
+  @Test
   public void getterTest() {
-    assertEquals(INTERP.getName(), ProductLinearCurveInterpolator.NAME);
-    assertEquals(INTERP.toString(), ProductLinearCurveInterpolator.NAME);
+    assertThat(INTERP.getName()).isEqualTo(ProductLinearCurveInterpolator.NAME);
+    assertThat(INTERP.toString()).isEqualTo(ProductLinearCurveInterpolator.NAME);
   }
 
+  @Test
   public void test_serialization() {
     assertSerialization(INTERP);
   }

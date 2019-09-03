@@ -13,17 +13,17 @@ import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.PRODUCT_NATURAL_SPLINE_MONOTONE_CUBIC;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
  * Test {@link DiscountFactorLinearRightZeroRateCurveExtrapolator}.
  */
-@Test
 public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
 
   private static final DoubleArray X_VALUES = DoubleArray.of(1.0, 2.0, 3.0, 5.0, 7.0);
@@ -38,15 +38,13 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
   private static final double TOL = 1.e-11;
   private static final double TOL_E2E = 1.e-8;
 
+  @Test
   public void basicsTest() {
-    assertEquals(
-        DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.getName(),
-        DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
-    assertEquals(
-        DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.toString(),
-        DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
+    assertThat(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.getName()).isEqualTo(DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
+    assertThat(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.toString()).isEqualTo(DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
   }
 
+  @Test
   public void interpolateTest() {
     BoundCurveInterpolator bci = PRODUCT_LINEAR.bind(
         X_VALUES,
@@ -59,10 +57,11 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
     for (int i = 0; i < NUM_KEYS; ++i) {
       double key = X_KEYS.get(i);
       double df = grad * (key - X_VALUES.get(NUM_DATA - 1)) + DSC_VALUES.get(NUM_DATA - 1);
-      assertEquals(bci.interpolate(key), -Math.log(df) / key, TOL);
+      assertThat(bci.interpolate(key)).isCloseTo(-Math.log(df) / key, offset(TOL));
     }
   }
 
+  @Test
   public void derivativeTest() {
     BoundCurveInterpolator bci = PRODUCT_LINEAR.bind(
         X_VALUES,
@@ -73,10 +72,11 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
       double key = X_KEYS.get(i);
       double computed = bci.firstDerivative(key);
       double expected = 0.5d * (bci.interpolate(key + EPS) - bci.interpolate(key - EPS)) / EPS;
-      assertEquals(computed, expected, EPS);
+      assertThat(computed).isCloseTo(expected, offset(EPS));
     }
   }
 
+  @Test
   public void parameterSensitivityTest() {
     BoundCurveInterpolator bci = PRODUCT_LINEAR.bind(
         X_VALUES,
@@ -102,12 +102,13 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
             LINEAR,
             DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE);
         double expected = 0.5 * (bciUp.interpolate(key) - bciDw.interpolate(key)) / EPS;
-        assertEquals(computed.get(j), expected, EPS * 10d);
+        assertThat(computed.get(j)).isCloseTo(expected, offset(EPS * 10d));
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void e2eTest() {
     BoundCurveInterpolator bciZero = PRODUCT_NATURAL_SPLINE_MONOTONE_CUBIC.bind(
         X_VALUES,
@@ -124,22 +125,20 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
       double key = -0.1d + 0.05d * i;
       double zero = bciZero.interpolate(key);
       double df = bciDf.interpolate(key);
-      assertEquals(Math.exp(-key * zero), df, TOL_E2E);
+      assertThat(Math.exp(-key * zero)).isCloseTo(df, offset(TOL_E2E));
       double zeroGrad = bciZero.firstDerivative(key);
       double dfGrad = bciDf.firstDerivative(key);
-      assertEquals(-zero * df - key * df * zeroGrad, dfGrad, TOL_E2E);
+      assertThat(-zero * df - key * df * zeroGrad).isCloseTo(dfGrad, offset(TOL_E2E));
       DoubleArray zeroSensi = bciZero.parameterSensitivity(key);
       DoubleArray dfSensi = bciDf.parameterSensitivity(key);
       for (int j = 0; j < X_VALUES.size(); ++j) {
-        assertEquals(
-            key * df * zeroSensi.get(j) / (X_VALUES.get(j) * DSC_VALUES.get(j)),
-            dfSensi.get(j),
-            TOL_E2E * 10d);
+        assertThat(key * df * zeroSensi.get(j) / (X_VALUES.get(j) * DSC_VALUES.get(j))).isCloseTo(dfSensi.get(j), offset(TOL_E2E * 10d));
       }
     }
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void noLeftTest() {
     BoundCurveInterpolator bci = PRODUCT_LINEAR.bind(
         X_VALUES,
@@ -155,6 +154,7 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void serializationTest() {
     assertSerialization(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE);
   }

@@ -9,9 +9,9 @@ import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -23,7 +23,6 @@ import com.opengamma.strata.data.scenario.MarketDataBox;
 /**
  * Test {@link FxRateShifts}.
  */
-@Test
 public class FxRateShiftsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -34,14 +33,16 @@ public class FxRateShiftsTest {
   private static final double BASE_RATE = 1.2d;
   private static final FxRate FX_RATE = FxRate.of(EURUSD, BASE_RATE);
 
+  @Test
   public void test_of() {
     FxRateShifts test = FxRateShifts.of(ShiftType.SCALED, SHIFT_AMOUNT_2, EURUSD);
-    assertEquals(test.getCurrencyPair(), EURUSD);
-    assertEquals(test.getScenarioCount(), 3);
-    assertEquals(test.getShiftAmount(), SHIFT_AMOUNT_2);
-    assertEquals(test.getShiftType(), ShiftType.SCALED);
+    assertThat(test.getCurrencyPair()).isEqualTo(EURUSD);
+    assertThat(test.getScenarioCount()).isEqualTo(3);
+    assertThat(test.getShiftAmount()).isEqualTo(SHIFT_AMOUNT_2);
+    assertThat(test.getShiftType()).isEqualTo(ShiftType.SCALED);
   }
 
+  @Test
   public void test_applyTo() {
     MarketDataBox<FxRate> marketData = MarketDataBox.ofSingleValue(FX_RATE);
     FxRateShifts testScaled = FxRateShifts.of(ShiftType.SCALED, SHIFT_AMOUNT_2, EURUSD);
@@ -50,31 +51,32 @@ public class FxRateShiftsTest {
         FxRate.of(EURUSD, BASE_RATE * SHIFT_AMOUNT_2.get(0)),
         FxRate.of(EURUSD, BASE_RATE * SHIFT_AMOUNT_2.get(1)),
         FxRate.of(EURUSD, BASE_RATE * SHIFT_AMOUNT_2.get(2))));
-    assertEquals(computedScaled, expectedScaled);
+    assertThat(computedScaled).isEqualTo(expectedScaled);
     FxRateShifts testScaledInv = FxRateShifts.of(ShiftType.SCALED, SHIFT_AMOUNT_2, USDEUR);
     MarketDataBox<FxRate> computedScaledInv = testScaledInv.applyTo(marketData, REF_DATA);
     MarketDataBox<FxRate> expectedScaledInv = MarketDataBox.ofScenarioValues(ImmutableList.of(
         FxRate.of(USDEUR, 1d / BASE_RATE * SHIFT_AMOUNT_2.get(0)),
         FxRate.of(USDEUR, 1d / BASE_RATE * SHIFT_AMOUNT_2.get(1)),
         FxRate.of(USDEUR, 1d / BASE_RATE * SHIFT_AMOUNT_2.get(2))));
-    assertEquals(computedScaledInv, expectedScaledInv);
+    assertThat(computedScaledInv).isEqualTo(expectedScaledInv);
     FxRateShifts testAbsolute = FxRateShifts.of(ShiftType.ABSOLUTE, SHIFT_AMOUNT_1, EURUSD);
     MarketDataBox<FxRate> computedAbsolute = testAbsolute.applyTo(marketData, REF_DATA);
     MarketDataBox<FxRate> expectedAbsolute = MarketDataBox.ofScenarioValues(ImmutableList.of(
         FxRate.of(EURUSD, BASE_RATE + SHIFT_AMOUNT_1.get(0)),
         FxRate.of(EURUSD, BASE_RATE + SHIFT_AMOUNT_1.get(1)),
         FxRate.of(EURUSD, BASE_RATE + SHIFT_AMOUNT_1.get(2))));
-    assertEquals(computedAbsolute, expectedAbsolute);
+    assertThat(computedAbsolute).isEqualTo(expectedAbsolute);
     FxRateShifts testRelative = FxRateShifts.of(ShiftType.RELATIVE, SHIFT_AMOUNT_1, EURUSD);
     MarketDataBox<FxRate> computedRelative = testRelative.applyTo(marketData, REF_DATA);
     MarketDataBox<FxRate> expectedRelative = MarketDataBox.ofScenarioValues(ImmutableList.of(
         FxRate.of(EURUSD, BASE_RATE * (1d + SHIFT_AMOUNT_1.get(0))),
         FxRate.of(EURUSD, BASE_RATE * (1d + SHIFT_AMOUNT_1.get(1))),
         FxRate.of(EURUSD, BASE_RATE * (1d + SHIFT_AMOUNT_1.get(2)))));
-    assertEquals(computedRelative, expectedRelative);
+    assertThat(computedRelative).isEqualTo(expectedRelative);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     FxRateShifts test1 = FxRateShifts.of(ShiftType.SCALED, SHIFT_AMOUNT_2, EURUSD);
     coverImmutableBean(test1);

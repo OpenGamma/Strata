@@ -8,16 +8,15 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.data.ObservableSource;
 
 /**
  * Test {@link RepoCurveInputsId}.
  */
-@Test
 public class RepoCurveInputsIdTest {
 
   private static final CurveGroupName GROUP1 = CurveGroupName.of("Group1");
@@ -27,16 +26,18 @@ public class RepoCurveInputsIdTest {
   private static final ObservableSource SOURCE2 = ObservableSource.of("Vendor2");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of() {
     RepoCurveInputsId test = RepoCurveInputsId.of(GROUP1, NAME1, ObservableSource.NONE);
-    assertEquals(test.getCurveGroupName(), GROUP1);
-    assertEquals(test.getCurveName(), NAME1);
-    assertEquals(test.getObservableSource(), ObservableSource.NONE);
-    assertEquals(test.getMarketDataType(), RatesCurveInputs.class);
-    assertEquals(test.toString(), "RepoCurveInputsId:Group1/Name1");
+    assertThat(test.getCurveGroupName()).isEqualTo(GROUP1);
+    assertThat(test.getCurveName()).isEqualTo(NAME1);
+    assertThat(test.getObservableSource()).isEqualTo(ObservableSource.NONE);
+    assertThat(test.getMarketDataType()).isEqualTo(RatesCurveInputs.class);
+    assertThat(test.toString()).isEqualTo("RepoCurveInputsId:Group1/Name1");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     RepoCurveInputsId test = RepoCurveInputsId.of(GROUP1, NAME1, ObservableSource.NONE);
     coverImmutableBean(test);
@@ -44,6 +45,7 @@ public class RepoCurveInputsIdTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     RepoCurveInputsId test = RepoCurveInputsId.of(GROUP1, NAME1, ObservableSource.NONE);
     assertSerialization(test);

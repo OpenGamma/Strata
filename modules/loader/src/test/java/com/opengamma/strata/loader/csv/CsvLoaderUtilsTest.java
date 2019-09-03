@@ -7,13 +7,13 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.Currency;
@@ -30,113 +30,110 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
 /**
  * Test {@link CsvLoaderUtils}.
  */
-@Test
 public class CsvLoaderUtilsTest {
 
+  @Test
   public void test_parseEtdSettlementType() {
-    assertEquals(CsvLoaderUtils.parseEtdSettlementType("C"), EtdSettlementType.CASH);
-    assertEquals(CsvLoaderUtils.parseEtdSettlementType("CASH"), EtdSettlementType.CASH);
-    assertEquals(CsvLoaderUtils.parseEtdSettlementType("c"), EtdSettlementType.CASH);
-    assertEquals(CsvLoaderUtils.parseEtdSettlementType("E"), EtdSettlementType.PHYSICAL);
-    assertEquals(CsvLoaderUtils.parseEtdSettlementType("PHYSICAL"), EtdSettlementType.PHYSICAL);
-    assertEquals(CsvLoaderUtils.parseEtdSettlementType("e"), EtdSettlementType.PHYSICAL);
+    assertThat(CsvLoaderUtils.parseEtdSettlementType("C")).isEqualTo(EtdSettlementType.CASH);
+    assertThat(CsvLoaderUtils.parseEtdSettlementType("CASH")).isEqualTo(EtdSettlementType.CASH);
+    assertThat(CsvLoaderUtils.parseEtdSettlementType("c")).isEqualTo(EtdSettlementType.CASH);
+    assertThat(CsvLoaderUtils.parseEtdSettlementType("E")).isEqualTo(EtdSettlementType.PHYSICAL);
+    assertThat(CsvLoaderUtils.parseEtdSettlementType("PHYSICAL")).isEqualTo(EtdSettlementType.PHYSICAL);
+    assertThat(CsvLoaderUtils.parseEtdSettlementType("e")).isEqualTo(EtdSettlementType.PHYSICAL);
     assertThatIllegalArgumentException().isThrownBy(() -> CsvLoaderUtils.parseEtdSettlementType(""));
   }
 
+  @Test
   public void test_parseEtdOptionType() {
-    assertEquals(CsvLoaderUtils.parseEtdOptionType("A"), EtdOptionType.AMERICAN);
-    assertEquals(CsvLoaderUtils.parseEtdOptionType("AMERICAN"), EtdOptionType.AMERICAN);
-    assertEquals(CsvLoaderUtils.parseEtdOptionType("a"), EtdOptionType.AMERICAN);
-    assertEquals(CsvLoaderUtils.parseEtdOptionType("E"), EtdOptionType.EUROPEAN);
-    assertEquals(CsvLoaderUtils.parseEtdOptionType("EUROPEAN"), EtdOptionType.EUROPEAN);
-    assertEquals(CsvLoaderUtils.parseEtdOptionType("e"), EtdOptionType.EUROPEAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("A")).isEqualTo(EtdOptionType.AMERICAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("AMERICAN")).isEqualTo(EtdOptionType.AMERICAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("a")).isEqualTo(EtdOptionType.AMERICAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("E")).isEqualTo(EtdOptionType.EUROPEAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("EUROPEAN")).isEqualTo(EtdOptionType.EUROPEAN);
+    assertThat(CsvLoaderUtils.parseEtdOptionType("e")).isEqualTo(EtdOptionType.EUROPEAN);
     assertThatIllegalArgumentException().isThrownBy(() -> CsvLoaderUtils.parseEtdOptionType(""));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parseAdjustableDate() {
     ImmutableList<String> headers = ImmutableList.of("DTE", "CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01", "F", "GBLO");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL"),
-        AdjustableDate.of(
-            LocalDate.of(2019, 3, 1),
-            BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendarIds.GBLO)));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL")).isEqualTo(AdjustableDate.of(
+        LocalDate.of(2019, 3, 1),
+        BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, HolidayCalendarIds.GBLO)));
   }
 
+  @Test
   public void test_parseAdjustableDate_noAdjustment() {
     ImmutableList<String> headers = ImmutableList.of("DTE");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL"),
-        AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL")).isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
   }
 
+  @Test
   public void test_parseAdjustableDate_noAdjustmentCalendar() {
     ImmutableList<String> headers = ImmutableList.of("DTE", "CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01", "F", "");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL"),
-        AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL")).isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
   }
 
+  @Test
   public void test_parseAdjustableDate_defaulting() {
     ImmutableList<String> headers = ImmutableList.of("DTE", "CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01", "F", "GBLO");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL", FOLLOWING, Currency.EUR),
-        AdjustableDate.of(
-            LocalDate.of(2019, 3, 1),
-            BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO)));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL", FOLLOWING, Currency.EUR)).isEqualTo(AdjustableDate.of(
+        LocalDate.of(2019, 3, 1),
+        BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO)));
   }
 
+  @Test
   public void test_parseAdjustableDate_defaulting_noAdjustment() {
     ImmutableList<String> headers = ImmutableList.of("DTE");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL", FOLLOWING, Currency.EUR),
-        AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.of(FOLLOWING, EUTA)));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL", FOLLOWING, Currency.EUR)).isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.of(FOLLOWING, EUTA)));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parseBusinessDayAdjustment() {
     ImmutableList<String> headers = ImmutableList.of("CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("F", "GBLO");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAL"),
-        Optional.of(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO)));
+    assertThat(CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAL")).isEqualTo(Optional.of(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO)));
   }
 
+  @Test
   public void test_parseBusinessDayAdjustment_none() {
     ImmutableList<String> headers = ImmutableList.of("CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("NONE", "GBLO");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(
-        CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAL"),
-        Optional.of(BusinessDayAdjustment.NONE));
+    assertThat(CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAL")).isEqualTo(Optional.of(BusinessDayAdjustment.NONE));
   }
 
+  @Test
   public void test_parseBusinessDayAdjustment_notFound() {
     ImmutableList<String> headers = ImmutableList.of("CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("F", "GBLO");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAX"), Optional.empty());
+    assertThat(CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAX")).isEqualTo(Optional.empty());
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parseCurrencyAmount() {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(CsvLoaderUtils.parseCurrencyAmount(row, "CCY", "AMT"), CurrencyAmount.of(Currency.GBP, 123.4));
+    assertThat(CsvLoaderUtils.parseCurrencyAmount(row, "CCY", "AMT")).isEqualTo(CurrencyAmount.of(Currency.GBP, 123.4));
   }
 
+  @Test
   public void test_parseCurrencyAmount_notFound() {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4");
@@ -145,14 +142,15 @@ public class CsvLoaderUtilsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_parseCurrencyAmountWithDirection() {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT", "DIR");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4", "Pay");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertEquals(CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCY", "AMT", "DIR"),
-        CurrencyAmount.of(Currency.GBP, -123.4));
+    assertThat(CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCY", "AMT", "DIR")).isEqualTo(CurrencyAmount.of(Currency.GBP, -123.4));
   }
 
+  @Test
   public void test_parseCurrencyAmountWithDirection_notFound() {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT", "DIR");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4", "Pay");
@@ -162,18 +160,20 @@ public class CsvLoaderUtilsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_formattedDouble() {
-    assertEquals(CsvLoaderUtils.formattedDouble(123.45d), "123.45");
-    assertEquals(CsvLoaderUtils.formattedDouble(0.7d), "0.7");
-    assertEquals(CsvLoaderUtils.formattedDouble(0.08d), "0.08");
-    assertEquals(CsvLoaderUtils.formattedDouble(789d), "789");
+    assertThat(CsvLoaderUtils.formattedDouble(123.45d)).isEqualTo("123.45");
+    assertThat(CsvLoaderUtils.formattedDouble(0.7d)).isEqualTo("0.7");
+    assertThat(CsvLoaderUtils.formattedDouble(0.08d)).isEqualTo("0.08");
+    assertThat(CsvLoaderUtils.formattedDouble(789d)).isEqualTo("789");
   }
 
+  @Test
   public void test_formattedPercentage() {
-    assertEquals(CsvLoaderUtils.formattedPercentage(1.2345d), "123.45");
-    assertEquals(CsvLoaderUtils.formattedPercentage(0.007d), "0.7");
-    assertEquals(CsvLoaderUtils.formattedPercentage(0.08d), "8");
-    assertEquals(CsvLoaderUtils.formattedPercentage(7.89d), "789");
+    assertThat(CsvLoaderUtils.formattedPercentage(1.2345d)).isEqualTo("123.45");
+    assertThat(CsvLoaderUtils.formattedPercentage(0.007d)).isEqualTo("0.7");
+    assertThat(CsvLoaderUtils.formattedPercentage(0.08d)).isEqualTo("8");
+    assertThat(CsvLoaderUtils.formattedPercentage(7.89d)).isEqualTo("789");
   }
 
 }

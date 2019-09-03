@@ -10,52 +10,56 @@ import static com.opengamma.strata.basics.date.Tenor.TENOR_12M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
 
 import org.joda.beans.BeanBuilder;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link TenorParameterMetadata}.
  */
-@Test
 public class TenorParameterMetadataTest {
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_noLabel() {
     TenorParameterMetadata test = TenorParameterMetadata.of(TENOR_10Y);
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getLabel(), "10Y");
-    assertEquals(test.getIdentifier(), TENOR_10Y);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getLabel()).isEqualTo("10Y");
+    assertThat(test.getIdentifier()).isEqualTo(TENOR_10Y);
   }
 
+  @Test
   public void test_of_label() {
     TenorParameterMetadata test = TenorParameterMetadata.of(TENOR_10Y, "10 year");
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getLabel(), "10 year");
-    assertEquals(test.getIdentifier(), TENOR_10Y);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getLabel()).isEqualTo("10 year");
+    assertThat(test.getIdentifier()).isEqualTo(TENOR_10Y);
   }
 
+  @Test
   public void test_builder_defaultLabel() {
     BeanBuilder<? extends TenorParameterMetadata> builder = TenorParameterMetadata.meta().builder();
     builder.set(TenorParameterMetadata.meta().tenor(), TENOR_10Y);
     TenorParameterMetadata test = builder.build();
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getLabel(), "10Y");
-    assertEquals(test.getIdentifier(), TENOR_10Y);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getLabel()).isEqualTo("10Y");
+    assertThat(test.getIdentifier()).isEqualTo(TENOR_10Y);
   }
 
+  @Test
   public void test_builder_specifyLabel() {
     BeanBuilder<? extends TenorParameterMetadata> builder = TenorParameterMetadata.meta().builder();
     builder.set(TenorParameterMetadata.meta().tenor(), TENOR_10Y);
     builder.set(TenorParameterMetadata.meta().label(), "10 year");
     TenorParameterMetadata test = builder.build();
-    assertEquals(test.getTenor(), TENOR_10Y);
-    assertEquals(test.getLabel(), "10 year");
-    assertEquals(test.getIdentifier(), TENOR_10Y);
+    assertThat(test.getTenor()).isEqualTo(TENOR_10Y);
+    assertThat(test.getLabel()).isEqualTo("10 year");
+    assertThat(test.getIdentifier()).isEqualTo(TENOR_10Y);
   }
 
+  @Test
   public void test_builder_incomplete() {
     BeanBuilder<? extends TenorParameterMetadata> builder = TenorParameterMetadata.meta().builder();
     assertThatIllegalArgumentException()
@@ -63,6 +67,7 @@ public class TenorParameterMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TenorParameterMetadata test = TenorParameterMetadata.of(TENOR_10Y);
     coverImmutableBean(test);
@@ -70,6 +75,7 @@ public class TenorParameterMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     TenorParameterMetadata test = TenorParameterMetadata.of(TENOR_10Y);
     assertSerialization(test);

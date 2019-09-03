@@ -8,71 +8,75 @@ package com.opengamma.strata.market.sensitivity;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.date;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertSame;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
-
-import com.google.common.collect.ImmutableList;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test.
  */
-@Test
 public class NoPointSensitivityTest {
 
+  @Test
   public void test_withCurrency() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
-    assertSame(base.withCurrency(GBP), base);  // no effect
-    assertSame(base.withCurrency(USD), base);  // no effect
+    assertThat(base.withCurrency(GBP)).isSameAs(base);  // no effect
+    assertThat(base.withCurrency(USD)).isSameAs(base);  // no effect
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_multipliedBy() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
-    assertSame(base.multipliedBy(2.0), base);  // no effect
+    assertThat(base.multipliedBy(2.0)).isSameAs(base);  // no effect
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_mapSensitivity() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
-    assertSame(base.mapSensitivity(s -> 2.0), base);  // no effect
+    assertThat(base.mapSensitivity(s -> 2.0)).isSameAs(base);  // no effect
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_normalize() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
     PointSensitivityBuilder test = base.normalize();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_combinedWith() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
     PointSensitivityBuilder ibor = DummyPointSensitivity.of(GBP, date(2015, 6, 30), 2.0d);
-    assertSame(base.combinedWith(ibor), ibor);  // returns other
+    assertThat(base.combinedWith(ibor)).isSameAs(ibor);  // returns other
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_buildInto() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
     MutablePointSensitivities combo = new MutablePointSensitivities();
     MutablePointSensitivities test = base.buildInto(combo);
-    assertSame(test, combo);
-    assertEquals(test.getSensitivities(), ImmutableList.of());
+    assertThat(test).isSameAs(combo);
+    assertThat(test.getSensitivities()).isEmpty();
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_cloned() {
     PointSensitivityBuilder base = PointSensitivityBuilder.none();
     PointSensitivityBuilder test = base.cloned();
-    assertSame(test, base);
+    assertThat(test).isSameAs(base);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_toString() {
     PointSensitivityBuilder test = PointSensitivityBuilder.none();
-    assertEquals(test.toString(), "NoPointSensitivity");
+    assertThat(test.toString()).isEqualTo("NoPointSensitivity");
   }
 
 }

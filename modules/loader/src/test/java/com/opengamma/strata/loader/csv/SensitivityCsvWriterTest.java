@@ -8,11 +8,11 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.market.sensitivity.CurveSensitivitiesType.ZERO_RATE_DELTA;
 import static com.opengamma.strata.market.sensitivity.CurveSensitivitiesType.ZERO_RATE_GAMMA;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ListMultimap;
@@ -32,7 +32,6 @@ import com.opengamma.strata.product.PortfolioItemInfo;
 /**
  * Test {@link SensitivityCsvLoader}.
  */
-@Test
 public final class SensitivityCsvWriterTest {
 
   private static final AttributeType<String> CCP_ATTR = AttributeType.of("CCP");
@@ -56,6 +55,7 @@ public final class SensitivityCsvWriterTest {
   private static final SensitivityCsvWriter WRITER_CCP = SensitivityCsvWriter.of(SUPPLIER_CCP);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_write_standard() {
     CurveName curve1 = CurveName.of("GBDSC");
     CurveName curve2 = CurveName.of("GBFWD");
@@ -81,9 +81,10 @@ public final class SensitivityCsvWriterTest {
         "GBFWD,ZeroRateDelta,6M,GBP,5.0,LCH\n" +
         "GBFWD,ZeroRateGamma,3M,GBP,1.0,LCH\n" +
         "GBFWD,ZeroRateGamma,6M,GBP,2.0,LCH\n";
-    assertEquals(content, expected);
+    assertThat(content).isEqualTo(expected);
   }
 
+  @Test
   public void test_write_standard_withDate() {
     CurveName curve1 = CurveName.of("GBDSC");
     CurveName curve2 = CurveName.of("GBFWD");
@@ -109,17 +110,18 @@ public final class SensitivityCsvWriterTest {
         "GBFWD,ZeroRateDelta,6M,,GBP,5.0,LCH\n" +
         "GBFWD,ZeroRateGamma,3M,,GBP,1.0,LCH\n" +
         "GBFWD,ZeroRateGamma,6M,,GBP,2.0,LCH\n";
-    assertEquals(content, expected);
+    assertThat(content).isEqualTo(expected);
   }
 
+  @Test
   public void test_write_standard_roundTrip() {
     CharSource source =
         ResourceLocator.ofClasspath("com/opengamma/strata/loader/csv/sensitivity-standard.csv").getCharSource();
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> parsed1 = LOADER.parse(ImmutableList.of(source));
-    assertEquals(parsed1.getFailures().size(), 0, parsed1.getFailures().toString());
-    assertEquals(parsed1.getValue().size(), 1);
+    assertThat(parsed1.getFailures().size()).as(parsed1.getFailures().toString()).isEqualTo(0);
+    assertThat(parsed1.getValue().size()).isEqualTo(1);
     List<CurveSensitivities> csensList1 = parsed1.getValue().get("");
-    assertEquals(csensList1.size(), 1);
+    assertThat(csensList1).hasSize(1);
     CurveSensitivities csens1 = csensList1.get(0);
 
     StringBuffer buf = new StringBuffer();
@@ -128,13 +130,13 @@ public final class SensitivityCsvWriterTest {
 
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> parsed2 =
         LOADER.parse(ImmutableList.of(CharSource.wrap(content)));
-    assertEquals(parsed2.getFailures().size(), 0, parsed2.getFailures().toString());
-    assertEquals(parsed2.getValue().size(), 1);
+    assertThat(parsed2.getFailures().size()).as(parsed2.getFailures().toString()).isEqualTo(0);
+    assertThat(parsed2.getValue().size()).isEqualTo(1);
     List<CurveSensitivities> csensList2 = parsed2.getValue().get("");
-    assertEquals(csensList2.size(), 1);
+    assertThat(csensList2).hasSize(1);
     CurveSensitivities csens2 = csensList2.get(0);
 
-    assertEquals(csens2, csens1);
+    assertThat(csens2).isEqualTo(csens1);
   }
 
 }

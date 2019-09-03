@@ -8,27 +8,28 @@ package com.opengamma.strata.market.curve;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.market.ValueType;
 
 /**
  * Test {@link SimpleCurveParameterMetadata}.
  */
-@Test
 public class SimpleCurveParameterMetadataTest {
 
+  @Test
   public void test_of() {
     SimpleCurveParameterMetadata test = SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, 1d);
-    assertEquals(test.getXValueType(), ValueType.YEAR_FRACTION);
-    assertEquals(test.getXValue(), 1d);
-    assertEquals(test.getLabel(), "YearFraction=1.0");
-    assertEquals(test.getIdentifier(), "YearFraction=1.0");
+    assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
+    assertThat(test.getXValue()).isEqualTo(1d);
+    assertThat(test.getLabel()).isEqualTo("YearFraction=1.0");
+    assertThat(test.getIdentifier()).isEqualTo("YearFraction=1.0");
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     SimpleCurveParameterMetadata test = SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, 1d);
     coverImmutableBean(test);
@@ -36,6 +37,7 @@ public class SimpleCurveParameterMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     SimpleCurveParameterMetadata test = SimpleCurveParameterMetadata.of(ValueType.YEAR_FRACTION, 1d);
     assertSerialization(test);

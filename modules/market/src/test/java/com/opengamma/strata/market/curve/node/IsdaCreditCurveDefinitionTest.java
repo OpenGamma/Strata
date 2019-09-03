@@ -17,11 +17,11 @@ import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardId;
@@ -41,7 +41,6 @@ import com.opengamma.strata.market.observable.QuoteId;
 /**
  * Test {@code IsdaCreditCurveDefinition}.
  */
-@Test
 public class IsdaCreditCurveDefinitionTest {
 
   private static final CurveName NAME = CurveName.of("TestCurve");
@@ -54,15 +53,16 @@ public class IsdaCreditCurveDefinitionTest {
       SwapIsdaCreditCurveNode.of(
           QuoteId.of(StandardId.of("OG", "swap15Y")), DaysAdjustment.NONE, BusinessDayAdjustment.NONE, TENOR_15Y, ACT_360, P3M));
 
+  @Test
   public void test_of() {
     IsdaCreditCurveDefinition test =
         IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true, false);
-    assertEquals(test.getCurrency(), USD);
-    assertEquals(test.getCurveNodes(), NODES);
-    assertEquals(test.getCurveValuationDate(), CURVE_VALUATION_DATE);
-    assertEquals(test.getDayCount(), ACT_ACT_ISDA);
-    assertEquals(test.isComputeJacobian(), true);
-    assertEquals(test.isStoreNodeTrade(), false);
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.getCurveNodes()).isEqualTo(NODES);
+    assertThat(test.getCurveValuationDate()).isEqualTo(CURVE_VALUATION_DATE);
+    assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);
+    assertThat(test.isComputeJacobian()).isTrue();
+    assertThat(test.isStoreNodeTrade()).isFalse();
     DoubleArray time = DoubleArray.of(1, 2, 3);
     DoubleArray rate = DoubleArray.of(0.01, 0.014, 0.02);
     InterpolatedNodalCurve expectedCurve = InterpolatedNodalCurve.of(
@@ -72,10 +72,11 @@ public class IsdaCreditCurveDefinitionTest {
         CurveInterpolators.PRODUCT_LINEAR,
         CurveExtrapolators.FLAT,
         CurveExtrapolators.PRODUCT_LINEAR);
-    assertEquals(test.curve(time, rate), expectedCurve);
+    assertThat(test.curve(time, rate)).isEqualTo(expectedCurve);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     IsdaCreditCurveDefinition test1 =
         IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true, true);
@@ -85,6 +86,7 @@ public class IsdaCreditCurveDefinitionTest {
     coverBeanEquals(test1, test2);
   }
 
+  @Test
   public void test_serialization() {
     IsdaCreditCurveDefinition test =
         IsdaCreditCurveDefinition.of(NAME, USD, CURVE_VALUATION_DATE, ACT_ACT_ISDA, NODES, true, true);

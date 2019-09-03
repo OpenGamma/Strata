@@ -13,16 +13,16 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertFalse;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
@@ -50,7 +50,6 @@ import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 /**
  * Test {@link TermDepositCurveNode}.
  */
-@Test
 public class TermDepositCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -65,6 +64,7 @@ public class TermDepositCurveNodeTest {
   private static final String LABEL = "Label";
   private static final String LABEL_AUTO = "3M";
 
+  @Test
   public void test_builder() {
     TermDepositCurveNode test = TermDepositCurveNode.builder()
         .label(LABEL)
@@ -73,13 +73,14 @@ public class TermDepositCurveNodeTest {
         .additionalSpread(SPREAD)
         .date(CurveNodeDate.LAST_FIXING)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.LAST_FIXING);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.LAST_FIXING);
   }
 
+  @Test
   public void test_builder_defaults() {
     TermDepositCurveNode test = TermDepositCurveNode.builder()
         .label(LABEL)
@@ -87,45 +88,50 @@ public class TermDepositCurveNodeTest {
         .rateId(QUOTE_ID)
         .additionalSpread(SPREAD)
         .build();
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
-    assertEquals(test.getDate(), CurveNodeDate.END);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
   }
 
+  @Test
   public void test_of_noSpread() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), 0.0d);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(0.0d);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpread() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
-    assertEquals(test.getLabel(), LABEL_AUTO);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL_AUTO);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_of_withSpreadAndLabel() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
-    assertEquals(test.getLabel(), LABEL);
-    assertEquals(test.getRateId(), QUOTE_ID);
-    assertEquals(test.getAdditionalSpread(), SPREAD);
-    assertEquals(test.getTemplate(), TEMPLATE);
+    assertThat(test.getLabel()).isEqualTo(LABEL);
+    assertThat(test.getRateId()).isEqualTo(QUOTE_ID);
+    assertThat(test.getAdditionalSpread()).isEqualTo(SPREAD);
+    assertThat(test.getTemplate()).isEqualTo(TEMPLATE);
   }
 
+  @Test
   public void test_requirements() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     Set<ObservableId> set = test.requirements();
     Iterator<ObservableId> itr = set.iterator();
-    assertEquals(itr.next(), QUOTE_ID);
-    assertFalse(itr.hasNext());
+    assertThat(itr.next()).isEqualTo(QUOTE_ID);
+    assertThat(itr.hasNext()).isFalse();
   }
 
+  @Test
   public void test_trade() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     double rate = 0.035;
@@ -146,10 +152,11 @@ public class TermDepositCurveNodeTest {
     TradeInfo tradeInfoExpected = TradeInfo.builder()
         .tradeDate(VAL_DATE)
         .build();
-    assertEquals(trade.getProduct(), depositExpected);
-    assertEquals(trade.getInfo(), tradeInfoExpected);
+    assertThat(trade.getProduct()).isEqualTo(depositExpected);
+    assertThat(trade.getInfo()).isEqualTo(tradeInfoExpected);
   }
 
+  @Test
   public void test_trade_noMarketData() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
@@ -158,34 +165,37 @@ public class TermDepositCurveNodeTest {
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
   }
 
+  @Test
   public void test_initialGuess() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     double rate = 0.035;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
-    assertEquals(node.initialGuess(marketData, ValueType.ZERO_RATE), rate);
-    assertEquals(node.initialGuess(marketData, ValueType.FORWARD_RATE), rate);
-    assertEquals(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR),
-        Math.exp(-rate * 0.25), 1.0e-12);
+    assertThat(node.initialGuess(marketData, ValueType.ZERO_RATE)).isEqualTo(rate);
+    assertThat(node.initialGuess(marketData, ValueType.FORWARD_RATE)).isEqualTo(rate);
+    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR)).isCloseTo(Math.exp(-rate * 0.25), offset(1.0e-12));
   }
 
+  @Test
   public void test_metadata_end() {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(((TenorDateParameterMetadata) metadata).getDate(), LocalDate.of(2015, 4, 27));
-    assertEquals(((TenorDateParameterMetadata) metadata).getTenor(), Tenor.TENOR_3M);
+    assertThat(((TenorDateParameterMetadata) metadata).getDate()).isEqualTo(LocalDate.of(2015, 4, 27));
+    assertThat(((TenorDateParameterMetadata) metadata).getTenor()).isEqualTo(Tenor.TENOR_3M);
   }
 
+  @Test
   public void test_metadata_fixed() {
     LocalDate nodeDate = VAL_DATE.plusMonths(1);
     TermDepositCurveNode node =
         TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.of(nodeDate));
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     DatedParameterMetadata metadata = node.metadata(valuationDate, REF_DATA);
-    assertEquals(metadata.getDate(), nodeDate);
-    assertEquals(metadata.getLabel(), node.getLabel());
+    assertThat(metadata.getDate()).isEqualTo(nodeDate);
+    assertThat(metadata.getLabel()).isEqualTo(node.getLabel());
   }
 
+  @Test
   public void test_metadata_last_fixing() {
     TermDepositCurveNode node =
         TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD).withDate(CurveNodeDate.LAST_FIXING);
@@ -194,6 +204,7 @@ public class TermDepositCurveNodeTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
@@ -202,6 +213,7 @@ public class TermDepositCurveNodeTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     TermDepositCurveNode test = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     assertSerialization(test);

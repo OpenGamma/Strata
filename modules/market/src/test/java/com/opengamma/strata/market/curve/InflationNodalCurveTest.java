@@ -10,13 +10,13 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.function.DoubleBinaryOperator;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -29,7 +29,6 @@ import com.opengamma.strata.market.param.UnitParameterSensitivity;
 /**
  * Test {@link InflationNodalCurve}.
  */
-@Test
 public class InflationNodalCurveTest {
 
   private static final LocalDate VAL_DATE_1 = LocalDate.of(2016, 1, 1);
@@ -76,30 +75,34 @@ public class InflationNodalCurveTest {
   private static final double TOLERANCE_VALUE = 1.0E-10;
   private static final double TOLERANCE_DELTA = 1.0E-8;
 
+  @Test
   public void of_construction_multiplicative_1() {
     InflationNodalCurve curveComputed = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);
-    assertEquals(curveComputed.getUnderlying().getXValues().get(0), NB_MONTHS_1, TOLERANCE_TIME);
-    assertEquals(curveComputed.getUnderlying().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
-    assertEquals(curveComputed.yValue(NB_MONTHS_1), LAST_FIX_VALUE, TOLERANCE_TIME);
+    assertThat(curveComputed.getUnderlying().getXValues().get(0)).isCloseTo(NB_MONTHS_1, offset(TOLERANCE_TIME));
+    assertThat(curveComputed.getUnderlying().getYValues().get(0)).isCloseTo(LAST_FIX_VALUE, offset(TOLERANCE_TIME));
+    assertThat(curveComputed.yValue(NB_MONTHS_1)).isCloseTo(LAST_FIX_VALUE, offset(TOLERANCE_TIME));
   }
 
+  @Test
   public void of_construction_multiplicative_2() {
     InflationNodalCurve curveComputed = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);
-    assertEquals(curveComputed.getUnderlying().getXValues().get(0), NB_MONTHS_2, TOLERANCE_TIME);
-    assertEquals(curveComputed.getUnderlying().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
-    assertEquals(curveComputed.yValue(NB_MONTHS_2), LAST_FIX_VALUE, TOLERANCE_TIME);
+    assertThat(curveComputed.getUnderlying().getXValues().get(0)).isCloseTo(NB_MONTHS_2, offset(TOLERANCE_TIME));
+    assertThat(curveComputed.getUnderlying().getYValues().get(0)).isCloseTo(LAST_FIX_VALUE, offset(TOLERANCE_TIME));
+    assertThat(curveComputed.yValue(NB_MONTHS_2)).isCloseTo(LAST_FIX_VALUE, offset(TOLERANCE_TIME));
   }
 
+  @Test
   public void of_construction_additive_1() {
     InflationNodalCurve curveComputed = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
         SEASONALITY_ADDITIVE_DEF);
-    assertEquals(curveComputed.getUnderlying().getXValues().get(0), NB_MONTHS_1, TOLERANCE_TIME);
-    assertEquals(curveComputed.getUnderlying().getYValues().get(0), LAST_FIX_VALUE, TOLERANCE_TIME);
-    assertEquals(curveComputed.yValue(NB_MONTHS_1), LAST_FIX_VALUE, TOLERANCE_TIME);
+    assertThat(curveComputed.getUnderlying().getXValues().get(0)).isCloseTo(NB_MONTHS_1, offset(TOLERANCE_TIME));
+    assertThat(curveComputed.getUnderlying().getYValues().get(0)).isCloseTo(LAST_FIX_VALUE, offset(TOLERANCE_TIME));
+    assertThat(curveComputed.yValue(NB_MONTHS_1)).isCloseTo(LAST_FIX_VALUE, offset(TOLERANCE_TIME));
   }
 
+  @Test
   public void value_multiplicative() {
     InflationNodalCurve curveComputed = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);
@@ -110,10 +113,11 @@ public class InflationNodalCurveTest {
       double valueNoAdj = EXTENDED_CURVE_2.yValue(nbMonths);
       double adj = SEASONALITY_MULTIPLICATIVE_COMP_2.get(x);
       double valueExpected = valueNoAdj * adj;
-      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
+      assertThat(valueExpected).isCloseTo(valueComputed, offset(TOLERANCE_VALUE));
     }
   }
 
+  @Test
   public void value_additive() {
     InflationNodalCurve curveComputed = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
         SEASONALITY_ADDITIVE_DEF);
@@ -126,10 +130,11 @@ public class InflationNodalCurveTest {
           seasonalityCompounded(VAL_DATE_2, LAST_FIX_MONTH_2, SEASONALITY_ADDITIVE, (v, a) -> v + a);
       double adj = seasonalityAdditiveCompounded.get(x);
       double valueExpected = valueNoAdj + adj;
-      assertEquals(valueExpected, valueComputed, TOLERANCE_VALUE);
+      assertThat(valueExpected).isCloseTo(valueComputed, offset(TOLERANCE_VALUE));
     }
   }
 
+  @Test
   public void parameter_sensitivity_multiplicative() {
     InflationNodalCurve curve = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);
@@ -147,11 +152,12 @@ public class InflationNodalCurveTest {
                   SEASONALITY_MULTIPLICATIVE_DEF);
           valuePM[pm] = seaCurveShifted.yValue(nbMonths);
         }
-        assertEquals(psComputed.getSensitivity().get(j), (valuePM[0] - valuePM[1]) / (2 * shift), TOLERANCE_DELTA);
+        assertThat(psComputed.getSensitivity().get(j)).isCloseTo((valuePM[0] - valuePM[1]) / (2 * shift), offset(TOLERANCE_DELTA));
       }
     }
   }
 
+  @Test
   public void parameter_sensitivity_additive() {
     InflationNodalCurve curve = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_2, LAST_FIX_MONTH_2, LAST_FIX_VALUE,
         SEASONALITY_ADDITIVE_DEF);
@@ -169,7 +175,7 @@ public class InflationNodalCurveTest {
                   SEASONALITY_ADDITIVE_DEF);
           valuePM[pm] = seaCurveShifted.yValue(nbMonths);
         }
-        assertEquals(psComputed.getSensitivity().get(j), (valuePM[0] - valuePM[1]) / (2 * shift), TOLERANCE_DELTA);
+        assertThat(psComputed.getSensitivity().get(j)).isCloseTo((valuePM[0] - valuePM[1]) / (2 * shift), offset(TOLERANCE_DELTA));
       }
     }
   }
@@ -191,6 +197,7 @@ public class InflationNodalCurveTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     InflationNodalCurve test = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);
@@ -202,6 +209,7 @@ public class InflationNodalCurveTest {
     assertThat(test.values().toMap()).isEqualTo(MapStream.zip(TIMES.stream().boxed(), VALUES.stream().boxed()).toMap());
   }
 
+  @Test
   public void test_serialization() {
     InflationNodalCurve test = InflationNodalCurve.of(CURVE_NOFIX, VAL_DATE_1, LAST_FIX_MONTH_1, LAST_FIX_VALUE,
         SEASONALITY_MULTIPLICATIVE_DEF);

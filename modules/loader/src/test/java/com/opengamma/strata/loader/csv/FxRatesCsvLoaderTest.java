@@ -7,14 +7,13 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 import java.time.LocalDate;
 import java.util.Map;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -27,7 +26,6 @@ import com.opengamma.strata.data.FxRateId;
 /**
  * Test {@link FxRatesCsvLoader}.
  */
-@Test
 public class FxRatesCsvLoaderTest {
 
   private static final FxRateId EUR_USD_ID = FxRateId.of(Currency.EUR, Currency.USD);
@@ -46,70 +44,78 @@ public class FxRatesCsvLoaderTest {
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fx-rates-invalid-duplicate.csv");
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_load_oneDate_file1_date1() {
     Map<FxRateId, FxRate> map = FxRatesCsvLoader.load(DATE1, RATES_1);
-    assertEquals(map.size(), 2);
+    assertThat(map).hasSize(2);
     assertFile1Date1(map);
   }
 
+  @Test
   public void test_load_oneDate_file1_date2() {
     Map<FxRateId, FxRate> map = FxRatesCsvLoader.load(DATE2, ImmutableList.of(RATES_1));
-    assertEquals(map.size(), 2);
+    assertThat(map).hasSize(2);
     assertFile1Date2(map);
   }
 
+  @Test
   public void test_load_oneDate_file1file2_date1() {
     Map<FxRateId, FxRate> map = FxRatesCsvLoader.load(DATE1, ImmutableList.of(RATES_1, RATES_2));
-    assertEquals(map.size(), 3);
+    assertThat(map).hasSize(3);
     assertFile1Date1(map);
     assertFile2Date1(map);
   }
 
+  @Test
   public void test_load_oneDate_invalidDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxRatesCsvLoader.load(date(2015, 10, 2), RATES_INVALID_DATE))
         .withMessageStartingWith("Error processing resource as CSV file: ");
   }
 
+  @Test
   public void test_invalidDuplicate() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxRatesCsvLoader.load(DATE1, RATES_INVALID_DUPLICATE));
   }
 
+  @Test
   public void test_load_dateSet_file1_date1() {
     Map<LocalDate, ImmutableMap<FxRateId, FxRate>> map = FxRatesCsvLoader.load(ImmutableSet.of(DATE1, DATE2), RATES_1);
-    assertEquals(map.size(), 2);
+    assertThat(map).hasSize(2);
     assertFile1Date1(map.get(DATE1));
     assertFile1Date2(map.get(DATE2));
   }
 
+  @Test
   public void test_load_alLDates_file1_date1() {
     Map<LocalDate, ImmutableMap<FxRateId, FxRate>> map = FxRatesCsvLoader.loadAllDates(RATES_1);
-    assertEquals(map.size(), 2);
+    assertThat(map).hasSize(2);
     assertFile1Date1(map.get(DATE1));
     assertFile1Date2(map.get(DATE2));
   }
 
   //-------------------------------------------------------------------------
   private void assertFile1Date1(Map<FxRateId, FxRate> map) {
-    assertTrue(map.containsKey(EUR_USD_ID));
-    assertTrue(map.containsKey(GBP_USD_ID));
-    assertEquals(map.get(EUR_USD_ID), FxRate.of(Currency.EUR, Currency.USD, 1.11));
-    assertEquals(map.get(GBP_USD_ID), FxRate.of(Currency.GBP, Currency.USD, 1.51));
+    assertThat(map.containsKey(EUR_USD_ID)).isTrue();
+    assertThat(map.containsKey(GBP_USD_ID)).isTrue();
+    assertThat(map.get(EUR_USD_ID)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.11));
+    assertThat(map.get(GBP_USD_ID)).isEqualTo(FxRate.of(Currency.GBP, Currency.USD, 1.51));
   }
 
   private void assertFile1Date2(Map<FxRateId, FxRate> map) {
-    assertTrue(map.containsKey(EUR_USD_ID));
-    assertTrue(map.containsKey(GBP_USD_ID));
-    assertEquals(map.get(EUR_USD_ID), FxRate.of(Currency.EUR, Currency.USD, 1.12));
-    assertEquals(map.get(GBP_USD_ID), FxRate.of(Currency.GBP, Currency.USD, 1.52));
+    assertThat(map.containsKey(EUR_USD_ID)).isTrue();
+    assertThat(map.containsKey(GBP_USD_ID)).isTrue();
+    assertThat(map.get(EUR_USD_ID)).isEqualTo(FxRate.of(Currency.EUR, Currency.USD, 1.12));
+    assertThat(map.get(GBP_USD_ID)).isEqualTo(FxRate.of(Currency.GBP, Currency.USD, 1.52));
   }
 
   private void assertFile2Date1(Map<FxRateId, FxRate> map) {
-    assertTrue(map.containsKey(EUR_CHF_ID));
-    assertEquals(map.get(EUR_CHF_ID), FxRate.of(Currency.EUR, Currency.CHF, 1.09));
+    assertThat(map.containsKey(EUR_CHF_ID)).isTrue();
+    assertThat(map.get(EUR_CHF_ID)).isEqualTo(FxRate.of(Currency.EUR, Currency.CHF, 1.09));
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(FxRatesCsvLoader.class);
   }

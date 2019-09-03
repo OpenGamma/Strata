@@ -10,18 +10,17 @@ import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverEnum;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.testng.Assert.assertEquals;
 
 import java.time.LocalDate;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link CurveNodeDate}.
  */
-@Test
 public class CurveNodeDateTest {
 
   private static final LocalDate DATE1 = date(2015, 6, 30);
@@ -29,47 +28,52 @@ public class CurveNodeDateTest {
   private static final LocalDate DATE3 = date(2015, 7, 2);
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_END() {
     CurveNodeDate test = CurveNodeDate.END;
-    assertEquals(test.isFixed(), false);
-    assertEquals(test.isEnd(), true);
-    assertEquals(test.isLastFixing(), false);
-    assertEquals(test.getType(), CurveNodeDateType.END);
+    assertThat(test.isFixed()).isFalse();
+    assertThat(test.isEnd()).isTrue();
+    assertThat(test.isLastFixing()).isFalse();
+    assertThat(test.getType()).isEqualTo(CurveNodeDateType.END);
     assertThatIllegalStateException()
         .isThrownBy(() -> test.getDate());
   }
 
+  @Test
   public void test_LAST_FIXING() {
     CurveNodeDate test = CurveNodeDate.LAST_FIXING;
-    assertEquals(test.isFixed(), false);
-    assertEquals(test.isEnd(), false);
-    assertEquals(test.isLastFixing(), true);
-    assertEquals(test.getType(), CurveNodeDateType.LAST_FIXING);
+    assertThat(test.isFixed()).isFalse();
+    assertThat(test.isEnd()).isFalse();
+    assertThat(test.isLastFixing()).isTrue();
+    assertThat(test.getType()).isEqualTo(CurveNodeDateType.LAST_FIXING);
     assertThatIllegalStateException()
         .isThrownBy(() -> test.getDate());
   }
 
+  @Test
   public void test_of() {
     CurveNodeDate test = CurveNodeDate.of(DATE1);
-    assertEquals(test.isFixed(), true);
-    assertEquals(test.isEnd(), false);
-    assertEquals(test.isLastFixing(), false);
-    assertEquals(test.getType(), CurveNodeDateType.FIXED);
-    assertEquals(test.getDate(), DATE1);
+    assertThat(test.isFixed()).isTrue();
+    assertThat(test.isEnd()).isFalse();
+    assertThat(test.isLastFixing()).isFalse();
+    assertThat(test.getType()).isEqualTo(CurveNodeDateType.FIXED);
+    assertThat(test.getDate()).isEqualTo(DATE1);
   }
 
+  @Test
   public void test_builder_fixed() {
     CurveNodeDate test = CurveNodeDate.meta().builder()
         .set(CurveNodeDate.meta().type(), CurveNodeDateType.FIXED)
         .set(CurveNodeDate.meta().date(), DATE1)
         .build();
-    assertEquals(test.isFixed(), true);
-    assertEquals(test.isEnd(), false);
-    assertEquals(test.isLastFixing(), false);
-    assertEquals(test.getType(), CurveNodeDateType.FIXED);
-    assertEquals(test.getDate(), DATE1);
+    assertThat(test.isFixed()).isTrue();
+    assertThat(test.isEnd()).isFalse();
+    assertThat(test.isLastFixing()).isFalse();
+    assertThat(test.getType()).isEqualTo(CurveNodeDateType.FIXED);
+    assertThat(test.getDate()).isEqualTo(DATE1);
   }
 
+  @Test
   public void test_builder_incorrect_no_fixed_date() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurveNodeDate.meta().builder()
@@ -77,6 +81,7 @@ public class CurveNodeDateTest {
             .build());
   }
 
+  @Test
   public void test_builder_incorrect_fixed_date() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CurveNodeDate.meta().builder()
@@ -86,13 +91,15 @@ public class CurveNodeDateTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_calculate() {
-    assertEquals(CurveNodeDate.of(DATE1).calculate(() -> DATE2, () -> DATE3), DATE1);
-    assertEquals(CurveNodeDate.END.calculate(() -> DATE2, () -> DATE3), DATE2);
-    assertEquals(CurveNodeDate.LAST_FIXING.calculate(() -> DATE2, () -> DATE3), DATE3);
+    assertThat(CurveNodeDate.of(DATE1).calculate(() -> DATE2, () -> DATE3)).isEqualTo(DATE1);
+    assertThat(CurveNodeDate.END.calculate(() -> DATE2, () -> DATE3)).isEqualTo(DATE2);
+    assertThat(CurveNodeDate.LAST_FIXING.calculate(() -> DATE2, () -> DATE3)).isEqualTo(DATE3);
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     CurveNodeDate test = CurveNodeDate.of(DATE1);
     coverImmutableBean(test);
@@ -101,6 +108,7 @@ public class CurveNodeDateTest {
     coverEnum(CurveNodeDateType.class);
   }
 
+  @Test
   public void test_serialization() {
     CurveNodeDate test = CurveNodeDate.of(DATE1);
     assertSerialization(test);

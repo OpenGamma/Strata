@@ -7,20 +7,20 @@ package com.opengamma.strata.market.explain;
 
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test {@link ExplainKey}.
  */
-@Test
 public class ExplainKeyTest {
 
   //-----------------------------------------------------------------------
+  @Test
   public void coverage() {
     ExplainKey<String> test = ExplainKey.of("Foo");
-    assertEquals(test.toString(), "Foo");
+    assertThat(test.toString()).isEqualTo("Foo");
     assertSerialization(test);
     assertJodaConvert(ExplainKey.class, test);
   }

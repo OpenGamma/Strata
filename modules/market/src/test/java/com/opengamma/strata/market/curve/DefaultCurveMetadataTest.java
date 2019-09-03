@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.Optional;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -25,7 +25,6 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 /**
  * Test {@link CurveMetadata}.
  */
-@Test
 public class DefaultCurveMetadataTest {
 
   private static final String NAME = "TestCurve";
@@ -35,6 +34,7 @@ public class DefaultCurveMetadataTest {
       DoubleMatrix.filled(2, 2));
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_of_String_noMetadata() {
     DefaultCurveMetadata test = DefaultCurveMetadata.of(NAME);
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
@@ -44,6 +44,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
+  @Test
   public void test_of_CurveName_noMetadata() {
     DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
@@ -53,6 +54,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
+  @Test
   public void test_builder1() {
     DefaultCurveMetadata test = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME.toString())
@@ -74,6 +76,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
+  @Test
   public void test_builder2() {
     DefaultCurveMetadata test = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -95,6 +98,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
   }
 
+  @Test
   public void test_builder3() {
     DefaultCurveMetadata test = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -107,6 +111,7 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
   }
 
+  @Test
   public void test_builder4() {
     DefaultCurveMetadata test = DefaultCurveMetadata.builder()
         .curveName(CURVE_NAME)
@@ -128,6 +133,7 @@ public class DefaultCurveMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withInfo() {
     DefaultCurveMetadata base = DefaultCurveMetadata.of(CURVE_NAME);
     assertThat(base.findInfo(CurveInfoType.DAY_COUNT).isPresent()).isFalse();
@@ -137,6 +143,7 @@ public class DefaultCurveMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void test_withParameterMetadata() {
     DefaultCurveMetadata base = DefaultCurveMetadata.of(CURVE_NAME);
     DefaultCurveMetadata test = base.withParameterMetadata(ParameterMetadata.listOfEmpty(2));
@@ -149,6 +156,7 @@ public class DefaultCurveMetadataTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     DefaultCurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     coverImmutableBean(test);
@@ -163,6 +171,7 @@ public class DefaultCurveMetadataTest {
     coverBeanEquals(test, test2);
   }
 
+  @Test
   public void test_serialization() {
     CurveMetadata test = DefaultCurveMetadata.of(CURVE_NAME);
     assertSerialization(test);

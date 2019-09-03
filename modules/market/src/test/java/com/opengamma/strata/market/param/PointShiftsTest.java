@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
@@ -31,7 +31,6 @@ import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 /**
  * Test {@link PointShifts}.
  */
-@Test
 public class PointShiftsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -44,6 +43,7 @@ public class PointShiftsTest {
 
   // TODO test volatilities with surface, SABR params
 
+  @Test
   public void absolute() {
     List<LabelDateParameterMetadata> nodeMetadata = ImmutableList.of(
         LabelDateParameterMetadata.of(date(2011, 3, 8), TNR_1M),
@@ -111,6 +111,7 @@ public class PointShiftsTest {
     }
   }
 
+  @Test
   public void relative() {
     List<LabelDateParameterMetadata> nodeMetadata = ImmutableList.of(
         LabelDateParameterMetadata.of(date(2011, 3, 8), TNR_1M),
@@ -179,6 +180,7 @@ public class PointShiftsTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     PointShifts test = PointShifts.builder(ShiftType.RELATIVE)
         .addShift(0, Tenor.TENOR_1W, 0.1)
