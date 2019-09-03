@@ -191,9 +191,10 @@ public final class PropertySet {
   /**
    * Combines this property set with another.
    * <p>
-   * This property set takes precedence.
+   * This property set takes precedence. Where a key exists in both sets the values in the other
+   * property set will be discarded.
    * Any order of any additional keys will be retained, with those keys located after the base set of keys.
-   * 
+   *
    * @param other  the other property set
    * @return the combined property set
    */
