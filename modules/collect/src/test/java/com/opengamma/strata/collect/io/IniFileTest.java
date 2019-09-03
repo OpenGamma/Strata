@@ -12,12 +12,14 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.io.CharSource;
@@ -172,6 +174,25 @@ public class IniFileTest {
   public void test_of_ioException() {
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(
         () -> IniFile.of(Files.asCharSource(new File("src/test/resources"), StandardCharsets.UTF_8)));
+  }
+
+  @Test
+  public void test_combinedWith() {
+    Map<String, PropertySet> aSections = ImmutableMap.of(
+        "InA", PropertySet.of(ImmutableMap.of("ATest", "AValue")),
+        "InBoth", PropertySet.of(ImmutableMultimap.of("InBoth", "Override", "InBoth", "AlsoOverrides")));
+    IniFile a = IniFile.of(aSections);
+
+    Map<String, PropertySet> bSections = ImmutableMap.of(
+        "InB", PropertySet.of(ImmutableMap.of("BTest", "BValue")),
+        "InBoth", PropertySet.of(ImmutableMultimap.of("InBoth", "Ignored", "InBoth", "AlsoIgnored")));
+    IniFile b = IniFile.of(bSections);
+
+    IniFile combined = a.combinedWith(b);
+    assertThat(combined.sections()).containsExactlyInAnyOrder("InA", "InB", "InBoth");
+    assertThat(combined.section("InA").valueList("ATest")).isEqualTo(ImmutableList.of("AValue"));
+    assertThat(combined.section("InB").valueList("BTest")).isEqualTo(ImmutableList.of("BValue"));
+    assertThat(combined.section("InBoth").valueList("InBoth")).isEqualTo(ImmutableList.of("Override", "AlsoOverrides"));
   }
 
   //-------------------------------------------------------------------------
