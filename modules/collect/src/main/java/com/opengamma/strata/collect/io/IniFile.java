@@ -203,6 +203,25 @@ public final class IniFile {
 
   //-------------------------------------------------------------------------
   /**
+   * Combines this file with another.
+   * <p>
+   * This file takes precedence.
+   * Any order of any additional keys will be retained, with those keys located after the base set of keys.
+   *
+   * @param other  the other INI file
+   * @return the combined INI file
+   */
+  public IniFile combinedWith(IniFile other) {
+    ArgChecker.notNull(other, "other");
+
+    return IniFile.of(MapStream.concat(
+        MapStream.of(this.sectionMap),
+        MapStream.of(other.sectionMap))
+        .toMap(PropertySet::combinedWith));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Checks if this INI file equals another.
    * <p>
    * The comparison checks the content.
