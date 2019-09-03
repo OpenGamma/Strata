@@ -30,8 +30,10 @@ public class NegativeRateMethodTest {
     assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(-1d)).isCloseTo(-1d, offset(0d));
     assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.MAX_VALUE)).isCloseTo(Double.MAX_VALUE, offset(0d));
     assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.MIN_VALUE)).isCloseTo(Double.MIN_VALUE, offset(0d));
-    assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.POSITIVE_INFINITY)).isCloseTo(Double.POSITIVE_INFINITY, offset(0d));
-    assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.NEGATIVE_INFINITY)).isCloseTo(Double.NEGATIVE_INFINITY, offset(0d));
+    assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.POSITIVE_INFINITY))
+        .isCloseTo(Double.POSITIVE_INFINITY, offset(0d));
+    assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.NEGATIVE_INFINITY))
+        .isCloseTo(Double.NEGATIVE_INFINITY, offset(0d));
     assertThat(NegativeRateMethod.ALLOW_NEGATIVE.adjust(Double.NaN)).isEqualTo(Double.NaN);  // force to Double for comparison
   }
 
@@ -43,7 +45,8 @@ public class NegativeRateMethodTest {
     assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(-1d)).isCloseTo(0d, offset(0d));
     assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.MAX_VALUE)).isCloseTo(Double.MAX_VALUE, offset(0d));
     assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.MIN_VALUE)).isCloseTo(Double.MIN_VALUE, offset(0d));
-    assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.POSITIVE_INFINITY)).isCloseTo(Double.POSITIVE_INFINITY, offset(0d));
+    assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.POSITIVE_INFINITY))
+        .isCloseTo(Double.POSITIVE_INFINITY, offset(0d));
     assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.NEGATIVE_INFINITY)).isCloseTo(0d, offset(0d));
     assertThat(NegativeRateMethod.NOT_NEGATIVE.adjust(Double.NaN)).isEqualTo(Double.NaN);  // force to Double for comparison
   }

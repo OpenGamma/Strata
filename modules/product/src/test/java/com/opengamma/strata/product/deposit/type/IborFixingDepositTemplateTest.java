@@ -55,9 +55,9 @@ public class IborFixingDepositTemplateTest {
   public void test_build_negativePeriod() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFixingDepositTemplate.builder()
-        .convention(CONVENTION)
-        .depositPeriod(Period.ofMonths(-3))
-        .build());
+            .convention(CONVENTION)
+            .depositPeriod(Period.ofMonths(-3))
+            .build());
   }
 
   @Test

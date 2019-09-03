@@ -64,13 +64,13 @@ public class BondFutureOptionTest {
   public void test_builder_expiryNotAfterTradeDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFutureOption.builder()
-        .putCall(CALL)
-        .expiryDate(FUTURE.getLastTradeDate())
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .strikePrice(STRIKE_PRICE)
-        .underlyingFuture(FUTURE)
-        .build());
+            .putCall(CALL)
+            .expiryDate(FUTURE.getLastTradeDate())
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(EXPIRY_ZONE)
+            .strikePrice(STRIKE_PRICE)
+            .underlyingFuture(FUTURE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

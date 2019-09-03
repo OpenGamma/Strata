@@ -134,7 +134,8 @@ public class FixedIborSwapConventionsTest {
   @ParameterizedTest
   @MethodSource("data_float_leg")
   public void test_holiday_calendars_match(FixedIborSwapConvention convention, IborIndex floatLeg) {
-    assertThat(convention.getFixedLeg().getAccrualBusinessDayAdjustment().getCalendar()).isEqualTo(floatLeg.getMaturityDateOffset().getAdjustment().getCalendar());
+    assertThat(convention.getFixedLeg().getAccrualBusinessDayAdjustment().getCalendar())
+        .isEqualTo(floatLeg.getMaturityDateOffset().getAdjustment().getCalendar());
   }
 
   //-------------------------------------------------------------------------

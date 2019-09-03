@@ -57,7 +57,8 @@ public class IborFutureOptionMarketDataLookupTest {
         .isThrownBy(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
     assertThat(test.requirements(USD_LIBOR_3M)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThat(test.requirements(ImmutableSet.of(USD_LIBOR_3M))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(USD_LIBOR_3M)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
   }
@@ -74,7 +75,8 @@ public class IborFutureOptionMarketDataLookupTest {
         .isThrownBy(() -> test.getVolatilityIds(GBP_LIBOR_3M));
 
     assertThat(test.requirements(USD_LIBOR_3M)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThat(test.requirements(ImmutableSet.of(USD_LIBOR_3M))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(USD_LIBOR_3M)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(GBP_LIBOR_3M)));
 

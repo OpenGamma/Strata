@@ -57,7 +57,8 @@ public class BondFutureOptionMarketDataLookupTest {
         .isThrownBy(() -> test.getVolatilityIds(SEC_OG2));
 
     assertThat(test.requirements(SEC_OG1)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThat(test.requirements(ImmutableSet.of(SEC_OG1))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(SEC_OG1)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
   }
@@ -73,7 +74,8 @@ public class BondFutureOptionMarketDataLookupTest {
         .isThrownBy(() -> test.getVolatilityIds(SEC_OG3));
 
     assertThat(test.requirements(SEC_OG1)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThat(test.requirements(ImmutableSet.of(SEC_OG1))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(SEC_OG1)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(SEC_OG3)));
 

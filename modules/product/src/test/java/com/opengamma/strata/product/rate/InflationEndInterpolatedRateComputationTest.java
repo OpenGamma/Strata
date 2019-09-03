@@ -48,13 +48,13 @@ public class InflationEndInterpolatedRateComputationTest {
   public void test_wrongMonthOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationEndInterpolatedRateComputation.meta().builder()
-        .set(InflationEndInterpolatedRateComputation.meta().startIndexValue(), START_INDEX)
-        .set(InflationEndInterpolatedRateComputation.meta().endObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .set(InflationEndInterpolatedRateComputation.meta().endSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .set(InflationEndInterpolatedRateComputation.meta().weight(), WEIGHT)
-        .build());
+            .set(InflationEndInterpolatedRateComputation.meta().startIndexValue(), START_INDEX)
+            .set(InflationEndInterpolatedRateComputation.meta().endObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+            .set(InflationEndInterpolatedRateComputation.meta().endSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+            .set(InflationEndInterpolatedRateComputation.meta().weight(), WEIGHT)
+            .build());
   }
 
   //-------------------------------------------------------------------------

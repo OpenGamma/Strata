@@ -62,12 +62,12 @@ public class FxVanillaOptionTest {
   public void test_builder_earlyPaymentDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxVanillaOption.builder()
-        .longShort(LONG)
-        .expiryDate(LocalDate.of(2015, 2, 21))
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .underlying(FX)
-        .build());
+            .longShort(LONG)
+            .expiryDate(LocalDate.of(2015, 2, 21))
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(EXPIRY_ZONE)
+            .underlying(FX)
+            .build());
   }
 
   //-------------------------------------------------------------------------

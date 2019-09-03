@@ -45,8 +45,10 @@ public class BondFutureTradeCalculationsTest {
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, SETTLE_PRICE);
     double expectedParSpread = pricer.parSpread(RTRADE, provider, SETTLE_PRICE);
 
-    assertThat(BondFutureTradeCalculations.DEFAULT.presentValue(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(BondFutureTradeCalculations.DEFAULT.parSpread(RTRADE, LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
+    assertThat(BondFutureTradeCalculations.DEFAULT.presentValue(RTRADE, LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(BondFutureTradeCalculations.DEFAULT.parSpread(RTRADE, LOOKUP, md))
+        .isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
   }
 
   @Test
@@ -59,8 +61,10 @@ public class BondFutureTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertThat(BondFutureTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(BondFutureTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(BondFutureTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(BondFutureTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
   @Test
@@ -79,9 +83,9 @@ public class BondFutureTradeCalculationsTest {
     assertThat(sumComputed.getScenarioCount()).isEqualTo(1);
     assertThat(sumComputed.get(0).getCurrencies()).containsOnly(USD);
     assertThat(DoubleMath.fuzzyEquals(
-            sumComputed.get(0).getAmount(USD).getAmount(),
-            expectedPv01Cal.getAmount(USD).getAmount(),
-            1.0e-10)).isTrue();
+        sumComputed.get(0).getAmount(USD).getAmount(),
+        expectedPv01Cal.getAmount(USD).getAmount(),
+        1.0e-10)).isTrue();
     assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
     assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
   }

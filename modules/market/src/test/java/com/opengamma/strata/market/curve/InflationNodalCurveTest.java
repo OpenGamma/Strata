@@ -152,7 +152,8 @@ public class InflationNodalCurveTest {
                   SEASONALITY_MULTIPLICATIVE_DEF);
           valuePM[pm] = seaCurveShifted.yValue(nbMonths);
         }
-        assertThat(psComputed.getSensitivity().get(j)).isCloseTo((valuePM[0] - valuePM[1]) / (2 * shift), offset(TOLERANCE_DELTA));
+        assertThat(psComputed.getSensitivity().get(j))
+            .isCloseTo((valuePM[0] - valuePM[1]) / (2 * shift), offset(TOLERANCE_DELTA));
       }
     }
   }
@@ -175,7 +176,8 @@ public class InflationNodalCurveTest {
                   SEASONALITY_ADDITIVE_DEF);
           valuePM[pm] = seaCurveShifted.yValue(nbMonths);
         }
-        assertThat(psComputed.getSensitivity().get(j)).isCloseTo((valuePM[0] - valuePM[1]) / (2 * shift), offset(TOLERANCE_DELTA));
+        assertThat(psComputed.getSensitivity().get(j))
+            .isCloseTo((valuePM[0] - valuePM[1]) / (2 * shift), offset(TOLERANCE_DELTA));
       }
     }
   }

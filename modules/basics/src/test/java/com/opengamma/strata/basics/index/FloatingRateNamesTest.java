@@ -218,7 +218,8 @@ public class FloatingRateNamesTest {
   public void test_overnightIndex() {
     assertThat(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").getDefaultTenor()).isEqualTo(Tenor.TENOR_1D);
     assertThat(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toFloatingRateIndex()).isEqualTo(OvernightIndices.GBP_SONIA);
-    assertThat(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toFloatingRateIndex(Tenor.TENOR_1M)).isEqualTo(OvernightIndices.GBP_SONIA);
+    assertThat(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toFloatingRateIndex(Tenor.TENOR_1M))
+        .isEqualTo(OvernightIndices.GBP_SONIA);
     assertThat(FloatingRateName.of("GBP-WMBA-SONIA-COMPOUND").toOvernightIndex()).isEqualTo(OvernightIndices.GBP_SONIA);
     assertThat(FloatingRateNames.USD_FED_FUND.toOvernightIndex()).isEqualTo(OvernightIndices.USD_FED_FUND);
     assertThat(FloatingRateNames.USD_FED_FUND_AVG.toOvernightIndex()).isEqualTo(OvernightIndices.USD_FED_FUND);

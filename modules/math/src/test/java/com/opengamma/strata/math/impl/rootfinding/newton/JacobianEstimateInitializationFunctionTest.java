@@ -26,7 +26,7 @@ public class JacobianEstimateInitializationFunctionTest {
     @Override
     public DoubleMatrix apply(DoubleArray v) {
       double[] x = v.toArray();
-      return DoubleMatrix.copyOf(new double[][] { {x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
+      return DoubleMatrix.copyOf(new double[][] {{x[0] * x[0], x[0] * x[1]}, {x[0] - x[1], x[1] * x[1]}});
     }
   };
 

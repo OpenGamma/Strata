@@ -45,7 +45,8 @@ public class ResolvedFixedCouponBondTest {
   public void test_yearFraction() {
     ResolvedFixedCouponBond test = sut();
     FixedCouponBondPaymentPeriod period = test.getPeriodicPayments().get(0);
-    assertThat(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate())).isEqualTo(period.getYearFraction());
+    assertThat(test.yearFraction(period.getUnadjustedStartDate(), period.getUnadjustedEndDate()))
+        .isEqualTo(period.getYearFraction());
   }
 
   @Test
@@ -88,7 +89,8 @@ public class ResolvedFixedCouponBondTest {
     ResolvedFixedCouponBond test = sut();
     ImmutableList<FixedCouponBondPaymentPeriod> payments = test.getPeriodicPayments();
     assertThat(test.findPeriod(test.getUnadjustedStartDate())).isEqualTo(Optional.of(payments.get(0)));
-    assertThat(test.findPeriod(test.getUnadjustedEndDate().minusDays(1))).isEqualTo(Optional.of(payments.get(payments.size() - 1)));
+    assertThat(test.findPeriod(test.getUnadjustedEndDate().minusDays(1)))
+        .isEqualTo(Optional.of(payments.get(payments.size() - 1)));
     assertThat(test.findPeriod(LocalDate.MIN)).isEqualTo(Optional.empty());
     assertThat(test.findPeriod(LocalDate.MAX)).isEqualTo(Optional.empty());
   }

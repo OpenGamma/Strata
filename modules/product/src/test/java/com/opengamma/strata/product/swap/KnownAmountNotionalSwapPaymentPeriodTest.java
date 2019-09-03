@@ -104,54 +104,54 @@ public class KnownAmountNotionalSwapPaymentPeriodTest {
   public void test_builder_invalid() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .endDate(DATE_2014_10_01)
-        .notionalAmount(GBP_P50000)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .endDate(DATE_2014_10_01)
+            .notionalAmount(GBP_P50000)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_10_01)
-        .notionalAmount(GBP_P50000)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_10_01)
+            .notionalAmount(GBP_P50000)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_10_01)
-        .endDate(DATE_2014_10_01)
-        .notionalAmount(GBP_P50000)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_10_01)
+            .endDate(DATE_2014_10_01)
+            .notionalAmount(GBP_P50000)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_03_30)
-        .endDate(DATE_2014_10_01)
-        .notionalAmount(CurrencyAmount.of(USD, 1000d))
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_03_30)
+            .endDate(DATE_2014_10_01)
+            .notionalAmount(CurrencyAmount.of(USD, 1000d))
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_03_30)
-        .endDate(DATE_2014_10_01)
-        .notionalAmount(CurrencyAmount.of(GBP, 1000d))
-        .fxResetObservation(FX_RESET)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_03_30)
+            .endDate(DATE_2014_10_01)
+            .notionalAmount(CurrencyAmount.of(GBP, 1000d))
+            .fxResetObservation(FX_RESET)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_03_30)
-        .endDate(DATE_2014_10_01)
-        .notionalAmount(CurrencyAmount.of(EUR, 1000d))
-        .fxResetObservation(FX_RESET)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_03_30)
+            .endDate(DATE_2014_10_01)
+            .notionalAmount(CurrencyAmount.of(EUR, 1000d))
+            .fxResetObservation(FX_RESET)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountNotionalSwapPaymentPeriod.builder()
-        .payment(Payment.of(CurrencyAmount.of(EUR, 1000d), DATE_2014_10_03))
-        .startDate(DATE_2014_03_30)
-        .endDate(DATE_2014_10_01)
-        .notionalAmount(CurrencyAmount.of(USD, 1000d))
-        .fxResetObservation(FX_RESET)
-        .build());
+            .payment(Payment.of(CurrencyAmount.of(EUR, 1000d), DATE_2014_10_03))
+            .startDate(DATE_2014_03_30)
+            .endDate(DATE_2014_10_01)
+            .notionalAmount(CurrencyAmount.of(USD, 1000d))
+            .fxResetObservation(FX_RESET)
+            .build());
   }
 
   //-------------------------------------------------------------------------

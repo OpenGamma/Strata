@@ -25,13 +25,14 @@ public class MatrixAlgebraImplementationTest {
   private static final MatrixAlgebra OG = MatrixAlgebraFactory.OG_ALGEBRA;
   private static final DoubleArray M1 = DoubleArray.of(1, 2);
   private static final DoubleArray M2 = DoubleArray.of(3, 4);
-  private static final DoubleMatrix M3 = DoubleMatrix.copyOf(new double[][] { {1, 2}, {2, 1}});
-  private static final DoubleMatrix M4 = DoubleMatrix.copyOf(new double[][] { {5, 6}, {7, 8}});
+  private static final DoubleMatrix M3 = DoubleMatrix.copyOf(new double[][] {{1, 2}, {2, 1}});
+  private static final DoubleMatrix M4 = DoubleMatrix.copyOf(new double[][] {{5, 6}, {7, 8}});
   private static final Matrix M5 = new Matrix() {
     @Override
     public int dimensions() {
       return 1;
     }
+
     @Override
     public int size() {
       return 0;
@@ -279,23 +280,23 @@ public class MatrixAlgebraImplementationTest {
   @Test
   public void testInverse() {
     assertMatrixEquals(COMMONS.getInverse(M3), DoubleMatrix.copyOf(
-        new double[][] { {-0.3333333333333333, 0.6666666666666666}, {0.6666666666666666, -0.3333333333333333}}));
+        new double[][] {{-0.3333333333333333, 0.6666666666666666}, {0.6666666666666666, -0.3333333333333333}}));
   }
 
   @Test
   public void testMultiply() {
     assertMatrixEquals(COMMONS.multiply(DoubleMatrix.identity(2), M3), M3);
-    assertMatrixEquals(COMMONS.multiply(M3, M4), DoubleMatrix.copyOf(new double[][] { {19, 22}, {17, 20}}));
+    assertMatrixEquals(COMMONS.multiply(M3, M4), DoubleMatrix.copyOf(new double[][] {{19, 22}, {17, 20}}));
   }
 
   @Test
   public void testOuterProduct() {
-    assertMatrixEquals(COMMONS.getOuterProduct(M1, M2), DoubleMatrix.copyOf(new double[][] { {3, 4}, {6, 8}}));
+    assertMatrixEquals(COMMONS.getOuterProduct(M1, M2), DoubleMatrix.copyOf(new double[][] {{3, 4}, {6, 8}}));
   }
 
   @Test
   public void testPower() {
-    assertMatrixEquals(COMMONS.getPower(M3, 3), DoubleMatrix.copyOf(new double[][] { {13, 14}, {14, 13}}));
+    assertMatrixEquals(COMMONS.getPower(M3, 3), DoubleMatrix.copyOf(new double[][] {{13, 14}, {14, 13}}));
     assertMatrixEquals(COMMONS.getPower(M3, 3), COMMONS.multiply(M3, COMMONS.multiply(M3, M3)));
   }
 

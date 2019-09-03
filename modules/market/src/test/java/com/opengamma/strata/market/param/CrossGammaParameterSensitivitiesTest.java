@@ -264,10 +264,13 @@ public class CrossGammaParameterSensitivitiesTest {
   @Test
   public void test_getSensitivity_name() {
     assertThat(SENSI_3.getSensitivity(NAME1, NAME1, USD)).isEqualTo(ENTRY_USD);
-    assertThat(SENSI_3.getSensitivity(NAME1, NAME2, USD)).isEqualTo(CrossGammaParameterSensitivity.of(NAME1, METADATA1, NAME2, METADATA2, USD, MATRIX_USD2));
-    assertThat(SENSI_3.getSensitivity(NAME2, NAME1, USD)).isEqualTo(CrossGammaParameterSensitivity.of(NAME2, METADATA2, NAME1, METADATA1, USD, MATRIX_USD2));
-    assertThat(SENSI_3.getSensitivity(NAME2, NAME2, USD)).isEqualTo(CrossGammaParameterSensitivity.of(NAME2, METADATA2, NAME2, METADATA2, USD,
-        DoubleMatrix.of(2, 2, -500, -400, -200, -300)));
+    assertThat(SENSI_3.getSensitivity(NAME1, NAME2, USD))
+        .isEqualTo(CrossGammaParameterSensitivity.of(NAME1, METADATA1, NAME2, METADATA2, USD, MATRIX_USD2));
+    assertThat(SENSI_3.getSensitivity(NAME2, NAME1, USD))
+        .isEqualTo(CrossGammaParameterSensitivity.of(NAME2, METADATA2, NAME1, METADATA1, USD, MATRIX_USD2));
+    assertThat(SENSI_3.getSensitivity(NAME2, NAME2, USD))
+        .isEqualTo(CrossGammaParameterSensitivity.of(NAME2, METADATA2, NAME2, METADATA2, USD,
+            DoubleMatrix.of(2, 2, -500, -400, -200, -300)));
   }
 
   //-------------------------------------------------------------------------

@@ -73,10 +73,10 @@ public class ResolvedFxVanillaOptionTest {
   public void test_builder_earlyPaymentDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxVanillaOption.builder()
-        .longShort(LONG)
-        .expiry(LocalDate.of(2015, 2, 21).atStartOfDay(ZoneOffset.UTC))
-        .underlying(FX)
-        .build());
+            .longShort(LONG)
+            .expiry(LocalDate.of(2015, 2, 21).atStartOfDay(ZoneOffset.UTC))
+            .underlying(FX)
+            .build());
   }
 
   //-------------------------------------------------------------------------

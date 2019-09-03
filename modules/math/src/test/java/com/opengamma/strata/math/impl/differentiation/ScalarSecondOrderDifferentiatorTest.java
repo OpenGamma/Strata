@@ -71,7 +71,7 @@ public class ScalarSecondOrderDifferentiatorTest {
 
   @Test
   public void domainTest() {
-    final double[] x = new double[] {1.2, 0, Math.PI };
+    final double[] x = new double[] {1.2, 0, Math.PI};
     final Function<Double, Double> alFunc = CALC.differentiate(F, DOMAIN);
     for (int i = 0; i < 3; i++) {
       assertThat(alFunc.apply(x[i])).isCloseTo(DX_ANALYTIC.apply(x[i]), offset(EPS));

@@ -18,9 +18,9 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  * Test.
  */
 public class TridiagonalMatrixTest {
-  private static final double[] A = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-  private static final double[] B = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9 };
-  private static final double[] C = new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10 };
+  private static final double[] A = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  private static final double[] B = new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  private static final double[] C = new double[] {2, 3, 4, 5, 6, 7, 8, 9, 10};
   private static final TridiagonalMatrix M = new TridiagonalMatrix(A, B, C);
 
   @Test

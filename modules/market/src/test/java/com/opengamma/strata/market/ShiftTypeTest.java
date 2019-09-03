@@ -38,9 +38,12 @@ public class ShiftTypeTest {
     assertThat(ShiftType.ABSOLUTE.computeShift(base, shifted)).isCloseTo(0.1, offset(tol));
     assertThat(ShiftType.RELATIVE.computeShift(base, shifted)).isCloseTo(0.05, offset(tol));
     assertThat(ShiftType.SCALED.computeShift(base, shifted)).isCloseTo(1.05, offset(tol));
-    assertThat(ShiftType.ABSOLUTE.applyShift(base, ShiftType.ABSOLUTE.computeShift(base, shifted))).isCloseTo(shifted, offset(tol));
-    assertThat(ShiftType.RELATIVE.applyShift(base, ShiftType.RELATIVE.computeShift(base, shifted))).isCloseTo(shifted, offset(tol));
-    assertThat(ShiftType.SCALED.applyShift(base, ShiftType.SCALED.computeShift(base, shifted))).isCloseTo(shifted, offset(tol));
+    assertThat(ShiftType.ABSOLUTE.applyShift(base, ShiftType.ABSOLUTE.computeShift(base, shifted)))
+        .isCloseTo(shifted, offset(tol));
+    assertThat(ShiftType.RELATIVE.applyShift(base, ShiftType.RELATIVE.computeShift(base, shifted)))
+        .isCloseTo(shifted, offset(tol));
+    assertThat(ShiftType.SCALED.applyShift(base, ShiftType.SCALED.computeShift(base, shifted)))
+        .isCloseTo(shifted, offset(tol));
   }
 
   @Test

@@ -143,7 +143,8 @@ public class ResolvedFxSingleTest {
   public void test_of_rate_bothZero() {
     ResolvedFxSingle test = ResolvedFxSingle.of(CurrencyAmount.zero(GBP), FxRate.of(USD, GBP, 1.6d), DATE_2015_06_30);
     assertThat(test.getBaseCurrencyPayment().getValue()).isEqualTo(CurrencyAmount.zero(GBP));
-    assertThat(test.getCounterCurrencyPayment().getValue().getAmount()).isCloseTo(CurrencyAmount.zero(USD).getAmount(), offset(1e-12));
+    assertThat(test.getCounterCurrencyPayment().getValue().getAmount())
+        .isCloseTo(CurrencyAmount.zero(USD).getAmount(), offset(1e-12));
     assertThat(test.getPaymentDate()).isEqualTo(DATE_2015_06_30);
     assertThat(test.getCurrencyPair()).isEqualTo(CurrencyPair.of(GBP, USD));
     assertThat(test.getReceiveCurrencyAmount()).isEqualTo(CurrencyAmount.of(USD, 0d));
@@ -182,27 +183,27 @@ public class ResolvedFxSingleTest {
   public void test_builder_bothPositive() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.meta().builder()
-        .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
-        .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_P1600)
-        .build());
+            .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
+            .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_P1600)
+            .build());
   }
 
   @Test
   public void test_builder_bothNegative() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.meta().builder()
-        .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_M1000)
-        .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
-        .build());
+            .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_M1000)
+            .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_USD_M1600)
+            .build());
   }
 
   @Test
   public void test_builder_sameCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxSingle.meta().builder()
-        .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
-        .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_GBP_M1000)
-        .build());
+            .set(ResolvedFxSingle.meta().baseCurrencyPayment(), PAYMENT_GBP_P1000)
+            .set(ResolvedFxSingle.meta().counterCurrencyPayment(), PAYMENT_GBP_M1000)
+            .build());
   }
 
   //-------------------------------------------------------------------------

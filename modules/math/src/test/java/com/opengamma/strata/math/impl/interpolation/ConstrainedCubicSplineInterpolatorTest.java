@@ -27,15 +27,19 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void linearTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6. };
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6.};
     final int nData = xValues.length;
     final double[] yValues = new double[nData];
     for (int i = 0; i < nData; ++i) {
       yValues[i] = xValues[i] / 7. + 1 / 11.;
     }
 
-    final double[][] coefsMatExp = new double[][] { {0., 0., 1. / 7., yValues[0] }, {0., 0., 1. / 7., yValues[1] }, {0., 0., 1. / 7., yValues[2] }, {0., 0., 1. / 7., yValues[3] },
-      {0., 0., 1. / 7., yValues[4] } };
+    final double[][] coefsMatExp = new double[][] {
+        {0., 0., 1. / 7., yValues[0]},
+        {0., 0., 1. / 7., yValues[1]},
+        {0., 0., 1. / 7., yValues[2]},
+        {0., 0., 1. / 7., yValues[3]},
+        {0., 0., 1. / 7., yValues[4]}};
 
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -66,7 +70,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void linearMultiTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6. };
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6.};
     final int nData = xValues.length;
     final double[][] yValues = new double[2][nData];
     for (int i = 0; i < nData; ++i) {
@@ -74,9 +78,17 @@ public class ConstrainedCubicSplineInterpolatorTest {
       yValues[1][i] = xValues[i] / 13. + 1 / 3.;
     }
 
-    final double[][] coefsMatExp = new double[][] { {0., 0., 1. / 7., yValues[0][0] }, {0., 0., 1. / 13., yValues[1][0] }, {0., 0., 1. / 7., yValues[0][1] }, {0., 0., 1. / 13., yValues[1][1] },
-      {0., 0., 1. / 7., yValues[0][2] }, {0., 0., 1. / 13., yValues[1][2] }, {0., 0., 1. / 7., yValues[0][3] }, {0., 0., 1. / 13., yValues[1][3] },
-      {0., 0., 1. / 7., yValues[0][4] }, {0., 0., 1. / 13., yValues[1][4] } };
+    final double[][] coefsMatExp = new double[][] {
+        {0., 0., 1. / 7., yValues[0][0]},
+        {0., 0., 1. / 13., yValues[1][0]},
+        {0., 0., 1. / 7., yValues[0][1]},
+        {0., 0., 1. / 13., yValues[1][1]},
+        {0., 0., 1. / 7., yValues[0][2]},
+        {0., 0., 1. / 13., yValues[1][2]},
+        {0., 0., 1. / 7., yValues[0][3]},
+        {0., 0., 1. / 13., yValues[1][3]},
+        {0., 0., 1. / 7., yValues[0][4]},
+        {0., 0., 1. / 13., yValues[1][4]}};
 
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -108,8 +120,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void extremumTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7. };
-    final double[] yValues = new double[] {1., 1., 4., 5., 4., 1., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7.};
+    final double[] yValues = new double[] {1., 1., 4., 5., 4., 1., 1.};
 
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
@@ -143,15 +155,16 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void sampleDataTest() {
-    final double[] xValues = new double[] {0., 10., 30., 50., 70., 90., 100. };
-    final double[] yValues = new double[] {30., 130., 150., 150., 170., 220., 320. };
+    final double[] xValues = new double[] {0., 10., 30., 50., 70., 90., 100.};
+    final double[] yValues = new double[] {30., 130., 150., 150., 170., 220., 320.};
 
     PiecewisePolynomialInterpolator interp = new ConstrainedCubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
 
     PiecewisePolynomialFunction1D function = new PiecewisePolynomialFunction1D();
 
-    final double[][] coefsMatPartExp = new double[][] { {-9. / 220., 0., 155. / 11., 30. }, {-1. / 2200., -7. / 220., 20. / 11., 130. }, {0., 0., 0., 150. } };
+    final double[][] coefsMatPartExp = new double[][] {
+        {-9. / 220., 0., 155. / 11., 30.}, {-1. / 2200., -7. / 220., 20. / 11., 130.}, {0., 0., 0., 150.}};
     for (int i = 0; i < 3; ++i) {
       for (int j = 0; j < 4; ++j) {
         final double ref = Math.abs(coefsMatPartExp[i][j]) == 0. ? 1. : Math.abs(coefsMatPartExp[i][j]);
@@ -178,8 +191,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void dataShortTest() {
-    final double[] xValues = new double[] {1. };
-    final double[] yValues = new double[] {0., };
+    final double[] xValues = new double[] {1.};
+    final double[] yValues = new double[] {0.,};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -191,8 +204,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void dataShortMultiTest() {
-    final double[] xValues = new double[] {1. };
-    final double[][] yValues = new double[][] { {0. }, {0.1 } };
+    final double[] xValues = new double[] {1.};
+    final double[][] yValues = new double[][] {{0.}, {0.1}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -204,8 +217,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void dataDiffTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {0., 0.1, 3. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {0., 0.1, 3.};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -217,8 +230,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void dataDiffMultiTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {0., 0.1, 3. }, {0., 0.1, 3. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{0., 0.1, 3.}, {0., 0.1, 3.}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -230,8 +243,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void coincideDataTest() {
-    final double[] xValues = new double[] {1., 1., 3. };
-    final double[] yValues = new double[] {0., 0.1, 0.05 };
+    final double[] xValues = new double[] {1., 1., 3.};
+    final double[] yValues = new double[] {0., 0.1, 0.05};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -243,8 +256,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void coincideDataMultiTest() {
-    final double[] xValues = new double[] {1., 2., 2. };
-    final double[][] yValues = new double[][] { {0., 0.1, 0.05 }, {0., 0.1, 1.05 } };
+    final double[] xValues = new double[] {1., 2., 2.};
+    final double[][] yValues = new double[][] {{0., 0.1, 0.05}, {0., 0.1, 1.05}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -257,7 +270,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
   @Test
   public void nullXdataTest() {
     double[] xValues = null;
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
+    double[] yValues = new double[] {0., 0.1, 0.05, 0.2};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -269,7 +282,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void nullYdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = null;
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
@@ -283,7 +296,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
   @Test
   public void nullXdataMultiTest() {
     double[] xValues = null;
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
+    double[][] yValues = new double[][] {{0., 0.1, 0.05, 0.2}, {0., 0.1, 0.05, 0.2}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -295,7 +308,7 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void nullYdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[][] yValues = null;
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
@@ -308,8 +321,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void infXdataTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[] yValues = new double[] {0., 0.1, 0.05, 0.2};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -321,8 +334,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void infYdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {0.1, 0.05, 0.2, INF };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {0.1, 0.05, 0.2, INF};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -334,8 +347,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void nanXdataTest() {
-    double[] xValues = new double[] {1., 2., 3., Double.NaN };
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
+    double[] xValues = new double[] {1., 2., 3., Double.NaN};
+    double[] yValues = new double[] {0., 0.1, 0.05, 0.2};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -347,8 +360,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void nanYdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {0.1, 0.05, 0.2, Double.NaN };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {0.1, 0.05, 0.2, Double.NaN};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -360,8 +373,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void infXdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[][] yValues = new double[][] {{0., 0.1, 0.05, 0.2}, {0., 0.1, 0.05, 0.2}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -373,8 +386,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void infYdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {0.1, 0.05, 0.2, 1. }, {0.1, 0.05, 0.2, INF } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{0.1, 0.05, 0.2, 1.}, {0.1, 0.05, 0.2, INF}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -386,8 +399,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void nanXdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., Double.NaN };
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
+    double[] xValues = new double[] {1., 2., 3., Double.NaN};
+    double[][] yValues = new double[][] {{0., 0.1, 0.05, 0.2}, {0., 0.1, 0.05, 0.2}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -399,8 +412,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void nanYdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {0.1, 0.05, 0.2, 1.1 }, {0.1, 0.05, 0.2, Double.NaN } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{0.1, 0.05, 0.2, 1.1}, {0.1, 0.05, 0.2, Double.NaN}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -412,8 +425,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void notReconnectedTest() {
-    double[] xValues = new double[] {1., 2., 2.0000001, 4. };
-    double[] yValues = new double[] {2., 3., 40000000., 5. };
+    double[] xValues = new double[] {1., 2., 2.0000001, 4.};
+    double[] yValues = new double[] {2., 3., 40000000., 5.};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -425,8 +438,8 @@ public class ConstrainedCubicSplineInterpolatorTest {
    */
   @Test
   public void notReconnectedMultiTest() {
-    double[] xValues = new double[] {1., 2., 2.0000001, 4. };
-    double[][] yValues = new double[][] {{2., 3., 40000000., 5. } };
+    double[] xValues = new double[] {1., 2., 2.0000001, 4.};
+    double[][] yValues = new double[][] {{2., 3., 40000000., 5.}};
 
     PiecewisePolynomialInterpolator interpPos = new ConstrainedCubicSplineInterpolator();
     assertThatIllegalArgumentException()

@@ -70,15 +70,15 @@ public class TermDepositTest {
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> TermDeposit.builder()
-        .buySell(SELL)
-        .startDate(START_DATE)
-        .endDate(LocalDate.of(2014, 10, 19))
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .dayCount(ACT_365F)
-        .notional(NOTIONAL)
-        .currency(EUR)
-        .rate(RATE)
-        .build());
+            .buySell(SELL)
+            .startDate(START_DATE)
+            .endDate(LocalDate.of(2014, 10, 19))
+            .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .dayCount(ACT_365F)
+            .notional(NOTIONAL)
+            .currency(EUR)
+            .rate(RATE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

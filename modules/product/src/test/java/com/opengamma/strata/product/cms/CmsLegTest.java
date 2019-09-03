@@ -182,31 +182,31 @@ public class CmsLegTest {
     // index is null
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CmsLeg.builder()
-        .capSchedule(CAP)
-        .notional(NOTIONAL)
-        .payReceive(RECEIVE)
-        .paymentSchedule(SCHEDULE_EUR)
-        .build());
+            .capSchedule(CAP)
+            .notional(NOTIONAL)
+            .payReceive(RECEIVE)
+            .paymentSchedule(SCHEDULE_EUR)
+            .build());
     // floorSchedule and capSchedule are present
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CmsLeg.builder()
-        .capSchedule(CAP)
-        .floorSchedule(FLOOR)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .payReceive(RECEIVE)
-        .paymentSchedule(SCHEDULE_EUR)
-        .build());
+            .capSchedule(CAP)
+            .floorSchedule(FLOOR)
+            .index(INDEX)
+            .notional(NOTIONAL)
+            .payReceive(RECEIVE)
+            .paymentSchedule(SCHEDULE_EUR)
+            .build());
     // stub is on
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CmsLeg
-        .builder()
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .payReceive(RECEIVE)
-        .paymentSchedule(
-            PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.SHORT_INITIAL, RollConventions.NONE))
-        .build());
+            .builder()
+            .index(INDEX)
+            .notional(NOTIONAL)
+            .payReceive(RECEIVE)
+            .paymentSchedule(
+                PeriodicSchedule.of(START, END, FREQUENCY, BUSS_ADJ_EUR, StubConvention.SHORT_INITIAL, RollConventions.NONE))
+            .build());
   }
 
   @Test

@@ -42,20 +42,25 @@ public class OvernightCompoundedAnnualRateComputationTest {
   public void test_of_badDateOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightCompoundedAnnualRateComputation.of(
-        BRL_CDI, date(2016, 2, 24), date(2016, 2, 24), REF_DATA));
+            BRL_CDI, date(2016, 2, 24), date(2016, 2, 24), REF_DATA));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightCompoundedAnnualRateComputation.of(
-        BRL_CDI, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
+            BRL_CDI, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
   }
 
   @Test
   public void test_calculate() {
     OvernightCompoundedAnnualRateComputation test = sut();
-    assertThat(test.calculateEffectiveFromFixing(date(2016, 2, 24))).isEqualTo(BRL_CDI.calculateEffectiveFromFixing(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculateFixingFromEffective(date(2016, 2, 24))).isEqualTo(BRL_CDI.calculateFixingFromEffective(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculatePublicationFromFixing(date(2016, 2, 24))).isEqualTo(BRL_CDI.calculatePublicationFromFixing(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculateMaturityFromFixing(date(2016, 2, 24))).isEqualTo(BRL_CDI.calculateMaturityFromFixing(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculateMaturityFromEffective(date(2016, 2, 24))).isEqualTo(BRL_CDI.calculateMaturityFromEffective(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateEffectiveFromFixing(date(2016, 2, 24)))
+        .isEqualTo(BRL_CDI.calculateEffectiveFromFixing(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateFixingFromEffective(date(2016, 2, 24)))
+        .isEqualTo(BRL_CDI.calculateFixingFromEffective(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculatePublicationFromFixing(date(2016, 2, 24)))
+        .isEqualTo(BRL_CDI.calculatePublicationFromFixing(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateMaturityFromFixing(date(2016, 2, 24)))
+        .isEqualTo(BRL_CDI.calculateMaturityFromFixing(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateMaturityFromEffective(date(2016, 2, 24)))
+        .isEqualTo(BRL_CDI.calculateMaturityFromEffective(date(2016, 2, 24), REF_DATA));
   }
 
   @Test

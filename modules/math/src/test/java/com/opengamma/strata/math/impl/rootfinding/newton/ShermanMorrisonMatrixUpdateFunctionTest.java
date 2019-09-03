@@ -23,7 +23,7 @@ public class ShermanMorrisonMatrixUpdateFunctionTest {
   private static final MatrixAlgebra ALGEBRA = new OGMatrixAlgebra();
   private static final ShermanMorrisonMatrixUpdateFunction UPDATE = new ShermanMorrisonMatrixUpdateFunction(ALGEBRA);
   private static final DoubleArray V = DoubleArray.of(1, 2);
-  private static final DoubleMatrix M = DoubleMatrix.copyOf(new double[][] { {3, 4}, {5, 6}});
+  private static final DoubleMatrix M = DoubleMatrix.copyOf(new double[][] {{3, 4}, {5, 6}});
   private static final Function<DoubleArray, DoubleMatrix> J = new Function<DoubleArray, DoubleMatrix>() {
     @SuppressWarnings("synthetic-access")
     @Override

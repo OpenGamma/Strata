@@ -147,11 +147,11 @@ public class RatePeriodSwapLegTest {
   public void test_builder_invalidMixedCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> RatePeriodSwapLeg.builder()
-        .type(IBOR)
-        .payReceive(RECEIVE)
-        .paymentPeriods(RPP3)
-        .paymentEvents(NOTIONAL_EXCHANGE)
-        .build());
+            .type(IBOR)
+            .payReceive(RECEIVE)
+            .paymentPeriods(RPP3)
+            .paymentEvents(NOTIONAL_EXCHANGE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

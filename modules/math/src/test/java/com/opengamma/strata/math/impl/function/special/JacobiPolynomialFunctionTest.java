@@ -25,7 +25,7 @@ public class JacobiPolynomialFunctionTest {
   private static final DoubleFunction1D P2 =
       x -> 0.125 * (4 * (ALPHA + 1) * (ALPHA + 2) + 4 * (ALPHA + BETA + 3) *
           (ALPHA + 2) * (x - 1) + (ALPHA + BETA + 3) * (ALPHA + BETA + 4) * (x - 1) * (x - 1));
-  private static final DoubleFunction1D[] P = new DoubleFunction1D[] {P0, P1, P2 };
+  private static final DoubleFunction1D[] P = new DoubleFunction1D[] {P0, P1, P2};
   private static final JacobiPolynomialFunction JACOBI = new JacobiPolynomialFunction();
   private static final double EPS = 1e-9;
 

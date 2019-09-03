@@ -106,23 +106,23 @@ public class IborCapletFloorletPeriodTest {
     // rate observation missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletPeriod.builder()
-        .notional(NOTIONAL)
-        .caplet(STRIKE)
-        .build());
+            .notional(NOTIONAL)
+            .caplet(STRIKE)
+            .build());
     // cap and floor missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletPeriod.builder()
-        .notional(NOTIONAL)
-        .iborRate(RATE_COMP)
-        .build());
+            .notional(NOTIONAL)
+            .iborRate(RATE_COMP)
+            .build());
     // cap and floor present
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborCapletFloorletPeriod.builder()
-        .notional(NOTIONAL)
-        .caplet(STRIKE)
-        .floorlet(STRIKE)
-        .iborRate(RATE_COMP)
-        .build());
+            .notional(NOTIONAL)
+            .caplet(STRIKE)
+            .floorlet(STRIKE)
+            .iborRate(RATE_COMP)
+            .build());
   }
 
   //-------------------------------------------------------------------------

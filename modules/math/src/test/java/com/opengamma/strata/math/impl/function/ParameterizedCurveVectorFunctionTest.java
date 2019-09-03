@@ -42,7 +42,7 @@ public class ParameterizedCurveVectorFunctionTest {
   @Test
   public void test() {
     final ParameterizedCurveVectorFunctionProvider pro = new ParameterizedCurveVectorFunctionProvider(s_PCurve);
-    final double[] points = new double[] {-1.0, 0.0, 1.0 };
+    final double[] points = new double[] {-1.0, 0.0, 1.0};
     final VectorFunction f = pro.from(points);
     assertThat(2).isEqualTo(f.getLengthOfDomain());
     assertThat(3).isEqualTo(f.getLengthOfRange());

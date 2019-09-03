@@ -24,7 +24,7 @@ public class LUDecompositionCommonsTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<LUDecompositionResult> LU = new LUDecompositionCommons();
   private static final DoubleMatrix A = DoubleMatrix.copyOf(
-      new double[][] { {1, 2, -1}, {4, 3, 1}, {2, 2, 3}});
+      new double[][] {{1, 2, -1}, {4, 3, 1}, {2, 2, 3}});
   private static final double EPS = 1e-9;
 
   @Test

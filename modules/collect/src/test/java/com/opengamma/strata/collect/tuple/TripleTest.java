@@ -84,7 +84,8 @@ public class TripleTest {
 
   @Test
   public void test_combinedWith() {
-    Triple<String, Integer, Double> combined = Triple.of("1", 10, 4d).combinedWith(Triple.of("A", 20, 5d), String::concat, Integer::sum, Double::sum);
+    Triple<String, Integer, Double> combined =
+        Triple.of("1", 10, 4d).combinedWith(Triple.of("A", 20, 5d), String::concat, Integer::sum, Double::sum);
     assertThat(combined).isEqualTo(Triple.of("1A", 30, 9d));
   }
 

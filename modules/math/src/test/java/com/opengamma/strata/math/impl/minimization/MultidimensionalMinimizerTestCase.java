@@ -23,7 +23,7 @@ public abstract class MultidimensionalMinimizerTestCase {
 
   private static final Function<DoubleArray, Double> F_2D = new Function<DoubleArray, Double>() {
     @Override
-    public Double apply(final DoubleArray x) {
+    public Double apply(DoubleArray x) {
       return (x.get(0) + 3.4) * (x.get(0) + 3.4) + (x.get(1) - 1) * (x.get(1) - 1);
     }
   };
@@ -35,7 +35,7 @@ public abstract class MultidimensionalMinimizerTestCase {
         .isThrownBy(() -> minimizer.minimize(F_2D, null));
   }
 
-  protected void assertMinimizer(final Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
+  protected void assertMinimizer(Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer, double tol) {
     DoubleArray r = minimizer.minimize(F_2D, DoubleArray.of(10d, 10d));
     assertThat(r.get(0)).isCloseTo(-3.4, offset(tol));
     assertThat(r.get(1)).isCloseTo(1, offset(tol));
@@ -44,24 +44,33 @@ public abstract class MultidimensionalMinimizerTestCase {
     assertThat(r.get(1)).isCloseTo(1, offset(tol));
   }
 
-  protected void assertSolvingRosenbrock(final Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
-    final DoubleArray start = DoubleArray.of(-1d, 1d);
-    final DoubleArray solution = minimizer.minimize(ROSENBROCK, start);
+  protected void assertSolvingRosenbrock(
+      Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer,
+      double tol) {
+
+    DoubleArray start = DoubleArray.of(-1d, 1d);
+    DoubleArray solution = minimizer.minimize(ROSENBROCK, start);
     assertThat(1.0).isCloseTo(solution.get(0), offset(tol));
     assertThat(1.0).isCloseTo(solution.get(1), offset(tol));
   }
 
-  protected void assertSolvingUncoupledRosenbrock(final Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
-    final DoubleArray start = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-    final DoubleArray solution = minimizer.minimize(UNCOUPLED_ROSENBROCK, start);
+  protected void assertSolvingUncoupledRosenbrock(
+      Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer,
+      double tol) {
+
+    DoubleArray start = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
+    DoubleArray solution = minimizer.minimize(UNCOUPLED_ROSENBROCK, start);
     for (int i = 0; i < solution.size(); i++) {
       assertThat(1.0).isCloseTo(solution.get(i), offset(tol));
     }
   }
 
-  protected void assertSolvingCoupledRosenbrock(final Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer, final double tol) {
-    final DoubleArray start = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0);
-    final DoubleArray solution = minimizer.minimize(COUPLED_ROSENBROCK, start);
+  protected void assertSolvingCoupledRosenbrock(
+      Minimizer<Function<DoubleArray, Double>, DoubleArray> minimizer,
+      double tol) {
+
+    DoubleArray start = DoubleArray.of(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0, 1.0);
+    DoubleArray solution = minimizer.minimize(COUPLED_ROSENBROCK, start);
     for (int i = 0; i < solution.size(); i++) {
       assertThat(1.0).isCloseTo(solution.get(i), offset(tol));
     }

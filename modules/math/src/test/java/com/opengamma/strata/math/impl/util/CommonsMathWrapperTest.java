@@ -26,7 +26,7 @@ public class CommonsMathWrapperTest {
 
   private static final DoubleArray OG_VECTOR = DoubleArray.of(1, 2, 3);
   private static final DoubleMatrix OG_MATRIX = DoubleMatrix.copyOf(
-      new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+      new double[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final Function<Double, Double> OG_FUNCTION_1D = new Function<Double, Double>() {
     @Override
     public Double apply(final Double x) {

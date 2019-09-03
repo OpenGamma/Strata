@@ -59,7 +59,7 @@ public class MaxtrixFieldFirstOrderDifferentiatorTest {
       y[1][1] = 0.0;
       y[2][1] = -Math.sin(x2);
       DoubleMatrix m2 = DoubleMatrix.copyOf(y);
-      return new DoubleMatrix[] {m1, m2 };
+      return new DoubleMatrix[] {m1, m2};
     }
   };
 

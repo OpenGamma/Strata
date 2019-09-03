@@ -52,9 +52,12 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
   };
   private static final double EPS = 1e-4;
-  private static final ScalarFieldFirstOrderDifferentiator FORWARD = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
-  private static final ScalarFieldFirstOrderDifferentiator CENTRAL = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
-  private static final ScalarFieldFirstOrderDifferentiator BACKWARD = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
+  private static final ScalarFieldFirstOrderDifferentiator FORWARD =
+      new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
+  private static final ScalarFieldFirstOrderDifferentiator CENTRAL =
+      new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
+  private static final ScalarFieldFirstOrderDifferentiator BACKWARD =
+      new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
   @Test
   public void testNullDifferenceType() {

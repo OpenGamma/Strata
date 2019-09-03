@@ -130,7 +130,8 @@ public class FixedOvernightSwapCurveNodeTest {
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, rate).build();
     assertThat(node.initialGuess(marketData, ValueType.ZERO_RATE)).isEqualTo(rate);
     assertThat(node.initialGuess(marketData, ValueType.FORWARD_RATE)).isEqualTo(rate);
-    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR)).isCloseTo(Math.exp(-rate * TENOR_10Y.getPeriod().toTotalMonths() / 12d), offset(1.0E-12));
+    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR))
+        .isCloseTo(Math.exp(-rate * TENOR_10Y.getPeriod().toTotalMonths() / 12d), offset(1.0E-12));
   }
 
   @Test

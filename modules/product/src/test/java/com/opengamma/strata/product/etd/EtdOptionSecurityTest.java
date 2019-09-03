@@ -38,9 +38,12 @@ public class EtdOptionSecurityTest {
     assertThat(test.getCurrency()).isEqualTo(Currency.GBP);
     assertThat(test.getUnderlyingIds()).isEmpty();
     assertThat(test.createProduct(REF_DATA)).isEqualTo(test);
-    assertThat(test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(EtdOptionTrade.of(TradeInfo.empty(), test, 1, 2));
-    assertThat(test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty())).isEqualTo(EtdOptionPosition.ofNet(PositionInfo.empty(), test, 1));
-    assertThat(test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(EtdOptionPosition.ofLongShort(PositionInfo.empty(), test, 1, 2));
+    assertThat(test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()))
+        .isEqualTo(EtdOptionTrade.of(TradeInfo.empty(), test, 1, 2));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty()))
+        .isEqualTo(EtdOptionPosition.ofNet(PositionInfo.empty(), test, 1));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty()))
+        .isEqualTo(EtdOptionPosition.ofLongShort(PositionInfo.empty(), test, 1, 2));
   }
 
   //-------------------------------------------------------------------------

@@ -108,51 +108,52 @@ public class IborRateStubCalculationTest {
   public void test_builder_invalid_fixedAndIbor() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborRateStubCalculation.builder()
-        .fixedRate(0.025d)
-        .index(GBP_LIBOR_3M)
-        .build());
+            .fixedRate(0.025d)
+            .index(GBP_LIBOR_3M)
+            .build());
   }
 
   @Test
   public void test_builder_invalid_fixedAndKnown() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborRateStubCalculation.builder()
-        .fixedRate(0.025d)
-        .knownAmount(GBP_P1000)
-        .build());
+            .fixedRate(0.025d)
+            .knownAmount(GBP_P1000)
+            .build());
   }
 
   @Test
   public void test_builder_invalid_knownAndIbor() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborRateStubCalculation.builder()
-        .knownAmount(GBP_P1000)
-        .index(GBP_LIBOR_3M)
-        .build());
+            .knownAmount(GBP_P1000)
+            .index(GBP_LIBOR_3M)
+            .build());
   }
 
   @Test
   public void test_builder_invalid_interpolatedWithoutBase() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborRateStubCalculation.builder()
-        .indexInterpolated(GBP_LIBOR_3M)
-        .build());
+            .indexInterpolated(GBP_LIBOR_3M)
+            .build());
   }
 
   @Test
   public void test_builder_invalid_interpolatedSameIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborRateStubCalculation.builder()
-        .index(GBP_LIBOR_3M)
-        .indexInterpolated(GBP_LIBOR_3M)
-        .build());
+            .index(GBP_LIBOR_3M)
+            .indexInterpolated(GBP_LIBOR_3M)
+            .build());
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void test_createRateComputation_NONE() {
     IborRateStubCalculation test = IborRateStubCalculation.NONE;
-    assertThat(test.createRateComputation(DATE, GBP_LIBOR_3M, REF_DATA)).isEqualTo(IborRateComputation.of(GBP_LIBOR_3M, DATE, REF_DATA));
+    assertThat(test.createRateComputation(DATE, GBP_LIBOR_3M, REF_DATA))
+        .isEqualTo(IborRateComputation.of(GBP_LIBOR_3M, DATE, REF_DATA));
   }
 
   @Test

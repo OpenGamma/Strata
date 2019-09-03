@@ -84,52 +84,52 @@ public class SwaptionTest {
   public void test_builder_expiryAfterStart() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Swaption.builder()
-        .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 17), ADJUSTMENT))
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP)
-        .build());
+            .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 17), ADJUSTMENT))
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(ZONE)
+            .longShort(LONG)
+            .swaptionSettlement(PHYSICAL_SETTLE)
+            .underlying(SWAP)
+            .build());
   }
 
   @Test
   public void test_builder_invalidSwapOis() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Swaption.builder()
-        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP_OIS)
-        .build());
+            .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(ZONE)
+            .longShort(LONG)
+            .swaptionSettlement(PHYSICAL_SETTLE)
+            .underlying(SWAP_OIS)
+            .build());
   }
 
   @Test
   public void test_builder_invalidSwapBasis() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Swaption.builder()
-        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP_BASIS)
-        .build());
+            .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(ZONE)
+            .longShort(LONG)
+            .swaptionSettlement(PHYSICAL_SETTLE)
+            .underlying(SWAP_BASIS)
+            .build());
   }
 
   @Test
   public void test_builder_invalidSwapXCcy() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Swaption.builder()
-        .expiryDate(ADJUSTABLE_EXPIRY_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(ZONE)
-        .longShort(LONG)
-        .swaptionSettlement(PHYSICAL_SETTLE)
-        .underlying(SWAP_XCCY)
-        .build());
+            .expiryDate(ADJUSTABLE_EXPIRY_DATE)
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(ZONE)
+            .longShort(LONG)
+            .swaptionSettlement(PHYSICAL_SETTLE)
+            .underlying(SWAP_XCCY)
+            .build());
   }
 
   //-------------------------------------------------------------------------

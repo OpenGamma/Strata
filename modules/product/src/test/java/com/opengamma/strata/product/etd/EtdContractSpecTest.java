@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -56,9 +57,9 @@ public class EtdContractSpecTest {
 
   @Test
   public void createFutureFromOptionContractSpec() {
-    assertThatThrownBy(() -> OPTION_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdVariant.MONTHLY))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Cannot create an EtdFutureSecurity from a contract specification of type 'Option'");
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> OPTION_CONTRACT.createFuture(YearMonth.of(2015, 6), EtdVariant.MONTHLY))
+        .withMessage("Cannot create an EtdFutureSecurity from a contract specification of type 'Option'");
   }
 
   //-------------------------------------------------------------------------
@@ -105,8 +106,8 @@ public class EtdContractSpecTest {
     assertThatThrownBy(
         () -> FUTURE_CONTRACT.createOption(
             YearMonth.of(2015, 6), EtdVariant.MONTHLY, 0, PutCall.CALL, 123.45, YearMonth.of(2015, 9)))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("Cannot create an EtdOptionSecurity from a contract specification of type 'Future'");
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Cannot create an EtdOptionSecurity from a contract specification of type 'Future'");
   }
 
   //-------------------------------------------------------------------------

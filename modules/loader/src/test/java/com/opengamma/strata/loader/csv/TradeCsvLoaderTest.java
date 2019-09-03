@@ -213,7 +213,8 @@ public class TradeCsvLoaderTest {
     assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(1);
     FailureItem failureItem = loadedData.getFailures().get(0);
     assertThat(failureItem.getReason().toString()).isEqualTo("PARSING");
-    assertThat(failureItem.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: FxSingle legs must not have the same direction: Pay, Pay");
+    assertThat(failureItem.getMessage())
+        .isEqualTo("CSV file trade could not be parsed at line 2: FxSingle legs must not have the same direction: Pay, Pay");
     List<Trade> loadedTrades = loadedData.getValue();
     assertThat(loadedTrades).hasSize(0);
   }
@@ -842,7 +843,7 @@ public class TradeCsvLoaderTest {
                     .build())
                 .amount(ValueSchedule.of(2_000_000, ValueStep.of(LocalDate.of(2018, 6, 1), ValueAdjustment.ofReplace(2_500_000))))
                 .currency(GBP)
-            .build(),
+                .build(),
 
             RateCalculationSwapLeg.builder()
                 .payReceive(RECEIVE)
@@ -1436,7 +1437,8 @@ public class TradeCsvLoaderTest {
     assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(1);
     FailureItem failure = result.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
+    assertThat(failure.getMessage()).isEqualTo(
+        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' and 'Leg 1 Known Amount'");
   }
 
   @Test
@@ -1477,7 +1479,8 @@ public class TradeCsvLoaderTest {
     assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(1);
     FailureItem failure = result.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
+    assertThat(failure.getMessage()).isEqualTo(
+        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
   }
 
   @Test
@@ -1518,7 +1521,8 @@ public class TradeCsvLoaderTest {
     assertThat(result.getFailures().size()).as(result.getFailures().toString()).isEqualTo(1);
     FailureItem failure = result.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
+    assertThat(failure.getMessage()).isEqualTo(
+        "CSV file trade could not be parsed at line 2: Swap leg must not define both 'Leg 1 Fixed Rate' or 'Leg 1 Known Amount' and 'Leg 1 Index'");
   }
 
   //-------------------------------------------------------------------------
@@ -1775,8 +1779,9 @@ public class TradeCsvLoaderTest {
             .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
             .build())
         .upfrontFee(
-            AdjustablePayment.of(CurrencyAmount.of(GBP, -1000),
-            AdjustableDate.of(date(2017, 6, 3), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))))
+            AdjustablePayment.of(
+                CurrencyAmount.of(GBP, -1000),
+                AdjustableDate.of(date(2017, 6, 3), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO))))
         .build();
   }
 
@@ -1835,7 +1840,8 @@ public class TradeCsvLoaderTest {
 
     assertThat(trades.getValue()).hasSize(6);
     assertThat(trades.getFailures()).hasSize(20);
-    assertThat(trades.getFailures().get(0).getMessage()).isEqualTo("Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
+    assertThat(trades.getFailures().get(0).getMessage()).isEqualTo(
+        "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
 
   //-------------------------------------------------------------------------
@@ -2041,8 +2047,9 @@ public class TradeCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV file trade could not be parsed at line 2: Swap trade had invalid combination of fields. " +
-        "Must include either 'Convention' or '" + "Leg 1 Direction'");
+    assertThat(failure.getMessage())
+        .isEqualTo("CSV file trade could not be parsed at line 2: Swap trade had invalid combination of fields. " +
+            "Must include either 'Convention' or '" + "Leg 1 Direction'");
   }
 
   @Test

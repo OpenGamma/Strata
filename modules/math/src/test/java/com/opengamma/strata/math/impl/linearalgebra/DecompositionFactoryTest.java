@@ -28,9 +28,12 @@ public class DecompositionFactoryTest {
 
   @Test
   public void test() {
-    assertThat(DecompositionFactory.LU_COMMONS_NAME).isEqualTo(DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME)));
-    assertThat(DecompositionFactory.QR_COMMONS_NAME).isEqualTo(DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.QR_COMMONS_NAME)));
-    assertThat(DecompositionFactory.SV_COMMONS_NAME).isEqualTo(DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME)));
+    assertThat(DecompositionFactory.LU_COMMONS_NAME).isEqualTo(
+        DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.LU_COMMONS_NAME)));
+    assertThat(DecompositionFactory.QR_COMMONS_NAME).isEqualTo(
+        DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.QR_COMMONS_NAME)));
+    assertThat(DecompositionFactory.SV_COMMONS_NAME).isEqualTo(
+        DecompositionFactory.getDecompositionName(DecompositionFactory.getDecomposition(DecompositionFactory.SV_COMMONS_NAME)));
   }
 
 }

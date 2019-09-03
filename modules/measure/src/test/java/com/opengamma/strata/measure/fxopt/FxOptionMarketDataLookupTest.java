@@ -60,7 +60,8 @@ public class FxOptionMarketDataLookupTest {
         .isThrownBy(() -> test.getVolatilityIds(GBP_USD));
 
     assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThat(test.requirements(ImmutableSet.of(EUR_USD))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(EUR_USD)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
   }
@@ -76,7 +77,8 @@ public class FxOptionMarketDataLookupTest {
         .isThrownBy(() -> test.getVolatilityIds(EUR_GBP));
 
     assertThat(test.requirements(EUR_USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
-    assertThat(test.requirements(ImmutableSet.of(EUR_USD))).isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
+    assertThat(test.requirements(ImmutableSet.of(EUR_USD)))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(VOL_ID1).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ImmutableSet.of(EUR_GBP)));
 

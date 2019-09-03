@@ -71,7 +71,8 @@ public class ProductLinearCurveExtrapolatorTest {
     Function<Double, Double> derivFunc = x -> bind.interpolate(x);
 
     for (int i = 0; i < X_LEFT_TEST.size(); ++i) {
-      assertThat(bind.firstDerivative(X_LEFT_TEST.get(i))).isCloseTo(DIFF_CALC.differentiate(derivFunc).apply(X_LEFT_TEST.get(i)), offset(EPS));
+      assertThat(bind.firstDerivative(X_LEFT_TEST.get(i)))
+          .isCloseTo(DIFF_CALC.differentiate(derivFunc).apply(X_LEFT_TEST.get(i)), offset(EPS));
       int index = i;
       Function<DoubleArray, Double> sensFunc =
           y -> CurveInterpolators.DOUBLE_QUADRATIC.bind(X_DATA, y, EXTRAP, EXTRAP).interpolate(X_LEFT_TEST.get(index));
@@ -79,7 +80,8 @@ public class ProductLinearCurveExtrapolatorTest {
           SENS_CALC.differentiate(sensFunc).apply(Y_DATA).toArray(), EPS)).isTrue();
     }
     for (int i = 0; i < X_RIGHT_TEST.size(); ++i) {
-      assertThat(bind.firstDerivative(X_RIGHT_TEST.get(i))).isCloseTo(DIFF_CALC.differentiate(derivFunc).apply(X_RIGHT_TEST.get(i)), offset(EPS));
+      assertThat(bind.firstDerivative(X_RIGHT_TEST.get(i)))
+          .isCloseTo(DIFF_CALC.differentiate(derivFunc).apply(X_RIGHT_TEST.get(i)), offset(EPS));
       int index = i;
       Function<DoubleArray, Double> sensFunc =
           y -> CurveInterpolators.DOUBLE_QUADRATIC.bind(X_DATA, y, EXTRAP, EXTRAP).interpolate(X_RIGHT_TEST.get(index));

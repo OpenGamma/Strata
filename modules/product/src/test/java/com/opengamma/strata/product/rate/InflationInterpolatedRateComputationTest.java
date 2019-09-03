@@ -50,43 +50,43 @@ public class InflationInterpolatedRateComputationTest {
   public void test_wrongMonthOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationInterpolatedRateComputation.of(
-        GB_HICP, END_MONTH_FIRST, START_MONTH_FIRST, WEIGHT));
+            GB_HICP, END_MONTH_FIRST, START_MONTH_FIRST, WEIGHT));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationInterpolatedRateComputation.meta().builder()
-        .set(InflationInterpolatedRateComputation.meta().startObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
-        .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
-        .set(InflationInterpolatedRateComputation.meta().endObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .set(InflationInterpolatedRateComputation.meta().endSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
-        .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
-        .build());
+            .set(InflationInterpolatedRateComputation.meta().startObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
+            .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
+            .set(InflationInterpolatedRateComputation.meta().endObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+            .set(InflationInterpolatedRateComputation.meta().endSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
+            .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationInterpolatedRateComputation.meta().builder()
-        .set(InflationInterpolatedRateComputation.meta().startObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
-        .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 2)))
-        .set(InflationInterpolatedRateComputation.meta().endObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .set(InflationInterpolatedRateComputation.meta().endSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
-        .build());
+            .set(InflationInterpolatedRateComputation.meta().startObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 1)))
+            .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 2)))
+            .set(InflationInterpolatedRateComputation.meta().endObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+            .set(InflationInterpolatedRateComputation.meta().endSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+            .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationInterpolatedRateComputation.meta().builder()
-        .set(InflationInterpolatedRateComputation.meta().startObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
-        .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 9)))
-        .set(InflationInterpolatedRateComputation.meta().endObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
-        .set(InflationInterpolatedRateComputation.meta().endSecondObservation(),
-            PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
-        .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
-        .build());
+            .set(InflationInterpolatedRateComputation.meta().startObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
+            .set(InflationInterpolatedRateComputation.meta().startSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 9)))
+            .set(InflationInterpolatedRateComputation.meta().endObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 7)))
+            .set(InflationInterpolatedRateComputation.meta().endSecondObservation(),
+                PriceIndexObservation.of(GB_HICP, YearMonth.of(2010, 8)))
+            .set(InflationInterpolatedRateComputation.meta().weight(), WEIGHT)
+            .build());
   }
 
   //-------------------------------------------------------------------------

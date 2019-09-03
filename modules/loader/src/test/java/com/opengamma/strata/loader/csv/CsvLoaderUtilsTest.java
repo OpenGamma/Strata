@@ -70,7 +70,8 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("DTE");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL")).isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL"))
+        .isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
   }
 
   @Test
@@ -78,7 +79,8 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("DTE", "CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01", "F", "");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL")).isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL"))
+        .isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.NONE));
   }
 
   @Test
@@ -96,7 +98,8 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("DTE");
     ImmutableList<String> firstRow = ImmutableList.of("2019-03-01");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL", FOLLOWING, Currency.EUR)).isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.of(FOLLOWING, EUTA)));
+    assertThat(CsvLoaderUtils.parseAdjustableDate(row, "DTE", "CNV", "CAL", FOLLOWING, Currency.EUR))
+        .isEqualTo(AdjustableDate.of(LocalDate.of(2019, 3, 1), BusinessDayAdjustment.of(FOLLOWING, EUTA)));
   }
 
   //-------------------------------------------------------------------------
@@ -105,7 +108,8 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("CNV", "CAL");
     ImmutableList<String> firstRow = ImmutableList.of("F", "GBLO");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThat(CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAL")).isEqualTo(Optional.of(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO)));
+    assertThat(CsvLoaderUtils.parseBusinessDayAdjustment(row, "CNV", "CAL"))
+        .isEqualTo(Optional.of(BusinessDayAdjustment.of(FOLLOWING, HolidayCalendarIds.GBLO)));
   }
 
   @Test
@@ -147,7 +151,8 @@ public class CsvLoaderUtilsTest {
     ImmutableList<String> headers = ImmutableList.of("CCY", "AMT", "DIR");
     ImmutableList<String> firstRow = ImmutableList.of("GBP", "123.4", "Pay");
     CsvRow row = CsvFile.of(headers, ImmutableList.of(firstRow)).row(0);
-    assertThat(CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCY", "AMT", "DIR")).isEqualTo(CurrencyAmount.of(Currency.GBP, -123.4));
+    assertThat(CsvLoaderUtils.parseCurrencyAmountWithDirection(row, "CCY", "AMT", "DIR"))
+        .isEqualTo(CurrencyAmount.of(Currency.GBP, -123.4));
   }
 
   @Test

@@ -151,73 +151,73 @@ public class BondFutureTest {
     // wrong size
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFuture.builder()
-        .securityId(SECURITY_ID)
-        .deliveryBasket(BOND_PRODUCT[0])
-        .conversionFactors(CONVERSION_FACTOR)
-        .firstNoticeDate(FIRST_NOTICE_DATE)
-        .lastNoticeDate(LAST_NOTICE_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .deliveryBasket(BOND_PRODUCT[0])
+            .conversionFactors(CONVERSION_FACTOR)
+            .firstNoticeDate(FIRST_NOTICE_DATE)
+            .lastNoticeDate(LAST_NOTICE_DATE)
+            .lastTradeDate(LAST_TRADING_DATE)
+            .rounding(ROUNDING)
+            .build());
     // first notice date missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFuture.builder()
-        .securityId(SECURITY_ID)
-        .deliveryBasket(BOND_PRODUCT)
-        .conversionFactors(CONVERSION_FACTOR)
-        .lastNoticeDate(LAST_NOTICE_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .deliveryBasket(BOND_PRODUCT)
+            .conversionFactors(CONVERSION_FACTOR)
+            .lastNoticeDate(LAST_NOTICE_DATE)
+            .lastTradeDate(LAST_TRADING_DATE)
+            .rounding(ROUNDING)
+            .build());
     // last notice date missing
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFuture.builder()
-        .securityId(SECURITY_ID)
-        .deliveryBasket(BOND_PRODUCT)
-        .conversionFactors(CONVERSION_FACTOR)
-        .firstNoticeDate(FIRST_NOTICE_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .deliveryBasket(BOND_PRODUCT)
+            .conversionFactors(CONVERSION_FACTOR)
+            .firstNoticeDate(FIRST_NOTICE_DATE)
+            .lastTradeDate(LAST_TRADING_DATE)
+            .rounding(ROUNDING)
+            .build());
     // basket list empty
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFuture.builder()
-        .securityId(SECURITY_ID)
-        .conversionFactors(CONVERSION_FACTOR)
-        .firstNoticeDate(FIRST_NOTICE_DATE)
-        .lastNoticeDate(LAST_NOTICE_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .conversionFactors(CONVERSION_FACTOR)
+            .firstNoticeDate(FIRST_NOTICE_DATE)
+            .lastNoticeDate(LAST_NOTICE_DATE)
+            .lastTradeDate(LAST_TRADING_DATE)
+            .rounding(ROUNDING)
+            .build());
     // notional mismatch
     FixedCouponBond bond0 = BOND_PRODUCT[0];
     FixedCouponBond bond1 = bond0.toBuilder().notional(100).build();
     FixedCouponBond bond2 = bond0.toBuilder().currency(Currency.CAD).build();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFuture.builder()
-        .securityId(SECURITY_ID)
-        .deliveryBasket(bond0, bond1)
-        .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
-        .firstNoticeDate(FIRST_NOTICE_DATE)
-        .lastNoticeDate(LAST_NOTICE_DATE)
-        .firstDeliveryDate(FIRST_DELIVERY_DATE)
-        .lastDeliveryDate(LAST_DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .deliveryBasket(bond0, bond1)
+            .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
+            .firstNoticeDate(FIRST_NOTICE_DATE)
+            .lastNoticeDate(LAST_NOTICE_DATE)
+            .firstDeliveryDate(FIRST_DELIVERY_DATE)
+            .lastDeliveryDate(LAST_DELIVERY_DATE)
+            .lastTradeDate(LAST_TRADING_DATE)
+            .rounding(ROUNDING)
+            .build());
     // currency mismatch
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BondFuture.builder()
-        .securityId(SECURITY_ID)
-        .deliveryBasket(bond0, bond2)
-        .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
-        .firstNoticeDate(FIRST_NOTICE_DATE)
-        .lastNoticeDate(LAST_NOTICE_DATE)
-        .firstDeliveryDate(FIRST_DELIVERY_DATE)
-        .lastDeliveryDate(LAST_DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADING_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .deliveryBasket(bond0, bond2)
+            .conversionFactors(CONVERSION_FACTOR[0], CONVERSION_FACTOR[1])
+            .firstNoticeDate(FIRST_NOTICE_DATE)
+            .lastNoticeDate(LAST_NOTICE_DATE)
+            .firstDeliveryDate(FIRST_DELIVERY_DATE)
+            .lastDeliveryDate(LAST_DELIVERY_DATE)
+            .lastTradeDate(LAST_TRADING_DATE)
+            .rounding(ROUNDING)
+            .build());
   }
 
   //-------------------------------------------------------------------------

@@ -67,12 +67,16 @@ public class LogLinearCurveExtrapolatorTest {
       }
 
       // Check C0 continuity
-      assertThat(bci.interpolate(xValues.get(nData - 1) + 1.e-14)).isCloseTo(bci.interpolate(xValues.get(nData - 1)), offset(TOL));
-      assertThat(bci.interpolate(xValues.get(0) - 1.e-14)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
+      assertThat(bci.interpolate(xValues.get(nData - 1) + 1.e-14))
+          .isCloseTo(bci.interpolate(xValues.get(nData - 1)), offset(TOL));
+      assertThat(bci.interpolate(xValues.get(0) - 1.e-14))
+          .isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Check C1 continuity
-      assertThat(bci.firstDerivative(xValues.get(nData - 1) + TOL) / bci.interpolate(xValues.get(nData - 1) + TOL)).isCloseTo(bci.firstDerivative(xValues.get(nData - 1)) / bci.interpolate(xValues.get(nData - 1)), offset(TOL));
-      assertThat(bci.firstDerivative(xValues.get(0) - TOL) / bci.interpolate(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)) / bci.interpolate(xValues.get(0)), offset(TOL));
+      assertThat(bci.firstDerivative(xValues.get(nData - 1) + TOL) / bci.interpolate(xValues.get(nData - 1) + TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(nData - 1)) / bci.interpolate(xValues.get(nData - 1)), offset(TOL));
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL) / bci.interpolate(xValues.get(0) - TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(0)) / bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
@@ -87,7 +91,8 @@ public class LogLinearCurveExtrapolatorTest {
         for (int i = 0; i < nKeys; ++i) {
           double res1 =
               0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
-          assertThat(bci.parameterSensitivity(xKeys[i]).get(j)).isCloseTo(res1, offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
+          assertThat(bci.parameterSensitivity(xKeys[i]).get(j))
+              .isCloseTo(res1, offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -137,12 +142,15 @@ public class LogLinearCurveExtrapolatorTest {
       }
 
       // Check C0 continuity
-      assertThat(bci.interpolate(xValues.get(nData - 1) + 1.e-14)).isCloseTo(bci.interpolate(xValues.get(nData - 1)), offset(TOL));
+      assertThat(bci.interpolate(xValues.get(nData - 1) + 1.e-14)).isCloseTo(bci.interpolate(xValues.get(nData - 1)),
+          offset(TOL));
       assertThat(bci.interpolate(xValues.get(0) - 1.e-14)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Check C1 continuity
-      assertThat(bci.firstDerivative(xValues.get(nData - 1) + TOL) / bci.interpolate(xValues.get(nData - 1) + TOL)).isCloseTo(bci.firstDerivative(xValues.get(nData - 1)) / bci.interpolate(xValues.get(nData - 1)), offset(TOL));
-      assertThat(bci.firstDerivative(xValues.get(0) - TOL) / bci.interpolate(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)) / bci.interpolate(xValues.get(0)), offset(TOL));
+      assertThat(bci.firstDerivative(xValues.get(nData - 1) + TOL) / bci.interpolate(xValues.get(nData - 1) + TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(nData - 1)) / bci.interpolate(xValues.get(nData - 1)), offset(TOL));
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL) / bci.interpolate(xValues.get(0) - TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(0)) / bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
@@ -156,7 +164,10 @@ public class LogLinearCurveExtrapolatorTest {
             xValues, DoubleArray.ofUnsafe(yValues1Dw), extrap, extrap);
         for (int i = 0; i < nKeys; ++i) {
           double res1 = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
-          assertThat(res1).isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j), offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
+          assertThat(res1)
+              .isCloseTo(
+                  bci.parameterSensitivity(xKeys[i]).get(j),
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);

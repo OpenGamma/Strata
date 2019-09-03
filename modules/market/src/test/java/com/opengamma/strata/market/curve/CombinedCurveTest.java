@@ -360,8 +360,10 @@ public class CombinedCurveTest {
         .build();
     InterpolatedNodalCurve newCurve = InterpolatedNodalCurve.of(
         metadata, XVALUES_SPREAD, YVALUES_SPREAD, NATURAL_CUBIC_SPLINE, LINEAR, LINEAR);
-    assertThat(COMBINED_CURVE.withUnderlyingCurve(0, newCurve)).isEqualTo(CombinedCurve.of(newCurve, SPREAD_CURVE, COMBINED_CURVE.getMetadata()));
-    assertThat(COMBINED_CURVE.withUnderlyingCurve(1, newCurve)).isEqualTo(CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
+    assertThat(COMBINED_CURVE.withUnderlyingCurve(0, newCurve))
+        .isEqualTo(CombinedCurve.of(newCurve, SPREAD_CURVE, COMBINED_CURVE.getMetadata()));
+    assertThat(COMBINED_CURVE.withUnderlyingCurve(1, newCurve))
+        .isEqualTo(CombinedCurve.of(BASE_CURVE, newCurve, COMBINED_CURVE.getMetadata()));
     assertThat(COMBINED_CURVE.split()).containsExactly(BASE_CURVE, SPREAD_CURVE);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> COMBINED_CURVE.withUnderlyingCurve(2, newCurve));

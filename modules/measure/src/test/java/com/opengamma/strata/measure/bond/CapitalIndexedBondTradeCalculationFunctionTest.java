@@ -130,7 +130,8 @@ public class CapitalIndexedBondTradeCalculationFunctionTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_requirementsAndCurrency() {
-    CapitalIndexedBondTradeCalculationFunction<CapitalIndexedBondTrade> function = CapitalIndexedBondTradeCalculationFunction.TRADE;
+    CapitalIndexedBondTradeCalculationFunction<CapitalIndexedBondTrade> function =
+        CapitalIndexedBondTradeCalculationFunction.TRADE;
     Set<Measure> measures = function.supportedMeasures();
     FunctionRequirements reqs = function.requirements(TRADE, measures, PARAMS, REF_DATA);
     assertThat(reqs.getOutputCurrencies()).containsOnly(CURRENCY);
@@ -141,7 +142,8 @@ public class CapitalIndexedBondTradeCalculationFunctionTest {
 
   @Test
   public void test_simpleMeasures() {
-    CapitalIndexedBondTradeCalculationFunction<CapitalIndexedBondTrade> function = CapitalIndexedBondTradeCalculationFunction.TRADE;
+    CapitalIndexedBondTradeCalculationFunction<CapitalIndexedBondTrade> function =
+        CapitalIndexedBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     RatesProvider ratesProvider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
     LegalEntityDiscountingProvider ledProvider = LED_LOOKUP.marketDataView(md.scenario(0)).discountingProvider();
@@ -168,7 +170,8 @@ public class CapitalIndexedBondTradeCalculationFunctionTest {
 
   @Test
   public void test_pv01() {
-    CapitalIndexedBondTradeCalculationFunction<CapitalIndexedBondTrade> function = CapitalIndexedBondTradeCalculationFunction.TRADE;
+    CapitalIndexedBondTradeCalculationFunction<CapitalIndexedBondTrade> function =
+        CapitalIndexedBondTradeCalculationFunction.TRADE;
     ScenarioMarketData md = marketData();
     RatesProvider ratesProvider = RATES_LOOKUP.marketDataView(md.scenario(0)).ratesProvider();
     LegalEntityDiscountingProvider ledProvider = LED_LOOKUP.marketDataView(md.scenario(0)).discountingProvider();

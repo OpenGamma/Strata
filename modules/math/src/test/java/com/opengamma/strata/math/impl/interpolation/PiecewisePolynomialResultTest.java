@@ -21,10 +21,11 @@ public class PiecewisePolynomialResultTest {
 
   @Test
   public void hashCodeEqualsTest() {
-    final double[] knots1 = new double[] {1., 2., 3., 4. };
-    final double[] knots2 = new double[] {1., 2., 3., 4., 5., 6., 7. };
-    final double[][] matrix1 = new double[][] { {3., 3., 3. }, {1., 1., 1. }, {2., 2., 2. }, {3., 3., 3. }, {1., 1., 1. }, {2., 2., 2. } };
-    final double[][] matrix2 = new double[][] { {3., 3., 3. }, {1., 1., 1. }, {2., 2., 2. } };
+    final double[] knots1 = new double[] {1., 2., 3., 4.};
+    final double[] knots2 = new double[] {1., 2., 3., 4., 5., 6., 7.};
+    final double[][] matrix1 = new double[][] {
+        {3., 3., 3.}, {1., 1., 1.}, {2., 2., 2.}, {3., 3., 3.}, {1., 1., 1.}, {2., 2., 2.}};
+    final double[][] matrix2 = new double[][] {{3., 3., 3.}, {1., 1., 1.}, {2., 2., 2.}};
     final int order = 3;
     final int dim1 = 2;
     final int dim2 = 1;

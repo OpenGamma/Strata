@@ -94,24 +94,24 @@ public class NotionalScheduleTest {
   public void test_builder_invalidCurrencyFxReset() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> NotionalSchedule.builder()
-        .currency(USD)
-        .amount(ValueSchedule.of(2000d))
-        .fxReset(FxResetCalculation.builder()
-            .referenceCurrency(USD)
-            .index(GBP_USD_WM)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
-            .build())
-        .build());
+            .currency(USD)
+            .amount(ValueSchedule.of(2000d))
+            .fxReset(FxResetCalculation.builder()
+                .referenceCurrency(USD)
+                .index(GBP_USD_WM)
+                .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+                .build())
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> NotionalSchedule.builder()
-        .currency(EUR)
-        .amount(ValueSchedule.of(2000d))
-        .fxReset(FxResetCalculation.builder()
-            .referenceCurrency(USD)
-            .index(GBP_USD_WM)
-            .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
-            .build())
-        .build());
+            .currency(EUR)
+            .amount(ValueSchedule.of(2000d))
+            .fxReset(FxResetCalculation.builder()
+                .referenceCurrency(USD)
+                .index(GBP_USD_WM)
+                .fixingDateOffset(DaysAdjustment.ofBusinessDays(-2, GBLO))
+                .build())
+            .build());
   }
 
   @Test

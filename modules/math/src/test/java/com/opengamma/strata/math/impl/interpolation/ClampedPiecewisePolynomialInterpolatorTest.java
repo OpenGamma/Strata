@@ -19,15 +19,15 @@ import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
  * Test {@link ClampedPiecewisePolynomialInterpolator}.
  */
 public class ClampedPiecewisePolynomialInterpolatorTest {
-  private static final double[] X_VALUES = new double[] {-1.0, -0.04, 0.1, 3.2, 15.0 };
-  private static final double[] Y_VALUES = new double[] {12.4, -2.03, 11.41, 11.0, 0.2 };
-  private static final double[] X_CLAMPED = new double[] {-1.5, 3.4, 22.0, 0.0 };
-  private static final double[] Y_CLAMPED = new double[] {6.0, 2.2, 6.1, 3.2 };
-  private static final double[] X_VALUES_TOTAL = new double[] {-1.5, -1.0, -0.04, 0.0, 0.1, 3.2, 3.4, 15.0, 22.0 };
-  private static final double[] Y_VALUES_TOTAL = new double[] {6.0, 12.4, -2.03, 3.2, 11.41, 11.0, 2.2, 0.2, 6.1 };
+  private static final double[] X_VALUES = new double[] {-1.0, -0.04, 0.1, 3.2, 15.0};
+  private static final double[] Y_VALUES = new double[] {12.4, -2.03, 11.41, 11.0, 0.2};
+  private static final double[] X_CLAMPED = new double[] {-1.5, 3.4, 22.0, 0.0};
+  private static final double[] Y_CLAMPED = new double[] {6.0, 2.2, 6.1, 3.2};
+  private static final double[] X_VALUES_TOTAL = new double[] {-1.5, -1.0, -0.04, 0.0, 0.1, 3.2, 3.4, 15.0, 22.0};
+  private static final double[] Y_VALUES_TOTAL = new double[] {6.0, 12.4, -2.03, 3.2, 11.41, 11.0, 2.2, 0.2, 6.1};
   private static final PiecewisePolynomialInterpolator[] BASE_INTERP = new PiecewisePolynomialInterpolator[] {
-    new NaturalSplineInterpolator(), new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity(),
-    new MonotonicityPreservingCubicSplineInterpolator(new CubicSplineInterpolator()) };
+      new NaturalSplineInterpolator(), new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity(),
+      new MonotonicityPreservingCubicSplineInterpolator(new CubicSplineInterpolator())};
   private static final double TOL = 1.0e-14;
 
   @Test
@@ -57,7 +57,7 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
   @Test
   public void testInterpolateMultiDim() {
     ClampedPiecewisePolynomialInterpolator interp = new ClampedPiecewisePolynomialInterpolator(
-        new NaturalSplineInterpolator(), new double[] {1d }, new double[] {2d });
+        new NaturalSplineInterpolator(), new double[] {1d}, new double[] {2d});
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> interp.interpolate(X_VALUES, new double[][] {Y_VALUES, Y_VALUES}));
   }
@@ -74,9 +74,9 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
 
   @Test
   public void testFunctionalForm() {
-    double[] xValues = new double[] {0.5, 1.0, 3.0, 5.0, 10.0, 30.0 };
+    double[] xValues = new double[] {0.5, 1.0, 3.0, 5.0, 10.0, 30.0};
     double lambda0 = 0.14;
-    double[] lambda = new double[] {0.25, 0.05, -0.12, 0.03, -0.15, 0.0 };
+    double[] lambda = new double[] {0.25, 0.05, -0.12, 0.03, -0.15, 0.0};
     double pValueTmp = 0d;
     int nData = xValues.length;
     for (int i = 0; i < nData - 1; ++i) {
@@ -103,7 +103,7 @@ public class ClampedPiecewisePolynomialInterpolatorTest {
       rt[i] = func.apply(xValues[i]);
     }
     ClampedPiecewisePolynomialInterpolator interp =
-        new ClampedPiecewisePolynomialInterpolator(BASE_INTERP[0], new double[] {0d }, new double[] {0d });
+        new ClampedPiecewisePolynomialInterpolator(BASE_INTERP[0], new double[] {0d}, new double[] {0d});
     PiecewisePolynomialResult result = interp.interpolate(xValues, rt);
     PiecewisePolynomialFunction1D polyFunc = new PiecewisePolynomialFunction1D();
     for (int i = 0; i < 600; ++i) {

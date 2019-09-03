@@ -98,14 +98,14 @@ public class IborFixingDepositTest {
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFixingDeposit.builder()
-        .buySell(SELL)
-        .notional(NOTIONAL)
-        .startDate(LocalDate.of(2015, 9, 19))
-        .endDate(END_DATE)
-        .businessDayAdjustment(BDA_MOD_FOLLOW)
-        .index(GBP_LIBOR_6M)
-        .fixedRate(RATE)
-        .build());
+            .buySell(SELL)
+            .notional(NOTIONAL)
+            .startDate(LocalDate.of(2015, 9, 19))
+            .endDate(END_DATE)
+            .businessDayAdjustment(BDA_MOD_FOLLOW)
+            .index(GBP_LIBOR_6M)
+            .fixedRate(RATE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

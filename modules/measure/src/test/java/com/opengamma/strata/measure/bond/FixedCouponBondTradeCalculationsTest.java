@@ -44,9 +44,12 @@ public class FixedCouponBondTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider.getValuationDate());
 
-    assertThat(FixedCouponBondTradeCalculations.DEFAULT.presentValue(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(FixedCouponBondTradeCalculations.DEFAULT.currencyExposure(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertThat(FixedCouponBondTradeCalculations.DEFAULT.currentCash(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(FixedCouponBondTradeCalculations.DEFAULT.presentValue(RTRADE, LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(FixedCouponBondTradeCalculations.DEFAULT.currencyExposure(RTRADE, LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(FixedCouponBondTradeCalculations.DEFAULT.currentCash(RTRADE, LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   @Test
@@ -59,8 +62,10 @@ public class FixedCouponBondTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertThat(FixedCouponBondTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(FixedCouponBondTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(FixedCouponBondTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(FixedCouponBondTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
   @Test
@@ -79,9 +84,9 @@ public class FixedCouponBondTradeCalculationsTest {
     assertThat(sumComputed.getScenarioCount()).isEqualTo(1);
     assertThat(sumComputed.get(0).getCurrencies()).containsOnly(GBP);
     assertThat(DoubleMath.fuzzyEquals(
-            sumComputed.get(0).getAmount(GBP).getAmount(),
-            expectedPv01Cal.getAmount(GBP).getAmount(),
-            1.0e-10)).isTrue();
+        sumComputed.get(0).getAmount(GBP).getAmount(),
+        expectedPv01Cal.getAmount(GBP).getAmount(),
+        1.0e-10)).isTrue();
     assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
     assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
   }

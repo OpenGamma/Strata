@@ -32,12 +32,17 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
    */
   @Test
   public void firstDerivativeFiniteDifferenceTest() {
-    final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new NaturalSplineInterpolator(), new CubicSplineInterpolator(),
-      new PiecewiseCubicHermiteSplineInterpolator(), new ConstrainedCubicSplineInterpolator(), new SemiLocalCubicSplineInterpolator() };
+    final PiecewisePolynomialInterpolator[] interps =
+        new PiecewisePolynomialInterpolator[] {
+            new NaturalSplineInterpolator(),
+            new CubicSplineInterpolator(),
+            new PiecewiseCubicHermiteSplineInterpolator(),
+            new ConstrainedCubicSplineInterpolator(),
+            new SemiLocalCubicSplineInterpolator()};
     final int nInterps = interps.length;
     for (int k = 0; k < nInterps; ++k) {
-      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16. };
-      final double[] yValues = new double[] {1., 2., 3., -2., 5., -5. };
+      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16.};
+      final double[] yValues = new double[] {1., 2., 3., -2., 5., -5.};
       final int nData = xValues.length;
       double[] yValuesUp = Arrays.copyOf(yValues, nData);
       double[] yValuesDw = Arrays.copyOf(yValues, nData);
@@ -84,12 +89,17 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
    */
   @Test
   public void secondDerivativeFiniteDifferenceTest() {
-    final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new NaturalSplineInterpolator(), new CubicSplineInterpolator(),
-      new PiecewiseCubicHermiteSplineInterpolator(), new ConstrainedCubicSplineInterpolator(), new SemiLocalCubicSplineInterpolator() };
+    final PiecewisePolynomialInterpolator[] interps =
+        new PiecewisePolynomialInterpolator[] {
+            new NaturalSplineInterpolator(),
+            new CubicSplineInterpolator(),
+            new PiecewiseCubicHermiteSplineInterpolator(),
+            new ConstrainedCubicSplineInterpolator(),
+            new SemiLocalCubicSplineInterpolator()};
     final int nInterps = interps.length;
     for (int k = 0; k < nInterps; ++k) {
-      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16. };
-      final double[] yValues = new double[] {1., 2., 3., -2., 5., -5. };
+      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16.};
+      final double[] yValues = new double[] {1., 2., 3., -2., 5., -5.};
       final int nData = xValues.length;
       double[] yValuesUp = Arrays.copyOf(yValues, nData);
       double[] yValuesDw = Arrays.copyOf(yValues, nData);
@@ -133,15 +143,15 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
    */
   @Test
   public void clampedFiniteDifferenceTest() {
-    final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator() };
+    final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator()};
     final int nInterps = interps.length;
     for (int k = 0; k < nInterps; ++k) {
-      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16. };
-      final double[] bcs = new double[] {-2., -1.5, 0., 1. / 3., 3.2 };
+      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16.};
+      final double[] bcs = new double[] {-2., -1.5, 0., 1. / 3., 3.2};
       final int nBcs = bcs.length;
       for (int l = 0; l < nBcs; ++l) {
         for (int m = 0; m < nBcs; ++m) {
-          final double[] yValues = new double[] {bcs[l], 1., 2., 3., -2., 5., -5., bcs[m] };
+          final double[] yValues = new double[] {bcs[l], 1., 2., 3., -2., 5., -5., bcs[m]};
           final int nData = xValues.length;
           double[] yValuesUp = Arrays.copyOf(yValues, nData + 2);
           double[] yValuesDw = Arrays.copyOf(yValues, nData + 2);
@@ -190,15 +200,15 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
    */
   @Test
   public void clampedSecondDerivativeFiniteDifferenceTest() {
-    final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator() };
+    final PiecewisePolynomialInterpolator[] interps = new PiecewisePolynomialInterpolator[] {new CubicSplineInterpolator()};
     final int nInterps = interps.length;
     for (int k = 0; k < nInterps; ++k) {
-      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16. };
-      final double[] bcs = new double[] {-2., -1.5, 0., 1. / 3., 3.2 };
+      final double[] xValues = new double[] {1., 2.8, 3.1, 5.9, 10., 16.};
+      final double[] bcs = new double[] {-2., -1.5, 0., 1. / 3., 3.2};
       final int nBcs = bcs.length;
       for (int l = 0; l < nBcs; ++l) {
         for (int m = 0; m < nBcs; ++m) {
-          final double[] yValues = new double[] {bcs[l], 1., 2., 3., -2., 5., -5., bcs[m] };
+          final double[] yValues = new double[] {bcs[l], 1., 2., 3., -2., 5., -5., bcs[m]};
           final int nData = xValues.length;
           double[] yValuesUp = Arrays.copyOf(yValues, nData + 2);
           double[] yValuesDw = Arrays.copyOf(yValues, nData + 2);
@@ -228,8 +238,10 @@ public class PiecewisePolynomialWithSensitivityFunction1DTest {
               final double senseFiniteXkey = 0.5 * (resdiffNodeSensitivityXkeyUp - resdiffNodeSensitivityXkeyDw) / EPS / xKeys[i];
               final double resDiffTwiceNodeSensitivity = FUNCTION.differentiateTwiceNodeSensitivity(result, xKeys[i]).get(j);
 
-              assertThat(senseFinite).isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(yValues[j + 1]) * EPS, EPS)));
-              assertThat(senseFiniteXkey).isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(xKeys[i]) * EPS, EPS)));
+              assertThat(senseFinite)
+                  .isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(yValues[j + 1]) * EPS, EPS)));
+              assertThat(senseFiniteXkey)
+                  .isCloseTo(resDiffTwiceNodeSensitivity, offset(Math.max(Math.abs(xKeys[i]) * EPS, EPS)));
             }
             yValuesUp[j + 1] = yValues[j + 1];
             yValuesDw[j + 1] = yValues[j + 1];

@@ -30,13 +30,14 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void bvCase1Test() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 2., 10., 11. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 2., 10., 11.};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {-2. / 9., 11. / 9., 0., 1. }, {-112. / 9., 56. / 3., 16. / 9., 2. }, {-2. / 9., -80. / 144., 16. / 9., 10. } };
+    final double[][] coefsMatExp = new double[][] {
+        {-2. / 9., 11. / 9., 0., 1.}, {-112. / 9., 56. / 3., 16. / 9., 2.}, {-2. / 9., -80. / 144., 16. / 9., 10.}};
 
     PiecewisePolynomialInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -63,13 +64,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void bvCase2Test() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {9., 10., 1., 3. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {9., 10., 1., 3.};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {1., -3., 3., 9. }, {18., -27., 0., 10. }, {2., 0., 0., 1. } };
+    final double[][] coefsMatExp = new double[][] {{1., -3., 3., 9.}, {18., -27., 0., 10.}, {2., 0., 0., 1.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -96,13 +97,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void bvCase3Test() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {2., 3., 2., 3. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {2., 3., 2., 3.};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {0., -1., 2., 2. }, {2., -3., 0., 3. }, {0., 1., 0., 2. } };
+    final double[][] coefsMatExp = new double[][] {{0., -1., 2., 2.}, {2., -3., 0., 3.}, {0., 1., 0., 2.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -129,13 +130,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void bvCase3AnotherTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {2., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {2., 3., 2., 1.};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {0., -1., 2., 2. }, {1., -2., 0., 3. }, {0., 0., -1., 2. } };
+    final double[][] coefsMatExp = new double[][] {{0., -1., 2., 2.}, {1., -2., 0., 3.}, {0., 0., -1., 2.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -162,13 +163,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void coincideYvaluesTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 2., 2., 3. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 2., 2., 3.};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {-1. / 2., 0., 1.5, 1. }, {0., 0., 0., 2. }, {-0.5, 1.5, 0., 2. } };
+    final double[][] coefsMatExp = new double[][] {{-1. / 2., 0., 1.5, 1.}, {0., 0., 0., 2.}, {-0.5, 1.5, 0., 2.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -195,13 +196,14 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void diffIntervalsTest() {
-    final double[] xValues = new double[] {1., 2., 5., 8. };
-    final double[] yValues = new double[] {2., 3., 2., 1. };
+    final double[] xValues = new double[] {1., 2., 5., 8.};
+    final double[] yValues = new double[] {2., 3., 2., 1.};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] { {-2. / 3., 1. / 3., 4. / 3., 2. }, {1. / 27., -2. / 9., 0., 3. }, {0., 0., -1. / 3., 2. } };
+    final double[][] coefsMatExp = new double[][] {
+        {-2. / 3., 1. / 3., 4. / 3., 2.}, {1. / 27., -2. / 9., 0., 3.}, {0., 0., -1. / 3., 2.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -228,13 +230,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void linearTest() {
-    final double[] xValues = new double[] {1., 2. };
-    final double[] yValues = new double[] {1., 4. };
+    final double[] xValues = new double[] {1., 2.};
+    final double[] yValues = new double[] {1., 4.};
 
     final int nIntervalsExp = 1;
     final int orderExp = 4;
     final int dimExp = 1;
-    final double[][] coefsMatExp = new double[][] {{0., 0., 3., 1. } };
+    final double[][] coefsMatExp = new double[][] {{0., 0., 3., 1.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -266,8 +268,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
 
     PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
 
-    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9 };
-    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3 };
+    final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9};
+    final double[] yValues = new double[] {1.0, 1.2, 1.5, 2.0, 2.1, 3.0, 3.1, 3.3};
     final int nPts = 300;
     double old = yValues[0] * xValues[0];
     for (int i = 0; i < nPts; ++i) {
@@ -287,7 +289,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
   @Test
   public void nullXvaluesTest() {
     double[] xValues = null;
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] yValues = new double[] {1., 2., 3., 4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -300,7 +302,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nullYvaluesTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = null;
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
@@ -314,8 +316,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void wrongDatalengthTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 2., 3., 4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -328,8 +330,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void shortDataLengthTest() {
-    double[] xValues = new double[] {1. };
-    double[] yValues = new double[] {4. };
+    double[] xValues = new double[] {1.};
+    double[] yValues = new double[] {4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -342,8 +344,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void naNxValuesTest() {
-    double[] xValues = new double[] {1., 2., Double.NaN, 4. };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., Double.NaN, 4.};
+    double[] yValues = new double[] {1., 2., 3., 4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -356,8 +358,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void naNyValuesTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 2., Double.NaN, 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 2., Double.NaN, 4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -370,8 +372,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void infxValuesTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[] yValues = new double[] {1., 2., 3., 4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -384,8 +386,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void InfyValuesTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 2., 3., INF };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 2., 3., INF};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -398,8 +400,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void coincideXvaluesTest() {
-    double[] xValues = new double[] {1., 2., 3., 3. };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 3.};
+    double[] yValues = new double[] {1., 2., 3., 4.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -412,15 +414,29 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void allBvsMultiTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 2., 10., 11. }, {9., 10., 1., 3. }, {2., 3., 2., 3. }, {1., 2., 2., 3. }, {2., 3., 2., 1. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues =
+        new double[][] {{1., 2., 10., 11.}, {9., 10., 1., 3.}, {2., 3., 2., 3.}, {1., 2., 2., 3.}, {2., 3., 2., 1.}};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 5;
-    final double[][] coefsMatExp = new double[][] { {-2. / 9., 11. / 9., 0., 1. }, {1., -3., 3., 9. }, {0., -1., 2., 2. }, {-1. / 2., 0., 1.5, 1. }, {0., -1., 2., 2. },
-      {-112. / 9., 56. / 3., 16. / 9., 2. }, {18., -27., 0., 10. }, {2., -3., 0., 3. }, {0., 0., 0., 2. }, {1., -2., 0., 3. },
-      {-2. / 9., -80. / 144., 16. / 9., 10. }, {2., 0., 0., 1. }, {0., 1., 0., 2. }, {-0.5, 1.5, 0., 2. }, {0., 0., -1., 2. } };
+    final double[][] coefsMatExp = new double[][] {
+        {-2. / 9., 11. / 9., 0., 1.},
+        {1., -3., 3., 9.},
+        {0., -1., 2., 2.},
+        {-1. / 2., 0., 1.5, 1.},
+        {0., -1., 2., 2.},
+        {-112. / 9., 56. / 3., 16. / 9., 2.},
+        {18., -27., 0., 10.},
+        {2., -3., 0., 3.},
+        {0., 0., 0., 2.},
+        {1., -2., 0., 3.},
+        {-2. / 9., -80. / 144., 16. / 9., 10.},
+        {2., 0., 0., 1.},
+        {0., 1., 0., 2.},
+        {-0.5, 1.5, 0., 2.},
+        {0., 0., -1., 2.}};
 
     PiecewisePolynomialInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -447,13 +463,13 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void linearMultiTest() {
-    final double[] xValues = new double[] {1., 2. };
-    final double[][] yValues = new double[][] { {1., 4. }, {1., 1. / 3. } };
+    final double[] xValues = new double[] {1., 2.};
+    final double[][] yValues = new double[][] {{1., 4.}, {1., 1. / 3.}};
 
     final int nIntervalsExp = 1;
     final int orderExp = 4;
     final int dimExp = 2;
-    final double[][] coefsMatExp = new double[][] { {0., 0., 3., 1. }, {0., 0., -2. / 3., 1. } };
+    final double[][] coefsMatExp = new double[][] {{0., 0., 3., 1.}, {0., 0., -2. / 3., 1.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -480,14 +496,19 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void diffIntervalsMultiTest() {
-    final double[] xValues = new double[] {1., 2., 5., 8. };
-    final double[][] yValues = new double[][] { {2., 3., 2., 1. }, {-1., 3., 6., 7. } };
+    final double[] xValues = new double[] {1., 2., 5., 8.};
+    final double[][] yValues = new double[][] {{2., 3., 2., 1.}, {-1., 3., 6., 7.}};
 
     final int nIntervalsExp = 3;
     final int orderExp = 4;
     final int dimExp = 2;
-    final double[][] coefsMatExp = new double[][] { {-2. / 3., 1. / 3., 4. / 3., 2. }, {-53. / 36, 13. / 18., 19. / 4., -1. }, {1. / 27., -2. / 9., 0., 3. }, {5. / 162., -19. / 54., 16. / 9., 3. },
-      {0., 0., -1. / 3., 2. }, {-1. / 54., 0., 1. / 2., 6. } };
+    final double[][] coefsMatExp = new double[][] {
+        {-2. / 3., 1. / 3., 4. / 3., 2.},
+        {-53. / 36, 13. / 18., 19. / 4., -1.},
+        {1. / 27., -2. / 9., 0., 3.},
+        {5. / 162., -19. / 54., 16. / 9., 3.},
+        {0., 0., -1. / 3., 2.},
+        {-1. / 54., 0., 1. / 2., 6.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -515,7 +536,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
   @Test
   public void nullXvaluesMultiTest() {
     double[] xValues = null;
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 5., 3., 4. } };
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 5., 3., 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -528,7 +549,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nullYvaluesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[][] yValues = null;
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
@@ -542,8 +563,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void wrongDatalengthMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -556,8 +577,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void shortDataLengthMultiTest() {
-    double[] xValues = new double[] {1. };
-    double[][] yValues = new double[][] { {4. }, {1. } };
+    double[] xValues = new double[] {1.};
+    double[][] yValues = new double[][] {{4.}, {1.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -570,8 +591,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void naNxValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., Double.NaN, 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., Double.NaN, 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -584,8 +605,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void naNyValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., Double.NaN, 4. } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 2., Double.NaN, 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -598,8 +619,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void infxValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -612,8 +633,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void infyValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., 3., INF } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 2., 3., INF}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -626,8 +647,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void coincideXvaluesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 3. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., 3., 3.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -640,12 +661,14 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void InterpolantsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {2., 3., 2., 1. }, {1., 2., 10., 11. } };
-    final double[][] xKey = new double[][] { {-1., 0.5, 1.5 }, {2.5, 3.5, 4.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{2., 3., 2., 1.}, {1., 2., 10., 11.}};
+    final double[][] xKey = new double[][] {{-1., 0.5, 1.5}, {2.5, 3.5, 4.5}};
 
-    final double[][][] resultValuesExpected = new double[][][] { { {-6., 21. / 8. }, {23. / 3., 6. } }, { {3. / 4., 3. / 2. }, {4. / 3., 193. / 18. } },
-      { {11. / 4., 1. / 2. }, {23. / 18., 32. / 3. } } };
+    final double[][][] resultValuesExpected =
+        new double[][][] {
+            {{-6., 21. / 8.}, {23. / 3., 6.}}, {{3. / 4., 3. / 2.}, {4. / 3., 193. / 18.}},
+            {{11. / 4., 1. / 2.}, {23. / 18., 32. / 3.}}};
 
     final int yDim = yValues.length;
     final int keyLength = xKey[0].length;
@@ -703,8 +726,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nullKeyTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 3., 4.};
     double[] xKey = null;
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
@@ -719,8 +742,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nullKeyMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[] xKey = null;
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
@@ -735,8 +758,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nullKeyMatrixTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 3., 4.};
     double[][] xKey = null;
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
@@ -751,8 +774,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nullKeyMatrixMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[][] xKey = null;
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
@@ -767,8 +790,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void infiniteOutputTest() {
-    double[] xValues = new double[] {1.e-308, 2.e-308 };
-    double[] yValues = new double[] {1., 1.e308 };
+    double[] xValues = new double[] {1.e-308, 2.e-308};
+    double[] yValues = new double[] {1., 1.e308};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -782,8 +805,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void infiniteOutputMultiTest() {
-    double[] xValues = new double[] {1.e-308, 2.e-308 };
-    double[][] yValues = new double[][] { {1., 1.e308 }, {2., 1. } };
+    double[] xValues = new double[] {1.e-308, 2.e-308};
+    double[][] yValues = new double[][] {{1., 1.e308}, {2., 1.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -796,8 +819,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nanOutputTest() {
-    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
-    double[] yValues = new double[] {1., 2., 1.e308, 3. };
+    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4.};
+    double[] yValues = new double[] {1., 2., 1.e308, 3.};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -810,8 +833,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void nanOutputMultiTest() {
-    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 
@@ -824,8 +847,8 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    */
   @Test
   public void largeInterpolantsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {2., 10., 2., 5. }, {1., 2., 10., 11. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{2., 10., 2., 5.}, {1., 2., 10., 11.}};
 
     PiecewiseCubicHermiteSplineInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
 

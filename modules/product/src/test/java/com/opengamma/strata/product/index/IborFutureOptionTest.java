@@ -67,14 +67,14 @@ public class IborFutureOptionTest {
   public void test_builder_expiryNotAfterTradeDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFutureOption.builder()
-        .securityId(SECURITY_ID)
-        .putCall(CALL)
-        .expiryDate(LAST_TRADE_DATE)
-        .expiryTime(EXPIRY_TIME)
-        .expiryZone(EXPIRY_ZONE)
-        .strikePrice(STRIKE_PRICE)
-        .underlyingFuture(FUTURE)
-        .build());
+            .securityId(SECURITY_ID)
+            .putCall(CALL)
+            .expiryDate(LAST_TRADE_DATE)
+            .expiryTime(EXPIRY_TIME)
+            .expiryZone(EXPIRY_ZONE)
+            .strikePrice(STRIKE_PRICE)
+            .underlyingFuture(FUTURE)
+            .build());
   }
 
   @Test

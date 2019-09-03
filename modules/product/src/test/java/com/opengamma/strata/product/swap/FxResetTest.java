@@ -43,9 +43,9 @@ public class FxResetTest {
   public void test_invalidCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxReset.meta().builder()
-        .set(FxReset.meta().observation(), FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA))
-        .set(FxReset.meta().referenceCurrency(), GBP)
-        .build());
+            .set(FxReset.meta().observation(), FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA))
+            .set(FxReset.meta().referenceCurrency(), GBP)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxReset.of(FxIndexObservation.of(EUR_USD_ECB, DATE_2014_06_30, REF_DATA), GBP));
   }

@@ -31,8 +31,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
     PiecewiseCubicHermiteSplineInterpolatorWithSensitivity pchip =
         new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity();
     PiecewisePolynomialInterpolator hymanNat = new MonotonicityPreservingCubicSplineInterpolator(natural);
-    INTERP = new PiecewisePolynomialInterpolator[] {cubic, natural, hymanNat };
-    INTERP_SENSE = new PiecewisePolynomialInterpolator[] {cubic, natural, pchip, hymanNat };
+    INTERP = new PiecewisePolynomialInterpolator[] {cubic, natural, hymanNat};
+    INTERP_SENSE = new PiecewisePolynomialInterpolator[] {cubic, natural, pchip, hymanNat};
   }
   private static final PiecewisePolynomialWithSensitivityFunction1D FUNC =
       new PiecewisePolynomialWithSensitivityFunction1D();
@@ -42,10 +42,14 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void notClampedTest() {
-    double[][] xValuesSet = new double[][] { {-5.0, -1.4, 3.2, 3.5, 7.6 }, {1., 2., 4.5, 12.1, 14.2 },
-      {-5.2, -3.4, -3.2, -0.9, -0.2 } };
-    double[][] yValuesSet = new double[][] { {-2.2, 1.1, 1.9, 2.3, -0.1 }, {3.4, 5.2, 4.3, 1.1, 0.2 },
-      {1.4, 2.2, 4.1, 1.9, 0.99 } };
+    double[][] xValuesSet = new double[][] {
+        {-5.0, -1.4, 3.2, 3.5, 7.6},
+        {1., 2., 4.5, 12.1, 14.2},
+        {-5.2, -3.4, -3.2, -0.9, -0.2}};
+    double[][] yValuesSet = new double[][] {
+        {-2.2, 1.1, 1.9, 2.3, -0.1},
+        {3.4, 5.2, 4.3, 1.1, 0.2},
+        {1.4, 2.2, 4.1, 1.9, 0.99}};
 
     for (int k = 0; k < xValuesSet.length; ++k) {
       double[] xValues = Arrays.copyOf(xValuesSet[k], xValuesSet[k].length);
@@ -75,11 +79,16 @@ public class ProductPiecewisePolynomialInterpolatorTest {
             xyValues);
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("notClampedTest", FUNC.evaluate(resultBase, key).get(0), FUNC
-              .evaluate(result, key)
-              .get(0), EPS);
-          InterpolatorTestUtil.assertArrayRelative("notClampedTest", FUNC.nodeSensitivity(resultBase, key).toArray(),
-              FUNC.nodeSensitivity(result, key).toArray(), EPS);
+          InterpolatorTestUtil.assertRelative(
+              "notClampedTest",
+              FUNC.evaluate(resultBase, key).get(0),
+              FUNC.evaluate(result, key).get(0),
+              EPS);
+          InterpolatorTestUtil.assertArrayRelative(
+              "notClampedTest",
+              FUNC.nodeSensitivity(resultBase, key).toArray(),
+              FUNC.nodeSensitivity(result, key).toArray(),
+              EPS);
         }
       }
     }
@@ -90,10 +99,10 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void clampedTest() {
-    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
-    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1 };
-    double[][] xValuesClampedSet = new double[][] { {0.0 }, {-7.2, -2.5, 8.45 }, {} };
-    double[][] yValuesClampedSet = new double[][] { {0.0 }, {-1.2, -1.4, 2.2 }, {} };
+    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6};
+    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1};
+    double[][] xValuesClampedSet = new double[][] {{0.0}, {-7.2, -2.5, 8.45}, {}};
+    double[][] yValuesClampedSet = new double[][] {{0.0}, {-1.2, -1.4, 2.2}, {}};
 
     for (int k = 0; k < xValuesClampedSet.length; ++k) {
       double[] xValuesClamped = Arrays.copyOf(xValuesClampedSet[k], xValuesClampedSet[k].length);
@@ -122,8 +131,11 @@ public class ProductPiecewisePolynomialInterpolatorTest {
             xValuesClamped, yValuesClamped);
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("clampedTest", INTERP[i].interpolate(xValuesForBase, xyValuesBase, key),
-              interp.interpolate(xValues, yValues, key), EPS);
+          InterpolatorTestUtil.assertRelative(
+              "clampedTest",
+              INTERP[i].interpolate(xValuesForBase, xyValuesBase, key),
+              interp.interpolate(xValues, yValues, key),
+              EPS);
         }
       }
       n = INTERP_SENSE.length;
@@ -135,11 +147,16 @@ public class ProductPiecewisePolynomialInterpolatorTest {
             xValuesForBase, xyValuesBase);
         for (int j = 0; j < nKeys; ++j) {
           double key = xValues[0] + interval * j;
-          InterpolatorTestUtil.assertRelative("clampedTest", FUNC.evaluate(resultBase, key).get(0),
-              FUNC.evaluate(result, key)
-                  .get(0), EPS);
-          InterpolatorTestUtil.assertArrayRelative("clampedTest", FUNC.nodeSensitivity(resultBase, key).toArray(),
-              FUNC.nodeSensitivity(result, key).toArray(), EPS);
+          InterpolatorTestUtil.assertRelative(
+              "clampedTest",
+              FUNC.evaluate(resultBase, key).get(0),
+              FUNC.evaluate(result, key).get(0),
+              EPS);
+          InterpolatorTestUtil.assertArrayRelative(
+              "clampedTest",
+              FUNC.nodeSensitivity(resultBase, key).toArray(),
+              FUNC.nodeSensitivity(result, key).toArray(),
+              EPS);
         }
       }
     }
@@ -150,8 +167,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void linearExtrapolationNoClampedTest() {
-    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
-    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1 };
+    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6};
+    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1};
     int nData = xValues.length;
     int nKeys = 20;
     double interval = (3.0 * xValues[nData - 1] - xValues[nData - 1]) / (nKeys - 1);
@@ -165,8 +182,11 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       }
       double[] values = FUNC.evaluate(result, keys).row(0).toArray();
       for (int j = 2; j < nKeys; ++j) {
-        InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
-            values[j - 2], EPS);
+        InterpolatorTestUtil.assertRelative(
+            "linearExtrapolationTest",
+            values[j - 1] - values[j - 2],
+            values[j - 1] - values[j - 2],
+            EPS);
       }
     }
     n = INTERP_SENSE.length;
@@ -178,8 +198,11 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       }
       double[] values = FUNC.evaluate(result, keys).row(0).toArray();
       for (int j = 2; j < nKeys; ++j) {
-        InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
-            values[j - 2], EPS);
+        InterpolatorTestUtil.assertRelative(
+            "linearExtrapolationTest",
+            values[j - 1] - values[j - 2],
+            values[j - 1] - values[j - 2],
+            EPS);
       }
       DoubleArray[] sense = FUNC.nodeSensitivity(result, keys);
       for (int k = 0; k < nData; ++k) {
@@ -204,10 +227,10 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void linearExtrapolationClampedTest() {
-    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
-    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1 };
-    double[] xValuesClamped = new double[] {8.9 };
-    double[] yValuesClamped = new double[] {3.2 };
+    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6};
+    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, -0.1};
+    double[] xValuesClamped = new double[] {8.9};
+    double[] yValuesClamped = new double[] {3.2};
     int nData = xValues.length;
     int nClamped = xValuesClamped.length;
     int nKeys = 20;
@@ -223,8 +246,11 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       }
       double[] values = FUNC.evaluate(result, keys).row(0).toArray();
       for (int j = 2; j < nKeys; ++j) {
-        InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
-            values[j - 2], EPS);
+        InterpolatorTestUtil.assertRelative(
+            "linearExtrapolationTest",
+            values[j - 1] - values[j - 2],
+            values[j - 1] - values[j - 2],
+            EPS);
       }
     }
     n = INTERP_SENSE.length;
@@ -237,8 +263,11 @@ public class ProductPiecewisePolynomialInterpolatorTest {
       }
       double[] values = FUNC.evaluate(result, keys).row(0).toArray();
       for (int j = 2; j < nKeys; ++j) {
-        InterpolatorTestUtil.assertRelative("linearExtrapolationTest", values[j - 1] - values[j - 2], values[j - 1] -
-            values[j - 2], EPS);
+        InterpolatorTestUtil.assertRelative(
+            "linearExtrapolationTest",
+            values[j - 1] - values[j - 2],
+            values[j - 1] - values[j - 2],
+            EPS);
       }
       DoubleArray[] sense = FUNC.nodeSensitivity(result, keys);
       for (int k = 0; k < nData; ++k) {
@@ -256,10 +285,10 @@ public class ProductPiecewisePolynomialInterpolatorTest {
         }
       }
       ProductPiecewisePolynomialInterpolator interpUp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[i],
-          xValuesClamped, new double[] {yValuesClamped[0] + DELTA / xValuesClamped[0] });
+          xValuesClamped, new double[] {yValuesClamped[0] + DELTA / xValuesClamped[0]});
       PiecewisePolynomialResultsWithSensitivity resultUp = interpUp.interpolateWithSensitivity(xValues, yValues);
       ProductPiecewisePolynomialInterpolator interpDw = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[i],
-          xValuesClamped, new double[] {yValuesClamped[0] - DELTA / xValuesClamped[0] });
+          xValuesClamped, new double[] {yValuesClamped[0] - DELTA / xValuesClamped[0]});
       PiecewisePolynomialResultsWithSensitivity resultDw = interpDw.interpolateWithSensitivity(xValues, yValues);
       double[] tmpUp = FUNC.evaluate(resultUp, keys).rowArray(0);
       double[] tmpDw = FUNC.evaluate(resultDw, keys).rowArray(0);
@@ -275,8 +304,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void clampedDifferentLengthTest() {
-    double[] xValues = new double[] {-5.0, };
-    double[] yValues = new double[] {-2.2, 1.1 };
+    double[] xValues = new double[] {-5.0,};
+    double[] yValues = new double[] {-2.2, 1.1};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> new ProductPiecewisePolynomialInterpolator(INTERP[0], xValues, yValues));
   }
@@ -286,8 +315,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void dataDifferentLengthTest() {
-    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
-    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3 };
+    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6};
+    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3};
     ProductPiecewisePolynomialInterpolator interp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[1]);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> interp.interpolate(xValues, yValues));
@@ -298,8 +327,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void dataDifferentLengthWithSenseTest() {
-    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5 };
-    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, 1.2 };
+    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5};
+    double[] yValues = new double[] {-2.2, 1.1, 1.9, 2.3, 1.2};
     ProductPiecewisePolynomialInterpolator interp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[1]);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> interp.interpolateWithSensitivity(xValues, yValues));
@@ -310,8 +339,8 @@ public class ProductPiecewisePolynomialInterpolatorTest {
    */
   @Test
   public void notImplementedTest() {
-    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6 };
-    double[][] yValues = new double[][] { {-2.2, 1.1, 1.9, 2.3, 1.2 }, {-2.2, 1.1, 1.9, 2.3, 1.2 } };
+    double[] xValues = new double[] {-5.0, -1.4, 3.2, 3.5, 7.6};
+    double[][] yValues = new double[][] {{-2.2, 1.1, 1.9, 2.3, 1.2}, {-2.2, 1.1, 1.9, 2.3, 1.2}};
     ProductPiecewisePolynomialInterpolator interp = new ProductPiecewisePolynomialInterpolator(INTERP_SENSE[1]);
     assertThatExceptionOfType(UnsupportedOperationException.class)
         .isThrownBy(() -> interp.interpolate(xValues, yValues));

@@ -37,7 +37,7 @@ public class WeightedLeastSquaresRegressionTest {
       x1 = i;
       x2 = x1 * x1;
       x3 = Math.sqrt(x1);
-      x[i] = new double[] {x1, x2, x3 };
+      x[i] = new double[] {x1, x2, x3};
       y = x1 * a1 + x2 * a2 + x3 * a3;
       yNoIntercept[i] = y;
       yIntercept[i] = y + a0;

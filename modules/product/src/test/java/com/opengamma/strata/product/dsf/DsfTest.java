@@ -81,22 +81,22 @@ public class DsfTest {
   public void test_builder_deliveryAfterStart() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Dsf.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(LocalDate.of(2014, 9, 19))
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(SWAP)
-        .build());
+            .notional(NOTIONAL)
+            .deliveryDate(LocalDate.of(2014, 9, 19))
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(SWAP)
+            .build());
   }
 
   @Test
   public void test_builder_tradeAfterdelivery() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Dsf.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LocalDate.of(2014, 9, 11))
-        .underlyingSwap(SWAP)
-        .build());
+            .notional(NOTIONAL)
+            .deliveryDate(DELIVERY_DATE)
+            .lastTradeDate(LocalDate.of(2014, 9, 11))
+            .underlyingSwap(SWAP)
+            .build());
   }
 
   @Test
@@ -165,20 +165,20 @@ public class DsfTest {
     Swap swap3 = Swap.of(knownAmountLeg, SWAP.getLeg(PAY).get());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Dsf.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(swap1)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .deliveryDate(DELIVERY_DATE)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(swap1)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Dsf.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(swap2)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .deliveryDate(DELIVERY_DATE)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(swap2)
+            .build());
     // should succeed normally (no notional to validate on known amount leg)
     Dsf.builder()
         .securityId(SECURITY_ID)

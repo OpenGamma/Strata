@@ -54,7 +54,8 @@ public class InterpolatorCurveExtrapolatorTest {
         // derivative 
         assertThat(boundInterp.firstDerivative(keys[j])).isCloseTo(baseInterp.doFirstDerivative(keys[j]), offset(TOL));
         // sensitivity
-        assertThat(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL)).isTrue();
+        assertThat(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL))
+            .isTrue();
       }
     }
   }
@@ -90,7 +91,8 @@ public class InterpolatorCurveExtrapolatorTest {
         // derivative 
         assertThat(boundInterp.firstDerivative(keys[j])).isCloseTo(baseInterp.doFirstDerivative(keys[j]), offset(TOL));
         // sensitivity
-        assertThat(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL)).isTrue();
+        assertThat(boundInterp.parameterSensitivity(keys[j]).equalWithTolerance(baseInterp.doParameterSensitivity(keys[j]), TOL))
+            .isTrue();
       }
     }
   }

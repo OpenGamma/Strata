@@ -107,11 +107,11 @@ public class OvernightFutureTradeTest {
   public void test_builder_badPrice() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightFutureTrade.builder()
-        .info(TRADE_INFO)
-        .product(PRODUCT)
-        .quantity(QUANTITY)
-        .price(2.1)
-        .build());
+            .info(TRADE_INFO)
+            .product(PRODUCT)
+            .quantity(QUANTITY)
+            .price(2.1)
+            .build());
   }
 
   //-------------------------------------------------------------------------

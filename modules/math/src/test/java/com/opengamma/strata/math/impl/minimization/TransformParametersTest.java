@@ -19,7 +19,8 @@ import com.opengamma.strata.collect.array.DoubleArray;
  */
 public class TransformParametersTest {
   private static final DoubleArray INIT = DoubleArray.of(1, 2, 3, 4);
-  private static final ParameterLimitsTransform[] NULLS = new ParameterLimitsTransform[] {new NullTransform(), new NullTransform(), new NullTransform(), new NullTransform() };
+  private static final ParameterLimitsTransform[] NULLS =
+      new ParameterLimitsTransform[] {new NullTransform(), new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED = new BitSet(4);
   private static final UncoupledParameterTransforms PARAMS;
 
@@ -120,7 +121,8 @@ public class TransformParametersTest {
     assertThat(PARAMS.hashCode()).isEqualTo(other.hashCode());
     other = new UncoupledParameterTransforms(DoubleArray.of(1, 2, 4, 5), NULLS, FIXED);
     assertThat(other.equals(PARAMS)).isFalse();
-    other = new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[] {new DoubleRangeLimitTransform(1, 2), new NullTransform(), new NullTransform(), new NullTransform() }, FIXED);
+    other = new UncoupledParameterTransforms(INIT, new ParameterLimitsTransform[] {new DoubleRangeLimitTransform(1, 2),
+        new NullTransform(), new NullTransform(), new NullTransform()}, FIXED);
     assertThat(other.equals(PARAMS)).isFalse();
     other = new UncoupledParameterTransforms(INIT, NULLS, new BitSet(4));
     assertThat(other.equals(PARAMS)).isFalse();

@@ -144,14 +144,15 @@ public class VectorFieldSecondOrderDifferentiatorTest {
         return DoubleArray.of(x1 * x1 * x1 + x2 * x2, Math.exp(1.5 * x1), Math.log(2d * x1) * Math.sin(x2));
       }
     };
-    double[][] keys = new double[][] { {1.5, -2.1 }, {2.3445, 0.5 } };
+    double[][] keys = new double[][] {{1.5, -2.1}, {2.3445, 0.5}};
     Function<DoubleArray, DoubleMatrix> funcExp = new Function<DoubleArray, DoubleMatrix>() {
       @Override
       public DoubleMatrix apply(DoubleArray x) {
         double x1 = x.get(0);
         double x2 = x.get(1);
-        double[][] mat = new double[][] { {6d * x1, 2.25 * Math.exp(1.5 * x1), -Math.sin(x2) / x1 / x1 },
-          {2d, 0d, -Math.log(2d * x1) * Math.sin(x2) } };
+        double[][] mat = new double[][] {
+            {6d * x1, 2.25 * Math.exp(1.5 * x1), -Math.sin(x2) / x1 / x1},
+            {2d, 0d, -Math.log(2d * x1) * Math.sin(x2)}};
         return DoubleMatrix.ofUnsafe(mat);
       }
     };

@@ -75,7 +75,8 @@ public class IborFixingDepositConventionTest {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.builder()
         .index(GBP_LIBOR_6M)
         .build();
-    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
+    assertThat(test.getBusinessDayAdjustment())
+        .isEqualTo(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
     assertThat(test.getCurrency()).isEqualTo(GBP_LIBOR_6M.getCurrency());
     assertThat(test.getDayCount()).isEqualTo(GBP_LIBOR_6M.getDayCount());
     assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_6M.getFixingDateOffset());
@@ -86,7 +87,8 @@ public class IborFixingDepositConventionTest {
   @Test
   public void test_of_indexOnly() {
     ImmutableIborFixingDepositConvention test = ImmutableIborFixingDepositConvention.of(GBP_LIBOR_6M);
-    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
+    assertThat(test.getBusinessDayAdjustment())
+        .isEqualTo(BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBP_LIBOR_6M.getFixingCalendar()));
     assertThat(test.getCurrency()).isEqualTo(GBP_LIBOR_6M.getCurrency());
     assertThat(test.getDayCount()).isEqualTo(GBP_LIBOR_6M.getDayCount());
     assertThat(test.getFixingDateOffset()).isEqualTo(GBP_LIBOR_6M.getFixingDateOffset());

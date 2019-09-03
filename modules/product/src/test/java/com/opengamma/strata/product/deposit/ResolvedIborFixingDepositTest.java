@@ -61,14 +61,14 @@ public class ResolvedIborFixingDepositTest {
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedIborFixingDeposit.builder()
-        .currency(GBP)
-        .notional(NOTIONAL)
-        .startDate(LocalDate.of(2015, 8, 20))
-        .endDate(END_DATE)
-        .yearFraction(YEAR_FRACTION)
-        .floatingRate(RATE_COMP)
-        .fixedRate(RATE)
-        .build());
+            .currency(GBP)
+            .notional(NOTIONAL)
+            .startDate(LocalDate.of(2015, 8, 20))
+            .endDate(END_DATE)
+            .yearFraction(YEAR_FRACTION)
+            .floatingRate(RATE_COMP)
+            .fixedRate(RATE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

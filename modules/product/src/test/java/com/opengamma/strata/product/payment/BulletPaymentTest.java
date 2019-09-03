@@ -57,10 +57,10 @@ public class BulletPaymentTest {
   public void test_builder_notNegative() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BulletPayment.builder()
-        .payReceive(PayReceive.PAY)
-        .value(GBP_M1000)
-        .date(AdjustableDate.of(DATE_2015_06_30))
-        .build());
+            .payReceive(PayReceive.PAY)
+            .value(GBP_M1000)
+            .date(AdjustableDate.of(DATE_2015_06_30))
+            .build());
   }
 
   //-------------------------------------------------------------------------

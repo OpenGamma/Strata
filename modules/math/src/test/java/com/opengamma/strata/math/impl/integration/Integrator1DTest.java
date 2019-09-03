@@ -31,8 +31,8 @@ public class Integrator1DTest {
     }
 
   };
-  private static final Double[] L = new Double[] {1.3 };
-  private static final Double[] U = new Double[] {3.4 };
+  private static final Double[] L = new Double[] {1.3};
+  private static final Double[] U = new Double[] {3.4};
 
   @Test
   public void testNullFunction() {

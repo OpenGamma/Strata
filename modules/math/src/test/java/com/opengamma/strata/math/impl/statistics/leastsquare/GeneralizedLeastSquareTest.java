@@ -34,7 +34,7 @@ public class GeneralizedLeastSquareTest {
 
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, RANDOM);
-  private static final double[] WEIGHTS = new double[] {1.0, -0.5, 2.0, 0.23, 1.45 };
+  private static final double[] WEIGHTS = new double[] {1.0, -0.5, 2.0, 0.23, 1.45};
   private static final Double[] X;
   private static final double[] Y;
   private static final double[] SIGMA;
@@ -197,7 +197,7 @@ public class GeneralizedLeastSquareTest {
     final Function<double[], Double> spline =
         new BasisFunctionAggregation<>(BASIS_FUNCTIONS_2D, results.getFitParameters().toArray());
     assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-16));
-    assertThat(0.05161579).isCloseTo(spline.apply(new double[]{4, 3}), offset(1e-8));
+    assertThat(0.05161579).isCloseTo(spline.apply(new double[] {4, 3}), offset(1e-8));
 
     /*
      * Print out function for debugging
@@ -260,17 +260,17 @@ public class GeneralizedLeastSquareTest {
 
     final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
 
-    final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
+    final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10};
     final double[] yData = new double[] {0.972452371,
-      0.749039802,
-      0.759792085,
-      0.714206462,
-      0.604446956,
-      0.517955313,
-      0.474807307,
-      0.443532132,
-      0.2404755,
-      0.197128583,
+        0.749039802,
+        0.759792085,
+        0.714206462,
+        0.604446956,
+        0.517955313,
+        0.474807307,
+        0.443532132,
+        0.2404755,
+        0.197128583,
 
     };
 
@@ -300,8 +300,8 @@ public class GeneralizedLeastSquareTest {
       for (int i = 0; i < 101; i++) {
         final double logX = -5 + 8 * i / 100.;
         final double x = Math.exp(logX);
-        System.out.println(x + "\t" + +logX + "\t" + spline.apply(x) + "\t"
-            + splineLog.apply(logX) + "\t" + splineVar.apply(x) + "\t" + splineVarLog.apply(logX));
+        System.out.println(x + "\t" + +logX + "\t" + spline.apply(x) + "\t" + splineLog.apply(logX) + "\t" + splineVar.apply(x) +
+            "\t" + splineVarLog.apply(logX));
       }
       for (int i = 0; i < n; i++) {
         System.out.println(lnX[i] + "\t" + yData[i]);
@@ -314,13 +314,21 @@ public class GeneralizedLeastSquareTest {
   public void testPSplineFit2D() {
 
     final PSplineFitter psf = new PSplineFitter();
-    final GeneralizedLeastSquareResults<double[]> results = psf.solve(X_SIN_EXP, Y_SIN_EXP, SIGMA_COS_EXP, new double[] {0.0, 0.0 }, new double[] {10.0, 10.0 }, new int[] {10, 10 },
-        new int[] {3, 3 },
-        new double[] {0.001, 0.001 }, new int[] {3, 3 });
+    final GeneralizedLeastSquareResults<double[]> results =
+        psf.solve(
+            X_SIN_EXP,
+            Y_SIN_EXP,
+            SIGMA_COS_EXP,
+            new double[] {0.0, 0.0},
+            new double[] {10.0, 10.0},
+            new int[] {10, 10},
+            new int[] {3, 3},
+            new double[] {0.001, 0.001},
+            new int[] {3, 3});
 
     assertThat(0.0).isCloseTo(results.getChiSq(), offset(1e-9));
     final Function<double[], Double> spline = results.getFunction();
-    assertThat(0.5333876489112092).isCloseTo(spline.apply(new double[]{4, 3}), offset(1e-8));
+    assertThat(0.5333876489112092).isCloseTo(spline.apply(new double[] {4, 3}), offset(1e-8));
 
     /*
      * Print out function for debugging

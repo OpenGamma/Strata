@@ -20,8 +20,8 @@ public class StudentTDistributionTest extends ProbabilityDistributionTestCase {
   private static final Well44497b RANDOM = new Well44497b(0L);
   private static final double[] X =
       new double[] {0.32492, 0.270722, 0.717558, 1.372184, 1.36343, 1.770933, 2.13145, 2.55238, 2.80734, 3.6896};
-  private static final double[] DOF = new double[] {1, 4, 6, 10, 11, 13, 15, 18, 23, 27 };
-  private static final double[] P = new double[] {0.6, 0.6, 0.75, 0.9, 0.9, 0.95, 0.975, 0.99, 0.995, 0.9995 };
+  private static final double[] DOF = new double[] {1, 4, 6, 10, 11, 13, 15, 18, 23, 27};
+  private static final double[] P = new double[] {0.6, 0.6, 0.75, 0.9, 0.9, 0.95, 0.975, 0.99, 0.995, 0.9995};
 
   @Test
   public void testNegativeDOF1() {

@@ -160,37 +160,37 @@ public class FraTest {
   public void test_builder_datesInOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Fra.builder()
-        .buySell(BUY)
-        .notional(NOTIONAL_1M)
-        .startDate(date(2015, 6, 15))
-        .endDate(date(2015, 6, 14))
-        .fixedRate(FIXED_RATE)
-        .index(GBP_LIBOR_3M)
-        .build());
+            .buySell(BUY)
+            .notional(NOTIONAL_1M)
+            .startDate(date(2015, 6, 15))
+            .endDate(date(2015, 6, 14))
+            .fixedRate(FIXED_RATE)
+            .index(GBP_LIBOR_3M)
+            .build());
   }
 
   @Test
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Fra.builder()
-        .buySell(BUY)
-        .notional(NOTIONAL_1M)
-        .startDate(date(2015, 6, 15))
-        .endDate(date(2015, 9, 15))
-        .fixedRate(FIXED_RATE)
-        .build());
+            .buySell(BUY)
+            .notional(NOTIONAL_1M)
+            .startDate(date(2015, 6, 15))
+            .endDate(date(2015, 9, 15))
+            .fixedRate(FIXED_RATE)
+            .build());
   }
 
   @Test
   public void test_builder_noDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Fra.builder()
-        .buySell(BUY)
-        .notional(NOTIONAL_1M)
-        .endDate(date(2015, 9, 15))
-        .fixedRate(FIXED_RATE)
-        .index(GBP_LIBOR_3M)
-        .build());
+            .buySell(BUY)
+            .notional(NOTIONAL_1M)
+            .endDate(date(2015, 9, 15))
+            .fixedRate(FIXED_RATE)
+            .index(GBP_LIBOR_3M)
+            .build());
   }
 
   //-------------------------------------------------------------------------
@@ -238,7 +238,8 @@ public class FraTest {
     assertThat(test.getEndDate()).isEqualTo(date(2015, 9, 7));
     assertThat(test.getPaymentDate()).isEqualTo(date(2015, 6, 12));
     assertThat(test.getFixedRate()).isCloseTo(FIXED_RATE, offset(0d));
-    assertThat(test.getFloatingRate()).isEqualTo(IborInterpolatedRateComputation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10), REF_DATA));
+    assertThat(test.getFloatingRate())
+        .isEqualTo(IborInterpolatedRateComputation.of(GBP_LIBOR_2M, GBP_LIBOR_3M, date(2015, 6, 10), REF_DATA));
     assertThat(test.getYearFraction()).isCloseTo(ACT_365F.yearFraction(date(2015, 6, 12), date(2015, 9, 7)), offset(0d));
     assertThat(test.getDiscounting()).isEqualTo(ISDA);
   }

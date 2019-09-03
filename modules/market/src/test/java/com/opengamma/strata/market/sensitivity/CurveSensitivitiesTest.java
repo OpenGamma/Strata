@@ -290,8 +290,10 @@ public class CurveSensitivitiesTest {
   public void test_convertedTo_multipleCurrency() {
     CurveSensitivities base = sut2();
     CurveSensitivities test = base.convertedTo(USD, FX_RATE);
-    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities()).containsExactly(ENTRY_USD);
-    assertThat(test.getTypedSensitivities().get(ZERO_RATE_GAMMA).getSensitivities()).containsExactly(ENTRY_USD2, ENTRY_EUR_IN_USD);
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_DELTA).getSensitivities())
+        .containsExactly(ENTRY_USD);
+    assertThat(test.getTypedSensitivities().get(ZERO_RATE_GAMMA).getSensitivities())
+        .containsExactly(ENTRY_USD2, ENTRY_EUR_IN_USD);
   }
 
   //-------------------------------------------------------------------------

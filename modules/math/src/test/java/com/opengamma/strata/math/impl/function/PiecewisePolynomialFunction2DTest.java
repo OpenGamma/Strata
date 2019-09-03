@@ -32,13 +32,13 @@ public class PiecewisePolynomialFunction2DTest {
   static {
     coefs = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
     coefs[0][0] = DoubleMatrix.copyOf(
-        new double[][] { {1d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}});
+        new double[][] {{1d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}});
     coefs[1][0] = DoubleMatrix.copyOf(
-        new double[][] { {1d, 0d, 0d, 0d}, {4d, 0d, 0d, 0d}, {6d, 0d, 0d, 0d}, {4d, 0d, 0d, 0d}, {1d, 0d, 0d, 0d}});
+        new double[][] {{1d, 0d, 0d, 0d}, {4d, 0d, 0d, 0d}, {6d, 0d, 0d, 0d}, {4d, 0d, 0d, 0d}, {1d, 0d, 0d, 0d}});
     coefs[2][0] = DoubleMatrix.copyOf(
-        new double[][] { {1d, 0d, 0d, 0d}, {8d, 0d, 0d, 0d}, {24d, 0d, 0d, 0d}, {32d, 0d, 0d, 0d}, {16d, 0d, 0d, 0d}});
+        new double[][] {{1d, 0d, 0d, 0d}, {8d, 0d, 0d, 0d}, {24d, 0d, 0d, 0d}, {32d, 0d, 0d, 0d}, {16d, 0d, 0d, 0d}});
     coefs[0][1] = DoubleMatrix.copyOf(
-        new double[][] { {1d, 3d, 3d, 1d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}});
+        new double[][] {{1d, 3d, 3d, 1d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}, {0d, 0d, 0d, 0d}});
     coefs[1][1] = DoubleMatrix.copyOf(
         new double[][] {
             {1d, 3d, 3d, 1d},
@@ -84,7 +84,7 @@ public class PiecewisePolynomialFunction2DTest {
   @Test
   public void sampleFunctionTest() {
 
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -199,7 +199,8 @@ public class PiecewisePolynomialFunction2DTest {
     }
     {
       final double value = function.differentiateCross(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
-      final double ref = valuesDiffCrossExp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffCrossExp[n0Keys - 2][n1Keys - 2]);
+      final double ref =
+          valuesDiffCrossExp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffCrossExp[n0Keys - 2][n1Keys - 2]);
       assertThat(value).isCloseTo(valuesDiffCrossExp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
@@ -223,7 +224,8 @@ public class PiecewisePolynomialFunction2DTest {
     }
     {
       final double value = function.differentiateTwiceX0(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
-      final double ref = valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2]);
+      final double ref =
+          valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2]);
       assertThat(value).isCloseTo(valuesDiffTwiceX0Exp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
 
@@ -247,7 +249,8 @@ public class PiecewisePolynomialFunction2DTest {
     }
     {
       final double value = function.differentiateTwiceX1(result, x0Keys[n0Keys - 2], x1Keys[n1Keys - 2]);
-      final double ref = valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2]);
+      final double ref =
+          valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2] == 0. ? 1. : Math.abs(valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2]);
       assertThat(value).isCloseTo(valuesDiffTwiceX1Exp[n0Keys - 2][n1Keys - 2], offset(ref * EPS));
     }
   }
@@ -524,7 +527,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void infX0Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -550,7 +553,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void nanX0Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -573,7 +576,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void infX1Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -596,7 +599,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void nanX1Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -619,7 +622,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void infX0MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -642,7 +645,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void nanX0MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -665,7 +668,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void infX1MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -688,7 +691,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void nanX1MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefs, new int[] {5, 4});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -714,7 +717,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void constDiffX0Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -736,7 +739,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void constDiffX0MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -758,7 +761,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void constDiffX1Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -780,7 +783,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void constDiffX1MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -802,7 +805,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void linearDiffTwiceX0Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -824,7 +827,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void linearDiffTwiceX0MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -846,7 +849,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void linearDiffTwiceX1Test() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -868,7 +871,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void linearDiffTwiceX1MultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLin, new int[] {2, 2});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -890,7 +893,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void constDiffCrossTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -915,14 +918,14 @@ public class PiecewisePolynomialFunction2DTest {
 
     DoubleMatrix[][] coefsLinConst;
     coefsLinConst = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
-    coefsLinConst[0][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[1][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[2][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[0][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[1][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[2][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
+    coefsLinConst[0][0] = DoubleMatrix.copyOf(new double[][] {{2.}, {2. * 2.}});
+    coefsLinConst[1][0] = DoubleMatrix.copyOf(new double[][] {{2.}, {2. * 2.}});
+    coefsLinConst[2][0] = DoubleMatrix.copyOf(new double[][] {{2.}, {2. * 2.}});
+    coefsLinConst[0][1] = DoubleMatrix.copyOf(new double[][] {{2.}, {3. * 2.}});
+    coefsLinConst[1][1] = DoubleMatrix.copyOf(new double[][] {{2.}, {3. * 2.}});
+    coefsLinConst[2][1] = DoubleMatrix.copyOf(new double[][] {{2.}, {3. * 2.}});
 
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLinConst, new int[] {2, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLinConst, new int[] {2, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -944,7 +947,7 @@ public class PiecewisePolynomialFunction2DTest {
    */
   @Test
   public void constDiffCrossMultiTest() {
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsConst, new int[] {1, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;
@@ -969,14 +972,14 @@ public class PiecewisePolynomialFunction2DTest {
 
     DoubleMatrix[][] coefsLinConst;
     coefsLinConst = new DoubleMatrix[nKnots0 - 1][nKnots1 - 1];
-    coefsLinConst[0][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[1][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[2][0] = DoubleMatrix.copyOf(new double[][] { {2.}, {2. * 2.}});
-    coefsLinConst[0][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[1][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
-    coefsLinConst[2][1] = DoubleMatrix.copyOf(new double[][] { {2.}, {3. * 2.}});
+    coefsLinConst[0][0] = DoubleMatrix.copyOf(new double[][] {{2.}, {2. * 2.}});
+    coefsLinConst[1][0] = DoubleMatrix.copyOf(new double[][] {{2.}, {2. * 2.}});
+    coefsLinConst[2][0] = DoubleMatrix.copyOf(new double[][] {{2.}, {2. * 2.}});
+    coefsLinConst[0][1] = DoubleMatrix.copyOf(new double[][] {{2.}, {3. * 2.}});
+    coefsLinConst[1][1] = DoubleMatrix.copyOf(new double[][] {{2.}, {3. * 2.}});
+    coefsLinConst[2][1] = DoubleMatrix.copyOf(new double[][] {{2.}, {3. * 2.}});
 
-    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLinConst, new int[] {2, 1 });
+    PiecewisePolynomialResult2D result = new PiecewisePolynomialResult2D(knots0, knots1, coefsLinConst, new int[] {2, 1});
     PiecewisePolynomialFunction2D function = new PiecewisePolynomialFunction2D();
 
     final int n0Keys = 21;

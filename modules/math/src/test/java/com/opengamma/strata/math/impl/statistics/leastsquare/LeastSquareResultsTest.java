@@ -18,8 +18,8 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  */
 public class LeastSquareResultsTest {
   private static final DoubleArray PARAMS = DoubleArray.of(1.0, 2.0);
-  private static final DoubleMatrix COVAR = DoubleMatrix.copyOf(new double[][] { {0.1, 0.2}, {0.2, 0.3}});
-  private static final DoubleMatrix INV_JAC = DoubleMatrix.copyOf(new double[][] { {0.5, 0.6}, {0.7, 0.8}});
+  private static final DoubleMatrix COVAR = DoubleMatrix.copyOf(new double[][] {{0.1, 0.2}, {0.2, 0.3}});
+  private static final DoubleMatrix INV_JAC = DoubleMatrix.copyOf(new double[][] {{0.5, 0.6}, {0.7, 0.8}});
 
   @Test
   public void testNegativeChiSq1() {
@@ -107,16 +107,16 @@ public class LeastSquareResultsTest {
   public void testHashCode() {
     LeastSquareResults ls1 = new LeastSquareResults(1.0, PARAMS, COVAR);
     LeastSquareResults ls2 = new LeastSquareResults(1.0, DoubleArray.of(1.0, 2.0),
-        DoubleMatrix.copyOf(new double[][] { {0.1, 0.2}, {0.2, 0.3}}));
+        DoubleMatrix.copyOf(new double[][] {{0.1, 0.2}, {0.2, 0.3}}));
     assertThat(ls1.hashCode()).isEqualTo(ls2.hashCode());
     ls2 = new LeastSquareResults(1.0, DoubleArray.of(1.0, 2.0),
-        DoubleMatrix.copyOf(new double[][] { {0.1, 0.2}, {0.2, 0.3}}), null);
+        DoubleMatrix.copyOf(new double[][] {{0.1, 0.2}, {0.2, 0.3}}), null);
     assertThat(ls1.hashCode()).isEqualTo(ls2.hashCode());
     ls1 = new LeastSquareResults(1.0, PARAMS, COVAR, INV_JAC);
     ls2 = new LeastSquareResults(1.0,
         DoubleArray.of(1.0, 2.0),
-        DoubleMatrix.copyOf(new double[][] { {0.1, 0.2}, {0.2, 0.3}}),
-        DoubleMatrix.copyOf(new double[][] { {0.5, 0.6}, {0.7, 0.8}}));
+        DoubleMatrix.copyOf(new double[][] {{0.1, 0.2}, {0.2, 0.3}}),
+        DoubleMatrix.copyOf(new double[][] {{0.5, 0.6}, {0.7, 0.8}}));
     assertThat(ls1.hashCode()).isEqualTo(ls2.hashCode());
   }
 
@@ -124,17 +124,17 @@ public class LeastSquareResultsTest {
   public void testEquals() {
     LeastSquareResults ls1 = new LeastSquareResults(1.0, PARAMS, COVAR);
     LeastSquareResults ls2 = new LeastSquareResults(1.0, DoubleArray.of(1.0, 2.0),
-        DoubleMatrix.copyOf(new double[][] { {0.1, 0.2}, {0.2, 0.3}}));
+        DoubleMatrix.copyOf(new double[][] {{0.1, 0.2}, {0.2, 0.3}}));
     assertThat(ls1).isEqualTo(ls2);
     ls2 = new LeastSquareResults(1.0, PARAMS, COVAR, null);
     assertThat(ls1).isEqualTo(ls2);
     ls2 = new LeastSquareResults(1.1, PARAMS, COVAR);
     assertThat(ls1.equals(ls2)).isFalse();
     ls2 = new LeastSquareResults(1.0, DoubleArray.of(1.1, 2.0), DoubleMatrix.copyOf(new double[][] {
-      {0.1, 0.2 }, {0.2, 0.3 } }));
+        {0.1, 0.2}, {0.2, 0.3}}));
     assertThat(ls1.equals(ls2)).isFalse();
     ls2 = new LeastSquareResults(1.0, DoubleArray.of(1.0, 2.0), DoubleMatrix.copyOf(new double[][] {
-      {0.1, 0.2 }, {0.2, 0.4 } }));
+        {0.1, 0.2}, {0.2, 0.4}}));
     assertThat(ls1.equals(ls2)).isFalse();
     ls2 = new LeastSquareResults(1.0, PARAMS, COVAR, INV_JAC);
     assertThat(ls1.equals(ls2)).isFalse();

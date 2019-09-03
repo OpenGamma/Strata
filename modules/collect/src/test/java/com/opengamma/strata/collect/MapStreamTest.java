@@ -129,7 +129,7 @@ public class MapStreamTest {
 
   @Test
   public void mapToDouble() {
-    double[] expected = new double[]{1d, 2d, 3d, 4d};
+    double[] expected = new double[] {1d, 2d, 3d, 4d};
     double[] result = MapStream.of(map)
         .mapToDouble((k, v) -> (double) v)
         .toArray();
@@ -138,7 +138,7 @@ public class MapStreamTest {
 
   @Test
   public void mapToInt() {
-    int[] expected = new int[]{1, 2, 3, 4};
+    int[] expected = new int[] {1, 2, 3, 4};
     int[] result = MapStream.of(map)
         .mapToInt((k, v) -> v)
         .toArray();
@@ -247,7 +247,7 @@ public class MapStreamTest {
 
   @Test
   public void flatMapToDouble() {
-    double[] expected = new double[]{1d, 1d, 2d, 4d, 3d, 9d, 4d, 16d};
+    double[] expected = new double[] {1d, 1d, 2d, 4d, 3d, 9d, 4d, 16d};
 
     double[] result = MapStream.of(map)
         .flatMapToDouble((k, v) -> DoubleStream.of(v, v * v))
@@ -258,7 +258,7 @@ public class MapStreamTest {
 
   @Test
   public void flatMapToInt() {
-    int[] expected = new int[]{1, 1, 2, 4, 3, 9, 4, 16};
+    int[] expected = new int[] {1, 1, 2, 4, 3, 9, 4, 16};
 
     int[] result = MapStream.of(map)
         .flatMapToInt((k, v) -> IntStream.of(v, v * v))

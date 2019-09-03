@@ -95,9 +95,11 @@ public class CashFlowsTest {
     assertThat(converted.getPaymentDate()).isEqualTo(CASH_FLOW_2.getPaymentDate());
     assertThat(converted.getDiscountFactor()).isCloseTo(CASH_FLOW_2.getDiscountFactor(), offset(TOLERANCE));
     assertThat(converted.getPresentValue().getCurrency()).isEqualTo(USD);
-    assertThat(converted.getPresentValue().getAmount()).isCloseTo(CASH_FLOW_2.getPresentValue().getAmount() * 1.5, offset(TOLERANCE));
+    assertThat(converted.getPresentValue().getAmount())
+        .isCloseTo(CASH_FLOW_2.getPresentValue().getAmount() * 1.5, offset(TOLERANCE));
     assertThat(converted.getForecastValue().getCurrency()).isEqualTo(USD);
-    assertThat(converted.getForecastValue().getAmount()).isCloseTo(CASH_FLOW_2.getForecastValue().getAmount() * 1.5, offset(TOLERANCE));
+    assertThat(converted.getForecastValue().getAmount())
+        .isCloseTo(CASH_FLOW_2.getForecastValue().getAmount() * 1.5, offset(TOLERANCE));
   }
 
   //-------------------------------------------------------------------------

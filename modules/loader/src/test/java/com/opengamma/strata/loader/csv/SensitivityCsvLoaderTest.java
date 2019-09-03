@@ -147,7 +147,8 @@ public final class SensitivityCsvLoaderTest {
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Invalid tenor '2018-06-30', must be expressed as nD, nW, nM or nY");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor '2018-06-30', must be expressed as nD, nW, nM or nY");
   }
 
   //-------------------------------------------------------------------------
@@ -231,7 +232,8 @@ public final class SensitivityCsvLoaderTest {
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
   }
 
   @Test
@@ -243,8 +245,9 @@ public final class SensitivityCsvLoaderTest {
     assertThat(test.getFailures()).hasSize(1);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Unable to parse currency from reference, " +
-        "consider adding a 'Currency' column");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Unable to parse currency from reference, " +
+            "consider adding a 'Currency' column");
   }
 
   @Test
@@ -270,7 +273,8 @@ public final class SensitivityCsvLoaderTest {
     ValueWithFailures<ListMultimap<String, CurveSensitivities>> test = LOADER.parse(ImmutableList.of(source));
     assertThat(test.getFailures()).hasSize(1);
     assertThat(test.getFailures().get(0).getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(test.getFailures().get(0).getMessage()).isEqualTo("CSV file could not be parsed at line 2: Invalid tenor, cannot mix years/months and days: 2M1D");
+    assertThat(test.getFailures().get(0).getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor, cannot mix years/months and days: 2M1D");
   }
 
   //-------------------------------------------------------------------------
@@ -414,7 +418,8 @@ public final class SensitivityCsvLoaderTest {
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XX', must be expressed as nD, nW, nM or nY");
   }
 
   @Test
@@ -428,7 +433,8 @@ public final class SensitivityCsvLoaderTest {
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XXX', must be expressed as nD, nW, nM or nY");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Invalid tenor 'XXX', must be expressed as nD, nW, nM or nY");
   }
 
   @Test
@@ -471,7 +477,8 @@ public final class SensitivityCsvLoaderTest {
     assertThat(test.getValue().size()).isEqualTo(0);
     FailureItem failure0 = test.getFailures().get(0);
     assertThat(failure0.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure0.getMessage()).isEqualTo("CSV file could not be parsed at line 2: Missing value for 'Sensitivity Tenor' column");
+    assertThat(failure0.getMessage())
+        .isEqualTo("CSV file could not be parsed at line 2: Missing value for 'Sensitivity Tenor' column");
   }
 
   //-------------------------------------------------------------------------

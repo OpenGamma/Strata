@@ -94,8 +94,8 @@ public class IborCapFloorTradeTest {
   @Test
   public void test_builder_min() {
     IborCapFloorTrade test = IborCapFloorTrade.builder()
-    .product(PRODUCT)
-    .build();
+        .product(PRODUCT)
+        .build();
     assertThat(test.getPremium()).isNotPresent();
     assertThat(test.getProduct()).isEqualTo(PRODUCT);
     assertThat(test.getInfo()).isEqualTo(TradeInfo.empty());

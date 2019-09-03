@@ -136,7 +136,8 @@ public class ResolvedCdsTest {
     double accEndOne = test.accruedYearFraction(END_DATE.plusDays(1));
     assertThat(accStart).isEqualTo(0d);
     assertThat(accNext).isEqualTo(0d);
-    assertThat(accNextMinusOne).isCloseTo(ACT_360.relativeYearFraction(START_DATE, START_DATE.plusMonths(3).minusDays(1)), offset(eps));
+    assertThat(accNextMinusOne)
+        .isCloseTo(ACT_360.relativeYearFraction(START_DATE, START_DATE.plusMonths(3).minusDays(1)), offset(eps));
     assertThat(accNextOne).isCloseTo(1d / 360d, offset(eps));
     // 2.x
     assertThat(accMod).isCloseTo(0.24722222222222223, offset(eps));

@@ -26,15 +26,17 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void ClampedRecoverTest() {
 
-    final double[] xValues = new double[] {1, 3, 2, 4 };
-    final double[] yValues = new double[] {3, -1, 1, 0, 8, 12 };
-    final double[][] yValuesMatrix = new double[][] { {3, -1, 1, 0, 8, 12 }, {-20, 20, 0, 5, 5, 10 } };
+    final double[] xValues = new double[] {1, 3, 2, 4};
+    final double[] yValues = new double[] {3, -1, 1, 0, 8, 12};
+    final double[][] yValuesMatrix = new double[][] {{3, -1, 1, 0, 8, 12}, {-20, 20, 0, 5, 5, 10}};
 
-    final double[] xSamples = new double[] {0, 5. / 2., 5. / 3., 29. / 7. };
-    final double[][] ySamples = new double[][] { {-8, 1. / 8., -1. / 27., Math.pow(15. / 7., 3.) }, {45., 5. / 4., 80. / 9., 320. / 49. } };
+    final double[] xSamples = new double[] {0, 5. / 2., 5. / 3., 29. / 7.};
+    final double[][] ySamples = new double[][] {
+        {-8, 1. / 8., -1. / 27., Math.pow(15. / 7., 3.)}, {45., 5. / 4., 80. / 9., 320. / 49.}};
 
-    final double[][] xSamplesMatrix = new double[][] { {-2, 1, 2, 3 }, {4, 5, 6, 7 } };
-    final double[][][] ySamplesMatrix = new double[][][] { { {-64., -1., 0., 1. }, {8., 27., 64., 125. } }, { {125., 20., 5., 0 }, {5., 20., 45., 80. } } };
+    final double[][] xSamplesMatrix = new double[][] {{-2, 1, 2, 3}, {4, 5, 6, 7}};
+    final double[][][] ySamplesMatrix = new double[][][] {
+        {{-64., -1., 0., 1.}, {8., 27., 64., 125.}}, {{125., 20., 5., 0}, {5., 20., 45., 80.}}};
     final int xDim = 2;
 
     final DoubleMatrix coefsExpectedMatrix = DoubleMatrix.copyOf(
@@ -48,7 +50,7 @@ public class CubicSplineInterpolatorTest {
     final int dimMatrix = 2;
     final int orderMatrix = 4;
     final int nIntervalsMatrix = 3;
-    final double[] knotsMatrix = new double[] {1, 2, 3, 4 };
+    final double[] knotsMatrix = new double[] {1, 2, 3, 4};
 
     CubicSplineInterpolator interpMatrix = new CubicSplineInterpolator();
 
@@ -135,15 +137,17 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void NotAKnotRecoverTest() {
 
-    final double[] xValues = new double[] {1, 3, 2, 4 };
-    final double[] yValues = new double[] {-1, 1, 0, 8 };
-    final double[][] yValuesMatrix = new double[][] { {-1, 1, 0, 8 }, {20, 0, 5, 5 } };
+    final double[] xValues = new double[] {1, 3, 2, 4};
+    final double[] yValues = new double[] {-1, 1, 0, 8};
+    final double[][] yValuesMatrix = new double[][] {{-1, 1, 0, 8}, {20, 0, 5, 5}};
 
-    final double[] xSamples = new double[] {0, 5. / 2., 7. / 3., 29. / 7. };
-    final double[][] ySamples = new double[][] { {-8, 1. / 8., 1. / 27., Math.pow(15. / 7., 3.) }, {45., 5. / 4., 20. / 9., 320. / 49. } };
+    final double[] xSamples = new double[] {0, 5. / 2., 7. / 3., 29. / 7.};
+    final double[][] ySamples = new double[][] {
+        {-8, 1. / 8., 1. / 27., Math.pow(15. / 7., 3.)}, {45., 5. / 4., 20. / 9., 320. / 49.}};
 
-    final double[][] xSamplesMatrix = new double[][] { {-2, 1, 2, 2.5 }, {4, 5, 6, 7 } };
-    final double[][][] ySamplesMatrix = new double[][][] { { {-64., -1., 0., 1. / 8. }, {8., 27., 64., 125. } }, { {125., 20., 5., 5. / 4. }, {5., 20., 45., 80. } } };
+    final double[][] xSamplesMatrix = new double[][] {{-2, 1, 2, 2.5}, {4, 5, 6, 7}};
+    final double[][][] ySamplesMatrix = new double[][][] {
+        {{-64., -1., 0., 1. / 8.}, {8., 27., 64., 125.}}, {{125., 20., 5., 5. / 4.}, {5., 20., 45., 80.}}};
     final int xDim = 2;
 
     final DoubleMatrix coefsExpectedMatrix = DoubleMatrix.copyOf(
@@ -157,7 +161,7 @@ public class CubicSplineInterpolatorTest {
     final int dimMatrix = 2;
     final int orderMatrix = 4;
     final int nIntervalsMatrix = 3;
-    final double[] knotsMatrix = new double[] {1, 2, 3, 4 };
+    final double[] knotsMatrix = new double[] {1, 2, 3, 4};
 
     CubicSplineInterpolator interpMatrix = new CubicSplineInterpolator();
 
@@ -244,18 +248,20 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void LinearAndQuadraticNakTest() {
-    final double[] xValuesForLin = new double[] {1., 2. };
-    final double[][] yValuesForLin = new double[][] { {3., 7. }, {2, -6 } };
+    final double[] xValuesForLin = new double[] {1., 2.};
+    final double[][] yValuesForLin = new double[][] {{3., 7.}, {2, -6}};
 
-    final double[] xValuesForQuad = new double[] {1., 2., 3. };
-    final double[][] yValuesForQuad = new double[][] { {1., 6., 5. }, {2., -2., -3. } };
+    final double[] xValuesForQuad = new double[] {1., 2., 3.};
+    final double[][] yValuesForQuad = new double[][] {{1., 6., 5.}, {2., -2., -3.}};
 
-    final double[][] coefsExpectedForLin = new double[][] { {4., 3., }, {-8., 2. } };
-    final double[][] coefsExpectedForQuad = new double[][] { {-3., 8., 1. }, {3. / 2., -11. / 2., 2. } };
+    final double[][] coefsExpectedForLin = new double[][] {{4., 3.,}, {-8., 2.}};
+    final double[][] coefsExpectedForQuad = new double[][] {{-3., 8., 1.}, {3. / 2., -11. / 2., 2.}};
 
-    final double[][] xKeys = new double[][] { {-0.5, 6. / 5., 2.38 }, {1., 2., 3. } };
-    final double[][][] yExpectedForLin = new double[][][] { { {-3., 3.8, 8.52 }, {3., 7., 11. } }, { {14., 0.4, -9.04 }, {2., -6., -14. } } };
-    final double[][][] yExpectedForQuad = new double[][][] { { {-17.75, 2.48, 6.3268 }, {1., 6., 5. } }, { {13.625, 0.96, -2.7334 }, {2., -2., -3. } } };
+    final double[][] xKeys = new double[][] {{-0.5, 6. / 5., 2.38}, {1., 2., 3.}};
+    final double[][][] yExpectedForLin = new double[][][] {
+        {{-3., 3.8, 8.52}, {3., 7., 11.}}, {{14., 0.4, -9.04}, {2., -6., -14.}}};
+    final double[][][] yExpectedForQuad = new double[][][] {
+        {{-17.75, 2.48, 6.3268}, {1., 6., 5.}}, {{13.625, 0.96, -2.7334}, {2., -2., -3.}}};
 
     final int keyDim = xKeys.length;
     final int keyLength = xKeys[0].length;
@@ -348,7 +354,7 @@ public class CubicSplineInterpolatorTest {
 
     assertThat(resultQuad.getDimensions()).isEqualTo(yDim);
     assertThat(resultQuad.getNumberOfIntervals()).isEqualTo(1);
-    assertThat(resultQuad.getKnots().toArray()).isEqualTo(new double[]{xValuesForQuad[0], xValuesForQuad[2]});
+    assertThat(resultQuad.getKnots().toArray()).isEqualTo(new double[] {xValuesForQuad[0], xValuesForQuad[2]});
     assertThat(resultQuad.getOrder()).isEqualTo(3);
 
     resultQuad = interp.interpolate(xValuesForQuad, yValuesForQuad[0]);
@@ -360,7 +366,7 @@ public class CubicSplineInterpolatorTest {
 
     assertThat(resultQuad.getDimensions()).isEqualTo(1);
     assertThat(resultQuad.getNumberOfIntervals()).isEqualTo(1);
-    assertThat(resultQuad.getKnots().toArray()).isEqualTo(new double[]{xValuesForQuad[0], xValuesForQuad[2]});
+    assertThat(resultQuad.getKnots().toArray()).isEqualTo(new double[] {xValuesForQuad[0], xValuesForQuad[2]});
     assertThat(resultQuad.getOrder()).isEqualTo(3);
 
     DoubleMatrix resultMatrixQuad2D = interp.interpolate(xValuesForQuad, yValuesForQuad[0], xKeys);
@@ -406,8 +412,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void DataShortNakTest() {
-    final double[] xValues = new double[] {1. };
-    final double[] yValues = new double[] {4. };
+    final double[] xValues = new double[] {1.};
+    final double[] yValues = new double[] {4.};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -420,8 +426,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void DataShortNakMultiTest() {
-    final double[] xValues = new double[] {1. };
-    final double[][] yValues = new double[][] { {4. }, {3. } };
+    final double[] xValues = new double[] {1.};
+    final double[][] yValues = new double[][] {{4.}, {3.}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -434,8 +440,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void DataShortClapmedTest() {
-    final double[] xValues = new double[] {1. };
-    final double[] yValues = new double[] {0., 4., 3. };
+    final double[] xValues = new double[] {1.};
+    final double[] yValues = new double[] {0., 4., 3.};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -448,8 +454,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void DataShortClapmedMultiTest() {
-    final double[] xValues = new double[] {1. };
-    final double[][] yValues = new double[][] { {0., 4., 3. }, {9., 4., 1.5 } };
+    final double[] xValues = new double[] {1.};
+    final double[][] yValues = new double[][] {{0., 4., 3.}, {9., 4., 1.5}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -462,8 +468,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void WrongDataLengthTest() {
-    final double[] xValues = new double[] {1, 2, 3 };
-    final double[] yValues = new double[] {2, 3, 4, 5 };
+    final double[] xValues = new double[] {1, 2, 3};
+    final double[] yValues = new double[] {2, 3, 4, 5};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -476,8 +482,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void WrongDataLengthMultiTest() {
-    final double[] xValues = new double[] {1, 2, 3 };
-    final double[][] yValues = new double[][] { {1, 3, 5, 2 }, {5, 3, 2, 7 }, {1, 8, -1, 0 } };
+    final double[] xValues = new double[] {1, 2, 3};
+    final double[][] yValues = new double[][] {{1, 3, 5, 2}, {5, 3, 2, 7}, {1, 8, -1, 0}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -490,8 +496,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void RepeatDataTest() {
-    final double[] xValues = new double[] {1., 2., 0.5, 8., 1. / 2. };
-    final double[] yValues = new double[] {2., 3., 4., 5., 8. };
+    final double[] xValues = new double[] {1., 2., 0.5, 8., 1. / 2.};
+    final double[] yValues = new double[] {2., 3., 4., 5., 8.};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -504,8 +510,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void RepeatDataMultiTest() {
-    final double[] xValues = new double[] {1., 2., 0.5, 8., 1. / 2. };
-    final double[][] yValues = new double[][] { {2., 3., 4., 5., 8. }, {2., 1., 4., 2., 8. } };
+    final double[] xValues = new double[] {1., 2., 0.5, 8., 1. / 2.};
+    final double[][] yValues = new double[][] {{2., 3., 4., 5., 8.}, {2., 1., 4., 2., 8.}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -747,8 +753,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void NaNOutputNakTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {1., 6.e307, -2.e306, 3. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {1., 6.e307, -2.e306, 3.};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -762,8 +768,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void NaNOutputClampedTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {2., 1., 6.e307, -2.e306, 3., 6. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {2., 1., 6.e307, -2.e306, 3., 6.};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -777,8 +783,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void NaNOutputNakMultiTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 6.e307, -2.e306, 3. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 6.e307, -2.e306, 3.}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -792,8 +798,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void NaNOutputClampedMultiTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {3., 1., 2., 3., 4., 1. }, {100., 1., 6.e307, -2.e306, 3., 2 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{3., 1., 2., 3., 4., 1.}, {100., 1., 6.e307, -2.e306, 3., 2}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -807,8 +813,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void InfOutputNakTest() {
 
-    final double[] xValues = new double[] {1., 1.000001 };
-    final double[] yValues = new double[] {1., 3.e307 };
+    final double[] xValues = new double[] {1., 1.000001};
+    final double[] yValues = new double[] {1., 3.e307};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -822,8 +828,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void InfOutputClampedTest() {
 
-    final double[] xValues = new double[] {1., 1.000001 };
-    final double[] yValues = new double[] {0., 1., 3.e307, 0. };
+    final double[] xValues = new double[] {1., 1.000001};
+    final double[] yValues = new double[] {0., 1., 3.e307, 0.};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -837,8 +843,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void InfOutputNakMultiTest() {
 
-    final double[] xValues = new double[] {1., 1.000001 };
-    final double[][] yValues = new double[][] { {1., 2. }, {1., 3.e307 } };
+    final double[] xValues = new double[] {1., 1.000001};
+    final double[][] yValues = new double[][] {{1., 2.}, {1., 3.e307}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -852,8 +858,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void InfOutputClampedMultiTest() {
 
-    final double[] xValues = new double[] {1., 1.000001 };
-    final double[][] yValues = new double[][] { {3., 1., 2., 1. }, {0., 1., 3.e307, 0. } };
+    final double[] xValues = new double[] {1., 1.000001};
+    final double[][] yValues = new double[][] {{3., 1., 2., 1.}, {0., 1., 3.e307, 0.}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -867,8 +873,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void InfOutputNakQuadTest() {
 
-    final double[] xValues = new double[] {1., 1.000001, 1.000002 };
-    final double[] yValues = new double[] {1., 3.e307, 3.e-307 };
+    final double[] xValues = new double[] {1., 1.000001, 1.000002};
+    final double[] yValues = new double[] {1., 3.e307, 3.e-307};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -882,8 +888,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void InfOutputNakQuadMultiTest() {
 
-    final double[] xValues = new double[] {1., 1.000001, 1.000002 };
-    final double[][] yValues = new double[][] { {2., 3., 4. }, {1., 3.e307, 3.e-307 } };
+    final double[] xValues = new double[] {1., 1.000001, 1.000002};
+    final double[][] yValues = new double[][] {{2., 3., 4.}, {1., 3.e307, 3.e-307}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -897,8 +903,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void LargeKeyTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {8., 6., 7., 8. };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {8., 6., 7., 8.};
     final double key = 3.e103;
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
@@ -913,9 +919,9 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void LargeMultiKeyTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {8., 6., 7., 8. };
-    final double[] key = new double[] {1., 3., 3.e103 };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {8., 6., 7., 8.};
+    final double[] key = new double[] {1., 3., 3.e103};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -928,8 +934,8 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void LargeKeyMultiTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {8., 6., 7., 8. }, {3., 12., 1., 8. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{8., 6., 7., 8.}, {3., 12., 1., 8.}};
     final double key = 3.e103;
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
     assertThatIllegalArgumentException()
@@ -942,9 +948,9 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void LargeMultiKeyMultiTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {8., 6., 7., 8. }, {3., 12., 1., 8. } };
-    final double[] key = new double[] {1., 3., 3.e103 };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{8., 6., 7., 8.}, {3., 12., 1., 8.}};
+    final double[] key = new double[] {1., 3., 3.e103};
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> interp.interpolate(xValues, yValues, key));
@@ -956,9 +962,9 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void LargeMatrixKeyTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {8., 6., 7., 8. };
-    final double[][] key = new double[][] { {1., 3., 3.e103 }, {0.1, 2., 5. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {8., 6., 7., 8.};
+    final double[][] key = new double[][] {{1., 3., 3.e103}, {0.1, 2., 5.}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -972,9 +978,9 @@ public class CubicSplineInterpolatorTest {
   @Test
   public void LargeMatrixKeyMultiTest() {
 
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {8., 6., 7., 8. }, {3., 12., 1., 8. } };
-    final double[][] key = new double[][] { {1., 3., 3.e103 }, {0.1, 2., 5. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{8., 6., 7., 8.}, {3., 12., 1., 8.}};
+    final double[][] key = new double[][] {{1., 3., 3.e103}, {0.1, 2., 5.}};
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
 
@@ -987,8 +993,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void NullKeyTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 3., 4.};
     double[] xKey = null;
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
@@ -1002,8 +1008,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void NullKeyMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[] xKey = null;
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
@@ -1017,8 +1023,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void NullKeyMatrixTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 3., 4.};
     double[][] xKey = null;
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();
@@ -1032,8 +1038,8 @@ public class CubicSplineInterpolatorTest {
    */
   @Test
   public void NullKeyMatrixMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[][] xKey = null;
 
     CubicSplineInterpolator interp = new CubicSplineInterpolator();

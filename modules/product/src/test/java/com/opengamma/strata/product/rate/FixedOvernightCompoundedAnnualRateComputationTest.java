@@ -40,7 +40,8 @@ public class FixedOvernightCompoundedAnnualRateComputationTest {
   @Test
   public void test_getSimpleRate() {
     FixedOvernightCompoundedAnnualRateComputation test = sut();
-    assertThat(1 + test.getAccrualFactor() * test.getSimpleRate()).isEqualTo(Math.pow(1 + test.getRate(), test.getAccrualFactor()));
+    assertThat(1 + test.getAccrualFactor() * test.getSimpleRate())
+        .isEqualTo(Math.pow(1 + test.getRate(), test.getAccrualFactor()));
   }
 
   //-------------------------------------------------------------------------
