@@ -81,37 +81,38 @@ public class CreditRatesMarketDataLookupTest {
   public void test_map() {
     assertThat(LOOKUP.queryType()).isEqualTo(CreditRatesMarketDataLookup.class);
     assertThat(LOOKUP_WITH_SOURCE.requirements(ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder()
-            .observableSource(OBS_SOURCE)
-            .valueRequirements(CC_A_USD, DC_USD, RC_A)
-            .outputCurrencies(USD)
-            .build());
+        .observableSource(OBS_SOURCE)
+        .valueRequirements(CC_A_USD, DC_USD, RC_A)
+        .outputCurrencies(USD)
+        .build());
     assertThat(LOOKUP_WITH_SOURCE.requirements(ISSUER_A, GBP)).isEqualTo(FunctionRequirements.builder()
-            .observableSource(OBS_SOURCE)
-            .valueRequirements(CC_A_GBP, DC_GBP, RC_A)
-            .outputCurrencies(GBP)
-            .build());
+        .observableSource(OBS_SOURCE)
+        .valueRequirements(CC_A_GBP, DC_GBP, RC_A)
+        .outputCurrencies(GBP)
+        .build());
     assertThat(LOOKUP_WITH_SOURCE.requirements(ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder()
-            .observableSource(OBS_SOURCE)
-            .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
-            .outputCurrencies(GBP)
-            .build());
+        .observableSource(OBS_SOURCE)
+        .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
+        .outputCurrencies(GBP)
+        .build());
     assertThat(LOOKUP.requirements(ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder()
-            .valueRequirements(CC_A_USD, DC_USD, RC_A)
-            .outputCurrencies(USD)
-            .build());
+        .valueRequirements(CC_A_USD, DC_USD, RC_A)
+        .outputCurrencies(USD)
+        .build());
     assertThat(LOOKUP.requirements(ISSUER_A, GBP)).isEqualTo(FunctionRequirements.builder()
-            .valueRequirements(CC_A_GBP, DC_GBP, RC_A)
-            .outputCurrencies(GBP)
-            .build());
+        .valueRequirements(CC_A_GBP, DC_GBP, RC_A)
+        .outputCurrencies(GBP)
+        .build());
     assertThat(LOOKUP.requirements(ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder()
-            .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
-            .outputCurrencies(GBP)
-            .build());
+        .valueRequirements(CC_B_GBP, DC_GBP, RC_B)
+        .outputCurrencies(GBP)
+        .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LOOKUP.requirements(ISSUER_A, EUR));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LOOKUP.requirements(ISSUER_C, USD));
-    assertThat(LOOKUP.creditRatesProvider(MOCK_MARKET_DATA)).isEqualTo(DefaultLookupCreditRatesProvider.of((DefaultCreditRatesMarketDataLookup) LOOKUP, MOCK_MARKET_DATA));
+    assertThat(LOOKUP.creditRatesProvider(MOCK_MARKET_DATA))
+        .isEqualTo(DefaultLookupCreditRatesProvider.of((DefaultCreditRatesMarketDataLookup) LOOKUP, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------

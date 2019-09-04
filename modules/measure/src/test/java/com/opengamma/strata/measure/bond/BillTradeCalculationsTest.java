@@ -44,7 +44,8 @@ public class BillTradeCalculationsTest {
     CurrencyAmount expectedCurrentCash = PRICER.currentCash(RTRADE, provider.getValuationDate());
 
     assertThat(CALC.presentValue(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(CALC.currencyExposure(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(CALC.currencyExposure(RTRADE, LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
     assertThat(CALC.currentCash(RTRADE, LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
     assertThat(CALC.presentValue(RTRADE, provider)).isEqualTo(expectedPv);
     assertThat(CALC.currencyExposure(RTRADE, provider)).isEqualTo(expectedCurrencyExposure);
@@ -60,8 +61,10 @@ public class BillTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
     assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, provider)).isEqualTo(expectedPv01Cal);
     assertThat(BillTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, provider)).isEqualTo(expectedPv01CalBucketed);
   }
@@ -75,8 +78,10 @@ public class BillTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = MQ_CALC.sensitivity(pvParamSens, provider).multipliedBy(1e-4);
     MultiCurrencyAmount expectedPv01Cal = expectedPv01CalBucketed.total();
 
-    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
     assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteSum(RTRADE, provider)).isEqualTo(expectedPv01Cal);
     assertThat(BillTradeCalculations.DEFAULT.pv01MarketQuoteBucketed(RTRADE, provider)).isEqualTo(expectedPv01CalBucketed);
   }

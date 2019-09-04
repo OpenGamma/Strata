@@ -87,8 +87,10 @@ public class AddFixedCurveTest {
     assertThat(ADD_FIXED_CURVE.getParameter(0)).isEqualTo(ADD_FIXED_CURVE.getSpreadCurve().getParameter(0));
     assertThat(ADD_FIXED_CURVE.getParameterMetadata(0)).isEqualTo(ADD_FIXED_CURVE.getSpreadCurve().getParameterMetadata(0));
     assertThat(ADD_FIXED_CURVE.withParameter(0, 9d)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withParameter(0, 9d)));
-    assertThat(ADD_FIXED_CURVE.withPerturbation((i, v, m) -> v + 1d)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withPerturbation((i, v, m) -> v + 1d)));
-    assertThat(ADD_FIXED_CURVE.withMetadata(METADATA_FIXED)).isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withMetadata(METADATA_FIXED)));
+    assertThat(ADD_FIXED_CURVE.withPerturbation((i, v, m) -> v + 1d))
+        .isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withPerturbation((i, v, m) -> v + 1d)));
+    assertThat(ADD_FIXED_CURVE.withMetadata(METADATA_FIXED))
+        .isEqualTo(AddFixedCurve.of(FIXED_CURVE, SPREAD_CURVE.withMetadata(METADATA_FIXED)));
   }
 
   @Test

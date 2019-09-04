@@ -26,8 +26,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void localMonotonicityIncTest() {
-    final double[] xValues = new double[] {2., 3., 5., 8., 9., 13. };
-    final double[] yValues = new double[] {1., 1.01, 2., 2.1, 2.2, 2.201 };
+    final double[] xValues = new double[] {2., 3., 5., 8., 9., 13.};
+    final double[] yValues = new double[] {1., 1.01, 2., 2.1, 2.2, 2.201};
 
     PiecewisePolynomialInterpolator interp = new NaturalSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
@@ -56,8 +56,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void localMonotonicityClampedTest() {
-    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10. };
-    final double[] yValues = new double[] {0., 10., 9.5, 2., 1.1, -2.2, -2.6, 0. };
+    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10.};
+    final double[] yValues = new double[] {0., 10., 9.5, 2., 1.1, -2.2, -2.6, 0.};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
@@ -86,8 +86,9 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void localMonotonicityClampedMultiTest() {
-    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10. };
-    final double[][] yValues = new double[][] { {0., 10., 9.5, 2., 1.1, -2.2, -2.6, 0. }, {10., 10., 9.5, 2., 1.1, -2.2, -2.6, 10. } };
+    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10.};
+    final double[][] yValues =
+        new double[][] {{0., 10., 9.5, 2., 1.1, -2.2, -2.6, 0.}, {10., 10., 9.5, 2., 1.1, -2.2, -2.6, 10.}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
@@ -123,8 +124,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void localMonotonicityDecTest() {
-    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10. };
-    final double[] yValues = new double[] {10., 9.5, 2., 1.1, -2.2, -2.6 };
+    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10.};
+    final double[] yValues = new double[] {10., 9.5, 2., 1.1, -2.2, -2.6};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
@@ -153,8 +154,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void extremumTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8 };
-    final double[][] yValues = new double[][] { {1., 1., 2., 4., 4., 2., 1., 1. }, {10., 10., 6., 4., 4., 6., 10., 10. } };
+    final double[] xValues = new double[] {1., 2., 3., 4., 5., 6., 7., 8};
+    final double[][] yValues = new double[][] {{1., 1., 2., 4., 4., 2., 1., 1.}, {10., 10., 6., 4., 4., 6., 10., 10.}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
@@ -209,8 +210,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void localMonotonicityDec2Test() {
-    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10., 12., 14. };
-    final double[] yValues = new double[] {11., 9.5, 2., 1.1, -2.2, -2.6, 2., 2. };
+    final double[] xValues = new double[] {-2., 3., 4., 8., 9.1, 10., 12., 14.};
+    final double[] yValues = new double[] {11., 9.5, 2., 1.1, -2.2, -2.6, 2., 2.};
 
     PiecewisePolynomialInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
     PiecewisePolynomialResult result = interp.interpolate(xValues, yValues);
@@ -249,8 +250,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void lowDegreeTest() {
-    final double[] xValues = new double[] {1., 2., 3. };
-    final double[] yValues = new double[] {0., 0.1, 0.05 };
+    final double[] xValues = new double[] {1., 2., 3.};
+    final double[] yValues = new double[] {0., 0.1, 0.05};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -263,8 +264,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void lowDegreeMultiTest() {
-    final double[] xValues = new double[] {1., 2., 3. };
-    final double[][] yValues = new double[][] { {0., 0.1, 0.05 }, {0., 0.1, 1.05 } };
+    final double[] xValues = new double[] {1., 2., 3.};
+    final double[][] yValues = new double[][] {{0., 0.1, 0.05}, {0., 0.1, 1.05}};
 
     PiecewisePolynomialInterpolator interp = new LinearInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -277,8 +278,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void dataShortTest() {
-    final double[] xValues = new double[] {1., 2. };
-    final double[] yValues = new double[] {0., 0.1 };
+    final double[] xValues = new double[] {1., 2.};
+    final double[] yValues = new double[] {0., 0.1};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -291,8 +292,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void dataShortMultiTest() {
-    final double[] xValues = new double[] {1., 2., };
-    final double[][] yValues = new double[][] { {0., 0.1 }, {0., 0.1 } };
+    final double[] xValues = new double[] {1., 2.,};
+    final double[][] yValues = new double[][] {{0., 0.1}, {0., 0.1}};
 
     PiecewisePolynomialInterpolator interp = new PiecewiseCubicHermiteSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -305,8 +306,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void coincideDataTest() {
-    final double[] xValues = new double[] {1., 1., 3. };
-    final double[] yValues = new double[] {0., 0.1, 0.05 };
+    final double[] xValues = new double[] {1., 1., 3.};
+    final double[] yValues = new double[] {0., 0.1, 0.05};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -319,8 +320,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void coincideDataMultiTest() {
-    final double[] xValues = new double[] {1., 2., 2. };
-    final double[][] yValues = new double[][] { {2., 0., 0.1, 0.05, 2. }, {1., 0., 0.1, 1.05, 2. } };
+    final double[] xValues = new double[] {1., 2., 2.};
+    final double[][] yValues = new double[][] {{2., 0., 0.1, 0.05, 2.}, {1., 0., 0.1, 1.05, 2.}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -333,8 +334,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void diffDataTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[] yValues = new double[] {0., 0.1, 0.05 };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[] yValues = new double[] {0., 0.1, 0.05};
 
     PiecewisePolynomialInterpolator interp = new NaturalSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -347,8 +348,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void diffDataMultiTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {2., 0., 0.1, 0.05, 2. }, {1., 0., 0.1, 1.05, 2. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{2., 0., 0.1, 0.05, 2.}, {1., 0., 0.1, 1.05, 2.}};
 
     PiecewisePolynomialInterpolator interp = new NaturalSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -362,7 +363,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
   @Test
   public void nullXdataTest() {
     double[] xValues = null;
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
+    double[] yValues = new double[] {0., 0.1, 0.05, 0.2};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -375,7 +376,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void nullYdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = null;
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
@@ -390,7 +391,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
   @Test
   public void nullXdataMultiTest() {
     double[] xValues = null;
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
+    double[][] yValues = new double[][] {{0., 0.1, 0.05, 0.2}, {0., 0.1, 0.05, 0.2}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -403,7 +404,7 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void nullYdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[][] yValues = null;
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
@@ -417,8 +418,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void infXdataTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[] yValues = new double[] {0., 0.1, 0.05, 0.2};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -431,8 +432,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void infYdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {0., 0., 0.1, 0.05, 0.2, INF };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {0., 0., 0.1, 0.05, 0.2, INF};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -445,8 +446,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void nanXdataTest() {
-    double[] xValues = new double[] {1., 2., 3., Double.NaN };
-    double[] yValues = new double[] {0., 0.1, 0.05, 0.2 };
+    double[] xValues = new double[] {1., 2., 3., Double.NaN};
+    double[] yValues = new double[] {0., 0.1, 0.05, 0.2};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -459,8 +460,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void nanYdataTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {0., 0., 0.1, 0.05, 0.2, Double.NaN };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {0., 0., 0.1, 0.05, 0.2, Double.NaN};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -473,8 +474,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void infXdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[][] yValues = new double[][] {{0., 0.1, 0.05, 0.2}, {0., 0.1, 0.05, 0.2}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -487,8 +488,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void infYdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {0., 0., 0.1, 0.05, 0.2, 1. }, {0., 0., 0.1, 0.05, 0.2, INF } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{0., 0., 0.1, 0.05, 0.2, 1.}, {0., 0., 0.1, 0.05, 0.2, INF}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -501,8 +502,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void nanXdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., Double.NaN };
-    double[][] yValues = new double[][] { {0., 0.1, 0.05, 0.2 }, {0., 0.1, 0.05, 0.2 } };
+    double[] xValues = new double[] {1., 2., 3., Double.NaN};
+    double[][] yValues = new double[][] {{0., 0.1, 0.05, 0.2}, {0., 0.1, 0.05, 0.2}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);
@@ -515,8 +516,8 @@ public class MonotonicityPreservingCubicSplineInterpolatorTest {
    */
   @Test
   public void nanYdataMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {0., 0., 0.1, 0.05, 0.2, 1.1 }, {0., 0., 0.1, 0.05, 0.2, Double.NaN } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{0., 0., 0.1, 0.05, 0.2, 1.1}, {0., 0., 0.1, 0.05, 0.2, Double.NaN}};
 
     PiecewisePolynomialInterpolator interp = new CubicSplineInterpolator();
     PiecewisePolynomialInterpolator interpPos = new MonotonicityPreservingCubicSplineInterpolator(interp);

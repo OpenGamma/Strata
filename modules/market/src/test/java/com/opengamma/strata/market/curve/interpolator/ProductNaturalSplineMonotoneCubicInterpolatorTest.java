@@ -63,7 +63,8 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertThat(bound.interpolate(keys.get(i))).isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
+      assertThat(bound.interpolate(keys.get(i)))
+          .isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
       assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
@@ -95,7 +96,8 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertThat(bound.interpolate(keys.get(i))).isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
+      assertThat(bound.interpolate(keys.get(i)))
+          .isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
       assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));
@@ -127,7 +129,8 @@ public class ProductNaturalSplineMonotoneCubicInterpolatorTest {
     Function<Double, Double> funcDeriv = x -> bound.interpolate(x);
     for (int i = 0; i < nKeys; ++i) {
       // interpolate
-      assertThat(bound.interpolate(keys.get(i))).isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
+      assertThat(bound.interpolate(keys.get(i)))
+          .isCloseTo(FUNCTION.evaluate(ppRes, keys.get(i)).get(0) / keys.get(i), offset(TOL));
       // first derivative
       double firstExp = DIFF_CALC.differentiate(funcDeriv, domain).apply(keys.get(i));
       assertThat(bound.firstDerivative(keys.get(i))).isCloseTo(firstExp, offset(EPS));

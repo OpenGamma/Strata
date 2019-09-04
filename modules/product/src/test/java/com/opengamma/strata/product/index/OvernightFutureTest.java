@@ -94,33 +94,33 @@ public class OvernightFutureTest {
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightFuture.builder()
-        .securityId(SECURITY_ID)
-        .currency(USD)
-        .notional(NOTIONAL)
-        .accrualFactor(ACCRUAL_FACTOR)
-        .startDate(START_DATE)
-        .endDate(END_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .currency(USD)
+            .notional(NOTIONAL)
+            .accrualFactor(ACCRUAL_FACTOR)
+            .startDate(START_DATE)
+            .endDate(END_DATE)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
+            .rounding(ROUNDING)
+            .build());
   }
 
   @Test
   public void test_builder_wrongDateOrderDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightFuture.builder()
-        .securityId(SECURITY_ID)
-        .currency(USD)
-        .notional(NOTIONAL)
-        .accrualFactor(ACCRUAL_FACTOR)
-        .startDate(END_DATE)
-        .endDate(START_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .index(USD_FED_FUND)
-        .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .currency(USD)
+            .notional(NOTIONAL)
+            .accrualFactor(ACCRUAL_FACTOR)
+            .startDate(END_DATE)
+            .endDate(START_DATE)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .index(USD_FED_FUND)
+            .accrualMethod(OvernightAccrualMethod.AVERAGED_DAILY)
+            .rounding(ROUNDING)
+            .build());
   }
 
   //-------------------------------------------------------------------------

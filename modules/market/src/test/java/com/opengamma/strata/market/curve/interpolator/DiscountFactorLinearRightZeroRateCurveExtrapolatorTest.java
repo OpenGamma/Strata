@@ -40,8 +40,10 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
 
   @Test
   public void basicsTest() {
-    assertThat(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.getName()).isEqualTo(DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
-    assertThat(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.toString()).isEqualTo(DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
+    assertThat(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.getName())
+        .isEqualTo(DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
+    assertThat(DISCOUNT_FACTOR_LINEAR_RIGHT_ZERO_RATE.toString())
+        .isEqualTo(DiscountFactorLinearRightZeroRateCurveExtrapolator.NAME);
   }
 
   @Test
@@ -132,7 +134,8 @@ public class DiscountFactorLinearRightZeroRateCurveExtrapolatorTest {
       DoubleArray zeroSensi = bciZero.parameterSensitivity(key);
       DoubleArray dfSensi = bciDf.parameterSensitivity(key);
       for (int j = 0; j < X_VALUES.size(); ++j) {
-        assertThat(key * df * zeroSensi.get(j) / (X_VALUES.get(j) * DSC_VALUES.get(j))).isCloseTo(dfSensi.get(j), offset(TOL_E2E * 10d));
+        assertThat(key * df * zeroSensi.get(j) / (X_VALUES.get(j) * DSC_VALUES.get(j)))
+            .isCloseTo(dfSensi.get(j), offset(TOL_E2E * 10d));
       }
     }
   }

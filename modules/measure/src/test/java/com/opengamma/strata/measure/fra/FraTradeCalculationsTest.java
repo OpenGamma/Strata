@@ -48,13 +48,20 @@ public class FraTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, provider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider);
 
-    assertThat(FraTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(FraTradeCalculations.DEFAULT.explainPresentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
-    assertThat(FraTradeCalculations.DEFAULT.parRate(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParRate)));
-    assertThat(FraTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
-    assertThat(FraTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
-    assertThat(FraTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertThat(FraTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(FraTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(FraTradeCalculations.DEFAULT.explainPresentValue(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedExplainPv)));
+    assertThat(FraTradeCalculations.DEFAULT.parRate(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParRate)));
+    assertThat(FraTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
+    assertThat(FraTradeCalculations.DEFAULT.cashFlows(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedCashFlows)));
+    assertThat(FraTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(FraTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   @Test
@@ -67,8 +74,10 @@ public class FraTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertThat(FraTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(FraTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(FraTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(FraTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

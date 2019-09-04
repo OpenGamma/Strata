@@ -73,11 +73,11 @@ public class ResolvedFxNdfTest {
     CurrencyAmount currencyNotional = CurrencyAmount.of(EUR, NOTIONAL);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxNdf.builder()
-        .agreedFxRate(FX_RATE)
-        .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
-        .paymentDate(PAYMENT_DATE)
-        .settlementCurrencyNotional(currencyNotional)
-        .build());
+            .agreedFxRate(FX_RATE)
+            .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
+            .paymentDate(PAYMENT_DATE)
+            .settlementCurrencyNotional(currencyNotional)
+            .build());
   }
 
   @Test
@@ -85,11 +85,11 @@ public class ResolvedFxNdfTest {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFxNdf.builder()
-        .agreedFxRate(fxRate)
-        .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
-        .paymentDate(PAYMENT_DATE)
-        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .build());
+            .agreedFxRate(fxRate)
+            .observation(FxIndexObservation.of(GBP_USD_WM, FIXING_DATE, REF_DATA))
+            .paymentDate(PAYMENT_DATE)
+            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+            .build());
   }
 
   //-------------------------------------------------------------------------

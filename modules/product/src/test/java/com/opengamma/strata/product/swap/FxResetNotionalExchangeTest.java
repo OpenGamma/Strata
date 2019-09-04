@@ -50,10 +50,10 @@ public class FxResetNotionalExchangeTest {
   public void test_invalidCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxResetNotionalExchange.meta().builder()
-        .set(FxResetNotionalExchange.meta().paymentDate(), DATE_2014_06_30)
-        .set(FxResetNotionalExchange.meta().notionalAmount(), CurrencyAmount.of(GBP, 1000d))
-        .set(FxResetNotionalExchange.meta().observation(), FxIndexObservation.of(EUR_USD_ECB, DATE_2014_03_28, REF_DATA))
-        .build());
+            .set(FxResetNotionalExchange.meta().paymentDate(), DATE_2014_06_30)
+            .set(FxResetNotionalExchange.meta().notionalAmount(), CurrencyAmount.of(GBP, 1000d))
+            .set(FxResetNotionalExchange.meta().observation(), FxIndexObservation.of(EUR_USD_ECB, DATE_2014_03_28, REF_DATA))
+            .build());
   }
 
   //-------------------------------------------------------------------------

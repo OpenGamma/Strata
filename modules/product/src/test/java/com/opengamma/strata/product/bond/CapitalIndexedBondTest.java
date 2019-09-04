@@ -130,32 +130,32 @@ public class CapitalIndexedBondTest {
     // negative settlement date offset
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CapitalIndexedBond.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .currency(USD)
-        .dayCount(ACT_ACT_ISDA)
-        .rateCalculation(RATE_CALC)
-        .exCouponPeriod(EX_COUPON)
-        .legalEntityId(LEGAL_ENTITY)
-        .yieldConvention(US_IL_REAL)
-        .settlementDateOffset(DaysAdjustment.ofBusinessDays(-2, USNY))
-        .accrualSchedule(SCHEDULE)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .currency(USD)
+            .dayCount(ACT_ACT_ISDA)
+            .rateCalculation(RATE_CALC)
+            .exCouponPeriod(EX_COUPON)
+            .legalEntityId(LEGAL_ENTITY)
+            .yieldConvention(US_IL_REAL)
+            .settlementDateOffset(DaysAdjustment.ofBusinessDays(-2, USNY))
+            .accrualSchedule(SCHEDULE)
+            .build());
     // positive ex-coupon days
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CapitalIndexedBond.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .currency(USD)
-        .dayCount(ACT_ACT_ISDA)
-        .rateCalculation(RATE_CALC)
-        .exCouponPeriod(
-            DaysAdjustment.ofCalendarDays(7, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY)))
-        .legalEntityId(LEGAL_ENTITY)
-        .yieldConvention(US_IL_REAL)
-        .settlementDateOffset(SETTLE_OFFSET)
-        .accrualSchedule(SCHEDULE)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .currency(USD)
+            .dayCount(ACT_ACT_ISDA)
+            .rateCalculation(RATE_CALC)
+            .exCouponPeriod(
+                DaysAdjustment.ofCalendarDays(7, BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, USNY)))
+            .legalEntityId(LEGAL_ENTITY)
+            .yieldConvention(US_IL_REAL)
+            .settlementDateOffset(SETTLE_OFFSET)
+            .accrualSchedule(SCHEDULE)
+            .build());
   }
 
   @Test

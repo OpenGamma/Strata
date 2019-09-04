@@ -56,9 +56,9 @@ public class TermDepositTemplateTest {
   public void test_builder_negativePeriod() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> TermDepositTemplate.builder()
-        .convention(CONVENTION)
-        .depositPeriod(Period.ofMonths(-2))
-        .build());
+            .convention(CONVENTION)
+            .depositPeriod(Period.ofMonths(-2))
+            .build());
   }
 
   @Test

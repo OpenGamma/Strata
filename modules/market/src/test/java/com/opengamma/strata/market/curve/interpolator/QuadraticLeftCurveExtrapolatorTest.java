@@ -59,10 +59,12 @@ public class QuadraticLeftCurveExtrapolatorTest {
           xValues, yValues[k], extrap, CurveExtrapolators.LOG_LINEAR);
 
       // Check C0 continuity
-      assertThat(bci.interpolate(xValues.get(0) - 1.e-14)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
+      assertThat(bci.interpolate(xValues.get(0) - 1.e-14))
+          .isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Check C1 continuity
-      assertThat(bci.firstDerivative(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)), offset(TOL * 1.e2));
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(0)), offset(TOL * 1.e2));
 
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
@@ -76,7 +78,10 @@ public class QuadraticLeftCurveExtrapolatorTest {
             xValues, DoubleArray.ofUnsafe(yValues1Dw), extrap, CurveExtrapolators.LOG_LINEAR);
         for (int i = 0; i < nKeys; ++i) {
           double res1 = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
-          assertThat(res1).isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j), offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
+          assertThat(res1)
+              .isCloseTo(
+                  bci.parameterSensitivity(xKeys[i]).get(j),
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -113,10 +118,12 @@ public class QuadraticLeftCurveExtrapolatorTest {
           xValues, yValues[k], extrap, CurveExtrapolators.LOG_LINEAR);
 
       // Check C0 continuity
-      assertThat(bci.interpolate(xValues.get(0) - 1.e-14)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
+      assertThat(bci.interpolate(xValues.get(0) - 1.e-14))
+          .isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL));
 
       // Check C1 continuity
-      assertThat(bci.firstDerivative(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)), offset(TOL * 1.e2));
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(0)), offset(TOL * 1.e2));
 
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
@@ -131,7 +138,9 @@ public class QuadraticLeftCurveExtrapolatorTest {
         for (int i = 0; i < nKeys; ++i) {
           double res1 =
               0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
-          assertThat(res1).isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j), offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
+          assertThat(res1)
+              .isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j),
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);

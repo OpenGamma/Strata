@@ -107,15 +107,15 @@ public class CmsPeriodTest {
   public void test_builder_nonNullCapFloor() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> CmsPeriod.builder()
-        .caplet(STRIKE)
-        .floorlet(STRIKE)
-        .startDate(START)
-        .endDate(END)
-        .index(INDEX)
-        .notional(NOTIONAL)
-        .yearFraction(YEAR_FRACTION)
-        .dayCount(ACT_360)
-        .build());
+            .caplet(STRIKE)
+            .floorlet(STRIKE)
+            .startDate(START)
+            .endDate(END)
+            .index(INDEX)
+            .notional(NOTIONAL)
+            .yearFraction(YEAR_FRACTION)
+            .dayCount(ACT_360)
+            .build());
   }
 
   //-------------------------------------------------------------------------

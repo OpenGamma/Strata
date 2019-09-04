@@ -64,8 +64,8 @@ public class FunctionUtilsTest {
   @Test
   public void testTensorIndexTest1() {
 
-    final int[] indices = new int[] {2 };
-    final int[] dimensions = new int[] {5 };
+    final int[] indices = new int[] {2};
+    final int[] dimensions = new int[] {5};
     final int index = FunctionUtils.toTensorIndex(indices, dimensions);
     assertThat(indices[0]).isEqualTo(index);
 
@@ -77,8 +77,8 @@ public class FunctionUtilsTest {
   @Test
   public void testTensorIndexTest2() {
 
-    final int[] indices = new int[] {2, 3 };
-    final int[] dimensions = new int[] {5, 7 };
+    final int[] indices = new int[] {2, 3};
+    final int[] dimensions = new int[] {5, 7};
     final int index = FunctionUtils.toTensorIndex(indices, dimensions);
     final int[] res = FunctionUtils.fromTensorIndex(index, dimensions);
     assertThat(indices[0]).isEqualTo(res[0]);
@@ -88,8 +88,8 @@ public class FunctionUtilsTest {
   @Test
   public void testTensorIndexTest3() {
 
-    final int[] indices = new int[] {2, 3, 1 };
-    final int[] dimensions = new int[] {5, 7, 3 };
+    final int[] indices = new int[] {2, 3, 1};
+    final int[] dimensions = new int[] {5, 7, 3};
     final int index = FunctionUtils.toTensorIndex(indices, dimensions);
     final int[] res = FunctionUtils.fromTensorIndex(index, dimensions);
     assertThat(indices[0]).isEqualTo(res[0]);
@@ -99,8 +99,8 @@ public class FunctionUtilsTest {
 
   @Test
   public void testOutOfBounds() {
-    final int[] indices = new int[] {2, 7, 1 };
-    final int[] dimensions = new int[] {5, 7, 3 };
+    final int[] indices = new int[] {2, 7, 1};
+    final int[] dimensions = new int[] {5, 7, 3};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FunctionUtils.toTensorIndex(indices, dimensions));
   }

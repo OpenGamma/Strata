@@ -223,27 +223,27 @@ public class FxSingleTest {
   public void test_builder_bothPositive() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
-        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_P1600, DATE_2015_06_30))
-        .build());
+            .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
+            .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_P1600, DATE_2015_06_30))
+            .build());
   }
 
   @Test
   public void test_builder_bothNegative() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
-        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30))
-        .build());
+            .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
+            .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(USD_M1600, DATE_2015_06_30))
+            .build());
   }
 
   @Test
   public void test_builder_sameCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxSingle.meta().builder()
-        .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
-        .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
-        .build());
+            .set(FxSingle.meta().baseCurrencyPayment(), Payment.of(GBP_P1000, DATE_2015_06_30))
+            .set(FxSingle.meta().counterCurrencyPayment(), Payment.of(GBP_M1000, DATE_2015_06_30))
+            .build());
   }
 
   //-------------------------------------------------------------------------

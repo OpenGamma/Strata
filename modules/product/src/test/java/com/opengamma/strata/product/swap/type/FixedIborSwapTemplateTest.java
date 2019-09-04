@@ -80,8 +80,8 @@ public class FixedIborSwapTemplateTest {
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedIborSwapTemplate.builder()
-        .tenor(TENOR_2Y)
-        .build());
+            .tenor(TENOR_2Y)
+            .build());
   }
 
   //-------------------------------------------------------------------------

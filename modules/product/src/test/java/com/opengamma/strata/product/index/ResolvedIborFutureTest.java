@@ -72,11 +72,11 @@ public class ResolvedIborFutureTest {
   public void test_builder_noObservation() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedIborFuture.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .currency(GBP)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .currency(GBP)
+            .rounding(ROUNDING)
+            .build());
   }
 
   @Test

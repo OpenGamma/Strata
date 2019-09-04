@@ -35,9 +35,12 @@ public class GenericSecurityTest {
     assertThat(test.getUnderlyingIds()).isEmpty();
     assertThat(test).isEqualTo(GenericSecurity.of(INFO));
     assertThat(test.createProduct(ReferenceData.empty())).isEqualTo(test);
-    assertThat(test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
-    assertThat(test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty())).isEqualTo(GenericSecurityPosition.ofNet(PositionInfo.empty(), GenericSecurity.of(INFO), 1));
-    assertThat(test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty())).isEqualTo(GenericSecurityPosition.ofLongShort(PositionInfo.empty(), GenericSecurity.of(INFO), 1, 2));
+    assertThat(test.createTrade(TradeInfo.empty(), 1, 2, ReferenceData.empty()))
+        .isEqualTo(GenericSecurityTrade.of(TradeInfo.empty(), GenericSecurity.of(INFO), 1, 2));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, ReferenceData.empty()))
+        .isEqualTo(GenericSecurityPosition.ofNet(PositionInfo.empty(), GenericSecurity.of(INFO), 1));
+    assertThat(test.createPosition(PositionInfo.empty(), 1, 2, ReferenceData.empty()))
+        .isEqualTo(GenericSecurityPosition.ofLongShort(PositionInfo.empty(), GenericSecurity.of(INFO), 1, 2));
   }
 
   @Test

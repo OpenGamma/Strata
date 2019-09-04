@@ -51,9 +51,9 @@ public class FixedRateStubCalculationTest {
   public void test_builder_invalid_fixedAndKnown() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedRateStubCalculation.meta().builder()
-        .set(FixedRateStubCalculation.meta().fixedRate(), 0.025d)
-        .set(FixedRateStubCalculation.meta().knownAmount(), GBP_P1000)
-        .build());
+            .set(FixedRateStubCalculation.meta().fixedRate(), 0.025d)
+            .set(FixedRateStubCalculation.meta().knownAmount(), GBP_P1000)
+            .build());
   }
 
   //-------------------------------------------------------------------------

@@ -44,7 +44,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
   @Test
   public void testNonMatchingInputs() {
     final List<String> names = Arrays.asList("A", "B");
-    final double[] array = new double[] {1. };
+    final double[] array = new double[] {1.};
     final LeastSquaresRegressionResult result = new LeastSquaresRegressionResult(array, array, 0., array, 0., 0.,
         array, array, false);
     assertThatIllegalArgumentException()

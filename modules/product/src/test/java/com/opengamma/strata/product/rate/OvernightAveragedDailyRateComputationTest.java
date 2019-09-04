@@ -42,10 +42,10 @@ public class OvernightAveragedDailyRateComputationTest {
   public void test_of_badDateOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightAveragedDailyRateComputation.of(
-        USD_FED_FUND, date(2016, 2, 24), date(2016, 2, 24), REF_DATA));
+            USD_FED_FUND, date(2016, 2, 24), date(2016, 2, 24), REF_DATA));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightAveragedDailyRateComputation.of(
-        USD_FED_FUND, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
+            USD_FED_FUND, date(2016, 2, 25), date(2016, 2, 24), REF_DATA));
   }
 
   //-------------------------------------------------------------------------
@@ -53,18 +53,24 @@ public class OvernightAveragedDailyRateComputationTest {
   public void test_calculate() {
     OvernightAveragedDailyRateComputation test =
         OvernightAveragedDailyRateComputation.of(USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), REF_DATA);
-    assertThat(test.calculateEffectiveFromFixing(date(2016, 2, 24))).isEqualTo(USD_FED_FUND.calculateEffectiveFromFixing(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculateFixingFromEffective(date(2016, 2, 24))).isEqualTo(USD_FED_FUND.calculateFixingFromEffective(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculatePublicationFromFixing(date(2016, 2, 24))).isEqualTo(USD_FED_FUND.calculatePublicationFromFixing(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculateMaturityFromFixing(date(2016, 2, 24))).isEqualTo(USD_FED_FUND.calculateMaturityFromFixing(date(2016, 2, 24), REF_DATA));
-    assertThat(test.calculateMaturityFromEffective(date(2016, 2, 24))).isEqualTo(USD_FED_FUND.calculateMaturityFromEffective(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateEffectiveFromFixing(date(2016, 2, 24)))
+        .isEqualTo(USD_FED_FUND.calculateEffectiveFromFixing(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateFixingFromEffective(date(2016, 2, 24)))
+        .isEqualTo(USD_FED_FUND.calculateFixingFromEffective(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculatePublicationFromFixing(date(2016, 2, 24)))
+        .isEqualTo(USD_FED_FUND.calculatePublicationFromFixing(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateMaturityFromFixing(date(2016, 2, 24)))
+        .isEqualTo(USD_FED_FUND.calculateMaturityFromFixing(date(2016, 2, 24), REF_DATA));
+    assertThat(test.calculateMaturityFromEffective(date(2016, 2, 24)))
+        .isEqualTo(USD_FED_FUND.calculateMaturityFromEffective(date(2016, 2, 24), REF_DATA));
   }
 
   @Test
   public void test_observeOn() {
     OvernightAveragedDailyRateComputation test =
         OvernightAveragedDailyRateComputation.of(USD_FED_FUND, date(2016, 2, 24), date(2016, 3, 24), REF_DATA);
-    assertThat(test.observeOn(date(2016, 2, 24))).isEqualTo(OvernightIndexObservation.of(USD_FED_FUND, date(2016, 2, 24), REF_DATA));
+    assertThat(test.observeOn(date(2016, 2, 24)))
+        .isEqualTo(OvernightIndexObservation.of(USD_FED_FUND, date(2016, 2, 24), REF_DATA));
   }
 
   //-------------------------------------------------------------------------

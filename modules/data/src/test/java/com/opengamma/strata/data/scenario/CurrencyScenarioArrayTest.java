@@ -144,39 +144,38 @@ public class CurrencyScenarioArrayTest {
         .isThrownBy(() -> test.convertedTo(USD, fxProvider))
         .withMessage("Expected 3 FX rates but received 2");
   }
-  
+
   /**
    * Test the plus() methods work as expected.
    */
   @Test
   public void plus() {
     CurrencyScenarioArray currencyScenarioArray = CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2, 3));
-  
+
     CurrencyScenarioArray arrayToAdd = CurrencyScenarioArray.of(GBP, DoubleArray.of(4, 5, 6));
     CurrencyScenarioArray plusArraysResult = currencyScenarioArray.plus(arrayToAdd);
     assertThat(plusArraysResult).isEqualTo(CurrencyScenarioArray.of(GBP, DoubleArray.of(5, 7, 9)));
-  
+
     CurrencyAmount amountToAdd = CurrencyAmount.of(Currency.GBP, 10);
     CurrencyScenarioArray plusAmountResult = currencyScenarioArray.plus(amountToAdd);
     assertThat(plusAmountResult).isEqualTo(CurrencyScenarioArray.of(GBP, DoubleArray.of(11, 12, 13)));
   }
-  
+
   /**
    * Test the minus() methods work as expected.
    */
   @Test
   public void minus() {
     CurrencyScenarioArray currencyScenarioArray = CurrencyScenarioArray.of(GBP, DoubleArray.of(1, 2, 3));
-    
+
     CurrencyScenarioArray arrayToSubtract = CurrencyScenarioArray.of(GBP, DoubleArray.of(3, 2, 1));
     CurrencyScenarioArray minusArrayResult = currencyScenarioArray.minus(arrayToSubtract);
     assertThat(minusArrayResult).isEqualTo(CurrencyScenarioArray.of(GBP, DoubleArray.of(-2, 0, 2)));
-    
+
     CurrencyAmount amountToSubtract = CurrencyAmount.of(Currency.GBP, 2);
     CurrencyScenarioArray minusAmountResult = currencyScenarioArray.minus(amountToSubtract);
     assertThat(minusAmountResult).isEqualTo(CurrencyScenarioArray.of(GBP, DoubleArray.of(-1, 0, 1)));
   }
-  
 
   @Test
   public void coverage() {

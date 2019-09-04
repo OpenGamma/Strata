@@ -42,7 +42,7 @@ public class LegendrePolynomialFunctionTest {
         xSq * xSq * xSq * xSq + 90090 * xSq * xSq * xSq - 30030 * xSq * xSq + 3465 * xSq - 63);
   };
 
-  private static final DoubleFunction1D[] P = new DoubleFunction1D[] {P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10 };
+  private static final DoubleFunction1D[] P = new DoubleFunction1D[] {P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10};
   private static final LegendrePolynomialFunction LEGENDRE = new LegendrePolynomialFunction();
   private static final double EPS = 1e-12;
 

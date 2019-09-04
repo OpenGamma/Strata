@@ -81,22 +81,22 @@ public class BillSecurityTest {
   public void test_builder_fail() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BillSecurity.builder()
-        .dayCount(DAY_COUNT)
-        .info(INFO)
-        .legalEntityId(LEGAL_ENTITY)
-        .notional(NOTIONAL)
-        .settlementDateOffset(DaysAdjustment.ofBusinessDays(-1, USNY, BUSINESS_ADJUST))
-        .yieldConvention(YIELD_CONVENTION)
-        .build());
+            .dayCount(DAY_COUNT)
+            .info(INFO)
+            .legalEntityId(LEGAL_ENTITY)
+            .notional(NOTIONAL)
+            .settlementDateOffset(DaysAdjustment.ofBusinessDays(-1, USNY, BUSINESS_ADJUST))
+            .yieldConvention(YIELD_CONVENTION)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> BillSecurity.builder()
-        .dayCount(DAY_COUNT)
-        .info(INFO)
-        .legalEntityId(LEGAL_ENTITY)
-        .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, -2_000_000), MATURITY_DATE_ADJ))
-        .settlementDateOffset(SETTLE)
-        .yieldConvention(YIELD_CONVENTION)
-        .build());
+            .dayCount(DAY_COUNT)
+            .info(INFO)
+            .legalEntityId(LEGAL_ENTITY)
+            .notional(AdjustablePayment.of(CurrencyAmount.of(CCY, -2_000_000), MATURITY_DATE_ADJ))
+            .settlementDateOffset(SETTLE)
+            .yieldConvention(YIELD_CONVENTION)
+            .build());
   }
 
   @Test

@@ -51,9 +51,12 @@ public class CmsTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, provider, VOLS);
 
     CmsTradeCalculations calcs = CmsTradeCalculations.of(CMS_MODEL);
-    assertThat(calcs.presentValue(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(calcs.currencyExposure(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertThat(calcs.currentCash(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(calcs.presentValue(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(calcs.currencyExposure(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(calcs.currentCash(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   @Test
@@ -70,8 +73,10 @@ public class CmsTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
     CmsTradeCalculations calcs = CmsTradeCalculations.of(CMS_MODEL);
-    assertThat(calcs.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(calcs.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(calcs.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(calcs.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

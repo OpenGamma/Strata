@@ -114,9 +114,9 @@ public class ResolvedIborCapFloorLegTest {
         .build();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedIborCapFloorLeg.builder()
-        .capletFloorletPeriods(PERIOD_1, periodGbp)
-        .payReceive(RECEIVE)
-        .build());
+            .capletFloorletPeriods(PERIOD_1, periodGbp)
+            .payReceive(RECEIVE)
+            .build());
     // two indices
     IborCapletFloorletPeriod periodLibor = IborCapletFloorletPeriod.builder()
         .caplet(STRIKE)
@@ -132,9 +132,9 @@ public class ResolvedIborCapFloorLegTest {
         .build();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedIborCapFloorLeg.builder()
-        .capletFloorletPeriods(PERIOD_1, periodLibor)
-        .payReceive(RECEIVE)
-        .build());
+            .capletFloorletPeriods(PERIOD_1, periodLibor)
+            .payReceive(RECEIVE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

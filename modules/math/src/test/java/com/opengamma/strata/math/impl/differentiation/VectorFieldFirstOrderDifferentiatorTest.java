@@ -93,9 +93,12 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   };
 
   private static final double EPS = 1e-5;
-  private static final VectorFieldFirstOrderDifferentiator FORWARD = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
-  private static final VectorFieldFirstOrderDifferentiator CENTRAL = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
-  private static final VectorFieldFirstOrderDifferentiator BACKWARD = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
+  private static final VectorFieldFirstOrderDifferentiator FORWARD =
+      new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
+  private static final VectorFieldFirstOrderDifferentiator CENTRAL =
+      new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
+  private static final VectorFieldFirstOrderDifferentiator BACKWARD =
+      new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
   @Test
   public void testNullDifferenceType() {

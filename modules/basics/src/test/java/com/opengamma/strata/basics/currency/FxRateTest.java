@@ -77,7 +77,7 @@ public class FxRateTest {
   public void test_of_CurrencyPairDouble_reverseStandardOrder() {
     FxRate test = FxRate.of(CurrencyPair.of(USD, GBP), 0.8d);
     assertThat(test.getPair()).isEqualTo(CurrencyPair.of(USD, GBP));
-    assertThat(test.fxRate(USD, GBP)).isEqualTo( 0.8d);
+    assertThat(test.fxRate(USD, GBP)).isEqualTo(0.8d);
     assertThat(test.toString()).isEqualTo("USD/GBP 0.8");
   }
 

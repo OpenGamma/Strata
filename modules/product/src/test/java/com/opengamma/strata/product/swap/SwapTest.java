@@ -196,7 +196,8 @@ public class SwapTest {
     Swap test = Swap.builder()
         .legs(ImmutableList.of(MOCK_GBP1, MOCK_USD1))
         .build();
-    assertThat(test.summaryDescription()).isEqualTo("7M Pay [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] / Rec [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] : 15Jan12-15Aug12");
+    assertThat(test.summaryDescription()).isEqualTo(
+        "7M Pay [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] / Rec [GBP-LIBOR-3M, EUR/GBP-ECB, EUR-EONIA] : 15Jan12-15Aug12");
   }
 
   @Test
@@ -244,7 +245,8 @@ public class SwapTest {
             .build())
         .build();
     Swap test = Swap.of(payLeg, recLeg);
-    assertThat(test.summaryDescription()).isEqualTo("2Y GBP 1mm variable Rec GBP-LIBOR-3M * 1.1 + 0.2% / Pay 0.12% variable : 12Feb18-12Feb20");
+    assertThat(test.summaryDescription())
+        .isEqualTo("2Y GBP 1mm variable Rec GBP-LIBOR-3M * 1.1 + 0.2% / Pay 0.12% variable : 12Feb18-12Feb20");
   }
 
   @Test
@@ -272,7 +274,8 @@ public class SwapTest {
   public void test_summarize_xccy() {
     Swap test = XCcyIborIborSwapConventions.GBP_LIBOR_3M_USD_LIBOR_3M
         .createTrade(date(2018, 2, 12), Tenor.TENOR_2Y, BuySell.BUY, 2_500_000d, 3_000_000d, 0.007d, REF_DATA).getProduct();
-    assertThat(test.summaryDescription()).isEqualTo("2Y Rec USD-LIBOR-3M USD 3mm / Pay GBP-LIBOR-3M + 0.7% GBP 2.5mm : 14Feb18-14Feb20");
+    assertThat(test.summaryDescription())
+        .isEqualTo("2Y Rec USD-LIBOR-3M USD 3mm / Pay GBP-LIBOR-3M + 0.7% GBP 2.5mm : 14Feb18-14Feb20");
   }
 
   @Test

@@ -57,9 +57,12 @@ public class FixedInflationSwapConventionTest {
   private static final FixedRateSwapLegConvention FIXED = fixedLegZcConvention(GBP, GBLO);
   private static final FixedRateSwapLegConvention FIXED2 =
       FixedRateSwapLegConvention.of(GBP, ACT_365F, P3M, BDA_MOD_FOLLOW);
-  private static final InflationRateSwapLegConvention INFL = InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
-  private static final InflationRateSwapLegConvention INFL2 = InflationRateSwapLegConvention.of(GB_RPI, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
-  private static final InflationRateSwapLegConvention INFL3 = InflationRateSwapLegConvention.of(GB_RPIX, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
+  private static final InflationRateSwapLegConvention INFL =
+      InflationRateSwapLegConvention.of(GB_HICP, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
+  private static final InflationRateSwapLegConvention INFL2 =
+      InflationRateSwapLegConvention.of(GB_RPI, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
+  private static final InflationRateSwapLegConvention INFL3 =
+      InflationRateSwapLegConvention.of(GB_RPIX, LAG_3M, MONTHLY, BDA_MOD_FOLLOW);
 
   //-------------------------------------------------------------------------
   @Test

@@ -28,9 +28,14 @@ public class RealFunctionIntegrator1DFactoryTest {
 
   @Test
   public void test() {
-    assertThat(RealFunctionIntegrator1DFactory.EXTENDED_TRAPEZOID).isEqualTo(RealFunctionIntegrator1DFactory.getIntegratorName(RealFunctionIntegrator1DFactory
-        .getIntegrator(RealFunctionIntegrator1DFactory.EXTENDED_TRAPEZOID)));
-    assertThat(RealFunctionIntegrator1DFactory.ROMBERG).isEqualTo(RealFunctionIntegrator1DFactory.getIntegratorName(RealFunctionIntegrator1DFactory.getIntegrator(RealFunctionIntegrator1DFactory.ROMBERG)));
-    assertThat(RealFunctionIntegrator1DFactory.SIMPSON).isEqualTo(RealFunctionIntegrator1DFactory.getIntegratorName(RealFunctionIntegrator1DFactory.getIntegrator(RealFunctionIntegrator1DFactory.SIMPSON)));
+    assertThat(RealFunctionIntegrator1DFactory.EXTENDED_TRAPEZOID)
+        .isEqualTo(RealFunctionIntegrator1DFactory.getIntegratorName(RealFunctionIntegrator1DFactory
+            .getIntegrator(RealFunctionIntegrator1DFactory.EXTENDED_TRAPEZOID)));
+    assertThat(RealFunctionIntegrator1DFactory.ROMBERG)
+        .isEqualTo(RealFunctionIntegrator1DFactory
+            .getIntegratorName(RealFunctionIntegrator1DFactory.getIntegrator(RealFunctionIntegrator1DFactory.ROMBERG)));
+    assertThat(RealFunctionIntegrator1DFactory.SIMPSON)
+        .isEqualTo(RealFunctionIntegrator1DFactory
+            .getIntegratorName(RealFunctionIntegrator1DFactory.getIntegrator(RealFunctionIntegrator1DFactory.SIMPSON)));
   }
 }

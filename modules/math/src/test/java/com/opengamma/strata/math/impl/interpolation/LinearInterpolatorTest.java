@@ -99,7 +99,7 @@ public class LinearInterpolatorTest {
   @Test
   public void nullXvaluesTest() {
     double[] xValues = null;
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] yValues = new double[] {1., 2., 3., 4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -109,7 +109,7 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void nullYvaluesTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
@@ -120,8 +120,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void wrongDatalengthTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 2., 3., 4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -131,8 +131,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void shortDataLengthTest() {
-    double[] xValues = new double[] {1. };
-    double[] yValues = new double[] {4. };
+    double[] xValues = new double[] {1.};
+    double[] yValues = new double[] {4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -142,8 +142,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void naNxValuesTest() {
-    double[] xValues = new double[] {1., 2., Double.NaN, 4. };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., Double.NaN, 4.};
+    double[] yValues = new double[] {1., 2., 3., 4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -153,8 +153,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void naNyValuesTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 2., Double.NaN, 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 2., Double.NaN, 4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -164,8 +164,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void infxValuesTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[] yValues = new double[] {1., 2., 3., 4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -175,8 +175,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void InfyValuesTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[] yValues = new double[] {1., 2., 3., INF };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[] yValues = new double[] {1., 2., 3., INF};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -186,8 +186,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void coincideXvaluesTest() {
-    double[] xValues = new double[] {1., 2., 3., 3. };
-    double[] yValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 3.};
+    double[] yValues = new double[] {1., 2., 3., 4.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -197,13 +197,13 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void recov2ptsMultiTest() {
-    final double[] xValues = new double[] {1., 2. };
-    final double[][] yValues = new double[][] { {6., 1. }, {2., 5. } };
+    final double[] xValues = new double[] {1., 2.};
+    final double[][] yValues = new double[][] {{6., 1.}, {2., 5.}};
 
     final int nIntervalsExp = 1;
     final int orderExp = 2;
     final int dimExp = 2;
-    final double[][] coefsMatExp = new double[][] { {-5., 6. }, {3., 2. } };
+    final double[][] coefsMatExp = new double[][] {{-5., 6.}, {3., 2.}};
     LinearInterpolator interpMatrix = new LinearInterpolator();
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
@@ -226,13 +226,14 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void recov4ptsMultiTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4 };
-    final double[][] yValues = new double[][] { {6., 1., 8., -2. }, {1., 1. / 3., 2. / 11., 1. / 7. } };
+    final double[] xValues = new double[] {1., 2., 3., 4};
+    final double[][] yValues = new double[][] {{6., 1., 8., -2.}, {1., 1. / 3., 2. / 11., 1. / 7.}};
 
     final int nIntervalsExp = 3;
     final int orderExp = 2;
     final int dimExp = 2;
-    final double[][] coefsMatExp = new double[][] { {-5., 6. }, {-2. / 3., 1. }, {7., 1. }, {-5. / 33., 1. / 3. }, {-10., 8. }, {-3. / 77., 2. / 11. } };
+    final double[][] coefsMatExp =
+        new double[][] {{-5., 6.}, {-2. / 3., 1.}, {7., 1.}, {-5. / 33., 1. / 3.}, {-10., 8.}, {-3. / 77., 2. / 11.}};
     LinearInterpolator interpMatrix = new LinearInterpolator();
     PiecewisePolynomialResult result = interpMatrix.interpolate(xValues, yValues);
 
@@ -256,7 +257,7 @@ public class LinearInterpolatorTest {
   @Test
   public void nullXvaluesMultiTest() {
     double[] xValues = null;
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 5., 3., 4. } };
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 5., 3., 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -266,7 +267,7 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void nullYvaluesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3., 4.};
     double[][] yValues = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
@@ -277,8 +278,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void wrongDatalengthMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -288,8 +289,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void shortDataLengthMultiTest() {
-    double[] xValues = new double[] {1. };
-    double[][] yValues = new double[][] { {4. }, {1. } };
+    double[] xValues = new double[] {1.};
+    double[][] yValues = new double[][] {{4.}, {1.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -299,8 +300,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void naNxValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., Double.NaN, 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., Double.NaN, 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -310,8 +311,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void naNyValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., Double.NaN, 4. } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 2., Double.NaN, 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -321,8 +322,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void infxValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., INF };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., 3., INF};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -332,8 +333,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void infyValuesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 4. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {1., 2., 3., INF } };
+    double[] xValues = new double[] {1., 2., 3., 4.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {1., 2., 3., INF}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -343,8 +344,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void coincideXvaluesMultiTest() {
-    double[] xValues = new double[] {1., 2., 3., 3. };
-    double[][] yValues = new double[][] { {1., 2., 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2., 3., 3.};
+    double[][] yValues = new double[][] {{1., 2., 3., 4.}, {2., 2., 3., 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -354,12 +355,13 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void InterpolantsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {6., 25. / 6., 10. / 3., 4. }, {6., 1., 0., 0. } };
-    final double[][] xKey = new double[][] { {-1., 0.5, 1.5 }, {2.5, 3.5, 4.5 } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{6., 25. / 6., 10. / 3., 4.}, {6., 1., 0., 0.}};
+    final double[][] xKey = new double[][] {{-1., 0.5, 1.5}, {2.5, 3.5, 4.5}};
 
-    final double[][][] resultValuesExpected = new double[][][] { { {29. / 3., 15. / 4. }, {16., 1. / 2. } }, { {83. / 12., 11. / 3. }, {17. / 2., 0. } },
-      { {61. / 12., 13. / 3. }, {7. / 2., 0. } } };
+    final double[][][] resultValuesExpected =
+        new double[][][] {{{29. / 3., 15. / 4.}, {16., 1. / 2.}}, {{83. / 12., 11. / 3.}, {17. / 2., 0.}},
+            {{61. / 12., 13. / 3.}, {7. / 2., 0.}}};
 
     final int yDim = yValues.length;
     final int keyLength = xKey[0].length;
@@ -417,8 +419,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void LargeOutputTest() {
-    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
-    double[] yValues = new double[] {1., 2., 1.e308, 3. };
+    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4.};
+    double[] yValues = new double[] {1., 2., 1.e308, 3.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -428,8 +430,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void LargeOutputMultiTest() {
-    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4. };
-    double[][] yValues = new double[][] { {1., 2.e307, 3., 4. }, {2., 2., 3., 4. } };
+    double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4.};
+    double[][] yValues = new double[][] {{1., 2.e307, 3., 4.}, {2., 2., 3., 4.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues));
   }
@@ -439,8 +441,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void LargeInterpolantsTest() {
-    final double[] xValues = new double[] {1., 2., 3., 4. };
-    final double[][] yValues = new double[][] { {2., 10., 2., 5. }, {1., 2., 10., 11. } };
+    final double[] xValues = new double[] {1., 2., 3., 4.};
+    final double[][] yValues = new double[][] {{2., 10., 2., 5.}, {1., 2., 10., 11.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues[0], 1.e308));
   }
@@ -450,8 +452,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void NullKeyTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 3., 4.};
     double[] xKey = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues, xKey));
@@ -462,8 +464,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void NullKeyMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[] xKey = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues, xKey));
@@ -474,8 +476,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void NullKeyMatrixTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[] yValues = new double[] {1., 3., 4. };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[] yValues = new double[] {1., 3., 4.};
     double[][] xKey = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues, xKey));
@@ -486,8 +488,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void NullKeyMatrixMultiTest() {
-    double[] xValues = new double[] {1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 3., 4. }, {2., 3., 1. } };
+    double[] xValues = new double[] {1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[][] xKey = null;
     assertThatIllegalArgumentException()
         .isThrownBy(() -> INTERP.interpolate(xValues, yValues, xKey));
@@ -498,8 +500,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void notReconnectedTest() {
-    double[] xValues = new double[] {1., 2.000000000001, 2.000000000002, 4. };
-    double[] yValues = new double[] {2., 4.e10, 3.e-5, 5.e11 };
+    double[] xValues = new double[] {1., 2.000000000001, 2.000000000002, 4.};
+    double[] yValues = new double[] {2., 4.e10, 3.e-5, 5.e11};
 
     PiecewisePolynomialInterpolator interpPos = new LinearInterpolator();
     assertThatIllegalArgumentException()
@@ -511,8 +513,8 @@ public class LinearInterpolatorTest {
    */
   @Test
   public void notReconnectedMultiTest() {
-    double[] xValues = new double[] {1., 2.000000000001, 2.000000000002, 4. };
-    double[][] yValues = new double[][] {{2., 4.e10, 3.e-5, 5.e11 } };
+    double[] xValues = new double[] {1., 2.000000000001, 2.000000000002, 4.};
+    double[][] yValues = new double[][] {{2., 4.e10, 3.e-5, 5.e11}};
 
     PiecewisePolynomialInterpolator interpPos = new LinearInterpolator();
     assertThatIllegalArgumentException()

@@ -32,7 +32,7 @@ public class LeastSquaresRegressionTest {
     double[][] x = new double[][] {{1., 2., 3.}, {4., 5.}, {6., 7., 8.}, {9., 0., 0.}};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> regression.checkData(x, (double[]) null, y2));
-    x[1] = new double[] {4., 5., 6. };
+    x[1] = new double[] {4., 5., 6.};
     assertThatIllegalArgumentException()
         .isThrownBy(() -> regression.checkData(x, (double[]) null, y2));
     double[] y3 = new double[] {1., 2., 3., 4.};

@@ -68,10 +68,10 @@ public class FxResetCalculationTest {
   public void test_invalidCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxResetCalculation.builder()
-        .index(EUR_USD_ECB)
-        .referenceCurrency(GBP)
-        .fixingDateOffset(MINUS_TWO_DAYS)
-        .build());
+            .index(EUR_USD_ECB)
+            .referenceCurrency(GBP)
+            .fixingDateOffset(MINUS_TWO_DAYS)
+            .build());
   }
 
   //-------------------------------------------------------------------------

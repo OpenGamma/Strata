@@ -34,7 +34,7 @@ public class GeneralizedLeastSquaresRegressionTest {
       x2 = x1 * x1;
       x3 = Math.sqrt(x1);
       x4 = x1 * x2;
-      x[i] = new double[] {x1, x2, x3, x4 };
+      x[i] = new double[] {x1, x2, x3, x4};
       y = x1 * a1 + x2 * a2 + x3 * a3 + x4 * a4;
       yNoIntercept[i] = y;
       yIntercept[i] = y + a0;

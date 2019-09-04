@@ -117,27 +117,27 @@ public class CurveInterpolatorTest {
   @Test
   public void test_lowerBound() {
     // bad input, but still produces good output
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[]{1, 2, 3})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.5d, new double[]{1, 2, 3})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.9999d, new double[]{1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[] {1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.5d, new double[] {1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.9999d, new double[] {1, 2, 3})).isEqualTo(0);
     // good input
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[]{1, 2, 3})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0001d, new double[]{1, 2, 3})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.9999d, new double[]{1, 2, 3})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0d, new double[]{1, 2, 3})).isEqualTo(1);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0001d, new double[]{1, 2, 3})).isEqualTo(1);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.9999d, new double[]{1, 2, 3})).isEqualTo(1);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0d, new double[]{1, 2, 3})).isEqualTo(2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[] {1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0001d, new double[] {1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.9999d, new double[] {1, 2, 3})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0d, new double[] {1, 2, 3})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.0001d, new double[] {1, 2, 3})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(2.9999d, new double[] {1, 2, 3})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0d, new double[] {1, 2, 3})).isEqualTo(2);
     // bad input, but still produces good output
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0001d, new double[]{1, 2, 3})).isEqualTo(2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(3.0001d, new double[] {1, 2, 3})).isEqualTo(2);
     // check zero
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-1.0d, new double[]{-1, 0, 1})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.9999d, new double[]{-1, 0, 1})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0001d, new double[]{-1, 0, 1})).isEqualTo(0);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0d, new double[]{-1, 0, 1})).isEqualTo(1);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[]{-1, 0, 1})).isEqualTo(1);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[]{-1, 0, 1})).isEqualTo(2);
-    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.5d, new double[]{-1, 0, 1})).isEqualTo(2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-1.0d, new double[] {-1, 0, 1})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.9999d, new double[] {-1, 0, 1})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0001d, new double[] {-1, 0, 1})).isEqualTo(0);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(-0.0d, new double[] {-1, 0, 1})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(0.0d, new double[] {-1, 0, 1})).isEqualTo(1);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.0d, new double[] {-1, 0, 1})).isEqualTo(2);
+    assertThat(AbstractBoundCurveInterpolator.lowerBoundIndex(1.5d, new double[] {-1, 0, 1})).isEqualTo(2);
   }
 
   //-------------------------------------------------------------------------

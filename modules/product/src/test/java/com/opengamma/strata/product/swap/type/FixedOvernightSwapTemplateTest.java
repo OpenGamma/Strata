@@ -89,8 +89,8 @@ public class FixedOvernightSwapTemplateTest {
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FixedOvernightSwapTemplate.builder()
-        .tenor(TENOR_2Y)
-        .build());
+            .tenor(TENOR_2Y)
+            .build());
   }
 
   //-------------------------------------------------------------------------

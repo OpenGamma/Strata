@@ -93,10 +93,10 @@ public class BasisFunctionGeneratorTest {
 
     BasisFunctionKnots knots1 = BasisFunctionKnots.fromInternalKnots(KNOTS, 2);
     BasisFunctionKnots knots2 = BasisFunctionKnots.fromInternalKnots(KNOTS, 3);
-    List<Function<double[], Double>> set = GENERATOR.generateSet(new BasisFunctionKnots[] {knots1, knots2 });
+    List<Function<double[], Double>> set = GENERATOR.generateSet(new BasisFunctionKnots[] {knots1, knots2});
 
     //pick of one of the basis functions for testing 
-    int index = FunctionUtils.toTensorIndex(new int[] {3, 3 }, new int[] {knots1.getNumSplines(), knots2.getNumSplines() });
+    int index = FunctionUtils.toTensorIndex(new int[] {3, 3}, new int[] {knots1.getNumSplines(), knots2.getNumSplines()});
     Function<double[], Double> func = set.get(index);
     assertThat(func.apply(new double[] {2.0, 2.0})).isEqualTo(1d / 3d);
     assertThat(func.apply(new double[] {2.5, 2.0})).isEqualTo(1d / 2d);
@@ -109,11 +109,11 @@ public class BasisFunctionGeneratorTest {
     BasisFunctionKnots knots1 = BasisFunctionKnots.fromInternalKnots(KNOTS, 2);
     BasisFunctionKnots knots2 = BasisFunctionKnots.fromInternalKnots(KNOTS, 3);
     BasisFunctionKnots knots3 = BasisFunctionKnots.fromInternalKnots(KNOTS, 1);
-    List<Function<double[], Double>> set = GENERATOR.generateSet(new BasisFunctionKnots[] {knots1, knots2, knots3 });
+    List<Function<double[], Double>> set = GENERATOR.generateSet(new BasisFunctionKnots[] {knots1, knots2, knots3});
 
     //pick of one of the basis functions for testing 
-    int index = FunctionUtils.toTensorIndex(new int[] {3, 3, 3 }, new int[] {knots1.getNumSplines(), knots2.getNumSplines(),
-      knots3.getNumSplines() });
+    int index = FunctionUtils.toTensorIndex(new int[] {3, 3, 3}, new int[] {knots1.getNumSplines(), knots2.getNumSplines(),
+        knots3.getNumSplines()});
     Function<double[], Double> func = set.get(index);
     assertThat(func.apply(new double[] {2.0, 2.0, 3.0})).isEqualTo(1d / 3d);
   }

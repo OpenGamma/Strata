@@ -147,18 +147,18 @@ public class DsfSecurityTest {
     Swap swap3 = Swap.of(knownAmountLeg, SWAP.getLeg(PAY).get());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DsfSecurity.builder()
-        .info(INFO)
-        .notional(NOTIONAL)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(swap1)
-        .build());
+            .info(INFO)
+            .notional(NOTIONAL)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(swap1)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> DsfSecurity.builder()
-        .info(INFO)
-        .notional(NOTIONAL)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(swap2)
-        .build());
+            .info(INFO)
+            .notional(NOTIONAL)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(swap2)
+            .build());
     // should succeed normally (no notional to validate on known amount leg)
     DsfSecurity.builder()
         .info(INFO)

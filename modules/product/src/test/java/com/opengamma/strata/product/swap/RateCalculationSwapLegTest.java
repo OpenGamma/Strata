@@ -256,10 +256,10 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
-            .type(FIXED)
-            .payReceive(PAY)
-            .paymentPeriods(rpp1, rpp2, rpp3)
-            .build());
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1, rpp2, rpp3)
+        .build());
   }
 
   @Test
@@ -324,10 +324,10 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
-            .type(FIXED)
-            .payReceive(PAY)
-            .paymentPeriods(pp1, rpp2, rpp3)
-            .build());
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(pp1, rpp2, rpp3)
+        .build());
   }
 
   @Test
@@ -424,11 +424,11 @@ public class RateCalculationSwapLegTest {
     NotionalExchange nexFinal = NotionalExchange.of(CurrencyAmount.of(GBP, -1500d), DATE_06_09);
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
-            .type(IBOR)
-            .payReceive(PAY)
-            .paymentPeriods(rpp1, rpp2, rpp3)
-            .paymentEvents(nexInitial, nexIntermediate, nexFinal)
-            .build());
+        .type(IBOR)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1, rpp2, rpp3)
+        .paymentEvents(nexInitial, nexIntermediate, nexFinal)
+        .build());
   }
 
   @Test
@@ -484,10 +484,10 @@ public class RateCalculationSwapLegTest {
         .build();
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
-            .type(FIXED)
-            .payReceive(PAY)
-            .paymentPeriods(rpp1)
-            .build());
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1)
+        .build());
   }
 
   //-------------------------------------------------------------------------
@@ -579,11 +579,11 @@ public class RateCalculationSwapLegTest {
         CurrencyAmount.of(EUR, -1000d), DATE_04_09, FxIndexObservation.of(EUR_GBP_ECB, DATE_03_03, REF_DATA));
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
-            .type(FIXED)
-            .payReceive(PAY)
-            .paymentPeriods(rpp1, rpp2, rpp3)
-            .paymentEvents(ne1a, ne1b, ne2a, ne2b, ne3a, ne3b)
-            .build());
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1, rpp2, rpp3)
+        .paymentEvents(ne1a, ne1b, ne2a, ne2b, ne3a, ne3b)
+        .build());
   }
 
   //-------------------------------------------------------------------------

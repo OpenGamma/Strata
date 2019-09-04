@@ -18,7 +18,8 @@ import org.junit.jupiter.api.Test;
 public class GaussJacobiWeightAndAbscissaFunctionTest extends WeightAndAbscissaFunctionTestCase {
   private static final QuadratureWeightAndAbscissaFunction GAUSS_LEGENDRE = new GaussLegendreWeightAndAbscissaFunction();
   private static final QuadratureWeightAndAbscissaFunction GAUSS_JACOBI_GL_EQUIV = new GaussJacobiWeightAndAbscissaFunction(0, 0);
-  private static final QuadratureWeightAndAbscissaFunction GAUSS_JACOBI_CHEBYSHEV_EQUIV = new GaussJacobiWeightAndAbscissaFunction(-0.5, -0.5);
+  private static final QuadratureWeightAndAbscissaFunction GAUSS_JACOBI_CHEBYSHEV_EQUIV =
+      new GaussJacobiWeightAndAbscissaFunction(-0.5, -0.5);
   private static final double EPS = 1e-8;
 
   @Test

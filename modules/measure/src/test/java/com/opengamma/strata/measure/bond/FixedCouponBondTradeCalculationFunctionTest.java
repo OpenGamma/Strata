@@ -188,16 +188,16 @@ public class FixedCouponBondTradeCalculationFunctionTest {
         Measures.PV01_MARKET_QUOTE_SUM,
         Measures.PV01_MARKET_QUOTE_BUCKETED);
     Map<Measure, Result<?>> computed = function.calculate(TRADE, measures, PARAMS, md, REF_DATA);
-    MultiCurrencyScenarioArray sumComputed =(MultiCurrencyScenarioArray) computed.get(Measures.PV01_MARKET_QUOTE_SUM).getValue();
+    MultiCurrencyScenarioArray sumComputed = (MultiCurrencyScenarioArray) computed.get(Measures.PV01_MARKET_QUOTE_SUM).getValue();
     @SuppressWarnings("unchecked")
     ScenarioArray<CurrencyParameterSensitivities> bucketedComputed =
         (ScenarioArray<CurrencyParameterSensitivities>) computed.get(Measures.PV01_MARKET_QUOTE_BUCKETED).getValue();
     assertThat(sumComputed.getScenarioCount()).isEqualTo(1);
     assertThat(sumComputed.get(0).getCurrencies()).containsOnly(GBP);
     assertThat(DoubleMath.fuzzyEquals(
-            sumComputed.get(0).getAmount(GBP).getAmount(),
-            expectedPv01Cal.getAmount(GBP).getAmount(),
-            1.0e-10)).isTrue();
+        sumComputed.get(0).getAmount(GBP).getAmount(),
+        expectedPv01Cal.getAmount(GBP).getAmount(),
+        1.0e-10)).isTrue();
     assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
     assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
   }

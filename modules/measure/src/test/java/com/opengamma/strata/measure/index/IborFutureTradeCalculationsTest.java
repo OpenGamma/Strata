@@ -42,8 +42,10 @@ public class IborFutureTradeCalculationsTest {
     CurrencyAmount expectedPv = pricer.presentValue(RTRADE, provider, SETTLEMENT_PRICE);
     double expectedParSpread = pricer.parSpread(RTRADE, provider, SETTLEMENT_PRICE);
 
-    assertThat(IborFutureTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(IborFutureTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md)).isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.parSpread(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(DoubleScenarioArray.of(ImmutableList.of(expectedParSpread)));
   }
 
   @Test
@@ -56,8 +58,10 @@ public class IborFutureTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertThat(IborFutureTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(IborFutureTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(IborFutureTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

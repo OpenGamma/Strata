@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.array.DoubleArray;
 
 public class ExponentiallyWeightedInterpolationQuantileMethodTest {
 
-  private static final DoubleArray DATA_123 = DoubleArray.ofUnsafe(new double[]{
+  private static final DoubleArray DATA_123 = DoubleArray.ofUnsafe(new double[] {
       0.1746, 0.9716, 0.1963, 0.1982, 0.2020, 0.2155, 0.2222, 0.4534, 0.4690, 0.3717,
       0.0286, 0.0363, 0.0379, 0.0582, 0.0611, 0.0622, 0.9368, 0.0776, 0.0779, 0.0822,
       0.8053, 0.8075, 0.8190, 0.8190, 0.8216, 0.8234, 0.8399, 0.8421, 0.8557, 0.8914,
@@ -41,7 +41,6 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   private static final double TOLERANCE_WEIGHT = 1.0E-6;
   private static final double TOLERANCE_QUANTILE = 1.0E-6;
   private static final double TOLERANCE_ES_NI = 1.0E-5;
-
 
   @Test
   public void lambda_negative() {
@@ -164,8 +163,7 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
     double esExpected = 0.0d;
     for (int i = 0; i < nbPts; i++) {
       double qIntegral = level + i / (nbPts - 1.0d) * (1 - level);
-      esExpected += ((i == 0 || i == nbPts - 1) ? 0.5 : 1.0d)
-          * METHOD.quantileWithExtrapolationFromUnsorted(qIntegral, DATA_123); // Trapezoid method
+      esExpected += ((i == 0 || i == nbPts - 1) ? 0.5 : 1.0d) * METHOD.quantileWithExtrapolationFromUnsorted(qIntegral, DATA_123); // Trapezoid method
     }
     esExpected /= (nbPts - 1);
     assertThat(es).isCloseTo(esExpected, offset(TOLERANCE_ES_NI));

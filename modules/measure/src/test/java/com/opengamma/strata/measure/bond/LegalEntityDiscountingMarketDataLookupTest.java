@@ -102,10 +102,14 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         LegalEntityDiscountingMarketDataLookup.of(repoSecurityGroups, repoGroups, repoCurves, issuerGroups, issuerCurves);
     assertThat(test.queryType()).isEqualTo(LegalEntityDiscountingMarketDataLookup.class);
 
-    assertThat(test.requirements(SEC_A1, ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1, CURVE_ID_USD3).outputCurrencies(USD).build());
-    assertThat(test.requirements(SEC_A2, ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD3).outputCurrencies(USD).build());
-    assertThat(test.requirements(SEC_B1, ISSUER_B, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD4).outputCurrencies(USD).build());
-    assertThat(test.requirements(SEC_B1, ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1, CURVE_ID_GBP2).outputCurrencies(GBP).build());
+    assertThat(test.requirements(SEC_A1, ISSUER_A, USD))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1, CURVE_ID_USD3).outputCurrencies(USD).build());
+    assertThat(test.requirements(SEC_A2, ISSUER_A, USD))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD3).outputCurrencies(USD).build());
+    assertThat(test.requirements(SEC_B1, ISSUER_B, USD))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2, CURVE_ID_USD4).outputCurrencies(USD).build());
+    assertThat(test.requirements(SEC_B1, ISSUER_B, GBP))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1, CURVE_ID_GBP2).outputCurrencies(GBP).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(SEC_B1, LegalEntityId.of("XXX", "XXX"), GBP));
     assertThatIllegalArgumentException()
@@ -117,7 +121,8 @@ public class LegalEntityDiscountingMarketDataLookupTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(SEC_D1, ISSUER_D, GBP));
 
-    assertThat(test.discountingProvider(MOCK_MARKET_DATA)).isEqualTo(DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
+    assertThat(test.discountingProvider(MOCK_MARKET_DATA)).isEqualTo(
+        DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
   }
 
   @Test
@@ -135,16 +140,20 @@ public class LegalEntityDiscountingMarketDataLookupTest {
         LegalEntityDiscountingMarketDataLookup.of(repoGroups, repoCurves);
     assertThat(test.queryType()).isEqualTo(LegalEntityDiscountingMarketDataLookup.class);
 
-    assertThat(test.requirements(ISSUER_A, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1).outputCurrencies(USD).build());
-    assertThat(test.requirements(ISSUER_B, USD)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2).outputCurrencies(USD).build());
-    assertThat(test.requirements(ISSUER_B, GBP)).isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1).outputCurrencies(GBP).build());
+    assertThat(test.requirements(ISSUER_A, USD))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD1).outputCurrencies(USD).build());
+    assertThat(test.requirements(ISSUER_B, USD))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_USD2).outputCurrencies(USD).build());
+    assertThat(test.requirements(ISSUER_B, GBP))
+        .isEqualTo(FunctionRequirements.builder().valueRequirements(CURVE_ID_GBP1).outputCurrencies(GBP).build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(SEC_A2, ISSUER_A, USD));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(LegalEntityId.of("XXX", "XXX"), GBP));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.requirements(ISSUER_A, GBP));
-    assertThat(test.discountingProvider(MOCK_MARKET_DATA)).isEqualTo(DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
+    assertThat(test.discountingProvider(MOCK_MARKET_DATA)).isEqualTo(
+        DefaultLookupLegalEntityDiscountingProvider.of((DefaultLegalEntityDiscountingMarketDataLookup) test, MOCK_MARKET_DATA));
   }
 
   //-------------------------------------------------------------------------

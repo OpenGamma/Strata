@@ -66,8 +66,8 @@ public class IborIborSwapTemplateTest {
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborIborSwapTemplate.builder()
-        .tenor(TENOR_2Y)
-        .build());
+            .tenor(TENOR_2Y)
+            .build());
   }
 
   //-------------------------------------------------------------------------

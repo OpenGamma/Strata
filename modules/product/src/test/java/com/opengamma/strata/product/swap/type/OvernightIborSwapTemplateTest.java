@@ -81,8 +81,8 @@ public class OvernightIborSwapTemplateTest {
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> OvernightIborSwapTemplate.builder()
-        .tenor(TENOR_2Y)
-        .build());
+            .tenor(TENOR_2Y)
+            .build());
   }
 
   //-------------------------------------------------------------------------

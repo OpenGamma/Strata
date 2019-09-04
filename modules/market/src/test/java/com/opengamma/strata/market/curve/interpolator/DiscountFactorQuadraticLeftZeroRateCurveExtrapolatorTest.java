@@ -31,8 +31,10 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
 
   @Test
   public void basicsTest() {
-    assertThat(DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE.getName()).isEqualTo(DiscountFactorQuadraticLeftZeroRateCurveExtrapolator.NAME);
-    assertThat(DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE.toString()).isEqualTo(DiscountFactorQuadraticLeftZeroRateCurveExtrapolator.NAME);
+    assertThat(DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE.getName())
+        .isEqualTo(DiscountFactorQuadraticLeftZeroRateCurveExtrapolator.NAME);
+    assertThat(DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE.toString())
+        .isEqualTo(DiscountFactorQuadraticLeftZeroRateCurveExtrapolator.NAME);
   }
 
   @Test
@@ -41,7 +43,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
     DoubleArray[] yValues = new DoubleArray[] {
         DoubleArray.of(0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001, 0.001),
         DoubleArray.of(-11.0, 8.0, 5.0, 1.001, -1.001, 5.0, -8.0, 11.0),
-        DoubleArray.of(0.001, -0.001, 5.0, 9.0, 9.0, 12.0, 18.0, 18.0) };
+        DoubleArray.of(0.001, -0.001, 5.0, 9.0, 9.0, 12.0, 18.0, 18.0)};
     int nData = xValues.size();
     int nKeys = 100 * nData;
     double[] xKeys = new double[nKeys];
@@ -57,9 +59,11 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
           xValues, yValues[k], DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE, PRODUCT_LINEAR);
 
       // Check C0 continuity
-      assertThat(bci.interpolate(xValues.get(0) - TOL)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL * 1.0e2));
+      assertThat(bci.interpolate(xValues.get(0) - TOL))
+          .isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL * 1.0e2));
       // Check C1 continuity
-      assertThat(bci.firstDerivative(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)), offset(Math.sqrt(TOL)));
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(0)), offset(Math.sqrt(TOL)));
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
       double[] yValues1Dw = yValues[k].toArray();
@@ -73,9 +77,9 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
             xValues, DoubleArray.ofUnsafe(yValues1Dw), DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE,
             PRODUCT_LINEAR);
         for (int i = 2; i < nKeys; ++i) {
-          double exp = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS /
-              yValues[k].get(j);
-            assertThat(bci.parameterSensitivity(xKeys[i]).get(j)).isCloseTo(exp, offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e3));//because gradient is NOT exact  TODO
+          double exp = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
+          assertThat(bci.parameterSensitivity(xKeys[i]).get(j))
+              .isCloseTo(exp, offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e3));//because gradient is NOT exact  TODO
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -95,7 +99,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
             0.8378685055774037, 0.10005246918325483, 0.10468304334744241),
         DoubleArray.of(0.995780079114617, 0.8733013195721913, 0.8192165283188197,
             0.6539369493529048, 0.63868683960757515, 0.4700471352238411, 0.4555354921077598,
-            0.3780781869340659, 0.2299369456202763, 0.9182441378327986) };
+            0.3780781869340659, 0.2299369456202763, 0.9182441378327986)};
     int nData = xValues.size();
     int nKeys = 100 * nData;
     double[] xKeys = new double[nKeys];
@@ -111,9 +115,11 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
           xValues, yValues[k], DISCOUNT_FACTOR_QUADRATIC_LEFT_ZERO_RATE, PRODUCT_LINEAR);
 
       // Check C0 continuity
-      assertThat(bci.interpolate(xValues.get(0) - TOL)).isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL * 1.0e2));
+      assertThat(bci.interpolate(xValues.get(0) - TOL))
+          .isCloseTo(bci.interpolate(xValues.get(0)), offset(TOL * 1.0e2));
       // Check C1 continuity
-      assertThat(bci.firstDerivative(xValues.get(0) - TOL)).isCloseTo(bci.firstDerivative(xValues.get(0)), offset(Math.sqrt(TOL)));
+      assertThat(bci.firstDerivative(xValues.get(0) - TOL))
+          .isCloseTo(bci.firstDerivative(xValues.get(0)), offset(Math.sqrt(TOL)));
       // Test sensitivity
       double[] yValues1Up = yValues[k].toArray();
       double[] yValues1Dw = yValues[k].toArray();
@@ -130,7 +136,10 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
           double res1 =
               0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS /
                   yValues[k].get(j);
-          assertThat(res1).isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j), offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e2));//because gradient is NOT exact
+          assertThat(res1)
+              .isCloseTo(
+                  bci.parameterSensitivity(xKeys[i]).get(j),
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e2));//because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);

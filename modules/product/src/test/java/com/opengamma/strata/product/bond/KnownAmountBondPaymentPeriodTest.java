@@ -72,20 +72,20 @@ public class KnownAmountBondPaymentPeriodTest {
   public void test_builder_invalid() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountBondPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .endDate(DATE_2014_10_01)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .endDate(DATE_2014_10_01)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountBondPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_10_01)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_10_01)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> KnownAmountBondPaymentPeriod.builder()
-        .payment(PAYMENT_2014_10_03)
-        .startDate(DATE_2014_10_01)
-        .endDate(DATE_2014_10_01)
-        .build());
+            .payment(PAYMENT_2014_10_03)
+            .startDate(DATE_2014_10_01)
+            .endDate(DATE_2014_10_01)
+            .build());
   }
 
   //-------------------------------------------------------------------------

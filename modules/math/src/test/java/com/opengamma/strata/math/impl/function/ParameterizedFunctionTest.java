@@ -22,53 +22,55 @@ import com.opengamma.strata.math.impl.differentiation.ScalarFirstOrderDifferenti
  */
 public class ParameterizedFunctionTest {
 
-  private static ParameterizedFunction<Double, double[], Double> ARRAY_PARAMS = new ParameterizedFunction<Double, double[], Double>() {
+  private static ParameterizedFunction<Double, double[], Double> ARRAY_PARAMS =
+      new ParameterizedFunction<Double, double[], Double>() {
 
-    @Override
-    public Double evaluate(final Double x, final double[] a) {
-      final int n = a.length;
-      double sum = 0.0;
-      for (int i = n - 1; i > 0; i--) {
-        sum += a[i];
-        sum *= x;
-      }
-      sum += a[0];
-      return sum;
-    }
+        @Override
+        public Double evaluate(final Double x, final double[] a) {
+          final int n = a.length;
+          double sum = 0.0;
+          for (int i = n - 1; i > 0; i--) {
+            sum += a[i];
+            sum *= x;
+          }
+          sum += a[0];
+          return sum;
+        }
 
-    @Override
-    public int getNumberOfParameters() {
-      return 0;
-    }
-  };
+        @Override
+        public int getNumberOfParameters() {
+          return 0;
+        }
+      };
 
-  private static ParameterizedFunction<Double, DoubleArray, Double> VECTOR_PARAMS = new ParameterizedFunction<Double, DoubleArray, Double>() {
+  private static ParameterizedFunction<Double, DoubleArray, Double> VECTOR_PARAMS =
+      new ParameterizedFunction<Double, DoubleArray, Double>() {
 
-    @Override
-    public Double evaluate(final Double x, final DoubleArray a) {
-      ArgChecker.notNull(a, "parameters");
-      if (a.size() != 2) {
-        throw new IllegalArgumentException("wrong number of parameters");
-      }
-      return a.get(0) * Math.sin(a.get(1) * x);
-    }
+        @Override
+        public Double evaluate(final Double x, final DoubleArray a) {
+          ArgChecker.notNull(a, "parameters");
+          if (a.size() != 2) {
+            throw new IllegalArgumentException("wrong number of parameters");
+          }
+          return a.get(0) * Math.sin(a.get(1) * x);
+        }
 
-    @Override
-    public int getNumberOfParameters() {
-      return 0;
-    }
-  };
+        @Override
+        public int getNumberOfParameters() {
+          return 0;
+        }
+      };
 
   @Test
   public void testCubic() {
-    final double[] parms = new double[] {3.0, -1.0, 1.0, 1.0 };
+    final double[] parms = new double[] {3.0, -1.0, 1.0, 1.0};
     assertThat(13.0).isEqualTo(ARRAY_PARAMS.evaluate(2.0, parms));
 
     final Function<Double, Double> func = ARRAY_PARAMS.asFunctionOfArguments(parms);
     assertThat(4.0).isEqualTo(func.apply(-1.0));
 
     final Function<double[], Double> param_func = ARRAY_PARAMS.asFunctionOfParameters(0.0);
-    assertThat(10.0).isEqualTo(param_func.apply(new double[]{10, 312, 423, 534}));
+    assertThat(10.0).isEqualTo(param_func.apply(new double[] {10, 312, 423, 534}));
   }
 
   @Test

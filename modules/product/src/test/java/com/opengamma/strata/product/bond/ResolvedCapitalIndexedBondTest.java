@@ -109,7 +109,8 @@ public class ResolvedCapitalIndexedBondTest {
     assertThat(test.findPeriodIndex(PERIODIC[0].getUnadjustedStartDate())).isEqualTo(OptionalInt.of(0));
     assertThat(test.findPeriodIndex(PERIODIC[1].getUnadjustedStartDate())).isEqualTo(OptionalInt.of(1));
     assertThat(test.findPeriodIndex(LocalDate.MIN)).isEqualTo(OptionalInt.empty());
-    assertThat(test.calculateSettlementDateFromValuation(date(2015, 6, 30), REF_DATA)).isEqualTo(SETTLE_OFFSET.adjust(date(2015, 6, 30), REF_DATA));
+    assertThat(test.calculateSettlementDateFromValuation(date(2015, 6, 30), REF_DATA))
+        .isEqualTo(SETTLE_OFFSET.adjust(date(2015, 6, 30), REF_DATA));
   }
 
   @Test
@@ -124,13 +125,13 @@ public class ResolvedCapitalIndexedBondTest {
         .build();
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedCapitalIndexedBond.builder()
-        .dayCount(ACT_ACT_ISDA)
-        .legalEntityId(LEGAL_ENTITY)
-        .nominalPayment(NOMINAL)
-        .periodicPayments(PERIODIC[0], PERIODIC[1], period, PERIODIC[3])
-        .settlementDateOffset(SETTLE_OFFSET)
-        .yieldConvention(US_IL_REAL)
-        .build());
+            .dayCount(ACT_ACT_ISDA)
+            .legalEntityId(LEGAL_ENTITY)
+            .nominalPayment(NOMINAL)
+            .periodicPayments(PERIODIC[0], PERIODIC[1], period, PERIODIC[3])
+            .settlementDateOffset(SETTLE_OFFSET)
+            .yieldConvention(US_IL_REAL)
+            .build());
   }
 
   //-------------------------------------------------------------------------

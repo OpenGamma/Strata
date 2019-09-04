@@ -166,9 +166,9 @@ public class BondFutureTradeCalculationFunctionTest {
     assertThat(sumComputed.getScenarioCount()).isEqualTo(1);
     assertThat(sumComputed.get(0).getCurrencies()).containsOnly(USD);
     assertThat(DoubleMath.fuzzyEquals(
-            sumComputed.get(0).getAmount(USD).getAmount(),
-            expectedPv01Cal.getAmount(USD).getAmount(),
-            1.0e-10)).isTrue();
+        sumComputed.get(0).getAmount(USD).getAmount(),
+        expectedPv01Cal.getAmount(USD).getAmount(),
+        1.0e-10)).isTrue();
     assertThat(bucketedComputed.getScenarioCount()).isEqualTo(1);
     assertThat(bucketedComputed.get(0).equalWithTolerance(expectedPv01CalBucketed, 1.0e-10)).isTrue();
   }

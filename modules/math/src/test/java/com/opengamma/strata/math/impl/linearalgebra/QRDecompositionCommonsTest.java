@@ -24,7 +24,7 @@ public class QRDecompositionCommonsTest {
   private static final MatrixAlgebra ALGEBRA = new CommonsMatrixAlgebra();
   private static final Decomposition<QRDecompositionResult> QR = new QRDecompositionCommons();
   private static final DoubleMatrix A = DoubleMatrix.copyOf(
-      new double[][] { {1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+      new double[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
   private static final double EPS = 1e-9;
 
   @Test

@@ -152,10 +152,10 @@ public class KnownAmountSwapLegTest {
         .build();
     // assertion
     assertThat(test.resolve(REF_DATA)).isEqualTo(ResolvedSwapLeg.builder()
-            .type(FIXED)
-            .payReceive(PAY)
-            .paymentPeriods(rpp1, rpp2, rpp3)
-            .build());
+        .type(FIXED)
+        .payReceive(PAY)
+        .paymentPeriods(rpp1, rpp2, rpp3)
+        .build());
   }
 
   //-------------------------------------------------------------------------

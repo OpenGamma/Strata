@@ -76,22 +76,22 @@ public class FxNdfTest {
     FxRate fxRate = FxRate.of(GBP, EUR, 1.1d);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxNdf.builder()
-        .agreedFxRate(fxRate)
-        .settlementCurrencyNotional(CURRENCY_NOTIONAL)
-        .index(GBP_USD_WM)
-        .paymentDate(PAYMENT_DATE)
-        .build());
+            .agreedFxRate(fxRate)
+            .settlementCurrencyNotional(CURRENCY_NOTIONAL)
+            .index(GBP_USD_WM)
+            .paymentDate(PAYMENT_DATE)
+            .build());
   }
 
   @Test
   public void test_builder_wrongCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> FxNdf.builder()
-        .agreedFxRate(FX_RATE)
-        .settlementCurrencyNotional(CurrencyAmount.of(EUR, NOTIONAL))
-        .index(GBP_USD_WM)
-        .paymentDate(PAYMENT_DATE)
-        .build());
+            .agreedFxRate(FX_RATE)
+            .settlementCurrencyNotional(CurrencyAmount.of(EUR, NOTIONAL))
+            .index(GBP_USD_WM)
+            .paymentDate(PAYMENT_DATE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

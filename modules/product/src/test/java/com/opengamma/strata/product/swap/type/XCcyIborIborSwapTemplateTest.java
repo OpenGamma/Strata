@@ -83,8 +83,8 @@ public class XCcyIborIborSwapTemplateTest {
   public void test_builder_notEnoughData() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> XCcyIborIborSwapTemplate.builder()
-        .tenor(TENOR_2Y)
-        .build());
+            .tenor(TENOR_2Y)
+            .build());
   }
 
   //-------------------------------------------------------------------------

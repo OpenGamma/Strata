@@ -25,11 +25,12 @@ public class LaguerrePolynomialFunctionTest {
   private static final DoubleFunction1D L3 = x -> (-x * x * x + 9 * x * x - 18 * x + 6) / 6;
   private static final DoubleFunction1D L4 = x -> (x * x * x * x - 16 * x * x * x + 72 * x * x - 96 * x + 24) / 24;
   private static final DoubleFunction1D L5 =
-    x -> (-x * x * x * x * x + 25 * x * x * x * x - 200 * x * x * x + 600 * x * x - 600 * x + 120) / 120;
+      x -> (-x * x * x * x * x + 25 * x * x * x * x - 200 * x * x * x + 600 * x * x - 600 * x + 120) / 120;
   private static final DoubleFunction1D L6 =
-    x -> (x * x * x * x * x * x - 36 * x * x * x * x * x + 450 * x * x * x * x - 2400 * x * x * x + 5400 * x * x - 4320 * x + 720) / 720;
+      x -> (x * x * x * x * x * x - 36 * x * x * x * x * x +
+          450 * x * x * x * x - 2400 * x * x * x + 5400 * x * x - 4320 * x + 720) / 720;
 
-  private static final DoubleFunction1D[] L = new DoubleFunction1D[] {L0, L1, L2, L3, L4, L5, L6 };
+  private static final DoubleFunction1D[] L = new DoubleFunction1D[] {L0, L1, L2, L3, L4, L5, L6};
   private static final LaguerrePolynomialFunction LAGUERRE = new LaguerrePolynomialFunction();
   private static final double EPS = 1e-12;
 
@@ -79,7 +80,8 @@ public class LaguerrePolynomialFunctionTest {
     final DoubleFunction1D f1 = d -> 1 + alpha - d;
     final DoubleFunction1D f2 = d -> d * d / 2 - (alpha + 2) * d + (alpha + 2) * (alpha + 1) / 2.;
     final DoubleFunction1D f3 =
-        d -> -d * d * d / 6 + (alpha + 3) * d * d / 2 - (alpha + 2) * (alpha + 3) * d / 2 + (alpha + 1) * (alpha + 2) * (alpha + 3) / 6;
+        d -> -d * d * d / 6 + (alpha + 3) * d * d / 2 - (alpha + 2) * (alpha + 3) * d / 2 +
+            (alpha + 1) * (alpha + 2) * (alpha + 3) / 6;
     assertThat(l1[0].applyAsDouble(x)).isCloseTo(f0.applyAsDouble(x), offset(EPS));
     assertThat(l1[1].applyAsDouble(x)).isCloseTo(f1.applyAsDouble(x), offset(EPS));
     assertThat(l1[2].applyAsDouble(x)).isCloseTo(f2.applyAsDouble(x), offset(EPS));

@@ -110,8 +110,8 @@ public class FraConventionTest {
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ImmutableFraConvention.builder()
-        .spotDateOffset(NEXT_SAME_BUS_DAY)
-        .build());
+            .spotDateOffset(NEXT_SAME_BUS_DAY)
+            .build());
   }
 
   //-------------------------------------------------------------------------

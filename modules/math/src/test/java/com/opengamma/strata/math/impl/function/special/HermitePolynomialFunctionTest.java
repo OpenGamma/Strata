@@ -41,7 +41,7 @@ public class HermitePolynomialFunctionTest {
     return 1024 * xSq * xSq * xSq * xSq * xSq - 23040 *
         xSq * xSq * xSq * xSq + 161280 * xSq * xSq * xSq - 403200 * xSq * xSq + 302400 * xSq - 30240;
   };
-  private static final DoubleFunction1D[] H = new DoubleFunction1D[] {H0, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10 };
+  private static final DoubleFunction1D[] H = new DoubleFunction1D[] {H0, H1, H2, H3, H4, H5, H6, H7, H8, H9, H10};
   private static final HermitePolynomialFunction HERMITE = new HermitePolynomialFunction();
   private static final double EPS = 1e-9;
 

@@ -98,9 +98,11 @@ public class MatrixAlgebraFactoryTest {
 
   @Test
   public void test() {
-    assertThat(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.COMMONS)).isEqualTo(MatrixAlgebraFactory.COMMONS_ALGEBRA);
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.COMMONS))
+        .isEqualTo(MatrixAlgebraFactory.COMMONS_ALGEBRA);
     assertThat(MatrixAlgebraFactory.getMatrixAlgebra(MatrixAlgebraFactory.OG)).isEqualTo(MatrixAlgebraFactory.OG_ALGEBRA);
-    assertThat(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.COMMONS_ALGEBRA)).isEqualTo(MatrixAlgebraFactory.COMMONS);
+    assertThat(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.COMMONS_ALGEBRA))
+        .isEqualTo(MatrixAlgebraFactory.COMMONS);
     assertThat(MatrixAlgebraFactory.getMatrixAlgebraName(MatrixAlgebraFactory.OG_ALGEBRA)).isEqualTo(MatrixAlgebraFactory.OG);
   }
 

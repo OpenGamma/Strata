@@ -16,8 +16,10 @@ import org.junit.jupiter.api.Test;
 public class SingleRangeLimitTransformTest extends ParameterLimitsTransformTestCase {
   private static final double A = -2.5;
   private static final double B = 1.0;
-  private static final ParameterLimitsTransform LOWER_LIMIT = new SingleRangeLimitTransform(B, ParameterLimitsTransform.LimitType.GREATER_THAN);
-  private static final ParameterLimitsTransform UPPER_LIMIT = new SingleRangeLimitTransform(A, ParameterLimitsTransform.LimitType.LESS_THAN);
+  private static final ParameterLimitsTransform LOWER_LIMIT =
+      new SingleRangeLimitTransform(B, ParameterLimitsTransform.LimitType.GREATER_THAN);
+  private static final ParameterLimitsTransform UPPER_LIMIT =
+      new SingleRangeLimitTransform(A, ParameterLimitsTransform.LimitType.LESS_THAN);
 
   @Test
   public void testOutOfRange1() {

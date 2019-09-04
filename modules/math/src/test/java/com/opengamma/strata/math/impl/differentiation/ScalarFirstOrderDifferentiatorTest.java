@@ -41,9 +41,12 @@ public class ScalarFirstOrderDifferentiatorTest {
 
   };
   private static final double EPS = 1e-5;
-  private static final ScalarFirstOrderDifferentiator FORWARD = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
-  private static final ScalarFirstOrderDifferentiator CENTRAL = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
-  private static final ScalarFirstOrderDifferentiator BACKWARD = new ScalarFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
+  private static final ScalarFirstOrderDifferentiator FORWARD =
+      new ScalarFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
+  private static final ScalarFirstOrderDifferentiator CENTRAL =
+      new ScalarFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
+  private static final ScalarFirstOrderDifferentiator BACKWARD =
+      new ScalarFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
   @Test
   public void testNullDifferenceType() {
@@ -67,7 +70,7 @@ public class ScalarFirstOrderDifferentiatorTest {
 
   @Test
   public void domainTest() {
-    final double[] x = new double[] {1.2, 0, Math.PI };
+    final double[] x = new double[] {1.2, 0, Math.PI};
     final Function<Double, Double> alFunc = CENTRAL.differentiate(F, DOMAIN);
     for (int i = 0; i < 3; i++) {
       assertThat(alFunc.apply(x[i])).isCloseTo(DX_ANALYTIC.apply(x[i]), offset(1e-8));

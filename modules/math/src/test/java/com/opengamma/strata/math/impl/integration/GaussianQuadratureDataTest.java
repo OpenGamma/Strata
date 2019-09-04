@@ -14,8 +14,8 @@ import org.junit.jupiter.api.Test;
  * Test.
  */
 public class GaussianQuadratureDataTest {
-  private static final double[] X = new double[] {1, 2, 3, 4 };
-  private static final double[] W = new double[] {6, 7, 8, 9 };
+  private static final double[] X = new double[] {1, 2, 3, 4};
+  private static final double[] W = new double[] {6, 7, 8, 9};
   private static final GaussianQuadratureData F = new GaussianQuadratureData(X, W);
 
   @Test

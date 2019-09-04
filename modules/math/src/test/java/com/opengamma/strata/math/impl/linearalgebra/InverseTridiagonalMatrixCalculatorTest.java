@@ -19,9 +19,9 @@ import com.opengamma.strata.collect.array.DoubleMatrix;
  */
 public class InverseTridiagonalMatrixCalculatorTest {
   private static final InverseTridiagonalMatrixCalculator CALCULATOR = new InverseTridiagonalMatrixCalculator();
-  private static final double[] A = new double[] {1.0, 2.4, -0.4, -0.8, 1.5, 7.8, -5.0, 1.0, 2.4, -0.4, 3.14 };
-  private static final double[] B = new double[] {1.56, 0.33, 0.42, -0.23, 0.276, 4.76, 1.0, 2.4, -0.4, 0.2355 };
-  private static final double[] C = new double[] {0.56, 0.63, -0.42, -0.23, 0.76, 1.76, 1.0, 2.4, -0.4, 2.4234 };
+  private static final double[] A = new double[] {1.0, 2.4, -0.4, -0.8, 1.5, 7.8, -5.0, 1.0, 2.4, -0.4, 3.14};
+  private static final double[] B = new double[] {1.56, 0.33, 0.42, -0.23, 0.276, 4.76, 1.0, 2.4, -0.4, 0.2355};
+  private static final double[] C = new double[] {0.56, 0.63, -0.42, -0.23, 0.76, 1.76, 1.0, 2.4, -0.4, 2.4234};
 
   private static final TridiagonalMatrix MATRIX = new TridiagonalMatrix(A, B, C);
   private static final DoubleMatrix TRI = MATRIX.toDoubleMatrix();

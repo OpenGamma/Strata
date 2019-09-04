@@ -32,13 +32,13 @@ public class EigenvaluePolynomialRootFinderTest {
 
   @Test
   public void test() {
-    final double[] r = new double[] {-RANDOM.nextDouble(), -RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble() };
+    final double[] r = new double[] {-RANDOM.nextDouble(), -RANDOM.nextDouble(), RANDOM.nextDouble(), RANDOM.nextDouble()};
     final double a0 = r[0] * r[1] * r[2] * r[3];
     final double a1 = r[0] * r[1] * r[2] + r[0] * r[1] * r[3] + r[0] * r[2] * r[3] + r[1] * r[2] * r[3];
     final double a2 = r[0] * r[1] + r[0] * r[2] + r[0] * r[3] + r[1] * r[2] + r[1] * r[3] + r[2] * r[3];
     final double a3 = r[0] + r[1] + r[2] + r[3];
     final double a4 = 1;
-    final RealPolynomialFunction1D f = new RealPolynomialFunction1D(new double[] {a0, a1, a2, a3, a4 });
+    final RealPolynomialFunction1D f = new RealPolynomialFunction1D(new double[] {a0, a1, a2, a3, a4});
     final Double[] roots = FINDER.getRoots(f);
     Arrays.sort(roots);
     final double[] expected = new double[r.length];

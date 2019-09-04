@@ -83,7 +83,7 @@ public class SumToOneTest {
 
   @Test
   public void solverTest() {
-    double[] w = new double[] {0.01, 0.5, 0.3, 0.19 };
+    double[] w = new double[] {0.01, 0.5, 0.3, 0.19};
     final int n = w.length;
     final SumToOne trans = new SumToOne(n);
     Function<DoubleArray, DoubleArray> func = new Function<DoubleArray, DoubleArray>() {
@@ -122,7 +122,7 @@ public class SumToOneTest {
 
   @Test
   public void solverTest2() {
-    double[] w = new double[] {3.0, 4.0 };
+    double[] w = new double[] {3.0, 4.0};
     final int n = w.length;
     Function<DoubleArray, DoubleArray> func = new Function<DoubleArray, DoubleArray>() {
 

@@ -27,7 +27,7 @@ public class JacobianDirectionFunctionTest {
   private static final double X1 = 7.6;
   private static final double X2 = 4.5;
   private static final DoubleMatrix M = DoubleMatrix.copyOf(
-      new double[][] { {X0, 0, 0}, {0, X1, 0}, {0, 0, X2}});
+      new double[][] {{X0, 0, 0}, {0, X1, 0}, {0, 0, X2}});
   private static final DoubleArray Y = DoubleArray.of(1, 1, 1);
 
   @Test

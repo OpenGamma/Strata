@@ -66,12 +66,12 @@ public class IborFutureConventionTest {
   public void test_builder_incomplete() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ImmutableIborFutureConvention.builder()
-        .index(USD_LIBOR_3M)
-        .build());
+            .index(USD_LIBOR_3M)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ImmutableIborFutureConvention.builder()
-        .dateSequence(QUARTERLY_IMM)
-        .build());
+            .dateSequence(QUARTERLY_IMM)
+            .build());
   }
 
   @Test

@@ -29,8 +29,8 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void linearTest() {
-    double[] x0Values = new double[] {1., 2., 3., 4. };
-    double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
+    double[] x0Values = new double[] {1., 2., 3., 4.};
+    double[] x1Values = new double[] {-1., 0., 1., 2., 3.};
     final int n0Data = x0Values.length;
     final int n1Data = x1Values.length;
     double[][] yValues = new double[n0Data][n1Data];
@@ -42,7 +42,7 @@ public class BicubicSplineInterpolatorTest {
     }
 
     CubicSplineInterpolator method = new CubicSplineInterpolator();
-    PiecewisePolynomialInterpolator2D interp = new BicubicSplineInterpolator(new CubicSplineInterpolator[] {method, method });
+    PiecewisePolynomialInterpolator2D interp = new BicubicSplineInterpolator(new CubicSplineInterpolator[] {method, method});
     PiecewisePolynomialResult2D result = interp.interpolate(x0Values, x1Values, yValues);
 
     final int n0IntExp = n0Data - 1;
@@ -132,8 +132,8 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void quadraticTest() {
-    double[] x0Values = new double[] {1., 2., 3., 4. };
-    double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
+    double[] x0Values = new double[] {1., 2., 3., 4.};
+    double[] x1Values = new double[] {-1., 0., 1., 2., 3.};
     final int n0Data = x0Values.length;
     final int n1Data = x1Values.length;
     double[][] yValues = new double[n0Data][n1Data];
@@ -227,15 +227,16 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void cubicTest() {
-    double[] x0Values = new double[] {1., 2., 3., 4. };
-    double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
+    double[] x0Values = new double[] {1., 2., 3., 4.};
+    double[] x1Values = new double[] {-1., 0., 1., 2., 3.};
     final int n0Data = x0Values.length;
     final int n1Data = x1Values.length;
     double[][] yValues = new double[n0Data][n1Data];
 
     for (int i = 0; i < n0Data; ++i) {
       for (int j = 0; j < n1Data; ++j) {
-        yValues[i][j] = (x0Values[i] - 1.) * (x0Values[i] - 1.) * (x0Values[i] - 1.) * (x1Values[j] + 14. / 13.) * (x1Values[j] + 14. / 13.) * (x1Values[j] + 14. / 13.);
+        yValues[i][j] = (x0Values[i] - 1.) * (x0Values[i] - 1.) * (x0Values[i] - 1.) * (x1Values[j] + 14. / 13.) *
+            (x1Values[j] + 14. / 13.) * (x1Values[j] + 14. / 13.);
       }
     }
 
@@ -322,11 +323,12 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void crossDerivativeTest() {
-    double[] x0Values = new double[] {1., 2., 3., 4. };
-    double[] x1Values = new double[] {-1., 0., 1., 2., 3. };
+    double[] x0Values = new double[] {1., 2., 3., 4.};
+    double[] x1Values = new double[] {-1., 0., 1., 2., 3.};
     final int n0Data = x0Values.length;
     final int n1Data = x1Values.length;
-    double[][] yValues = new double[][] { {1.0, -1.0, 0.0, 1.0, 0.0, }, {1.0, -1.0, 0.0, 1.0, -2.0 }, {1.0, -2.0, 0.0, -2.0, -2.0 }, {-1.0, -1.0, -2.0, -2.0, -1.0 } };
+    double[][] yValues = new double[][] {{1.0, -1.0, 0.0, 1.0, 0.0,}, {1.0, -1.0, 0.0, 1.0, -2.0}, {1.0, -2.0, 0.0, -2.0, -2.0},
+        {-1.0, -1.0, -2.0, -2.0, -1.0}};
 
     NaturalSplineInterpolator method = new NaturalSplineInterpolator();
     PiecewisePolynomialInterpolator2D interp = new BicubicSplineInterpolator(method);
@@ -412,8 +414,8 @@ public class BicubicSplineInterpolatorTest {
   @Test
   public void nullx0Test() {
     double[] x0Values = null;
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -427,7 +429,7 @@ public class BicubicSplineInterpolatorTest {
   public void nullx1Test() {
     double[] x0Values = new double[] {0., 1., 2., 3.};
     double[] x1Values = null;
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -439,8 +441,8 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void nullyTest() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., 2.};
     double[][] yValues = null;
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
@@ -453,9 +455,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void wrongLengthx0Test() {
-    double[] x0Values = new double[] {0., 1., 2. };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2.};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -467,9 +469,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void wrongLengthx1Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2., 3. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., 2., 3.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -481,9 +483,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void shortx0Test() {
-    double[] x0Values = new double[] {1. };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] {{1., 2., 4. } };
+    double[] x0Values = new double[] {1.};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -495,9 +497,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void shortx1Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0. };
-    double[][] yValues = new double[][] { {1. }, {-1. }, {2. }, {5. } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0.};
+    double[][] yValues = new double[][] {{1.}, {-1.}, {2.}, {5.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -509,9 +511,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void infX0Test() {
-    double[] x0Values = new double[] {0., 1., 2., INF };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., INF};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -523,9 +525,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void nanX0Test() {
-    double[] x0Values = new double[] {0., 1., 2., Double.NaN };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., Double.NaN};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -537,9 +539,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void infX1Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., INF };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., INF};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -551,9 +553,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void nanX1Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., Double.NaN };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., Double.NaN};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -565,9 +567,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void infYTest() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., INF }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., INF}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -579,9 +581,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void nanYTest() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., Double.NaN } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., Double.NaN}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -593,9 +595,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void coincideX0Test() {
-    double[] x0Values = new double[] {0., 1., 1., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 1., 3.};
+    double[] x1Values = new double[] {0., 1., 2.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -607,9 +609,9 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void coincideX1Test() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 1. };
-    double[][] yValues = new double[][] { {1., 2., 4. }, {-1., 2., -4. }, {2., 3., 4. }, {5., 2., 1. } };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., 1.};
+    double[][] yValues = new double[][] {{1., 2., 4.}, {-1., 2., -4.}, {2., 3., 4.}, {5., 2., 1.}};
 
     BicubicSplineInterpolator interp = new BicubicSplineInterpolator(new CubicSplineInterpolator());
     assertThatIllegalArgumentException()
@@ -631,8 +633,8 @@ public class BicubicSplineInterpolatorTest {
    */
   @Test
   public void notKnotRevoveredTests() {
-    double[] x0Values = new double[] {0., 1., 2., 3. };
-    double[] x1Values = new double[] {0., 1., 2. };
+    double[] x0Values = new double[] {0., 1., 2., 3.};
+    double[] x1Values = new double[] {0., 1., 2.};
     double[][] yValues = new double[][] {
         {1.e-20, 3.e-120, 5.e120},
         {2.e-20, 3.e-120, 4.e-120},

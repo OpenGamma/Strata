@@ -35,7 +35,8 @@ public class OrthonormalHermitePolynomialFunctionTest {
     final DoubleFunction1D[] f2 = ORTHONORMAL.getPolynomials(n);
     final double x = 3.4;
     for (int i = 0; i < f1.length; i++) {
-      assertThat(f1[i].applyAsDouble(x) / Math.sqrt(CombinatoricsUtils.factorialDouble(i) * Math.pow(2, i) * Math.sqrt(Math.PI))).isCloseTo(f2[i].applyAsDouble(x), offset(EPS));
+      assertThat(f1[i].applyAsDouble(x) / Math.sqrt(CombinatoricsUtils.factorialDouble(i) * Math.pow(2, i) * Math.sqrt(Math.PI)))
+          .isCloseTo(f2[i].applyAsDouble(x), offset(EPS));
     }
   }
 

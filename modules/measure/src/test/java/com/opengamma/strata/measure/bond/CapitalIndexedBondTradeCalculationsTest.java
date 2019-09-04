@@ -45,9 +45,12 @@ public class CapitalIndexedBondTradeCalculationsTest {
     MultiCurrencyAmount expectedCurrencyExposure = pricer.currencyExposure(RTRADE, ratesProvider, ledProvider);
     CurrencyAmount expectedCurrentCash = pricer.currentCash(RTRADE, ratesProvider);
 
-    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, LED_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
-    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, LED_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
-    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, LED_LOOKUP, md)).isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
+    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.presentValue(RTRADE, RATES_LOOKUP, LED_LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedPv)));
+    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.currencyExposure(RTRADE, RATES_LOOKUP, LED_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedCurrencyExposure)));
+    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.currentCash(RTRADE, RATES_LOOKUP, LED_LOOKUP, md))
+        .isEqualTo(CurrencyScenarioArray.of(ImmutableList.of(expectedCurrentCash)));
   }
 
   @Test
@@ -61,8 +64,10 @@ public class CapitalIndexedBondTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
 
-    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, LED_LOOKUP, md)).isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
-    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, LED_LOOKUP, md)).isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
+    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.pv01CalibratedSum(RTRADE, RATES_LOOKUP, LED_LOOKUP, md))
+        .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
+    assertThat(CapitalIndexedBondTradeCalculations.DEFAULT.pv01CalibratedBucketed(RTRADE, RATES_LOOKUP, LED_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(ImmutableList.of(expectedPv01CalBucketed)));
   }
 
 }

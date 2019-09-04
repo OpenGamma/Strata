@@ -77,7 +77,7 @@ public abstract class MinimizationTestFunctions {
         res[i] = 2 * (x.get(i) - 1) + 400 * x.get(i) * (pow2(x.get(i)) - x.get(i + 1)) +
             200 * (x.get(i) - pow2(x.get(i - 1)));
       }
-          return DoubleArray.copyOf(res);
+      return DoubleArray.copyOf(res);
     }
   };
 }

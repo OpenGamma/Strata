@@ -172,7 +172,8 @@ public class FpmlDocumentParserTest {
     assertThat(bpTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2001, 4, 29)));
     BulletPayment bp = bpTrade.getProduct();
     assertThat(bp.getPayReceive()).isEqualTo(PAY);
-    assertThat(bp.getDate()).isEqualTo(AdjustableDate.of(date(2001, 7, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
+    assertThat(bp.getDate())
+        .isEqualTo(AdjustableDate.of(date(2001, 7, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
     assertThat(bp.getValue()).isEqualTo(CurrencyAmount.of(USD, 15000));
   }
 
@@ -190,7 +191,8 @@ public class FpmlDocumentParserTest {
     assertThat(bpTrade0.getInfo().getId().get().getValue()).isEqualTo("123");
     BulletPayment bp0 = bpTrade0.getProduct();
     assertThat(bp0.getPayReceive()).isEqualTo(PAY);
-    assertThat(bp0.getDate()).isEqualTo(AdjustableDate.of(date(2001, 7, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
+    assertThat(bp0.getDate())
+        .isEqualTo(AdjustableDate.of(date(2001, 7, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
     assertThat(bp0.getValue()).isEqualTo(CurrencyAmount.of(USD, 15000));
     Trade trade1 = trades.get(1);
     assertThat(trade1.getClass()).isEqualTo(BulletPaymentTrade.class);
@@ -199,7 +201,8 @@ public class FpmlDocumentParserTest {
     assertThat(bpTrade1.getInfo().getId().get().getValue()).isEqualTo("124");
     BulletPayment bp1 = bpTrade1.getProduct();
     assertThat(bp1.getPayReceive()).isEqualTo(RECEIVE);
-    assertThat(bp1.getDate()).isEqualTo(AdjustableDate.of(date(2001, 8, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
+    assertThat(bp1.getDate())
+        .isEqualTo(AdjustableDate.of(date(2001, 8, 27), BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO_USNY)));
     assertThat(bp1.getValue()).isEqualTo(CurrencyAmount.of(USD, 15000));
   }
 
@@ -1304,11 +1307,11 @@ public class FpmlDocumentParserTest {
     assertThat(trade.getClass()).isEqualTo(SwapTrade.class);
     SwapTrade swapTrade = (SwapTrade) trade;
     Swap swap = swapTrade.getProduct();
-  
+
     List<SwapLeg> floatLegs = swap.getLegs(SwapLegType.IBOR);
     assertThat(floatLegs).hasSize(1);
     SwapLeg floatLeg = Iterables.getOnlyElement(floatLegs);
-    
+
     RateCalculationSwapLeg expectedFloatLeg = RateCalculationSwapLeg.builder()
         .payReceive(PayReceive.PAY)
         .accrualSchedule(PeriodicSchedule.builder()
@@ -1329,10 +1332,10 @@ public class FpmlDocumentParserTest {
             .dayCount(ACT_365F)
             .fixingDateOffset(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(PRECEDING, AUSY)))
             .build())
-        .build();   
+        .build();
     assertEqualsBean((Bean) floatLeg, expectedFloatLeg);
   }
-  
+
   @Test
   public void oisFloatingLegNoResetDates() {
     String location = "classpath:com/opengamma/strata/loader/fpml/ird-ois-no-reset-dates.xml";
@@ -1343,11 +1346,11 @@ public class FpmlDocumentParserTest {
     assertThat(trade.getClass()).isEqualTo(SwapTrade.class);
     SwapTrade swapTrade = (SwapTrade) trade;
     Swap swap = swapTrade.getProduct();
-    
+
     List<SwapLeg> oisLegs = swap.getLegs(SwapLegType.OVERNIGHT);
     assertThat(oisLegs).hasSize(1);
     SwapLeg oisLeg = Iterables.getOnlyElement(oisLegs);
-  
+
     RateCalculationSwapLeg expectedOisLeg = RateCalculationSwapLeg.builder()
         .payReceive(PAY)
         .accrualSchedule(PeriodicSchedule.builder()

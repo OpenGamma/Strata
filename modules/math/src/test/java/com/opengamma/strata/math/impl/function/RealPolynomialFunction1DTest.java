@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class RealPolynomialFunction1DTest {
 
   private static final Well44497b RANDOM = new Well44497b(0L);
-  private static final double[] C = new double[] {3.4, 5.6, 1., -4. };
+  private static final double[] C = new double[] {3.4, 5.6, 1., -4.};
   private static final DoubleFunction1D F = new RealPolynomialFunction1D(C);
   private static final double EPS = 1e-12;
 

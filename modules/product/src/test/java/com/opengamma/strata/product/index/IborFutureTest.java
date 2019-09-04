@@ -80,12 +80,12 @@ public class IborFutureTest {
   public void test_builder_noIndex() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFuture.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .currency(GBP)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .currency(GBP)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .rounding(ROUNDING)
+            .build());
   }
 
   @Test
@@ -104,12 +104,12 @@ public class IborFutureTest {
   public void test_builder_noLastTradeDate() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> IborFuture.builder()
-        .securityId(SECURITY_ID)
-        .notional(NOTIONAL)
-        .currency(GBP)
-        .index(GBP_LIBOR_2M)
-        .rounding(ROUNDING)
-        .build());
+            .securityId(SECURITY_ID)
+            .notional(NOTIONAL)
+            .currency(GBP)
+            .index(GBP_LIBOR_2M)
+            .rounding(ROUNDING)
+            .build());
   }
 
   //-------------------------------------------------------------------------

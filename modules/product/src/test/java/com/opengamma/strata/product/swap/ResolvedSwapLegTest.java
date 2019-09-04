@@ -105,11 +105,11 @@ public class ResolvedSwapLegTest {
   public void test_builder_invalidMixedCurrency() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedSwapLeg.builder()
-        .type(IBOR)
-        .payReceive(RECEIVE)
-        .paymentPeriods(RPP3)
-        .paymentEvents(NOTIONAL_EXCHANGE)
-        .build());
+            .type(IBOR)
+            .payReceive(RECEIVE)
+            .paymentPeriods(RPP3)
+            .paymentEvents(NOTIONAL_EXCHANGE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

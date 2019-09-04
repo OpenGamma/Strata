@@ -54,13 +54,13 @@ public class ResolvedTermDepositTest {
   public void test_builder_wrongDates() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedTermDeposit.builder()
-        .currency(GBP)
-        .notional(PRINCIPAL)
-        .startDate(START_DATE)
-        .endDate(LocalDate.of(2013, 1, 22))
-        .yearFraction(YEAR_FRACTION)
-        .rate(RATE)
-        .build());
+            .currency(GBP)
+            .notional(PRINCIPAL)
+            .startDate(START_DATE)
+            .endDate(LocalDate.of(2013, 1, 22))
+            .yearFraction(YEAR_FRACTION)
+            .rate(RATE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

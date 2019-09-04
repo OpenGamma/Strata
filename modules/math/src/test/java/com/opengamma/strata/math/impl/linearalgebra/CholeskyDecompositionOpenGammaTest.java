@@ -26,7 +26,7 @@ public class CholeskyDecompositionOpenGammaTest {
   private static final CholeskyDecompositionOpenGamma CDOG = new CholeskyDecompositionOpenGamma();
   private static final Decomposition<CholeskyDecompositionResult> CDC = new CholeskyDecompositionCommons();
   private static final DoubleMatrix A3 = DoubleMatrix.copyOf(
-      new double[][] { {10.0, 2.0, -1.0}, {2.0, 5.0, -2.0}, {-1.0, -2.0, 15.0}});
+      new double[][] {{10.0, 2.0, -1.0}, {2.0, 5.0, -2.0}, {-1.0, -2.0, 15.0}});
   private static final DoubleMatrix A5 = DoubleMatrix.copyOf(
       new double[][] {
           {10.0, 2.0, -1.0, 1.0, 1.0},
@@ -58,7 +58,7 @@ public class CholeskyDecompositionOpenGammaTest {
   @Test
   public void solveVector() {
     final CholeskyDecompositionResult result = CDOG.apply(A5);
-    double[] b = new double[] {1.0, 2.0, 3.0, 4.0, -1.0 };
+    double[] b = new double[] {1.0, 2.0, 3.0, 4.0, -1.0};
     double[] x = result.solve(b);
     DoubleArray ax = (DoubleArray) ALGEBRA.multiply(A5, DoubleArray.copyOf(x));
     assertThat(ax.toArray()).usingComparatorWithPrecision(1e-10).containsExactly(b);
@@ -70,7 +70,7 @@ public class CholeskyDecompositionOpenGammaTest {
   @Test
   public void solveMatrix() {
     final CholeskyDecompositionResult result = CDOG.apply(A5);
-    double[][] b = new double[][] { {1.0, 2.0 }, {2.0, 3.0 }, {3.0, 4.0 }, {4.0, -2.0 }, {-1.0, -1.0 } };
+    double[][] b = new double[][] {{1.0, 2.0}, {2.0, 3.0}, {3.0, 4.0}, {4.0, -2.0}, {-1.0, -1.0}};
     DoubleMatrix x = result.solve(DoubleMatrix.copyOf(b));
     DoubleMatrix ax = (DoubleMatrix) ALGEBRA.multiply(A5, x);
     assertThat(ax.rowArray(0)).usingComparatorWithPrecision(1e-10).containsExactly(b[0]);

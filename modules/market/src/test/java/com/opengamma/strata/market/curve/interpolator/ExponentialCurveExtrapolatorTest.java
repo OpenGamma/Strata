@@ -52,7 +52,8 @@ public class ExponentialCurveExtrapolatorTest {
     yDataShifted[0] += shift;
     BoundCurveInterpolator bciShifted1 =
         CurveInterpolators.LINEAR.bind(X_DATA, DoubleArray.ofUnsafe(yDataShifted), EXP_EXTRAPOLATOR, EXP_EXTRAPOLATOR);
-    assertThat(bci.parameterSensitivity(value).get(0)).isCloseTo((bciShifted1.interpolate(value) - bci.interpolate(value)) / shift, offset(TOLERANCE_SENSI));
+    assertThat(bci.parameterSensitivity(value).get(0))
+        .isCloseTo((bciShifted1.interpolate(value) - bci.interpolate(value)) / shift, offset(TOLERANCE_SENSI));
   }
 
   @Test
@@ -65,7 +66,8 @@ public class ExponentialCurveExtrapolatorTest {
     yDataShifted[0] += shift;
     BoundCurveInterpolator bciShifted =
         CurveInterpolators.LINEAR.bind(X_DATA, DoubleArray.ofUnsafe(yDataShifted), EXP_EXTRAPOLATOR, EXP_EXTRAPOLATOR);
-    assertThat(bci.parameterSensitivity(value).get(0)).isCloseTo((bciShifted.interpolate(value) - bci.interpolate(value)) / shift, offset(TOLERANCE_SENSI));
+    assertThat(bci.parameterSensitivity(value).get(0))
+        .isCloseTo((bciShifted.interpolate(value) - bci.interpolate(value)) / shift, offset(TOLERANCE_SENSI));
   }
 
   @Test
@@ -78,7 +80,8 @@ public class ExponentialCurveExtrapolatorTest {
     yDataShifted[Y_DATA.size() - 1] += shift;
     BoundCurveInterpolator bciShifted =
         CurveInterpolators.LINEAR.bind(X_DATA, DoubleArray.ofUnsafe(yDataShifted), EXP_EXTRAPOLATOR, EXP_EXTRAPOLATOR);
-    assertThat(bci.parameterSensitivity(value).get(Y_DATA.size() - 1)).isCloseTo((bciShifted.interpolate(value) - bci.interpolate(value)) / shift, offset(TOLERANCE_SENSI));
+    assertThat(bci.parameterSensitivity(value).get(Y_DATA.size() - 1))
+        .isCloseTo((bciShifted.interpolate(value) - bci.interpolate(value)) / shift, offset(TOLERANCE_SENSI));
   }
 
   @Test

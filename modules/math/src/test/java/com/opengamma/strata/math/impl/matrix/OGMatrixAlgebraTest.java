@@ -25,9 +25,9 @@ public class OGMatrixAlgebraTest {
   private static ProbabilityDistribution<Double> RANDOM = new NormalDistribution(0, 1);
   private static final MatrixAlgebra ALGEBRA = MatrixAlgebraFactory.getMatrixAlgebra("OG");
   private static final DoubleMatrix A = DoubleMatrix.copyOf(
-      new double[][] { {1., 2., 3.}, {-1., 1., 0.}, {-2., 1., -2.}});
-  private static final DoubleMatrix B = DoubleMatrix.copyOf(new double[][] { {1, 1}, {2, -2}, {3, 1}});
-  private static final DoubleMatrix C = DoubleMatrix.copyOf(new double[][] { {14, 0}, {1, -3}, {-6, -6}});
+      new double[][] {{1., 2., 3.}, {-1., 1., 0.}, {-2., 1., -2.}});
+  private static final DoubleMatrix B = DoubleMatrix.copyOf(new double[][] {{1, 1}, {2, -2}, {3, 1}});
+  private static final DoubleMatrix C = DoubleMatrix.copyOf(new double[][] {{14, 0}, {1, -3}, {-6, -6}});
   private static final DoubleArray D = DoubleArray.of(1, 1, 1);
   private static final DoubleArray E = DoubleArray.of(-1, 2, 3);
   private static final DoubleArray F = DoubleArray.of(2, -2, 1);
@@ -109,7 +109,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void testTranspose() {
-    final DoubleMatrix a = DoubleMatrix.copyOf(new double[][] { {1, 2}, {3, 4}, {5, 6}});
+    final DoubleMatrix a = DoubleMatrix.copyOf(new double[][] {{1, 2}, {3, 4}, {5, 6}});
     assertThat(a.rowCount()).isEqualTo(3);
     assertThat(a.columnCount()).isEqualTo(2);
     DoubleMatrix aT = ALGEBRA.getTranspose(a);
@@ -120,7 +120,7 @@ public class OGMatrixAlgebraTest {
 
   @Test
   public void matrixTransposeMultipleMatrixTest() {
-    DoubleMatrix a = DoubleMatrix.copyOf(new double[][] { {1.0, 2.0, 3.0}, {-3.0, 1.3, 7.0}});
+    DoubleMatrix a = DoubleMatrix.copyOf(new double[][] {{1.0, 2.0, 3.0}, {-3.0, 1.3, 7.0}});
     DoubleMatrix aTa = ALGEBRA.matrixTransposeMultiplyMatrix(a);
     DoubleMatrix aTaRef = (DoubleMatrix) ALGEBRA.multiply(ALGEBRA.getTranspose(a), a);
     AssertMatrix.assertEqualsMatrix(aTaRef, aTa, 1e-15);

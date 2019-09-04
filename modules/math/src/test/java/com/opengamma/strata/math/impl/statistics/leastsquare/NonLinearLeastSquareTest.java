@@ -28,7 +28,8 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
  * Test.
  */
 public class NonLinearLeastSquareTest {
-  private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
+  private static final NormalDistribution NORMAL =
+      new NormalDistribution(0, 1.0, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
   private static final DoubleArray X;
   private static final DoubleArray Y;
   private static final DoubleArray SIGMA;
@@ -57,40 +58,42 @@ public class NonLinearLeastSquareTest {
     }
   };
 
-  private static final ParameterizedFunction<Double, DoubleArray, Double> PARAM_FUNCTION = new ParameterizedFunction<Double, DoubleArray, Double>() {
+  private static final ParameterizedFunction<Double, DoubleArray, Double> PARAM_FUNCTION =
+      new ParameterizedFunction<Double, DoubleArray, Double>() {
 
-    @Override
-    public Double evaluate(final Double x, final DoubleArray a) {
-      ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
-      return a.get(0) * Math.sin(a.get(1) * x + a.get(2)) + a.get(3);
-    }
+        @Override
+        public Double evaluate(final Double x, final DoubleArray a) {
+          ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
+          return a.get(0) * Math.sin(a.get(1) * x + a.get(2)) + a.get(3);
+        }
 
-    @Override
-    public int getNumberOfParameters() {
-      return 4;
-    }
-  };
+        @Override
+        public int getNumberOfParameters() {
+          return 4;
+        }
+      };
 
-  private static final ParameterizedFunction<Double, DoubleArray, DoubleArray> PARAM_GRAD = new ParameterizedFunction<Double, DoubleArray, DoubleArray>() {
+  private static final ParameterizedFunction<Double, DoubleArray, DoubleArray> PARAM_GRAD =
+      new ParameterizedFunction<Double, DoubleArray, DoubleArray>() {
 
-    @Override
-    public DoubleArray evaluate(final Double x, final DoubleArray a) {
-      ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
-      final double temp1 = Math.sin(a.get(1) * x + a.get(2));
-      final double temp2 = Math.cos(a.get(1) * x + a.get(2));
+        @Override
+        public DoubleArray evaluate(final Double x, final DoubleArray a) {
+          ArgChecker.isTrue(a.size() == getNumberOfParameters(), "four parameters");
+          final double temp1 = Math.sin(a.get(1) * x + a.get(2));
+          final double temp2 = Math.cos(a.get(1) * x + a.get(2));
           final double[] res = new double[4];
           res[0] = temp1;
           res[2] = a.get(0) * temp2;
           res[1] = x * res[2];
           res[3] = 1.0;
           return DoubleArray.copyOf(res);
-    }
+        }
 
-    @Override
-    public int getNumberOfParameters() {
-      return 4;
-    }
-  };
+        @Override
+        public int getNumberOfParameters() {
+          return 4;
+        }
+      };
 
   private static final Function<DoubleArray, DoubleMatrix> GRAD = new Function<DoubleArray, DoubleMatrix>() {
 

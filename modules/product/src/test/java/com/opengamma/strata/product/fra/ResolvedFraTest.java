@@ -52,13 +52,13 @@ public class ResolvedFraTest {
   public void test_builder_datesInOrder() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedFra.builder()
-        .notional(NOTIONAL_1M)
-        .paymentDate(date(2015, 6, 15))
-        .startDate(date(2015, 6, 15))
-        .endDate(date(2015, 6, 14))
-        .fixedRate(0.25d)
-        .floatingRate(IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA))
-        .build());
+            .notional(NOTIONAL_1M)
+            .paymentDate(date(2015, 6, 15))
+            .startDate(date(2015, 6, 15))
+            .endDate(date(2015, 6, 14))
+            .fixedRate(0.25d)
+            .floatingRate(IborRateComputation.of(GBP_LIBOR_3M, date(2015, 6, 12), REF_DATA))
+            .build());
   }
 
   //-------------------------------------------------------------------------

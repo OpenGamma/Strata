@@ -195,18 +195,18 @@ public class PeriodicScheduleTest {
     assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(JUN_04, BDA));
     assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(SEP_17, BDA));
   }
-  
+
   @Test
   public void test_firstPaymentDate_before_effectiveDate() {
-  
+
     // Schedule where the combination of override start date and regular first period start date produce a first
     // payment date which is before the (non-overridden) start date
-  
+
     LocalDate startDate = LocalDate.of(2018, 7, 26);
     LocalDate endDate = LocalDate.of(2019, 6, 20);
     LocalDate overrideStartDate = LocalDate.of(2018, 3, 20);
     LocalDate firstRegularStartDate = LocalDate.of(2018, 6, 20);
-    
+
     PeriodicSchedule scheduleDefinition = PeriodicSchedule.builder()
         .startDate(startDate)
         .endDate(endDate)
@@ -215,16 +215,16 @@ public class PeriodicScheduleTest {
         .firstRegularStartDate(firstRegularStartDate)
         .overrideStartDate(AdjustableDate.of(overrideStartDate))
         .build();
-  
+
     Schedule schedule = scheduleDefinition.createSchedule(REF_DATA);
     assertThat(schedule.size()).isEqualTo(5);
-    
+
     for (int i = 0; i < schedule.size(); i++) {
 
       LocalDate expectedStart = overrideStartDate.plusMonths(3 * i);
       LocalDate expectedEnd = expectedStart.plusMonths(3);
       SchedulePeriod expectedPeriod = SchedulePeriod.of(expectedStart, expectedEnd);
-  
+
       SchedulePeriod actualPeriod = schedule.getPeriod(i);
       assertThat(expectedPeriod).isEqualTo(actualPeriod);
     }
@@ -613,7 +613,7 @@ public class PeriodicScheduleTest {
       List<LocalDate> unadjusted,
       List<LocalDate> adjusted,
       RollConvention expRoll) {
-    
+
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -653,7 +653,7 @@ public class PeriodicScheduleTest {
       List<LocalDate> unadjusted,
       List<LocalDate> adjusted,
       RollConvention expRoll) {
-    
+
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -699,7 +699,7 @@ public class PeriodicScheduleTest {
       List<LocalDate> unadjusted,
       List<LocalDate> adjusted,
       RollConvention expRoll) {
-    
+
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -735,7 +735,7 @@ public class PeriodicScheduleTest {
       List<LocalDate> unadjusted,
       List<LocalDate> adjusted,
       RollConvention expRoll) {
-    
+
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -774,7 +774,7 @@ public class PeriodicScheduleTest {
       List<LocalDate> unadjusted,
       List<LocalDate> adjusted,
       RollConvention expRoll) {
-    
+
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(start)
         .endDate(end)
@@ -1199,7 +1199,7 @@ public class PeriodicScheduleTest {
       List<LocalDate> unadjusted,
       List<LocalDate> adjusted,
       RollConvention expRoll) {
-    
+
     PeriodicSchedule a1 = of(start, end, freq, busDayAdjustment, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule a2 = of(start, end, freq, busDayAdjustment, stubConv, rollConv, firstReg, lastReg, null, null, null);
     PeriodicSchedule b = of(LocalDate.MIN, end, freq, busDayAdjustment, stubConv, rollConv, firstReg, lastReg, null, null, null);

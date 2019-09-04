@@ -109,7 +109,7 @@ public abstract class VectorRootFinderTest {
 
   };
 
-  static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0 };
+  static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0};
   static final Function<Double, Double> DUMMY_YIELD_CURVE = new Function<Double, Double>() {
 
     private static final double a = -0.03;

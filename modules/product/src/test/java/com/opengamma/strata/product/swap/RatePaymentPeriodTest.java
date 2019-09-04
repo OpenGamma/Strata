@@ -131,24 +131,24 @@ public class RatePaymentPeriodTest {
   public void test_builder_badFxReset() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> RatePaymentPeriod.builder()
-        .paymentDate(DATE_2014_10_01)
-        .accrualPeriods(RAP1, RAP2)
-        .dayCount(ACT_365F)
-        .currency(USD)
-        .fxReset(FX_RESET_USD)
-        .notional(1000d)
-        .compoundingMethod(CompoundingMethod.NONE)
-        .build());
+            .paymentDate(DATE_2014_10_01)
+            .accrualPeriods(RAP1, RAP2)
+            .dayCount(ACT_365F)
+            .currency(USD)
+            .fxReset(FX_RESET_USD)
+            .notional(1000d)
+            .compoundingMethod(CompoundingMethod.NONE)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> RatePaymentPeriod.builder()
-        .paymentDate(DATE_2014_10_01)
-        .accrualPeriods(RAP1, RAP2)
-        .dayCount(ACT_365F)
-        .currency(EUR)
-        .fxReset(FX_RESET_USD)
-        .notional(1000d)
-        .compoundingMethod(CompoundingMethod.NONE)
-        .build());
+            .paymentDate(DATE_2014_10_01)
+            .accrualPeriods(RAP1, RAP2)
+            .dayCount(ACT_365F)
+            .currency(EUR)
+            .fxReset(FX_RESET_USD)
+            .notional(1000d)
+            .compoundingMethod(CompoundingMethod.NONE)
+            .build());
   }
 
   //-------------------------------------------------------------------------

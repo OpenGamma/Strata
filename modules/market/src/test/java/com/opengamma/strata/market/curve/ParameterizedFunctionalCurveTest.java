@@ -139,8 +139,12 @@ public class ParameterizedFunctionalCurveTest {
     ParameterizedFunctionalCurve test = ParameterizedFunctionalCurve.of(
         METADATA, PARAMETERS, VALUE_FUNCTION, DERIVATIVE_FUNCTION, SENSITIVITY_FUNCTION);
     DoubleArray sensiVal = DoubleArray.of(1d, 2d, 3d);
-    assertThat(test.createParameterSensitivity(sensiVal)).isEqualTo(UnitParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), sensiVal));
-    assertThat(test.createParameterSensitivity(USD, sensiVal)).isEqualTo(CurrencyParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), USD, sensiVal));
+    assertThat(test.createParameterSensitivity(sensiVal))
+        .isEqualTo(UnitParameterSensitivity.of(METADATA.getCurveName(), METADATA.getParameterMetadata().get(), sensiVal));
+    assertThat(test.createParameterSensitivity(USD, sensiVal))
+        .isEqualTo(
+            CurrencyParameterSensitivity.of(
+                METADATA.getCurveName(), METADATA.getParameterMetadata().get(), USD, sensiVal));
   }
 
   //-------------------------------------------------------------------------

@@ -69,42 +69,50 @@ public class BillYieldConventionTest {
 
   @Test
   public void test_price_yield_discount() {
-    assertThat(BillYieldConvention.DISCOUNT.priceFromYield(YIELD, ACCRUAL_FACTOR)).isCloseTo(1.0d - ACCRUAL_FACTOR * YIELD, offset(TOLERANCE));
+    assertThat(BillYieldConvention.DISCOUNT.priceFromYield(YIELD, ACCRUAL_FACTOR))
+        .isCloseTo(1.0d - ACCRUAL_FACTOR * YIELD, offset(TOLERANCE));
   }
 
   @Test
   public void test_price_yield_france() {
-    assertThat(BillYieldConvention.FRANCE_CD.priceFromYield(YIELD, ACCRUAL_FACTOR)).isCloseTo(1.0d / (1.0d + ACCRUAL_FACTOR * YIELD), offset(TOLERANCE));
+    assertThat(BillYieldConvention.FRANCE_CD.priceFromYield(YIELD, ACCRUAL_FACTOR))
+        .isCloseTo(1.0d / (1.0d + ACCRUAL_FACTOR * YIELD), offset(TOLERANCE));
   }
 
   @Test
   public void test_price_yield_intatmaturity() {
-    assertThat(BillYieldConvention.INTEREST_AT_MATURITY.priceFromYield(YIELD, ACCRUAL_FACTOR)).isCloseTo(1.0d / (1.0d + ACCRUAL_FACTOR * YIELD), offset(TOLERANCE));
+    assertThat(BillYieldConvention.INTEREST_AT_MATURITY.priceFromYield(YIELD, ACCRUAL_FACTOR))
+        .isCloseTo(1.0d / (1.0d + ACCRUAL_FACTOR * YIELD), offset(TOLERANCE));
   }
 
   @Test
   public void test_price_yield_japan() {
-    assertThat(BillYieldConvention.JAPAN_BILLS.priceFromYield(YIELD, ACCRUAL_FACTOR)).isCloseTo(1.0d / (1.0d + ACCRUAL_FACTOR * YIELD), offset(TOLERANCE));
+    assertThat(BillYieldConvention.JAPAN_BILLS.priceFromYield(YIELD, ACCRUAL_FACTOR))
+        .isCloseTo(1.0d / (1.0d + ACCRUAL_FACTOR * YIELD), offset(TOLERANCE));
   }
 
   @Test
   public void test_yield_price_discount() {
-    assertThat(BillYieldConvention.DISCOUNT.yieldFromPrice(PRICE, ACCRUAL_FACTOR)).isCloseTo((1.0d - PRICE) / ACCRUAL_FACTOR, offset(TOLERANCE));
+    assertThat(BillYieldConvention.DISCOUNT.yieldFromPrice(PRICE, ACCRUAL_FACTOR))
+        .isCloseTo((1.0d - PRICE) / ACCRUAL_FACTOR, offset(TOLERANCE));
   }
 
   @Test
   public void test_yield_price_france() {
-    assertThat(BillYieldConvention.FRANCE_CD.yieldFromPrice(PRICE, ACCRUAL_FACTOR)).isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
+    assertThat(BillYieldConvention.FRANCE_CD.yieldFromPrice(PRICE, ACCRUAL_FACTOR))
+        .isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
   }
 
   @Test
   public void test_yield_price_intatmaturity() {
-    assertThat(BillYieldConvention.INTEREST_AT_MATURITY.yieldFromPrice(PRICE, ACCRUAL_FACTOR)).isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
+    assertThat(BillYieldConvention.INTEREST_AT_MATURITY.yieldFromPrice(PRICE, ACCRUAL_FACTOR))
+        .isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
   }
 
   @Test
   public void test_yield_price_japan() {
-    assertThat(BillYieldConvention.JAPAN_BILLS.yieldFromPrice(PRICE, ACCRUAL_FACTOR)).isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
+    assertThat(BillYieldConvention.JAPAN_BILLS.yieldFromPrice(PRICE, ACCRUAL_FACTOR))
+        .isCloseTo((1.0d / PRICE - 1.0d) / ACCRUAL_FACTOR, offset(TOLERANCE));
   }
 
   @Test

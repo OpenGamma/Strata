@@ -62,7 +62,7 @@ public class ResolvedBillTest {
     double priceComputed = bill.priceFromYield(yield, settlementDate);
     assertThat(priceExpected).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
   }
-  
+
   @Test
   public void yield_from_price_discount() {
     ResolvedBill bill = sut();
@@ -85,7 +85,7 @@ public class ResolvedBillTest {
     double priceComputed = bill.priceFromYield(yield, settlementDate);
     assertThat(priceExpected).isCloseTo(priceComputed, offset(TOLERANCE_PRICE));
   }
-  
+
   @Test
   public void yield_from_price_intatmat() {
     ResolvedBill bill = BillTest.US_BILL

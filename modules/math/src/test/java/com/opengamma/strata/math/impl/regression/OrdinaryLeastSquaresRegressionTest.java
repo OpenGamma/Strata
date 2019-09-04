@@ -27,16 +27,16 @@ public class OrdinaryLeastSquaresRegressionTest {
     final double[][] x = new double[n][5];
     final double[] y1 = new double[n];
     final double[] y2 = new double[n];
-    final double[] a1 = new double[] {3.4, 1.2, -0.62, -0.44, 0.65 };
-    final double[] a2 = new double[] {0.98, 3.4, 1.2, -0.62, -0.44, 0.65 };
+    final double[] a1 = new double[] {3.4, 1.2, -0.62, -0.44, 0.65};
+    final double[] a2 = new double[] {0.98, 3.4, 1.2, -0.62, -0.44, 0.65};
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < 5; j++) {
         x[i][j] = RANDOM.nextDouble() + (RANDOM.nextDouble() - 0.5) / FACTOR;
       }
-      y1[i] = a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4]
-          + RANDOM.nextDouble() / FACTOR;
-      y2[i] = a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4]
-          + RANDOM.nextDouble() / FACTOR;
+      y1[i] =
+          a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4] + RANDOM.nextDouble() / FACTOR;
+      y2[i] = a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4] +
+          RANDOM.nextDouble() / FACTOR;
     }
     final LeastSquaresRegressionResult result1 = REGRESSION.regress(x, null, y1, false);
     final LeastSquaresRegressionResult result2 = REGRESSION.regress(x, null, y2, true);
@@ -44,13 +44,15 @@ public class OrdinaryLeastSquaresRegressionTest {
     assertRegression(result2, a2);
     final double[] residuals1 = result1.getResiduals();
     for (int i = 0; i < n; i++) {
-      assertThat(y1[i]).isCloseTo(a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4]
-          + residuals1[i], offset(10 * EPS));
+      assertThat(y1[i]).isCloseTo(
+          a1[0] * x[i][0] + a1[1] * x[i][1] + a1[2] * x[i][2] + a1[3] * x[i][3] + a1[4] * x[i][4] + residuals1[i],
+          offset(10 * EPS));
     }
     final double[] residuals2 = result2.getResiduals();
     for (int i = 0; i < n; i++) {
-      assertThat(y2[i]).isCloseTo(a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5]
-          * x[i][4] + residuals2[i], offset(10 * EPS));
+      assertThat(y2[i]).isCloseTo(
+          a2[0] + a2[1] * x[i][0] + a2[2] * x[i][1] + a2[3] * x[i][2] + a2[4] * x[i][3] + a2[5] * x[i][4] + residuals2[i],
+          offset(10 * EPS));
     }
   }
 

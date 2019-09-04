@@ -38,7 +38,8 @@ public class ResolvedCmsLegTest {
     assertThat(test.getStartDate()).isEqualTo(PERIOD_1.getStartDate());
     assertThat(test.getEndDate()).isEqualTo(PERIOD_2.getEndDate());
     assertThat(test.getIndex()).isEqualTo(PERIOD_1.getIndex());
-    assertThat(test.getUnderlyingIndex()).isEqualTo(PERIOD_1.getIndex().getTemplate().getConvention().getFloatingLeg().getIndex());
+    assertThat(test.getUnderlyingIndex())
+        .isEqualTo(PERIOD_1.getIndex().getTemplate().getConvention().getFloatingLeg().getIndex());
     assertThat(test.getPayReceive()).isEqualTo(RECEIVE);
   }
 

@@ -132,14 +132,14 @@ public class InflationRateCalculationTest {
   public void test_builder_badLag() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationRateCalculation.builder()
-        .index(GB_HICP)
-        .lag(Period.ZERO)
-        .build());
+            .index(GB_HICP)
+            .lag(Period.ZERO)
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> InflationRateCalculation.builder()
-        .index(GB_HICP)
-        .lag(Period.ofMonths(-1))
-        .build());
+            .index(GB_HICP)
+            .lag(Period.ofMonths(-1))
+            .build());
   }
 
   //-------------------------------------------------------------------------

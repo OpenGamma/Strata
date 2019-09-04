@@ -78,22 +78,22 @@ public class ResolvedDsfTest {
   public void test_builder_deliveryAfterStart() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedDsf.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(LocalDate.of(2014, 9, 19))
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(RSWAP)
-        .build());
+            .notional(NOTIONAL)
+            .deliveryDate(LocalDate.of(2014, 9, 19))
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(RSWAP)
+            .build());
   }
 
   @Test
   public void test_builder_tradeAfterdelivery() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedDsf.builder()
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LocalDate.of(2014, 9, 11))
-        .underlyingSwap(RSWAP)
-        .build());
+            .notional(NOTIONAL)
+            .deliveryDate(DELIVERY_DATE)
+            .lastTradeDate(LocalDate.of(2014, 9, 11))
+            .underlyingSwap(RSWAP)
+            .build());
   }
 
   @Test
@@ -145,20 +145,20 @@ public class ResolvedDsfTest {
     Swap swap2 = Swap.of(SWAP.getLeg(RECEIVE).get(), iborLeg500);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedDsf.builder()
-        .securityId(PRODUCT.getSecurityId())
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(swap1.resolve(REF_DATA))
-        .build());
+            .securityId(PRODUCT.getSecurityId())
+            .notional(NOTIONAL)
+            .deliveryDate(DELIVERY_DATE)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(swap1.resolve(REF_DATA))
+            .build());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ResolvedDsf.builder()
-        .securityId(PRODUCT.getSecurityId())
-        .notional(NOTIONAL)
-        .deliveryDate(DELIVERY_DATE)
-        .lastTradeDate(LAST_TRADE_DATE)
-        .underlyingSwap(swap2.resolve(REF_DATA))
-        .build());
+            .securityId(PRODUCT.getSecurityId())
+            .notional(NOTIONAL)
+            .deliveryDate(DELIVERY_DATE)
+            .lastTradeDate(LAST_TRADE_DATE)
+            .underlyingSwap(swap2.resolve(REF_DATA))
+            .build());
   }
 
   //-------------------------------------------------------------------------

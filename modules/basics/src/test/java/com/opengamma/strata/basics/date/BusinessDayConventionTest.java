@@ -267,7 +267,8 @@ public class BusinessDayConventionTest {
   @ParameterizedTest
   @MethodSource("data_lenient")
   public void test_lenientLookup_specialNames(String name, BusinessDayConvention convention) {
-    assertThat(BusinessDayConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH))).isEqualTo(Optional.of(convention));
+    assertThat(BusinessDayConvention.extendedEnum().findLenient(name.toLowerCase(Locale.ENGLISH)))
+        .isEqualTo(Optional.of(convention));
   }
 
   @Test
