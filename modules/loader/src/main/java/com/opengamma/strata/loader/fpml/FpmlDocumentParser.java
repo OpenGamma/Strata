@@ -256,6 +256,24 @@ public final class FpmlDocumentParser {
    */
   public List<Trade> parseTrades(ByteSource source) {
     XmlFile xmlFile = XmlFile.of(source, FpmlDocument.ID);
+    return parseTrades(xmlFile);
+  }
+
+  /**
+   * Parses FpML from the specified XML document, extracting the trades.
+   * <p>
+   * This parses the specified XmlFile.
+   * <p>
+   * Sometimes, the FpML document is embedded in a non-FpML wrapper.
+   * This method will intelligently find the FpML document at the root, within any children of
+   * the root, or within any grand-children of the root.
+   * The FpML root element is the one that contains both {@code <trade>} and {@code <party>}.
+   *
+   * @param xmlFile  the FpML XML document
+   * @return the parsed trades
+   * @throws RuntimeException if a parse error occurred
+   */
+  public List<Trade> parseTrades(XmlFile xmlFile) {
     XmlElement root = findFpmlRoot(xmlFile.getRoot());
     if (root == null) {
       throw new FpmlParseException("Unable to find FpML root element");
