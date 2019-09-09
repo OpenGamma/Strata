@@ -7,7 +7,7 @@ The release process for Strata is as follows:
 
 1. Check out the master branch and ensure there are no local changes
 
-1. To change the version number of the released version, change the snapshot version: 
+1. If necessary, change the version number that is to be released next by changing the snapshot version: 
 `mvn versions:set -DgenerateBackupPoms=false -DartifactId=* -DgroupId=com.opengamma.strata`
 
 1. Update the version in README.md, commit and push
