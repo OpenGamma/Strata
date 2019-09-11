@@ -71,6 +71,10 @@ public class EtdOptionPositionTest {
     assertThat(test.getShortQuantity()).isCloseTo(1000d, offset(0d));
     assertThat(test.getSecurity()).isEqualTo(SECURITY);
     assertThat(test.getQuantity()).isCloseTo(1000d, offset(0d));
+    assertThat(test.withQuantities(100d, 300d).getQuantity()).isCloseTo(-200d, offset(0d));
+    assertThat(test.withQuantities(100d, 300d).getShortQuantity()).isCloseTo(300d, offset(0d));
+    assertThat(test.withQuantities(300d, 100d).getQuantity()).isCloseTo(200d, offset(0d));
+    assertThat(test.withQuantities(300d, 100d).getLongQuantity()).isCloseTo(300d, offset(0d));
   }
 
   @Test
