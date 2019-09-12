@@ -108,6 +108,12 @@ public final class ExchangeIds {
   /** Euronext Exchange - Paris MATIF */
   public static final ExchangeId XMAT = ExchangeId.of("XMAT");
 
+  /** Euronext Exchange - Paris */
+  public static final ExchangeId XPAR = ExchangeId.of("XPAR");
+
+  /** Euronext Exchange - Paris MONEP */
+  public static final ExchangeId XMON = ExchangeId.of("XMON");
+
   /** Korea Exchange (Futures Market) */
   public static final ExchangeId XKFE = ExchangeId.of("XKFE");
 
