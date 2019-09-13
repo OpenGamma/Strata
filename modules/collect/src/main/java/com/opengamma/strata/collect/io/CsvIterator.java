@@ -43,10 +43,10 @@ import com.opengamma.strata.collect.Unchecked;
  *    // use the CsvIterator
  *  }
  * </pre>
- * One way to use the iterable is with the for-each loop, using a lambda to adapt {@code Iterator} to {@code Iterable}:
+ * One way to use the iterable is with the for-each loop, using {@link #asIterable()}:
  * <pre>
  *  try (CsvIterator csvIterator = CsvIterator.of(source, true)) {
- *    for (CsvRow row : () -&gt; csvIterator) {
+ *    for (CsvRow row : csvIterator.asIterable()) {
  *      // process the row
  *    }
  *  }
@@ -253,6 +253,25 @@ public final class CsvIterator implements AutoCloseable, PeekingIterator<CsvRow>
       }
     }
     return false;
+  }
+
+  /**
+   * Returns an {@code Iterable} that wraps this iterator.
+   * <p>
+   * Unlike most {@code Iterable} implementations, the method {@link Iterable#iterator()}
+   * can only be called once. This is intended for use with the for-each loop.
+   * <pre>
+   *  try (CsvIterator csvIterator = CsvIterator.of(source, true)) {
+   *    for (CsvRow row : csvIterator.asIterable()) {
+   *      // process the row
+   *    }
+   *  }
+   * </pre>
+   * 
+   * @return this iterator as an {@code Iterable}
+   */
+  public Iterable<CsvRow> asIterable() {
+    return () -> this;
   }
 
   /**
