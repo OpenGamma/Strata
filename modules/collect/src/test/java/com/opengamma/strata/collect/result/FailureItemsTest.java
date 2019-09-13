@@ -58,6 +58,22 @@ public class FailureItemsTest {
     assertThat(test.getFailures()).isEqualTo(ImmutableList.of(FAILURE1, FAILURE2));
   }
 
+  @Test
+  public void test_combinedWith() {
+    FailureItems test = FailureItems.of(FAILURE1, FAILURE2);
+
+    assertThat(test.combinedWith(FailureItems.EMPTY)).isEqualTo(test);
+
+    assertThat(test.combinedWith(test).getFailures())
+        .containsExactly(FAILURE1, FAILURE2, FAILURE1, FAILURE2);
+
+    assertThat(test.combinedWith(ImmutableList.of(FAILURE1)).getFailures())
+        .containsExactly(FAILURE1, FAILURE2, FAILURE1);
+
+    assertThat(test.combinedWith(FAILURE1, FAILURE2).getFailures())
+        .containsExactly(FAILURE1, FAILURE2, FAILURE1, FAILURE2);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {

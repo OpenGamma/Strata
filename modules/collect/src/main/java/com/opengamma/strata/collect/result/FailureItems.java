@@ -102,6 +102,16 @@ public final class FailureItems
    * @param otherFailures the other failure items
    * @return the combined failure items
    */
+  public FailureItems combinedWith(FailureItem... otherFailures) {
+    return combinedWith(ImmutableList.copyOf(otherFailures));
+  }
+
+  /**
+   * Combines these failure items with other failure items.
+   *
+   * @param otherFailures the other failure items
+   * @return the combined failure items
+   */
   public FailureItems combinedWith(List<FailureItem> otherFailures) {
     return builder().addAllFailures(failures).addAllFailures(otherFailures).build();
   }
