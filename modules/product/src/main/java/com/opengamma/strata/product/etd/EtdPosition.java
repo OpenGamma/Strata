@@ -118,4 +118,13 @@ public interface EtdPosition
   @Override
   public abstract EtdPosition withQuantity(double quantity);
 
+  /**
+   * Returns an instance with the specified quantities.
+   * 
+   * @param longQuantity  the new long quantity
+   * @param shortQuantity  the new short quantity
+   * @return the instance with the specified quantities
+   */
+  public abstract EtdPosition withQuantities(double longQuantity, double shortQuantity);
+
 }

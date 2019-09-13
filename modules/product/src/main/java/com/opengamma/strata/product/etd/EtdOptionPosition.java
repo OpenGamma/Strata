@@ -176,6 +176,11 @@ public final class EtdOptionPosition
     return EtdOptionPosition.ofNet(info, security, quantity);
   }
 
+  @Override
+  public EtdOptionPosition withQuantities(double longQuantity, double shortQuantity) {
+    return EtdOptionPosition.ofLongShort(info, security, longQuantity, shortQuantity);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public PortfolioItemSummary summarize() {
