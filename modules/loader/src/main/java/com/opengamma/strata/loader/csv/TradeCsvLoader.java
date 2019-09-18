@@ -454,8 +454,7 @@ public final class TradeCsvLoader {
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
-    while (csv.hasNext()) {
-      CsvRow row = csv.next();
+    for (CsvRow row : csv.asIterable()) {
       try {
         String typeRaw = row.getField(TYPE_FIELD);
         TradeInfo info = parseTradeInfo(row);

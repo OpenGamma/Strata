@@ -346,6 +346,21 @@ public class CsvIteratorTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_asIterable() {
+    try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(CSV1), true)) {
+      ImmutableList<String> headers = csvFile.headers();
+      assertThat(headers.size()).isEqualTo(2);
+      assertThat(headers.get(0)).isEqualTo("h1");
+      assertThat(headers.get(1)).isEqualTo("h2");
+      for (CsvRow row : csvFile.asIterable()) {
+        assertThat(row.headers()).isEqualTo(headers);
+        assertThat(row.fieldCount()).isEqualTo(2);
+      }
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_asStream_empty_no_header() {
     try (CsvIterator csvFile = CsvIterator.of(CharSource.wrap(""), false)) {
       assertThat(csvFile.asStream().collect(toList()).size()).isEqualTo(0);
