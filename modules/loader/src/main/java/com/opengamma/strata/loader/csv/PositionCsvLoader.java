@@ -326,7 +326,7 @@ public final class PositionCsvLoader {
     List<T> positions = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
     int line = 2;
-    for (CsvRow row : (Iterable<CsvRow>) () -> csv) {
+    for (CsvRow row : csv.asIterable()) {
       try {
         PositionInfo info = parsePositionInfo(row);
         Optional<String> typeRawOpt = row.findValue(TYPE_FIELD);
