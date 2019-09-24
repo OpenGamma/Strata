@@ -69,6 +69,43 @@ public class PositionInfoTest {
   }
 
   @Test
+  public void test_overrideWith() {
+    PositionInfo base = PositionInfo.builder()
+        .id(ID)
+        .addAttribute(AttributeType.DESCRIPTION, "A")
+        .build();
+    PositionInfo other = PositionInfo.builder()
+        .id(ID2)
+        .addAttribute(AttributeType.DESCRIPTION, "B")
+        .addAttribute(AttributeType.NAME, "B")
+        .build();
+    PositionInfo test = base.overrideWith(other);
+    assertThat(test.getId()).hasValue(ID2);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttributes())
+        .containsEntry(AttributeType.DESCRIPTION, "B")
+        .containsEntry(AttributeType.NAME, "B");
+  }
+
+  @Test
+  public void test_overrideWith_otherType() {
+    PositionInfo base = PositionInfo.builder()
+        .id(ID)
+        .addAttribute(AttributeType.DESCRIPTION, "A")
+        .build();
+    PortfolioItemInfo other = PortfolioItemInfo.empty()
+        .withId(ID2)
+        .withAttribute(AttributeType.DESCRIPTION, "B")
+        .withAttribute(AttributeType.NAME, "B");
+    PositionInfo test = base.overrideWith(other);
+    assertThat(test.getId()).hasValue(ID2);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttributes())
+        .containsEntry(AttributeType.DESCRIPTION, "B")
+        .containsEntry(AttributeType.NAME, "B");
+  }
+
+  @Test
   public void test_toBuilder() {
     PositionInfo test = PositionInfo.builder()
         .id(ID)

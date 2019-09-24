@@ -62,6 +62,22 @@ public class PortfolioItemInfoTest {
     assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
   }
 
+  @Test
+  public void test_overrideWith() {
+    PortfolioItemInfo base = PortfolioItemInfo.empty()
+        .withId(ID)
+        .withAttribute(AttributeType.DESCRIPTION, "A");
+    PositionInfo other = PositionInfo.empty()
+        .withId(ID2)
+        .withAttribute(AttributeType.DESCRIPTION, "B")
+        .withAttribute(AttributeType.NAME, "B");
+    PortfolioItemInfo test = base.overrideWith(other);
+    assertThat(test.getId()).hasValue(ID2);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("B");
+    assertThat(test.getAttribute(AttributeType.NAME)).isEqualTo("B");
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
