@@ -114,7 +114,14 @@ public interface PortfolioItemInfo extends Attributes {
    * @return the combined instance
    */
   public default PortfolioItemInfo overrideWith(PortfolioItemInfo other) {
-    return other.combinedWith(this);
+    PortfolioItemInfo combinedInfo = this;
+    if (other.getId().isPresent()) {
+      combinedInfo = combinedInfo.withId(other.getId().get());
+    }
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
+      combinedInfo = combinedInfo.withAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+    }
+    return combinedInfo;
   }
 
 }
