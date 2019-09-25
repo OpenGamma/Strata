@@ -533,6 +533,87 @@ public class IsdaCdsProductPricerTest {
     equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
   }
 
+  @Test
+  public void riskyAnnuitySensitivityTest() {
+    PointSensitivityBuilder pointNext = PRICER.riskyAnnuitySensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resNext = RATES_PROVIDER.parameterSensitivity(pointNext.build());
+    CurrencyParameterSensitivities expNext =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER.riskyAnnuity(PRODUCT_NEXTDAY,
+            p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resNext, expNext, NOTIONAL * EPS);
+
+    PointSensitivityBuilder pointBefore = PRICER.riskyAnnuitySensitivity(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resBefore = RATES_PROVIDER.parameterSensitivity(pointBefore.build());
+    CurrencyParameterSensitivities expBefore =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER.riskyAnnuity(PRODUCT_BEFORE,
+            p, PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resBefore, expBefore, NOTIONAL * EPS);
+
+    PointSensitivityBuilder pointAfter = PRICER.riskyAnnuitySensitivity(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resAfter = RATES_PROVIDER.parameterSensitivity(pointAfter.build());
+    CurrencyParameterSensitivities expAfter =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER.riskyAnnuity(PRODUCT_AFTER,
+            p, PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
+  }
+
+  @Test
+  public void riskyAnnuitySensitivityFixTest() {
+    PointSensitivityBuilder pointNext = PRICER_FIX.riskyAnnuitySensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resNext = RATES_PROVIDER.parameterSensitivity(pointNext.build());
+    CurrencyParameterSensitivities expNext =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_FIX.riskyAnnuity(PRODUCT_NEXTDAY,
+            p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resNext, expNext, NOTIONAL * EPS);
+
+    PointSensitivityBuilder pointBefore = PRICER_FIX.riskyAnnuitySensitivity(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resBefore = RATES_PROVIDER.parameterSensitivity(pointBefore.build());
+    CurrencyParameterSensitivities expBefore =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_FIX.riskyAnnuity(PRODUCT_BEFORE,
+            p, PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resBefore, expBefore, NOTIONAL * EPS);
+
+    PointSensitivityBuilder pointAfter = PRICER_FIX.riskyAnnuitySensitivity(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resAfter = RATES_PROVIDER.parameterSensitivity(pointAfter.build());
+    CurrencyParameterSensitivities expAfter =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_FIX.riskyAnnuity(PRODUCT_AFTER,
+            p, PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
+  }
+
+  @Test
+  public void riskyAnnuitySensitivityCorrectTest() {
+    PointSensitivityBuilder pointNext = PRICER_CORRECT.riskyAnnuitySensitivity(PRODUCT_NEXTDAY, RATES_PROVIDER,
+        PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resNext = RATES_PROVIDER.parameterSensitivity(pointNext.build());
+    CurrencyParameterSensitivities expNext =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_CORRECT.riskyAnnuity(PRODUCT_NEXTDAY,
+            p, PRODUCT_NEXTDAY.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resNext, expNext, NOTIONAL * EPS);
+
+    PointSensitivityBuilder pointBefore = PRICER_CORRECT.riskyAnnuitySensitivity(PRODUCT_BEFORE, RATES_PROVIDER,
+        PRODUCT_BEFORE.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resBefore = RATES_PROVIDER.parameterSensitivity(pointBefore.build());
+    CurrencyParameterSensitivities expBefore =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_CORRECT.riskyAnnuity(PRODUCT_BEFORE,
+            p, PRODUCT_BEFORE.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resBefore, expBefore, NOTIONAL * EPS);
+
+    PointSensitivityBuilder pointAfter = PRICER_CORRECT.riskyAnnuitySensitivity(PRODUCT_AFTER, RATES_PROVIDER,
+        PRODUCT_AFTER.getSettlementDateOffset().adjust(RATES_PROVIDER.getValuationDate(), REF_DATA), REF_DATA);
+    CurrencyParameterSensitivities resAfter = RATES_PROVIDER.parameterSensitivity(pointAfter.build());
+    CurrencyParameterSensitivities expAfter =
+        CALC_FD.sensitivity(RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_CORRECT.riskyAnnuity(PRODUCT_AFTER,
+            p, PRODUCT_AFTER.getSettlementDateOffset().adjust(p.getValuationDate(), REF_DATA), DIRTY, REF_DATA)));
+    equalWithRelativeTolerance(resAfter, expAfter, NOTIONAL * EPS);
+  }
+
   private void equalWithRelativeTolerance(
       CurrencyParameterSensitivities computed,
       CurrencyParameterSensitivities expected,
