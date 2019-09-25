@@ -60,6 +60,9 @@ public interface ScenarioFxRateProvider {
    * @throws IllegalArgumentException if either of the currencies aren't included in the currency pair of this rate
    */
   public default double convert(double amount, Currency fromCurrency, Currency toCurrency, int scenarioIndex) {
+    if (fromCurrency.equals(toCurrency)) {
+      return amount;
+    }
     return amount * fxRate(fromCurrency, toCurrency, scenarioIndex);
   }
 
@@ -77,6 +80,9 @@ public interface ScenarioFxRateProvider {
    * @throws RuntimeException if no FX rate could be found
    */
   public default double fxRate(Currency baseCurrency, Currency counterCurrency, int scenarioIndex) {
+    if (baseCurrency.equals(counterCurrency)) {
+      return 1;
+    }
     return fxRateProvider(scenarioIndex).fxRate(baseCurrency, counterCurrency);
   }
 
