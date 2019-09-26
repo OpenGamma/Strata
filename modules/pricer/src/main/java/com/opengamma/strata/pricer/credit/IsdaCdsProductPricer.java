@@ -19,6 +19,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.Pair;
+import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.math.impl.util.Epsilon;
 import com.opengamma.strata.pricer.common.PriceType;
@@ -138,14 +139,14 @@ public class IsdaCdsProductPricer {
    * @param refData  the reference data
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder priceSensitivity(
+  public PointSensitivities priceSensitivity(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
       ReferenceData refData) {
 
     if (isExpired(cds, ratesProvider)) {
-      return PointSensitivityBuilder.none();
+      return PointSensitivities.empty();
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
@@ -158,7 +159,7 @@ public class IsdaCdsProductPricer {
         riskyAnnuitySensitivity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
             .multipliedBy(-cds.getFixedRate());
 
-    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi).build();
   }
 
   //-------------------------------------------------------------------------
@@ -200,14 +201,14 @@ public class IsdaCdsProductPricer {
    * @param refData  the reference data
    * @return the present value sensitivity
    */
-  public PointSensitivityBuilder presentValueSensitivity(
+  public PointSensitivities presentValueSensitivity(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
       ReferenceData refData) {
 
     if (isExpired(cds, ratesProvider)) {
-      return PointSensitivityBuilder.none();
+      return PointSensitivities.empty();
     }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
@@ -222,7 +223,7 @@ public class IsdaCdsProductPricer {
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
             .multipliedBy(-cds.getFixedRate() * signedNotional);
 
-    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi).build();
   }
 
   //-------------------------------------------------------------------------
@@ -268,7 +269,7 @@ public class IsdaCdsProductPricer {
    * @param refData  the reference data
    * @return the par spread
    */
-  public PointSensitivityBuilder parSpreadSensitivity(
+  public PointSensitivities parSpreadSensitivity(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
@@ -291,7 +292,7 @@ public class IsdaCdsProductPricer {
         cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate)
             .multipliedBy(-protectionLeg * riskyAnnuityInv * riskyAnnuityInv);
 
-    return protectionLegSensi.combinedWith(riskyAnnuitySensi);
+    return protectionLegSensi.combinedWith(riskyAnnuitySensi).build();
   }
 
   //-------------------------------------------------------------------------
@@ -323,6 +324,8 @@ public class IsdaCdsProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Calculates the risky annuity, which is RPV01 per unit notional.
+   * <p>
+   * Zero is returned if the CDS already expired.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -352,6 +355,8 @@ public class IsdaCdsProductPricer {
    * <p>
    * The risky annuity sensitivity of the product is the sensitivity of risky annuity to the underlying curves.
    * The resulting sensitivity is based on the currency of the CDS product.
+   * <p>
+   * Empty sensitivity is returned if the CDS already expired.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -359,18 +364,20 @@ public class IsdaCdsProductPricer {
    * @param refData  the reference data
    * @return the risky annuity sensitivity
    */
-  public PointSensitivityBuilder riskyAnnuitySensitivity(
+  public PointSensitivities riskyAnnuitySensitivity(
       ResolvedCds cds,
       CreditRatesProvider ratesProvider,
       LocalDate referenceDate,
       ReferenceData refData) {
 
-    ArgChecker.isTrue(cds.getProtectionEndDate().isAfter(ratesProvider.getValuationDate()), "CDS already expired");
+    if (isExpired(cds, ratesProvider)) {
+      return PointSensitivities.empty();
+    }
     LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
     return riskyAnnuitySensitivity(
-        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate);
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate).build();
   }
 
   //-------------------------------------------------------------------------
