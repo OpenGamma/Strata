@@ -169,9 +169,9 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
     assertThat(riskyAnnuity).isEqualTo(0d);
     CurrencyAmount recovery01 = PRICER.recovery01(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
     assertThat(recovery01).isEqualTo(CurrencyAmount.zero(USD));
-    PointSensitivities sensi = PRICER.presentValueSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities sensi = PRICER.presentValueSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA).build();
     assertThat(sensi).isEqualTo(PointSensitivities.empty());
-    PointSensitivities sensiPrice = PRICER.priceSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities sensiPrice = PRICER.priceSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA).build();
     assertThat(sensiPrice).isEqualTo(PointSensitivities.empty());
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER.parSpreadSensitivity(PRODUCT, provider, SETTLEMENT_STD, REF_DATA));
@@ -208,18 +208,18 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
   //-------------------------------------------------------------------------
   @Test
   public void pvSensitivityTest() {
-    PointSensitivities point = PRICER.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities point = PRICER.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities res = RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities exp =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER.presentValue(PRODUCT, p, SETTLEMENT_STD, CLEAN, REF_DATA));
     equalWithRelativeTolerance(res, exp, NOTIONAL * EPS);
     PointSensitivities pointMarkit =
-        PRICER_MARKIT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+        PRICER_MARKIT.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resMarkit = RATES_PROVIDER.parameterSensitivity(pointMarkit);
     CurrencyParameterSensitivities expMarkit =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_MARKIT.presentValue(PRODUCT, p, SETTLEMENT_STD, CLEAN, REF_DATA));
     equalWithRelativeTolerance(resMarkit, expMarkit, NOTIONAL * EPS);
-    PointSensitivities pointOg = PRICER_OG.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities pointOg = PRICER_OG.presentValueSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resOg = RATES_PROVIDER.parameterSensitivity(pointOg);
     CurrencyParameterSensitivities expOg =
         CALC_FD.sensitivity(RATES_PROVIDER, p -> PRICER_OG.presentValue(PRODUCT, p, SETTLEMENT_STD, CLEAN, REF_DATA));
@@ -228,18 +228,18 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   @Test
   public void priceSensitivityTest() {
-    PointSensitivities point = PRICER.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities point = PRICER.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities res = RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities exp = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER.price(PRODUCT, p, SETTLEMENT_STD, CLEAN, REF_DATA)));
     equalWithRelativeTolerance(res, exp, NOTIONAL * EPS);
     PointSensitivities pointMarkit =
-        PRICER_MARKIT.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+        PRICER_MARKIT.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resMarkit = RATES_PROVIDER.parameterSensitivity(pointMarkit);
     CurrencyParameterSensitivities expMarkit = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_MARKIT.price(PRODUCT, p, SETTLEMENT_STD, CLEAN, REF_DATA)));
     equalWithRelativeTolerance(resMarkit, expMarkit, NOTIONAL * EPS);
-    PointSensitivities pointOg = PRICER_OG.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities pointOg = PRICER_OG.priceSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resOg = RATES_PROVIDER.parameterSensitivity(pointOg);
     CurrencyParameterSensitivities expOg = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_OG.price(PRODUCT, p, SETTLEMENT_STD, CLEAN, REF_DATA)));
@@ -248,18 +248,18 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   @Test
   public void parSpreadSensitivityTest() {
-    PointSensitivities point = PRICER.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities point = PRICER.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities res = RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities exp = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER.parSpread(PRODUCT, p, SETTLEMENT_STD, REF_DATA)));
     equalWithRelativeTolerance(res, exp, NOTIONAL * EPS);
     PointSensitivities pointMarkit =
-        PRICER_MARKIT.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+        PRICER_MARKIT.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resMarkit = RATES_PROVIDER.parameterSensitivity(pointMarkit);
     CurrencyParameterSensitivities expMarkit = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_MARKIT.parSpread(PRODUCT, p, SETTLEMENT_STD, REF_DATA)));
     equalWithRelativeTolerance(resMarkit, expMarkit, NOTIONAL * EPS);
-    PointSensitivities pointOg = PRICER_OG.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities pointOg = PRICER_OG.parSpreadSensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resOg = RATES_PROVIDER.parameterSensitivity(pointOg);
     CurrencyParameterSensitivities expOg = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_OG.parSpread(PRODUCT, p, SETTLEMENT_STD, REF_DATA)));
@@ -268,18 +268,18 @@ public class IsdaHomogenousCdsIndexProductPricerTest {
 
   @Test
   public void riskyAnnuitySensitivityTest() {
-    PointSensitivities point = PRICER.riskyAnnuitySensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities point = PRICER.riskyAnnuitySensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities res = RATES_PROVIDER.parameterSensitivity(point);
     CurrencyParameterSensitivities exp = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER.riskyAnnuity(PRODUCT, p, SETTLEMENT_STD, DIRTY, REF_DATA)));
     equalWithRelativeTolerance(res, exp, NOTIONAL * EPS);
     PointSensitivities pointMarkit =
-        PRICER_MARKIT.riskyAnnuitySensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+        PRICER_MARKIT.riskyAnnuitySensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resMarkit = RATES_PROVIDER.parameterSensitivity(pointMarkit);
     CurrencyParameterSensitivities expMarkit = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_MARKIT.riskyAnnuity(PRODUCT, p, SETTLEMENT_STD, DIRTY, REF_DATA)));
     equalWithRelativeTolerance(resMarkit, expMarkit, NOTIONAL * EPS);
-    PointSensitivities pointOg = PRICER_OG.riskyAnnuitySensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA);
+    PointSensitivities pointOg = PRICER_OG.riskyAnnuitySensitivity(PRODUCT, RATES_PROVIDER, SETTLEMENT_STD, REF_DATA).build();
     CurrencyParameterSensitivities resOg = RATES_PROVIDER.parameterSensitivity(pointOg);
     CurrencyParameterSensitivities expOg = CALC_FD.sensitivity(
         RATES_PROVIDER, p -> CurrencyAmount.of(USD, PRICER_OG.riskyAnnuity(PRODUCT, p, SETTLEMENT_STD, DIRTY, REF_DATA)));

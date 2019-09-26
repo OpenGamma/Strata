@@ -11,6 +11,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.common.PriceType;
 import com.opengamma.strata.product.credit.ResolvedCdsTrade;
@@ -119,7 +120,7 @@ public class IsdaCdsTradePricer {
       ReferenceData refData) {
 
     LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
-    return productPricer.priceSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData);
+    return productPricer.priceSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData).build();
   }
 
   //-------------------------------------------------------------------------
@@ -161,7 +162,7 @@ public class IsdaCdsTradePricer {
       ReferenceData refData) {
 
     LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
-    return productPricer.parSpreadSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData);
+    return productPricer.parSpreadSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData).build();
   }
 
   //-------------------------------------------------------------------------
@@ -211,15 +212,15 @@ public class IsdaCdsTradePricer {
       CreditRatesProvider ratesProvider,
       ReferenceData refData) {
 
-    PointSensitivities pvSensiProduct = productPricer.presentValueSensitivity(
+    PointSensitivityBuilder pvSensiProduct = productPricer.presentValueSensitivity(
         trade.getProduct(), ratesProvider, ratesProvider.getValuationDate(), refData);
     if (!trade.getUpfrontFee().isPresent()) {
-      return pvSensiProduct;
+      return pvSensiProduct.build();
     }
     Payment upfront = trade.getUpfrontFee().get();
-    PointSensitivities pvUpfront = upfrontPricer.presentValueSensitivity(
-        upfront, ratesProvider.discountFactors(upfront.getCurrency()).toDiscountFactors()).build();
-    return pvSensiProduct.combinedWith(pvUpfront);
+    PointSensitivityBuilder pvUpfront = upfrontPricer.presentValueSensitivity(
+        upfront, ratesProvider.discountFactors(upfront.getCurrency()).toDiscountFactors());
+    return pvSensiProduct.combinedWith(pvUpfront).build();
   }
 
   //-------------------------------------------------------------------------
@@ -263,7 +264,7 @@ public class IsdaCdsTradePricer {
       ReferenceData refData) {
 
     LocalDate settlementDate = calculateSettlementDate(trade, ratesProvider, refData);
-    return productPricer.presentValueSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData);
+    return productPricer.presentValueSensitivity(trade.getProduct(), ratesProvider, settlementDate, refData).build();
   }
 
   //-------------------------------------------------------------------------
