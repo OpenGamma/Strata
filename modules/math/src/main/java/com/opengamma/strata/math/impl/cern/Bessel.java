@@ -20,7 +20,7 @@ package com.opengamma.strata.math.impl.cern;
 /**
  * Bessel and Airy functions.
  */
-class Bessel extends Constants {
+public class Bessel extends Constants {
   /****************************************
    *    COEFFICIENTS FOR METHODS i0, i0e  *
    ****************************************/
