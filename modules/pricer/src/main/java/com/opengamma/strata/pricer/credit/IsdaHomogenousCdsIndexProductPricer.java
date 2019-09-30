@@ -267,6 +267,68 @@ public class IsdaHomogenousCdsIndexProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the risky annuity, which is RPV01 per unit notional.
+   * <p>
+   * Zero is returned if the CDS index already expired.
+   * 
+   * @param cdsIndex  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param priceType  the price type
+   * @param refData  the reference data
+   * @return the risky annuity
+   */
+  public double riskyAnnuity(
+      ResolvedCdsIndex cdsIndex,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      PriceType priceType,
+      ReferenceData refData) {
+
+    if (isExpired(cdsIndex, ratesProvider)) {
+      return 0d;
+    }
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
+    LocalDate stepinDate = cdsIndex.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cdsIndex.calculateEffectiveStartDate(stepinDate);
+    Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
+    return underlyingPricer.riskyAnnuity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
+  }
+
+  /**
+   * Calculates the risky annuity sensitivity of the product.
+   * <p>
+   * The risky annuity sensitivity of the product is the sensitivity of risky annuity to the underlying curves.
+   * The resulting sensitivity is based on the currency of the CDS index product.
+   * <p>
+   * Empty sensitivity is returned if the CDS index already expired.
+   * 
+   * @param cdsIndex  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the risky annuity sensitivity
+   */
+  public PointSensitivityBuilder riskyAnnuitySensitivity(
+      ResolvedCdsIndex cdsIndex,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    if (isExpired(cdsIndex, ratesProvider)) {
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate stepinDate = cdsIndex.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cdsIndex.calculateEffectiveStartDate(stepinDate);
+    ResolvedCds cds = cdsIndex.toSingleNameCds();
+    Triple<CreditDiscountFactors, LegalEntitySurvivalProbabilities, Double> rates = reduceDiscountFactors(cds, ratesProvider);
+    return underlyingPricer.riskyAnnuitySensitivity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the recovery01 of the CDS index product.
    * <p>
    * The recovery01 is defined as the present value sensitivity to the recovery rate.

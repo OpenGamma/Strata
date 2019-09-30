@@ -323,6 +323,8 @@ public class IsdaCdsProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Calculates the risky annuity, which is RPV01 per unit notional.
+   * <p>
+   * Zero is returned if the CDS already expired.
    * 
    * @param cds  the product
    * @param ratesProvider  the rates provider
@@ -345,6 +347,36 @@ public class IsdaCdsProductPricer {
     LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
     Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
     return riskyAnnuity(cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate, priceType);
+  }
+
+  /**
+   * Calculates the risky annuity sensitivity of the product.
+   * <p>
+   * The risky annuity sensitivity of the product is the sensitivity of risky annuity to the underlying curves.
+   * The resulting sensitivity is based on the currency of the CDS product.
+   * <p>
+   * Empty sensitivity is returned if the CDS already expired.
+   * 
+   * @param cds  the product
+   * @param ratesProvider  the rates provider
+   * @param referenceDate  the reference date
+   * @param refData  the reference data
+   * @return the risky annuity sensitivity
+   */
+  public PointSensitivityBuilder riskyAnnuitySensitivity(
+      ResolvedCds cds,
+      CreditRatesProvider ratesProvider,
+      LocalDate referenceDate,
+      ReferenceData refData) {
+
+    if (isExpired(cds, ratesProvider)) {
+      return PointSensitivityBuilder.none();
+    }
+    LocalDate stepinDate = cds.getStepinDateOffset().adjust(ratesProvider.getValuationDate(), refData);
+    LocalDate effectiveStartDate = cds.calculateEffectiveStartDate(stepinDate);
+    Pair<CreditDiscountFactors, LegalEntitySurvivalProbabilities> rates = reduceDiscountFactors(cds, ratesProvider);
+    return riskyAnnuitySensitivity(
+        cds, rates.getFirst(), rates.getSecond(), referenceDate, stepinDate, effectiveStartDate);
   }
 
   //-------------------------------------------------------------------------
