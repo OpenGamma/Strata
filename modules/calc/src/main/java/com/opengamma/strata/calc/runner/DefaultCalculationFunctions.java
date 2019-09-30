@@ -123,7 +123,7 @@ final class DefaultCalculationFunctions
 
     for (DerivedCalculationFunction<?, ?> derivedFn : derivedFunctions) {
       // These casts are necessary because the type information is lost when the functions are stored in the map.
-      // They are safe because T is the target type which is is the map key and R isn't actually used
+      // They are safe because T is the target type which is the map key and R isn't actually used
       CalculationFunction<T> wrappedFnCast = (CalculationFunction<T>) wrappedFn;
       DerivedCalculationFunction<T, R> derivedFnCast = (DerivedCalculationFunction<T, R>) derivedFn;
       wrappedFn = new DerivedCalculationFunctionWrapper<>(derivedFnCast, wrappedFnCast);
