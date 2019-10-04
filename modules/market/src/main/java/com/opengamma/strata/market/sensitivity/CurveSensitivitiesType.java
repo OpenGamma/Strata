@@ -43,6 +43,11 @@ public final class CurveSensitivitiesType
    * This is the second order derivative of {@link ValueType#ZERO_RATE}.
    */
   public static final CurveSensitivitiesType ZERO_RATE_GAMMA = of("ZeroRateGamma");
+  /**
+   * Type used when each sensitivity is a vega - 'Vega'.
+   * This is the first order sensitivity to volatility.
+   */
+  public static final CurveSensitivitiesType VEGA = CurveSensitivitiesType.of("Vega");
 
   //-------------------------------------------------------------------------
   /**
