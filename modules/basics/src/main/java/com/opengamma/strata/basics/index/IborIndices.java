@@ -520,6 +520,44 @@ public final class IborIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * The 1 month CITA index.
+   * <p>
+   * The "Copenhagen Interbank Tomorrow/Next Average".
+   */
+  public static final IborIndex DKK_CITA_1M = IborIndex.of("DKK-CITA-1M");
+  /**
+   * The 2 month CITA index.
+   * <p>
+   * The "Copenhagen Interbank Tomorrow/Next Average".
+   */
+  public static final IborIndex DKK_CITA_2M = IborIndex.of("DKK-CITA-2M");
+  /**
+   * The 3 month CITA index.
+   * <p>
+   * The "Copenhagen Interbank Tomorrow/Next Average".
+   */
+  public static final IborIndex DKK_CITA_3M = IborIndex.of("DKK-CITA-3M");
+  /**
+   * The 6 month CITA index.
+   * <p>
+   * The "Copenhagen Interbank Tomorrow/Next Average".
+   */
+  public static final IborIndex DKK_CITA_6M = IborIndex.of("DKK-CITA-6M");
+  /**
+   * The 9 month CITA index.
+   * <p>
+   * The "Copenhagen Interbank Tomorrow/Next Average".
+   */
+  public static final IborIndex DKK_CITA_9M = IborIndex.of("DKK-CITA-9M");
+  /**
+   * The 12 month CITA index.
+   * <p>
+   * The "Copenhagen Interbank Tomorrow/Next Average".
+   */
+  public static final IborIndex DKK_CITA_12M = IborIndex.of("DKK-CITA-12M");
+
+  //-------------------------------------------------------------------------
+  /**
    * The 1 week BUBOR index.
    * <p>
    * The "Budapest Interbank Offered Rate".

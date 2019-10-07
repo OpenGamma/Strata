@@ -463,6 +463,23 @@ public class IborIndexTest {
   }
 
   @Test
+  public void test_dkk_cita() {
+    IborIndex test = IborIndex.of("DKK-CITA-3M");
+    assertThat(test.getCurrency()).isEqualTo(DKK);
+    assertThat(test.getName()).isEqualTo("DKK-CITA-3M");
+    assertThat(test.getTenor()).isEqualTo(TENOR_3M);
+    assertThat(test.getFixingCalendar()).isEqualTo(DKCO);
+    assertThat(test.getFixingDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(-2, DKCO));
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(DaysAdjustment.ofBusinessDays(2, DKCO));
+    assertThat(test.getMaturityDateOffset())
+        .isEqualTo(TenorAdjustment.of(
+            TENOR_3M, PeriodAdditionConventions.NONE, BusinessDayAdjustment.of(MODIFIED_FOLLOWING, DKCO)));
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(THIRTY_U_360);
+    assertThat(test.toString()).isEqualTo("DKK-CITA-3M");
+  }
+
+  @Test
   public void test_hkd_hibor() {
     HolidayCalendarId HKHK = HolidayCalendarId.of("HKHK");
     IborIndex test = IborIndex.of("HKD-HIBOR-3M");

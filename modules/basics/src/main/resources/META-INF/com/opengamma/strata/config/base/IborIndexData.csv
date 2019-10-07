@@ -157,6 +157,13 @@ DKK-CIBOR-10M,DKK,false,Act/360,DKCO,2,DKCO,DKCO,10M,ModifiedFollowing,11:00,Eur
 DKK-CIBOR-11M,DKK,false,Act/360,DKCO,2,DKCO,DKCO,11M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
 DKK-CIBOR-12M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,12M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
 ,,,,,,,,,,,
+DKK-CITA-1M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,1M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
+DKK-CITA-2M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,2M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
+DKK-CITA-3M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,3M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
+DKK-CITA-6M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,6M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
+DKK-CITA-9M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,9M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
+DKK-CITA-12M,DKK,true,Act/360,DKCO,2,DKCO,DKCO,12M,ModifiedFollowing,11:00,Europe/Copenhagen,30U/360
+,,,,,,,,,,,
 HKD-HIBOR-1W,HKD,true,Act/365F,HKHK,0,HKHK,HKHK,1W,Following,11:00,Asia/Hong_Kong,Act/365F
 HKD-HIBOR-2W,HKD,true,Act/365F,HKHK,0,HKHK,HKHK,2W,Following,11:00,Asia/Hong_Kong,Act/365F
 HKD-HIBOR-1M,HKD,true,Act/365F,HKHK,0,HKHK,HKHK,1M,ModifiedFollowing,11:00,Asia/Hong_Kong,Act/365F
