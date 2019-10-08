@@ -117,6 +117,14 @@ public class CurveSensitivitiesTest {
     assertThat(test.getTypedSensitivity(ZERO_RATE_GAMMA)).isEqualTo(SENSI2);
   }
 
+  @Test
+  public void test_withInfo() {
+    CurveSensitivities base = sut();
+    assertThat(base.getInfo()).isEqualTo(INFO1);
+    CurveSensitivities test = base.withInfo(INFO2);
+    assertThat(test.getInfo()).isEqualTo(INFO2);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_toMergedSensitivities() {
