@@ -848,7 +848,7 @@ public final class PeriodicSchedule
   // and similar rule for numeric roll conventions
   // http://www.fpml.org/forums/topic/can-a-roll-convention-imply-a-stub/#post-7659
   // For 'StandardRollConventions', such as IMM, adjusted date is identified by finding the closest valid roll date
-  // and applying the the trade level business day adjustment
+  // and applying the trade level business day adjustment
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
     // change date if
     // reference data is available

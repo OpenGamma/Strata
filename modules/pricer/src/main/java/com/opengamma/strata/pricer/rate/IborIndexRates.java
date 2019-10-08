@@ -169,7 +169,7 @@ public interface IborIndexRates
   public abstract PointSensitivityBuilder rateIgnoringFixingsPointSensitivity(IborIndexObservation observation);
 
   /**
-   * Explains the calculation of the the historic or forward rate at the specified fixing date.
+   * Explains the calculation of the historic or forward rate at the specified fixing date.
    * <p>
    * This adds information to the {@link ExplainMapBuilder} to aid understanding of the computation.
    * It does this by adding a populated {@link ExplainKey#OBSERVATIONS} entry.
