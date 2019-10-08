@@ -37,7 +37,7 @@ import com.opengamma.strata.collect.ArgChecker;
 /**
  * A byte source implementation that obtains data from a file.
  * <p>
- * This implementation differs from Guava in that it is is a Joda-Bean.
+ * This implementation differs from Guava in that it is a Joda-Bean.
  * In addition, {@link #read()} throws {@link UncheckedIOException} instead of {@link IOException}.
  */
 public final class FileByteSource extends BeanByteSource implements ImmutableBean, Serializable {

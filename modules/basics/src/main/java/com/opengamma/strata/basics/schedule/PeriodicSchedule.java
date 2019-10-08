@@ -117,7 +117,7 @@ public final class PeriodicSchedule
    * The start date, which is the start of the first schedule period.
    * <p>
    * This is the start date of the schedule.
-   * It is is unadjusted and as such might be a weekend or holiday.
+   * It is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted effective date.
    * <p>
@@ -131,7 +131,7 @@ public final class PeriodicSchedule
    * The end date, which is the end of the last schedule period.
    * <p>
    * This is the end date of the schedule.
-   * It is is unadjusted and as such might be a weekend or holiday.
+   * It is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted maturity date or unadjusted termination date.
    * This date must be after the start date.
@@ -848,7 +848,7 @@ public final class PeriodicSchedule
   // and similar rule for numeric roll conventions
   // http://www.fpml.org/forums/topic/can-a-roll-convention-imply-a-stub/#post-7659
   // For 'StandardRollConventions', such as IMM, adjusted date is identified by finding the closest valid roll date
-  // and applying the the trade level business day adjustment
+  // and applying the trade level business day adjustment
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
     // change date if
     // reference data is available
@@ -1090,7 +1090,7 @@ public final class PeriodicSchedule
    * Gets the start date, which is the start of the first schedule period.
    * <p>
    * This is the start date of the schedule.
-   * It is is unadjusted and as such might be a weekend or holiday.
+   * It is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted effective date.
    * <p>
@@ -1108,7 +1108,7 @@ public final class PeriodicSchedule
    * Gets the end date, which is the end of the last schedule period.
    * <p>
    * This is the end date of the schedule.
-   * It is is unadjusted and as such might be a weekend or holiday.
+   * It is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted maturity date or unadjusted termination date.
    * This date must be after the start date.
@@ -1759,7 +1759,7 @@ public final class PeriodicSchedule
      * Sets the start date, which is the start of the first schedule period.
      * <p>
      * This is the start date of the schedule.
-     * It is is unadjusted and as such might be a weekend or holiday.
+     * It is unadjusted and as such might be a weekend or holiday.
      * Any applicable business day adjustment will be applied when creating the schedule.
      * This is also known as the unadjusted effective date.
      * <p>
@@ -1779,7 +1779,7 @@ public final class PeriodicSchedule
      * Sets the end date, which is the end of the last schedule period.
      * <p>
      * This is the end date of the schedule.
-     * It is is unadjusted and as such might be a weekend or holiday.
+     * It is unadjusted and as such might be a weekend or holiday.
      * Any applicable business day adjustment will be applied when creating the schedule.
      * This is also known as the unadjusted maturity date or unadjusted termination date.
      * This date must be after the start date.
