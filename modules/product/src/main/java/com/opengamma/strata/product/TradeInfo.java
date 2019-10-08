@@ -173,6 +173,24 @@ public final class TradeInfo
     return builder.build();
   }
 
+  @Override
+  public TradeInfo overrideWith(PortfolioItemInfo other) {
+    TradeInfoBuilder builder = toBuilder();
+    other.getId().ifPresent(builder::id);
+    if (other instanceof TradeInfo) {
+      TradeInfo otherInfo = (TradeInfo) other;
+      otherInfo.getCounterparty().ifPresent(builder::counterparty);
+      otherInfo.getTradeDate().ifPresent(builder::tradeDate);
+      otherInfo.getTradeTime().ifPresent(builder::tradeTime);
+      otherInfo.getZone().ifPresent(builder::zone);
+      otherInfo.getSettlementDate().ifPresent(builder::settlementDate);
+    }
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
+      builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+    }
+    return builder.build();
+  }
+
   /**
    * Returns a builder populated with the values of this instance.
    * 

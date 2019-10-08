@@ -104,4 +104,24 @@ public interface PortfolioItemInfo extends Attributes {
     return combinedInfo;
   }
 
+  /**
+   * Overrides attributes of this info with another.
+   * <p>
+   * If there is a conflict, data from the other instance takes precedence.
+   * If the other instance is not of the same type, data may be lost.
+   * 
+   * @param other  the other instance
+   * @return the combined instance
+   */
+  public default PortfolioItemInfo overrideWith(PortfolioItemInfo other) {
+    PortfolioItemInfo combinedInfo = this;
+    if (other.getId().isPresent()) {
+      combinedInfo = combinedInfo.withId(other.getId().get());
+    }
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
+      combinedInfo = combinedInfo.withAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+    }
+    return combinedInfo;
+  }
+
 }
