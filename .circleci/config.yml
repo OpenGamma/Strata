@@ -114,17 +114,9 @@ commands:
       - run:
           name: Gathering test results
           command: |
-            mkdir -vp ~/test-results/junit/
-            folder_index=1
-            find . -type f -regex ".*/target/surefire-reports/.*Suite.xml" -print0 | while IFS= read -r -d '' path
-            do
-              base=$(basename --suffix=".xml"  "$path")
-              old_name="$base.xml"
-              new_name="$base$folder_index.xml"
-              cp -v "$path" ~/test-results/junit/"$old_name"
-              mv -v ~/test-results/junit/"$old_name" ~/test-results/junit/"$new_name"
-              folder_index=$(( $folder_index +1 ))
-            done
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+            ls -l ~/test-results/junit/
           when: always
       - store_test_results:
           name: "Uploading test results"
