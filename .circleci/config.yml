@@ -126,7 +126,7 @@ commands:
           name: "Storing test artifacts"
           path: ~/test-results/junit
           destination: test-results
-          when: always
+          when: on_fail
 
 #----------------------------------------------------------------------------
   with_maven:
@@ -246,6 +246,22 @@ jobs:
           actions:
             - maven_install
             - maven_test
+      - persist_to_workspace:
+          root: .
+          paths:
+            - examples/*
+            - modules/*
+            - target/*
+
+#----------------------------------------------------------------------------
+  release_part2:
+    executor: jdk8
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - with_maven:
+          actions:
             - setup_gpg
             - maven_deploy_modules
             - maven_package_examples
@@ -281,6 +297,15 @@ workflows:
     jobs:
       - release:
           context: OG-OSS
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - release_part2:
+          context: OG-OSS
+          requires:
+            - release
           filters:
             branches:
               ignore: /.*/
