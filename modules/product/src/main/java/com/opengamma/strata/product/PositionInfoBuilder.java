@@ -16,7 +16,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * This builder allows a {@link PositionInfo} to be created.
  */
-public final class PositionInfoBuilder {
+public final class PositionInfoBuilder implements PortfolioItemInfoBuilder<PositionInfo> {
 
   /**
    * The primary identifier for the position.
@@ -54,6 +54,7 @@ public final class PositionInfoBuilder {
    * @param id  the identifier
    * @return this, for chaining
    */
+  @Override
   public PositionInfoBuilder id(StandardId id) {
     this.id = id;
     return this;
@@ -69,6 +70,7 @@ public final class PositionInfoBuilder {
    * @param attributeValue  the value
    * @return this, for chaining
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> PositionInfoBuilder addAttribute(AttributeType<T> attributeType, T attributeValue) {
     ArgChecker.notNull(attributeType, "attributeType");
@@ -82,6 +84,7 @@ public final class PositionInfoBuilder {
    * 
    * @return the position information
    */
+  @Override
   public PositionInfo build() {
     return new PositionInfo(id, attributes);
   }

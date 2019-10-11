@@ -19,7 +19,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * <p>
  * This builder allows a {@link TradeInfo} to be created.
  */
-public final class TradeInfoBuilder {
+public final class TradeInfoBuilder implements PortfolioItemInfoBuilder<TradeInfo> {
 
   /**
    * The primary identifier for the trade.
@@ -89,6 +89,7 @@ public final class TradeInfoBuilder {
    * @param id  the identifier
    * @return this, for chaining
    */
+  @Override
   public TradeInfoBuilder id(StandardId id) {
     this.id = id;
     return this;
@@ -161,6 +162,7 @@ public final class TradeInfoBuilder {
    * @param attributeValue  the value
    * @return this, for chaining
    */
+  @Override
   @SuppressWarnings("unchecked")
   public <T> TradeInfoBuilder addAttribute(AttributeType<T> attributeType, T attributeValue) {
     ArgChecker.notNull(attributeType, "attributeType");
@@ -174,6 +176,7 @@ public final class TradeInfoBuilder {
    * 
    * @return the trade information
    */
+  @Override
   public TradeInfo build() {
     return new TradeInfo(
         id,

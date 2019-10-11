@@ -37,6 +37,16 @@ public class PortfolioItemInfoTest {
   }
 
   @Test
+  public void test_builder() {
+    PortfolioItemInfo test = PortfolioItemInfo.builder()
+        .addAttribute(AttributeType.DESCRIPTION, "A")
+        .build();
+    assertThat(test.getId()).isEmpty();
+    assertThat(test.getAttributeTypes()).isEqualTo(ImmutableSet.of(AttributeType.DESCRIPTION));
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("A");
+  }
+
+  @Test
   public void test_withers() {
     PortfolioItemInfo test = PortfolioItemInfo.empty()
         .withId(ID)
