@@ -138,7 +138,7 @@ public final class PositionInfo
     PositionInfoBuilder builder = toBuilder();
     other.getId().ifPresent(builder::id);
     for (AttributeType<?> attrType : other.getAttributeTypes()) {
-        builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+      builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
     }
     return builder.build();
   }

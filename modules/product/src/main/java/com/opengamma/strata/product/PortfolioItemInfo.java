@@ -5,11 +5,14 @@
  */
 package com.opengamma.strata.product;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Additional information about a portfolio item.
@@ -47,6 +50,40 @@ public interface PortfolioItemInfo extends Attributes {
    */
   public static <T> PortfolioItemInfo of(AttributeType<T> type, T value) {
     return new ItemInfo(null, ImmutableMap.of(type, type.toStoredForm(value)));
+  }
+
+  /**
+   * Returns a builder used to create an instance of the bean.
+   * 
+   * @return the builder
+   */
+  public static PortfolioItemInfoBuilder<PortfolioItemInfo> builder() {
+    return new PortfolioItemInfoBuilder<PortfolioItemInfo>() {
+      private StandardId id;
+      private final Map<AttributeType<?>, Object> attributes = new HashMap<>();
+
+      @Override
+      public PortfolioItemInfoBuilder<PortfolioItemInfo> id(StandardId id) {
+        this.id = id;
+        return this;
+      }
+
+      @Override
+      public <V> PortfolioItemInfoBuilder<PortfolioItemInfo> addAttribute(
+          AttributeType<V> attributeType,
+          V attributeValue) {
+
+        ArgChecker.notNull(attributeType, "attributeType");
+        ArgChecker.notNull(attributeValue, "attributeValue");
+        attributes.put(attributeType, attributeType.toStoredForm(attributeValue));
+        return this;
+      }
+
+      @Override
+      public PortfolioItemInfo build() {
+        return new ItemInfo(id, attributes);
+      }
+    };
   }
 
   //-------------------------------------------------------------------------
