@@ -7,7 +7,9 @@ package com.opengamma.strata.pricer.bond;
 
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.date.BusinessDayConventions.MODIFIED_FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -15,7 +17,7 @@ import static com.opengamma.strata.pricer.CompoundedRateType.CONTINUOUS;
 import static com.opengamma.strata.pricer.CompoundedRateType.PERIODIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.data.Offset.offset;
+import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -289,6 +291,41 @@ public class DiscountingFixedCouponBondProductPricerTest {
     assertThat(cleanPrice).isCloseTo(dirtyPrice - accruedInterest / NOTIONAL, offset(NOTIONAL * TOL));
     double dirtyPriceRe = PRICER.dirtyPriceFromCleanPrice(PRODUCT, settlement, cleanPrice);
     assertThat(dirtyPriceRe).isCloseTo(dirtyPrice, offset(TOL));
+  }
+
+  @Test
+  public void test_dirtyPriceFromCleanPrice_ukNewIssue() {
+    BusinessDayAdjustment gbloModFollow = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, GBLO);
+    ResolvedFixedCouponBond bond = FixedCouponBond.builder()
+        .securityId(SECURITY_ID)
+        .dayCount(DayCounts.ACT_ACT_ICMA)
+        .fixedRate(0.00875)
+        .legalEntityId(ISSUER_ID)
+        .currency(GBP)
+        .notional(NOTIONAL)
+        .accrualSchedule(PeriodicSchedule.of(
+            date(2019, 6, 19),
+            date(2029, 10, 22),
+            Frequency.P6M,
+            gbloModFollow,
+            StubConvention.SMART_INITIAL,
+            false))
+        .settlementDateOffset(DaysAdjustment.ofBusinessDays(1, GBLO))
+        .yieldConvention(FixedCouponBondYieldConvention.GB_BUMP_DMO)
+        .exCouponPeriod(DaysAdjustment.ofCalendarDays(-8, gbloModFollow))
+        .build()
+        .resolve(REF_DATA);
+    LocalDate settlement = LocalDate.of(2019, 6, 20);
+    double dirtyPrice = PRICER.dirtyPriceFromCleanPrice(bond, settlement, 0.993);
+    assertThat(dirtyPrice).isCloseTo(0.99302391d, offset(1e-8));
+    double yield = PRICER.yieldFromDirtyPrice(bond, settlement, dirtyPrice);
+    assertThat(yield).isCloseTo(0.00946254d, offset(1e-8));
+    double modDur = PRICER.modifiedDurationFromYield(bond, settlement, yield);
+    assertThat(modDur).isCloseTo(9.858415d, offset(EPS));
+
+    double cleanPrice = PRICER.cleanPriceFromDirtyPrice(bond, settlement, dirtyPrice);
+    double accruedInterest = PRICER.accruedInterest(bond, settlement);
+    assertThat(cleanPrice).isCloseTo(dirtyPrice - accruedInterest / NOTIONAL, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
