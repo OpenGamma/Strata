@@ -433,8 +433,28 @@ public interface TradeCsvInfoResolver {
     return CdsTradeCsvPlugin.parseCdsIndex(row, info, this);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Parses any other kind of trade from CSV.
+   * Parses any kind of trade from CSV before standard matching.
+   * <p>
+   * This is called before the standard matching on the 'Product Type' column.
+   * As such, it allows the standard parsing to be replaced for a given type.
+   * 
+   * @param typeUpper  the upper case product type column
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the trade, empty if the product type is not known, or if standard parsing should occur
+   * @throws RuntimeException if the product type is known but the row contains invalid data
+   */
+  public default Optional<Trade> overrideParseTrade(String typeUpper, CsvRow row, TradeInfo info) {
+    return Optional.empty();
+  }
+
+  /**
+   * Parses any kind of trade from CSV after standard matching.
+   * <p>
+   * This is called after the standard matching on the 'Product Type' column.
+   * As such, it allows non-matched rows to be captured.
    * 
    * @param typeUpper  the upper case product type column
    * @param row  the CSV row to parse

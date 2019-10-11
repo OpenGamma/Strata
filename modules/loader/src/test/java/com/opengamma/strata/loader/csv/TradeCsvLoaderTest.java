@@ -2029,6 +2029,37 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
+  public void test_load_overrideTypeViaResolver() {
+    Trade trade = new Trade() {
+      @Override
+      public Trade withInfo(TradeInfo info) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public TradeInfo getInfo() {
+        return TradeInfo.empty();
+      }
+    };
+    TradeCsvLoader test = TradeCsvLoader.of(new TradeCsvInfoResolver() {
+      @Override
+      public ReferenceData getReferenceData() {
+        return ReferenceData.standard();
+      }
+
+      @Override
+      public Optional<Trade> overrideParseTrade(String typeUpper, CsvRow row, TradeInfo info) {
+        return Optional.of(trade);
+      }
+    });
+    ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type\nFRA")));
+
+    assertThat(trades.getFailures()).hasSize(0);
+    assertThat(trades.getValue()).hasSize(1);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_load_invalidFra() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades = test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nFra,Buy")));
