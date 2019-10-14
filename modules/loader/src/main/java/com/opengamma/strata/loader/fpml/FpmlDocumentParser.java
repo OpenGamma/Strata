@@ -58,6 +58,10 @@ public final class FpmlDocumentParser {
    * The reference data.
    */
   private final ReferenceData refData;
+  /**
+   * Flag indicating whether to be strict about the presence of unsupported elements.
+   */
+  private final boolean strictValidation;
 
   //-------------------------------------------------------------------------
   /**
@@ -178,7 +182,7 @@ public final class FpmlDocumentParser {
       Map<String, FpmlParserPlugin> tradeParsers,
       ReferenceData refData) {
 
-    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData);
+    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, true);
   }
 
   //-------------------------------------------------------------------------
@@ -188,20 +192,35 @@ public final class FpmlDocumentParser {
    * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
    * @param tradeInfoParser  the trade info parser
    * @param tradeParsers  the map of trade parsers, keyed by the FpML element name
+   * @param strictValidation  flag indicating whether to be strict when validating which elements
+   *  are present in the FpML document
    */
   private FpmlDocumentParser(
       FpmlPartySelector ourPartySelector,
       FpmlTradeInfoParserPlugin tradeInfoParser,
       Map<String, FpmlParserPlugin> tradeParsers,
-      ReferenceData refData) {
+      ReferenceData refData,
+      boolean strictValidation) {
 
     this.ourPartySelector = ourPartySelector;
     this.tradeInfoParser = tradeInfoParser;
     this.tradeParsers = tradeParsers;
     this.refData = refData;
+    this.strictValidation = strictValidation;
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a 'lenient' version of this parser instance.
+   * <p>
+   * In 'lenient' mode any FpML elements unsupported in Strata will be silently ignored (rather than resulting in errors).
+   *
+   * @return the lenient document parser
+   */
+  public FpmlDocumentParser withLenientMode() {
+    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, false);
+  }
+
   /**
    * Basic check to see if the source can probably be parsed as FpML.
    * <p>
@@ -357,7 +376,7 @@ public final class FpmlDocumentParser {
       XmlElement fpmlRootEl,
       Map<String, XmlElement> references) {
 
-    FpmlDocument document = new FpmlDocument(fpmlRootEl, references, ourPartySelector, tradeInfoParser, refData);
+    FpmlDocument document = new FpmlDocument(fpmlRootEl, references, ourPartySelector, tradeInfoParser, refData, strictValidation);
     List<XmlElement> tradeEls = document.getFpmlRoot().getChildren("trade");
     ImmutableList.Builder<Trade> builder = ImmutableList.builder();
     for (XmlElement tradeEl : tradeEls) {
