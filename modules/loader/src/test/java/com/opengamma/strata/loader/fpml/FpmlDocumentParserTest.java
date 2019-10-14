@@ -1679,6 +1679,20 @@ public class FpmlDocumentParserTest {
     assertThatExceptionOfType(UncheckedIOException.class).isThrownBy(() -> parser.parseTrades(resource));
   }
 
+  @Test
+  public void unsupportedElementInLenientMode() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex01-vanilla-swap-with-unsupported-element.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    FpmlDocumentParser parser = FpmlDocumentParser.withLenientMode(
+        FpmlPartySelector.matching("Party1"),
+        FpmlTradeInfoParserPlugin.standard(),
+        FpmlParserPlugin.extendedEnum().lookupAllNormalized(),
+        ReferenceData.standard());
+    assertThat(parser.isKnownFormat(resource)).isTrue();
+    List<Trade> trades = parser.parseTrades(resource);
+    assertThat(trades).hasSize(1);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void document() {

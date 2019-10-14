@@ -58,6 +58,10 @@ public final class FpmlDocumentParser {
    * The reference data.
    */
   private final ReferenceData refData;
+  /**
+   * Flag indicating whether to be strict about the presence of unsupported elements.
+   */
+  private final boolean strictValidation;
 
   //-------------------------------------------------------------------------
   /**
@@ -178,7 +182,36 @@ public final class FpmlDocumentParser {
       Map<String, FpmlParserPlugin> tradeParsers,
       ReferenceData refData) {
 
-    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData);
+    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, true);
+  }
+
+  /**
+   * Obtains an instance of the parser, based on the specified selector and plugins.
+   * <p>
+   * The created parser will be in 'lenient' mode, which means that any FpML elements
+   * unsupported in Strata will be silently ignored (rather than resulting in errors).
+   * <p>
+   * The FpML parser has a number of plugin points that can be controlled:
+   * <ul>
+   * <li>the {@linkplain FpmlPartySelector party selector}
+   * <li>the {@linkplain FpmlTradeInfoParserPlugin trade info parser}
+   * <li>the {@linkplain FpmlParserPlugin trade parsers}
+   * <li>the {@linkplain ReferenceData reference data}
+   * </ul>
+   *
+   * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
+   * @param tradeInfoParser  the trade info parser
+   * @param tradeParsers  the map of trade parsers, keyed by the FpML element name
+   * @param refData  the reference data to use
+   * @return the document parser
+   */
+  public static FpmlDocumentParser withLenientMode(
+      FpmlPartySelector ourPartySelector,
+      FpmlTradeInfoParserPlugin tradeInfoParser,
+      Map<String, FpmlParserPlugin> tradeParsers,
+      ReferenceData refData) {
+
+    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, false);
   }
 
   //-------------------------------------------------------------------------
@@ -188,17 +221,21 @@ public final class FpmlDocumentParser {
    * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
    * @param tradeInfoParser  the trade info parser
    * @param tradeParsers  the map of trade parsers, keyed by the FpML element name
+   * @param strictValidation  flag indicating whether to be strict when validating which elements
+   *  are present in the FpML document
    */
   private FpmlDocumentParser(
       FpmlPartySelector ourPartySelector,
       FpmlTradeInfoParserPlugin tradeInfoParser,
       Map<String, FpmlParserPlugin> tradeParsers,
-      ReferenceData refData) {
+      ReferenceData refData,
+      boolean strictValidation) {
 
     this.ourPartySelector = ourPartySelector;
     this.tradeInfoParser = tradeInfoParser;
     this.tradeParsers = tradeParsers;
     this.refData = refData;
+    this.strictValidation = strictValidation;
   }
 
   //-------------------------------------------------------------------------
@@ -357,7 +394,7 @@ public final class FpmlDocumentParser {
       XmlElement fpmlRootEl,
       Map<String, XmlElement> references) {
 
-    FpmlDocument document = new FpmlDocument(fpmlRootEl, references, ourPartySelector, tradeInfoParser, refData);
+    FpmlDocument document = new FpmlDocument(fpmlRootEl, references, ourPartySelector, tradeInfoParser, refData, strictValidation);
     List<XmlElement> tradeEls = document.getFpmlRoot().getChildren("trade");
     ImmutableList.Builder<Trade> builder = ImmutableList.builder();
     for (XmlElement tradeEl : tradeEls) {
