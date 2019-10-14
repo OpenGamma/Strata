@@ -185,35 +185,6 @@ public final class FpmlDocumentParser {
     return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, true);
   }
 
-  /**
-   * Obtains an instance of the parser, based on the specified selector and plugins.
-   * <p>
-   * The created parser will be in 'lenient' mode, which means that any FpML elements
-   * unsupported in Strata will be silently ignored (rather than resulting in errors).
-   * <p>
-   * The FpML parser has a number of plugin points that can be controlled:
-   * <ul>
-   * <li>the {@linkplain FpmlPartySelector party selector}
-   * <li>the {@linkplain FpmlTradeInfoParserPlugin trade info parser}
-   * <li>the {@linkplain FpmlParserPlugin trade parsers}
-   * <li>the {@linkplain ReferenceData reference data}
-   * </ul>
-   *
-   * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
-   * @param tradeInfoParser  the trade info parser
-   * @param tradeParsers  the map of trade parsers, keyed by the FpML element name
-   * @param refData  the reference data to use
-   * @return the document parser
-   */
-  public static FpmlDocumentParser withLenientMode(
-      FpmlPartySelector ourPartySelector,
-      FpmlTradeInfoParserPlugin tradeInfoParser,
-      Map<String, FpmlParserPlugin> tradeParsers,
-      ReferenceData refData) {
-
-    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, false);
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Creates an instance, based on the specified element.
@@ -239,6 +210,17 @@ public final class FpmlDocumentParser {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a 'lenient' instance of this instance parser.
+   * <p>
+   * In 'lenient' mode any FpML elements unsupported in Strata will be silently ignored (rather than resulting in errors).
+   *
+   * @return the lenient document parser
+   */
+  public FpmlDocumentParser withLenientMode() {
+    return new FpmlDocumentParser(ourPartySelector, tradeInfoParser, tradeParsers, refData, false);
+  }
+
   /**
    * Basic check to see if the source can probably be parsed as FpML.
    * <p>
