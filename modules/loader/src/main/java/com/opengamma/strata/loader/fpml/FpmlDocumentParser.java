@@ -211,7 +211,7 @@ public final class FpmlDocumentParser {
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a 'lenient' instance of this instance parser.
+   * Obtains a 'lenient' version of this parser instance.
    * <p>
    * In 'lenient' mode any FpML elements unsupported in Strata will be silently ignored (rather than resulting in errors).
    *
