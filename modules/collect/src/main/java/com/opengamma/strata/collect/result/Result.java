@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -318,6 +319,19 @@ public final class Result<T>
   }
 
   /**
+   * Creates a failed result containing a failure item.
+   * <p>
+   * This is useful for converting an existing {@code FailureItem} instance to a result.
+   *
+   * @param <R> the expected type of the result
+   * @param failureItem  details of the failure
+   * @return a failed result containing the specified failure
+   */
+  public static <R> Result<R> failure(FailureItem failureItem) {
+    return new Result<>(Failure.of(failureItem));
+  }
+
+  /**
    * Returns a success result containing the value if it is non-null, else returns a failure result
    * with the specified reason and message.
    * <p>
@@ -619,6 +633,15 @@ public final class Result<T>
 
   //-------------------------------------------------------------------------
   /**
+   * Returns the result value if calculated successfully, empty if a failure occurred.
+   *
+   * @return the result value if success, empty if failure
+   */
+  public Optional<T> get() {
+    return Optional.ofNullable(value);
+  }
+
+  /**
    * Returns the actual result value if calculated successfully, throwing an
    * exception if a failure occurred.
    * <p>
@@ -644,7 +667,7 @@ public final class Result<T>
    * <p>
    * If this result is a success then the result value is returned.
    * If this result is a failure then the default value is returned.
-   * The default value must not be null.
+   * The default value may be null.
    * <p>
    * Application code is recommended to use {@link #map(Function)} and
    * {@link #flatMap(Function)} in preference to this method.
@@ -653,7 +676,6 @@ public final class Result<T>
    * @return either the result value or the default value
    */
   public T getValueOrElse(T defaultValue) {
-    ArgChecker.notNull(defaultValue, "defaultValue");
     return (isSuccess() ? value : defaultValue);
   }
 
