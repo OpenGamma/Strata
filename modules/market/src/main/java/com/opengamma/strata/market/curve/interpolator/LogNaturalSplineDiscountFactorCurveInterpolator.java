@@ -9,21 +9,19 @@ import java.io.Serializable;
 
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
-import com.opengamma.strata.math.impl.FunctionUtils;
+import com.opengamma.strata.math.impl.function.PiecewisePolynomialWithSensitivityFunction1D;
 import com.opengamma.strata.math.impl.interpolation.ClampedPiecewisePolynomialInterpolator;
 import com.opengamma.strata.math.impl.interpolation.LogNaturalSplineHelper;
 import com.opengamma.strata.math.impl.interpolation.NaturalSplineInterpolator;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResult;
 import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWithSensitivity;
-import com.opengamma.strata.math.impl.matrix.MatrixAlgebra;
-import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
 
 /**
  * Log natural cubic spline interpolator for discount factors.
  * <p>
- * Find a interpolant F(x) = exp( f(x) ) where f(x) is a Natural cubic spline with Monotonicity cubic filter.
+ * Find a interpolant F(x) = exp( f(x) ) so that F(0) = 1 where f(x) is a Natural cubic spline.
  * <p>
  * The natural cubic spline is determined by {@link LogNaturalSplineHelper}, where the tridiagonal
  * algorithm is used to solve a linear system.
@@ -44,9 +42,9 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
    */
   private static final long serialVersionUID = 1L;
   /**
-   * Underlying matrix algebra.
+   * The polynomial function.
    */
-  private static final MatrixAlgebra MA = new OGMatrixAlgebra();
+  private static final PiecewisePolynomialWithSensitivityFunction1D FUNCTION = new PiecewisePolynomialWithSensitivityFunction1D();
 
   /**
    * Restricted constructor.
@@ -107,83 +105,6 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
       this.polySens = base.polySens;
     }
 
-    //-------------------------------------------------------------------------
-    private static double evaluate(
-        double xValue,
-        DoubleArray knots,
-        DoubleMatrix coefMatrix,
-        int dimensions) {
-
-      // check for 1 less interval than knots 
-      int lowerBound = FunctionUtils.getLowerBoundIndex(knots, xValue);
-      int indicator = lowerBound == knots.size() - 1 ? lowerBound - 1 : lowerBound;
-      DoubleArray coefs = coefMatrix.row(dimensions * indicator);
-      return getValue(coefs.toArrayUnsafe(), xValue, knots.get(indicator));
-    }
-
-    private static double differentiate(
-        double xValue,
-        DoubleArray knots,
-        DoubleMatrix coefMatrix,
-        int dimensions,
-        int nCoefs,
-        int numberOfIntervals) {
-
-      int rowCount = dimensions * numberOfIntervals;
-      int colCount = nCoefs - 1;
-      DoubleMatrix coef = DoubleMatrix.of(
-          rowCount,
-          colCount,
-          (i, j) -> coefMatrix.get(i, j) * (nCoefs - j - 1));
-      return evaluate(xValue, knots, coef, dimensions);
-    }
-
-    private static DoubleArray nodeSensitivity(
-        double xValue,
-        DoubleArray knots,
-        DoubleMatrix coefMatrix,
-        int dimensions,
-        int interval,
-        DoubleMatrix coefficientSensitivity) {
-
-      double s = xValue - knots.get(interval);
-      int nCoefs = coefficientSensitivity.rowCount();
-
-      DoubleArray res = coefficientSensitivity.row(0);
-      for (int i = 1; i < nCoefs; i++) {
-        res = (DoubleArray) MA.scale(res, s);
-        res = (DoubleArray) MA.add(res, coefficientSensitivity.row(i));
-      }
-      return res;
-    }
-
-    private static double[] getValues(double[] bareValues) {
-      int nValues = bareValues.length;
-      double[] res = new double[nValues];
-
-      for (int i = 0; i < nValues; ++i) {
-        res[i] = Math.exp(bareValues[i]);
-      }
-      return res;
-    }
-
-    /**
-     * @param coefs  {a_n,a_{n-1},...} of f(x) = a_n x^{n} + a_{n-1} x^{n-1} + ....
-     * @param x  the x
-     * @param leftknot  the knot specifying underlying interpolation function
-     * @return the value of the underlying interpolation function at the value of x
-     */
-    private static double getValue(double[] coefs, double x, double leftknot) {
-      int nCoefs = coefs.length;
-      double s = x - leftknot;
-      double res = coefs[0];
-      for (int i = 1; i < nCoefs; i++) {
-        res *= s;
-        res += coefs[i];
-      }
-      return res;
-    }
-
     private static double[] getYLogValues(double[] yValues) {
       int nData = yValues.length;
       double[] logYValues = new double[nData];
@@ -196,37 +117,25 @@ final class LogNaturalSplineDiscountFactorCurveInterpolator implements CurveInte
     //-------------------------------------------------------------------------
     @Override
     protected double doInterpolate(double xValue) {
-      double resValue = evaluate(xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions());
+      double resValue = FUNCTION.evaluate(poly, xValue).get(0);
       return Math.exp(resValue);
     }
 
     @Override
     protected double doFirstDerivative(double xValue) {
-      double resValue = evaluate(xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions());
-      int nCoefs = poly.getOrder();
-      int numberOfIntervals = poly.getNumberOfIntervals();
-      double resDerivative =
-          differentiate(xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions(), nCoefs, numberOfIntervals);
-
-      return Math.exp(resValue) * resDerivative;
+      ValueDerivatives resValue = FUNCTION.evaluateAndDifferentiate(poly, xValue);
+      return Math.exp(resValue.getValue()) * resValue.getDerivative(0);
     }
 
     @Override
     protected DoubleArray doParameterSensitivity(double xValue) {
-      int interval = FunctionUtils.getLowerBoundIndex(poly.getKnots(), xValue);
-      if (interval == poly.getKnots().size() - 1) {
-        interval--; // there is 1 less interval that knots
-      }
-
-      DoubleMatrix coefficientSensitivity = polySens.get().getCoefficientSensitivity(interval);
-      double[] resSense = nodeSensitivity(
-          xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions(), interval, coefficientSensitivity).toArray();
-      double resValue = Math.exp(evaluate(xValue, poly.getKnots(), poly.getCoefMatrix(), poly.getDimensions()));
-      double[] knotValues = getValues(logYValues);
-      final int knotValuesLength = knotValues.length;
-      double[] res = new double[knotValuesLength];
-      for (int i = 0; i < knotValuesLength; ++i) {
-        res[i] = resSense[i + 1] * resValue / knotValues[i];
+      int nParams = yValues.length;
+      double resValue = FUNCTION.evaluate(poly, xValue).get(0);
+      DoubleArray resSense = FUNCTION.nodeSensitivity(polySens.get(), xValue);
+      double expResValue = Math.exp(resValue);
+      double[] res = new double[nParams];
+      for (int i = 0; i < nParams; ++i) {
+        res[i] = resSense.get(i + 1) * expResValue / yValues[i];
       }
       return DoubleArray.ofUnsafe(res);
     }
