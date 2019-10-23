@@ -52,11 +52,21 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex EUR_EONIA = OvernightIndex.of("EUR-EONIA");
   /**
-   * The ESTER index for EUR.
+   * The ESTR index for EUR.
    * <p>
-   * The Euro Short-Term Rate (ESTER) index.
+   * The Euro Short-Term Rate (&euro;STR) index.
+   * This was first published on 2019-10-02.
    */
-  public static final OvernightIndex EUR_ESTER = OvernightIndex.of("EUR-ESTER");
+  public static final OvernightIndex EUR_ESTR = OvernightIndex.of("EUR-ESTR");
+  /**
+   * The ESTR index for EUR, under the old ESTER name.
+   * <p>
+   * The index was renamed.
+   * 
+   * @deprecated Use EUR_ESTR instead
+   */
+  @Deprecated
+  public static final OvernightIndex EUR_ESTER = EUR_ESTR;
   /**
    * The TONAR index for JPY.
    * <p>
