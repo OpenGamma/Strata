@@ -24,8 +24,8 @@ public class LogNaturalSplineDiscountFactorCurveInterpolatorTest {
   private static final DoubleArray X_DATA = DoubleArray.of(0.2, 0.4, 1.0, 1.8, 2.8, 5.0);
   private static final DoubleArray Y_DATA = DoubleArray.of(3.0, 4.0, 3.1, 2.0, 7.0, 2.0);
   private static final int NUM_DATA = X_DATA.size();
-  private static final DoubleArray X_DATA_CALMPED;
-  private static final DoubleArray Y_DATA_CALMPED;
+  private static final DoubleArray X_DATA_CLAMPED;
+  private static final DoubleArray Y_DATA_CLAMPED;
   static {
     double[] xValues = new double[NUM_DATA + 1];
     double[] yValues = new double[NUM_DATA + 1];
@@ -35,8 +35,8 @@ public class LogNaturalSplineDiscountFactorCurveInterpolatorTest {
       xValues[i + 1] = X_DATA.get(i);
       yValues[i + 1] = Math.log(Y_DATA.get(i));
     }
-    X_DATA_CALMPED = DoubleArray.ofUnsafe(xValues);
-    Y_DATA_CALMPED = DoubleArray.ofUnsafe(yValues);
+    X_DATA_CLAMPED = DoubleArray.ofUnsafe(xValues);
+    Y_DATA_CLAMPED = DoubleArray.ofUnsafe(yValues);
   }
   private static final DoubleArray X_TEST = DoubleArray.of(1., 1.3, 1.6);
   private static final DoubleArray Y_TEST = DoubleArray.of(3.1, 2.375168445874886, 1.9885112466306356);
@@ -58,7 +58,7 @@ public class LogNaturalSplineDiscountFactorCurveInterpolatorTest {
       assertThat(bci.interpolate(X_TEST.get(i))).isCloseTo(Y_TEST.get(i), offset(TOL));
     }
     BoundCurveInterpolator bciUnderlying = NaturalSplineCurveInterpolator.INSTANCE.bind(
-        X_DATA_CALMPED, Y_DATA_CALMPED, INTERPOLATOR_EXTRAPOLATOR, INTERPOLATOR_EXTRAPOLATOR);
+        X_DATA_CLAMPED, Y_DATA_CLAMPED, INTERPOLATOR_EXTRAPOLATOR, INTERPOLATOR_EXTRAPOLATOR);
     for (int i = X_TEST_1.size() - 1; i < X_TEST_1.size(); i++) {
       assertThat(bci.interpolate(X_TEST_1.get(i))).isCloseTo(Math.exp(bciUnderlying.interpolate(X_TEST_1.get(i))), offset(TOL));
     }
