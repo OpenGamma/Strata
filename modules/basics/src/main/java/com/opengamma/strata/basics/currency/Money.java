@@ -47,6 +47,16 @@ public class Money
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains a zero amount instance of {@code Money} for the specified currency.
+   *
+   * @param currency  the currency the amount is in
+   * @return the zero amount instance
+   */
+  public static Money zero(Currency currency) {
+    return of(currency, BigDecimal.ZERO);
+  }
+
+  /**
    * Obtains an instance of {@code Money} for the specified {@link CurrencyAmount}.
    *
    * @param currencyAmount  the instance of {@link CurrencyAmount} wrapping the currency and amount.
@@ -130,7 +140,7 @@ public class Money
   }
 
   /**
-   * Gets the amount of the currency as an instance of {@link BigDecimal}.
+   * Gets the amount of the currency.
    * <p>
    * The amount will be rounded to the currency specifications.
    * <p>
@@ -140,6 +150,98 @@ public class Money
    */
   public BigDecimal getAmount() {
     return amount;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this {@code Money} with the specified amount added.
+   * <p>
+   * This adds the specified amount to this monetary amount, returning a new object.
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   * 
+   * @param amountToAdd  the amount to add, in the same currency
+   * @return an amount based on this with the specified amount added
+   * @throws IllegalArgumentException if the currencies are not equal
+   */
+  public Money plus(Money amountToAdd) {
+    ArgChecker.notNull(amountToAdd, "amountToAdd");
+    ArgChecker.isTrue(amountToAdd.getCurrency().equals(currency), "Unable to add amounts in different currencies");
+    return new Money(currency, amount.add(amountToAdd.amount));
+  }
+
+  /**
+   * Returns a copy of this {@code Money} with the specified amount subtracted.
+   * <p>
+   * This subtracts the specified amount to this monetary amount, returning a new object.
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   * 
+   * @param amountToSubtract  the amount to subtract, in the same currency
+   * @return an amount based on this with the specified amount subtracted
+   * @throws IllegalArgumentException if the currencies are not equal
+   */
+  public Money minus(Money amountToSubtract) {
+    ArgChecker.notNull(amountToSubtract, "amountToSubtract");
+    ArgChecker.isTrue(amountToSubtract.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
+    return new Money(currency, amount.subtract(amountToSubtract.amount));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a copy of this {@code Money} with the amount multiplied.
+   * <p>
+   * This takes this amount and multiplies it by the specified value.
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   * 
+   * @param valueToMultiplyBy  the scalar amount to multiply by
+   * @return an amount based on this with the amount multiplied
+   */
+  public Money multipliedBy(long valueToMultiplyBy) {
+    return new Money(currency, amount.multiply(BigDecimal.valueOf(valueToMultiplyBy)));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the amount is zero.
+   * 
+   * @return true if zero
+   */
+  public boolean isZero() {
+    return amount.signum() == 0;
+  }
+
+  /**
+   * Checks if the amount is positive.
+   * <p>
+   * Zero and negative amounts return false.
+   * 
+   * @return true if positive
+   */
+  public boolean isPositive() {
+    return amount.signum() > 0;
+  }
+
+  /**
+   * Checks if the amount is negative.
+   * <p>
+   * Zero and positive amounts return false.
+   * 
+   * @return true if negative
+   */
+  public boolean isNegative() {
+    return amount.signum() < 0;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts this monetary amount to the equivalent {@code CurrencyAmount}.
+   *
+   * @return the equivalent {@code CurrencyAmount}
+   */
+  public CurrencyAmount toCurrencyAmount() {
+    return CurrencyAmount.of(this.getCurrency(), this.getAmount().doubleValue());
   }
 
   //-------------------------------------------------------------------------
