@@ -169,6 +169,14 @@ public class GuavateTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_first() {
+    assertThat(Guavate.first(ImmutableSet.of())).isEqualTo(Optional.empty());
+    assertThat(Guavate.first(ImmutableSet.of("a"))).hasValue("a");
+    assertThat(Guavate.first(ImmutableSet.of("a", "b"))).hasValue("a");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_stream_Iterable() {
     Iterable<String> iterable = Arrays.asList("a", "b", "c");
     List<String> test = Guavate.stream(iterable)
