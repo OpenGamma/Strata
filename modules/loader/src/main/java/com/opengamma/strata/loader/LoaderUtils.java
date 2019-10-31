@@ -208,6 +208,40 @@ public final class LoaderUtils {
     }
   }
 
+  /**
+   * Parses a decimal from the input string.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws NumberFormatException if the string cannot be parsed
+   */
+  public static BigDecimal parseBigDecimal(String str) {
+    try {
+      return new BigDecimal(str);
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string, converting it from a percentage to a decimal values.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws NumberFormatException if the string cannot be parsed
+   */
+  public static BigDecimal parseBigDecimalPercent(String str) {
+    try {
+      return new BigDecimal(str).movePointLeft(2);
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a date from the input string using the specified formatters.
