@@ -83,7 +83,6 @@ public class IniFileOutputTest {
   @Test
   public void test_standard_writeSection_systemNewLine_padSeparator() {
     String fileContents = SINGLE_SECTION_NEWLINE_PADDED.replaceAll("\n", System.lineSeparator());
-    IniFile file = IniFile.of(CharSource.wrap(fileContents));
     StringBuilder buf = new StringBuilder();
     IniFileOutput.standard(buf).writeSection(SECTION_A, SECTION_A_VALUES);
     assertThat(buf.toString()).isEqualTo(fileContents);

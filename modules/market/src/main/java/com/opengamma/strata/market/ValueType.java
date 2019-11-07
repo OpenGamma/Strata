@@ -62,6 +62,10 @@ public final class ValueType
    */
   public static final ValueType DISCOUNT_FACTOR = of("DiscountFactor");
   /**
+   * Type used when each value is a dividend yield - 'DividendYield'.
+   */
+  public static final ValueType DIVIDEND_YIELD = of("DividendYield");
+  /**
    * Type used when each value is a price index, as used for inflation products - 'PriceIndex'.
    */
   public static final ValueType PRICE_INDEX = of("PriceIndex");

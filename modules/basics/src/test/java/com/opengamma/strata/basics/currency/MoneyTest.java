@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -25,14 +26,16 @@ public class MoneyTest {
   private static final double AMT_200_23 = 200.23;
   private static final Currency CCY_BHD = Currency.BHD; //3 decimals
   private static final CurrencyAmount CCYAMT = CurrencyAmount.of(CCY_RON, AMT_200_23);
-  //Not the Money instances
+  private static final Money MONEY_100_RON = Money.of(CCY_RON, 100);
   private static final Money MONEY_200_RON = Money.of(CCYAMT);
   private static final Money MONEY_100_AUD = Money.of(CCY_AUD, AMT_100_12);
   private static final Money MONEY_100_13_AUD = Money.of(CCY_AUD, AMT_100_MORE_DECIMALS);
+  private static final Money MONEY_200_AUD = Money.of(CCY_AUD, 200);
   private static final Money MONEY_200_RON_ALTERNATIVE = Money.of(CCY_RON, AMT_200_23);
   private static final Money MONEY_100_12_BHD = Money.of(CCY_BHD, AMT_100_12);
   private static final Money MONEY_100_125_BHD = Money.of(CCY_BHD, AMT_100_MORE_DECIMALS);
 
+  //-------------------------------------------------------------------------
   @Test
   public void testOfCurrencyAndAmount() throws Exception {
     assertThat(MONEY_100_AUD.getCurrency()).isEqualTo(CCY_AUD);
@@ -52,6 +55,55 @@ public class MoneyTest {
     assertThat(MONEY_200_RON.getAmount()).isEqualTo(new BigDecimal(AMT_200_23).setScale(2, RoundingMode.HALF_EVEN));
   }
 
+  //-------------------------------------------------------------------------
+  @Test
+  public void testPlus() throws Exception {
+    Money a = Money.of(GBP, 1.23);
+    Money b = Money.of(GBP, 2.34);
+    assertThat(a.plus(b)).isEqualTo(Money.of(GBP, 3.57));
+    assertThat(b.plus(a)).isEqualTo(Money.of(GBP, 3.57));
+  }
+
+  @Test
+  public void testMinus() throws Exception {
+    Money a = Money.of(GBP, 1.23);
+    Money b = Money.of(GBP, 0.34);
+    assertThat(a.minus(b)).isEqualTo(Money.of(GBP, 0.89));
+    assertThat(b.minus(a)).isEqualTo(Money.of(GBP, -0.89));
+  }
+
+  @Test
+  public void testMultipliedBy() throws Exception {
+    Money a = Money.of(GBP, 1.23);
+    assertThat(a.multipliedBy(2)).isEqualTo(Money.of(GBP, 2.46));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void testZeroPositiveNegative() throws Exception {
+    Money zero = Money.zero(GBP);
+    assertThat(zero.isZero()).isTrue();
+    assertThat(zero.isPositive()).isFalse();
+    assertThat(zero.isNegative()).isFalse();
+    Money positive = Money.of(GBP, 200.23);
+    assertThat(positive.isZero()).isFalse();
+    assertThat(positive.isPositive()).isTrue();
+    assertThat(positive.isNegative()).isFalse();
+    Money negative = Money.of(GBP, -200.23);
+    assertThat(negative.isZero()).isFalse();
+    assertThat(negative.isPositive()).isFalse();
+    assertThat(negative.isNegative()).isTrue();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void testToCurrencyAmount() throws Exception {
+    Money base = Money.of(GBP, 200.23);
+    assertThat(base.toCurrencyAmount()).isEqualTo(CurrencyAmount.of(GBP, 200.23));
+    assertThat(base.toCurrencyAmount().toMoney()).isEqualTo(base);
+  }
+
+  //-------------------------------------------------------------------------
   @Test
   public void testConvertedToWithExplicitRate() throws Exception {
     assertThat(Money.of(Currency.RON, 200.23)).isEqualTo(MONEY_200_RON.convertedTo(CCY_RON, BigDecimal.valueOf(1)));
@@ -79,17 +131,17 @@ public class MoneyTest {
   }
 
   @Test
-  public void testEquals() throws Exception {
-    assertThat(MONEY_200_RON.equals(MONEY_200_RON)).isTrue();
-    assertThat(MONEY_200_RON.equals(null)).isFalse();
-    assertThat(MONEY_200_RON.equals(MONEY_200_RON_ALTERNATIVE)).isTrue();
-    assertThat(MONEY_100_AUD.equals(MONEY_200_RON)).isFalse();
-  }
-
-  @Test
-  public void testHashCode() throws Exception {
-    assertThat(MONEY_200_RON.hashCode() == MONEY_200_RON_ALTERNATIVE.hashCode()).isTrue();
-    assertThat(MONEY_200_RON.hashCode() == MONEY_100_AUD.hashCode()).isFalse();
+  public void testEqualsHashCode() throws Exception {
+    assertThat(MONEY_200_RON)
+        .isEqualTo(MONEY_200_RON)
+        .isEqualTo(MONEY_200_RON_ALTERNATIVE)
+        .isNotEqualTo(MONEY_100_AUD)
+        .isNotEqualTo(MONEY_200_AUD)
+        .isNotEqualTo(MONEY_100_RON)
+        .isNotEqualTo(MONEY_100_12_BHD)
+        .isNotEqualTo("")
+        .isNotEqualTo(null)
+        .hasSameHashCodeAs(MONEY_200_RON_ALTERNATIVE);
   }
 
   @Test

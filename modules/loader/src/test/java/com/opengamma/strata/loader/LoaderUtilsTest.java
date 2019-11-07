@@ -11,6 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.within;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -84,6 +85,22 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseDoublePercent() {
     assertThat(LoaderUtils.parseDoublePercent("1.2")).isEqualTo(0.012d, within(1e-10));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
+        .withMessage("Unable to parse percentage from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseBigDecimal() {
+    assertThat(LoaderUtils.parseBigDecimal("1.2")).isEqualTo(BigDecimal.valueOf(1.2d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
+        .withMessage("Unable to parse double from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseBigDecimalPercent() {
+    assertThat(LoaderUtils.parseBigDecimalPercent("1.2")).isEqualTo(BigDecimal.valueOf(0.012d));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
         .withMessage("Unable to parse percentage from 'Rubbish'");

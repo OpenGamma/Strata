@@ -189,6 +189,19 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the first value from the iterable, returning empty if the iterable is empty.
+   * 
+   * @param <T>  the type of element in the optional
+   * @param iterable  the iterable to query
+   * @return the first value, empty if empty
+   */
+  public static <T> Optional<T> first(Iterable<T> iterable) {
+    Iterator<T> it = iterable.iterator();
+    return it.hasNext() ? Optional.of(it.next()) : Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates a single {@code Map.Entry}.
    * <p>
    * The entry is immutable.

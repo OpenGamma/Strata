@@ -346,11 +346,12 @@ public final class CurrencyAmount
 
   //-------------------------------------------------------------------------
   /**
-   * Converts the current instance of {@link CurrencyAmount} to the equivalent {@link Money} instance.
-   * This will result into loss of precision in the amount, since {@link Money} is storing the amount
-   * rounded to the currency specification.
+   * Converts this monetary amount to the equivalent {@code Money}.
+   * <p>
+   * An instance of {@link Money} only stores the amount to the number of decimal places of the currency.
+   * As such, this method may result in a loss of precision.
    *
-   * @return The newly created instance of {@link Money}.
+   * @return the equivalent {@code Money}
    */
   public Money toMoney() {
     return Money.of(this.getCurrency(), this.getAmount());

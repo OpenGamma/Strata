@@ -188,6 +188,10 @@ public final class FpmlDocument {
    * The reference data.
    */
   private final ReferenceData refData;
+  /**
+   * Flag indicating whether to be strict about the presence of unsupported elements.
+   */
+  private final boolean strictValidation;
 
   //-------------------------------------------------------------------------
   /**
@@ -196,7 +200,10 @@ public final class FpmlDocument {
    * The map of references is used to link one part of the XML to another.
    * For example, if one part of the XML has {@code <foo id="fooId">}, the references
    * map will contain an entry mapping "fooId" to the parsed element {@code <foo>}.
-   * 
+   * <p>
+   * The created document will be in 'strict' mode, which means that any FpML elements
+   * unsupported in Strata will trigger errors during parsing.
+   *
    * @param fpmlRootEl  the source of the FpML XML document
    * @param references  the map of id/href to referenced element
    * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
@@ -210,12 +217,39 @@ public final class FpmlDocument {
       FpmlTradeInfoParserPlugin tradeInfoParser,
       ReferenceData refData) {
 
+    this(fpmlRootEl, references, ourPartySelector, tradeInfoParser, refData, true);
+  }
+
+  /**
+   * Creates an instance, based on the specified element.
+   * <p>
+   * The map of references is used to link one part of the XML to another.
+   * For example, if one part of the XML has {@code <foo id="fooId">}, the references
+   * map will contain an entry mapping "fooId" to the parsed element {@code <foo>}.
+   *
+   * @param fpmlRootEl  the source of the FpML XML document
+   * @param references  the map of id/href to referenced element
+   * @param ourPartySelector  the selector used to find "our" party within the set of parties in the FpML document
+   * @param tradeInfoParser  the trade info parser
+   * @param refData  the reference data to use
+   * @param strictValidation  flag indicating whether to be strict when validating which elements
+   *  are present in the FpML document
+   */
+  FpmlDocument(
+      XmlElement fpmlRootEl,
+      Map<String, XmlElement> references,
+      FpmlPartySelector ourPartySelector,
+      FpmlTradeInfoParserPlugin tradeInfoParser,
+      ReferenceData refData,
+      boolean strictValidation) {
+
     this.fpmlRoot = fpmlRootEl;
     this.references = ImmutableMap.copyOf(references);
     this.parties = parseParties(fpmlRootEl);
     this.ourPartyHrefIds = findOurParty(ourPartySelector);
     this.tradeInfoParser = tradeInfoParser;
     this.refData = refData;
+    this.strictValidation = strictValidation;
   }
 
   // parse all the root-level party elements
@@ -880,6 +914,9 @@ public final class FpmlDocument {
    * @throws FpmlParseException if the element is found
    */
   public void validateNotPresent(XmlElement baseEl, String elementName) {
+    if (!strictValidation) {
+      return;
+    }
     if (baseEl.findChild(elementName).isPresent()) {
       throw new FpmlParseException("Unsupported element: '" + elementName + "'");
     }
