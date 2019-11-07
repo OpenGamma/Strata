@@ -35,7 +35,7 @@ public class LazyFxRateProvider implements FxRateProvider {
   }
 
   /**
-   * Create a new LazyFxRateProvider.
+   * Returns a new LazyFxRateProvider.
    *
    * @param fxRateProviderSupplier  a supplier of a rate provider
    * @return the rate provider
