@@ -19,8 +19,16 @@ import com.opengamma.strata.collect.ArgChecker;
  */
 public class LazyFxRateProvider implements FxRateProvider {
 
+  /**
+   * The supplier of the underlying provider.
+   */
   private final Supplier<FxRateProvider> target;
 
+  /**
+   * Restricted constructor.
+   *
+   * @param target  The supplier of the underlying provider
+   */
   private LazyFxRateProvider(Supplier<FxRateProvider> target) {
     ArgChecker.notNull(target, "target");
     this.target = Suppliers.memoize(target::get);
@@ -29,7 +37,7 @@ public class LazyFxRateProvider implements FxRateProvider {
   /**
    * Create a new LazyFxRateProvider.
    *
-   * @param fxRateProviderSupplier a supplier of a rate provider
+   * @param fxRateProviderSupplier  a supplier of a rate provider
    * @return the rate provider
    */
   public static LazyFxRateProvider of(Supplier<FxRateProvider> fxRateProviderSupplier) {
