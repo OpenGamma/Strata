@@ -17,8 +17,16 @@ import com.opengamma.strata.collect.Unchecked;
  */
 public class CloseableExecutor implements AutoCloseable {
 
+  /**
+   * The wrapped executor service.
+   */
   private final ExecutorService executorService;
 
+  /**
+   * Restricted constructor.
+   *
+   * @param executorService the underlying executor service
+   */
   private CloseableExecutor(ExecutorService executorService) {
     this.executorService = ArgChecker.notNull(executorService, "executorService");
   }
