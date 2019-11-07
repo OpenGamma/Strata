@@ -66,8 +66,10 @@ public class FloatingRateNamesTest {
         {"CHF-TOIS-OIS-COMPOUND", "CHF-TOIS", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"EUR-EONIA", "EUR-EONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"EUR-EONIA-OIS-COMPOUND", "EUR-EONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {"EUR-ESTER", "EUR-ESTER", FloatingRateType.OVERNIGHT_COMPOUNDED},
-        {"EUR-ESTER-OIS-COMPOUND", "EUR-ESTER", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-ESTR", "EUR-ESTR", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-ESTR-COMPOUND", "EUR-ESTR", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-ESTER", "EUR-ESTR", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"EUR-ESTER-OIS-COMPOUND", "EUR-ESTR", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"JPY-TONAR", "JPY-TONAR", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"JPY-TONA-OIS-COMPOUND", "JPY-TONAR", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"USD-FED-FUND", "USD-FED-FUND", FloatingRateType.OVERNIGHT_COMPOUNDED},
@@ -104,9 +106,9 @@ public class FloatingRateNamesTest {
         {"HKD-HIBOR-HIBOR=", "HKD-HIBOR", FloatingRateType.IBOR},
         {"HUF-BUBOR-Reuters", "HUF-BUBOR", FloatingRateType.IBOR},
         {"KRW-CD-KSDA-Bloomberg", "KRW-CD", FloatingRateType.IBOR},
-        {"MXN-TIIE-Banxico", "MZN-TIIE", FloatingRateType.IBOR},
+        {"MXN-TIIE-Banxico", "MXN-TIIE", FloatingRateType.IBOR},
         {"NOK-NIBOR-OIBOR", "NOK-NIBOR", FloatingRateType.IBOR},
-        {"NZD-BBR-FRA", "NZD-BBR", FloatingRateType.IBOR},
+        {"NZD-BBR-FRA", "NZD-BKBM", FloatingRateType.IBOR},
         {"PLN-WIBOR-WIBO", "PLN-WIBOR", FloatingRateType.IBOR},
         {"SEK-STIBOR-Bloomberg", "SEK-STIBOR", FloatingRateType.IBOR},
         {"SGD-SOR-VWAP", "SGD-SOR", FloatingRateType.IBOR},
@@ -121,6 +123,8 @@ public class FloatingRateNamesTest {
   public void test_name(String name, String indexName, FloatingRateType type) {
     FloatingRateName test = FloatingRateName.of(name);
     assertThat(test.getName()).isEqualTo(name);
+    assertThat(test.normalized().getName())
+        .isEqualTo(indexName.endsWith("-") ? indexName.substring(0, indexName.length() - 1) : indexName);
     assertThat(test.getType()).isEqualTo(type);
     assertThat(test.getCurrency()).isEqualTo(test.toFloatingRateIndex().getCurrency());
   }
