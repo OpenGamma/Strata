@@ -26,7 +26,7 @@ public class LazyFxRateProviderTest {
     @SuppressWarnings("unchecked")
     Supplier<FxRateProvider> underlying = (Supplier<FxRateProvider>) mock(Supplier.class);
 
-    LazyFxRateProvider provider = LazyFxRateProvider.of(underlying);
+    FxRateProvider provider = FxRateProvider.lazy(underlying);
 
     assertThat(provider.convert(1, Currency.USD, Currency.USD)).isEqualTo(1);
     assertThat(provider.fxRate(Currency.USD, Currency.USD)).isEqualTo(1);
@@ -43,7 +43,7 @@ public class LazyFxRateProviderTest {
     when(underlying.get())
         .thenReturn((baseCurrency, counterCurrency) -> expectedRate);
 
-    LazyFxRateProvider provider = LazyFxRateProvider.of(underlying);
+    FxRateProvider provider = FxRateProvider.lazy(underlying);
 
     assertThat(provider.convert(1, Currency.USD, Currency.EUR)).isEqualTo(expectedRate);
     assertThat(provider.fxRate(Currency.USD, Currency.EUR)).isEqualTo(expectedRate);

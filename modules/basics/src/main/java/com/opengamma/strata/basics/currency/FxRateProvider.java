@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import java.util.function.Supplier;
+
 /**
  * A provider of FX rates.
  * <p>
@@ -16,6 +18,20 @@ package com.opengamma.strata.basics.currency;
  * Implementations do not have to be immutable, but calls to the methods must be thread-safe.
  */
 public interface FxRateProvider {
+
+  /**
+   * Returns an {@code FxRateProvider} that delays fetching its underlying provider
+   * until actually necessary.
+   * <p>
+   * This is typically useful where you <em>may</em> need a {@code MarketDataFxRateProvider}
+   * but want to delay loading market data to construct the provider until you are sure you actually do need it.
+   *
+   * @param target  the supplier of the underlying provider
+   * @return the provider
+   */
+  public static FxRateProvider lazy(Supplier<FxRateProvider> target) {
+    return new LazyFxRateProvider(target);
+  }
 
   /**
    * Converts an amount in a currency to an amount in a different currency using this rate.

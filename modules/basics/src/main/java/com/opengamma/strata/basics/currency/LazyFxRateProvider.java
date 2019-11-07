@@ -17,7 +17,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * This is typically useful where you <em>may</em> need a {@code MarketDataFxRateProvider}
  * but want to delay loading market data to construct the provider until you are sure you actually do need it.
  */
-public class LazyFxRateProvider implements FxRateProvider {
+class LazyFxRateProvider implements FxRateProvider {
 
   /**
    * The supplier of the underlying provider.
@@ -25,23 +25,13 @@ public class LazyFxRateProvider implements FxRateProvider {
   private final Supplier<FxRateProvider> target;
 
   /**
-   * Restricted constructor.
+   * Package-scoped constructor.
    *
    * @param target  the supplier of the underlying provider
    */
-  private LazyFxRateProvider(Supplier<FxRateProvider> target) {
+  LazyFxRateProvider(Supplier<FxRateProvider> target) {
     ArgChecker.notNull(target, "target");
     this.target = Suppliers.memoize(target::get);
-  }
-
-  /**
-   * Returns a new LazyFxRateProvider.
-   *
-   * @param fxRateProviderSupplier  a supplier of a rate provider
-   * @return the rate provider
-   */
-  public static LazyFxRateProvider of(Supplier<FxRateProvider> fxRateProviderSupplier) {
-    return new LazyFxRateProvider(fxRateProviderSupplier);
   }
 
   @Override
