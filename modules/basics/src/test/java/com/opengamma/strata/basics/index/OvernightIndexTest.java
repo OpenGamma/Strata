@@ -181,7 +181,7 @@ public class OvernightIndexTest {
   }
 
   @Test
-  public void test_eurEster() {
+  public void test_eurEstr() {
     OvernightIndex test = OvernightIndex.of("EUR-ESTR");
     assertThat(test.getName()).isEqualTo("EUR-ESTR");
     assertThat(test.getCurrency()).isEqualTo(EUR);
@@ -191,6 +191,7 @@ public class OvernightIndexTest {
     assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
     assertThat(test.getDayCount()).isEqualTo(ACT_360);
     assertThat(test.toString()).isEqualTo("EUR-ESTR");
+    // old name
     assertThat(OvernightIndex.of("EUR-ESTER")).isEqualTo(test);
   }
 
