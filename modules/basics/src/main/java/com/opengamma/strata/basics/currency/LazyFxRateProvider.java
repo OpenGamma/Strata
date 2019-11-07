@@ -27,7 +27,7 @@ public class LazyFxRateProvider implements FxRateProvider {
   /**
    * Restricted constructor.
    *
-   * @param target  The supplier of the underlying provider
+   * @param target  the supplier of the underlying provider
    */
   private LazyFxRateProvider(Supplier<FxRateProvider> target) {
     ArgChecker.notNull(target, "target");
