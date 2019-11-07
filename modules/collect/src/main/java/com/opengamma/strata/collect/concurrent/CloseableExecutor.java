@@ -25,7 +25,7 @@ public class CloseableExecutor implements AutoCloseable {
   /**
    * Restricted constructor.
    *
-   * @param executorService the underlying executor service
+   * @param executorService  the underlying executor service
    */
   private CloseableExecutor(ExecutorService executorService) {
     this.executorService = ArgChecker.notNull(executorService, "executorService");
@@ -36,7 +36,7 @@ public class CloseableExecutor implements AutoCloseable {
    * <p>
    * The passed in executor is shut down when the returned CloseableExecutor is closed.
    *
-   * @param executor the executor to wrap
+   * @param executor  the executor to wrap
    * @return a CloseableExecutor
    */
   public static CloseableExecutor of(ExecutorService executor) {
