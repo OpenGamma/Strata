@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import java.util.function.Supplier;
+
 import com.opengamma.strata.collect.Messages;
 
 /**
@@ -18,6 +20,20 @@ import com.opengamma.strata.collect.Messages;
  * Implementations do not have to be immutable, but calls to the methods must be thread-safe.
  */
 public interface FxRateProvider {
+
+  /**
+   * Returns an {@code FxRateProvider} that delays fetching its underlying provider
+   * until actually necessary.
+   * <p>
+   * This is typically useful where you <em>may</em> need a {@code MarketDataFxRateProvider}
+   * but want to delay loading market data to construct the provider until you are sure you actually do need it.
+   *
+   * @param target  the supplier of the underlying provider
+   * @return the provider
+   */
+  public static FxRateProvider lazy(Supplier<FxRateProvider> target) {
+    return new LazyFxRateProvider(target);
+  }
 
   /**
    * Returns a provider that always throws an exception.
