@@ -12,6 +12,7 @@ import static com.opengamma.strata.basics.currency.Currency.CLP;
 import static com.opengamma.strata.basics.currency.Currency.DKK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.HKD;
 import static com.opengamma.strata.basics.currency.Currency.INR;
 import static com.opengamma.strata.basics.currency.Currency.NZD;
 import static com.opengamma.strata.basics.currency.Currency.PLN;
@@ -249,6 +250,22 @@ public class OvernightIndexTest {
     assertThat(test.getDayCount()).isEqualTo(ACT_360);
     assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_360);
     assertThat(test.toString()).isEqualTo("DKK-TNR");
+  }
+
+  @Test
+  public void test_hkdOis() {
+    OvernightIndex test = OvernightIndex.of("HKD-HONIA");
+    assertThat(test.getName()).isEqualTo("HKD-HONIA");
+    assertThat(test.getCurrency()).isEqualTo(HKD);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getFixingCalendar()).isEqualTo(HolidayCalendarId.of("HKHK"));
+    assertThat(test.getPublicationDateOffset()).isEqualTo(0);
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("HKD-HONIA");
+    // alternative name
+    assertThat(OvernightIndex.of("HKD-HONIX")).isEqualTo(test);
   }
 
   @Test
