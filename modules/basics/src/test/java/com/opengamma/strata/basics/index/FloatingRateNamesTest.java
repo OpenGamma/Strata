@@ -114,6 +114,8 @@ public class FloatingRateNamesTest {
         {"SGD-SOR-VWAP", "SGD-SOR", FloatingRateType.IBOR},
         {"ZAR-JIBAR-SAFEX", "ZAR-JIBAR", FloatingRateType.IBOR},
 
+        {"HKD-HONIA-OIS-COMPOUND", "HKD-HONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"HKD-HONIX-OIS-COMPOUND", "HKD-HONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"INR-MIBOR-OIS-COMPOUND", "INR-OMIBOR", FloatingRateType.OVERNIGHT_COMPOUNDED},
     };
   }
