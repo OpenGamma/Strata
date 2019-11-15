@@ -107,7 +107,7 @@ commands:
             - ~/.m2/repository
 
 #----------------------------------------------------------------------------
-# gather the TestSuite.xml files into a single folder and upload them
+# gather the test result xml files into a single folder and upload them
   store_maven_tests:
     description: "Storing Maven test results"
     steps:
@@ -116,7 +116,7 @@ commands:
           command: |
             mkdir -p ~/test-results/junit/
             find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
-            ls -l ~/test-results/junit/
+            zip -rq ~/test-results.zip pom.xml ~/test-results
           when: always
       - store_test_results:
           name: "Uploading test results"
@@ -124,9 +124,9 @@ commands:
           when: always
       - store_artifacts:
           name: "Storing test artifacts"
-          path: ~/test-results/junit
+          path: ~/test-results.zip
           destination: test-results
-          when: on_fail
+          when: always
 
 #----------------------------------------------------------------------------
   with_maven:
@@ -160,9 +160,13 @@ commands:
           name: Setup GPG
           working_directory: ~/repo/.circleci
           command: |
+            gpg --version
             echo $SIGNING_PASSWORD | gpg --batch --passphrase-fd 0 -o codesigning.asc -d codesigning.asc.gpg
             gpg --batch --import codesigning.asc
             shred --remove codesigning.asc
+            echo 'use-agent' >> ~/.gnupg/gpg.conf
+            echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+            echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
 
 #----------------------------------------------------------------------------
   maven_deploy_modules:
