@@ -82,15 +82,15 @@ public class SabrPerformance {
   }
 
   static class Data {
-    int cnt = 10;
-    double forward = 100.4456433578360;
-    double tau = 0.01917808219;
-    double strikeLb = 99.1;
-    double strikeUb = 101.7;
-    double[] strikes = createStrikes(strikeLb, strikeUb, 1 << cnt);
-    double alpha = 0.11535269852484416;
-    double nu = 4.249484906629612;
-    double rho = -0.08280305920343885;
+    private int cnt = 10;
+    private double forward = 100.4456433578360;
+    private double tau = 0.01917808219;
+    private double strikeLb = 99.1;
+    private double strikeUb = 101.7;
+    private double[] strikes = createStrikes(strikeLb, strikeUb, 1 << cnt);
+    private double alpha = 0.11535269852484416;
+    private double nu = 4.249484906629612;
+    private double rho = -0.08280305920343885;
 
     double[] createStrikes(double lb, double ub, int cnt) {
       double incr = (ub - lb) / cnt;

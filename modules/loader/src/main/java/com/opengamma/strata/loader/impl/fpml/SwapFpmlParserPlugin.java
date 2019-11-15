@@ -339,6 +339,7 @@ final class SwapFpmlParserPlugin
       XmlElement calcEl,
       PeriodicSchedule accrualSchedule,
       FpmlDocument document) {
+
     // supported elements:
     //  'calculationPeriodAmount/calculation/fixedRateSchedule'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation'
@@ -406,6 +407,7 @@ final class SwapFpmlParserPlugin
       XmlElement floatingEl,
       PeriodicSchedule accrualSchedule,
       FpmlDocument document) {
+
     // supported elements:
     //  'calculationPeriodAmount/calculation/floatingRateCalculation'
     //  'calculationPeriodAmount/calculation/floatingRateCalculation/floatingRateIndex'
@@ -557,6 +559,7 @@ final class SwapFpmlParserPlugin
       XmlElement inflationEl,
       PeriodicSchedule accrualSchedule,
       FpmlDocument document) {
+
     // supported elements:
     //  'calculationPeriodAmount/calculation/inflationRateCalculation'
     //  'calculationPeriodAmount/calculation/inflationRateCalculation/floatingRateIndex'

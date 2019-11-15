@@ -51,7 +51,7 @@ public class CurveTest {
   //-------------------------------------------------------------------------
   static class TestingCurve implements Curve {
 
-    final double value;
+    private final double value;
 
     TestingCurve(double value) {
       this.value = value;

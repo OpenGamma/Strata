@@ -3,7 +3,6 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.strata.math.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,16 +34,16 @@ public class FuzzyEqualsTest {
   }
 
   @Test
-  public void EqualsTest_SingleValueFuzzyEqualsDouble() {
-    double NaN = getNaN();
+  public void testEquals_SingleValueFuzzyEqualsDouble() {
+    double nanValue = getNaN();
     double pinf = getPosInf();
     double ninf = getNegInf();
     double neg0 = getNegZero();
 
     // NaN branch
-    assertThat(FuzzyEquals.SingleValueFuzzyEquals(NaN, NaN)).isFalse();
-    assertThat(FuzzyEquals.SingleValueFuzzyEquals(NaN, 1)).isFalse();
-    assertThat(FuzzyEquals.SingleValueFuzzyEquals(1, NaN)).isFalse();
+    assertThat(FuzzyEquals.SingleValueFuzzyEquals(nanValue, nanValue)).isFalse();
+    assertThat(FuzzyEquals.SingleValueFuzzyEquals(nanValue, 1)).isFalse();
+    assertThat(FuzzyEquals.SingleValueFuzzyEquals(1, nanValue)).isFalse();
 
     // Inf branches
     assertThat(FuzzyEquals.SingleValueFuzzyEquals(pinf, pinf)).isTrue();
@@ -72,12 +71,12 @@ public class FuzzyEqualsTest {
   }
 
   @Test
-  public void EqualsTest_ArrayFuzzyEqualsDouble() {
+  public void testEquals_ArrayFuzzyEqualsDouble() {
 
-    double data[] = {1.0e0, 2.0e0, 3.0e0, 4.0e0};
-    double same[] = {1.0e0, 2.0e0, 3.0e0, 4.0e0};
-    double diff[] = {-1.0e0, 2.0e0, 3.0e0, 4.0e0};
-    double lendiff[] = {-1.0e0, 2.0e0, 3.0e0};
+    double[] data = {1.0e0, 2.0e0, 3.0e0, 4.0e0};
+    double[] same = {1.0e0, 2.0e0, 3.0e0, 4.0e0};
+    double[] diff = {-1.0e0, 2.0e0, 3.0e0, 4.0e0};
+    double[] lendiff = {-1.0e0, 2.0e0, 3.0e0};
 
     assertThat(FuzzyEquals.ArrayFuzzyEquals(data, lendiff)).isFalse();
     assertThat(FuzzyEquals.ArrayFuzzyEquals(data, diff)).isFalse();
@@ -85,13 +84,13 @@ public class FuzzyEqualsTest {
   }
 
   @Test
-  public void EqualsTest_ArrayOfArraysFuzzyEqualsDouble() {
+  public void testEquals_ArrayOfArraysFuzzyEqualsDouble() {
 
-    double data[][] = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
-    double same[][] = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
-    double diffvalue[][] = {{-1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
-    double diffrowlen[][] = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
-    double diffrowcount[][] = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}};
+    double[][] data = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
+    double[][] same = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
+    double[][] diffvalue = {{-1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
+    double[][] diffrowlen = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0}, {9.e0, 10.e0, 11.e0, 12.e0}};
+    double[][] diffrowcount = {{1.0e0, 2.0e0, 3.0e0, 4.0e0}, {5.e0, 6.e0, 7.e0, 8.e0}};
 
     assertThat(FuzzyEquals.ArrayFuzzyEquals(data, diffvalue)).isFalse();
     assertThat(FuzzyEquals.ArrayFuzzyEquals(data, diffrowlen)).isFalse();
@@ -122,12 +121,12 @@ public class FuzzyEqualsTest {
   }
 
   @Test
-  public void EqualsTest_CheckEPSIsAppropriatelySmall() {
+  public void testEquals_CheckEPSIsAppropriatelySmall() {
     assertThat(FuzzyEquals.getEps() < 5e-16).isTrue();
   }
 
   @Test
-  public void EqualsTest_CheckDefaultToleranceAppropriatelySmall() {
+  public void testEquals_CheckDefaultToleranceAppropriatelySmall() {
     assertThat(FuzzyEquals.getEps() < 10 * 5e-16).isTrue();
   }
 

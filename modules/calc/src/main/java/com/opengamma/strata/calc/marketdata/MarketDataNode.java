@@ -149,6 +149,8 @@ final class MarketDataNode {
           case TIME_SERIES:
             requirementsBuilder.addTimeSeries(((ObservableId) child.id));
             break;
+          default:
+            throw new IllegalStateException("Unexpected enum value");
         }
       } else {
         Pair<MarketDataNode, MarketDataRequirements> childResult = child.withLeavesRemoved();

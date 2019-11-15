@@ -23,22 +23,22 @@ import com.opengamma.strata.math.impl.matrix.OGMatrixAlgebra;
  */
 public class PiecewiseCubicHermiteSplineInterpolatorWithSensitivityTest {
 
-  private final static MatrixAlgebra MA = new OGMatrixAlgebra();
-  private final static PiecewiseCubicHermiteSplineInterpolator PCHIP = new PiecewiseCubicHermiteSplineInterpolator();
-  private final static PiecewiseCubicHermiteSplineInterpolatorWithSensitivity PCHIP_S =
+  private static final MatrixAlgebra MA = new OGMatrixAlgebra();
+  private static final PiecewiseCubicHermiteSplineInterpolator PCHIP = new PiecewiseCubicHermiteSplineInterpolator();
+  private static final PiecewiseCubicHermiteSplineInterpolatorWithSensitivity PCHIP_S =
       new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity();
-  private final static PiecewisePolynomialFunction1D PPVAL = new PiecewisePolynomialFunction1D();
-  private final static PiecewisePolynomialWithSensitivityFunction1D PPVAL_S = new PiecewisePolynomialWithSensitivityFunction1D();
-  private final static double[] X = new double[] {0, 0.4000, 1.0000, 2.0000, 3.0000, 3.25, 5.0000};
-  private final static double[][] Y = new double[][] {
+  private static final PiecewisePolynomialFunction1D PPVAL = new PiecewisePolynomialFunction1D();
+  private static final PiecewisePolynomialWithSensitivityFunction1D PPVAL_S = new PiecewisePolynomialWithSensitivityFunction1D();
+  private static final double[] X = new double[] {0, 0.4000, 1.0000, 2.0000, 3.0000, 3.25, 5.0000};
+  private static final double[][] Y = new double[][] {
       {1.2200, 1.0, 0.9, 1.1, 1.2000, 1.3, 1.2000}, // no flat sections
       {0.2200, 1.12, 1.5, 1.5, 1.7000, 1.8, 1.9000}, // flat middle section
       {1.2200, 1.12, 1.5, 1.5, 1.5000, 1.8, 1.9000}, // extended flat middle section
       {1.0, 1.0, 0.9, 1.1, 1.2000, 1.3, 1.3000}, // flat ends
       {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}};
 
-  private final static double[] XX;
-  private final static double[][] YY;
+  private static final double[] XX;
+  private static final double[][] YY;
 
   static {
     int nSamples = 66;

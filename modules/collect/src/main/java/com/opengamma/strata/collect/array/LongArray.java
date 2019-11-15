@@ -137,8 +137,7 @@ public final class LongArray
    * @param value5  the fifth value
    * @return an array containing the specified values
    */
-  public static LongArray of(
-      long value1, long value2, long value3, long value4, long value5) {
+  public static LongArray of(long value1, long value2, long value3, long value4, long value5) {
     return new LongArray(new long[] {value1, value2, value3, value4, value5});
   }
 
@@ -153,9 +152,7 @@ public final class LongArray
    * @param value6  the sixth value
    * @return an array containing the specified values
    */
-  public static LongArray of(
-      long value1, long value2, long value3, long value4,
-      long value5, long value6) {
+  public static LongArray of(long value1, long value2, long value3, long value4, long value5, long value6) {
     return new LongArray(new long[] {value1, value2, value3, value4, value5, value6});
   }
 
@@ -172,8 +169,14 @@ public final class LongArray
    * @return an array containing the specified values
    */
   public static LongArray of(
-      long value1, long value2, long value3, long value4,
-      long value5, long value6, long value7) {
+      long value1,
+      long value2,
+      long value3,
+      long value4,
+      long value5,
+      long value6,
+      long value7) {
+
     return new LongArray(new long[] {value1, value2, value3, value4, value5, value6, value7});
   }
 
@@ -191,8 +194,15 @@ public final class LongArray
    * @return an array containing the specified values
    */
   public static LongArray of(
-      long value1, long value2, long value3, long value4,
-      long value5, long value6, long value7, long value8) {
+      long value1,
+      long value2,
+      long value3,
+      long value4,
+      long value5,
+      long value6,
+      long value7,
+      long value8) {
+
     return new LongArray(new long[] {value1, value2, value3, value4, value5, value6, value7, value8});
   }
 
@@ -211,8 +221,16 @@ public final class LongArray
    * @return an array containing the specified values
    */
   public static LongArray of(
-      long value1, long value2, long value3, long value4,
-      long value5, long value6, long value7, long value8, long... otherValues) {
+      long value1,
+      long value2,
+      long value3,
+      long value4,
+      long value5,
+      long value6,
+      long value7,
+      long value8,
+      long... otherValues) {
+
     long[] base = new long[otherValues.length + 8];
     base[0] = value1;
     base[1] = value2;

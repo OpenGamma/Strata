@@ -66,8 +66,7 @@ public class DispatchingSwapPaymentPeriodPricer
   }
 
   @Override
-  public PointSensitivityBuilder presentValueSensitivity(SwapPaymentPeriod paymentPeriod,
-      RatesProvider provider) {
+  public PointSensitivityBuilder presentValueSensitivity(SwapPaymentPeriod paymentPeriod, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       return ratePaymentPeriodPricer.presentValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);
@@ -92,8 +91,7 @@ public class DispatchingSwapPaymentPeriodPricer
   }
 
   @Override
-  public PointSensitivityBuilder forecastValueSensitivity(SwapPaymentPeriod paymentPeriod,
-      RatesProvider provider) {
+  public PointSensitivityBuilder forecastValueSensitivity(SwapPaymentPeriod paymentPeriod, RatesProvider provider) {
     // dispatch by runtime type
     if (paymentPeriod instanceof RatePaymentPeriod) {
       return ratePaymentPeriodPricer.forecastValueSensitivity((RatePaymentPeriod) paymentPeriod, provider);

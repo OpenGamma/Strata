@@ -1273,6 +1273,7 @@ public final class BlackFormulaRepository {
       double strike,
       double timeToExpiry,
       double volGuess) {
+
     double impliedVolatility = impliedVolatility(otmPrice, forward, strike, timeToExpiry, volGuess);
     boolean isCall = strike >= forward;
     ValueDerivatives price = priceAdjoint(forward, strike, timeToExpiry, impliedVolatility, isCall);
@@ -1395,6 +1396,7 @@ public final class BlackFormulaRepository {
       final double strike,
       final double timeToExpiry,
       final double normalVolatility) {
+
     ArgChecker.isTrue(strike > 0, "strike must be strictly positive");
     ArgChecker.isTrue(forward > 0, "strike must be strictly positive");
     // initial guess

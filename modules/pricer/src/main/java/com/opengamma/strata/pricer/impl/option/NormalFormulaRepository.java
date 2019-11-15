@@ -363,6 +363,7 @@ public final class NormalFormulaRepository {
       double strike,
       double timeToExpiry,
       double blackVolatility) {
+
     ArgChecker.isTrue(strike > 0, "strike must be strictly positive");
     ArgChecker.isTrue(forward > 0, "strike must be strictly positive");
     double lnFK = Math.log(forward / strike);

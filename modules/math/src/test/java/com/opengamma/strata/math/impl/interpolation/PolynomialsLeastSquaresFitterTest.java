@@ -33,7 +33,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * Checks coefficients of polynomial f(x) are recovered and residuals, { y_i -f(x_i) }, are accurate
    */
   @Test
-  public void PolynomialFunctionRecoverTest() {
+  public void polynomialFunctionRecoverTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
     final double[] coeff = new double[] {3.4, 5.6, 1., -4.};
@@ -157,7 +157,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void RmatrixTest() {
+  public void rmatrixTest() {
 
     final PolynomialsLeastSquaresFitter regObj1 = new PolynomialsLeastSquaresFitter();
     final double[] xValues = new double[] {-1., 0, 1.};
@@ -195,7 +195,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * An error is thrown if rescaling of xValues is NOT used and we try to access data, mean and standard deviation 
    */
   @Test
-  public void NormalisationErrorTest() {
+  public void normalisationErrorTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -214,7 +214,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * Number of data points should be larger than (degree + 1) of a polynomial
    */
   @Test
-  public void DataShortTest() {
+  public void dataShortTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -232,7 +232,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void DataShortVerboseFalseTest() {
+  public void dataShortVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -250,7 +250,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void DataShortVerboseTrueTest() {
+  public void dataShortVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -268,7 +268,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * Degree of polynomial must be positive 
    */
   @Test
-  public void MinusDegreeTest() {
+  public void minusDegreeTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -286,7 +286,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void MinusDegreeVerboseFalseTest() {
+  public void minusDegreeVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -304,7 +304,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void MinusDegreeVerboseTrueTest() {
+  public void minusDegreeVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -322,7 +322,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * xValues length should be the same as yValues length
    */
   @Test
-  public void WrongDataLengthTest() {
+  public void wrongDataLengthTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -340,7 +340,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void WrongDataLengthVerboseFalseTest() {
+  public void wrongDataLengthVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -358,7 +358,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void WrongDataLengthVerboseTureTest() {
+  public void wrongDataLengthVerboseTureTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -376,7 +376,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * An error is thrown if too many repeated data are found
    */
   @Test
-  public void RepeatDataTest() {
+  public void repeatDataTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -394,7 +394,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void RepeatDataVerboseFalseTest() {
+  public void repeatDataVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -412,7 +412,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void RepeatDataVerboseTrueTest() {
+  public void repeatDataVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -430,7 +430,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void ExtremeValueTest() {
+  public void extremeValueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -448,7 +448,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void ExtremeValueVerboseFalseTest() {
+  public void extremeValueVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -466,7 +466,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void ExtremeValueVerboseTrueAlphaTest() {
+  public void extremeValueVerboseTrueAlphaTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -484,7 +484,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void NullTest() {
+  public void nullTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
     final int degree = 4;
@@ -500,7 +500,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void NullVerboseFalseTest() {
+  public void nullVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
     final int degree = 4;
@@ -516,7 +516,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void NullVerboseTrueTest() {
+  public void nullVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
     final int degree = 4;
@@ -532,7 +532,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void InfinityTest() {
+  public void infinityTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -558,7 +558,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void InfinityVerboseFalseTest() {
+  public void infinityVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -584,7 +584,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void InfinityVerboseTrueTest() {
+  public void infinityVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -610,7 +610,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void NaNTest() {
+  public void naNTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -634,7 +634,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void NaNVerboseFalseTest() {
+  public void naNVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -658,7 +658,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void NaNVerboseTrueTest() {
+  public void naNVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -682,7 +682,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void LargeNumberTest() {
+  public void largeNumberTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -700,7 +700,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void LargeNumberVerboseFalseTest() {
+  public void largeNumberVerboseFalseTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 
@@ -718,7 +718,7 @@ public class PolynomialsLeastSquaresFitterTest {
    * 
    */
   @Test
-  public void LargeNumberVerboseTrueTest() {
+  public void largeNumberVerboseTrueTest() {
 
     final PolynomialsLeastSquaresFitter regObj = new PolynomialsLeastSquaresFitter();
 

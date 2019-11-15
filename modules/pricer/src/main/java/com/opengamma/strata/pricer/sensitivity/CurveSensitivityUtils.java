@@ -258,4 +258,9 @@ public class CurveSensitivityUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private CurveSensitivityUtils() {
+  }
+
 }

@@ -108,6 +108,7 @@ public final class SchedulePeriod
       LocalDate endDate,
       LocalDate unadjustedStartDate,
       LocalDate unadjustedEndDate) {
+
     return new SchedulePeriod(startDate, endDate, unadjustedStartDate, unadjustedEndDate);
   }
 
@@ -120,9 +121,7 @@ public final class SchedulePeriod
    * @param endDate  the end date, used for financial calculations such as interest accrual
    * @return the period
    */
-  public static SchedulePeriod of(
-      LocalDate startDate,
-      LocalDate endDate) {
+  public static SchedulePeriod of(LocalDate startDate, LocalDate endDate) {
     return new SchedulePeriod(startDate, endDate, startDate, endDate);
   }
 

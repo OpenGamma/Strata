@@ -107,7 +107,7 @@ public final class BondDataSets {
   public static final LocalDate TRADE_DATE_USD = LocalDate.of(2011, 6, 19);
   private static final TradeInfo TRADE_INFO_USD = TradeInfo.builder().tradeDate(TRADE_DATE_USD).build();
   /** Quantity of bond future trade */
-  public static final long QUANTITY_USD = 1234l;
+  public static final long QUANTITY_USD = 1234L;
   /** Bond future trade */
   public static final BondFutureTrade FUTURE_TRADE_USD = BondFutureTrade.builder()
       .info(TRADE_INFO_USD)

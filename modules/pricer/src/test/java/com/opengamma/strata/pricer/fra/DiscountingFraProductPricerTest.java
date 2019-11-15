@@ -537,14 +537,14 @@ public class DiscountingFraProductPricerTest {
   private static final ImmutableRatesProvider IMM_PROV;
   static {
     CurveInterpolator interp = CurveInterpolators.DOUBLE_QUADRATIC;
-    DoubleArray time_gbp = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
-    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014);
+    DoubleArray timeGbp = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
+    DoubleArray rateGbp = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.014);
     InterpolatedNodalCurve dscCurve =
-        InterpolatedNodalCurve.of(Curves.zeroRates("GBP-Discount", DAY_COUNT), time_gbp, rate_gbp, interp);
-    DoubleArray time_index = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
-    DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
+        InterpolatedNodalCurve.of(Curves.zeroRates("GBP-Discount", DAY_COUNT), timeGbp, rateGbp, interp);
+    DoubleArray timeIndex = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
+    DoubleArray rateIndex = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
-        InterpolatedNodalCurve.of(Curves.zeroRates("GBP-GBPIBOR3M", DAY_COUNT), time_index, rate_index, interp);
+        InterpolatedNodalCurve.of(Curves.zeroRates("GBP-GBPIBOR3M", DAY_COUNT), timeIndex, rateIndex, interp);
     IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, dscCurve)
         .iborIndexCurve(GBP_LIBOR_3M, indexCurve)

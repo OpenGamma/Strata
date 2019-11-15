@@ -51,7 +51,7 @@ public class SurfaceTest {
   //-------------------------------------------------------------------------
   static class TestingSurface implements Surface {
 
-    final double value;
+    private final double value;
 
     TestingSurface(double value) {
       this.value = value;

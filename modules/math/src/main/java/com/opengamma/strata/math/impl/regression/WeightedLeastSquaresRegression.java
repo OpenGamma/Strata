@@ -72,6 +72,7 @@ public class WeightedLeastSquaresRegression extends LeastSquaresRegression {
   private LeastSquaresRegressionResult getResultWithStatistics(
       double[][] x, double[][] w, double[] y, double[] betas, double[] yModel,
       DoubleMatrix transpose, DoubleMatrix matrix, boolean useIntercept) {
+
     double yMean = 0.;
     for (double y1 : y) {
       yMean += y1;

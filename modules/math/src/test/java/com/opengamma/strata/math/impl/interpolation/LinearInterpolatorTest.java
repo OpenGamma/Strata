@@ -174,7 +174,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void InfyValuesTest() {
+  public void infyValuesTest() {
     double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = new double[] {1., 2., 3., INF};
     assertThatIllegalArgumentException()
@@ -354,7 +354,7 @@ public class LinearInterpolatorTest {
    * Derive value of the underlying cubic spline function at the value of xKey
    */
   @Test
-  public void InterpolantsTest() {
+  public void interpolantsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4.};
     final double[][] yValues = new double[][] {{6., 25. / 6., 10. / 3., 4.}, {6., 1., 0., 0.}};
     final double[][] xKey = new double[][] {{-1., 0.5, 1.5}, {2.5, 3.5, 4.5}};
@@ -418,7 +418,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void LargeOutputTest() {
+  public void largeOutputTest() {
     double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4.};
     double[] yValues = new double[] {1., 2., 1.e308, 3.};
     assertThatIllegalArgumentException()
@@ -429,7 +429,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void LargeOutputMultiTest() {
+  public void largeOutputMultiTest() {
     double[] xValues = new double[] {1., 2.e-308, 3.e-308, 4.};
     double[][] yValues = new double[][] {{1., 2.e307, 3., 4.}, {2., 2., 3., 4.}};
     assertThatIllegalArgumentException()
@@ -440,7 +440,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void LargeInterpolantsTest() {
+  public void largeInterpolantsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4.};
     final double[][] yValues = new double[][] {{2., 10., 2., 5.}, {1., 2., 10., 11.}};
     assertThatIllegalArgumentException()
@@ -451,7 +451,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void NullKeyTest() {
+  public void nullKeyTest() {
     double[] xValues = new double[] {1., 2., 3.};
     double[] yValues = new double[] {1., 3., 4.};
     double[] xKey = null;
@@ -463,7 +463,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void NullKeyMultiTest() {
+  public void nullKeyMultiTest() {
     double[] xValues = new double[] {1., 2., 3.};
     double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[] xKey = null;
@@ -475,7 +475,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void NullKeyMatrixTest() {
+  public void nullKeyMatrixTest() {
     double[] xValues = new double[] {1., 2., 3.};
     double[] yValues = new double[] {1., 3., 4.};
     double[][] xKey = null;
@@ -487,7 +487,7 @@ public class LinearInterpolatorTest {
    * 
    */
   @Test
-  public void NullKeyMatrixMultiTest() {
+  public void nullKeyMatrixMultiTest() {
     double[] xValues = new double[] {1., 2., 3.};
     double[][] yValues = new double[][] {{1., 3., 4.}, {2., 3., 1.}};
     double[][] xKey = null;

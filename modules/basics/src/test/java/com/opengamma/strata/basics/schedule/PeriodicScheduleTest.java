@@ -552,15 +552,15 @@ public class PeriodicScheduleTest {
 
         //IMM with adjusted start dates and various conventions
         //MF, no stub 
-        {date(2018, 3, 22), date(2020, 03, 18), P6M, STUB_NONE, IMM, BDA_JPY_MF, null, null, BDA_NONE,
+        {date(2018, 3, 22), date(2020, 3, 18), P6M, STUB_NONE, IMM, BDA_JPY_MF, null, null, BDA_NONE,
             list(date(2018, 3, 21), date(2018, 9, 19), date(2019, 3, 20), date(2019, 9, 18), date(2020, 3, 18)),
             list(date(2018, 3, 22), date(2018, 9, 19), date(2019, 3, 20), date(2019, 9, 18), date(2020, 3, 18)), IMM},
         //Preceding, no stub
-        {date(2018, 3, 20), date(2019, 03, 20), P6M, STUB_NONE, IMM, BDA_JPY_P, null, null, BDA_NONE,
+        {date(2018, 3, 20), date(2019, 3, 20), P6M, STUB_NONE, IMM, BDA_JPY_P, null, null, BDA_NONE,
             list(date(2018, 3, 21), date(2018, 9, 19), date(2019, 3, 20)),
             list(date(2018, 3, 20), date(2018, 9, 19), date(2019, 3, 20)), IMM},
         //MF, null stub
-        {date(2018, 3, 22), date(2019, 03, 20), P6M, null, IMM, BDA_JPY_MF, null, null, BDA_NONE,
+        {date(2018, 3, 22), date(2019, 3, 20), P6M, null, IMM, BDA_JPY_MF, null, null, BDA_NONE,
             list(date(2018, 3, 21), date(2018, 9, 19), date(2019, 3, 20)),
             list(date(2018, 3, 22), date(2018, 9, 19), date(2019, 3, 20)), IMM},
         //Explicit long front stub with (adjusted) first regular start date

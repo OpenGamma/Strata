@@ -105,7 +105,7 @@ public class CalibrationDiscountingSimple1Test {
   /** Nodes for the Fwd 3M USD curve */
   private static final CurveNode[] ALL_NODES = new CurveNode[FWD3_NB_NODES];
   /** Tenors for the Fwd 3M USD swaps */
-  private static final Period[] FWD3_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] FWD3_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final int FWD3_NB_FRA_NODES = FWD3_FRA_TENORS.length;
   private static final Period[] FWD3_IRS_TENORS = new Period[] {

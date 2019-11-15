@@ -135,7 +135,12 @@ public final class DoubleArray
    * @return an array containing the specified values
    */
   public static DoubleArray of(
-      double value1, double value2, double value3, double value4, double value5) {
+      double value1,
+      double value2,
+      double value3,
+      double value4,
+      double value5) {
+
     return new DoubleArray(new double[] {value1, value2, value3, value4, value5});
   }
 
@@ -151,8 +156,13 @@ public final class DoubleArray
    * @return an array containing the specified values
    */
   public static DoubleArray of(
-      double value1, double value2, double value3, double value4,
-      double value5, double value6) {
+      double value1,
+      double value2,
+      double value3,
+      double value4,
+      double value5,
+      double value6) {
+
     return new DoubleArray(new double[] {value1, value2, value3, value4, value5, value6});
   }
 
@@ -169,8 +179,14 @@ public final class DoubleArray
    * @return an array containing the specified values
    */
   public static DoubleArray of(
-      double value1, double value2, double value3, double value4,
-      double value5, double value6, double value7) {
+      double value1,
+      double value2,
+      double value3,
+      double value4,
+      double value5,
+      double value6,
+      double value7) {
+
     return new DoubleArray(new double[] {value1, value2, value3, value4, value5, value6, value7});
   }
 
@@ -188,8 +204,15 @@ public final class DoubleArray
    * @return an array containing the specified values
    */
   public static DoubleArray of(
-      double value1, double value2, double value3, double value4,
-      double value5, double value6, double value7, double value8) {
+      double value1,
+      double value2,
+      double value3,
+      double value4,
+      double value5,
+      double value6,
+      double value7,
+      double value8) {
+
     return new DoubleArray(new double[] {value1, value2, value3, value4, value5, value6, value7, value8});
   }
 
@@ -208,8 +231,16 @@ public final class DoubleArray
    * @return an array containing the specified values
    */
   public static DoubleArray of(
-      double value1, double value2, double value3, double value4,
-      double value5, double value6, double value7, double value8, double... otherValues) {
+      double value1,
+      double value2,
+      double value3,
+      double value4,
+      double value5,
+      double value6,
+      double value7,
+      double value8,
+      double... otherValues) {
+
     double[] base = new double[otherValues.length + 8];
     base[0] = value1;
     base[1] = value2;

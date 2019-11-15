@@ -21,9 +21,9 @@ import com.google.common.collect.ImmutableMap;
  */
 public class CsvRowTest {
 
-  private final ImmutableList<String> HEADERS = ImmutableList.of("A", "B", "C", "A", "B");
-  private final ImmutableMap<String, Integer> SEARCH_HEADERS = ImmutableMap.of("a", 0, "b", 1, "c", 2);
-  private final ImmutableList<String> FIELDS = ImmutableList.of("m", "", "P1D", "p", "q");
+  private static final ImmutableList<String> HEADERS = ImmutableList.of("A", "B", "C", "A", "B");
+  private static final ImmutableMap<String, Integer> SEARCH_HEADERS = ImmutableMap.of("a", 0, "b", 1, "c", 2);
+  private static final ImmutableList<String> FIELDS = ImmutableList.of("m", "", "P1D", "p", "q");
 
   //-------------------------------------------------------------------------
   @Test

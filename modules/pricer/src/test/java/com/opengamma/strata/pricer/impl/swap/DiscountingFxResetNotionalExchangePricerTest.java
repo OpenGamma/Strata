@@ -68,14 +68,14 @@ public class DiscountingFxResetNotionalExchangePricerTest {
   private static final Curve DISCOUNT_CURVE_GBP;
   private static final Curve DISCOUNT_CURVE_USD;
   static {
-    DoubleArray time_gbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
-    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
+    DoubleArray timeGbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rateGbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
-        Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), time_gbp, rate_gbp, INTERPOLATOR);
-    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+        Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), timeGbp, rateGbp, INTERPOLATOR);
+    DoubleArray timeUsd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rateUsd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     DISCOUNT_CURVE_USD = InterpolatedNodalCurve.of(
-        Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
+        Curves.zeroRates("USD-Discount", ACT_ACT_ISDA), timeUsd, rateUsd, INTERPOLATOR);
   }
 
   private static final double EPS_FD = 1.0e-7;

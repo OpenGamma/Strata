@@ -282,7 +282,7 @@ public final class ImmutableHolidayCalendar
       for (DayOfWeek weekendDow : weekendDays) {
         int daysDiff = weekendDow.getValue() - firstOfMonth.getDayOfWeek().getValue();
         int offset = (daysDiff < 0 ? daysDiff + 7 : daysDiff);
-        array[i] &= ~(0b10000001000000100000010000001 << offset);
+        array[i] &= ~(0b10000001000000100000010000001 << offset); // CSIGNORE
       }
       firstOfMonth = firstOfMonth.plusMonths(1);
     }

@@ -89,6 +89,7 @@ public class GeneralizedLeastSquare {
   GeneralizedLeastSquareResults<Double> solve(
       double[] x, double[] y, double[] sigma, List<Function<Double, Double>> basisFunctions,
       double lambda, int differenceOrder) {
+
     return solve(DoubleArrayMath.toObject(x), y, sigma, basisFunctions, lambda, differenceOrder);
   }
 

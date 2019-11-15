@@ -75,10 +75,10 @@ public class DiscountingKnownAmountPaymentPeriodPricerTest {
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.DOUBLE_QUADRATIC;
   private static final Curve DISCOUNT_CURVE_GBP;
   static {
-    DoubleArray time_gbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
-    DoubleArray rate_gbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
+    DoubleArray timeGbp = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rateGbp = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
     DISCOUNT_CURVE_GBP = InterpolatedNodalCurve.of(
-        Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), time_gbp, rate_gbp, INTERPOLATOR);
+        Curves.zeroRates("GBP-Discount", ACT_ACT_ISDA), timeGbp, rateGbp, INTERPOLATOR);
   }
 
   //-------------------------------------------------------------------------

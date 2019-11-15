@@ -62,7 +62,7 @@ public class CalibrationDiscountingSimpleEur3Test {
   private static final double[] FWD3_FRA_QUOTES = new double[] {0.0051, 0.0052, 0.0053};
   private static final double[] FWD3_IRS_QUOTES = new double[] {0.0054, 0.0055, 0.0056, 0.0057};
   /* Tenors */
-  private static final Period[] FWD3_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] FWD3_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6), Period.ofMonths(9)};
   private static final Period[] FWD3_IRS_TENORS = new Period[] {
       Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(30)};
@@ -73,7 +73,7 @@ public class CalibrationDiscountingSimpleEur3Test {
   private static final double[] FWD6_FRA_QUOTES = new double[] {0.011, 0.012};
   private static final double[] FWD6_IRS_QUOTES = new double[] {0.013, 0.014, 0.015, 0.016, 0.017};
   /* Tenors */
-  private static final Period[] FWD6_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] FWD6_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final Period[] FWD6_IRS_TENORS = new Period[] {
       Period.ofYears(2), Period.ofYears(3), Period.ofYears(5), Period.ofYears(10), Period.ofYears(30)};
@@ -89,7 +89,6 @@ public class CalibrationDiscountingSimpleEur3Test {
   // Constants
   private static final double TOLERANCE_PV = 1.0E-6;
   private static final double TOLERANCE_DELTA = 1.0E-10;
-
 
   //-------------------------------------------------------------------------
   @Test

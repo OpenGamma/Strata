@@ -159,8 +159,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .longShort(LONG)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_REC_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
@@ -169,8 +169,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .longShort(SHORT)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
@@ -179,8 +179,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .longShort(LONG)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAY_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
@@ -189,8 +189,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .longShort(SHORT)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_CASH = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
       .expiryTime(MATURITY.toLocalTime())
@@ -198,8 +198,8 @@ public class HullWhiteSwaptionPhysicalProductPricerTest {
       .longShort(LongShort.LONG)
       .swaptionSettlement(PAR_YIELD)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
 
   private static final LocalDate VALUATION = LocalDate.of(2011, 7, 7);
   private static final HullWhiteOneFactorPiecewiseConstantParametersProvider HW_PROVIDER =

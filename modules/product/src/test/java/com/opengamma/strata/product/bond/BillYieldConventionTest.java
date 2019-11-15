@@ -26,7 +26,7 @@ public class BillYieldConventionTest {
   public static final double PRICE = 0.99;
   public static final double YIELD = 0.03;
   public static final double ACCRUAL_FACTOR = 0.123;
-  public static final double TOLERANCE = 1.0E-10;;
+  public static final double TOLERANCE = 1.0E-10;
 
   public static Object[][] data_name() {
     return new Object[][] {

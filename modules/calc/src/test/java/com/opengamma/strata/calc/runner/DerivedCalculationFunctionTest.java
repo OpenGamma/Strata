@@ -278,7 +278,7 @@ public class DerivedCalculationFunctionTest {
 
 //--------------------------------------------------------------------------------------------------
 
-final class TestTarget implements CalculationTarget {
+final class TestTarget implements CalculationTarget {  // CSIGNORE
 
   private final int value;
 
@@ -292,7 +292,7 @@ final class TestTarget implements CalculationTarget {
   }
 }
 
-final class DerivedFn extends AbstractDerivedCalculationFunction<TestTarget, Integer> {
+final class DerivedFn extends AbstractDerivedCalculationFunction<TestTarget, Integer> {  // CSIGNORE
 
   DerivedFn(Measure measure, Set<Measure> requiredMeasures) {
     super(TestTarget.class, measure, requiredMeasures);
@@ -331,8 +331,7 @@ final class DerivedFn extends AbstractDerivedCalculationFunction<TestTarget, Int
 }
 
 //--------------------------------------------------------------------------------------------------
-
-class DelegateFn implements CalculationFunction<TestTarget> {
+class DelegateFn implements CalculationFunction<TestTarget> {  // CSIGNORE
 
   private final Map<Measure, Result<?>> results;
 

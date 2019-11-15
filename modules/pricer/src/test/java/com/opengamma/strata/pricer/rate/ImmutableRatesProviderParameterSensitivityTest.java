@@ -140,22 +140,22 @@ public class ImmutableRatesProviderParameterSensitivityTest {
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
-    ImmutableRatesProvider test_gbp_up = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testGbpUp = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP_UP)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
-    ImmutableRatesProvider test_gbp_dw = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testGbpDw = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP_DOWN)
         .discountCurve(USD, DISCOUNT_CURVE_USD)
         .build();
-    ImmutableRatesProvider test_usd_up = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testUsdUp = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD_UP)
         .build();
-    ImmutableRatesProvider test_usd_dw = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testUsdDw = ImmutableRatesProvider.builder(VAL_DATE)
         .fxRateProvider(FX_MATRIX)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .discountCurve(USD, DISCOUNT_CURVE_USD_DOWN)
@@ -167,12 +167,12 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     PointSensitivityBuilder sensiBuildCmpGBP = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(obs, GBP);
     FxIndexSensitivity sensiBuildExpGBP = FxIndexSensitivity.of(obs, GBP, USD, 1.0);
     assertThat(sensiBuildCmpGBP.equals(sensiBuildExpGBP)).isTrue();
-    double sense_gbp1 = 0.5 * (test_gbp_up.fxIndexRates(GBP_USD_WM).rate(obs, GBP) -
-        test_gbp_dw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * GBP_DSC);
-    double sense_usd1 = 0.5 * (test_usd_up.fxIndexRates(GBP_USD_WM).rate(obs, GBP) -
-        test_usd_dw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * USD_DSC);
-    PointSensitivityBuilder sensiBuildDecGBP = ZeroRateSensitivity.of(GBP, maturityTime, USD, sense_gbp1);
-    sensiBuildDecGBP = sensiBuildDecGBP.combinedWith(ZeroRateSensitivity.of(USD, maturityTime, USD, sense_usd1));
+    double senseGbp1 = 0.5 * (testGbpUp.fxIndexRates(GBP_USD_WM).rate(obs, GBP) -
+        testGbpDw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double senseUsd1 = 0.5 * (testUsdUp.fxIndexRates(GBP_USD_WM).rate(obs, GBP) -
+        testUsdDw.fxIndexRates(GBP_USD_WM).rate(obs, GBP)) / EPS_FD * (-maturityTime * USD_DSC);
+    PointSensitivityBuilder sensiBuildDecGBP = ZeroRateSensitivity.of(GBP, maturityTime, USD, senseGbp1);
+    sensiBuildDecGBP = sensiBuildDecGBP.combinedWith(ZeroRateSensitivity.of(USD, maturityTime, USD, senseUsd1));
     CurrencyParameterSensitivities paramSensiCmpGBP = test.parameterSensitivity(sensiBuildCmpGBP.build().normalized());
     CurrencyParameterSensitivities paramSensiExpGBP = test.parameterSensitivity(sensiBuildDecGBP.build().normalized());
     assertThat(paramSensiCmpGBP.equalWithTolerance(paramSensiExpGBP, EPS_FD)).isTrue();
@@ -180,12 +180,12 @@ public class ImmutableRatesProviderParameterSensitivityTest {
     PointSensitivityBuilder sensiBuildCmpUSD = test.fxIndexRates(GBP_USD_WM).ratePointSensitivity(obs, USD);
     FxIndexSensitivity sensiBuildExpUSD = FxIndexSensitivity.of(obs, USD, GBP, 1.0);
     assertThat(sensiBuildCmpUSD.equals(sensiBuildExpUSD)).isTrue();
-    double sense_gbp2 = 0.5 * (test_gbp_up.fxIndexRates(GBP_USD_WM).rate(obs, USD) -
-        test_gbp_dw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * GBP_DSC);
-    double sense_usd2 = 0.5 * (test_usd_up.fxIndexRates(GBP_USD_WM).rate(obs, USD) -
-        test_usd_dw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * USD_DSC);
-    PointSensitivityBuilder sensiBuildDecUSD = ZeroRateSensitivity.of(GBP, maturityTime, GBP, sense_gbp2);
-    sensiBuildDecUSD = sensiBuildDecUSD.combinedWith(ZeroRateSensitivity.of(USD, maturityTime, GBP, sense_usd2));
+    double senseGbp2 = 0.5 * (testGbpUp.fxIndexRates(GBP_USD_WM).rate(obs, USD) -
+        testGbpDw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * GBP_DSC);
+    double senseUsd2 = 0.5 * (testUsdUp.fxIndexRates(GBP_USD_WM).rate(obs, USD) -
+        testUsdDw.fxIndexRates(GBP_USD_WM).rate(obs, USD)) / EPS_FD * (-maturityTime * USD_DSC);
+    PointSensitivityBuilder sensiBuildDecUSD = ZeroRateSensitivity.of(GBP, maturityTime, GBP, senseGbp2);
+    sensiBuildDecUSD = sensiBuildDecUSD.combinedWith(ZeroRateSensitivity.of(USD, maturityTime, GBP, senseUsd2));
     CurrencyParameterSensitivities paramSensiCmpUSD = test.parameterSensitivity(sensiBuildCmpUSD.build().normalized());
     CurrencyParameterSensitivities paramSensiExpUSD = test.parameterSensitivity(sensiBuildDecUSD.build().normalized());
     assertThat(paramSensiCmpUSD.equalWithTolerance(paramSensiExpUSD, EPS_FD)).isTrue();

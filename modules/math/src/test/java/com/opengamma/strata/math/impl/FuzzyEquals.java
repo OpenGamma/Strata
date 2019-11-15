@@ -3,7 +3,6 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.strata.math.impl;
 
 import java.util.Locale;
@@ -15,31 +14,32 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Tests for values being equal allowing for a level of floating point fuzz
- * Based on the OG-Maths C++ fuzzy equals code .
+ * Based on the OG-Maths C++ fuzzy equals code.
  */
 public class FuzzyEquals {
+  // CSOFF: ALL
 
-  private static boolean __LOCALDEBUG = false;
-  private static boolean DEBUG = false;
+  private static final boolean LOCALDEBUG = false;
+  private static final boolean DEBUG = false;
 
-  private static double float64_eps;
-  private static double default_tolerance;
+  private static double FLOAT64_EPS;
+  private static double DEFAULT_TOLERANCE;
   static {
-    float64_eps = float64_t_machineEpsilon();
-    default_tolerance = 10 * float64_eps;
+    FLOAT64_EPS = float64_t_machineEpsilon();
+    DEFAULT_TOLERANCE = 10 * FLOAT64_EPS;
   }
 
   /**
    * The logger instance
    */
-  private static Logger s_log = LoggerFactory.getLogger(FuzzyEquals.class);
+  private static Logger log = LoggerFactory.getLogger(FuzzyEquals.class);
 
   /**
    * Gets machine precision for double precision floating point numbers on this machine.
    * @return machine precision for double precision floating point numbers on this machine.
    */
   public static double getEps() {
-    return float64_eps;
+    return FLOAT64_EPS;
   }
 
   /**
@@ -47,7 +47,7 @@ public class FuzzyEquals {
    * @return the default tolerance.
    */
   public static double getDefaultTolerance() {
-    return default_tolerance;
+    return DEFAULT_TOLERANCE;
   }
 
   /**
@@ -61,26 +61,26 @@ public class FuzzyEquals {
    */
   public static boolean SingleValueFuzzyEquals(double val1, double val2, double maxabserror, double maxrelerror) {
 
-    if (__LOCALDEBUG) {
+    if (LOCALDEBUG) {
       DEBUG_PRINT("FuzzyEquals: Comparing %24.16f and %24.16f\n", val1, val2);
     }
 
     if (Double.isNaN(val1)) {
-      if (__LOCALDEBUG) {
+      if (LOCALDEBUG) {
         DEBUG_PRINT("FuzzyEquals: Failed as value 1 is NaN\n");
       }
       return false;
     }
 
     if (Double.isNaN(val2)) {
-      if (__LOCALDEBUG) {
+      if (LOCALDEBUG) {
         DEBUG_PRINT("FuzzyEquals: Failed as value 2 is NaN\n");
       }
       return false;
     }
 
     // deal with infs in debug mode
-    if (__LOCALDEBUG) {
+    if (LOCALDEBUG) {
       if (DEBUG) {
         boolean val1isinf = Double.isInfinite(val1);
         boolean val2isinf = Double.isInfinite(val2);
@@ -105,13 +105,13 @@ public class FuzzyEquals {
     // check if they are below max absolute error bounds (i.e. small in the first place)
     double diff = (val1 - val2);
     if (maxabserror > Math.abs(diff)) {
-      if (__LOCALDEBUG) {
+      if (LOCALDEBUG) {
         DEBUG_PRINT("FuzzyEquals: Match as below diff bounds. maxabserror > diff. (%24.16f >%24.16f)\n",
             maxabserror, Math.abs(diff));
       }
       return true;
     }
-    if (__LOCALDEBUG) {
+    if (LOCALDEBUG) {
       DEBUG_PRINT("FuzzyEquals: Failed as diff > maxabserror. (%24.16f >  %24.16f)\n",
           Math.abs(diff), maxabserror);
     }
@@ -120,14 +120,14 @@ public class FuzzyEquals {
     double divisor = Math.abs(val1) > Math.abs(val2) ? val1 : val2;
     double relerror = Math.abs(diff / divisor);
     if (maxrelerror > relerror) {
-      if (__LOCALDEBUG) {
+      if (LOCALDEBUG) {
         DEBUG_PRINT("FuzzyEquals: Match as maxrelerror > relerror. (%24.16f >  %24.16f)\n", maxrelerror, relerror);
       }
       return true;
     }
     ;
 
-    if (__LOCALDEBUG) {
+    if (LOCALDEBUG) {
       DEBUG_PRINT("FuzzyEquals: Fail as relerror > maxrelerror. (%24.16f >  %24.16f)\n", relerror, maxrelerror);
     }
 
@@ -142,7 +142,7 @@ public class FuzzyEquals {
    * @return true if they are considered equal, else false
    */
   public static boolean SingleValueFuzzyEquals(double val1, double val2) {
-    return SingleValueFuzzyEquals(val1, val2, default_tolerance, default_tolerance);
+    return SingleValueFuzzyEquals(val1, val2, DEFAULT_TOLERANCE, DEFAULT_TOLERANCE);
   }
 
   /**
@@ -179,7 +179,7 @@ public class FuzzyEquals {
    * @return true if they are considered equal, else false
    */
   public static boolean ArrayFuzzyEquals(double[] arr1, double[] arr2) {
-    return ArrayFuzzyEquals(arr1, arr2, default_tolerance, default_tolerance);
+    return ArrayFuzzyEquals(arr1, arr2, DEFAULT_TOLERANCE, DEFAULT_TOLERANCE);
   }
 
   /**
@@ -191,7 +191,7 @@ public class FuzzyEquals {
    * @return true if they are considered equal, else false
    */
   public static boolean ArrayFuzzyEquals(double[][] arr1, double[][] arr2) {
-    return ArrayFuzzyEquals(arr1, arr2, default_tolerance, default_tolerance);
+    return ArrayFuzzyEquals(arr1, arr2, DEFAULT_TOLERANCE, DEFAULT_TOLERANCE);
   }
 
   /**
@@ -229,11 +229,11 @@ public class FuzzyEquals {
    */
 
   private static void DEBUG_PRINT(String str) {
-    s_log.debug(str);
+    log.debug(str);
   }
 
   private static void DEBUG_PRINT(String str, double a, double b) {
-    s_log.debug(String.format(Locale.ENGLISH, str, a, b));
+    log.debug(String.format(Locale.ENGLISH, str, a, b));
   }
 
   private static double float64_t_machineEpsilon() {

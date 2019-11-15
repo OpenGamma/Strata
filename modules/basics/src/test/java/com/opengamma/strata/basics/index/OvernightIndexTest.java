@@ -326,12 +326,12 @@ public class OvernightIndexTest {
 
   @Test
   public void test_sgdSonar() {
-    HolidayCalendarId SGSI = HolidayCalendarId.of("SGSI");
+    HolidayCalendarId cal = HolidayCalendarId.of("SGSI");
     OvernightIndex test = OvernightIndex.of("SGD-SONAR");
     assertThat(test.getName()).isEqualTo("SGD-SONAR");
     assertThat(test.getCurrency()).isEqualTo(SGD);
     assertThat(test.isActive()).isEqualTo(true);
-    assertThat(test.getFixingCalendar()).isEqualTo(SGSI);
+    assertThat(test.getFixingCalendar()).isEqualTo(cal);
     assertThat(test.getPublicationDateOffset()).isEqualTo(0);
     assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
     assertThat(test.getDayCount()).isEqualTo(ACT_365F);

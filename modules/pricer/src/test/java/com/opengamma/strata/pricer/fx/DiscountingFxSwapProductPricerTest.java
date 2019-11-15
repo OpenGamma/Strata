@@ -49,13 +49,13 @@ public class DiscountingFxSwapProductPricerTest {
   @Test
   public void test_presentValue_beforeStart() {
     MultiCurrencyAmount computed = PRICER.presentValue(SWAP_PRODUCT, PROVIDER);
-    double expected_usd = NOMINAL_USD *
+    double expectedUsd = NOMINAL_USD *
         (PROVIDER.discountFactor(USD, PAYMENT_DATE_NEAR) - PROVIDER.discountFactor(USD, PAYMENT_DATE_FAR));
-    double expected_krw = NOMINAL_USD *
+    double expectedKrw = NOMINAL_USD *
         (-FX_RATE * PROVIDER.discountFactor(KRW, PAYMENT_DATE_NEAR)
         + (FX_RATE + FX_FWD_POINTS) * PROVIDER.discountFactor(KRW, PAYMENT_DATE_FAR));
-    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected_usd, offset(NOMINAL_USD * TOL));
-    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expected_krw, offset(NOMINAL_USD * FX_RATE * TOL));
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expectedUsd, offset(NOMINAL_USD * TOL));
+    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expectedKrw, offset(NOMINAL_USD * FX_RATE * TOL));
 
     // currency exposure
     MultiCurrencyAmount exposure = PRICER.currencyExposure(SWAP_PRODUCT, PROVIDER);
@@ -67,10 +67,10 @@ public class DiscountingFxSwapProductPricerTest {
     ResolvedFxSwap product = ResolvedFxSwap.ofForwardPoints(
         CurrencyAmount.of(USD, NOMINAL_USD), KRW, FX_RATE, FX_FWD_POINTS, PAYMENT_DATE_PAST, PAYMENT_DATE_NEAR);
     MultiCurrencyAmount computed = PRICER.presentValue(product, PROVIDER);
-    double expected_usd = -NOMINAL_USD * PROVIDER.discountFactor(USD, PAYMENT_DATE_NEAR);
-    double expected_krw = NOMINAL_USD * (FX_RATE + FX_FWD_POINTS) * PROVIDER.discountFactor(KRW, PAYMENT_DATE_NEAR);
-    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expected_usd, offset(NOMINAL_USD * TOL));
-    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expected_krw, offset(NOMINAL_USD * FX_RATE * TOL));
+    double expectedUsd = -NOMINAL_USD * PROVIDER.discountFactor(USD, PAYMENT_DATE_NEAR);
+    double expectedKrw = NOMINAL_USD * (FX_RATE + FX_FWD_POINTS) * PROVIDER.discountFactor(KRW, PAYMENT_DATE_NEAR);
+    assertThat(computed.getAmount(USD).getAmount()).isCloseTo(expectedUsd, offset(NOMINAL_USD * TOL));
+    assertThat(computed.getAmount(KRW).getAmount()).isCloseTo(expectedKrw, offset(NOMINAL_USD * FX_RATE * TOL));
 
     // currency exposure
     MultiCurrencyAmount exposure = PRICER.currencyExposure(product, PROVIDER);

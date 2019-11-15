@@ -25,17 +25,17 @@ import com.google.common.io.Files;
  */
 public class PropertiesFileTest {
 
-  private final String FILE1 = "" +
+  private static final String FILE1 = "" +
       "# comment\n" +
       "a = x\n" +
       " \n" +
       "; comment\n" +
       "c = z\n" +
       "b = y\n";
-  private final String FILE2 = "" +
+  private static final String FILE2 = "" +
       "a = x\n" +
       "a = y\n";
-  private final String FILE3 = "" +
+  private static final String FILE3 = "" +
       "a=d= = x\n";
   private static final Object ANOTHER_TYPE = "";
 

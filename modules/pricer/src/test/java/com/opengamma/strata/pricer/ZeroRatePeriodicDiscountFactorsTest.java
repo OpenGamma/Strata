@@ -230,7 +230,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = test.discountFactor(DATE_AFTER);
-    double z = -1.0/relativeYearFraction*Math.log(df);
+    double z = -1.0 / relativeYearFraction * Math.log(df);
     double shift = 1.0E-6;
     double zP = z + shift;
     double zM = z - shift;
@@ -255,7 +255,7 @@ public class ZeroRatePeriodicDiscountFactorsTest {
     ZeroRatePeriodicDiscountFactors test = ZeroRatePeriodicDiscountFactors.of(GBP, DATE_VAL, CURVE);
     double relativeYearFraction = ACT_365F.relativeYearFraction(DATE_VAL, DATE_AFTER);
     double df = test.discountFactor(DATE_AFTER);
-    double z = -1.0/relativeYearFraction*Math.log(df);
+    double z = -1.0 / relativeYearFraction * Math.log(df);
     double shift = 1.0E-6;
     double zP = z + shift;
     double zM = z - shift;

@@ -50,12 +50,12 @@ public abstract class ParameterLimitsTransformTestCase {
       final double down = transform.transform(modelParam - eps);
       final double up = transform.transform(modelParam + eps);
       fdg = (up - down) / 2 / eps;
-    } catch (final IllegalArgumentException e) {
+    } catch (final IllegalArgumentException ex) {
       final double fp = transform.transform(modelParam);
       try {
         final double up = transform.transform(modelParam + eps);
         fdg = (up - fp) / eps;
-      } catch (final IllegalArgumentException e2) {
+      } catch (final IllegalArgumentException ex2) {
         final double down = transform.transform(modelParam - eps);
         fdg = (fp - down) / eps;
       }

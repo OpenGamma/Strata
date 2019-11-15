@@ -261,11 +261,6 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
   //(enabled=false)
   @Test
   public void monotonicTest() {
-    final boolean print = false; //turn to false before pushing 
-    if (print) {
-
-    }
-
     PiecewiseCubicHermiteSplineInterpolator interpolator = new PiecewiseCubicHermiteSplineInterpolator();
 
     final double[] xValues = new double[] {0., 0.3, 0.6, 1.5, 2.7, 3.4, 4.8, 5.9};
@@ -275,9 +270,6 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
     for (int i = 0; i < nPts; ++i) {
       final double key = 0.0 + i * 5.9 / (nPts - 1);
       final double value = interpolator.interpolate(xValues, yValues, key);
-      if (print) {
-
-      }
       assertThat(value >= old).isTrue();
       old = value;
     }
@@ -385,7 +377,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    * 
    */
   @Test
-  public void InfyValuesTest() {
+  public void infyValuesTest() {
     double[] xValues = new double[] {1., 2., 3., 4.};
     double[] yValues = new double[] {1., 2., 3., INF};
 
@@ -660,7 +652,7 @@ public class PiecewiseCubicHermiteSplineInterpolatorTest {
    * Derive value of the underlying cubic spline function at the value of xKey
    */
   @Test
-  public void InterpolantsTest() {
+  public void interpolantsTest() {
     final double[] xValues = new double[] {1., 2., 3., 4.};
     final double[][] yValues = new double[][] {{2., 3., 2., 1.}, {1., 2., 10., 11.}};
     final double[][] xKey = new double[][] {{-1., 0.5, 1.5}, {2.5, 3.5, 4.5}};

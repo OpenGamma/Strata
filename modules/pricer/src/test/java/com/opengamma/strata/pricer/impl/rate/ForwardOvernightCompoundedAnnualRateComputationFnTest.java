@@ -342,14 +342,14 @@ public class ForwardOvernightCompoundedAnnualRateComputationFnTest {
   @Test
   public void test_rateParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray timeUsd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rateUsd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightCompoundedAnnualRateComputation ro =
         OvernightCompoundedAnnualRateComputation.of(BRL_CDI, FIXING_START_DATE, FIXING_END_DATE, REF_DATA);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve brlCDICurve = InterpolatedNodalCurve.of(
-          Curves.zeroRates("BRL-CDI", DayCount.of("BUS/252 BRBD")), time_usd, rate_usd, INTERPOLATOR);
+          Curves.zeroRates("BRL-CDI", DayCount.of("BUS/252 BRBD")), timeUsd, rateUsd, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
           .overnightIndexCurve(BRL_CDI, brlCDICurve, TIME_SERIES)
           .build();

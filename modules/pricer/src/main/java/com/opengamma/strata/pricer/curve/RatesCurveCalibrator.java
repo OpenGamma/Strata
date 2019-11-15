@@ -245,6 +245,7 @@ public final class RatesCurveCalibrator {
       ImmutableRatesProvider knownData,
       MarketData marketData,
       ReferenceData refData) {
+
     // this method effectively takes one CurveGroupDefinition
     // the list is a split of the definition, not multiple independent definitions
 

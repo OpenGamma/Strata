@@ -13,7 +13,7 @@ public class SampleInvalid7 implements Named {
   /**
    * Not-NamedLookup - Error.
    */
-  static Object INSTANCE = null;
+  static Object INSTANCE = null;  // CSIGNORE
 
   @Override
   public String getName() {

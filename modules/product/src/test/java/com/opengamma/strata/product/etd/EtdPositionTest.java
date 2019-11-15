@@ -23,8 +23,8 @@ public class EtdPositionTest {
   @Test
   public void test_defaultMethods() {
     class TestEtd implements EtdPosition {
-      final double longQuantity;
-      final double shortQuantity;
+      private final double longQuantity;
+      private final double shortQuantity;
 
       TestEtd(double longQuantity, double shortQuantity) {
         this.longQuantity = longQuantity;

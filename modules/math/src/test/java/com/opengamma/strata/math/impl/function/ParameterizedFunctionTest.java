@@ -69,8 +69,8 @@ public class ParameterizedFunctionTest {
     final Function<Double, Double> func = ARRAY_PARAMS.asFunctionOfArguments(parms);
     assertThat(4.0).isEqualTo(func.apply(-1.0));
 
-    final Function<double[], Double> param_func = ARRAY_PARAMS.asFunctionOfParameters(0.0);
-    assertThat(10.0).isEqualTo(param_func.apply(new double[] {10, 312, 423, 534}));
+    final Function<double[], Double> paramFunc = ARRAY_PARAMS.asFunctionOfParameters(0.0);
+    assertThat(10.0).isEqualTo(paramFunc.apply(new double[] {10, 312, 423, 534}));
   }
 
   @Test
@@ -85,9 +85,9 @@ public class ParameterizedFunctionTest {
     final Function<Double, Double> grad = diff.differentiate(func);
     assertThat(-0.5).isCloseTo(grad.apply(0.0), offset(1e-8));
 
-    final Function<DoubleArray, Double> params_func = VECTOR_PARAMS.asFunctionOfParameters(1.0);
+    final Function<DoubleArray, Double> paramFunc = VECTOR_PARAMS.asFunctionOfParameters(1.0);
     final ScalarFieldFirstOrderDifferentiator vdiff = new ScalarFieldFirstOrderDifferentiator();
-    final Function<DoubleArray, DoubleArray> vgrad = vdiff.differentiate(params_func);
+    final Function<DoubleArray, DoubleArray> vgrad = vdiff.differentiate(paramFunc);
     final DoubleArray res = vgrad.apply(DoubleArray.of(Math.PI, 0));
     assertThat(0.0).isCloseTo(res.get(0), offset(1e-8));
     assertThat(Math.PI).isCloseTo(res.get(1), offset(1e-8));

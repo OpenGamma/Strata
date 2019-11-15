@@ -24,19 +24,19 @@ import com.opengamma.strata.math.impl.interpolation.PiecewisePolynomialResultsWi
  */
 public class PiecewiseCubicHermiteMonotonicityCurveInterpolatorTest {
 
-  private final static PiecewiseCubicHermiteSplineInterpolatorWithSensitivity BASE =
+  private static final PiecewiseCubicHermiteSplineInterpolatorWithSensitivity BASE =
       new PiecewiseCubicHermiteSplineInterpolatorWithSensitivity();
   private static final PiecewiseCubicHermiteMonotonicityCurveInterpolator PCHIP =
       PiecewiseCubicHermiteMonotonicityCurveInterpolator.INSTANCE;
-  private final static PiecewisePolynomialWithSensitivityFunction1D PPVAL = new PiecewisePolynomialWithSensitivityFunction1D();
-  private final static double[] X = new double[] {0, 0.4000, 1.0000, 2.0000, 3.0000, 3.25, 5.0000};
-  private final static double[][] Y = new double[][] {{1.2200, 1.0, 0.9, 1.1, 1.2000, 1.3, 1.2000}, // no flat sections
+  private static final PiecewisePolynomialWithSensitivityFunction1D PPVAL = new PiecewisePolynomialWithSensitivityFunction1D();
+  private static final double[] X = new double[] {0, 0.4000, 1.0000, 2.0000, 3.0000, 3.25, 5.0000};
+  private static final double[][] Y = new double[][] {{1.2200, 1.0, 0.9, 1.1, 1.2000, 1.3, 1.2000}, // no flat sections
       {0.2200, 1.12, 1.5, 1.5, 1.7000, 1.8, 1.9000}, // flat middle section
       {1.2200, 1.12, 1.5, 1.5, 1.5000, 1.8, 1.9000}, // extended flat middle section
       {1.0, 1.0, 0.9, 1.1, 1.2000, 1.3, 1.3000}, // flat ends
       {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}};
 
-  private final static double[] XX;
+  private static final double[] XX;
   static {
     int nSamples = 66;
     XX = new double[nSamples];

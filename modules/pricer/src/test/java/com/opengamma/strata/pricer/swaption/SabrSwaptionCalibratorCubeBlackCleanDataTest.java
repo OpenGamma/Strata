@@ -104,12 +104,12 @@ public class SabrSwaptionCalibratorCubeBlackCleanDataTest {
   }
 
   private static final double[][][] DATA_LOGNORMAL = {
-      { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
-      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
-      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}},
-      { {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
-      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
-      {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}}
+      {{0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+          {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+          {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}},
+      {{0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+          {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55},
+          {0.60, 0.58, 0.565, 0.555, 0.55, 0.545, 0.545, 0.55}}
   };
   private static final TenorRawOptionData DATA_SPARSE = SabrSwaptionCalibratorSmileTestUtils
       .rawData(TENORS, EXPIRIES, ValueType.SIMPLE_MONEYNESS, MONEYNESS, ValueType.BLACK_VOLATILITY, DATA_LOGNORMAL);

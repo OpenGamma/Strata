@@ -175,6 +175,7 @@ public final class DaysAdjustment
       int numberOfDays,
       HolidayCalendarId holidayCalendar,
       BusinessDayAdjustment adjustment) {
+
     return new DaysAdjustment(numberOfDays, holidayCalendar, adjustment);
   }
 

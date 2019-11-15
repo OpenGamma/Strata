@@ -784,9 +784,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
         CAPLET.getFixingDate().atTime(index.getFixingTime()).atZone(index.getFixingZone()));
     double delta = index.getTemplate().getConvention().getFixedLeg()
         .getDayCount().relativeYearFraction(effectiveDate, PAYMENT);
-    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
+    double s0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
     CmsIntegrantProvider integrant = new CmsIntegrantProvider(CAPLET, expanded, STRIKE, tenor, theta,
-        S0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
+        s0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
     // Integrant internal
     double h = integrant.h(STRIKE);
     double hExpected = Math.pow(1 + STRIKE, -delta);
@@ -817,15 +817,15 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     double delta = index.getTemplate().getConvention().getFixedLeg()
         .getDayCount().relativeYearFraction(effectiveDate, PAYMENT);
     double ptp = RATES_PROVIDER.discountFactor(EUR, PAYMENT);
-    double S0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
+    double s0 = PRICER_SWAP.parRate(COUPON.getUnderlyingSwap(), RATES_PROVIDER);
     CmsIntegrantProvider integrant = new CmsIntegrantProvider(CAPLET, expanded, STRIKE, tenor, theta,
-        S0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
+        s0, -delta, VOLATILITIES_SHIFT, CUT_OFF_STRIKE, MU);
     // Strike part
-    double h_1S0 = 1.0 / integrant.h(S0);
-    double gS0 = integrant.g(S0);
+    double h1S0 = 1.0 / integrant.h(s0);
+    double gS0 = integrant.g(s0);
     double kK = integrant.k(STRIKE);
     double bsS0 = integrant.bs(STRIKE);
-    double strikePart = ptp * h_1S0 * gS0 * kK * bsS0;
+    double strikePart = ptp * h1S0 * gS0 * kK * bsS0;
     // Integral part
     RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(1.0E-7, 1.0E-10, 10);
     double integralPart = ptp * integrator.integrate(integrant.integrant(), STRIKE, 100.0);
@@ -844,11 +844,11 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     assertThat(explain.get(ExplainKey.ENTRY_TYPE).get()).isEqualTo("CmsFloorletPeriod");
     assertThat(explain.get(ExplainKey.STRIKE_VALUE).get()).isEqualTo(0.04d);
     assertThat(explain.get(ExplainKey.NOTIONAL).get().getAmount()).isEqualTo(10000000d);
-    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(LocalDate.of(2021, 04, 28));
+    assertThat(explain.get(ExplainKey.PAYMENT_DATE).get()).isEqualTo(LocalDate.of(2021, 4, 28));
     assertThat(explain.get(ExplainKey.DISCOUNT_FACTOR).get()).isEqualTo(0.8518053333230845d);
-    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(LocalDate.of(2020, 04, 28));
-    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(LocalDate.of(2021, 04, 28));
-    assertThat(explain.get(ExplainKey.FIXING_DATE).get()).isEqualTo(LocalDate.of(2020, 04, 24));
+    assertThat(explain.get(ExplainKey.START_DATE).get()).isEqualTo(LocalDate.of(2020, 4, 28));
+    assertThat(explain.get(ExplainKey.END_DATE).get()).isEqualTo(LocalDate.of(2021, 4, 28));
+    assertThat(explain.get(ExplainKey.FIXING_DATE).get()).isEqualTo(LocalDate.of(2020, 4, 24));
     assertThat(explain.get(ExplainKey.ACCRUAL_YEAR_FRACTION).get()).isEqualTo(1.0138888888888888d);
     double forwardSwapRate = PRICER_SWAP.parRate(FLOORLET.getUnderlyingSwap(), RATES_PROVIDER);
     assertThat(explain.get(ExplainKey.FORWARD_RATE).get()).isEqualTo(forwardSwapRate);
@@ -899,7 +899,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
      * 
      * @return the integrant
      */
-    Function<Double, Double> integrant(){
+    Function<Double, Double> integrant() {
       return new Function<Double, Double>() {
         @Override
         public Double apply(Double x) {
@@ -927,9 +927,9 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
      * @return the annuity.
      */
     double g(double x) {
-        double periodFactor = 1d + x;
-        double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
-        return (1d - nPeriodDiscount) / x;
+      double periodFactor = 1d + x;
+      double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
+      return (1d - nPeriodDiscount) / x;
     }
 
     /**
@@ -941,10 +941,10 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
     double k(double x) {
       double g;
       double h;
-        double periodFactor = 1d + x;
-        double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
-        g = (1d - nPeriodDiscount) / x;
-        h = Math.pow(1.0 + x, eta);
+      double periodFactor = 1d + x;
+      double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
+      g = (1d - nPeriodDiscount) / x;
+      h = Math.pow(1.0 + x, eta);
       return h / g;
     }
 
@@ -961,17 +961,16 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       double nPeriodDiscount = Math.pow(periodFactor, -nbFixedPeriod);
       /*The value of the annuity and its first and second derivative. */
       double g, gp, gpp;
-        g = (1d - nPeriodDiscount) / x;
-        gp = -g / x + nbFixedPeriod * nPeriodDiscount / (x  * periodFactor);
-        gpp = 2d / (x * x) * g - 2d * nbFixedPeriod * nPeriodDiscount / (x * x * periodFactor)
-            - (nbFixedPeriod + 1d) * nbFixedPeriod * nPeriodDiscount
-            / (x * periodFactor * periodFactor);
+      g = (1d - nPeriodDiscount) / x;
+      gp = -g / x + nbFixedPeriod * nPeriodDiscount / (x * periodFactor);
+      gpp = 2d / (x * x) * g - 2d * nbFixedPeriod * nPeriodDiscount / (x * x * periodFactor) -
+          (nbFixedPeriod + 1d) * nbFixedPeriod * nPeriodDiscount / (x * periodFactor * periodFactor);
       double h = Math.pow(1d + x, eta);
       double hp = eta * h / periodFactor;
       double hpp = (eta - 1d) * hp / periodFactor;
       double kp = hp / g - h * gp / (g * g);
       double kpp = hpp / g - 2d * hp * gp / (g * g) - h * (gpp / (g * g) - 2d * (gp * gp) / (g * g * g));
-      return new double[] {kp, kpp };
+      return new double[] {kp, kpp};
     }
 
     /**

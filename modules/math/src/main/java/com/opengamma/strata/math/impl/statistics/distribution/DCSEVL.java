@@ -61,4 +61,9 @@ final class DCSEVL {
     return 0.5d * (b0 - b2);
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private DCSEVL() {
+  }
+
 }

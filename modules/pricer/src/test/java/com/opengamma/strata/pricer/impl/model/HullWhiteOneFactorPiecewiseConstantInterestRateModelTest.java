@@ -99,13 +99,13 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    */
   @Test
   public void futureConvexityFactor() {
-    LocalDate SPOT_DATE = LocalDate.of(2012, 9, 19);
-    LocalDate LAST_TRADING_DATE = EURIBOR3M.calculateFixingFromEffective(SPOT_DATE, REF_DATA);
-    LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
-    double tradeLastTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(REFERENCE_DATE, LAST_TRADING_DATE);
-    double fixStartTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(REFERENCE_DATE, SPOT_DATE);
+    LocalDate spotDate = LocalDate.of(2012, 9, 19);
+    LocalDate lastTradingDate = EURIBOR3M.calculateFixingFromEffective(spotDate, REF_DATA);
+    LocalDate referenceDate = LocalDate.of(2010, 8, 18);
+    double tradeLastTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(referenceDate, lastTradingDate);
+    double fixStartTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(referenceDate, spotDate);
     double fixEndTime = DayCounts.ACT_ACT_ISDA.relativeYearFraction(
-        REFERENCE_DATE, EURIBOR3M.calculateMaturityFromEffective(SPOT_DATE, REF_DATA));
+        referenceDate, EURIBOR3M.calculateMaturityFromEffective(spotDate, REF_DATA));
     double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, tradeLastTime, fixStartTime, fixEndTime);
     double expectedFactor = 1.000079130767980;
     assertThat(expectedFactor).isCloseTo(factor, offset(TOLERANCE_RATE));
@@ -185,10 +185,10 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     double alpha = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity); //All data
     assertThat(alphaExpected).isCloseTo(alpha, offset(TOLERANCE_ALPHA));
     alphaExpected = -0.015859116;
-    alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiry2, numeraire, maturity);//From today
+    alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiry2, numeraire, maturity); //From today
     assertThat(alphaExpected).isCloseTo(alpha, offset(TOLERANCE_ALPHA));
     alphaExpected = 0.111299267;
-    alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiry2, expiry2, maturity);// From today with expiry numeraire
+    alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiry2, expiry2, maturity); // From today with expiry numeraire
     assertThat(alphaExpected).isCloseTo(alpha, offset(TOLERANCE_ALPHA));
     alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, 0.0, numeraire, maturity); // From 0 to 0
     assertThat(0.0d).isCloseTo(alpha, offset(TOLERANCE_ALPHA));
@@ -292,21 +292,21 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     assertThat(swapRateComputed).isCloseTo(swapRateExpected, offset(TOLERANCE_RATE));
     double[] ddcffExpected = new double[DCF_FIXED.size()];
     for (int loopcf = 0; loopcf < DCF_FIXED.size(); loopcf++) {
-      double[] dsf_bumped = DCF_FIXED.toArray();
-      dsf_bumped[loopcf] += shift;
-      double swapRatePlus = MODEL.swapRate(x, DoubleArray.copyOf(dsf_bumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
-      dsf_bumped[loopcf] -= 2 * shift;
-      double swapRateMinus = MODEL.swapRate(x, DoubleArray.copyOf(dsf_bumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      double[] dsfBumped = DCF_FIXED.toArray();
+      dsfBumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRate(x, DoubleArray.copyOf(dsfBumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      dsfBumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRate(x, DoubleArray.copyOf(dsfBumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
       ddcffExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     assertThat(DoubleArrayMath.fuzzyEquals(ddcffExpected, ddcffComputed, TOLERANCE_RATE_DELTA)).isTrue();
     double[] ddcfiExpected = new double[DCF_IBOR.size()];
     for (int loopcf = 0; loopcf < DCF_IBOR.size(); loopcf++) {
-      double[] dsf_bumped = DCF_IBOR.toArray();
-      dsf_bumped[loopcf] += shift;
-      double swapRatePlus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsf_bumped), ALPHA_IBOR);
-      dsf_bumped[loopcf] -= 2 * shift;
-      double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsf_bumped), ALPHA_IBOR);
+      double[] dsfBumped = DCF_IBOR.toArray();
+      dsfBumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsfBumped), ALPHA_IBOR);
+      dsfBumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsfBumped), ALPHA_IBOR);
       ddcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     double[] ddcfiComputed = MODEL.swapRateDdcfi1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR)
@@ -353,21 +353,21 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     Pair<DoubleArray, DoubleArray> dx2ddcfComputed = MODEL.swapRateDx2Ddcf1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
     double[] dx2DdcffExpected = new double[DCF_FIXED.size()];
     for (int loopcf = 0; loopcf < DCF_FIXED.size(); loopcf++) {
-      double[] dsf_bumped = DCF_FIXED.toArray();
-      dsf_bumped[loopcf] += shift;
-      double swapRatePlus = MODEL.swapRateDx2(x, DoubleArray.copyOf(dsf_bumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
-      dsf_bumped[loopcf] -= 2 * shift;
-      double swapRateMinus = MODEL.swapRateDx2(x, DoubleArray.copyOf(dsf_bumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      double[] dsfBumped = DCF_FIXED.toArray();
+      dsfBumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRateDx2(x, DoubleArray.copyOf(dsfBumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+      dsfBumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRateDx2(x, DoubleArray.copyOf(dsfBumped), ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
       dx2DdcffExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     assertThat(DoubleArrayMath.fuzzyEquals(dx2DdcffExpected, dx2ddcfComputed.getFirst().toArray(), TOLERANCE_RATE_DELTA2)).isTrue();
     double[] dx2DdcfiExpected = new double[DCF_IBOR.size()];
     for (int loopcf = 0; loopcf < DCF_IBOR.size(); loopcf++) {
-      double[] dsf_bumped = DCF_IBOR.toArray();
-      dsf_bumped[loopcf] += shift;
-      double swapRatePlus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsf_bumped), ALPHA_IBOR);
-      dsf_bumped[loopcf] -= 2 * shift;
-      double swapRateMinus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsf_bumped), ALPHA_IBOR);
+      double[] dsfBumped = DCF_IBOR.toArray();
+      dsfBumped[loopcf] += shift;
+      double swapRatePlus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsfBumped), ALPHA_IBOR);
+      dsfBumped[loopcf] -= 2 * shift;
+      double swapRateMinus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DoubleArray.copyOf(dsfBumped), ALPHA_IBOR);
       dx2DdcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     assertThat(DoubleArrayMath.fuzzyEquals(dx2DdcfiExpected, dx2ddcfComputed.getSecond().toArray(), TOLERANCE_RATE_DELTA2)).isTrue();
@@ -405,12 +405,14 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   // Proper tests should be added when these pricing methodologies are available.
   @Test
   public void test_beta() {
-    double[] theta = new double[] {0.0, 0.9930234298974474, 1.5013698630136987, 1.9917808219178081, 2.5013698630136987,
-      2.9972602739726026, 3.5013698630136987, 3.9972602739726026, 4.501220151208923, 4.998487910771765,
-      5.495890410958904 };
-    double[] expected = new double[] {0.010526360888642377, 0.008653752074472373, 0.008551601997542554,
-      0.009479708049949437, 0.009409731278859806, 0.009534948404597303, 0.009504300650429525, 0.009629338816014276,
-      0.009613195012744198, 0.010403528524805543 };
+    double[] theta = new double[] {
+        0.0, 0.9930234298974474, 1.5013698630136987, 1.9917808219178081, 2.5013698630136987,
+        2.9972602739726026, 3.5013698630136987, 3.9972602739726026, 4.501220151208923, 4.998487910771765,
+        5.495890410958904};
+    double[] expected = new double[] {
+        0.010526360888642377, 0.008653752074472373, 0.008551601997542554,
+        0.009479708049949437, 0.009409731278859806, 0.009534948404597303, 0.009504300650429525, 0.009629338816014276,
+        0.009613195012744198, 0.010403528524805543};
     for (int i = 0; i < theta.length - 1; ++i) {
       assertThat(MODEL.beta(MODEL_PARAMETERS, theta[i], theta[i + 1])).isCloseTo(expected[i], offset(TOLERANCE_RATE));
     }
@@ -433,16 +435,16 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   @Test
   public void test_volatilityMaturityPart() {
     double u = 5.001332435062505;
-    DoubleMatrix v = DoubleMatrix.copyOf(new double[][] {{5.012261396811139, 5.515068493150685, 6.010958904109589,
-      6.515068493150685, 7.010958904109589, 7.515068493150685, 8.01095890410959, 8.520458118122614, 9.017725877685455,
-      9.515068493150684, 10.013698630136986 } });
+    DoubleMatrix v = DoubleMatrix.copyOf(new double[][] {
+        {5.012261396811139, 5.515068493150685, 6.010958904109589, 6.515068493150685,
+            7.010958904109589, 7.515068493150685, 8.01095890410959, 8.520458118122614,
+            9.017725877685455, 9.515068493150684, 10.013698630136986}});
     DoubleMatrix computed = MODEL.volatilityMaturityPart(MODEL_PARAMETERS, u, v);
     double[] expected = new double[] {0.010395243419747402, 0.48742124221025085, 0.9555417903726049,
-      1.4290478001940943, 1.8925104710768026, 2.361305017379811, 2.8201561576361778, 3.289235677728508,
-      3.7447552766260217, 4.198083407732067, 4.650327387669373 };
+        1.4290478001940943, 1.8925104710768026, 2.361305017379811, 2.8201561576361778, 3.289235677728508,
+        3.7447552766260217, 4.198083407732067, 4.650327387669373};
     assertThat(DoubleArrayMath.fuzzyEquals(computed.row(0).toArray(), expected, TOLERANCE_RATE)).isTrue();
   }
-
 
   //-------------------------------------------------------------------------
   @Test

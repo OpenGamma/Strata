@@ -56,4 +56,9 @@ final class D1MACH {
     return Double.longBitsToDouble(4599094494223104511L);
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private D1MACH() {
+  }
+
 }

@@ -135,8 +135,7 @@ public final class IntArray
    * @param value5  the fifth value
    * @return an array containing the specified values
    */
-  public static IntArray of(
-      int value1, int value2, int value3, int value4, int value5) {
+  public static IntArray of(int value1, int value2, int value3, int value4, int value5) {
     return new IntArray(new int[] {value1, value2, value3, value4, value5});
   }
 
@@ -151,9 +150,7 @@ public final class IntArray
    * @param value6  the sixth value
    * @return an array containing the specified values
    */
-  public static IntArray of(
-      int value1, int value2, int value3, int value4,
-      int value5, int value6) {
+  public static IntArray of(int value1, int value2, int value3, int value4, int value5, int value6) {
     return new IntArray(new int[] {value1, value2, value3, value4, value5, value6});
   }
 
@@ -170,8 +167,14 @@ public final class IntArray
    * @return an array containing the specified values
    */
   public static IntArray of(
-      int value1, int value2, int value3, int value4,
-      int value5, int value6, int value7) {
+      int value1,
+      int value2,
+      int value3,
+      int value4,
+      int value5,
+      int value6,
+      int value7) {
+
     return new IntArray(new int[] {value1, value2, value3, value4, value5, value6, value7});
   }
 
@@ -189,8 +192,15 @@ public final class IntArray
    * @return an array containing the specified values
    */
   public static IntArray of(
-      int value1, int value2, int value3, int value4,
-      int value5, int value6, int value7, int value8) {
+      int value1,
+      int value2,
+      int value3,
+      int value4,
+      int value5,
+      int value6,
+      int value7,
+      int value8) {
+
     return new IntArray(new int[] {value1, value2, value3, value4, value5, value6, value7, value8});
   }
 
@@ -209,8 +219,16 @@ public final class IntArray
    * @return an array containing the specified values
    */
   public static IntArray of(
-      int value1, int value2, int value3, int value4,
-      int value5, int value6, int value7, int value8, int... otherValues) {
+      int value1,
+      int value2,
+      int value3,
+      int value4,
+      int value5,
+      int value6,
+      int value7,
+      int value8,
+      int... otherValues) {
+
     int[] base = new int[otherValues.length + 8];
     base[0] = value1;
     base[1] = value2;

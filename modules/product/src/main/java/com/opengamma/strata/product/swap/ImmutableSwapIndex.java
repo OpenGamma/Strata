@@ -85,6 +85,7 @@ public final class ImmutableSwapIndex
       LocalTime fixingTime,
       ZoneId fixingZone,
       FixedIborSwapTemplate template) {
+
     return new ImmutableSwapIndex(name, true, fixingTime, fixingZone, template);
   }
 

@@ -169,7 +169,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   /* Nodes */
   private static final CurveNode[] USD_FWD3_NODES = new CurveNode[USD_FWD3_NB_NODES];
   /* Tenors */
-  private static final Period[] USD_FWD3_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] USD_FWD3_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final int USD_FWD3_NB_FRA_NODES = USD_FWD3_FRA_TENORS.length;
   private static final Period[] USD_FWD3_IRS_TENORS = new Period[] {
@@ -243,7 +243,7 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   /* Nodes */
   private static final CurveNode[] EUR_FWD3_NODES = new CurveNode[EUR_FWD3_NB_NODES];
   /* Tenors */
-  private static final Period[] EUR_FWD3_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] EUR_FWD3_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final int EUR_FWD3_NB_FRA_NODES = EUR_FWD3_FRA_TENORS.length;
   private static final Period[] EUR_FWD3_IRS_TENORS = new Period[] {
@@ -388,8 +388,8 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
   private void assertPresentValue(RatesProvider result) {
     // Test PV USD;
     List<ResolvedTrade> usdTrades = new ArrayList<>();
-    for (CurveNode USD_DSC_NODE : USD_DSC_NODES) {
-      usdTrades.add(USD_DSC_NODE.resolvedTrade(1d, ALL_QUOTES, REF_DATA));
+    for (CurveNode node : USD_DSC_NODES) {
+      usdTrades.add(node.resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // Depo
     for (int i = 0; i < 2; i++) {
@@ -426,8 +426,8 @@ public class CalibrationZeroRateUsdOisIrsEurFxXCcyIrsTest {
     }
     // Test DSC EUR;
     List<ResolvedTrade> eurTrades = new ArrayList<>();
-    for (CurveNode EUR_DSC_NODE : EUR_DSC_NODES) {
-      eurTrades.add(EUR_DSC_NODE.resolvedTrade(1d, ALL_QUOTES, REF_DATA));
+    for (CurveNode node : EUR_DSC_NODES) {
+      eurTrades.add(node.resolvedTrade(1d, ALL_QUOTES, REF_DATA));
     }
     // FX
     for (int i = 0; i < EUR_DSC_NB_FX_NODES; i++) {

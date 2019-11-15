@@ -129,7 +129,7 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
     DeformedSurface resDup = (new DupireLocalVolatilityCalculator())
         .localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate);
     double[][] sampleStrikes = new double[][] {
-      {0.7 * SPOT, SPOT, 1.1 * SPOT, 1.4 * SPOT, }, {0.5 * SPOT, 0.9 * SPOT, SPOT, 1.3 * SPOT, 1.9 * SPOT } };
+        {0.7 * SPOT, SPOT, 1.1 * SPOT, 1.4 * SPOT,}, {0.5 * SPOT, 0.9 * SPOT, SPOT, 1.3 * SPOT, 1.9 * SPOT}};
     double[] sampleTimes = new double[] {0.8, 1.1 };
     for (int i = 0; i < sampleTimes.length; ++i) {
       double time = sampleTimes[i];
@@ -162,7 +162,9 @@ public class ImpliedTrinomialTreeLocalVolatilityCalculatorTest {
     DeformedSurface resDup = (new DupireLocalVolatilityCalculator())
         .localVolatilityFromPrice(PRICE_SURFACE, SPOT, interestRate, dividendRate);
     // limited range due to interpolation/extrapolation of price surface -> negative call/put price reached
-    double[][] sampleStrikes = new double[][] { {0.95 * SPOT, 1.05 * SPOT, }, {0.9 * SPOT, SPOT, 1.1 * SPOT } };
+    double[][] sampleStrikes = new double[][] {
+        {0.95 * SPOT, 1.05 * SPOT,}, {0.9 * SPOT, SPOT, 1.1 * SPOT}
+    };
     double[] sampleTimes = new double[] {0.7, 1.05 };
     for (int i = 0; i < sampleTimes.length; ++i) {
       double time = sampleTimes[i];

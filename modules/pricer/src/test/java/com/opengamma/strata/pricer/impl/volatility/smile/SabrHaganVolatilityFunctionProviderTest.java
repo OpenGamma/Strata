@@ -72,12 +72,12 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double forward = 0.05;
     double[] sabrVolatilty = new double[2 * nbPoints + 1];
     double range = 5E-9;
-    double strike[] = new double[2 * nbPoints + 1];
+    double[] strike = new double[2 * nbPoints + 1];
     for (int looppts = -nbPoints; looppts <= nbPoints; looppts++) {
       strike[looppts + nbPoints] = forward + ((double) looppts) / nbPoints * range;
-      SabrFormulaData SabrData = SabrFormulaData.of(alpha, beta, rho, nu);
+      SabrFormulaData sabrData = SabrFormulaData.of(alpha, beta, rho, nu);
       sabrVolatilty[looppts + nbPoints] =
-          FUNCTION.volatility(forward, strike[looppts + nbPoints], timeToExpiry, SabrData);
+          FUNCTION.volatility(forward, strike[looppts + nbPoints], timeToExpiry, sabrData);
     }
     for (int looppts = -nbPoints; looppts < nbPoints; looppts++) {
       assertThat(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) /
@@ -410,18 +410,18 @@ public class SabrHaganVolatilityFunctionProviderTest extends SabrVolatilityFunct
     double deltaF = 0.000001;
     double volatilityFP = FUNCTION.volatility(F + deltaF, option.getStrike(), option.getTimeToExpiry(), DATA);
     double volatilityFM = FUNCTION.volatility(F - deltaF, option.getStrike(), option.getTimeToExpiry(), DATA);
-    double derivativeFF_FD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
-    assertThat(derivativeFF_FD).isCloseTo(volD2[0][0], offset(tolerance2));
+    double derivativeFFxFD = (volatilityFP + volatilityFM - 2 * volatility) / (deltaF * deltaF);
+    assertThat(derivativeFFxFD).isCloseTo(volD2[0][0], offset(tolerance2));
     // Derivative strike-strike
     double deltaK = 0.000001;
     double volatilityKP = FUNCTION.volatility(F, option.getStrike() + deltaK, option.getTimeToExpiry(), DATA);
     double volatilityKM = FUNCTION.volatility(F, option.getStrike() - deltaK, option.getTimeToExpiry(), DATA);
-    double derivativeKK_FD = (volatilityKP + volatilityKM - 2 * volatility) / (deltaK * deltaK);
-    assertThat(derivativeKK_FD).isCloseTo(volD2[1][1], offset(tolerance2));
+    double derivativeKKxFD = (volatilityKP + volatilityKM - 2 * volatility) / (deltaK * deltaK);
+    assertThat(derivativeKKxFD).isCloseTo(volD2[1][1], offset(tolerance2));
     // Derivative strike-forward
     double volatilityFPKP = FUNCTION.volatility(F + deltaF, option.getStrike() + deltaK, option.getTimeToExpiry(), DATA);
-    double derivativeFK_FD = (volatilityFPKP + volatility - volatilityFP - volatilityKP) / (deltaF * deltaK);
-    assertThat(derivativeFK_FD).isCloseTo(volD2[0][1], offset(tolerance2));
+    double derivativeFKxFD = (volatilityFPKP + volatility - volatilityFP - volatilityKP) / (deltaF * deltaK);
+    assertThat(derivativeFKxFD).isCloseTo(volD2[0][1], offset(tolerance2));
     assertThat(volD2[0][1]).isCloseTo(volD2[1][0], offset(1E-6));
   }
 

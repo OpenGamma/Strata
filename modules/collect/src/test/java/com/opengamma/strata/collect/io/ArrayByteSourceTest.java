@@ -14,8 +14,8 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.jupiter.api.Test;
 import org.joda.beans.ser.JodaBeanSer;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;

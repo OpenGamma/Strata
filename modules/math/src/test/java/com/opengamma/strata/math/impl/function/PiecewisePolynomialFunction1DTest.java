@@ -214,7 +214,7 @@ public class PiecewisePolynomialFunction1DTest {
    * Sample function is f(x) = (x-1)^4
    */
   @Test
-  public void GeneralIntegrateDifferentiateTest() {
+  public void generalIntegrateDifferentiateTest() {
     final double[][] coefMat = new double[][] {{1., 0., 0., 0., 0.},
         {1., 4., 6., 4., 1.},
         {1., 8., 24., 32., 16.}};
@@ -588,7 +588,7 @@ public class PiecewisePolynomialFunction1DTest {
    * 
    */
   @Test
-  public void NaNxEvaluateTest() {
+  public void naNxEvaluateTest() {
     DoubleMatrix coefsMatrix =
         DoubleMatrix.copyOf(new double[][] {
             {1., -3., 3., -1}, {0., 5., -20., 20}, {1., 0., 0., 0.}, {0., 5., -10., 5}, {1., 3., 3., 1.}, {0., 5., 0., 0.}});
@@ -607,7 +607,7 @@ public class PiecewisePolynomialFunction1DTest {
    * 
    */
   @Test
-  public void NaNxEvaluateMultiTest() {
+  public void naNxEvaluateMultiTest() {
     DoubleMatrix coefsMatrix =
         DoubleMatrix.copyOf(new double[][] {
             {1., -3., 3., -1}, {0., 5., -20., 20}, {1., 0., 0., 0.}, {0., 5., -10., 5}, {1., 3., 3., 1.}, {0., 5., 0., 0.}});
@@ -626,7 +626,7 @@ public class PiecewisePolynomialFunction1DTest {
    * 
    */
   @Test
-  public void NaNxEvaluateMatrixTest() {
+  public void naNxEvaluateMatrixTest() {
     DoubleMatrix coefsMatrix =
         DoubleMatrix.copyOf(new double[][] {
             {1., -3., 3., -1}, {0., 5., -20., 20}, {1., 0., 0., 0.}, {0., 5., -10., 5}, {1., 3., 3., 1.}, {0., 5., 0., 0.}});
@@ -645,7 +645,7 @@ public class PiecewisePolynomialFunction1DTest {
    * 
    */
   @Test
-  public void NaNxIntTest() {
+  public void naNxIntTest() {
     DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] {{1., -3., 3., -1}, {1., 0., 0., 0.}, {1., 3., 3., 1.}});
     double[][] xKeys = new double[][] {{Double.NaN, 1, 2, 2.5}, {1.5, 7. / 3., 29. / 7., 5.}};
@@ -663,7 +663,7 @@ public class PiecewisePolynomialFunction1DTest {
    * 
    */
   @Test
-  public void NaNxIntMultiTest() {
+  public void naNxIntMultiTest() {
     DoubleMatrix coefsMatrix = DoubleMatrix.copyOf(
         new double[][] {{1., -3., 3., -1}, {1., 0., 0., 0.}, {1., 3., 3., 1.}});
     double[] xKeys = new double[] {1.5, 7. / 3., 29. / 7., Double.NaN};

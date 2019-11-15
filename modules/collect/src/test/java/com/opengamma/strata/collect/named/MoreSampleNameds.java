@@ -13,8 +13,8 @@ class MoreSampleNameds implements SampleNamed {
   public static final MoreSampleNameds MORE = new MoreSampleNameds();
   public static final String TEXT = "Not a constant";
   static final MoreSampleNameds NOT_PUBLIC = null;
-  public final MoreSampleNameds NOT_STATIC = null;
-  public static MoreSampleNameds NOT_FINAL = null;
+  public final MoreSampleNameds NOT_STATIC = null;  // CSIGNORE
+  public static MoreSampleNameds NOT_FINAL = null;  // CSIGNORE
 
   @Override
   public String getName() {

@@ -282,7 +282,9 @@ public final class DiscountFxForwardRates
    * @return the new instance
    */
   public DiscountFxForwardRates withDiscountFactors(
-      DiscountFactors baseCurrencyFactors, DiscountFactors counterCurrencyFactors) {
+      DiscountFactors baseCurrencyFactors,
+      DiscountFactors counterCurrencyFactors) {
+
     return new DiscountFxForwardRates(currencyPair, fxRateProvider, baseCurrencyFactors, counterCurrencyFactors);
   }
 

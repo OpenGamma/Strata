@@ -26,8 +26,7 @@ public class NonLinearLeastSquareWithPenaltyTest {
 
   private static final MatrixAlgebra MA = new CommonsMatrixAlgebra();
 
-  private static NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty();
-  static int N_SWAPS = 8;
+  private static final NonLinearLeastSquareWithPenalty NLLSWP = new NonLinearLeastSquareWithPenalty();
 
   @Test
   public void linearTest() {

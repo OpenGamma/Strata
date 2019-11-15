@@ -79,7 +79,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
         for (int i = 2; i < nKeys; ++i) {
           double exp = 0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
           assertThat(bci.parameterSensitivity(xKeys[i]).get(j))
-              .isCloseTo(exp, offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e3));//because gradient is NOT exact  TODO
+              .isCloseTo(exp, offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e3));  //because gradient is NOT exact  TODO
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -139,7 +139,7 @@ public class DiscountFactorQuadraticLeftZeroRateCurveExtrapolatorTest {
           assertThat(res1)
               .isCloseTo(
                   bci.parameterSensitivity(xKeys[i]).get(j),
-                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e2));//because gradient is NOT exact
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1e2));  //because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);

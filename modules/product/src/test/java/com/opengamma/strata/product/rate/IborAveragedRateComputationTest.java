@@ -32,7 +32,7 @@ public class IborAveragedRateComputationTest {
   private static final IborIndexObservation GBP_LIBOR_3M_OBS2 =
       IborIndexObservation.of(GBP_LIBOR_3M, date(2014, 7, 30), REF_DATA);
 
-  ImmutableList<IborAveragedFixing> FIXINGS = ImmutableList.of(
+  private static final ImmutableList<IborAveragedFixing> FIXINGS = ImmutableList.of(
       IborAveragedFixing.of(GBP_LIBOR_3M_OBS1),
       IborAveragedFixing.of(GBP_LIBOR_3M_OBS2));
 

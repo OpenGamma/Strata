@@ -40,10 +40,10 @@ public abstract class SVDecompositionCalculationTestCase {
     final MatrixAlgebra algebra = getAlgebra();
     final DecompositionResult result = getSVD().apply(A);
     assertThat(result instanceof SVDecompositionResult).isTrue();
-    final SVDecompositionResult svd_result = (SVDecompositionResult) result;
-    final DoubleMatrix u = svd_result.getU();
-    final DoubleMatrix w = DoubleMatrix.diagonal(DoubleArray.copyOf(svd_result.getSingularValues()));
-    final DoubleMatrix vt = svd_result.getVT();
+    final SVDecompositionResult svdResult = (SVDecompositionResult) result;
+    final DoubleMatrix u = svdResult.getU();
+    final DoubleMatrix w = DoubleMatrix.diagonal(DoubleArray.copyOf(svdResult.getSingularValues()));
+    final DoubleMatrix vt = svdResult.getVT();
     final DoubleMatrix a = (DoubleMatrix) algebra.multiply(algebra.multiply(u, w), vt);
     checkEquals(A, a);
   }

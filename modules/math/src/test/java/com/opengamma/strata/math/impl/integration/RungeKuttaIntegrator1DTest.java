@@ -33,29 +33,27 @@ public class RungeKuttaIntegrator1DTest {
 
     @Override
     public Double apply(final Double x) {
-      if (x > 1.0 || x < 0.0)
+      if (x > 1.0 || x < 0.0) {
         return x - Math.floor(x);
-
+      }
       return x;
-
     }
-
   };
 
   private static final Function<Double, Double> MIX_NORM = new Function<Double, Double>() {
-    private final double[] W = new double[] {0.2, 0.2, 0.2, 0.2, 0.2};
-    private final double[] MU = new double[] {0.0, -0.4, 0.5, 0.0, 0.01234583};
-    private final double[] SIGMA = new double[] {3.0, 0.1, 5.0, 0.001, 0.0001};
+    private final double[] w = new double[] {0.2, 0.2, 0.2, 0.2, 0.2};
+    private final double[] mu = new double[] {0.0, -0.4, 0.5, 0.0, 0.01234583};
+    private final double[] sigma = new double[] {3.0, 0.1, 5.0, 0.001, 0.0001};
 
     @SuppressWarnings("synthetic-access")
     @Override
     public Double apply(final Double x) {
-      final int n = W.length;
+      final int n = w.length;
       double res = 0.0;
       double expo;
       for (int i = 0; i < n; i++) {
-        expo = (x - MU[i]) * (x - MU[i]) / SIGMA[i] / SIGMA[i];
-        res += W[i] * Math.exp(-0.5 * expo) / ROOT_2PI / SIGMA[i];
+        expo = (x - mu[i]) * (x - mu[i]) / sigma[i] / sigma[i];
+        res += w[i] * Math.exp(-0.5 * expo) / ROOT_2PI / sigma[i];
       }
       return res;
     }
@@ -65,8 +63,9 @@ public class RungeKuttaIntegrator1DTest {
     @Override
     public Double apply(final Double x) {
       final double eps = 1e-127;
-      if (Math.abs(x) < eps)
+      if (Math.abs(x) < eps) {
         return 0.0;
+      }
       return Math.sin(1.0 / x);
 
     }

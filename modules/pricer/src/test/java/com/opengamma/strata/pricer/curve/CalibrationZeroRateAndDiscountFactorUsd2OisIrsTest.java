@@ -178,7 +178,7 @@ public class CalibrationZeroRateAndDiscountFactorUsd2OisIrsTest {
   /* Nodes */
   private static final CurveNode[] FWD3_NODES = new CurveNode[FWD3_NB_NODES];
   /* Tenors */
-  private static final Period[] FWD3_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] FWD3_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final int FWD3_NB_FRA_NODES = FWD3_FRA_TENORS.length;
   private static final Period[] FWD3_IRS_TENORS = new Period[] {

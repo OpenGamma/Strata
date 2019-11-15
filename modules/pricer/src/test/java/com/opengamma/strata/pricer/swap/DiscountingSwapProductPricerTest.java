@@ -199,7 +199,7 @@ public class DiscountingSwapProductPricerTest {
           .name("BRL_CDI").build();
 
   private static final DoubleArray DSC_TIMES = DoubleArray.of(0.25, 0.50, 1.00, 2.00, 3.00, 5.00, 10.00);
-  private static final DoubleArray DSC_VALUES = DoubleArray.of( 0.1150, 0.1200, 0.1250, 0.1250, 0.1275, 0.1275, 0.130);
+  private static final DoubleArray DSC_VALUES = DoubleArray.of(0.1150, 0.1200, 0.1250, 0.1250, 0.1275, 0.1275, 0.130);
   public static final InterpolatedNodalCurve DSCON = InterpolatedNodalCurve.builder()
       .metadata(Curves.zeroRates("BRL-DSCON-CDIS", BUS_252))
       .xValues(DSC_TIMES)
@@ -448,19 +448,19 @@ public class DiscountingSwapProductPricerTest {
   
   @Test
   public void test_marketQuote_singleCurrency_basis() {
-    IborIborSwapConvention GBP_LIBOR_3M_LIBOR_6M =
-      ImmutableIborIborSwapConvention.of(
-          "GBP-LIBOR-3M-LIBOR-6M",
-          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M),
-          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
-    ResolvedSwapTrade swapTrade20 = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+    IborIborSwapConvention convention =
+        ImmutableIborIborSwapConvention.of(
+            "GBP-LIBOR-3M-LIBOR-6M",
+            IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M),
+            IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
+    ResolvedSwapTrade swapTrade20 = convention.createTrade(MULTI_GBP.getValuationDate(),
         Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 0.0020, REF_DATA).resolve(REF_DATA);
-    ResolvedSwapTrade swapTrade0 = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+    ResolvedSwapTrade swapTrade0 = convention.createTrade(MULTI_GBP.getValuationDate(),
         Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 0.0020, REF_DATA).resolve(REF_DATA);
     double mq20 = SWAP_PRODUCT_PRICER.marketQuote(swapTrade20.getProduct(), MULTI_GBP);
     double mq0 = SWAP_PRODUCT_PRICER.marketQuote(swapTrade0.getProduct(), MULTI_GBP);
     assertThat(mq20).isCloseTo(mq0, offset(TOLERANCE_RATE));
-    ResolvedSwapTrade swapTradeATM = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+    ResolvedSwapTrade swapTradeATM = convention.createTrade(MULTI_GBP.getValuationDate(),
         Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, mq20, REF_DATA).resolve(REF_DATA);
     MultiCurrencyAmount pv = SWAP_PRODUCT_PRICER.presentValue(swapTradeATM.getProduct(), MULTI_GBP);
     assertThat(pv.getAmount(GBP).getAmount()).isCloseTo(0.0d, offset(TOLERANCE_PV));
@@ -560,7 +560,9 @@ public class DiscountingSwapProductPricerTest {
     LocalDate startDate = BRL_SWAP.getLegs().get(0).getPaymentPeriods().get(0).getStartDate();
     double af = BUS_252.yearFraction(startDate, paymentDate);
     MultiCurrencyAmount pvComputed = pricerSwap.presentValue(BRL_SWAP, BRL_DSCON);
-    double pvExpected = (-Math.pow((1 + COUPON), af)*BRL_DSCON.discountFactor(BRL, paymentDate) + BRL_DSCON.discountFactor(BRL, startDate)) * NOTIONAL;
+    double pvExpected =
+        (-Math.pow((1 + COUPON), af) * BRL_DSCON.discountFactor(BRL, paymentDate) +
+            BRL_DSCON.discountFactor(BRL, startDate)) * NOTIONAL;
     assertThat(pvComputed.getCurrencies().size() == 1).isTrue();
     assertThat(pvComputed.getAmount(BRL).getAmount()).isCloseTo(pvExpected, offset(NOTIONAL * TOLERANCE_RATE));
   }
@@ -718,12 +720,12 @@ public class DiscountingSwapProductPricerTest {
   
   @Test
   public void test_marketQuoteSensitivity_singleCurrency_basis() {
-    IborIborSwapConvention GBP_LIBOR_3M_LIBOR_6M =
-      ImmutableIborIborSwapConvention.of(
-          "GBP-LIBOR-3M-LIBOR-6M",
-          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M),
-          IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
-    ResolvedSwapTrade swapTrade20 = GBP_LIBOR_3M_LIBOR_6M.createTrade(MULTI_GBP.getValuationDate(), 
+    IborIborSwapConvention convention =
+        ImmutableIborIborSwapConvention.of(
+            "GBP-LIBOR-3M-LIBOR-6M",
+            IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_3M),
+            IborRateSwapLegConvention.of(IborIndices.GBP_LIBOR_6M));
+    ResolvedSwapTrade swapTrade20 = convention.createTrade(MULTI_GBP.getValuationDate(),
         Period.ofMonths(3), TENOR_5Y, BUY, 1_000_000.0d, 0.0020, REF_DATA).resolve(REF_DATA);
     PointSensitivities mqPts = SWAP_PRODUCT_PRICER.marketQuoteSensitivity(swapTrade20.getProduct(), MULTI_GBP).build();
     CurrencyParameterSensitivities mqPsComputed = MULTI_GBP.parameterSensitivity(mqPts);

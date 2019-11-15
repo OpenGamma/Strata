@@ -200,7 +200,7 @@ public class CalibrationEurStandard {
           FixedIborSwapTemplate.of(Period.ZERO, Tenor.of(fwd6IrsTenors[i]), EUR_FIXED_1Y_EURIBOR_6M),
           QuoteId.of(StandardId.of(SCHEME, fwd6IdValues[i + 1 + fwd6FraTenors.length])));
     }
-    InterpolatedNodalCurveDefinition DSC_CURVE_DEFN =
+    InterpolatedNodalCurveDefinition dscCurveDefn =
         InterpolatedNodalCurveDefinition.builder()
             .name(DSCON_CURVE_NAME)
             .xValueType(ValueType.YEAR_FRACTION)
@@ -210,7 +210,7 @@ public class CalibrationEurStandard {
             .extrapolatorLeft(EXTRAPOLATOR_FLAT)
             .extrapolatorRight(EXTRAPOLATOR_FLAT)
             .nodes(dscNodes).build();
-    InterpolatedNodalCurveDefinition FWD3_CURVE_DEFN =
+    InterpolatedNodalCurveDefinition fwd3CurveDefn =
         InterpolatedNodalCurveDefinition.builder()
             .name(FWD3_CURVE_NAME)
             .xValueType(ValueType.YEAR_FRACTION)
@@ -220,7 +220,7 @@ public class CalibrationEurStandard {
             .extrapolatorLeft(EXTRAPOLATOR_FLAT)
             .extrapolatorRight(EXTRAPOLATOR_FLAT)
             .nodes(fwd3Nodes).build();
-    InterpolatedNodalCurveDefinition FWD6_CURVE_DEFN =
+    InterpolatedNodalCurveDefinition fwd6CurveDefn =
         InterpolatedNodalCurveDefinition.builder()
             .name(FWD6_CURVE_NAME)
             .xValueType(ValueType.YEAR_FRACTION)
@@ -232,9 +232,9 @@ public class CalibrationEurStandard {
             .nodes(fwd6Nodes).build();
     return RatesCurveGroupDefinition.builder()
         .name(CURVE_GROUP_NAME)
-        .addCurve(DSC_CURVE_DEFN, EUR, EUR_EONIA)
-        .addForwardCurve(FWD3_CURVE_DEFN, EUR_EURIBOR_3M)
-        .addForwardCurve(FWD6_CURVE_DEFN, EUR_EURIBOR_6M).build();
+        .addCurve(dscCurveDefn, EUR, EUR_EONIA)
+        .addForwardCurve(fwd3CurveDefn, EUR_EURIBOR_3M)
+        .addForwardCurve(fwd6CurveDefn, EUR_EURIBOR_6M).build();
   }
 
   public static MarketData allQuotes(

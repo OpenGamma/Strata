@@ -866,11 +866,11 @@ public class DiscountingSwapLegPricerTest {
 
   @Test
   public void test_currentCash_convention() { // Check that standard conventions return a compounded ZC fixed leg
-    FixedInflationSwapConvention US_CPI = FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI;
+    FixedInflationSwapConvention convention = FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI;
     double rate = 0.10;
     int nbYears = 5;
     LocalDate endDate = VAL_DATE_INFLATION.plusYears(nbYears);
-    SwapTrade swap = US_CPI.toTrade(VAL_DATE_INFLATION, VAL_DATE_INFLATION, endDate, BuySell.BUY, NOTIONAL, rate);
+    SwapTrade swap = convention.toTrade(VAL_DATE_INFLATION, VAL_DATE_INFLATION, endDate, BuySell.BUY, NOTIONAL, rate);
     ResolvedSwap resolved = swap.getProduct().resolve(REF_DATA);
     DiscountingSwapLegPricer pricer = DiscountingSwapLegPricer.DEFAULT;
     RatesProvider providerEndDate = new MockRatesProvider(endDate);

@@ -167,6 +167,8 @@ public final class ParameterizedFunctionalCurveDefinition
               continue loop;
             case EXCEPTION:
               break;  // do nothing yet
+            default:
+              throw new IllegalStateException("Unexpected enum value");
           }
         }
       }
@@ -185,6 +187,8 @@ public final class ParameterizedFunctionalCurveDefinition
               continue loop;
             case EXCEPTION:
               break;  // do nothing yet
+            default:
+              throw new IllegalStateException("Unexpected enum value");
           }
         }
       }

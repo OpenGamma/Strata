@@ -89,8 +89,12 @@ public class SmileDeltaParametersTest {
     int nbDelta = DELTA.size();
     assertThat(volatility.get(nbDelta)).as("Volatility: ATM").isEqualTo(ATM);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
-      assertThat(volatility.get(2 * nbDelta - loopdelta) - volatility.get(loopdelta)).as("Volatility: Risk Reversal " + loopdelta).isCloseTo(RISK_REVERSAL.get(loopdelta), offset(1e-8));
-      assertThat((volatility.get(2 * nbDelta - loopdelta) + volatility.get(loopdelta)) / 2 - volatility.get(nbDelta)).as("Volatility: Strangle " + loopdelta).isCloseTo(STRANGLE.get(loopdelta), offset(1e-8));
+      assertThat(volatility.get(2 * nbDelta - loopdelta) - volatility.get(loopdelta))
+          .as("Volatility: Risk Reversal " + loopdelta)
+          .isCloseTo(RISK_REVERSAL.get(loopdelta), offset(1e-8));
+      assertThat((volatility.get(2 * nbDelta - loopdelta) + volatility.get(loopdelta)) / 2 - volatility.get(nbDelta))
+          .as("Volatility: Strangle " + loopdelta)
+          .isCloseTo(STRANGLE.get(loopdelta), offset(1e-8));
     }
   }
 

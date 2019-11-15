@@ -20,7 +20,8 @@ public class CloseableExecutorTest {
   @Test
   public void testAutoClose() {
     ExecutorService mockExecutorService = mock(ExecutorService.class);
-    try (CloseableExecutor ignored = CloseableExecutor.of(mockExecutorService)){
+    try (CloseableExecutor ignored = CloseableExecutor.of(mockExecutorService)) {
+      // no-op
     }
     verify(mockExecutorService).shutdown();
   }

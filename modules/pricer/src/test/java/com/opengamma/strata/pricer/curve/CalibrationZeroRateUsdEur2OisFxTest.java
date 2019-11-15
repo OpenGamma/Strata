@@ -109,14 +109,14 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   /** Data for USD-DSCON curve */
   /* Market values */
   private static final double[] USD_DSC_MARKET_QUOTES = new double[] {
-    0.0016, 0.0022,
-    0.0013, 0.0016, 0.0020, 0.0026, 0.0033,
-    0.0039, 0.0053, 0.0066, 0.0090, 0.0111};
+      0.0016, 0.0022,
+      0.0013, 0.0016, 0.0020, 0.0026, 0.0033,
+      0.0039, 0.0053, 0.0066, 0.0090, 0.0111};
   private static final int USD_DSC_NB_NODES = USD_DSC_MARKET_QUOTES.length;
   private static final String[] USD_DSC_ID_VALUE = new String[] {
-    "USD-ON", "USD-TN",
-    "USD-OIS-1M", "USD-OIS-2M", "USD-OIS-3M", "USD-OIS-6M", "USD-OIS-9M",
-    "USD-OIS-1Y", "USD-OIS-18M", "USD-OIS-2Y", "USD-OIS-3Y", "USD-OIS-4Y"};
+      "USD-ON", "USD-TN",
+      "USD-OIS-1M", "USD-OIS-2M", "USD-OIS-3M", "USD-OIS-6M", "USD-OIS-9M",
+      "USD-OIS-1Y", "USD-OIS-18M", "USD-OIS-2Y", "USD-OIS-3Y", "USD-OIS-4Y"};
   /* Nodes */
   private static final CurveNode[] USD_DSC_NODES = new CurveNode[USD_DSC_NB_NODES];
   /* Tenors */
@@ -140,12 +140,12 @@ public class CalibrationZeroRateUsdEur2OisFxTest {
   /** Data for EUR-DSC curve */
   /* Market values */
   private static final double[] EUR_DSC_MARKET_QUOTES = new double[] {
-    0.0004, 0.0012, 0.0019, 0.0043, 0.0074,
-    0.0109, 0.0193, 0.0294, 0.0519, 0.0757};
+      0.0004, 0.0012, 0.0019, 0.0043, 0.0074,
+      0.0109, 0.0193, 0.0294, 0.0519, 0.0757};
   private static final int EUR_DSC_NB_NODES = EUR_DSC_MARKET_QUOTES.length;
   private static final String[] EUR_DSC_ID_VALUE = new String[] {
-    "EUR-USD-FX-1M", "EUR-USD-FX-2M", "EUR-USD-FX-3M", "EUR-USD-FX-6M", "EUR-USD-FX-9M",
-    "EUR-USD-FX-1Y", "EUR-USD-FX-18M", "EUR-USD-FX-2Y", "EUR-USD-FX-3Y", "EUR-USD-FX-4Y"};
+      "EUR-USD-FX-1M", "EUR-USD-FX-2M", "EUR-USD-FX-3M", "EUR-USD-FX-6M", "EUR-USD-FX-9M",
+      "EUR-USD-FX-1Y", "EUR-USD-FX-18M", "EUR-USD-FX-2Y", "EUR-USD-FX-3Y", "EUR-USD-FX-4Y"};
   /* Nodes */
   private static final CurveNode[] EUR_DSC_NODES = new CurveNode[EUR_DSC_NB_NODES];
   /* Tenors */

@@ -145,7 +145,7 @@ public class DupireLocalVolatilityCalculatorTest {
       UnitParameterSensitivity computedSensi =
           CALC.localVolatilityFromImpliedVolatility(VOL_SURFACE, SPOT, interestRate, dividendRate)
               .zValueParameterSensitivity(time, strike);
-        for (int i = 0; i < VOLS.size(); ++i) {
+      for (int i = 0; i < VOLS.size(); ++i) {
         InterpolatedNodalSurface surfaceUp = VOL_SURFACE.withZValues(VOLS.with(i, VOLS.get(i) + FD_EPS));
         InterpolatedNodalSurface surfaceDw = VOL_SURFACE.withZValues(VOLS.with(i, VOLS.get(i) - FD_EPS));
         double volUp = CALC.localVolatilityFromImpliedVolatility(

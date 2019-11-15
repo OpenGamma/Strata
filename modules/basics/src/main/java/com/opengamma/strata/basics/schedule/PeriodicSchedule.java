@@ -297,6 +297,7 @@ public final class PeriodicSchedule
       BusinessDayAdjustment businessDayAdjustment,
       StubConvention stubConvention,
       boolean preferEndOfMonth) {
+
     ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
     ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNull(frequency, "frequency");
@@ -334,6 +335,7 @@ public final class PeriodicSchedule
       BusinessDayAdjustment businessDayAdjustment,
       StubConvention stubConvention,
       RollConvention rollConvention) {
+
     ArgChecker.notNull(unadjustedStartDate, "unadjustedStartDate");
     ArgChecker.notNull(unadjustedEndDate, "unadjustedEndDate");
     ArgChecker.notNull(frequency, "frequency");
@@ -905,7 +907,6 @@ public final class PeriodicSchedule
       LocalDate rollImpliedDate = rollConvention.adjust(baseDate);
 
       if (!rollImpliedDate.equals(baseDate)) {
-
         //If roll date is relative to the month the assumption is that the adjusted date is not in a different month to
         //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically
         //not close to the end of the month and hence any reasonable adjustment will not move into the next month.

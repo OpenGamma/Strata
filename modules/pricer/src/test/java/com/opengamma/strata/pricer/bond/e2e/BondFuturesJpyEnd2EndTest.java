@@ -132,8 +132,9 @@ public class BondFuturesJpyEnd2EndTest {
     UND_BOND_SEP = new FixedCouponBond[NB_UND_BONDS - 2];
     System.arraycopy(UND_BOND, 2, UND_BOND_SEP, 0, NB_UND_BONDS - 2);
   }
-  private static final Double[] CF_SEP = new Double[] {0.706302, 0.695006, 0.686265, 0.677675, 0.669189, 0.654569,
-    0.646180, 0.633317, 0.631348, 0.623057, 0.614901, 0.599832 };
+  private static final Double[] CF_SEP = new Double[] {
+      0.706302, 0.695006, 0.686265, 0.677675, 0.669189, 0.654569,
+      0.646180, 0.633317, 0.631348, 0.623057, 0.614901, 0.599832};
   private static final LocalDate EFFECTIVE_DATE_SEP = LocalDate.of(2016, 9, 20);
   private static final LocalDate FIRST_DELIVERY_DATE_SEP = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_SEP, REF_DATA);
   private static final LocalDate LAST_DELIVERY_DATE_SEP = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_SEP, REF_DATA);
@@ -160,8 +161,9 @@ public class BondFuturesJpyEnd2EndTest {
       .build();
   private static final double REF_PRICE_SEP = 151.61;
   // Futures in June 2016
-  private static final Double[] CF_JUN = new Double[] {0.706302, 0.697881, 0.686265, 0.677675, 0.669189, 0.660850,
-    0.646180, 0.637931, 0.624765, 0.623057, 0.614901, 0.606851, 0.591771 };
+  private static final Double[] CF_JUN = new Double[] {
+      0.706302, 0.697881, 0.686265, 0.677675, 0.669189, 0.660850,
+      0.646180, 0.637931, 0.624765, 0.623057, 0.614901, 0.606851, 0.591771};
   private static final FixedCouponBond[] UND_BOND_JUN;
   static {
     UND_BOND_JUN = new FixedCouponBond[NB_UND_BONDS - 1];
@@ -194,8 +196,9 @@ public class BondFuturesJpyEnd2EndTest {
       .build();
   private static final double REF_PRICE_JUN = 151.73;
   // Futures in March 2016
-  private static final Double[] CF_MAR = new Double[] {0.695006, 0.697881, 0.689613, 0.677675, 0.669189,
-    0.660850, 0.652611, 0.637931, 0.629786, 0.616327, 0.614901, 0.606851, 0.598933, 0.583818 };
+  private static final Double[] CF_MAR = new Double[] {
+      0.695006, 0.697881, 0.689613, 0.677675, 0.669189,
+      0.660850, 0.652611, 0.637931, 0.629786, 0.616327, 0.614901, 0.606851, 0.598933, 0.583818};
   private static final LocalDate EFFECTIVE_DATE_MAR = LocalDate.of(2016, 3, 20);
   private static final LocalDate FIRST_DELIVERY_DATE_MAR = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_MAR, REF_DATA);
   private static final LocalDate LAST_DELIVERY_DATE_MAR = BUSINESS_ADJUST.adjust(EFFECTIVE_DATE_MAR, REF_DATA);
@@ -228,18 +231,18 @@ public class BondFuturesJpyEnd2EndTest {
   private static final LegalEntityDiscountingProvider LED_PROVIDER;
   static {
     double[] timeIssuer = new double[] {
-    0.25136612021857924, 0.4972677595628415, 1.0139980537465378, 2.013998053746538, 2.857833670184894,
-    3.857833670184894, 4.860655737704918, 5.857833670184894, 7.104409012650647, 7.857833670184894, 8.857923497267759,
-    9.863313122239688, 14.857833670184894, 19.857833670184895, 29.857833670184895, 39.11262819073284 };
-  double[] rateIssuer = new double[] {-0.0013117084834668065, -0.0010851901424876163, -0.0020906775838723216,
-    -0.0022137102045172784, -0.0022695678374162888, -0.0023424568490920798, -0.0021603059162879916,
-    -0.0021667343131861225, -0.0018285921969274823, -0.001355094018965514, -6.763044056712535E-4,
-    1.9555294306801752E-4, 0.003944125562941363, 0.008054233458390252, 0.012276105941434846, 0.013537766297065804 };
-  double[] timeRepo = new double[] {
-    0.00273224043715847, 0.01912568306010929, 0.040983606557377046, 0.05737704918032787, 0.07923497267759563,
-    0.2459016393442623, 0.4972677595628415, 1.0002994236095515 };
-  double[] rateRepo = new double[] {2.599662058772748E-4, -8.403529976927196E-4, -0.0010105103936934236,
-    -0.0011506617573950931, -0.0012708071334455143, -0.00146106683851595, -0.0014710815100096722, -0.001481096281798276 };
+        0.25136612021857924, 0.4972677595628415, 1.0139980537465378, 2.013998053746538, 2.857833670184894,
+        3.857833670184894, 4.860655737704918, 5.857833670184894, 7.104409012650647, 7.857833670184894, 8.857923497267759,
+        9.863313122239688, 14.857833670184894, 19.857833670184895, 29.857833670184895, 39.11262819073284};
+    double[] rateIssuer = new double[] {-0.0013117084834668065, -0.0010851901424876163, -0.0020906775838723216,
+        -0.0022137102045172784, -0.0022695678374162888, -0.0023424568490920798, -0.0021603059162879916,
+        -0.0021667343131861225, -0.0018285921969274823, -0.001355094018965514, -6.763044056712535E-4,
+        1.9555294306801752E-4, 0.003944125562941363, 0.008054233458390252, 0.012276105941434846, 0.013537766297065804};
+    double[] timeRepo = new double[] {
+        0.00273224043715847, 0.01912568306010929, 0.040983606557377046, 0.05737704918032787, 0.07923497267759563,
+        0.2459016393442623, 0.4972677595628415, 1.0002994236095515};
+    double[] rateRepo = new double[] {2.599662058772748E-4, -8.403529976927196E-4, -0.0010105103936934236,
+        -0.0011506617573950931, -0.0012708071334455143, -0.00146106683851595, -0.0014710815100096722, -0.001481096281798276};
     CurveMetadata metaIssuer = Curves.zeroRates(ISSUER_CURVE_NAME, ACT_ACT_ISDA);
     InterpolatedNodalCurve curveIssuer = InterpolatedNodalCurve.of(
         metaIssuer, DoubleArray.copyOf(timeIssuer), DoubleArray.copyOf(rateIssuer), INTERPOLATOR);
@@ -284,9 +287,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointMar =
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_MAR, LED_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMar = LED_PROVIDER.parameterSensitivity(pointMar);
-    double[] sensiIssuerMar = new double[] {-4.795692708445902E-6, -2.0781215861310126E-5, -7.730767169573405E-5,
-      -1.6071777740512183E-4, -2.3044416935116369E-4, -3.333307694739688E-4, -4.263036155523118E-4,
-      -5.685365085703306E-4, -0.10407934097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerMar = new double[] {
+        -4.795692708445902E-6, -2.0781215861310126E-5, -7.730767169573405E-5,
+        -1.6071777740512183E-4, -2.3044416935116369E-4, -3.333307694739688E-4, -4.263036155523118E-4,
+        -5.685365085703306E-4, -0.10407934097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoMar = new double[] {0.0, 0.0, 0.0, 0.0, 0.001370140084809201, 3.3554451056551886E-4, 0.0, 0.0 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMar.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerMar, TOL)).isTrue();
@@ -296,9 +300,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointJun =
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_JUN, LED_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJun = LED_PROVIDER.parameterSensitivity(pointJun);
-    double[] sensiIssuerJun = new double[] {-1.1453989553600325E-5, -2.348926498286566E-5, -1.0106640809190963E-4,
-      -1.9509367993719023E-4, -3.132622179286758E-4, -4.395002117284386E-4, -5.572262990208806E-4,
-      -7.858225833901946E-4, -0.07087170775675304, -0.03539736978075175, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerJun = new double[] {
+        -1.1453989553600325E-5, -2.348926498286566E-5, -1.0106640809190963E-4,
+        -1.9509367993719023E-4, -3.132622179286758E-4, -4.395002117284386E-4, -5.572262990208806E-4,
+        -7.858225833901946E-4, -0.07087170775675304, -0.03539736978075175, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoJun = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.003012223890022257, 0.0024215917547237764, 0.0 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJun.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerJun, TOL)).isTrue();
@@ -308,9 +313,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointSep =
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_SEP, LED_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiSep = LED_PROVIDER.parameterSensitivity(pointSep);
-    double[] sensiIssuerSep = new double[] {-6.287268294968501E-6, -2.7244672992830814E-5, -1.0135221390528455E-4,
-      -2.1070486533414349E-4, -3.021178394458564E-4, -4.370046427203812E-4, -5.588942763935072E-4,
-      -7.453650144370277E-4, -0.03687605192905092, -0.07313888023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerSep = new double[] {
+        -6.287268294968501E-6, -2.7244672992830814E-5, -1.0135221390528455E-4,
+        -2.1070486533414349E-4, -3.021178394458564E-4, -4.370046427203812E-4, -5.588942763935072E-4,
+        -7.453650144370277E-4, -0.03687605192905092, -0.07313888023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoSep = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.007209056180693214, 0.0020653493968426154 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiSep.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerSep, TOL)).isTrue();
@@ -337,9 +343,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointMar =
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_MAR, LED_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMar = LED_PROVIDER.parameterSensitivity(pointMar);
-    double[] sensiIssuerMar = new double[] {-4.795692708445902, -20.78121586131013, -77.30767169573404,
-      -160.71777740512184, -230.44416935116368, -333.3307694739688, -426.3036155523117, -568.5365085703306,
-      -104079.34097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerMar = new double[] {
+        -4.795692708445902, -20.78121586131013, -77.30767169573404,
+        -160.71777740512184, -230.44416935116368, -333.3307694739688, -426.3036155523117, -568.5365085703306,
+        -104079.34097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoMar = new double[] {0.0, 0.0, 0.0, 0.0, 1370.1400848092012, 335.54451056551886, 0.0, 0.0 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMar.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerMar, TOL)).isTrue();
@@ -349,9 +356,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointJun =
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_JUN, LED_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJun = LED_PROVIDER.parameterSensitivity(pointJun);
-    double[] sensiIssuerJun = new double[] {-11.453989553600326, -23.489264982865656, -101.06640809190962,
-      -195.09367993719025, -313.2622179286758, -439.5002117284386, -557.2262990208807, -785.8225833901945,
-      -70871.70775675304, -35397.369780751746, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerJun = new double[] {
+        -11.453989553600326, -23.489264982865656, -101.06640809190962,
+        -195.09367993719025, -313.2622179286758, -439.5002117284386, -557.2262990208807, -785.8225833901945,
+        -70871.70775675304, -35397.369780751746, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoJun = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 3012.223890022257, 2421.5917547237764, 0.0 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJun.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerJun, TOL)).isTrue();
@@ -361,9 +369,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointSep =
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_SEP, LED_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiSep = LED_PROVIDER.parameterSensitivity(pointSep);
-    double[] sensiIssuerSep = new double[] {-6.287268294968501, -27.244672992830814, -101.35221390528456,
-      -210.7048653341435, -302.1178394458564, -437.0046427203812, -558.8942763935072, -745.3650144370276,
-      -36876.05192905092, -73138.88023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerSep = new double[] {
+        -6.287268294968501, -27.244672992830814, -101.35221390528456,
+        -210.7048653341435, -302.1178394458564, -437.0046427203812, -558.8942763935072, -745.3650144370276,
+        -36876.05192905092, -73138.88023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoSep = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 7209.056180693215, 2065.3493968426155 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiSep.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerSep, TOL)).isTrue();
@@ -390,9 +399,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointMar =
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_MAR, LED_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMar = LED_PROVIDER.parameterSensitivity(pointMar);
-    double[] sensiIssuerMar = new double[] {-4.795692708445902E-6, -2.0781215861310126E-5, -7.730767169573405E-5,
-      -1.6071777740512183E-4, -2.3044416935116369E-4, -3.333307694739688E-4, -4.263036155523118E-4,
-      -5.685365085703306E-4, -0.10407934097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerMar = new double[] {
+        -4.795692708445902E-6, -2.0781215861310126E-5, -7.730767169573405E-5,
+        -1.6071777740512183E-4, -2.3044416935116369E-4, -3.333307694739688E-4, -4.263036155523118E-4,
+        -5.685365085703306E-4, -0.10407934097674876, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoMar = new double[] {0.0, 0.0, 0.0, 0.0, 0.001370140084809201, 3.3554451056551886E-4, 0.0, 0.0 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMar.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerMar, TOL)).isTrue();
@@ -402,9 +412,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointJun =
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_JUN, LED_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJun = LED_PROVIDER.parameterSensitivity(pointJun);
-    double[] sensiIssuerJun = new double[] {-1.1453989553600325E-5, -2.348926498286566E-5, -1.0106640809190963E-4,
-      -1.9509367993719023E-4, -3.132622179286758E-4, -4.395002117284386E-4, -5.572262990208806E-4,
-      -7.858225833901946E-4, -0.07087170775675304, -0.03539736978075175, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerJun = new double[] {
+        -1.1453989553600325E-5, -2.348926498286566E-5, -1.0106640809190963E-4,
+        -1.9509367993719023E-4, -3.132622179286758E-4, -4.395002117284386E-4, -5.572262990208806E-4,
+        -7.858225833901946E-4, -0.07087170775675304, -0.03539736978075175, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoJun = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.003012223890022257, 0.0024215917547237764, 0.0 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJun.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerJun, TOL)).isTrue();
@@ -414,9 +425,10 @@ public class BondFuturesJpyEnd2EndTest {
     PointSensitivities pointSep =
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_SEP, LED_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiSep = LED_PROVIDER.parameterSensitivity(pointSep);
-    double[] sensiIssuerSep = new double[] {-6.287268294968501E-6, -2.7244672992830814E-5, -1.0135221390528455E-4,
-      -2.1070486533414349E-4, -3.021178394458564E-4, -4.370046427203812E-4, -5.588942763935072E-4,
-      -7.453650144370277E-4, -0.03687605192905092, -0.07313888023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0 };
+    double[] sensiIssuerSep = new double[] {
+        -6.287268294968501E-6, -2.7244672992830814E-5, -1.0135221390528455E-4,
+        -2.1070486533414349E-4, -3.021178394458564E-4, -4.370046427203812E-4, -5.588942763935072E-4,
+        -7.453650144370277E-4, -0.03687605192905092, -0.07313888023068209, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0};
     double[] sensiRepoSep = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.007209056180693214, 0.0020653493968426154 };
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiSep.getSensitivity(ISSUER_CURVE_NAME, JPY).getSensitivity().toArray(), sensiIssuerSep, TOL)).isTrue();

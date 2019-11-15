@@ -80,7 +80,7 @@ public class LegalEntityRatesCurvesCsvLoaderTest {
   public void test_loadAllDates() {
     LocalDate sampleDate = ALL_DATES.get(3); // 2017-04-21
     ImmutableList<LocalDate> expDates = ImmutableList.of(
-        LocalDate.of(2017, 07, 21), LocalDate.of(2017, 10, 07), LocalDate.of(2018, 4, 13), LocalDate.of(2019, 4, 12),
+        LocalDate.of(2017, 7, 21), LocalDate.of(2017, 10, 7), LocalDate.of(2018, 4, 13), LocalDate.of(2019, 4, 12),
         LocalDate.of(2020, 3, 20), LocalDate.of(2021, 3, 19), LocalDate.of(2022, 3, 19), LocalDate.of(2023, 3, 17),
         LocalDate.of(2024, 6, 17), LocalDate.of(2025, 3, 18), LocalDate.of(2026, 3, 20), LocalDate.of(2027, 3, 20),
         LocalDate.of(2031, 12, 19), LocalDate.of(2037, 3, 17), LocalDate.of(2047, 3, 17), LocalDate.of(2056, 3, 17));

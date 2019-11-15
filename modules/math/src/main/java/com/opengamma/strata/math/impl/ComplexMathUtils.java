@@ -232,4 +232,9 @@ public class ComplexMathUtils {
     return new ComplexNumber(x - z.getReal(), -z.getImaginary());
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private ComplexMathUtils() {
+  }
+
 }

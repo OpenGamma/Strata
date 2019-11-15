@@ -87,8 +87,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_SHORT_REC = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
@@ -96,8 +96,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.SHORT)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_LONG_PAY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
@@ -105,8 +105,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_LONG_REC_CASH = Swaption.builder()
       .swaptionSettlement(CASH_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
@@ -114,8 +114,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_REC_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(VAL_DATE))
@@ -123,8 +123,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAY_AT_EXPIRY = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(VAL_DATE))
@@ -132,8 +132,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAST = Swaption.builder()
       .swaptionSettlement(PHYSICAL_SETTLE)
       .expiryDate(AdjustableDate.of(SWAPTION_PAST_EXERCISE_DATE))
@@ -141,8 +141,8 @@ public class NormalSwaptionPhysicalProductPricerTest {
       .expiryZone(SWAPTION_EXPIRY_ZONE)
       .longShort(LongShort.LONG)
       .underlying(SWAP_PAST)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
 
   private static final NormalPriceFunction NORMAL = new NormalPriceFunction();
   private static final NormalSwaptionPhysicalProductPricer PRICER_SWAPTION_NORMAL =

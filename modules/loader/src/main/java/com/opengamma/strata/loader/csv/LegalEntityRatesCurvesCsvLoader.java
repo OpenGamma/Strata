@@ -380,4 +380,9 @@ public class LegalEntityRatesCurvesCsvLoader {
     return curve;
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private LegalEntityRatesCurvesCsvLoader() {
+  }
+
 }

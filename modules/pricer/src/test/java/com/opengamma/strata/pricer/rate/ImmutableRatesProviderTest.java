@@ -340,5 +340,4 @@ public class ImmutableRatesProviderTest {
     assertThat(cycled).isEqualTo(bean);
   }
 
-
 }

@@ -3241,7 +3241,7 @@ public class BlackFormulaRepositoryTest {
       double[] resVec = new double[] {resC1, resP1, resC2, resC3, resC4, resC5, resP2};
       double[] refVec = new double[] {refC1, refP1, refC2, refC3, refC4, refC5, refP2};
 
-      for (int k = 0; k < 6; ++k) {// k=7 ref value is not accurate due to non-unity of vol
+      for (int k = 0; k < 6; ++k) {  // k=7 ref value is not accurate due to non-unity of vol
 
         if (refVec[k] > 1.e10) {
           assertThat(resVec[k] > 1.e9).isTrue();
@@ -3653,7 +3653,7 @@ public class BlackFormulaRepositoryTest {
       double[] resVec = new double[] {resC1, resP1, resC2, resC3, resC4, resC5, resP2};
       double[] refVec = new double[] {refC1, refP1, refC2, refC3, refC4, refC5, refP2};
 
-      for (int k = 0; k < 6; ++k) {// k=7 ref value is not accurate due to non-unity of vol
+      for (int k = 0; k < 6; ++k) {  // k=7 ref value is not accurate due to non-unity of vol
 
         if (refVec[k] > 1.e10) {
           assertThat(resVec[k] > 1.e9).isTrue();
@@ -3958,7 +3958,7 @@ public class BlackFormulaRepositoryTest {
       double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5};
       double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5};
 
-      for (int k = 0; k < 6; ++k) {// ref values
+      for (int k = 0; k < 6; ++k) {  // ref values
         if (k != 6 && k != 7) {
           if (refVec[k] > 1.e10) {
             assertThat(resVec[k] > 1.e8).isTrue();
@@ -4355,7 +4355,7 @@ public class BlackFormulaRepositoryTest {
               assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertThat(Math.abs(resVec[k]) < 1.e-7).isTrue();// //should be rechecked
+                assertThat(Math.abs(resVec[k]) < 1.e-7).isTrue();  //should be rechecked
               } else {
                 assertThat(refVec[k]).isCloseTo(resVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
               }
@@ -4399,7 +4399,7 @@ public class BlackFormulaRepositoryTest {
       double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC6, refP6,
           refC5, refP5};
 
-      for (int k = 0; k < 10; ++k) {// The last two cases return reference values
+      for (int k = 0; k < 10; ++k) {  // The last two cases return reference values
         if (refVec[k] > 1.e10) {
           assertThat(resVec[k] > 1.e10).isTrue();
         } else {
@@ -4459,7 +4459,7 @@ public class BlackFormulaRepositoryTest {
 
       for (int k = 0; k < 14; ++k) {
         if (k != 3 && k != 4 && k != 7 && k != 11) {
-          if (k != 12 && k != 13) {// ref values are returned
+          if (k != 12 && k != 13) {  // ref values are returned
             if (refVec[k] > 1.e10) {
               assertThat(resVec[k] > 1.e9).isTrue();
             } else {
@@ -4644,7 +4644,7 @@ public class BlackFormulaRepositoryTest {
         double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5,
             refC6, refP6, refC7, refP7, refC8, refP8};
 
-        for (int k = 0; k < 14; ++k) {// some of ref values skipped
+        for (int k = 0; k < 14; ++k) {  // some of ref values skipped
           if (k != 5 && k != 9) {
             if (refVec[k] > 1.e10) {
               assertThat(resVec[k] > 1.e10).isTrue();
@@ -5199,7 +5199,7 @@ public class BlackFormulaRepositoryTest {
           refC6, refP6, refC7, refP7, refP8};
 
       for (int k = 0; k < 15; ++k) {
-        if (k != 12) {// ref value
+        if (k != 12) {  // ref value
           if (refVec[k] > 1.e10) {
             assertThat(resVec[k] > 1.e10).isTrue();
           } else {
@@ -5452,7 +5452,7 @@ public class BlackFormulaRepositoryTest {
       double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5};
       double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5};
 
-      for (int k = 0; k < 6; ++k) {// ref values
+      for (int k = 0; k < 6; ++k) {  // ref values
         if (k != 6 && k != 7) {
           if (refVec[k] > 1.e10) {
             assertThat(resVec[k] > 1.e8).isTrue();
@@ -5849,7 +5849,7 @@ public class BlackFormulaRepositoryTest {
               assertThat(resVec[k] < -1.e10).isTrue();
             } else {
               if (refVec[k] == 0.) {
-                assertThat(Math.abs(resVec[k]) < 1.e-7).isTrue();// //should be rechecked
+                assertThat(Math.abs(resVec[k]) < 1.e-7).isTrue();  //should be rechecked
               } else {
                 assertThat(refVec[k]).isCloseTo(resVec[k], offset(Math.abs(refVec[k]) * 1.e-10));
               }
@@ -5893,7 +5893,7 @@ public class BlackFormulaRepositoryTest {
       double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC6, refP6,
           refC5, refP5};
 
-      for (int k = 0; k < 10; ++k) {// The last two cases return reference values
+      for (int k = 0; k < 10; ++k) {  // The last two cases return reference values
         if (refVec[k] > 1.e10) {
           assertThat(resVec[k] > 1.e10).isTrue();
         } else {
@@ -5953,7 +5953,7 @@ public class BlackFormulaRepositoryTest {
 
       for (int k = 0; k < 14; ++k) {
         if (k != 3 && k != 8) {
-          if (k != 12 && k != 13) {// ref values are returned
+          if (k != 12 && k != 13) {  // ref values are returned
             if (refVec[k] > 1.e10) {
               assertThat(resVec[k] > 1.e9).isTrue();
             } else {
@@ -6138,7 +6138,7 @@ public class BlackFormulaRepositoryTest {
         double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5,
             refC6, refP6, refC7, refP7, refC8, refP8};
 
-        for (int k = 0; k < 14; ++k) {// some of ref values skipped
+        for (int k = 0; k < 14; ++k) {  // some of ref values skipped
           if (k != 5 && k != 9 && k != 12) {
             if (refVec[k] > 1.e10) {
               assertThat(resVec[k] > 1.e10).isTrue();
@@ -8094,7 +8094,7 @@ public class BlackFormulaRepositoryTest {
           refC6, refP6, refC7, refP7};
 
       for (int k = 0; k < 14; ++k) {
-        if (k != 12) {// ref val
+        if (k != 12) {  // ref val
           if (refVec[k] > 1.e10) {
             assertThat(resVec[k] > 1.e12).isTrue();
           } else {
@@ -8830,26 +8830,26 @@ public class BlackFormulaRepositoryTest {
     double deltaF = 0.01;
     double priceFP = BlackFormulaRepository.price(F + deltaF, F - DELTA_F, T, SIGMA, true);
     double priceFM = BlackFormulaRepository.price(F - deltaF, F - DELTA_F, T, SIGMA, true);
-    double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
-    assertThat(derivativeF_FD).isCloseTo(priceAdjoint.getDerivative(0), offset(TOLERANCE_PRICE_DELTA));
+    double derivativeFxFD = (priceFP - priceFM) / (2 * deltaF);
+    assertThat(derivativeFxFD).isCloseTo(priceAdjoint.getDerivative(0), offset(TOLERANCE_PRICE_DELTA));
     // Derivative strike.
     double deltaK = 0.01;
     double priceKP = BlackFormulaRepository.price(F, F - DELTA_F + deltaK, T, SIGMA, true);
     double priceKM = BlackFormulaRepository.price(F, F - DELTA_F - deltaK, T, SIGMA, true);
-    double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
-    assertThat(derivativeK_FD).isCloseTo(priceAdjoint.getDerivative(1), offset(TOLERANCE_PRICE_DELTA));
+    double derivativeKxFD = (priceKP - priceKM) / (2 * deltaK);
+    assertThat(derivativeKxFD).isCloseTo(priceAdjoint.getDerivative(1), offset(TOLERANCE_PRICE_DELTA));
     // Derivative time.
     double deltaT = 1.0 / 365.0;
     double priceTP = BlackFormulaRepository.price(F, F - DELTA_F, T + deltaT, SIGMA, true);
     double priceTM = BlackFormulaRepository.price(F, F - DELTA_F, T - deltaT, SIGMA, true);
-    double derivativeT_FD = (priceTP - priceTM) / (2 * deltaT);
-    assertThat(derivativeT_FD).isCloseTo(priceAdjoint.getDerivative(2), offset(TOLERANCE_PRICE_DELTA));
+    double derivativeTxFD = (priceTP - priceTM) / (2 * deltaT);
+    assertThat(derivativeTxFD).isCloseTo(priceAdjoint.getDerivative(2), offset(TOLERANCE_PRICE_DELTA));
     // Derivative volatility.
     double deltaV = 0.0001;
     double priceVP = BlackFormulaRepository.price(F, F - DELTA_F, T, SIGMA + deltaV, true);
     double priceVM = BlackFormulaRepository.price(F, F - DELTA_F, T, SIGMA - deltaV, true);
-    double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
-    assertThat(derivativeV_FD).isCloseTo(priceAdjoint.getDerivative(3), offset(TOLERANCE_PRICE_DELTA));
+    double derivativeVxFD = (priceVP - priceVM) / (2 * deltaV);
+    assertThat(derivativeVxFD).isCloseTo(priceAdjoint.getDerivative(3), offset(TOLERANCE_PRICE_DELTA));
   }
 
   private static final double TOLERANCE_1 = 1.0E-10;
@@ -8900,8 +8900,9 @@ public class BlackFormulaRepositoryTest {
         .priceAdjoint(forward + deltaF, strike, time, sigma, putCall.equals(PutCall.CALL));
     ValueDerivatives priceAdjointFM = BlackFormulaRepository
         .priceAdjoint(forward - deltaF, strike, time, sigma, putCall.equals(PutCall.CALL));
-    double derivativeFF_FD = (priceAdjointFP.getDerivative(0) - priceAdjointFM.getDerivative(0)) / (2 * deltaF);
-    assertThat(derivativeFF_FD).as("AD Second order: 2nd - fwd-fwd " + i).isCloseTo(bs.getSecond()[0][0], offset(TOLERANCE_2_FWD_FWD * Math.abs(bs.getFirst().getValue() / (deltaF * deltaF))));
+    double derivativeFFxFD = (priceAdjointFP.getDerivative(0) - priceAdjointFM.getDerivative(0)) / (2 * deltaF);
+    assertThat(derivativeFFxFD).as("AD Second order: 2nd - fwd-fwd " + i).isCloseTo(bs.getSecond()[0][0],
+        offset(TOLERANCE_2_FWD_FWD * Math.abs(bs.getFirst().getValue() / (deltaF * deltaF))));
     // Derivative volatility-volatility.
     double deltaV = 0.00001;
     double deltaV2 = (deltaV * deltaV);
@@ -8909,11 +8910,13 @@ public class BlackFormulaRepositoryTest {
         .priceAdjoint(forward, strike, time, sigma + deltaV, putCall.equals(PutCall.CALL));
     ValueDerivatives priceAdjointVM = BlackFormulaRepository
         .priceAdjoint(forward, strike, time, sigma - deltaV, putCall.equals(PutCall.CALL));
-    double derivativeVV_FD = (priceAdjointVP.getDerivative(3) - priceAdjointVM.getDerivative(3)) / (2 * deltaV);
-    assertThat(derivativeVV_FD).as("AD Second order: 2nd - vol-vol " + i).isCloseTo(bsD2[2][2], offset(TOLERANCE_2_VOL_VOL * Math.abs(bs.getFirst().getValue() / deltaV2)));
+    double derivativeVVxFD = (priceAdjointVP.getDerivative(3) - priceAdjointVM.getDerivative(3)) / (2 * deltaV);
+    assertThat(derivativeVVxFD).as("AD Second order: 2nd - vol-vol " + i).isCloseTo(bsD2[2][2],
+        offset(TOLERANCE_2_VOL_VOL * Math.abs(bs.getFirst().getValue() / deltaV2)));
     // Derivative forward-volatility.
-    double derivativeFV_FD = (priceAdjointVP.getDerivative(0) - priceAdjointVM.getDerivative(0)) / (2 * deltaV);
-    assertThat(derivativeFV_FD).as("AD Second order: 2nd - fwd-vol " + i).isCloseTo(bsD2[2][0], offset(TOLERANCE_2_FWD_VOL * Math.abs(bs.getFirst().getValue() / (deltaF * deltaV))));
+    double derivativeFVxFD = (priceAdjointVP.getDerivative(0) - priceAdjointVM.getDerivative(0)) / (2 * deltaV);
+    assertThat(derivativeFVxFD).as("AD Second order: 2nd - fwd-vol " + i).isCloseTo(bsD2[2][0],
+        offset(TOLERANCE_2_FWD_VOL * Math.abs(bs.getFirst().getValue() / (deltaF * deltaV))));
     assertThat(bsD2[0][2]).as("AD Second order: 2nd - fwd-vol").isCloseTo(bsD2[2][0], offset(TOLERANCE_1));
     // Derivative strike-strike.
     double deltaK = 1.0E-4 * strike;
@@ -8921,15 +8924,19 @@ public class BlackFormulaRepositoryTest {
         .priceAdjoint(forward, strike + deltaK, time, sigma, putCall.equals(PutCall.CALL));
     ValueDerivatives priceAdjointKM = BlackFormulaRepository
         .priceAdjoint(forward, strike - deltaK, time, sigma, putCall.equals(PutCall.CALL));
-    double derivativeKK_FD = (priceAdjointKP.getDerivative(1) - priceAdjointKM.getDerivative(1)) / (2 * deltaK);
-    assertThat(derivativeKK_FD).as("AD Second order: 2nd - strike-strike " + i).isCloseTo(bsD2[1][1], offset(TOLERANCE_2_STR_STR * Math.abs(derivativeKK_FD)));
+    double derivativeKKxFD = (priceAdjointKP.getDerivative(1) - priceAdjointKM.getDerivative(1)) / (2 * deltaK);
+    assertThat(derivativeKKxFD).as("AD Second order: 2nd - strike-strike " + i)
+        .isCloseTo(bsD2[1][1], offset(TOLERANCE_2_STR_STR * Math.abs(derivativeKKxFD)));
     // Derivative forward-strike.
-    double derivativeFK_FD = (priceAdjointKP.getDerivative(0) - priceAdjointKM.getDerivative(0)) / (2 * deltaK);
-    assertThat(derivativeFK_FD).as("AD Second order: 2nd - fwd-str " + i).isCloseTo(bsD2[1][0], offset(TOLERANCE_2_FWD_STR * Math.abs(bs.getFirst().getValue() / (deltaF * deltaK))));
-    assertThat(bsD2[0][1]).as("AD Second order: 2nd - fwd-str").isCloseTo(bsD2[1][0], offset(TOLERANCE_1));
+    double derivativeFKxFD = (priceAdjointKP.getDerivative(0) - priceAdjointKM.getDerivative(0)) / (2 * deltaK);
+    assertThat(derivativeFKxFD).as("AD Second order: 2nd - fwd-str " + i)
+        .isCloseTo(bsD2[1][0], offset(TOLERANCE_2_FWD_STR * Math.abs(bs.getFirst().getValue() / (deltaF * deltaK))));
+    assertThat(bsD2[0][1]).as("AD Second order: 2nd - fwd-str")
+        .isCloseTo(bsD2[1][0], offset(TOLERANCE_1));
     // Derivative strike-volatility.
-    double derivativeKV_FD = (priceAdjointVP.getDerivative(1) - priceAdjointVM.getDerivative(1)) / (2 * deltaV);
-    assertThat(derivativeKV_FD).as("AD Second order: 2nd - str-vol " + i).isCloseTo(bsD2[2][1], offset(TOLERANCE_2_STR_VOL * Math.abs(bs.getFirst().getValue())));
+    double derivativeKVxFD = (priceAdjointVP.getDerivative(1) - priceAdjointVM.getDerivative(1)) / (2 * deltaV);
+    assertThat(derivativeKVxFD).as("AD Second order: 2nd - str-vol " + i)
+        .isCloseTo(bsD2[2][1], offset(TOLERANCE_2_STR_VOL * Math.abs(bs.getFirst().getValue())));
     assertThat(bsD2[1][2]).as("AD Second order: 2nd - str-vol").isCloseTo(bsD2[2][1], offset(TOLERANCE_1));
   }
 

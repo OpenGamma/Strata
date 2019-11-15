@@ -240,8 +240,8 @@ public class SwapCrossCurrencyEnd2EndTest {
   public void test_FxResetWithNoExchanges() {
     //specifying an FX reset with no exchanges throws an exception
     assertThatIllegalArgumentException()
-    .isThrownBy(() -> test_XCcyEurUSDFxReset(false, false, false))
-    .withMessage("FxResetCalculation index EUR/USD-WM was specified but schedule does not include any notional exchanges");
+        .isThrownBy(() -> test_XCcyEurUSDFxReset(false, false, false))
+        .withMessage("FxResetCalculation index EUR/USD-WM was specified but schedule does not include any notional exchanges");
   }
 
   private void test_XCcyEurUSDFxReset(boolean initialExchange, boolean intermediateExchange, boolean finalExchange) {

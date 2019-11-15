@@ -272,9 +272,7 @@ public final class CombinedCurve
   }
 
   @Override
-  public CurrencyParameterSensitivity createParameterSensitivity(
-      Currency currency,
-      DoubleArray sensitivities) {
+  public CurrencyParameterSensitivity createParameterSensitivity(Currency currency, DoubleArray sensitivities) {
     CurrencyParameterSensitivity baseSensi = baseCurve.createParameterSensitivity(
         currency, sensitivities.subArray(0, baseCurve.getParameterCount()));
     CurrencyParameterSensitivity spreadSensi = spreadCurve.createParameterSensitivity(

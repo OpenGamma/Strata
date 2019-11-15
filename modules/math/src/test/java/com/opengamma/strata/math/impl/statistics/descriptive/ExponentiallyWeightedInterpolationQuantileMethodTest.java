@@ -86,21 +86,21 @@ public class ExponentiallyWeightedInterpolationQuantileMethodTest {
   private void check_quantile(double level) {
     double[] w = METHOD.weights(DATA_123.size());
     double qComputed = METHOD.quantileFromUnsorted(level, DATA_123);
-    double WI1 = 0.0d;
+    double wi1 = 0.0d;
     int nbW = 0;
     for (int i = 0; i < DATA_123.size(); i++) {
       if (DATA_123.get(i) > qComputed) {
-        WI1 += w[i];
+        wi1 += w[i];
         nbW++;
       }
     }
-    assertThat(WI1 < 1.0d - level).as("Weight of tail lower than level").isTrue();
+    assertThat(wi1 < 1.0d - level).as("Weight of tail lower than level").isTrue();
     double[] w2 = w.clone();
     double[] data = DATA_123.toArray();
     DoubleArrayMath.sortPairs(data, w2);
-    double WI = WI1 + w2[w.length - 1 - nbW];
-    assertThat(WI > 1.0d - level).as("Weight of tail+1 larger than level").isTrue();
-    double alpha = (WI - (1 - level)) / (WI - WI1);
+    double wi = wi1 + w2[w.length - 1 - nbW];
+    assertThat(wi > 1.0d - level).as("Weight of tail+1 larger than level").isTrue();
+    double alpha = (wi - (1 - level)) / (wi - wi1);
     double qExpected = (1 - alpha) * data[w.length - 1 - nbW] + alpha * data[w.length - 1 - nbW + 1];
     assertThat(qComputed).as("Quantile.").isCloseTo(qExpected, offset(TOLERANCE_WEIGHT));
   }
