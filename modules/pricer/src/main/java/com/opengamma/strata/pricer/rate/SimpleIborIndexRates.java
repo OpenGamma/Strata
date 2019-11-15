@@ -98,10 +98,7 @@ public final class SimpleIborIndexRates
    * @param curve  the curve of forward rates
    * @return the rates view
    */
-  public static SimpleIborIndexRates of(
-      IborIndex index,
-      LocalDate valuationDate,
-      Curve curve) {
+  public static SimpleIborIndexRates of(IborIndex index, LocalDate valuationDate, Curve curve) {
     return new SimpleIborIndexRates(index, valuationDate, curve, LocalDateDoubleTimeSeries.empty());
   }
 
@@ -124,6 +121,7 @@ public final class SimpleIborIndexRates
       LocalDate valuationDate,
       Curve curve,
       LocalDateDoubleTimeSeries fixings) {
+
     return new SimpleIborIndexRates(index, valuationDate, curve, fixings);
   }
 

@@ -38,7 +38,7 @@ public class BlackScholesFormulaRepositoryTest {
       new double[] {-0.01, -0.005, 0, 0.008, 0.032, 0.062, 0.1, 0., 1.e-12, 1.e12, INF, 1.e-12, -INF};
   private static final double[] COST_OF_CARRY_EX = {0.05, 0., 1.e-12, 1.e12, INF, 1.e-12, -INF};
 
-  private static final double[][][] PrecomputedCallPrice = new double[][][] {
+  private static final double[][][] PRECOMPUTED_CALL_PRICE = new double[][][] {
       {
           {42.388192240722034, 41.445107405754896, 40.523005041587581, 39.090123476135133, 35.088373580052092,
               30.657270312145542, 25.838608802827295},
@@ -190,7 +190,8 @@ public class BlackScholesFormulaRepositoryTest {
           double price =
               BlackScholesFormulaRepository.price(SPOT, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], INTEREST_RATES[k],
                   COST_OF_CARRY, true);
-          assertThat(price).isCloseTo(PrecomputedCallPrice[i][j][k], offset(Math.max(PrecomputedCallPrice[i][j][k] * EPS, EPS)));
+          assertThat(price).isCloseTo(PRECOMPUTED_CALL_PRICE[i][j][k],
+              offset(Math.max(PRECOMPUTED_CALL_PRICE[i][j][k] * EPS, EPS)));
         }
       }
     }

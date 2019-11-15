@@ -18,51 +18,51 @@ import org.junit.jupiter.api.Test;
 public class DiffTest {
 
   /* double data */
-  double[] _dataDouble = {-7, -3, -6, 0, 1, 14, 2, 4};
-  double[] _dataDoubleAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
-  double[] _dataDoubleAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
-  double[] _dataDoubleAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
-  double[] _dataDoubleAnswerDiff3times = {16, -14, 17, -37, 39};
-  double[] _dataDoubleAnswerDiff4times = {-30, 31, -54, 76};
-  double[] _dataDoubleAnswerDiff5times = {61, -85, 130};
-  double[] _dataDoubleAnswerDiff6times = {-146, 215};
-  double[] _dataDoubleAnswerDiff7times = {361};
-  double[] _dataNullDouble = null;
+  private final double[] _dataDouble = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final double[] _dataDoubleAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final double[] _dataDoubleAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
+  private final double[] _dataDoubleAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
+  private final double[] _dataDoubleAnswerDiff3times = {16, -14, 17, -37, 39};
+  private final double[] _dataDoubleAnswerDiff4times = {-30, 31, -54, 76};
+  private final double[] _dataDoubleAnswerDiff5times = {61, -85, 130};
+  private final double[] _dataDoubleAnswerDiff6times = {-146, 215};
+  private final double[] _dataDoubleAnswerDiff7times = {361};
+  private final double[] _dataNullDouble = null;
 
-  float[] _dataFloat = {-7, -3, -6, 0, 1, 14, 2, 4};
-  float[] _dataFloatAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
-  float[] _dataFloatAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
-  float[] _dataFloatAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
-  float[] _dataFloatAnswerDiff3times = {16, -14, 17, -37, 39};
-  float[] _dataFloatAnswerDiff4times = {-30, 31, -54, 76};
-  float[] _dataFloatAnswerDiff5times = {61, -85, 130};
-  float[] _dataFloatAnswerDiff6times = {-146, 215};
-  float[] _dataFloatAnswerDiff7times = {361};
-  float[] _dataNullFloat = null;
+  private final float[] _dataFloat = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final float[] _dataFloatAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final float[] _dataFloatAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
+  private final float[] _dataFloatAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
+  private final float[] _dataFloatAnswerDiff3times = {16, -14, 17, -37, 39};
+  private final float[] _dataFloatAnswerDiff4times = {-30, 31, -54, 76};
+  private final float[] _dataFloatAnswerDiff5times = {61, -85, 130};
+  private final float[] _dataFloatAnswerDiff6times = {-146, 215};
+  private final float[] _dataFloatAnswerDiff7times = {361};
+  private final float[] _dataNullFloat = null;
 
   /* long data */
-  long[] _dataLong = {-7, -3, -6, 0, 1, 14, 2, 4};
-  long[] _dataLongAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
-  long[] _dataLongAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
-  long[] _dataLongAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
-  long[] _dataLongAnswerDiff3times = {16, -14, 17, -37, 39};
-  long[] _dataLongAnswerDiff4times = {-30, 31, -54, 76};
-  long[] _dataLongAnswerDiff5times = {61, -85, 130};
-  long[] _dataLongAnswerDiff6times = {-146, 215};
-  long[] _dataLongAnswerDiff7times = {361};
-  long[] _dataNullLong = null;
+  private final long[] _dataLong = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final long[] _dataLongAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final long[] _dataLongAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
+  private final long[] _dataLongAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
+  private final long[] _dataLongAnswerDiff3times = {16, -14, 17, -37, 39};
+  private final long[] _dataLongAnswerDiff4times = {-30, 31, -54, 76};
+  private final long[] _dataLongAnswerDiff5times = {61, -85, 130};
+  private final long[] _dataLongAnswerDiff6times = {-146, 215};
+  private final long[] _dataLongAnswerDiff7times = {361};
+  private final long[] _dataNullLong = null;
 
   /* int data */
-  int[] _dataInteger = {-7, -3, -6, 0, 1, 14, 2, 4};
-  int[] _dataIntegerAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
-  int[] _dataIntegerAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
-  int[] _dataIntegerAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
-  int[] _dataIntegerAnswerDiff3times = {16, -14, 17, -37, 39};
-  int[] _dataIntegerAnswerDiff4times = {-30, 31, -54, 76};
-  int[] _dataIntegerAnswerDiff5times = {61, -85, 130};
-  int[] _dataIntegerAnswerDiff6times = {-146, 215};
-  int[] _dataIntegerAnswerDiff7times = {361};
-  int[] _dataNullInteger = null;
+  private final int[] _dataInteger = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final int[] _dataIntegerAnswerDiff0times = {-7, -3, -6, 0, 1, 14, 2, 4};
+  private final int[] _dataIntegerAnswerDiff1times = {4, -3, 6, 1, 13, -12, 2};
+  private final int[] _dataIntegerAnswerDiff2times = {-7, 9, -5, 12, -25, 14};
+  private final int[] _dataIntegerAnswerDiff3times = {16, -14, 17, -37, 39};
+  private final int[] _dataIntegerAnswerDiff4times = {-30, 31, -54, 76};
+  private final int[] _dataIntegerAnswerDiff5times = {61, -85, 130};
+  private final int[] _dataIntegerAnswerDiff6times = {-146, 215};
+  private final int[] _dataIntegerAnswerDiff7times = {361};
+  private final int[] _dataNullInteger = null;
 
   /* test doubles */
   @Test

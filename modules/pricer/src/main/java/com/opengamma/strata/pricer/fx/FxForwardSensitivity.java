@@ -90,6 +90,7 @@ public final class FxForwardSensitivity
       Currency referenceCurrency,
       LocalDate referenceDate,
       double sensitivity) {
+
     boolean inverse = referenceCurrency.equals(currencyPair.getCounter());
     CurrencyPair pair = inverse ? currencyPair.inverse() : currencyPair;
     Currency sensitivityCurrency = pair.getCounter();
@@ -113,6 +114,7 @@ public final class FxForwardSensitivity
       LocalDate referenceDate,
       Currency sensitivityCurrency,
       double sensitivity) {
+
     return new FxForwardSensitivity(currencyPair, referenceCurrency, referenceDate, sensitivityCurrency, sensitivity);
   }
 

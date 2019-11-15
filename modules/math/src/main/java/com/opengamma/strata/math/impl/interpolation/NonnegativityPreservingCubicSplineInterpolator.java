@@ -59,7 +59,6 @@ public class NonnegativityPreservingCubicSplineInterpolator extends PiecewisePol
       ArgChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
     }
 
-
     double[] xValuesSrt = Arrays.copyOf(xValues, nDataPts);
     double[] yValuesSrt;
     if (nDataPts == yValuesLen) {

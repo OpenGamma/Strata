@@ -96,21 +96,20 @@ public class CurveSensitivityUtilsJacobianTest {
   public static final DiscountingIborFixingDepositProductPricer PRICER_IBORFIX_PRODUCT =
       DiscountingIborFixingDepositProductPricer.DEFAULT;
 
-
-  public static final DoubleArray TIME_EUR = 
-      DoubleArray.of(1.0d/365.0d, 1.0d/12d, 0.25, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.0, 15.0, 20.0, 30.0);
+  public static final DoubleArray TIME_EUR =
+      DoubleArray.of(1.0d / 365.0d, 1.0d / 12d, 0.25, 0.50, 1.00, 2.00, 3.00, 4.00, 5.00, 7.00, 10.0, 15.0, 20.0, 30.0);
   public static final ImmutableRatesProvider MULTICURVE_EUR_SINGLE_INPUT;
   static {
     Tenor[] tenors = new Tenor[] {Tenor.TENOR_1D, Tenor.TENOR_1M, Tenor.TENOR_3M, Tenor.TENOR_6M,
         Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_3Y, Tenor.TENOR_4Y, Tenor.TENOR_5Y, 
         Tenor.TENOR_7Y, Tenor.TENOR_10Y, Tenor.TENOR_15Y, Tenor.TENOR_20Y, Tenor.TENOR_30Y};
     List<TenorParameterMetadata> metadataList = new ArrayList<>();
-    for(int looptenor=0; looptenor< tenors.length; looptenor++) {
+    for (int looptenor = 0; looptenor < tenors.length; looptenor++) {
       metadataList.add(TenorParameterMetadata.of(tenors[looptenor]));
     }
-    DoubleArray rate_eur = 
+    DoubleArray rateEur =
         DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0150, 0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0140);
-    InterpolatedNodalCurve curve_single_eur = InterpolatedNodalCurve.builder()
+    InterpolatedNodalCurve curveSingleEur = InterpolatedNodalCurve.builder()
         .metadata(DefaultCurveMetadata.builder()
             .curveName(EUR_SINGLE_NAME)
             .parameterMetadata(metadataList)
@@ -118,14 +117,14 @@ public class CurveSensitivityUtilsJacobianTest {
             .xValueType(ValueType.YEAR_FRACTION)
             .yValueType(ValueType.ZERO_RATE).build())
         .xValues(TIME_EUR)
-        .yValues(rate_eur)
+        .yValues(rateEur)
         .extrapolatorLeft(CurveExtrapolators.FLAT)
         .extrapolatorRight(CurveExtrapolators.FLAT)
         .interpolator(CurveInterpolators.LINEAR)
         .build();
     MULTICURVE_EUR_SINGLE_INPUT = ImmutableRatesProvider.builder(VALUATION_DATE)
-        .discountCurve(EUR, curve_single_eur)
-        .iborIndexCurve(EUR_EURIBOR_6M, curve_single_eur)
+        .discountCurve(EUR, curveSingleEur)
+        .iborIndexCurve(EUR_EURIBOR_6M, curveSingleEur)
         .build();
   }
   public static final List<CurveParameterSize> LIST_CURVE_NAMES_1 = new ArrayList<>();
@@ -170,11 +169,11 @@ public class CurveSensitivityUtilsJacobianTest {
     /* Comparison */
     assertThat(jiComputed.rowCount()).isEqualTo(jiExpected.rowCount());
     assertThat(jiComputed.columnCount()).isEqualTo(jiExpected.columnCount());
-    for(int i=0; i<jiComputed.rowCount(); i++) {
-      for(int j=0; j<jiComputed.columnCount(); j++) {
+    for (int i = 0; i < jiComputed.rowCount(); i++) {
+      for (int j = 0; j < jiComputed.columnCount(); j++) {
         assertThat(jiComputed.get(i, j)).isCloseTo(jiExpected.get(i, j), offset(TOLERANCE_JAC));
       }
-    }    
+    }
   }
 
   /**
@@ -243,9 +242,10 @@ public class CurveSensitivityUtilsJacobianTest {
   
 
   private static final Tenor[] TENORS_STD_2_OIS = new Tenor[] {
-    Tenor.TENOR_1M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_5Y, Tenor.TENOR_10Y, Tenor.TENOR_30Y};
+      Tenor.TENOR_1M, Tenor.TENOR_3M, Tenor.TENOR_6M, Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_5Y, Tenor.TENOR_10Y,
+      Tenor.TENOR_30Y};
   private static final Tenor[] TENORS_STD_2_IRS = new Tenor[] {
-    Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_5Y, Tenor.TENOR_10Y, Tenor.TENOR_30Y};
+      Tenor.TENOR_1Y, Tenor.TENOR_2Y, Tenor.TENOR_5Y, Tenor.TENOR_10Y, Tenor.TENOR_30Y};
   
   /**
    * Calibrate a single curve to 4 points. Use the resulting calibrated curves as starting point of the computation 

@@ -694,7 +694,7 @@ public class IsdaCompliantDiscountCurveCalibratorTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void OverlappingInstrumentsTest() {
+  public void overlappingInstrumentsTest() {
     LocalDate valuationDate = LocalDate.of(2013, 5, 31);
     LocalDate snapDate = LocalDate.of(2013, 5, 30);
     int nMoneyMarket = 6;

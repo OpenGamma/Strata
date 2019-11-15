@@ -30,7 +30,8 @@ import com.opengamma.strata.math.impl.statistics.distribution.NormalDistribution
  * Test.
  */
 public class GeneralizedLeastSquareTest {
-  private static boolean PRINT = false;
+
+  private static final boolean PRINT = false;
 
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final NormalDistribution NORMAL = new NormalDistribution(0, 1.0, RANDOM);

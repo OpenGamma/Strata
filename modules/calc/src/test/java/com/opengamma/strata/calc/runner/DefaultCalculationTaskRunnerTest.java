@@ -251,7 +251,9 @@ public class DefaultCalculationTaskRunnerTest {
     });
     // run the thread, wait until properly started, then interrupt, wait until properly handled
     thread.start();
-    while (!fn.started) {}
+    while (!fn.started) {
+      // spin until started
+    }
     thread.interrupt();
     latch.await();
     // asserts
@@ -295,7 +297,9 @@ public class DefaultCalculationTaskRunnerTest {
       });
       // run the thread, wait until properly started, then interrupt, wait until properly handled
       thread.start();
-      while (!fn.started) {}
+      while (!fn.started) {
+        // spin until started
+      }
       thread.interrupt();
       latch.await();
       // asserts
@@ -311,7 +315,7 @@ public class DefaultCalculationTaskRunnerTest {
   //-------------------------------------------------------------------------
   public static final class HangingFunction implements CalculationFunction<TestTarget> {
 
-    volatile boolean started;
+    private volatile boolean started;
 
     @Override
     public Class<TestTarget> targetType() {

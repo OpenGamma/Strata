@@ -153,6 +153,8 @@ public final class InterpolatedNodalCurveDefinition
               continue loop;
             case EXCEPTION:
               break;  // do nothing yet
+            default:
+              throw new IllegalStateException("Unexpected enum value");
           }
         }
       }
@@ -171,6 +173,8 @@ public final class InterpolatedNodalCurveDefinition
               continue loop;
             case EXCEPTION:
               break;  // do nothing yet
+            default:
+              throw new IllegalStateException("Unexpected enum value");
           }
         }
       }

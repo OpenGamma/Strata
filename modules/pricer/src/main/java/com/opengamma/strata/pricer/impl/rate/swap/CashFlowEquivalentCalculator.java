@@ -252,4 +252,9 @@ public final class CashFlowEquivalentCalculator {
     ArgChecker.isTrue(swap.getLegs(SwapLegType.IBOR).size() == 1, "swap should have unique Ibor leg");
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private CashFlowEquivalentCalculator() {
+  }
+
 }

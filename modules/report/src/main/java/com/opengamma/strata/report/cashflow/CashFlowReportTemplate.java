@@ -13,8 +13,7 @@ import com.opengamma.strata.report.ReportTemplate;
  * <p>
  * Cash flow reports are currently parameterless so this class contains no fields.
  */
-public class CashFlowReportTemplate
-    implements ReportTemplate {
+public class CashFlowReportTemplate implements ReportTemplate {  // CSIGNORE: HideUtilityClass
 
   /**
    * Creates a trade report template by reading a template definition in an ini file.
@@ -25,6 +24,16 @@ public class CashFlowReportTemplate
   public static CashFlowReportTemplate load(IniFile ini) {
     CashFlowReportTemplateIniLoader loader = new CashFlowReportTemplateIniLoader();
     return loader.load(ini);
+  }
+
+  @Override
+  public String toString() {
+    return "CashFlowReportTemplate";
+  }
+
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  CashFlowReportTemplate() {
   }
 
 }

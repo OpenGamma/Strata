@@ -107,31 +107,31 @@ public class ImmutableRatesProviderCombineTest {
 
   @Test
   public void merge_illegal_arguments() {
-    ImmutableRatesProvider test_dsc = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testDsc = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(GBP, DISCOUNT_CURVE_GBP)
         .build();
-    ImmutableRatesProvider test_ts = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testTs = ImmutableRatesProvider.builder(VAL_DATE)
         .timeSeries(GBP_USD_WM, TS)
         .build();
-    ImmutableRatesProvider test_ibor = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testIbor = ImmutableRatesProvider.builder(VAL_DATE)
         .iborIndexCurve(USD_LIBOR_3M, USD_LIBOR_CURVE)
         .build();
-    ImmutableRatesProvider test_on = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testOn = ImmutableRatesProvider.builder(VAL_DATE)
         .overnightIndexCurve(USD_FED_FUND, FED_FUND_CURVE)
         .build();
-    ImmutableRatesProvider test_pi = ImmutableRatesProvider.builder(VAL_DATE)
+    ImmutableRatesProvider testPi = ImmutableRatesProvider.builder(VAL_DATE)
         .priceIndexCurve(GB_RPI, GBPRI_CURVE)
         .build();
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_dsc, test_dsc));
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, testDsc, testDsc));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_ts, test_ts));
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, testTs, testTs));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_ibor, test_ibor));
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, testIbor, testIbor));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_on, test_on));
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, testOn, testOn));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, test_pi, test_pi));
+        .isThrownBy(() -> ImmutableRatesProvider.combined(FX_MATRIX, testPi, testPi));
   }
 
 }

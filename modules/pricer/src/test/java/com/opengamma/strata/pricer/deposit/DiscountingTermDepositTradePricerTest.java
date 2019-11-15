@@ -66,24 +66,22 @@ public class DiscountingTermDepositTradePricerTest {
       TermDepositTrade.builder().product(DEPOSIT_PRODUCT).info(TradeInfo.empty()).build();
   private static final ResolvedTermDepositTrade RDEPOSIT_TRADE = DEPOSIT_TRADE.resolve(REF_DATA);
 
-  private static final Curve CURVE;;
+  private static final Curve CURVE;
   private static final ImmutableRatesProvider IMM_PROV;
   static {
     CurveInterpolator interp = CurveInterpolators.DOUBLE_QUADRATIC;
-    DoubleArray time_eur = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
-    DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
-    CURVE = InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_360), time_eur, rate_eur, interp);
+    DoubleArray timeEur = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 3.0, 4.0, 5.0, 10.0);
+    DoubleArray rateEur = DoubleArray.of(0.0160, 0.0135, 0.0160, 0.0185, 0.0185, 0.0195, 0.0200, 0.0210);
+    CURVE = InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_360), timeEur, rateEur, interp);
     IMM_PROV = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(EUR, CURVE)
         .build();
   }
-  double DF_END = 0.94;
   
   private static final DiscountingTermDepositProductPricer PRICER_PRODUCT =
       DiscountingTermDepositProductPricer.DEFAULT;
   private static final DiscountingTermDepositTradePricer PRICER_TRADE =
       DiscountingTermDepositTradePricer.DEFAULT;
-
 
   private static final double TOLERANCE_PV = 1E-2;
   private static final double TOLERANCE_PV_DELTA = 1E-2;
@@ -112,7 +110,6 @@ public class DiscountingTermDepositTradePricerTest {
     double psTrade = PRICER_TRADE.parRate(RDEPOSIT_TRADE, IMM_PROV);
     double psProduct = PRICER_PRODUCT.parRate(RDEPOSIT_PRODUCT, IMM_PROV);
     assertThat(psTrade).isCloseTo(psProduct, offset(TOLERANCE_RATE));
-
   }
 
   //-------------------------------------------------------------------------
@@ -129,7 +126,6 @@ public class DiscountingTermDepositTradePricerTest {
     double psTrade = PRICER_TRADE.parSpread(RDEPOSIT_TRADE, IMM_PROV);
     double psProduct = PRICER_PRODUCT.parSpread(RDEPOSIT_PRODUCT, IMM_PROV);
     assertThat(psTrade).isCloseTo(psProduct, offset(TOLERANCE_RATE));
-    
   }
 
   //-------------------------------------------------------------------------

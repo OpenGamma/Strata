@@ -65,24 +65,24 @@ public class NormalPriceFunctionTest {
     NormalFunctionData dataFM = NormalFunctionData.of(F - deltaF, DF, SIGMA);
     double priceFP = FUNCTION.getPriceFunction(ITM_CALL).apply(dataFP);
     double priceFM = FUNCTION.getPriceFunction(ITM_CALL).apply(dataFM);
-    double derivativeF_FD = (priceFP - priceFM) / (2 * deltaF);
-    assertThat(priceAdjoint.getDerivative(0)).isCloseTo(derivativeF_FD, offset(1E-7));
+    double derivativeFxFD = (priceFP - priceFM) / (2 * deltaF);
+    assertThat(priceAdjoint.getDerivative(0)).isCloseTo(derivativeFxFD, offset(1E-7));
     // Derivative strike.
     double deltaK = 0.01;
     EuropeanVanillaOption optionKP = EuropeanVanillaOption.of(F - DELTA + deltaK, T, CALL);
     EuropeanVanillaOption optionKM = EuropeanVanillaOption.of(F - DELTA - deltaK, T, CALL);
     double priceKP = FUNCTION.getPriceFunction(optionKP).apply(VOL_DATA);
     double priceKM = FUNCTION.getPriceFunction(optionKM).apply(VOL_DATA);
-    double derivativeK_FD = (priceKP - priceKM) / (2 * deltaK);
-    assertThat(priceAdjoint.getDerivative(2)).isCloseTo(derivativeK_FD, offset(1E-7));
+    double derivativeKxFD = (priceKP - priceKM) / (2 * deltaK);
+    assertThat(priceAdjoint.getDerivative(2)).isCloseTo(derivativeKxFD, offset(1E-7));
     // Derivative volatility.
     double deltaV = 0.0001;
     NormalFunctionData dataVP = NormalFunctionData.of(F, DF, SIGMA + deltaV);
     NormalFunctionData dataVM = NormalFunctionData.of(F, DF, SIGMA - deltaV);
     double priceVP = FUNCTION.getPriceFunction(ITM_CALL).apply(dataVP);
     double priceVM = FUNCTION.getPriceFunction(ITM_CALL).apply(dataVM);
-    double derivativeV_FD = (priceVP - priceVM) / (2 * deltaV);
-    assertThat(priceAdjoint.getDerivative(1)).isCloseTo(derivativeV_FD, offset(1E-6));
+    double derivativeVxFD = (priceVP - priceVM) / (2 * deltaV);
+    assertThat(priceAdjoint.getDerivative(1)).isCloseTo(derivativeVxFD, offset(1E-6));
   }
 
   private static final EuropeanVanillaOption ATM_CALL = EuropeanVanillaOption.of(F, T, CALL);

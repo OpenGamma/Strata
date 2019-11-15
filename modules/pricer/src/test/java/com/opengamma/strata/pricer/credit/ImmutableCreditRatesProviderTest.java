@@ -101,7 +101,7 @@ public class ImmutableCreditRatesProviderTest {
 
   @Test
   public void test_valuationDateMismatch() {
-    ConstantRecoveryRates rr_wrong = ConstantRecoveryRates.of(LEGAL_ENTITY_ABC, VALUATION.plusWeeks(1), RECOVERY_RATE_ABC);
+    ConstantRecoveryRates rrWrong = ConstantRecoveryRates.of(LEGAL_ENTITY_ABC, VALUATION.plusWeeks(1), RECOVERY_RATE_ABC);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ImmutableCreditRatesProvider.builder()
         .valuationDate(VALUATION)
@@ -110,9 +110,9 @@ public class ImmutableCreditRatesProviderTest {
             Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
             Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
-        .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, rr_wrong, LEGAL_ENTITY_DEF, RR_DEF))
+            .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, rrWrong, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
-    IsdaCreditDiscountFactors crd_wrong =
+    IsdaCreditDiscountFactors crdWrong =
         IsdaCreditDiscountFactors.of(JPY, VALUATION.plusWeeks(1), NAME_CRD_DEF, TIME_CRD_DEF, RATE_CRD_DEF, ACT_365F);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ImmutableCreditRatesProvider.builder()
@@ -120,11 +120,11 @@ public class ImmutableCreditRatesProviderTest {
         .creditCurves(ImmutableMap.of(
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
             Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
-            Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, crd_wrong)))
+                Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, crdWrong)))
         .discountCurves(ImmutableMap.of(USD, DSC_USD, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
-    IsdaCreditDiscountFactors dsc_wrong =
+    IsdaCreditDiscountFactors dscWrong =
         IsdaCreditDiscountFactors.of(USD, VALUATION.plusWeeks(1), NAME_DSC_USD, TIME_DSC_USD, RATE_DSC_USD, ACT_365F);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> ImmutableCreditRatesProvider.builder()
@@ -133,7 +133,7 @@ public class ImmutableCreditRatesProviderTest {
             Pair.of(LEGAL_ENTITY_ABC, USD), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_USD),
             Pair.of(LEGAL_ENTITY_ABC, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_ABC, CRD_ABC_JPY),
             Pair.of(LEGAL_ENTITY_DEF, JPY), LegalEntitySurvivalProbabilities.of(LEGAL_ENTITY_DEF, CRD_DEF)))
-        .discountCurves(ImmutableMap.of(USD, dsc_wrong, JPY, DSC_JPY))
+            .discountCurves(ImmutableMap.of(USD, dscWrong, JPY, DSC_JPY))
         .recoveryRateCurves(ImmutableMap.of(LEGAL_ENTITY_ABC, RR_ABC, LEGAL_ENTITY_DEF, RR_DEF))
         .build());
   }

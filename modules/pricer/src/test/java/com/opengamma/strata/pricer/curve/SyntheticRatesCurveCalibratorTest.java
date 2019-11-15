@@ -263,7 +263,7 @@ public class SyntheticRatesCurveCalibratorTest {
         hs += multicurve.getValuationDate().getDayOfMonth();
       }
       end = System.currentTimeMillis();
-      System.out.println("Initial curve calibration time: " + (end-start) + 
+      System.out.println("Initial curve calibration time: " + (end - start) +
           " ms for " + nbTests + " calibrations.  " + hs);
     }    
     for (int looprep = 0; looprep < nbReps; looprep++) {
@@ -276,7 +276,7 @@ public class SyntheticRatesCurveCalibratorTest {
         hs += multicurve2.getValuationDate().getDayOfMonth();
       }
       end = System.currentTimeMillis();
-      System.out.println("Initial + synthetic curve calibration time: " + (end-start) + 
+      System.out.println("Initial + synthetic curve calibration time: " + (end - start) +
           " ms for " + nbTests + " calibrations.  " + hs);
     }
     // Calibration time of the (initial + synthetic) curves is roughly twice as long as the initial calibration on its

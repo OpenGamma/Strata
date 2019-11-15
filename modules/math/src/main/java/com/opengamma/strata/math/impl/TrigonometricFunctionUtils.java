@@ -163,4 +163,9 @@ public class TrigonometricFunctionUtils {
     return ComplexMathUtils.divide(ComplexMathUtils.subtract(z2, z3), ComplexMathUtils.add(z2, z3));
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private TrigonometricFunctionUtils() {
+  }
+
 }

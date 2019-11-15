@@ -191,4 +191,9 @@ public class Diff {
     return tmp;
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private Diff() {
+  }
+
 }

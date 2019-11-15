@@ -231,8 +231,9 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
 
     final int nData = xValues.length;
     for (int i = 0; i < nData - 1; ++i) {
-      for (int k = 0; k < 4; ++k)
+      for (int k = 0; k < 4; ++k) {
         assertThat(resultPos.getCoefMatrix().get(i, k)).isEqualTo(resultPosFlip.getCoefMatrix().get(i, k));
+      }
     }
   }
 
@@ -270,9 +271,10 @@ public class NonnegativityPreservingCubicSplineInterpolatorTest {
     int nData = xValues.length;
     for (int j = 0; j < dim; ++j) {
       for (int i = 0; i < nData - 1; ++i) {
-        for (int k = 0; k < 4; ++k)
+        for (int k = 0; k < 4; ++k) {
           assertThat(resultPos.getCoefMatrix().get(dim * i + j, k))
               .isEqualTo(resultPosFlip.getCoefMatrix().get(dim * i + j, k));
+        }
       }
     }
   }

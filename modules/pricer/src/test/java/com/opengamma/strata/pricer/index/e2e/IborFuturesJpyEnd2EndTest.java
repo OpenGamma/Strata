@@ -64,17 +64,17 @@ public class IborFuturesJpyEnd2EndTest {
   // curve
   private static final CurveInterpolator INTERPOLATOR = CurveInterpolators.LINEAR;
   private static final double[] TIMES_FWD = new double[] {0.25956284153005466, 0.3442622950819672, 0.4262295081967213,
-    0.5109289617486339, 0.5956284153005464, 0.6775956284153005, 0.7622950819672131, 0.8442622950819673,
-    0.9290665468972228, 1.0139980537465378, 1.509888464705442, 2.013998053746538, 3.013998053746538,
-    4.0136612021857925, 5.013998053746538, 6.013998053746538, 7.013998053746538, 8.013661202185792, 9.013998053746537,
-    10.013998053746537, 12.013661202185792, 15.013998053746537, 20.01366120218579, 25.013998053746537,
-    30.013998053746537, 35.01399805374654, 40.013661202185794 };
+      0.5109289617486339, 0.5956284153005464, 0.6775956284153005, 0.7622950819672131, 0.8442622950819673,
+      0.9290665468972228, 1.0139980537465378, 1.509888464705442, 2.013998053746538, 3.013998053746538,
+      4.0136612021857925, 5.013998053746538, 6.013998053746538, 7.013998053746538, 8.013661202185792, 9.013998053746537,
+      10.013998053746537, 12.013661202185792, 15.013998053746537, 20.01366120218579, 25.013998053746537,
+      30.013998053746537, 35.01399805374654, 40.013661202185794};
   private static final double[] RATES_FWD = new double[] {0.0011675730858146669, 0.0013523368085561177,
-    0.001131049534280983, 8.583742384839034E-4, 8.470484635395976E-4, 6.767689351179286E-4, 5.413609808841509E-4,
-    4.4761361391297197E-4, 3.289892481714955E-4, 2.2424609900293199E-4, -5.55328245806963E-4, -5.582260143032516E-4,
-    -0.0013213322970379335, -9.99374212934137E-4, -6.786337899984415E-4, -1.0429800511592125E-4, 4.58740553910201E-4,
-    0.0010754297421556789, 0.0017620501351558286, 0.0024797272826230436, 0.003796406741560559, 0.005230486692524101,
-    0.009225065993903405, 0.01128357115778175, 0.012172498030710542, 0.012953839426947904, 0.013546707965288615 };
+      0.001131049534280983, 8.583742384839034E-4, 8.470484635395976E-4, 6.767689351179286E-4, 5.413609808841509E-4,
+      4.4761361391297197E-4, 3.289892481714955E-4, 2.2424609900293199E-4, -5.55328245806963E-4, -5.582260143032516E-4,
+      -0.0013213322970379335, -9.99374212934137E-4, -6.786337899984415E-4, -1.0429800511592125E-4, 4.58740553910201E-4,
+      0.0010754297421556789, 0.0017620501351558286, 0.0024797272826230436, 0.003796406741560559, 0.005230486692524101,
+      0.009225065993903405, 0.01128357115778175, 0.012172498030710542, 0.012953839426947904, 0.013546707965288615};
   private static final CurveName NAME_FWD = CurveName.of("fwdCurve");
   private static final CurveMetadata META_FWD = Curves.zeroRates(NAME_FWD, ACT_ACT_ISDA);
   private static final InterpolatedNodalCurve CURVE_FWD =
@@ -94,8 +94,8 @@ public class IborFuturesJpyEnd2EndTest {
       .lastTradeDate(LAST_TRADE_MAR)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final double REF_PRICE_MAR = 99.9d;
   private static final double REF_PRICE_MAR_DECIMAL = REF_PRICE_MAR * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR = ResolvedIborFutureTrade.builder()
@@ -114,8 +114,8 @@ public class IborFuturesJpyEnd2EndTest {
       .lastTradeDate(LAST_TRADE_JUN)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final double REF_PRICE_JUN = 100d;
   private static final double REF_PRICE_JUN_DECIMAL = REF_PRICE_JUN * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN = ResolvedIborFutureTrade.builder()
@@ -134,8 +134,8 @@ public class IborFuturesJpyEnd2EndTest {
       .lastTradeDate(LAST_TRADE_SEP)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final double REF_PRICE_SEP = 100.075d;
   private static final double REF_PRICE_SEP_DECIMAL = REF_PRICE_SEP * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_SEP = ResolvedIborFutureTrade.builder()
@@ -155,8 +155,8 @@ public class IborFuturesJpyEnd2EndTest {
       .lastTradeDate(LAST_TRADE_JUN_MID)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final double REF_PRICE_JUN_MID = 100.165d;
   private static final double REF_PRICE_JUN_MID_DECIMAL = REF_PRICE_JUN_MID * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_JUN_MID = ResolvedIborFutureTrade.builder()
@@ -176,8 +176,8 @@ public class IborFuturesJpyEnd2EndTest {
       .lastTradeDate(LAST_TRADE_MAR_LONG)
       .index(TIBOR_EUROYEN_3M)
       .rounding(ROUNDING)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final double REF_PRICE_MAR_LONG = 99.815d;
   private static final double REF_PRICE_MAR_LONG_DECIMAL = REF_PRICE_MAR_LONG * ONE_PERCENT;
   private static final ResolvedIborFutureTrade FUTURE_TRADE_MAR_LONG = ResolvedIborFutureTrade.builder()
@@ -225,7 +225,7 @@ public class IborFuturesJpyEnd2EndTest {
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_MAR, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMar = RATES_PROVIDER.parameterSensitivity(pointMar);
     double[] sensiFwdMar = new double[] {0.003743310260261194, -0.01313010637003998, -4.527622886220682E-4, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMar.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdMar, TOL)).isTrue();
     // June 2016
@@ -233,7 +233,7 @@ public class IborFuturesJpyEnd2EndTest {
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_JUN, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJun = RATES_PROVIDER.parameterSensitivity(pointJun);
     double[] sensiFwdJun = new double[] {0.0, 0.01347165823324645, 0.0, 0.0, -0.023308107101966076, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJun.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdJun, TOL)).isTrue();
     // September 2016
@@ -241,8 +241,8 @@ public class IborFuturesJpyEnd2EndTest {
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_SEP, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiSep = RATES_PROVIDER.parameterSensitivity(pointSep);
     double[] sensiFwdSep = new double[] {0.0, 0.0, 0.0, 0.0, 0.01936692513656471, 0.0048417312841411864, 0.0,
-      -0.027462515988551, -0.006580907103066675, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0 };
+        -0.027462515988551, -0.006580907103066675, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiSep.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdSep, TOL)).isTrue();
     // June 2017
@@ -250,8 +250,8 @@ public class IborFuturesJpyEnd2EndTest {
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_JUN_MID, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJunMid = RATES_PROVIDER.parameterSensitivity(pointJunMid);
     double[] sensiFwdJunMid = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.016154080854008976,
-      -0.013340017892182532, -0.012672512226590141, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0 };
+        -0.013340017892182532, -0.012672512226590141, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJunMid.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdJunMid, TOL)).isTrue();
     // March 2020
@@ -259,7 +259,7 @@ public class IborFuturesJpyEnd2EndTest {
         PRODUCT_PRICER.priceSensitivity(FUTURE_PRODUCT_MAR_LONG, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMarLong = RATES_PROVIDER.parameterSensitivity(pointMarLong);
     double[] sensiFwdMarLong = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.03382389130551987, -0.043661005746776824, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.03382389130551987, -0.043661005746776824, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMarLong.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdMarLong, TOL)).isTrue();
   }
@@ -290,7 +290,7 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_MAR, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMar = RATES_PROVIDER.parameterSensitivity(pointMar);
     double[] sensiFwdMar = new double[] {935.8275650652985, -3282.5265925099943, -113.19057215551703, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMar.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdMar, TOL)).isTrue();
     // June 2016
@@ -298,7 +298,7 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_JUN, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJun = RATES_PROVIDER.parameterSensitivity(pointJun);
     double[] sensiFwdJun = new double[] {0.0, 3367.914558311612, 0.0, 0.0, -5827.0267754915185, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJun.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdJun, TOL)).isTrue();
     // September 2016
@@ -306,8 +306,8 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_SEP, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiSep = RATES_PROVIDER.parameterSensitivity(pointSep);
     double[] sensiFwdSep = new double[] {0.0, 0.0, 0.0, 0.0, 4841.731284141179, 1210.432821035297, 0.0,
-      -6865.62899713775, -1645.2267757666687, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0 };
+        -6865.62899713775, -1645.2267757666687, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiSep.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdSep, TOL)).isTrue();
     // June 2017
@@ -315,8 +315,8 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_JUN_MID, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJunMid = RATES_PROVIDER.parameterSensitivity(pointJunMid);
     double[] sensiFwdJunMid = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 4038.520213502244,
-      -3335.0044730456357, -3168.128056647536, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0 };
+        -3335.0044730456357, -3168.128056647536, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJunMid.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdJunMid, TOL)).isTrue();
     // March 2020
@@ -324,7 +324,7 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER).multipliedBy(ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMarLong = RATES_PROVIDER.parameterSensitivity(pointMarLong);
     double[] sensiFwdMarLong = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      8455.972826379962, -10915.251436694207, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        8455.972826379962, -10915.251436694207, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMarLong.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdMarLong, TOL)).isTrue();
   }
@@ -355,7 +355,7 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_MAR, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMar = RATES_PROVIDER.parameterSensitivity(pointMar);
     double[] sensiFwdMar = new double[] {0.003743310260261194, -0.01313010637003998, -4.527622886220682E-4, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMar.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdMar, TOL)).isTrue();
     // June 2016
@@ -363,7 +363,7 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_JUN, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJun = RATES_PROVIDER.parameterSensitivity(pointJun);
     double[] sensiFwdJun = new double[] {0.0, 0.01347165823324645, 0.0, 0.0, -0.023308107101966076, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJun.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdJun, TOL)).isTrue();
     // September 2016
@@ -371,8 +371,8 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_SEP, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiSep = RATES_PROVIDER.parameterSensitivity(pointSep);
     double[] sensiFwdSep = new double[] {0.0, 0.0, 0.0, 0.0, 0.01936692513656471, 0.0048417312841411864, 0.0,
-      -0.027462515988551, -0.006580907103066675, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0, 0.0, 0.0 };
+        -0.027462515988551, -0.006580907103066675, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiSep.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdSep, TOL)).isTrue();
     // June 2017
@@ -380,8 +380,8 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_JUN_MID, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiJunMid = RATES_PROVIDER.parameterSensitivity(pointJunMid);
     double[] sensiFwdJunMid = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.016154080854008976,
-      -0.013340017892182532, -0.012672512226590141, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.0, 0.0 };
+        -0.013340017892182532, -0.012672512226590141, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+        0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiJunMid.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdJunMid,
         TOL)).isTrue();
@@ -390,7 +390,7 @@ public class IborFuturesJpyEnd2EndTest {
         TRADE_PRICER.parSpreadSensitivity(FUTURE_TRADE_MAR_LONG, RATES_PROVIDER).multipliedBy(HUNDRED * ONE_BASIS_POINT);
     CurrencyParameterSensitivities sensiMarLong = RATES_PROVIDER.parameterSensitivity(pointMarLong);
     double[] sensiFwdMarLong = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.03382389130551987, -0.043661005746776824, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        0.03382389130551987, -0.043661005746776824, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     assertThat(DoubleArrayMath.fuzzyEquals(
         sensiMarLong.getSensitivity(NAME_FWD, JPY).getSensitivity().toArray(), sensiFwdMarLong, TOL)).isTrue();
   }

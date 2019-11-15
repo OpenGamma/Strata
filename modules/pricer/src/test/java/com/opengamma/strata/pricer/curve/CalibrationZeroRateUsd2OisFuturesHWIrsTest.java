@@ -133,16 +133,16 @@ public class CalibrationZeroRateUsd2OisFuturesHWIrsTest {
   /** Data for USD-DSCON curve */
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
-    0.0005, 0.0005,
-    0.00072000, 0.00082000, 0.00093000, 0.00090000, 0.00105000,
-    0.00118500, 0.00318650, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
-    0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500 };
+      0.0005, 0.0005,
+      0.00072000, 0.00082000, 0.00093000, 0.00090000, 0.00105000,
+      0.00118500, 0.00318650, 0.00318650, 0.00704000, 0.01121500, 0.01515000,
+      0.01845500, 0.02111000, 0.02332000, 0.02513500, 0.02668500};
   private static final int DSC_NB_NODES = DSC_MARKET_QUOTES.length;
   private static final String[] DSC_ID_VALUE = new String[] {
-    "USD-ON", "USD-TN",
-    "USD-OIS-1M", "USD-OIS-2M", "USD-OIS-3M", "USD-OIS-6M", "USD-OIS-9M",
-    "USD-OIS-1Y", "USD-OIS-18M", "USD-OIS-2Y", "USD-OIS-3Y", "USD-OIS-4Y", "USD-OIS-5Y",
-    "USD-OIS-6Y", "USD-OIS-7Y", "USD-OIS-8Y", "USD-OIS-9Y", "USD-OIS-10Y" };
+      "USD-ON", "USD-TN",
+      "USD-OIS-1M", "USD-OIS-2M", "USD-OIS-3M", "USD-OIS-6M", "USD-OIS-9M",
+      "USD-OIS-1Y", "USD-OIS-18M", "USD-OIS-2Y", "USD-OIS-3Y", "USD-OIS-4Y", "USD-OIS-5Y",
+      "USD-OIS-6Y", "USD-OIS-7Y", "USD-OIS-8Y", "USD-OIS-9Y", "USD-OIS-10Y"};
   /* Nodes */
   private static final CurveNode[] DSC_NODES = new CurveNode[DSC_NB_NODES];
   /* Tenors */
@@ -154,7 +154,7 @@ public class CalibrationZeroRateUsd2OisFuturesHWIrsTest {
       Period.ofYears(6), Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10)};
   private static final int DSC_NB_OIS_NODES = DSC_OIS_TENORS.length;
   static {
-    for(int i = 0; i < DSC_NB_DEPO_NODES; i++) {
+    for (int i = 0; i < DSC_NB_DEPO_NODES; i++) {
       BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, USNY);
       TermDepositConvention convention = 
           ImmutableTermDepositConvention.of(
@@ -172,16 +172,16 @@ public class CalibrationZeroRateUsd2OisFuturesHWIrsTest {
   /** Data for USD-LIBOR3M curve */
   /* Market values */
   private static final double[] FWD3_MARKET_QUOTES = new double[] {
-    0.00236600,
-    0.9975, 0.9975, 0.9950, 0.9950, 0.9940, 0.9930, 0.9920, 0.9910,
-    0.00939150, 0.01380800, 0.01732000,
-    0.02000000, 0.02396200, 0.02500000, 0.02700000, 0.02930000 };
+      0.00236600,
+      0.9975, 0.9975, 0.9950, 0.9950, 0.9940, 0.9930, 0.9920, 0.9910,
+      0.00939150, 0.01380800, 0.01732000,
+      0.02000000, 0.02396200, 0.02500000, 0.02700000, 0.02930000};
   private static final int FWD3_NB_NODES = FWD3_MARKET_QUOTES.length;
   private static final String[] FWD3_ID_VALUE = new String[] {
-    "USD-Fixing-3M",
-    "USD-ED1", "USD-ED2", "USD-ED3", "USD-ED4", "USD-ED5", "USD-ED6", "USD-ED7", "USD-ED8", 
-    "USD-IRS3M-3Y", "USD-IRS3M-4Y", "USD-IRS3M-5Y",
-    "USD-IRS3M-6Y", "USD-IRS3M-7Y", "USD-IRS3M-8Y", "USD-IRS3M-9Y", "USD-IRS3M-10Y" };
+      "USD-Fixing-3M",
+      "USD-ED1", "USD-ED2", "USD-ED3", "USD-ED4", "USD-ED5", "USD-ED6", "USD-ED7", "USD-ED8",
+      "USD-IRS3M-3Y", "USD-IRS3M-4Y", "USD-IRS3M-5Y",
+      "USD-IRS3M-6Y", "USD-IRS3M-7Y", "USD-IRS3M-8Y", "USD-IRS3M-9Y", "USD-IRS3M-10Y"};
   /* Nodes */
   private static final CurveNode[] FWD3_NODES = new CurveNode[FWD3_NB_NODES];
   /* Tenors */

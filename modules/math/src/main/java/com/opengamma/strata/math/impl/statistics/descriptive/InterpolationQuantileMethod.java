@@ -19,7 +19,6 @@ import com.opengamma.strata.collect.array.DoubleArray;
  * <p>
  * Reference: Value-At-Risk, OpenGamma Documentation 31, Version 0.1, April 2015.
  */
-
 public abstract class InterpolationQuantileMethod
     extends QuantileCalculationMethod {
 

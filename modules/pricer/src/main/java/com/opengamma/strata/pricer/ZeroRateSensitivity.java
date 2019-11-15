@@ -91,6 +91,7 @@ public final class ZeroRateSensitivity
       double yearFraction,
       Currency sensitivityCurrency,
       double sensitivity) {
+
     return new ZeroRateSensitivity(curveCurrency, yearFraction, sensitivityCurrency, sensitivity);
   }
 

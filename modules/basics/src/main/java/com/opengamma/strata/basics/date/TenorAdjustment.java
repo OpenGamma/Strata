@@ -91,7 +91,10 @@ public final class TenorAdjustment
    * @return the tenor adjustment
    */
   public static TenorAdjustment of(
-      Tenor tenor, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
+      Tenor tenor,
+      PeriodAdditionConvention additionConvention,
+      BusinessDayAdjustment adjustment) {
+
     return new TenorAdjustment(tenor, additionConvention, adjustment);
   }
 

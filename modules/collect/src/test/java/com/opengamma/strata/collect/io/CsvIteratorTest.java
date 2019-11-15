@@ -30,34 +30,34 @@ import com.google.common.io.Files;
  */
 public class CsvIteratorTest {
 
-  private final String CSV1 = "" +
+  private static final String CSV1 = "" +
       "h1,h2\n" +
       "r11,r12\n" +
       "r21,r22";
 
-  private final String CSV1T = "" +
+  private static final String CSV1T = "" +
       "h1\th2\n" +
       "r11\tr12\n" +
       "r21\tr22";
 
-  private final String CSV2 = "" +
+  private static final String CSV2 = "" +
       "h1,h2\n" +
       "#r11,r12\n" +
       ";r11,r12\n" +
       "\n" +
       "r21,r22\n";
 
-  private final String CSV3 = "" +
+  private static final String CSV3 = "" +
       "r11,r12\n" +
       ",\n" +
       "r21,r22\n";
 
-  private final String CSV4 = "" +
+  private static final String CSV4 = "" +
       "# Comment about the file\n" +
       "h1,h2\n" +
       "r1,r2\n";
 
-  private final String CSV5GROUPED = "" +
+  private static final String CSV5GROUPED = "" +
       "id,value\n" +
       "1,a\n" +
       "1,b\n" +

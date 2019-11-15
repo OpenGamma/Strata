@@ -52,7 +52,6 @@ import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConventions;
 
-
 /**
  * Test the notional equivalent computation based on present value sensitivity to quote in 
  * the calibrated curves by {@link RatesCurveCalibrator}.
@@ -175,7 +174,7 @@ public class CalibrationNotionalEquivalentTest {
     CurrencyParameterSensitivities mqs = MQSC.sensitivity(ps, multicurve);
     CurrencyParameterSensitivities notionalEquivalent = NEC.notionalEquivalent(mqs, multicurve);
     // Check metadata are same as market quote sensitivities.
-    for(CurrencyParameterSensitivity sensi: mqs.getSensitivities()){
+    for (CurrencyParameterSensitivity sensi : mqs.getSensitivities()) {
       assertThat(notionalEquivalent.getSensitivity(sensi.getMarketDataName(), sensi.getCurrency()).getParameterMetadata()).isEqualTo(sensi.getParameterMetadata());
     }
     // Check sensitivity: trade sensitivity = sum(notional equivalent sensitivities)

@@ -49,4 +49,9 @@ final class INITDS {
     return i;
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private INITDS() {
+  }
+
 }

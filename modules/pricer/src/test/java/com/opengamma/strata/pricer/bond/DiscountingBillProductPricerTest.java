@@ -199,7 +199,7 @@ public class DiscountingBillProductPricerTest {
     double priceComputed = PRICER.priceFromCurves(BILL, PROVIDER, settlementDate);
     double dfMaturity = DSC_FACTORS_ISSUER.discountFactor(MATURITY_DATE);
     double dfSettle = DSC_FACTORS_REPO.discountFactor(settlementDate);
-    double priceExpected = dfMaturity/dfSettle;
+    double priceExpected = dfMaturity / dfSettle;
     assertThat(priceComputed).isCloseTo(priceExpected, offset(TOLERANCE_PRICE));
   }
   
@@ -247,7 +247,7 @@ public class DiscountingBillProductPricerTest {
     double yieldComputed = PRICER.yieldFromCurves(BILL, PROVIDER, settlementDate);
     double dfMaturity = DSC_FACTORS_ISSUER.discountFactor(MATURITY_DATE);
     double dfSettle = DSC_FACTORS_REPO.discountFactor(settlementDate);
-    double priceExpected = dfMaturity/dfSettle;
+    double priceExpected = dfMaturity / dfSettle;
     double yieldExpected = BILL.yieldFromPrice(priceExpected, settlementDate);
     assertThat(yieldComputed).isCloseTo(yieldExpected, offset(TOLERANCE_PRICE));
   }

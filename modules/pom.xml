@@ -732,9 +732,8 @@
     <slf4j.version>1.7.29</slf4j.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <!-- versions must be retained to allow the version to be overridden on the command line -->
-    <checkstyle.config.location>checkstyle/checkstyle-oss.xml</checkstyle.config.location>
-    <build-config.version>2.5.1</build-config.version>
-    <checkstyle.version>8.22</checkstyle.version>
+    <build-config.version>2.6.0</build-config.version>
+    <checkstyle.version>8.26</checkstyle.version>
     <!-- Properties for maven-javadoc-plugin -->
     <windowtitle>OpenGamma Strata</windowtitle>
     <doctitle><![CDATA[<h1>OpenGamma Strata</h1>]]></doctitle>

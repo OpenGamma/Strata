@@ -97,7 +97,10 @@ public final class PeriodAdjustment
    * @return the period adjustment
    */
   public static PeriodAdjustment of(
-      Period period, PeriodAdditionConvention additionConvention, BusinessDayAdjustment adjustment) {
+      Period period,
+      PeriodAdditionConvention additionConvention,
+      BusinessDayAdjustment adjustment) {
+
     return new PeriodAdjustment(period, additionConvention, adjustment);
   }
 

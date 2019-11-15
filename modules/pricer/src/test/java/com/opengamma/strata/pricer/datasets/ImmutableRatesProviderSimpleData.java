@@ -30,14 +30,14 @@ public class ImmutableRatesProviderSimpleData {
   public static final ImmutableRatesProvider IMM_PROV_EUR_FIX;
   static {
     CurveInterpolator interp = CurveInterpolators.DOUBLE_QUADRATIC;
-    DoubleArray time_eur = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
-    DoubleArray rate_eur = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0140);
+    DoubleArray timeEur = DoubleArray.of(0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 2.0);
+    DoubleArray rateEur = DoubleArray.of(0.0160, 0.0165, 0.0155, 0.0155, 0.0155, 0.0150, 0.0140);
     InterpolatedNodalCurve dscCurve =
-        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_365F), time_eur, rate_eur, interp);
-    DoubleArray time_index = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
-    DoubleArray rate_index = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
+        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-Discount", ACT_365F), timeEur, rateEur, interp);
+    DoubleArray timeIndex = DoubleArray.of(0.0, 0.25, 0.5, 1.0);
+    DoubleArray rateIndex = DoubleArray.of(0.0180, 0.0180, 0.0175, 0.0165);
     InterpolatedNodalCurve indexCurve =
-        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_365F), time_index, rate_index, interp);
+        InterpolatedNodalCurve.of(Curves.zeroRates("EUR-EURIBOR6M", ACT_365F), timeIndex, rateIndex, interp);
     IMM_PROV_EUR_NOFIX = ImmutableRatesProvider.builder(VAL_DATE)
         .discountCurve(EUR, dscCurve)
         .iborIndexCurve(EUR_EURIBOR_6M, indexCurve)

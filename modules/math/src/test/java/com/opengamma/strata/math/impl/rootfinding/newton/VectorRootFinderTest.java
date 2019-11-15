@@ -95,7 +95,8 @@ public abstract class VectorRootFinderTest {
       final double[][] res = new double[3][3];
       final double temp1 = Math.exp(x.get(0) + x.get(1));
       final double temp2 = Math.exp(x.get(0) - x.get(1));
-      res[0][0] = res[0][1] = temp1;
+      res[0][0] = temp1;
+      res[0][1] = temp1;
       res[0][2] = 1.0;
       res[1][0] = x.get(2) * temp2;
       res[1][1] = -x.get(2) * temp2;
@@ -112,20 +113,20 @@ public abstract class VectorRootFinderTest {
   static final double[] TIME_GRID = new double[] {0.25, 0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 7.0, 10.0, 15.0, 20.0, 25.0, 30.0};
   static final Function<Double, Double> DUMMY_YIELD_CURVE = new Function<Double, Double>() {
 
-    private static final double a = -0.03;
-    private static final double b = 0.02;
-    private static final double c = 0.5;
-    private static final double d = 0.05;
+    private static final double A = -0.03;
+    private static final double B = 0.02;
+    private static final double C = 0.5;
+    private static final double D = 0.05;
 
     @Override
     public Double apply(final Double x) {
-      return Math.exp(-x * ((a + b * x) * Math.exp(-c * x) + d));
+      return Math.exp(-x * ((A + B * x) * Math.exp(-C * x) + D));
     }
   };
   static final Function<DoubleArray, DoubleArray> SWAP_RATES = new Function<DoubleArray, DoubleArray>() {
 
     private final int n = TIME_GRID.length;
-    private double[] _swapRates = null;
+    private double[] _swapRates;
 
     private void calculateSwapRates() {
       if (_swapRates != null) {

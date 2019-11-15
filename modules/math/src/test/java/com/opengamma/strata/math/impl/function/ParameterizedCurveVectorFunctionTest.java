@@ -20,10 +20,10 @@ import com.opengamma.strata.math.impl.util.AssertMatrix;
  */
 public class ParameterizedCurveVectorFunctionTest {
 
-  private static final ParameterizedCurve s_PCurve;
+  private static final ParameterizedCurve PCURVE;
 
   static {
-    s_PCurve = new ParameterizedCurve() {
+    PCURVE = new ParameterizedCurve() {
 
       @Override
       public Double evaluate(final Double x, final DoubleArray parameters) {
@@ -41,7 +41,7 @@ public class ParameterizedCurveVectorFunctionTest {
 
   @Test
   public void test() {
-    final ParameterizedCurveVectorFunctionProvider pro = new ParameterizedCurveVectorFunctionProvider(s_PCurve);
+    final ParameterizedCurveVectorFunctionProvider pro = new ParameterizedCurveVectorFunctionProvider(PCURVE);
     final double[] points = new double[] {-1.0, 0.0, 1.0};
     final VectorFunction f = pro.from(points);
     assertThat(2).isEqualTo(f.getLengthOfDomain());

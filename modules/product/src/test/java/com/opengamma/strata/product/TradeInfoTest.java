@@ -148,7 +148,6 @@ public class TradeInfoTest {
         .containsEntry(AttributeType.NAME, "B");
   }
 
-
   @Test
   public void test_overrideWith_otherType() {
     TradeInfo base = TradeInfo.builder()

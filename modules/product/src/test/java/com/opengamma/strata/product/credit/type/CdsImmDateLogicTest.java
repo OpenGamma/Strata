@@ -37,7 +37,7 @@ public class CdsImmDateLogicTest {
   }
 
   @Test
-  public void PreviousImmTest() {
+  public void previousImmTest() {
     LocalDate today = LocalDate.of(2011, Month.JUNE, 21);
     LocalDate prevIMM = CdsImmDateLogic.getPreviousImmDate(today);
     assertThat(LocalDate.of(2011, Month.JUNE, 20)).isEqualTo(prevIMM);

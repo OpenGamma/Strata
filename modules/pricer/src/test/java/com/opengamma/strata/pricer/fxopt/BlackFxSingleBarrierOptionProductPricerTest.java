@@ -138,8 +138,8 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
   private static final ResolvedFxSingleBarrierOption PUT_UKO_BASE =
       ResolvedFxSingleBarrierOption.of(PUT, BARRIER_UKO, REBATE_BASE);
   private static final ResolvedFxSingleBarrierOption[] OPTION_ALL = new ResolvedFxSingleBarrierOption[] {
-    CALL_DKI, CALL_DKI_BASE, CALL_DKO, CALL_DKO_BASE, CALL_UKI, CALL_UKI_BASE, CALL_UKO, CALL_UKO_BASE,
-    PUT_DKI, PUT_DKI_BASE, PUT_DKO, PUT_DKO_BASE, PUT_UKI, PUT_UKI_BASE, PUT_UKO, PUT_UKO_BASE };
+      CALL_DKI, CALL_DKI_BASE, CALL_DKO, CALL_DKO_BASE, CALL_UKI, CALL_UKI_BASE, CALL_UKO, CALL_UKO_BASE,
+      PUT_DKI, PUT_DKI_BASE, PUT_DKO, PUT_DKO_BASE, PUT_UKI, PUT_UKI_BASE, PUT_UKO, PUT_UKO_BASE};
 
   private static final BlackFxSingleBarrierOptionProductPricer PRICER = BlackFxSingleBarrierOptionProductPricer.DEFAULT;
   private static final BlackFxVanillaOptionProductPricer VANILLA_PRICER = BlackFxVanillaOptionProductPricer.DEFAULT;
@@ -741,21 +741,21 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     double[] computedPut = pvSensiPut.getSensitivity().toArray();
     double[] computedPutBase = pvSensiPutBase.getSensitivity().toArray();
     double[][] expected = new double[][] {
-      {0.0, 0.0, 0.0, 0.0, 0.0 }, {0.0, 0.0, 0.0, 0.0, 0.0 }, {0.0, 0.0, 0.0, 0.0, 0.0 },
-      {0.0, 0.0, 3.154862889936005E7, 186467.57005640838, 0.0 },
-      {0.0, 0.0, 5.688931113627187E7, 336243.18963600876, 0.0 } };
+        {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0},
+        {0.0, 0.0, 3.154862889936005E7, 186467.57005640838, 0.0},
+        {0.0, 0.0, 5.688931113627187E7, 336243.18963600876, 0.0}};
     double[][] expectedBase = new double[][] {
-      {0.0, 0.0, 0.0, 0.0, 0.0 }, {0.0, 0.0, 0.0, 0.0, 0.0 }, {0.0, 0.0, 0.0, 0.0, 0.0 },
-      {0.0, 0.0, 2.2532363577178854E7, 133177.10564432456, 0.0 },
-      {0.0, 0.0, 4.063094615828866E7, 240148.4331822043, 0.0 } };
+        {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0},
+        {0.0, 0.0, 2.2532363577178854E7, 133177.10564432456, 0.0},
+        {0.0, 0.0, 4.063094615828866E7, 240148.4331822043, 0.0}};
     double[][] expectedPut = new double[][] {
-      {-0.0, -0.0, -0.0, -0.0, -0.0 }, {-0.0, -0.0, -0.0, -0.0, -0.0 },
-      {-0.0, -0.0, -0.0, -0.0, -0.0 }, {-0.0, -0.0, -53011.143048566446, -313.32135103910525, -0.0 },
-      {-0.0, -0.0, -95591.07688006328, -564.989238732409, -0.0 } };
+        {-0.0, -0.0, -0.0, -0.0, -0.0}, {-0.0, -0.0, -0.0, -0.0, -0.0},
+        {-0.0, -0.0, -0.0, -0.0, -0.0}, {-0.0, -0.0, -53011.143048566446, -313.32135103910525, -0.0},
+        {-0.0, -0.0, -95591.07688006328, -564.989238732409, -0.0}};
     double[][] expectedPutBase = new double[][] {
-      {-0.0, -0.0, -0.0, -0.0, -0.0 }, {-0.0, -0.0, -0.0, -0.0, -0.0 }, {-0.0, -0.0, -0.0, -0.0, -0.0 },
-      {-0.0, -0.0, -35148.33541137355, -207.743566815316, -0.0 },
-      {-0.0, -0.0, -63380.39588085656, -374.6086223530026, -0.0 } };
+        {-0.0, -0.0, -0.0, -0.0, -0.0}, {-0.0, -0.0, -0.0, -0.0, -0.0}, {-0.0, -0.0, -0.0, -0.0, -0.0},
+        {-0.0, -0.0, -35148.33541137355, -207.743566815316, -0.0},
+        {-0.0, -0.0, -63380.39588085656, -374.6086223530026, -0.0}};
     for (int i = 0; i < computed.length; ++i) {
       int row = i / 5;
       int col = i % 5;

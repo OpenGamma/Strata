@@ -81,7 +81,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
           assertThat(res1)
               .isCloseTo(
                   bci.parameterSensitivity(xKeys[i]).get(j),
-                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));  //because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);
@@ -140,7 +140,7 @@ public class QuadraticLeftCurveExtrapolatorTest {
               0.5 * (bciUp.interpolate(xKeys[i]) - bciDw.interpolate(xKeys[i])) / EPS / yValues[k].get(j);
           assertThat(res1)
               .isCloseTo(bci.parameterSensitivity(xKeys[i]).get(j),
-                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));//because gradient is NOT exact
+                  offset(Math.max(Math.abs(yValues[k].get(j)) * EPS, EPS) * 1.e2));  //because gradient is NOT exact
         }
         yValues1Up[j] = yValues[k].get(j);
         yValues1Dw[j] = yValues[k].get(j);

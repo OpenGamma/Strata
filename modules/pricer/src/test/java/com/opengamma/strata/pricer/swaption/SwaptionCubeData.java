@@ -130,7 +130,7 @@ public class SwaptionCubeData {
   public static final double[] DATA_NORMAL_ATM_SIMPLE =
       {0.00265, 0.00270, 0.00260, 0.00265, 0.00255, 0.00260, 0.00250, 0.00255};
   public static final double[] DATA_LOGNORMAL_ATM_SIMPLE =
-    {0.265, 0.270, 0.260, 0.265, 0.255, 0.260, 0.250, 0.255};
+      {0.265, 0.270, 0.260, 0.265, 0.255, 0.260, 0.250, 0.255};
   public static final double[] EXPIRIES_SIMPLE_2_TIME = new double[DATA_NORMAL_ATM_SIMPLE.length];
   static {
     for (int i = 0; i < EXPIRIES_SIMPLE_2.size(); i++) {

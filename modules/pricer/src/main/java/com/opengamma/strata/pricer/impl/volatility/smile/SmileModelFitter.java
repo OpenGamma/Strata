@@ -208,6 +208,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
    */
   protected Function<DoubleArray, Boolean> getConstraintFunction(
       @SuppressWarnings("unused") final NonLinearParameterTransforms t) {
+
     return UNCONSTRAINED;
   }
 

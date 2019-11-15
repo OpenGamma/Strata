@@ -21,7 +21,6 @@ import com.opengamma.strata.math.impl.cern.RandomEngine;
 import com.opengamma.strata.math.impl.minimization.NonLinearParameterTransforms;
 import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsWithTransform;
 
-
 /**
  * Test {@link SabrModelFitter}.
  */

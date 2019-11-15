@@ -39,4 +39,9 @@ final class StandardCreditMeasures {
   // expected value of protection settlement
   public static final Measure EXPECTED_LOSS = ImmutableMeasure.of("ExpectedLoss");
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private StandardCreditMeasures() {
+  }
+
 }

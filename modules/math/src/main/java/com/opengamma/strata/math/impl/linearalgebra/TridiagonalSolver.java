@@ -63,4 +63,9 @@ public class TridiagonalSolver {
     return DoubleArray.copyOf(solvTriDag(aM, b.toArray()));
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private TridiagonalSolver() {
+  }
+
 }

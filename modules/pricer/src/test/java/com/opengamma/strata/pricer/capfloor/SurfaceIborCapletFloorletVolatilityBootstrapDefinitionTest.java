@@ -58,7 +58,7 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
   private static final ConstantCurve SHIFT = ConstantCurve.of("Black shift", 0.02);
 
   @Test
-  public void test_of(){
+  public void test_of() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition test = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         NAME, USD_LIBOR_3M, ACT_ACT_ISDA, STEP_UPPER, DOUBLE_QUADRATIC);
     assertThat(test.getDayCount()).isEqualTo(ACT_ACT_ISDA);

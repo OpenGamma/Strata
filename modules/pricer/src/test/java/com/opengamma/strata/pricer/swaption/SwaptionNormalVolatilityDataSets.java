@@ -128,7 +128,7 @@ public class SwaptionNormalVolatilityDataSets {
       InterpolatedNodalSurface.of(METADATA, TIMES_20150320, TENORS_20150320, NORMAL_VOL_20150320, INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE_20150320 = LocalDate.of(2015, 3, 20);
-  private static final LocalTime VAL_TIME_20150320 = LocalTime.of(18, 00);
+  private static final LocalTime VAL_TIME_20150320 = LocalTime.of(18, 0);
   private static final ZoneId VAL_ZONE_20150320 = ZoneId.of("Europe/London");
 
   public static final NormalSwaptionExpiryTenorVolatilities NORMAL_SWAPTION_VOLS_USD_20150320 =

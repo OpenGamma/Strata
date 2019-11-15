@@ -168,8 +168,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(LONG)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_REC_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
@@ -178,8 +178,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(SHORT)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAY_LONG = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
@@ -188,8 +188,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(LONG)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAY_SHORT = Swaption
       .builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate(), BDA_MF))
@@ -198,8 +198,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .swaptionSettlement(PAR_YIELD)
       .longShort(SHORT)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PHYS = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
       .expiryTime(MATURITY.toLocalTime())
@@ -207,8 +207,8 @@ public class SabrSwaptionCashParYieldProductPricerTest {
       .longShort(LongShort.LONG)
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
 
   private static final SabrParametersSwaptionVolatilities VOLS_REG =
       SwaptionSabrRateVolatilityDataSet.getVolatilitiesEur(VAL_DATE_TIME.toLocalDate(), false);

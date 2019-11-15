@@ -34,7 +34,7 @@ public class HullWhiteOneFactorPiecewiseConstantParametersProviderTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS =
       HullWhiteOneFactorPiecewiseConstantParameters.of(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
   private static final LocalDate VAL_DATE = LocalDate.of(2015, 2, 14);
-  private static final LocalTime TIME = LocalTime.of(14, 00);
+  private static final LocalTime TIME = LocalTime.of(14, 0);
   private static final ZoneId ZONE = ZoneId.of("GMT+05");
   private static final ZonedDateTime DATE_TIME = VAL_DATE.atTime(TIME).atZone(ZONE);
 

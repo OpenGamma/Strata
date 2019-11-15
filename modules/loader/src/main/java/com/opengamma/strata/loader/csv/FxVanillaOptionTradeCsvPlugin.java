@@ -80,7 +80,6 @@ class FxVanillaOptionTradeCsvPlugin implements TradeTypeCsvWriter<FxVanillaOptio
       .add(PAYMENT_DATE_CAL_FIELD)
       .build();
 
-
   //-------------------------------------------------------------------------
   /**
    * Parses the data from a CSV row.

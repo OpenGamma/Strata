@@ -35,48 +35,48 @@ public class CsvFileTest {
 
   private static final Object ANOTHER_TYPE = "";
 
-  private final String CSV1 = "" +
+  private static final String CSV1 = "" +
       "h1,h2\n" +
       "r11,r12\n" +
       "r21 ,r22\n" +
       "r31,";
 
-  private final String CSV1T = "" +
+  private static final String CSV1T = "" +
       "h1\th2\n" +
       "r11\tr12\n" +
       "r21\tr22";
 
-  private final String CSV2 = "" +
+  private static final String CSV2 = "" +
       "h1,h2\n" +
       "#r11,r12\n" +
       ";r11,r12\n" +
       "\n" +
       "r21,r22\n";
 
-  private final String CSV3 = "" +
+  private static final String CSV3 = "" +
       "r11,r12\n" +
       ",\n" +
       "r21,r22\n";
 
-  private final String CSV4 = "" +
+  private static final String CSV4 = "" +
       "\"alpha\",\"be, \"\"at\"\", one\"\n" +
       "\"alpha\"\",\"be\"\"\", \"\"at\"\", one\"\n" +
       "r21,\" r22 \"\n";
 
-  private final String CSV4B = "" +
+  private static final String CSV4B = "" +
       "=\"alpha\",=\"be, \"\"at\"\", one\"\n" +
       "r21,=\" r22 \"\n";
 
-  private final String CSV5 = "" +
+  private static final String CSV5 = "" +
       "a,b,c,b,c\n" +
       "aa,b1,c1,b2,c2\n";
 
-  private final String CSV6 = "" +
+  private static final String CSV6 = "" +
       "a,b,c\n" +
       "r11\n" +
       "r21,r22";
 
-  private final String CSV7 = "" +
+  private static final String CSV7 = "" +
       "# Comment about the file\n" +
       "h1,h2\n" +
       "r1,r2\n";

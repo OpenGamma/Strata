@@ -85,8 +85,8 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .longShort(LongShort.LONG)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_PAY_SHORT = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
@@ -94,8 +94,8 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .longShort(LongShort.SHORT)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_PAY)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_REC_LONG = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
@@ -103,8 +103,8 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .longShort(LongShort.LONG)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_REC_SHORT = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
@@ -112,8 +112,8 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .longShort(LongShort.SHORT)
       .swaptionSettlement(PHYSICAL_SETTLE)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   private static final ResolvedSwaption SWAPTION_CASH = Swaption.builder()
       .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
       .expiryTime(MATURITY_DATE.toLocalTime())
@@ -121,8 +121,8 @@ public class SabrSwaptionPhysicalProductPricerTest {
       .longShort(LongShort.LONG)
       .swaptionSettlement(CASH_SETTLE)
       .underlying(SWAP_REC)
-      .build().
-      resolve(REF_DATA);
+      .build()
+      .resolve(REF_DATA);
   // providers
   private static final ImmutableRatesProvider RATE_PROVIDER =
       SwaptionSabrRateVolatilityDataSet.getRatesProviderUsd(VAL_DATE);

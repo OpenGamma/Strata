@@ -163,8 +163,8 @@ public class ConstantContinuousSingleBarrierKnockoutFunctionTest {
               SimpleConstantContinuousBarrier barrier =
                   SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_OUT, barrierLevel);
               double exact = REBATE_AMOUNT *
-                      REBATE_PRICER.price(SPOT, TIME, interest - dividend, interest, vol, barrier.inverseKnockType())
-                  +BARRIER_PRICER.price(SPOT, strike, TIME, interest - dividend, interest, vol, isCall, barrier);
+                  REBATE_PRICER.price(SPOT, TIME, interest - dividend, interest, vol, barrier.inverseKnockType()) +
+                  BARRIER_PRICER.price(SPOT, strike, TIME, interest - dividend, interest, vol, isCall, barrier);
               double computed = TRINOMIAL_TREE.optionPrice(function, lattice, SPOT, vol, interest, dividend);
               assertThat(computed).isCloseTo(exact, offset(Math.max(exact, 1d) * tol));
             }

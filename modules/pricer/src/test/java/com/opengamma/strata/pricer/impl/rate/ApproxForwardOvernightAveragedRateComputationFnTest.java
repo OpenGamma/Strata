@@ -1103,14 +1103,14 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
   @Test
   public void rateFedFundNoCutOffForwardParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray timeUsd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rateUsd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightAveragedRateComputation ro =
         OvernightAveragedRateComputation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
-          Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
+          Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), timeUsd, rateUsd, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
           .overnightIndexCurve(USD_FED_FUND, fedFundCurve, TIME_SERIES)
           .build();
@@ -1129,14 +1129,14 @@ public class ApproxForwardOvernightAveragedRateComputationFnTest {
   @Test
   public void rateFedFund2CutOffForwardParameterSensitivity() {
     LocalDate[] valuationDate = {date(2015, 1, 1), date(2015, 1, 8)};
-    DoubleArray time_usd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
-    DoubleArray rate_usd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
+    DoubleArray timeUsd = DoubleArray.of(0.0, 0.5, 1.0, 2.0, 5.0, 10.0);
+    DoubleArray rateUsd = DoubleArray.of(0.0100, 0.0110, 0.0115, 0.0130, 0.0135, 0.0135);
     OvernightAveragedRateComputation ro =
         OvernightAveragedRateComputation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 2, REF_DATA);
 
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
       Curve fedFundCurve = InterpolatedNodalCurve.of(
-          Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), time_usd, rate_usd, INTERPOLATOR);
+          Curves.zeroRates("USD-Fed-Fund", ACT_ACT_ISDA), timeUsd, rateUsd, INTERPOLATOR);
       ImmutableRatesProvider prov = ImmutableRatesProvider.builder(valuationDate[loopvaldate])
           .overnightIndexCurve(USD_FED_FUND, fedFundCurve, TIME_SERIES)
           .build();

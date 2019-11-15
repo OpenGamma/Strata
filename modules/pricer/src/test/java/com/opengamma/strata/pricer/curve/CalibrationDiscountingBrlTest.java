@@ -150,7 +150,7 @@ public class CalibrationDiscountingBrlTest {
   private static final CurveNode[] ALL_NODES = new CurveNode[OIS_NB_NODES];
   
   /** Tenors for the BRL swaps */
-  private static final Period[] OIS_TENORS = new Period[] { // Period to start
+  private static final Period[] OIS_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3),
       Period.ofYears(4), Period.ofYears(5)};
   private static final int DSC_NB_OIS_NODES = OIS_TENORS.length;

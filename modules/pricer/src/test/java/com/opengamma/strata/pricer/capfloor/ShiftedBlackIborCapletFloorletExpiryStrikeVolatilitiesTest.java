@@ -113,13 +113,20 @@ public class ShiftedBlackIborCapletFloorletExpiryStrikeVolatilitiesTest {
       double expiryTime = VOLS.relativeTime(TEST_OPTION_EXPIRY[i]);
       for (int j = 0; j < NB_TEST; j++) {
         for (PutCall putCall : new PutCall[] {PutCall.CALL, PutCall.PUT}) {
-          assertThat(VOLS.price(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.price(
-              TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
-          assertThat(VOLS.priceDelta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.delta(
-              TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
-          assertThat(VOLS.priceGamma(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.gamma(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
-          assertThat(VOLS.priceTheta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.driftlessTheta(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
-          assertThat(VOLS.priceVega(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol)).isEqualTo(BlackFormulaRepository.vega(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
+          assertThat(VOLS.price(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol))
+              .isEqualTo(BlackFormulaRepository.price(
+                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
+          assertThat(VOLS.priceDelta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol))
+              .isEqualTo(BlackFormulaRepository.delta(
+                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol, putCall.isCall()));
+          assertThat(VOLS.priceGamma(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol))
+              .isEqualTo(BlackFormulaRepository.gamma(
+                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
+          assertThat(VOLS.priceTheta(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol))
+              .isEqualTo(BlackFormulaRepository.driftlessTheta(
+                  TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
+          assertThat(VOLS.priceVega(expiryTime, putCall, TEST_STRIKE[j], TEST_FORWARD, sampleVol))
+              .isEqualTo(BlackFormulaRepository.vega(TEST_FORWARD + SHIFT, TEST_STRIKE[j] + SHIFT, expiryTime, sampleVol));
         }
       }
     }

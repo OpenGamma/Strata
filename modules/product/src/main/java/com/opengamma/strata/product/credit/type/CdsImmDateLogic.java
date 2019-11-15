@@ -113,4 +113,9 @@ final class CdsImmDateLogic {
     }
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private CdsImmDateLogic() {
+  }
+
 }

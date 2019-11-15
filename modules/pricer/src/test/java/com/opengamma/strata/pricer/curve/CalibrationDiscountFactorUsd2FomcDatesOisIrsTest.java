@@ -145,16 +145,16 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
       VAL_DATE_BD, 7); // select the next 7 FOMC dates as curve nodes
   /* Market values */
   private static final double[] DSC_MARKET_QUOTES = new double[] {
-    0.001300, 0.001300,
-    0.001435, 0.001680, 0.002105, 0.002385,
-    0.002845, 0.003100, 0.003920, 0.005635, 0.007515,
-    0.010550, 0.013225, 0.05450 };
+      0.001300, 0.001300,
+      0.001435, 0.001680, 0.002105, 0.002385,
+      0.002845, 0.003100, 0.003920, 0.005635, 0.007515,
+      0.010550, 0.013225, 0.05450};
   private static final int DSC_NB_NODES = DSC_MARKET_QUOTES.length;
   private static final String[] DSC_ID_VALUE = new String[] {
-    "USD-ON", "USD-TN",
-    "OIS2M", "OIS3M", "OIS5M", "OIS6M",
-    "OIS8M", "OIS9M", "OIS1Y", "OIS18M", "OIS2Y",
-    "OIS3Y", "OIS4Y", "OIS5Y" };
+      "USD-ON", "USD-TN",
+      "OIS2M", "OIS3M", "OIS5M", "OIS6M",
+      "OIS8M", "OIS9M", "OIS1Y", "OIS18M", "OIS2Y",
+      "OIS3Y", "OIS4Y", "OIS5Y"};
   /* Nodes */
   private static final CurveNode[] DSC_NODES = new CurveNode[DSC_NB_NODES];
   /* Tenors */
@@ -212,7 +212,7 @@ public class CalibrationDiscountFactorUsd2FomcDatesOisIrsTest {
   /* Nodes */
   private static final CurveNode[] FWD3_NODES = new CurveNode[FWD3_NB_NODES];
   /* Tenors */
-  private static final Period[] FWD3_FRA_TENORS = new Period[] { // Period to start
+  private static final Period[] FWD3_FRA_TENORS = new Period[] {
       Period.ofMonths(3), Period.ofMonths(6)};
   private static final int FWD3_NB_FRA_NODES = FWD3_FRA_TENORS.length;
   private static final Period[] FWD3_IRS_TENORS = new Period[] {

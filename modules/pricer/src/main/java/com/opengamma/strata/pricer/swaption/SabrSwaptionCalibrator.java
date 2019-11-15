@@ -485,6 +485,7 @@ public final class SabrSwaptionCalibrator {
       Period expiry,
       double volatility,
       ValueType volatilityType) {
+
     double alphaStart = volatility / Math.pow(forward + shift, beta);
     DoubleArray startParameters = DoubleArray.of(alphaStart, beta, rho, nu);
     Pair<Double, Double> r = null;

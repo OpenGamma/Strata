@@ -146,4 +146,9 @@ public class DoublesScheduleGenerator {
     return DoubleArray.ofUnsafe(res);
   }
 
+  //-------------------------------------------------------------------------
+  // restricted constructor
+  private DoublesScheduleGenerator() {
+  }
+
 }

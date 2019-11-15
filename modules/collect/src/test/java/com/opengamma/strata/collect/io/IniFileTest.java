@@ -30,7 +30,7 @@ import com.google.common.io.Files;
  */
 public class IniFileTest {
 
-  private final String INI1 = "" +
+  private static final String INI1 = "" +
       "# comment\n" +
       "[section]\n" +
       "c = x\n" +
@@ -41,15 +41,15 @@ public class IniFileTest {
       "[name]\n" +
       "a = m\n" +
       "b = n\n";
-  private final String INI2 = "" +
+  private static final String INI2 = "" +
       "[section]\n" +
       "a = x\n" +
       "b = y\n";
-  private final String INI3 = "" +
+  private static final String INI3 = "" +
       "[section]\n" +
       "a = x\n" +
       "a = y\n";
-  private final String INI4 = "" +
+  private static final String INI4 = "" +
       "[section]\n" +
       "a=d= = x\n";
   private static final Object ANOTHER_TYPE = "";

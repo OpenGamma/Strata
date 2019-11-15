@@ -104,6 +104,7 @@ public final class IborAveragedFixing
       IborIndexObservation observation,
       LocalDate startDate,
       LocalDate endDate) {
+
     return ofDaysInResetPeriod(observation, startDate, endDate, null);
   }
 
@@ -125,6 +126,7 @@ public final class IborAveragedFixing
       LocalDate startDate,
       LocalDate endDate,
       Double fixedRate) {
+
     ArgChecker.notNull(observation, "observation");
     ArgChecker.notNull(startDate, "startDate");
     ArgChecker.notNull(endDate, "endDate");

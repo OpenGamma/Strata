@@ -503,7 +503,7 @@ public class TestHelper {
   }
 
   private static class LogHandler extends Handler {
-    List<LogRecord> records = new ArrayList<>();
+    private final List<LogRecord> records = new ArrayList<>();
 
     @Override
     public void publish(LogRecord record) {

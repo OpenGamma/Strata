@@ -32,8 +32,8 @@ public class IniFileOutputTest {
   private static final String SECTION_A = "Section A";
 
   private static final PropertySet SECTION_A_VALUES = PropertySet.of(ImmutableMultimap.of(
-    "a", "b",
-    "a", "c"));
+      "a", "b",
+      "a", "c"));
 
   private static final String SINGLE_SECTION_NEWLINE_PADDED = "" +
       "[Section A]\n" +

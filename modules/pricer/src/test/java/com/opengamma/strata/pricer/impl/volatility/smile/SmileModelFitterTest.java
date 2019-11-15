@@ -31,6 +31,7 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResultsW
  * @param <T> the smile model data
  */
 public abstract class SmileModelFitterTest<T extends SmileModelData> {
+  // CSOFF: VisibilityModifier
 
   protected static double TIME_TO_EXPIRY = 7.0;
   protected static double F = 0.03;

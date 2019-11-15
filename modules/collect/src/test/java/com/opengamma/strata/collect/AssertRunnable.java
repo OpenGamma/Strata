@@ -16,6 +16,6 @@ public interface AssertRunnable {
    * 
    * @throws Throwable the expected result
    */
-  void run() throws Throwable;
+  public abstract void run() throws Throwable;
 
 }

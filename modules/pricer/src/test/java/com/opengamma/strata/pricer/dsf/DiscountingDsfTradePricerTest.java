@@ -203,7 +203,7 @@ public class DiscountingDsfTradePricerTest {
     DoubleArray dscExp = DoubleArray.of(
         347963.1427498563, 240275.26230191416, 123908.37739051704,
         -1302968.1341957184, -8402797.591029292, -9024590.733895564);
-    DoubleArray fwdExp =DoubleArray.of(
+    DoubleArray fwdExp = DoubleArray.of(
         1.5288758221797276E7, 1.2510651813905597E7, -1535786.53682933,
         -9496881.09854053, -3.583343769759877E7, -1.1342379328462188E9);
     PointSensitivities point = TRADE_PRICER.presentValueSensitivity(FUTURE_TRADE, PROVIDER);

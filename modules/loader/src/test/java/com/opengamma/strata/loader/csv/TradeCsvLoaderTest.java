@@ -257,7 +257,7 @@ public class TradeCsvLoaderTest {
     FxSingleTrade expectedTrade3 = FxSingleTrade.builder()
         .info(TradeInfo.builder()
             .tradeDate(LocalDate.parse("2017-01-25"))
-            .tradeTime(LocalTime.of(11, 00))
+            .tradeTime(LocalTime.of(11, 0))
             .zone(ZoneId.of("Europe/London"))
             .id(StandardId.of("OG", "tradeId6"))
             .build())
