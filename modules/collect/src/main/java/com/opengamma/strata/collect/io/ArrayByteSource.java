@@ -162,10 +162,10 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
    * @throws UncheckedIOException if an IO error occurs
    */
   public static ArrayByteSource from(ByteSource other) {
-    if (other instanceof BeanByteSource) {
-      return ((BeanByteSource) other).load();
+    if (other instanceof ArrayByteSource) {
+      return ((ArrayByteSource) other);
     }
-    String fileName = null;
+    String fileName = other instanceof BeanByteSource ? ((BeanByteSource) other).getFileName().orElse(null) : null;
     String str = other.toString();
     if (str.startsWith("Files.asByteSource(")) {
       int pos = str.indexOf(')', 19);
@@ -270,7 +270,8 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
    */
   public ArrayByteSource withFileName(String fileName) {
     ArgChecker.notNull(fileName, "fileName");
-    return new ArrayByteSource(array, Paths.get(fileName).getFileName().toString());
+    int lastSlash = fileName.lastIndexOf('/');
+    return new ArrayByteSource(array, fileName.substring(lastSlash + 1));
   }
 
   //-------------------------------------------------------------------------
