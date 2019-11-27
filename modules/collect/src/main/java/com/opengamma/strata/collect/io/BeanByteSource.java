@@ -8,6 +8,7 @@ package com.opengamma.strata.collect.io;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 
@@ -25,6 +26,19 @@ public abstract class BeanByteSource extends ByteSource implements ImmutableBean
    * Creates an instance.
    */
   protected BeanByteSource() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the file name of the source.
+   * <p>
+   * Most sources originate from a file-based location.
+   * This is captured and returned here where available.
+   * 
+   * @return the file name, empty if not known
+   */
+  public Optional<String> getFileName() {
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

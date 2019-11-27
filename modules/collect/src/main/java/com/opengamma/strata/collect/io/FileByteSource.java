@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -29,10 +30,10 @@ import org.joda.beans.impl.BasicImmutableBeanBuilder;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.BasicMetaProperty;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Unchecked;
 
 /**
  * A byte source implementation that obtains data from a file.
@@ -92,6 +93,11 @@ public final class FileByteSource extends BeanByteSource implements ImmutableBea
     return Meta.META;
   }
 
+  @Override
+  public Optional<String> getFileName() {
+    return Optional.of(file.getName());
+  }
+
   /**
    * Gets the File.
    * 
@@ -108,11 +114,11 @@ public final class FileByteSource extends BeanByteSource implements ImmutableBea
   }
 
   @Override
-  public Optional<Long> sizeIfKnown() {
+  public com.google.common.base.Optional<Long> sizeIfKnown() {
     if (file.isFile()) {
-      return Optional.of(file.length());
+      return com.google.common.base.Optional.of(file.length());
     } else {
-      return Optional.absent();
+      return com.google.common.base.Optional.absent();
     }
   }
 
@@ -122,6 +128,11 @@ public final class FileByteSource extends BeanByteSource implements ImmutableBea
       throw new UncheckedIOException(new FileNotFoundException(file.toString()));
     }
     return file.length();
+  }
+
+  @Override
+  public ArrayByteSource load() {
+    return new ArrayByteSource(Unchecked.wrap(() -> read()), file.getName());
   }
 
   //-------------------------------------------------------------------------

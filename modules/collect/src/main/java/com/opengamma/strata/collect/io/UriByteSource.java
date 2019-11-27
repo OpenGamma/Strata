@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -32,6 +33,7 @@ import org.joda.beans.impl.BasicMetaProperty;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Unchecked;
 
 /**
  * A byte source implementation that obtains data from a URI.
@@ -95,6 +97,13 @@ public final class UriByteSource extends BeanByteSource implements ImmutableBean
     return Meta.META;
   }
 
+  @Override
+  public Optional<String> getFileName() {
+    String path = uri.getPath().toString();
+    int lastSlash = path.lastIndexOf('/');
+    return Optional.of(path.substring(lastSlash + 1));
+  }
+
   /**
    * Gets the URI.
    * 
@@ -112,6 +121,11 @@ public final class UriByteSource extends BeanByteSource implements ImmutableBean
     } catch (MalformedURLException ex) {
       throw new IllegalStateException(ex);
     }
+  }
+
+  @Override
+  public ArrayByteSource load() {
+    return new ArrayByteSource(Unchecked.wrap(() -> read()), getFileName().orElse(null));
   }
 
   //-------------------------------------------------------------------------

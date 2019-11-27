@@ -8,10 +8,13 @@ package com.opengamma.strata.collect.io;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
 
 import org.joda.beans.ser.JodaBeanSer;
@@ -20,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteSource;
+import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import com.opengamma.strata.collect.function.CheckedSupplier;
 
 /**
@@ -32,6 +37,7 @@ public class ArrayByteSourceTest {
     ArrayByteSource test = ArrayByteSource.EMPTY;
     assertThat(test.isEmpty()).isEqualTo(true);
     assertThat(test.size()).isEqualTo(0);
+    assertThat(test.getFileName()).isEmpty();
   }
 
   @Test
@@ -39,6 +45,7 @@ public class ArrayByteSourceTest {
     byte[] bytes = {1, 2, 3};
     ArrayByteSource test = ArrayByteSource.copyOf(bytes);
     assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getFileName()).isEmpty();
     assertThat(test.read()[0]).isEqualTo((byte) 1);
     assertThat(test.read()[1]).isEqualTo((byte) 2);
     assertThat(test.read()[2]).isEqualTo((byte) 3);
@@ -83,6 +90,7 @@ public class ArrayByteSourceTest {
     byte[] bytes = {1, 2, 3};
     ArrayByteSource test = ArrayByteSource.ofUnsafe(bytes);
     assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getFileName()).isEmpty();
     assertThat(test.read()[0]).isEqualTo((byte) 1);
     assertThat(test.read()[1]).isEqualTo((byte) 2);
     assertThat(test.read()[2]).isEqualTo((byte) 3);
@@ -94,6 +102,7 @@ public class ArrayByteSourceTest {
   public void test_ofUtf8() {
     ArrayByteSource test = ArrayByteSource.ofUtf8("ABC");
     assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getFileName()).isEmpty();
     assertThat(test.read()[0]).isEqualTo((byte) 'A');
     assertThat(test.read()[1]).isEqualTo((byte) 'B');
     assertThat(test.read()[2]).isEqualTo((byte) 'C');
@@ -104,6 +113,7 @@ public class ArrayByteSourceTest {
     ByteSource source = ByteSource.wrap(new byte[] {1, 2, 3});
     ArrayByteSource test = ArrayByteSource.from(source);
     assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getFileName()).isEmpty();
     assertThat(test.read()[0]).isEqualTo((byte) 1);
     assertThat(test.read()[1]).isEqualTo((byte) 2);
     assertThat(test.read()[2]).isEqualTo((byte) 3);
@@ -114,6 +124,35 @@ public class ArrayByteSourceTest {
     ArrayByteSource base = ArrayByteSource.copyOf(new byte[] {1, 2, 3});
     ArrayByteSource test = ArrayByteSource.from(base);
     assertThat(test).isSameAs(base);
+    assertThat(test.getFileName()).isEmpty();
+  }
+
+  @Test
+  public void test_from_FileByteSource() {
+    ByteSource source = FileByteSource.of(new File("pom.xml"));
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.getFileName()).hasValue("pom.xml");
+  }
+
+  @Test
+  public void test_from_UriByteSource() {
+    ByteSource source = UriByteSource.of(new File("pom.xml").toURI());
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.getFileName()).hasValue("pom.xml");
+  }
+
+  @Test
+  public void test_from_GuavaFileByteSource() {
+    ByteSource source = Files.asByteSource(new File("pom.xml"));
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.getFileName()).hasValue("pom.xml");
+  }
+
+  @Test
+  public void test_from_GuavaUrlByteSource() throws MalformedURLException {
+    ByteSource source = Resources.asByteSource(new File("pom.xml").toURI().toURL());
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.getFileName()).hasValue("pom.xml");
   }
 
   @Test
@@ -121,6 +160,7 @@ public class ArrayByteSourceTest {
     ByteSource source = ByteSource.wrap(new byte[] {1, 2, 3});
     ArrayByteSource test = ArrayByteSource.from(() -> source.openStream());
     assertThat(test.size()).isEqualTo(3);
+    assertThat(test.getFileName()).isEmpty();
     assertThat(test.read()[0]).isEqualTo((byte) 1);
     assertThat(test.read()[1]).isEqualTo((byte) 2);
     assertThat(test.read()[2]).isEqualTo((byte) 3);
@@ -148,6 +188,16 @@ public class ArrayByteSourceTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
+  public void test_withFileName() {
+    ArrayByteSource test = ArrayByteSource.copyOf(new byte[] {1, 2, 3});
+    assertThat(test.getFileName()).isEmpty();
+    assertThat(test.withFileName("name.txt").getFileName()).hasValue("name.txt");
+    assertThat(test.withFileName("foo/name.txt").getFileName()).hasValue("name.txt");
+    assertThat(test.withFileName("").getFileName()).isEmpty();
+    assertThatIllegalArgumentException().isThrownBy(() -> test.withFileName(null).getFileName());
+  }
+
   @Test
   public void test_read() {
     ArrayByteSource test = ArrayByteSource.copyOf(new byte[] {1, 2, 3});
@@ -202,6 +252,7 @@ public class ArrayByteSourceTest {
     assertThat(test.asCharSourceUtf8UsingBom().read()).isEqualTo("ABC");
     assertThat(test.contentEquals(test)).isTrue();
     assertThat(test.toString()).isEqualTo("ArrayByteSource[3 bytes]");
+    assertThat(test.withFileName("name.txt").toString()).isEqualTo("ArrayByteSource[3 bytes, name.txt]");
   }
 
   //-------------------------------------------------------------------------
@@ -276,6 +327,15 @@ public class ArrayByteSourceTest {
   public void testSerialize() {
     byte[] bytes = new byte[] {65, 66, 67, 99};
     ArrayByteSource test = ArrayByteSource.copyOf(bytes);
+    String json = JodaBeanSer.PRETTY.jsonWriter().write(test);
+    ArrayByteSource roundTrip = JodaBeanSer.PRETTY.jsonReader().read(json, ArrayByteSource.class);
+    assertThat(roundTrip).isEqualTo(test);
+  }
+
+  @Test
+  public void testSerializeNamed() {
+    byte[] bytes = new byte[] {65, 66, 67, 99};
+    ArrayByteSource test = ArrayByteSource.copyOf(bytes).withFileName("foo.txt");
     String json = JodaBeanSer.PRETTY.jsonWriter().write(test);
     ArrayByteSource roundTrip = JodaBeanSer.PRETTY.jsonReader().read(json, ArrayByteSource.class);
     assertThat(roundTrip).isEqualTo(test);
