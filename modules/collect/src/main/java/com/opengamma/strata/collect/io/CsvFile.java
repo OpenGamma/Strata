@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -509,6 +511,16 @@ public final class CsvFile {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns an instance with the specified headers.
+   *
+   * @param headers  the new headers
+   * @return the instance with the specified headers
+   */
+  public CsvFile withHeaders(List<String> headers) {
+    return of(headers, rows.stream().map(CsvRow::fields).collect(toImmutableList()));
   }
 
   //-------------------------------------------------------------------------
