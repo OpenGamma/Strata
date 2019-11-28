@@ -505,6 +505,19 @@ public class CsvFileTest {
   }
 
   //-------------------------------------------------------------------------
+  @Test
+  public void test_with_headers() {
+    CsvFile csvFile = CsvFile.of(ImmutableList.of("A", "B"), ImmutableList.of(ImmutableList.of("1", "2")));
+
+    ImmutableList<String> newHeaders = ImmutableList.of("C", "D");
+    CsvFile withNewHeaders = csvFile.withHeaders(newHeaders);
+
+    assertThat(withNewHeaders.headers()).isEqualTo(newHeaders);
+    assertThat(withNewHeaders.rows()).hasSize(1);
+    assertThat(withNewHeaders.rows().get(0).fields()).isEqualTo(csvFile.row(0).fields());
+  }
+
+  //-------------------------------------------------------------------------
   public static Object[][] data_findSeparator() {
     return new Object[][] {
         {"", ','},
