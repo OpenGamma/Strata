@@ -1,0 +1,18 @@
+pull_request_rules:
+  - name: automatic merge on CI success and review
+    conditions:
+      - "label=auto-merge"
+      - "status-success=build"
+      - "#approved-reviews-by>=1"
+      - "-conflict"
+      - "title~=^((?!(wip|WIP)).)*$"
+    actions:
+      merge:
+        method: squash
+        rebase_fallback: null
+        strict: smart
+  - name: delete head branch after merge
+    conditions:
+      - "merged"
+    actions:
+      delete_head_branch: {}
