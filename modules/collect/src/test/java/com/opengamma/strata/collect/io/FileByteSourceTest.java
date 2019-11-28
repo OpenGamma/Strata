@@ -23,6 +23,7 @@ public class FileByteSourceTest {
   public void test_of_File() throws IOException {
     File file = new File("pom.xml");
     FileByteSource test = FileByteSource.of(file);
+    assertThat(test.getFileName()).hasValue("pom.xml");
     assertThat(test.getFile()).isSameAs(file);
     assertThat(test.isEmpty()).isFalse();
     assertThat(test.size()).isGreaterThan(100);
@@ -32,11 +33,14 @@ public class FileByteSourceTest {
     assertThat(test.readUtf8UsingBom()).startsWith("<");
     assertThat(test.asCharSourceUtf8().read()).startsWith("<");
     assertThat(test.asCharSourceUtf8UsingBom().read()).startsWith("<");
+    assertThat(test.load().getFileName()).hasValue("pom.xml");
+    assertThat(test.load().readUtf8()).startsWith("<");
   }
 
   @Test
   public void test_of_Path() {
     FileByteSource test = FileByteSource.of(new File("pom.xml").toPath());
+    assertThat(test.getFileName()).hasValue("pom.xml");
     assertThat(test.size()).isGreaterThan(100);
     assertThat(test.sizeIfKnown().isPresent()).isTrue();
     assertThat(test.read()[0]).isEqualTo((byte) '<');

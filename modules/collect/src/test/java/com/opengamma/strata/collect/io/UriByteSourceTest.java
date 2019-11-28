@@ -25,6 +25,7 @@ public class UriByteSourceTest {
   public void test_of_Uri() throws IOException {
     URI uri = new File("pom.xml").toURI();
     UriByteSource test = UriByteSource.of(uri);
+    assertThat(test.getFileName()).hasValue("pom.xml");
     assertThat(test.getUri()).isSameAs(uri);
     assertThat(test.isEmpty()).isFalse();
     assertThat(test.size()).isGreaterThan(100);
@@ -34,6 +35,8 @@ public class UriByteSourceTest {
     assertThat(test.readUtf8UsingBom()).startsWith("<");
     assertThat(test.asCharSourceUtf8().read()).startsWith("<");
     assertThat(test.asCharSourceUtf8UsingBom().read()).startsWith("<");
+    assertThat(test.load().getFileName()).hasValue("pom.xml");
+    assertThat(test.load().readUtf8()).startsWith("<");
   }
 
   @Test
