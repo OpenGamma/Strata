@@ -1,5 +1,5 @@
 pull_request_rules:
-  - name: automatic merge on CI success and review
+  - name: Auto-Merge
     conditions:
       - "label=auto-merge"
       - "status-success=build"
@@ -11,7 +11,7 @@ pull_request_rules:
         method: squash
         rebase_fallback: null
         strict: smart
-  - name: delete head branch after merge
+  - name: Delete-Branch
     conditions:
       - "merged"
     actions:
