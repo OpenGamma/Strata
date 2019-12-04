@@ -14,7 +14,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +25,9 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteStreams;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Utility class to simplify accessing and creating zip files, and other packed formats.
@@ -48,7 +49,7 @@ public final class ZipUtils {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static Set<String> unzipPathNames(BeanByteSource source) {
-    Set<String> entryNames = new LinkedHashSet<>();
+    ImmutableSet.Builder<String> entryNames = ImmutableSet.builder();
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
@@ -61,7 +62,7 @@ public final class ZipUtils {
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
-    return entryNames;
+    return entryNames.build();
   }
 
   //-------------------------------------------------------------------------
@@ -77,6 +78,7 @@ public final class ZipUtils {
    * @throws UncheckedIOException if an IO error occurs
    */
   public static Optional<ArrayByteSource> unzipPathNameInMemory(BeanByteSource source, String relativePathName) {
+    ArgChecker.notNull(relativePathName, "relativePathName");
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
@@ -246,7 +248,6 @@ public final class ZipUtils {
           if (deduplicate.add(new ZipKey(entry))) {
             ArrayByteSource entrySource = ArrayByteSource.copyOf(ByteStreams.toByteArray(in)).withFileName(entry.getName());
             consumer.accept(entry.getName(), entrySource);
-
           }
         }
         in.closeEntry();

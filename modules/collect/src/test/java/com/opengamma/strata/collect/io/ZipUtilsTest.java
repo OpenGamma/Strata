@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -147,7 +148,9 @@ public class ZipUtilsTest {
     ArrayByteSource source2 = ArrayByteSource.ofUtf8("Hello Planet").withFileName("TestFile2.txt");
     ArrayByteSource zipFile = ZipUtils.zipInMemory(ImmutableList.of(source1, source2)).withFileName("Test.foo");
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unzipInMemory(zipFile, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("TestFile1.txt")) {
         assertThat(extracted.getFileName()).hasValue("TestFile1.txt");
         assertThat(extracted.readUtf8()).isEqualTo("Hello World");
@@ -158,6 +161,7 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(2);
   }
 
   //-------------------------------------------------------------------------
@@ -196,7 +200,9 @@ public class ZipUtilsTest {
     ArrayByteSource source2 = ArrayByteSource.ofUtf8("Hello Planet").withFileName("TestFile2.txt");
     ArrayByteSource zipFile = ZipUtils.zipInMemory(ImmutableList.of(source1, source2)).withFileName("Test.zip");
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(zipFile, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("TestFile1.txt")) {
         assertThat(extracted.getFileName()).hasValue("TestFile1.txt");
         assertThat(extracted.readUtf8()).isEqualTo("Hello World");
@@ -207,13 +213,16 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(2);
   }
 
   @Test
   public void test_unpackInMemory_zipWithFolders() {
     ArrayByteSource zipFile = ResourceLocator.ofClasspath(ZipUtilsTest.class, "TestFolder.zip").getByteSource().load();
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(zipFile, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("test/alpha/Alpha.txt")) {
         assertThat(extracted.getFileName()).hasValue("Alpha.txt");
         assertThat(extracted.readUtf8()).isEqualTo("ALPHA");
@@ -227,6 +236,7 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(3);
   }
 
   @Test
@@ -239,7 +249,9 @@ public class ZipUtilsTest {
       gzFile = ArrayByteSource.ofUnsafe(baos.toByteArray()).withFileName("TestFile1.txt.gz");
     }
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(gzFile, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("TestFile1.txt")) {
         assertThat(extracted.getFileName()).hasValue("TestFile1.txt");
         assertThat(extracted.readUtf8()).isEqualTo("Hello World");
@@ -247,13 +259,16 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(1);
   }
 
   @Test
   public void test_unpackInMemory_base64() {
     ArrayByteSource base64File = ArrayByteSource.ofUtf8("Hello World").toBase64().withFileName("TestFile1.txt.base64");
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(base64File, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("TestFile1.txt")) {
         assertThat(extracted.getFileName()).hasValue("TestFile1.txt");
         assertThat(extracted.readUtf8()).isEqualTo("Hello World");
@@ -261,13 +276,16 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(1);
   }
 
   @Test
   public void test_unpackInMemory_plainNamed() {
     ArrayByteSource plainFile = ArrayByteSource.ofUtf8("Hello World").withFileName("TestFile1.txt");
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(plainFile, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("TestFile1.txt")) {
         assertThat(extracted.getFileName()).hasValue("TestFile1.txt");
         assertThat(extracted.readUtf8()).isEqualTo("Hello World");
@@ -275,13 +293,16 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(1);
   }
 
   @Test
   public void test_unpackInMemory_plainNoName() {
     ArrayByteSource plainFile = ArrayByteSource.ofUtf8("Hello World");
 
+    AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(plainFile, (name, extracted) -> {
+      counter.incrementAndGet();
       if (name.equals("")) {
         assertThat(extracted.getFileName()).isEmpty();
         assertThat(extracted.readUtf8()).isEqualTo("Hello World");
@@ -289,6 +310,7 @@ public class ZipUtilsTest {
         fail("Unexpected file: " + name);
       }
     });
+    assertThat(counter).hasValue(1);
   }
 
 }
