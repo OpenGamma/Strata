@@ -296,6 +296,25 @@ public interface HolidayCalendar
     return new CombinedHolidayCalendar(this, other);
   }
 
+  /**
+   * Combines this holiday calendar with another.
+   * <p>
+   * The resulting calendar will declare a day as a business day if it is a
+   * business day in either source calendar.
+   * 
+   * @param other  the other holiday calendar
+   * @return the combined calendar
+   */
+  public default HolidayCalendar linkedWith(HolidayCalendar other) {
+    if (this.equals(other)) {
+      return this;
+    }
+    if (this == HolidayCalendars.NO_HOLIDAYS || other == HolidayCalendars.NO_HOLIDAYS) {
+      return HolidayCalendars.NO_HOLIDAYS;
+    }
+    return new LinkedHolidayCalendar(this, other);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the identifier for the calendar.

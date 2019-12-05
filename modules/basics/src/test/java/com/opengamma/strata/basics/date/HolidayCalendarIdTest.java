@@ -57,6 +57,33 @@ public class HolidayCalendarIdTest {
   }
 
   @Test
+  public void test_of_linked() {
+    HolidayCalendarId test = HolidayCalendarId.of("GB~EU");
+    assertThat(test.getName()).isEqualTo("EU~GB");
+    assertThat(test.getReferenceDataType()).isEqualTo(HolidayCalendar.class);
+    assertThat(test.toString()).isEqualTo("EU~GB");
+
+    HolidayCalendarId test2 = HolidayCalendarId.of("EU~GB");
+    assertThat(test).isSameAs(test2);
+  }
+
+  @Test
+  public void test_of_linked_NoHolidays() {
+    HolidayCalendarId test = HolidayCalendarId.of("GB~NoHolidays~EU");
+    assertThat(test.getName()).isEqualTo("NoHolidays");
+    assertThat(test.getReferenceDataType()).isEqualTo(HolidayCalendar.class);
+    assertThat(test.toString()).isEqualTo("NoHolidays");
+  }
+
+  @Test
+  public void test_of_linked_combined() {
+    HolidayCalendarId test = HolidayCalendarId.of("GB~EU+Fri/Sat");
+    assertThat(test.getName()).isEqualTo("EU+Fri/Sat~GB");
+    assertThat(test.getReferenceDataType()).isEqualTo(HolidayCalendar.class);
+    assertThat(test.toString()).isEqualTo("EU+Fri/Sat~GB");
+  }
+
+  @Test
   public void test_defaultByCurrency() {
     assertThat(HolidayCalendarId.defaultByCurrency(Currency.GBP)).isEqualTo(HolidayCalendarIds.GBLO);
     assertThat(HolidayCalendarId.defaultByCurrency(Currency.CZK)).isEqualTo(HolidayCalendarIds.CZPR);
