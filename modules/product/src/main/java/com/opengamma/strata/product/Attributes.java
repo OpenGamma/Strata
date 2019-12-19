@@ -115,7 +115,7 @@ public interface Attributes {
   /**
    * Returns a copy of this instance with the attributes added.
    * <p>
-   * This returns a new instance with the specified attribute added.
+   * This returns a new instance with the specified attributes added.
    * The attributes are added using {@code Map.putAll(type, value)} semantics.
    * 
    * @param other  the other instance to copy from
