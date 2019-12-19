@@ -6,12 +6,9 @@
 package com.opengamma.strata.product;
 
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
-import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
-import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-import org.joda.beans.ImmutableBean;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -45,14 +42,6 @@ public class AttributesTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test
-  public void coverage() {
-    ImmutableBean test = (ImmutableBean) Attributes.of(AttributeType.DESCRIPTION, "hello");
-    coverImmutableBean(test);
-    ImmutableBean test2 = (ImmutableBean) Attributes.empty();
-    coverBeanEquals(test, test2);
-  }
-
   @Test
   public void test_serialization() {
     Attributes test = Attributes.of(AttributeType.DESCRIPTION, "hello");

@@ -67,6 +67,21 @@ public class SecurityInfoTest {
   }
 
   @Test
+  public void test_builder_with_bulk() {
+    Attributes override = Attributes.of(AttributeType.DESCRIPTION, "B").withAttribute(AttributeType.NAME, "C");
+    SecurityInfo test = SecurityInfo.builder()
+        .id(ID)
+        .priceInfo(PRICE_INFO)
+        .build()
+        .withAttribute(AttributeType.DESCRIPTION, "A")
+        .withAttributes(override);
+    assertThat(test.getId()).isEqualTo(ID);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("B");
+    assertThat(test.getAttribute(AttributeType.NAME)).isEqualTo("C");
+  }
+
+  @Test
   public void test_builder() {
     SecurityInfo test = SecurityInfo.builder()
         .id(ID)

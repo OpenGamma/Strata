@@ -121,6 +121,11 @@ public final class EtdContractSpec
     return new EtdContractSpec(id, this.type, exchangeId, contractCode, description, priceInfo, updatedAttributes);
   }
 
+  @Override
+  public EtdContractSpec withAttributes(Attributes other) {
+    return (EtdContractSpec) Attributes.super.withAttributes(other);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates a future security based on this contract specification.

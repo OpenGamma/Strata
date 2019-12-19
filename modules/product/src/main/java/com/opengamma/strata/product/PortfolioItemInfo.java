@@ -119,6 +119,11 @@ public interface PortfolioItemInfo extends Attributes {
   @Override
   public abstract <T> PortfolioItemInfo withAttribute(AttributeType<T> type, T value);
 
+  @Override
+  public default PortfolioItemInfo withAttributes(Attributes other) {
+    return (PortfolioItemInfo) Attributes.super.withAttributes(other);
+  }
+
   /**
    * Combines this info with another.
    * <p>

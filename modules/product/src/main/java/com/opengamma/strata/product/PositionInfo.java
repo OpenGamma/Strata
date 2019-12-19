@@ -122,6 +122,15 @@ public final class PositionInfo
   }
 
   @Override
+  public PositionInfo withAttributes(Attributes other) {
+    PositionInfoBuilder builder = toBuilder();
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
+      builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+    }
+    return builder.build();
+  }
+
+  @Override
   public PositionInfo combinedWith(PortfolioItemInfo other) {
     PositionInfoBuilder builder = toBuilder();
     other.getId().filter(ignored -> this.id == null).ifPresent(builder::id);
