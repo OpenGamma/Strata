@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import org.joda.beans.ser.JodaBeanSer;
 import org.junit.jupiter.api.Test;
 
+import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteSource;
@@ -257,6 +258,16 @@ public class ArrayByteSourceTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_toHash() {
+    byte[] bytes = new byte[] {65, 66, 67, 99};
+    HashCode hash = Hashing.crc32().hashBytes(bytes);
+    ArrayByteSource test = ArrayByteSource.copyOf(bytes);
+    assertThat(test.toHash(Hashing.crc32())).isEqualTo(ArrayByteSource.ofUnsafe(hash.asBytes()));
+    assertThat(test.toHashString(Hashing.crc32())).isEqualTo(hash.toString());
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
   public void test_md5() {
     byte[] bytes = new byte[] {65, 66, 67, 99};
     @SuppressWarnings("deprecation")
@@ -266,6 +277,7 @@ public class ArrayByteSourceTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void test_sha512() {
     byte[] bytes = new byte[] {65, 66, 67, 99};
     byte[] hash = Hashing.sha512().hashBytes(bytes).asBytes();

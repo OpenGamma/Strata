@@ -5,14 +5,22 @@
  */
 package com.opengamma.strata.collect.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Optional;
 
 import org.joda.beans.ImmutableBean;
 
+import com.google.common.hash.HashCode;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.common.io.ByteSource;
+import com.google.common.io.ByteStreams;
 import com.google.common.io.CharSource;
 
 /**
@@ -141,6 +149,71 @@ public abstract class BeanByteSource extends ByteSource implements ImmutableBean
    */
   public ArrayByteSource load() {
     return ArrayByteSource.from(this);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public HashCode hash(HashFunction hashFunction) {
+    try {
+      return super.hash(hashFunction);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+  }
+
+  /**
+   * Returns a new byte source containing the hash of the content of this byte source.
+   * <p>
+   * The returned hash is in byte form.
+   * 
+   * @param hashFunction  the hash function to use, see {@link Hashing}
+   * @return the new byte source representing the hash
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public ArrayByteSource toHash(HashFunction hashFunction) {
+    return ArrayByteSource.ofUnsafe(hash(hashFunction).asBytes());
+  }
+
+  /**
+   * Returns a new byte source containing the hash of the content of this byte source.
+   * <p>
+   * The returned hash is in string form.
+   * This form is intended to be compatible with tools like the UNIX {@code md5sum} command.
+   * 
+   * @param hashFunction  the hash function to use, see {@link Hashing}
+   * @return the new byte source representing the hash
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public String toHashString(HashFunction hashFunction) {
+    return hash(hashFunction).toString();
+  }
+
+  /**
+   * Encodes the byte source using base-64.
+   * 
+   * @return the base-64 encoded form
+   * @throws UncheckedIOException if an IO error occurs
+   */
+  public ArrayByteSource toBase64() {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    try (InputStream in = openBufferedStream();
+        OutputStream out = Base64.getEncoder().wrap(baos)) {
+      ByteStreams.copy(in, out);
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    }
+    return ArrayByteSource.ofUnsafe(baos.toByteArray());
+  }
+
+  /**
+   * Encodes the byte source using base-64, returning a string.
+   * <p>
+   * Equivalent to {@code toBase64().readUtf8()}.
+   * 
+   * @return the base-64 encoded string
+   */
+  public String toBase64String() {
+    return toBase64().readUtf8();
   }
 
 }

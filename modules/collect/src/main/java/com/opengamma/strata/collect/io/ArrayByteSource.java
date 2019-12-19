@@ -17,8 +17,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -41,6 +39,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteSource;
@@ -323,34 +322,35 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public HashCode hash(HashFunction hashFunction) {
+    // overridden to use array directly for performance
+    return hashFunction.hashBytes(array);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Returns the MD5 hash of the bytes.
+   * <p>
+   * The returned hash is in byte form.
    * 
    * @return the MD5 hash
+   * @deprecated Use {@link #toHash(HashFunction)}
    */
+  @Deprecated
   public ArrayByteSource toMd5() {
-    try {
-      // MessageDigest instances are not thread safe so must be created each time
-      MessageDigest md = MessageDigest.getInstance("MD5");
-      return ArrayByteSource.ofUnsafe(md.digest(array));
-    } catch (NoSuchAlgorithmException ex) {
-      throw new IllegalStateException(ex);
-    }
+    return toHash(Hashing.md5());
   }
 
   /**
    * Returns the SHA-512 hash of the bytes.
    * 
    * @return the SHA-512 hash
+   * @deprecated Use {@link #toHash(HashFunction)}
    */
+  @Deprecated
   public ArrayByteSource toSha512() {
-    try {
-      // MessageDigest instances are not thread safe so must be created each time
-      MessageDigest md = MessageDigest.getInstance("SHA-512");
-      return ArrayByteSource.ofUnsafe(md.digest(array));
-    } catch (NoSuchAlgorithmException ex) {
-      throw new IllegalStateException(ex);
-    }
+    return ArrayByteSource.ofUnsafe(hash(Hashing.sha512()).asBytes());
   }
 
   /**
@@ -358,7 +358,9 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
    * 
    * @return the base-64 encoded form
    */
+  @Override
   public ArrayByteSource toBase64() {
+    // overridden to use array directly for performance
     return ArrayByteSource.ofUnsafe(Base64.getEncoder().encode(array));
   }
 
@@ -369,7 +371,9 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
    * 
    * @return the base-64 encoded string
    */
+  @Override
   public String toBase64String() {
+    // overridden to use array directly for performance
     return Base64.getEncoder().encodeToString(array);
   }
 
@@ -441,11 +445,6 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
   public <T> T read(ByteProcessor<T> processor) throws IOException {
     processor.processBytes(array, 0, array.length);
     return processor.getResult();
-  }
-
-  @Override
-  public HashCode hash(HashFunction hashFunction) {
-    return hashFunction.hashBytes(array);
   }
 
   @Override
