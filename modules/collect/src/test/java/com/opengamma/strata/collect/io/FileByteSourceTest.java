@@ -14,6 +14,8 @@ import java.io.IOException;
 import org.joda.beans.ser.JodaBeanSer;
 import org.junit.jupiter.api.Test;
 
+import com.google.common.hash.Hashing;
+
 /**
  * Test {@link FileByteSource}.
  */
@@ -44,6 +46,22 @@ public class FileByteSourceTest {
     assertThat(test.size()).isGreaterThan(100);
     assertThat(test.sizeIfKnown().isPresent()).isTrue();
     assertThat(test.read()[0]).isEqualTo((byte) '<');
+  }
+
+  @Test
+  public void test_of_hash() {
+    FileByteSource test = FileByteSource.of(new File("pom.xml").toPath());
+    ArrayByteSource loaded = test.load();
+    assertThat(test.toHash(Hashing.sha256())).isEqualTo(loaded.toHash(Hashing.sha256()));
+    assertThat(test.toHashString(Hashing.sha256())).isEqualTo(loaded.toHashString(Hashing.sha256()));
+  }
+
+  @Test
+  public void test_of_base64() {
+    FileByteSource test = FileByteSource.of(new File("pom.xml").toPath());
+    ArrayByteSource loaded = test.load();
+    assertThat(test.toBase64()).isEqualTo(loaded.toBase64());
+    assertThat(test.toBase64String()).isEqualTo(loaded.toBase64String());
   }
 
   //-------------------------------------------------------------------------
