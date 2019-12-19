@@ -260,7 +260,6 @@ public class ArrayByteSourceTest {
   @Test
   public void test_toHash() {
     byte[] bytes = new byte[] {65, 66, 67, 99};
-    @SuppressWarnings("deprecation")
     HashCode hash = Hashing.crc32().hashBytes(bytes);
     ArrayByteSource test = ArrayByteSource.copyOf(bytes);
     assertThat(test.toHash(Hashing.crc32())).isEqualTo(ArrayByteSource.ofUnsafe(hash.asBytes()));
