@@ -154,6 +154,15 @@ public final class TradeInfo
   }
 
   @Override
+  public TradeInfo withAttributes(Attributes other) {
+    TradeInfoBuilder builder = toBuilder();
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
+      builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+    }
+    return builder.build();
+  }
+
+  @Override
   public TradeInfo combinedWith(PortfolioItemInfo other) {
     TradeInfoBuilder builder = toBuilder();
     other.getId().filter(ignored -> this.id == null).ifPresent(builder::id);

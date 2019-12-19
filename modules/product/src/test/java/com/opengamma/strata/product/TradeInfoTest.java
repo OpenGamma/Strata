@@ -67,6 +67,20 @@ public class TradeInfoTest {
   }
 
   @Test
+  public void test_builder_with_bulk() {
+    Attributes override = Attributes.of(AttributeType.DESCRIPTION, "B").withAttribute(AttributeType.NAME, "C");
+    TradeInfo test = TradeInfo.builder()
+        .build()
+        .withId(ID)
+        .withAttribute(AttributeType.DESCRIPTION, "A")
+        .withAttributes(override);
+    assertThat(test.getId()).hasValue(ID);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("B");
+    assertThat(test.getAttribute(AttributeType.NAME)).isEqualTo("C");
+  }
+
+  @Test
   public void test_combinedWith() {
     TradeInfo base = TradeInfo.builder()
         .id(ID)

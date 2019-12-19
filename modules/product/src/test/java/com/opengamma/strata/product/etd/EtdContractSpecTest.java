@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.AttributeType;
+import com.opengamma.strata.product.Attributes;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.common.ExchangeIds;
@@ -41,6 +42,17 @@ public class EtdContractSpecTest {
     assertThatIllegalArgumentException().isThrownBy(() -> sut2().getAttribute(AttributeType.of("Foo")));
     EtdContractSpec updated = sut2().withAttribute(AttributeType.NAME, "FOO");
     assertThat(updated.getAttribute(AttributeType.NAME)).isEqualTo("FOO");
+  }
+
+  @Test
+  public void test_attributes_with_bulk() {
+    Attributes override = Attributes.of(AttributeType.DESCRIPTION, "B").withAttribute(AttributeType.NAME, "C");
+    EtdContractSpec test = sut()
+        .withAttribute(AttributeType.DESCRIPTION, "A")
+        .withAttributes(override);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("B");
+    assertThat(test.getAttribute(AttributeType.NAME)).isEqualTo("C");
   }
 
   //-------------------------------------------------------------------------

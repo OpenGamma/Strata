@@ -59,6 +59,17 @@ public class PortfolioItemInfoTest {
   }
 
   @Test
+  public void test_with_bulk() {
+    Attributes override = Attributes.of(AttributeType.DESCRIPTION, "B").withAttribute(AttributeType.NAME, "C");
+    PortfolioItemInfo test = PortfolioItemInfo.empty()
+        .withAttribute(AttributeType.DESCRIPTION, "A")
+        .withAttributes(override);
+    assertThat(test.getAttributeTypes()).containsOnly(AttributeType.DESCRIPTION, AttributeType.NAME);
+    assertThat(test.getAttribute(AttributeType.DESCRIPTION)).isEqualTo("B");
+    assertThat(test.getAttribute(AttributeType.NAME)).isEqualTo("C");
+  }
+
+  @Test
   public void test_combinedWith() {
     PortfolioItemInfo base = PortfolioItemInfo.empty()
         .withId(ID)

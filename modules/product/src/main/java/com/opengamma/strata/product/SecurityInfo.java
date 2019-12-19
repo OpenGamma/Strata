@@ -135,6 +135,15 @@ public final class SecurityInfo
     return new SecurityInfo(id, priceInfo, updatedAttributes);
   }
 
+  @Override
+  public SecurityInfo withAttributes(Attributes other) {
+    SecurityInfoBuilder builder = toBuilder();
+    for (AttributeType<?> attrType : other.getAttributeTypes()) {
+      builder.addAttribute(attrType.captureWildcard(), other.getAttribute(attrType));
+    }
+    return builder.build();
+  }
+
   /**
    * Returns a builder populated with the values of this instance.
    * 
