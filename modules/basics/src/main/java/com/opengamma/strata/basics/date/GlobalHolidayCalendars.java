@@ -131,9 +131,9 @@ final class GlobalHolidayCalendars {
       holidays.add(easter(year).minusDays(2));
       holidays.add(easter(year).plusDays(1));
       // early May
-      if (year == 1995) {
+      if (year == 1995 || year == 2020) {
         // ve day
-        holidays.add(date(1995, 5, 8));
+        holidays.add(date(year, 5, 8));
       } else if (year >= 1978) {
         holidays.add(first(year, 5).with(firstInMonth(MONDAY)));
       }
