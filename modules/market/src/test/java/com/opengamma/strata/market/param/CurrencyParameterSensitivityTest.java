@@ -288,6 +288,16 @@ public class CurrencyParameterSensitivityTest {
     UnitParameterSensitivity test = base.toUnitParameterSensitivity();
     assertThat(test).isEqualTo(UnitParameterSensitivity.of(NAME1, METADATA_USD1, VECTOR_USD1));
   }
+  
+  @Test
+  public void test_toUnitParameterSensitivity_parameterSplit() {
+    List<ParameterSize> parameterSplit = 
+        ImmutableList.of(ParameterSize.of(CurveName.of("NAME-1-1"), 3), ParameterSize.of(CurveName.of("NAME-1-2"), 1));
+    CurrencyParameterSensitivity base = 
+        CurrencyParameterSensitivity.of(NAME1, METADATA_USD1, USD, VECTOR_USD1, parameterSplit);
+    UnitParameterSensitivity test = base.toUnitParameterSensitivity();
+    assertThat(test).isEqualTo(UnitParameterSensitivity.of(NAME1, METADATA_USD1, VECTOR_USD1, parameterSplit));
+  }
 
   //-------------------------------------------------------------------------
   @Test
