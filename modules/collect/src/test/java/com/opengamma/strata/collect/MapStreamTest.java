@@ -63,6 +63,16 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(list);
   }
 
+  public void keys_fromStream() {
+    List<String> result = MapStream.of(list.stream()).keys().collect(toImmutableList());
+    assertThat(result).isEqualTo(list);
+  }
+
+  public void values_fromStream() {
+    List<String> result = MapStream.of(list.stream()).values().collect(toImmutableList());
+    assertThat(result).isEqualTo(list);
+  }
+
   //-------------------------------------------------------------------------
   public void filter() {
     Map<String, Integer> expected = ImmutableMap.of("one", 1, "two", 2);
