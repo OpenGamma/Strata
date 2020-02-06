@@ -94,7 +94,18 @@ public final class MapStream<K, V>
    * @return a stream of map entries derived from the values in the collection
    */
   public static <V> MapStream<V, V> of(Collection<V> collection) {
-    return of(collection.stream(), key -> key);
+    return of(collection.stream());
+  }
+
+  /**
+   * Returns a stream of map entries where the keys and values are taken from a stream.
+   *
+   * @param <V>  the key and value type
+   * @param stream  the stream
+   * @return a stream of map entries derived from the values in the stream
+   */
+  public static <V> MapStream<V, V> of(Stream<V> stream) {
+    return of(stream, key -> key);
   }
 
   /**
@@ -110,7 +121,6 @@ public final class MapStream<K, V>
   public static <K, V> MapStream<K, V> of(Collection<V> collection, Function<? super V, ? extends K> keyFunction) {
     return of(collection.stream(), keyFunction);
   }
-
 
   /**
    * Returns a stream of map entries where the keys and values are extracted from a
