@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect.io;
 
+import static com.opengamma.strata.collect.Guavate.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -32,6 +33,7 @@ public class PropertySetTest {
 
     assertThat(test.isEmpty()).isEqualTo(true);
     assertThat(test.contains("unknown")).isEqualTo(false);
+    assertThat(test.findValue("unknown")).isEmpty();
     assertThat(test.valueList("unknown")).isEqualTo(ImmutableList.of());
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
     assertThat(test.toString()).isEqualTo("{}");
@@ -44,6 +46,7 @@ public class PropertySetTest {
 
     assertThat(test.isEmpty()).isEqualTo(false);
     assertThat(test.contains("a")).isEqualTo(true);
+    assertThat(test.findValue("a")).hasValue("x");
     assertThat(test.value("a")).isEqualTo("x");
     assertThat(test.valueList("a")).isEqualTo(ImmutableList.of("x"));
     assertThat(test.contains("b")).isEqualTo(true);
@@ -66,7 +69,8 @@ public class PropertySetTest {
 
     assertThat(test.isEmpty()).isEqualTo(false);
     assertThat(test.contains("a")).isEqualTo(true);
-    assertThatIllegalArgumentException().isThrownBy(() -> test.value("a"));
+    assertThat(test.findValue("a")).hasValue("x,y");
+    assertThat(test.value("a")).isEqualTo("x,y");
     assertThat(test.valueList("a")).isEqualTo(ImmutableList.of("x", "y"));
     assertThat(test.contains("b")).isEqualTo(true);
     assertThat(test.value("b")).isEqualTo("z");
@@ -76,7 +80,7 @@ public class PropertySetTest {
     assertThat(test.asMultimap()).isEqualTo(ImmutableListMultimap.of("a", "x", "a", "y", "b", "z"));
     assertThat(test.valueList("unknown")).isEqualTo(ImmutableList.of());
 
-    assertThatIllegalArgumentException().isThrownBy(() -> test.asMap());
+    assertThat(test.asMap()).containsExactly(entry("a", "x,y"), entry("b", "z"));
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
     assertThat(test.toString()).isEqualTo("{a=[x, y], b=[z]}");
   }

@@ -7,7 +7,9 @@ package com.opengamma.strata.collect.io;
 
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -114,9 +116,11 @@ public final class PropertySet {
   }
 
   /**
-   * Returns the property set as a map, throwing an exception if any key has multiple values.
+   * Returns the property set as a map.
    * <p>
    * The iteration order of the map matches that of the input data.
+   * <p>
+   * If a key has multiple values, the values will be returned as a comma separated list.
    * 
    * @return the key-value map
    */
@@ -153,11 +157,12 @@ public final class PropertySet {
    * Gets a single value from this property set.
    * <p>
    * This returns the value associated with the specified key.
-   * If more than one value, or no value, is associated with the key an exception is thrown.
+   * <p>
+   * If a key has multiple values, the values will be returned as a comma separated list.
    * 
    * @param key  the key name
    * @return the value
-   * @throws IllegalArgumentException if the key does not exist, or if more than one value is associated
+   * @throws IllegalArgumentException if the key does not exist
    */
   public String value(String key) {
     ArgChecker.notNull(key, "key");
@@ -166,9 +171,32 @@ public final class PropertySet {
       throw new IllegalArgumentException("Unknown key: " + key);
     }
     if (values.size() > 1) {
-      throw new IllegalArgumentException("Multiple values for key: " + key);
+      return Joiner.on(',').join(values);
     }
     return values.get(0);
+  }
+
+  /**
+   * Finds a single value in this property set.
+   * <p>
+   * This returns the value associated with the specified key, empty if not present.
+   * <p>
+   * If a key has multiple values, the values will be returned as a comma separated list.
+   * 
+   * @param key  the key name
+   * @return the value, empty if not found
+   * @throws IllegalArgumentException if more than one value is associated
+   */
+  public Optional<String> findValue(String key) {
+    ArgChecker.notNull(key, "key");
+    ImmutableList<String> values = keyValueMap.get(key);
+    if (values.size() == 0) {
+      return Optional.empty();
+    }
+    if (values.size() > 1) {
+      return Optional.of(Joiner.on(',').join(values));
+    }
+    return Optional.of(values.get(0));
   }
 
   /**

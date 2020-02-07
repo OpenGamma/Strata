@@ -66,6 +66,7 @@ public class IniFileTest {
 
     assertThat(test.contains("section")).isEqualTo(true);
     assertThat(test.section("section")).isEqualTo(PropertySet.of(keyValues1));
+    assertThat(test.findSection("section")).hasValue(PropertySet.of(keyValues1));
     assertThat(test.section("section").contains("c")).isEqualTo(true);
     assertThat(test.section("section").value("c")).isEqualTo("x");
     assertThat(test.section("section").valueList("c")).isEqualTo(ImmutableList.of("x"));
@@ -93,6 +94,7 @@ public class IniFileTest {
     assertThat(test.section("name").asMultimap()).isEqualTo(ImmutableListMultimap.of("a", "m", "b", "n"));
 
     assertThat(test.contains("unknown")).isEqualTo(false);
+    assertThat(test.findSection("unknown")).isEmpty();
     assertThatIllegalArgumentException().isThrownBy(() -> test.section("unknown"));
     assertThat(test.section("section").valueList("unknown")).isEqualTo(ImmutableList.of());
     assertThatIllegalArgumentException().isThrownBy(() -> test.section("section").value("unknown"));
@@ -107,7 +109,7 @@ public class IniFileTest {
 
     assertThat(test.section("section")).isEqualTo(PropertySet.of(keyValues1));
     assertThat(test.section("section").contains("a")).isEqualTo(true);
-    assertThatIllegalArgumentException().isThrownBy(() -> test.section("section").value("a"));
+    assertThat(test.section("section").value("a")).isEqualTo("x,y");
     assertThat(test.section("section").valueList("a")).isEqualTo(ImmutableList.of("x", "y"));
     assertThat(test.section("section").contains("b")).isEqualTo(false);
     assertThat(test.section("section").keys()).isEqualTo(ImmutableSet.of("a"));
