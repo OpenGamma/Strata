@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PositionInfo;
 
 /**
@@ -57,7 +58,7 @@ public class EtdPositionTest {
       }
 
       @Override
-      public EtdPosition withInfo(PositionInfo info) {
+      public EtdPosition withInfo(PortfolioItemInfo info) {
         return this;
       }
 

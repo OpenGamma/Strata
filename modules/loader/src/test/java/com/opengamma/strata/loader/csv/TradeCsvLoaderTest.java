@@ -77,6 +77,7 @@ import com.opengamma.strata.collect.result.ValueWithFailures;
 import com.opengamma.strata.product.AttributeType;
 import com.opengamma.strata.product.GenericSecurity;
 import com.opengamma.strata.product.GenericSecurityTrade;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.SecurityInfo;
 import com.opengamma.strata.product.SecurityPriceInfo;
@@ -2002,7 +2003,7 @@ public class TradeCsvLoaderTest {
   public void test_load_unknownTypeFixedViaResolver() {
     Trade trade = new Trade() {
       @Override
-      public Trade withInfo(TradeInfo info) {
+      public Trade withInfo(PortfolioItemInfo info) {
         throw new UnsupportedOperationException();
       }
 
@@ -2032,7 +2033,7 @@ public class TradeCsvLoaderTest {
   public void test_load_overrideTypeViaResolver() {
     Trade trade = new Trade() {
       @Override
-      public Trade withInfo(TradeInfo info) {
+      public Trade withInfo(PortfolioItemInfo info) {
         throw new UnsupportedOperationException();
       }
 

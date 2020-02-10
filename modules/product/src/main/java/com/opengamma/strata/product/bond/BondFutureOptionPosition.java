@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.ProductType;
@@ -150,8 +151,8 @@ public final class BondFutureOptionPosition
 
   //-------------------------------------------------------------------------
   @Override
-  public BondFutureOptionPosition withInfo(PositionInfo info) {
-    return new BondFutureOptionPosition(info, product, longQuantity, shortQuantity);
+  public BondFutureOptionPosition withInfo(PortfolioItemInfo info) {
+    return new BondFutureOptionPosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

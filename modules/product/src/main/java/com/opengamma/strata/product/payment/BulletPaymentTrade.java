@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
@@ -74,8 +75,8 @@ public final class BulletPaymentTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public BulletPaymentTrade withInfo(TradeInfo info) {
-    return new BulletPaymentTrade(info, product);
+  public BulletPaymentTrade withInfo(PortfolioItemInfo info) {
+    return new BulletPaymentTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

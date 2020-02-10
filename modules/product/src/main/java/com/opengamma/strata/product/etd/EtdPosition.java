@@ -6,8 +6,8 @@
 package com.opengamma.strata.product.etd;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.Position;
-import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 
 /**
@@ -107,7 +107,7 @@ public interface EtdPosition
    * @return the instance with the specified info
    */
   @Override
-  public abstract EtdPosition withInfo(PositionInfo info);
+  public abstract EtdPosition withInfo(PortfolioItemInfo info);
 
   /**
    * Returns an instance with the specified net quantity.

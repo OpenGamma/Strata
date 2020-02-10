@@ -48,6 +48,6 @@ public interface ResolvableTrade<T extends ResolvedTrade>
    * @return the instance with the specified info
    */
   @Override
-  public abstract ResolvableTrade<T> withInfo(TradeInfo info);
+  public abstract ResolvableTrade<T> withInfo(PortfolioItemInfo info);
 
 }

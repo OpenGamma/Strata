@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.Trade;
@@ -68,7 +69,7 @@ public final class CdsIndexCalibrationTrade
   }
 
   @Override
-  public CdsIndexCalibrationTrade withInfo(TradeInfo info) {
+  public CdsIndexCalibrationTrade withInfo(PortfolioItemInfo info) {
     return new CdsIndexCalibrationTrade(underlyingTrade.withInfo(info), quote);
   }
 

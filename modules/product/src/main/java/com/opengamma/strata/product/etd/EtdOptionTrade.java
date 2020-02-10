@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableSecurityTrade;
@@ -108,8 +109,8 @@ public final class EtdOptionTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public EtdOptionTrade withInfo(TradeInfo info) {
-    return new EtdOptionTrade(info, security, quantity, price);
+  public EtdOptionTrade withInfo(PortfolioItemInfo info) {
+    return new EtdOptionTrade(TradeInfo.from(info), security, quantity, price);
   }
 
   @Override

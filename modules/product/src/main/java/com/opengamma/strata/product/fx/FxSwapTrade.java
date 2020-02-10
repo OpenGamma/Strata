@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
@@ -80,8 +81,8 @@ public final class FxSwapTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public FxSwapTrade withInfo(TradeInfo info) {
-    return new FxSwapTrade(info, product);
+  public FxSwapTrade withInfo(PortfolioItemInfo info) {
+    return new FxSwapTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

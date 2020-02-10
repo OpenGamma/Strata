@@ -46,7 +46,7 @@ public interface ResolvableSecurityPosition
    * @return the instance with the specified info
    */
   @Override
-  public abstract ResolvableSecurityPosition withInfo(PositionInfo info);
+  public abstract ResolvableSecurityPosition withInfo(PortfolioItemInfo info);
 
   /**
    * Returns an instance with the specified quantity.

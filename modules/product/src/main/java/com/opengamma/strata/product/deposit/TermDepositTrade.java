@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
@@ -78,8 +79,8 @@ public final class TermDepositTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public TermDepositTrade withInfo(TradeInfo info) {
-    return new TermDepositTrade(info, product);
+  public TermDepositTrade withInfo(PortfolioItemInfo info) {
+    return new TermDepositTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------
