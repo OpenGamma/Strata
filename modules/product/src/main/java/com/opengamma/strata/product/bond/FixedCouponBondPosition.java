@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.ProductType;
@@ -150,8 +151,8 @@ public final class FixedCouponBondPosition
 
   //-------------------------------------------------------------------------
   @Override
-  public FixedCouponBondPosition withInfo(PositionInfo info) {
-    return new FixedCouponBondPosition(info, product, longQuantity, shortQuantity);
+  public FixedCouponBondPosition withInfo(PortfolioItemInfo info) {
+    return new FixedCouponBondPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
   }
 
   @Override

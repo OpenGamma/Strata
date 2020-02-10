@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.ProductType;
@@ -153,8 +154,8 @@ public final class OvernightFuturePosition
 
   //-------------------------------------------------------------------------
   @Override
-  public OvernightFuturePosition withInfo(PositionInfo info) {
-    return new OvernightFuturePosition(info, product, longQuantity, shortQuantity);
+  public OvernightFuturePosition withInfo(PortfolioItemInfo info) {
+    return new OvernightFuturePosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
   }
 
   @Override

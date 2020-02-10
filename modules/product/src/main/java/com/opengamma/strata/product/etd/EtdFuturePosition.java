@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
@@ -167,8 +168,8 @@ public final class EtdFuturePosition
 
   //-------------------------------------------------------------------------
   @Override
-  public EtdFuturePosition withInfo(PositionInfo info) {
-    return new EtdFuturePosition(info, security, longQuantity, shortQuantity);
+  public EtdFuturePosition withInfo(PortfolioItemInfo info) {
+    return new EtdFuturePosition(PositionInfo.empty().combinedWith(info), security, longQuantity, shortQuantity);
   }
 
   @Override

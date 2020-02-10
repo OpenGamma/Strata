@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.ProductType;
@@ -151,8 +152,8 @@ public final class DsfPosition
 
   //-------------------------------------------------------------------------
   @Override
-  public DsfPosition withInfo(PositionInfo info) {
-    return new DsfPosition(info, product, longQuantity, shortQuantity);
+  public DsfPosition withInfo(PortfolioItemInfo info) {
+    return new DsfPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
   }
 
   @Override

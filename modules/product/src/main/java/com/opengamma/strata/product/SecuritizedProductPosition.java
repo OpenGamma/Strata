@@ -40,7 +40,7 @@ public interface SecuritizedProductPosition<P extends SecuritizedProduct>
    * @return the instance with the specified info
    */
   @Override
-  public abstract SecuritizedProductPosition<P> withInfo(PositionInfo info);
+  public abstract SecuritizedProductPosition<P> withInfo(PortfolioItemInfo info);
 
   /**
    * Returns an instance with the specified quantity.

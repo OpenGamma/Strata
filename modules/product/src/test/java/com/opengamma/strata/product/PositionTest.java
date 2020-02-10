@@ -62,7 +62,7 @@ public class PositionTest {
       }
 
       @Override
-      public Position withInfo(PositionInfo info) {
+      public Position withInfo(PortfolioItemInfo info) {
         return this;
       }
 

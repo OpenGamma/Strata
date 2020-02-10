@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.ProductType;
@@ -158,8 +159,8 @@ public final class IborFutureOptionPosition
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFutureOptionPosition withInfo(PositionInfo info) {
-    return new IborFutureOptionPosition(info, product, longQuantity, shortQuantity);
+  public IborFutureOptionPosition withInfo(PortfolioItemInfo info) {
+    return new IborFutureOptionPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
   }
 
   @Override
