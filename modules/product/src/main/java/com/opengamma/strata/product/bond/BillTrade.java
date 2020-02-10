@@ -27,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
@@ -144,8 +145,8 @@ public final class BillTrade
   }
 
   @Override
-  public BillTrade withInfo(TradeInfo info) {
-    return new BillTrade(info, product, quantity, price);
+  public BillTrade withInfo(PortfolioItemInfo info) {
+    return new BillTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
   }
 
   @Override

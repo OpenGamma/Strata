@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.ProductTrade;
@@ -76,8 +77,8 @@ public final class SwapTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public SwapTrade withInfo(TradeInfo info) {
-    return new SwapTrade(info, product);
+  public SwapTrade withInfo(PortfolioItemInfo info) {
+    return new SwapTrade(TradeInfo.empty().combinedWith(info), product);
   }
 
   //-------------------------------------------------------------------------

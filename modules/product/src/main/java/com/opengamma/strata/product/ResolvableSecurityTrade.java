@@ -56,7 +56,7 @@ public interface ResolvableSecurityTrade
    * @return the instance with the specified info
    */
   @Override
-  public abstract ResolvableSecurityTrade withInfo(TradeInfo info);
+  public abstract ResolvableSecurityTrade withInfo(PortfolioItemInfo info);
 
   /**
    * Returns an instance with the specified quantity.

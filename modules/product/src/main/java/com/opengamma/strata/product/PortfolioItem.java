@@ -44,6 +44,16 @@ public interface PortfolioItem extends CalculationTarget {
   }
 
   /**
+   * Returns an instance with the specified info.
+   *
+   * @param info  the new info
+   * @return the instance with the specified info
+   */
+  public default PortfolioItem withInfo(PortfolioItemInfo info) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Summarizes the portfolio item.
    * <p>
    * This provides a summary, including a human readable description.

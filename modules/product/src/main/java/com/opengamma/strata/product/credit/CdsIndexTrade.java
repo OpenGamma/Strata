@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
@@ -72,8 +73,8 @@ public final class CdsIndexTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public CdsIndexTrade withInfo(TradeInfo info) {
-    return new CdsIndexTrade(info, product, upfrontFee);
+  public CdsIndexTrade withInfo(PortfolioItemInfo info) {
+    return new CdsIndexTrade(TradeInfo.empty().combinedWith(info), product, upfrontFee);
   }
 
   //-------------------------------------------------------------------------

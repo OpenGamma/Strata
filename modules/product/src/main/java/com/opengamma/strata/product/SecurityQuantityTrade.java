@@ -32,7 +32,7 @@ public interface SecurityQuantityTrade
    * @return the instance with the specified info
    */
   @Override
-  public abstract SecurityQuantityTrade withInfo(TradeInfo info);
+  public abstract SecurityQuantityTrade withInfo(PortfolioItemInfo info);
 
   /**
    * Returns an instance with the specified quantity.

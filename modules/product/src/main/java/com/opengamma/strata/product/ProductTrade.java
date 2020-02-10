@@ -32,6 +32,6 @@ public interface ProductTrade
    * @return the instance with the specified info
    */
   @Override
-  public abstract ProductTrade withInfo(TradeInfo info);
+  public abstract ProductTrade withInfo(PortfolioItemInfo info);
 
 }

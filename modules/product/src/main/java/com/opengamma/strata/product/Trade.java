@@ -43,6 +43,6 @@ public interface Trade
    * @param info  the new info
    * @return the instance with the specified info
    */
-  public abstract Trade withInfo(TradeInfo info);
+  public abstract Trade withInfo(PortfolioItemInfo info);
 
 }

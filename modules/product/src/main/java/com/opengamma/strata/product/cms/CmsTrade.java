@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductTrade;
 import com.opengamma.strata.product.ProductType;
@@ -77,8 +78,8 @@ public final class CmsTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public CmsTrade withInfo(TradeInfo info) {
-    return new CmsTrade(info, product, premium);
+  public CmsTrade withInfo(PortfolioItemInfo info) {
+    return new CmsTrade(TradeInfo.empty().combinedWith(info), product, premium);
   }
 
   //-------------------------------------------------------------------------

@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
@@ -78,8 +79,8 @@ public final class FxNdfTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public FxNdfTrade withInfo(TradeInfo info) {
-    return new FxNdfTrade(info, product);
+  public FxNdfTrade withInfo(PortfolioItemInfo info) {
+    return new FxNdfTrade(TradeInfo.empty().combinedWith(info), product);
   }
 
   //-------------------------------------------------------------------------

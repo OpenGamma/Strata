@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
@@ -101,8 +102,8 @@ public final class IborFutureTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public IborFutureTrade withInfo(TradeInfo info) {
-    return new IborFutureTrade(info, product, quantity, price);
+  public IborFutureTrade withInfo(PortfolioItemInfo info) {
+    return new IborFutureTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
   }
 
   @Override

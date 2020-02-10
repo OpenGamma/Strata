@@ -5,8 +5,8 @@
  */
 package com.opengamma.strata.product.fx;
 
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.ProductTrade;
-import com.opengamma.strata.product.TradeInfo;
 
 /**
  * A foreign exchange trade, such as an FX forward, FX spot or FX option.
@@ -17,7 +17,7 @@ import com.opengamma.strata.product.TradeInfo;
 public interface FxTrade extends ProductTrade {
 
   @Override
-  public abstract FxTrade withInfo(TradeInfo info);
+  public abstract FxTrade withInfo(PortfolioItemInfo info);
 
   @Override
   public abstract FxProduct getProduct();

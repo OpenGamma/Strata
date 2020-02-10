@@ -26,6 +26,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
@@ -76,8 +77,8 @@ public final class FxVanillaOptionTrade
 
   //-------------------------------------------------------------------------
   @Override
-  public FxVanillaOptionTrade withInfo(TradeInfo info) {
-    return new FxVanillaOptionTrade(info, product, premium);
+  public FxVanillaOptionTrade withInfo(PortfolioItemInfo info) {
+    return new FxVanillaOptionTrade(TradeInfo.empty().combinedWith(info), product, premium);
   }
 
   //-------------------------------------------------------------------------

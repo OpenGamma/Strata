@@ -48,7 +48,7 @@ public class TradeTest {
     }
 
     @Override
-    public Trade withInfo(TradeInfo info) {
+    public Trade withInfo(PortfolioItemInfo info) {
       return this;
     }
   }

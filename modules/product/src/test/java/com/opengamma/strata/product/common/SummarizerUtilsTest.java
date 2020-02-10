@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.product.PortfolioItemInfo;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.PositionInfo;
@@ -124,7 +125,7 @@ public class SummarizerUtilsTest {
       }
 
       @Override
-      public Trade withInfo(TradeInfo info) {
+      public Trade withInfo(PortfolioItemInfo info) {
         return this;
       }
     };
