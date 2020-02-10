@@ -80,7 +80,7 @@ public final class TermDepositTrade
   //-------------------------------------------------------------------------
   @Override
   public TermDepositTrade withInfo(PortfolioItemInfo info) {
-    return new TermDepositTrade(TradeInfo.empty().combinedWith(info), product);
+    return new TermDepositTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

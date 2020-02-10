@@ -152,7 +152,7 @@ public final class BondFuturePosition
   //-------------------------------------------------------------------------
   @Override
   public BondFuturePosition withInfo(PortfolioItemInfo info) {
-    return new BondFuturePosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new BondFuturePosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

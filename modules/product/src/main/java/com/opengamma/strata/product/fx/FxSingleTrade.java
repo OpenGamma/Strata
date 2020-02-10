@@ -82,7 +82,7 @@ public final class FxSingleTrade
   //-------------------------------------------------------------------------
   @Override
   public FxSingleTrade withInfo(PortfolioItemInfo info) {
-    return new FxSingleTrade(TradeInfo.empty().combinedWith(info), product);
+    return new FxSingleTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

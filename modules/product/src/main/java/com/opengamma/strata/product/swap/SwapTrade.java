@@ -78,7 +78,7 @@ public final class SwapTrade
   //-------------------------------------------------------------------------
   @Override
   public SwapTrade withInfo(PortfolioItemInfo info) {
-    return new SwapTrade(TradeInfo.empty().combinedWith(info), product);
+    return new SwapTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

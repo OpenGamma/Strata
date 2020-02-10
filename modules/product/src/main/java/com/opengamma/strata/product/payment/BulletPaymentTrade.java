@@ -76,7 +76,7 @@ public final class BulletPaymentTrade
   //-------------------------------------------------------------------------
   @Override
   public BulletPaymentTrade withInfo(PortfolioItemInfo info) {
-    return new BulletPaymentTrade(TradeInfo.empty().combinedWith(info), product);
+    return new BulletPaymentTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

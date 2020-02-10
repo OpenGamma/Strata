@@ -146,7 +146,7 @@ public final class BillTrade
 
   @Override
   public BillTrade withInfo(PortfolioItemInfo info) {
-    return new BillTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new BillTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override

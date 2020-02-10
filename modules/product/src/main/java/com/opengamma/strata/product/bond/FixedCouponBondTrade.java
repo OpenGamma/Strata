@@ -89,7 +89,7 @@ public final class FixedCouponBondTrade
   //-------------------------------------------------------------------------
   @Override
   public FixedCouponBondTrade withInfo(PortfolioItemInfo info) {
-    return new FixedCouponBondTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new FixedCouponBondTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override

@@ -103,7 +103,7 @@ public final class OvernightFutureTrade
   //-------------------------------------------------------------------------
   @Override
   public OvernightFutureTrade withInfo(PortfolioItemInfo info) {
-    return new OvernightFutureTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new OvernightFutureTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override

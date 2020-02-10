@@ -79,7 +79,7 @@ public final class IborCapFloorTrade
   //-------------------------------------------------------------------------
   @Override
   public IborCapFloorTrade withInfo(PortfolioItemInfo info) {
-    return new IborCapFloorTrade(TradeInfo.empty().combinedWith(info), product, premium);
+    return new IborCapFloorTrade(TradeInfo.from(info), product, premium);
   }
 
   //-------------------------------------------------------------------------

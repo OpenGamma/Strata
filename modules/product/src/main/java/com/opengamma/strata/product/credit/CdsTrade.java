@@ -75,7 +75,7 @@ public final class CdsTrade
   //-------------------------------------------------------------------------
   @Override
   public CdsTrade withInfo(PortfolioItemInfo info) {
-    return new CdsTrade(TradeInfo.empty().combinedWith(info), product, upfrontFee);
+    return new CdsTrade(TradeInfo.from(info), product, upfrontFee);
   }
 
   //-------------------------------------------------------------------------

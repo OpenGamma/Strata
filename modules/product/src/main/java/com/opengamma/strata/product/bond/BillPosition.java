@@ -152,7 +152,7 @@ public final class BillPosition
   //-------------------------------------------------------------------------
   @Override
   public BillPosition withInfo(PortfolioItemInfo info) {
-    return new BillPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new BillPosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

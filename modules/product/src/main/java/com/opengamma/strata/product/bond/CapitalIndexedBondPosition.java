@@ -152,7 +152,7 @@ public final class CapitalIndexedBondPosition
   //-------------------------------------------------------------------------
   @Override
   public CapitalIndexedBondPosition withInfo(PortfolioItemInfo info) {
-    return new CapitalIndexedBondPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new CapitalIndexedBondPosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

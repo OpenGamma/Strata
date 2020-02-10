@@ -92,7 +92,7 @@ public final class CapitalIndexedBondTrade
   //-------------------------------------------------------------------------
   @Override
   public CapitalIndexedBondTrade withInfo(PortfolioItemInfo info) {
-    return new CapitalIndexedBondTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new CapitalIndexedBondTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override

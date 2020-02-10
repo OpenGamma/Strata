@@ -152,7 +152,7 @@ public final class FixedCouponBondPosition
   //-------------------------------------------------------------------------
   @Override
   public FixedCouponBondPosition withInfo(PortfolioItemInfo info) {
-    return new FixedCouponBondPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new FixedCouponBondPosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

@@ -104,7 +104,7 @@ public final class SecurityTrade
   //-------------------------------------------------------------------------
   @Override
   public SecurityTrade withInfo(PortfolioItemInfo info) {
-    return new SecurityTrade(TradeInfo.empty().combinedWith(info), securityId, quantity, price);
+    return new SecurityTrade(TradeInfo.from(info), securityId, quantity, price);
   }
 
   @Override

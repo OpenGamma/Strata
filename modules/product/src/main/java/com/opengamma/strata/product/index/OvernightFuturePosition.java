@@ -155,7 +155,7 @@ public final class OvernightFuturePosition
   //-------------------------------------------------------------------------
   @Override
   public OvernightFuturePosition withInfo(PortfolioItemInfo info) {
-    return new OvernightFuturePosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new OvernightFuturePosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

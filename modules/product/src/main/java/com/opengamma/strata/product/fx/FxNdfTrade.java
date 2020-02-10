@@ -80,7 +80,7 @@ public final class FxNdfTrade
   //-------------------------------------------------------------------------
   @Override
   public FxNdfTrade withInfo(PortfolioItemInfo info) {
-    return new FxNdfTrade(TradeInfo.empty().combinedWith(info), product);
+    return new FxNdfTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

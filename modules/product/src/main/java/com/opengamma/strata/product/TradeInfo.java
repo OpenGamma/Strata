@@ -114,6 +114,16 @@ public final class TradeInfo
   }
 
   /**
+   * Obtains an instance based on the supplied info.
+   *
+   * @param info  the base info
+   * @return the trade information
+   */
+  public static TradeInfo from(PortfolioItemInfo info) {
+    return empty().combinedWith(info);
+  }
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * 
    * @return the builder, not null
@@ -202,7 +212,7 @@ public final class TradeInfo
 
   /**
    * Returns a builder populated with the values of this instance.
-   * 
+   *
    * @return a builder populated with the values of this instance
    */
   public TradeInfoBuilder toBuilder() {

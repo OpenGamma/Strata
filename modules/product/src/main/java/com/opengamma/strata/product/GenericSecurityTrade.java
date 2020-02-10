@@ -110,7 +110,7 @@ public final class GenericSecurityTrade
   //-------------------------------------------------------------------------
   @Override
   public GenericSecurityTrade withInfo(PortfolioItemInfo info) {
-    return new GenericSecurityTrade(TradeInfo.empty().combinedWith(info), security, quantity, price);
+    return new GenericSecurityTrade(TradeInfo.from(info), security, quantity, price);
   }
 
   @Override

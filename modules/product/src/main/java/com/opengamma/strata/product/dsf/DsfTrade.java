@@ -95,7 +95,7 @@ public final class DsfTrade
   //-------------------------------------------------------------------------
   @Override
   public DsfTrade withInfo(PortfolioItemInfo info) {
-    return new DsfTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new DsfTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override

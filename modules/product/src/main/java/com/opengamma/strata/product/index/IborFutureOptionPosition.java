@@ -160,7 +160,7 @@ public final class IborFutureOptionPosition
   //-------------------------------------------------------------------------
   @Override
   public IborFutureOptionPosition withInfo(PortfolioItemInfo info) {
-    return new IborFutureOptionPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new IborFutureOptionPosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

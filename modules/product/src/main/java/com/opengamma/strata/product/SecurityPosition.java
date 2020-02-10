@@ -173,7 +173,7 @@ public final class SecurityPosition
   //-------------------------------------------------------------------------
   @Override
   public SecurityPosition withInfo(PortfolioItemInfo info) {
-    return new SecurityPosition(PositionInfo.empty().combinedWith(info), securityId, longQuantity, shortQuantity);
+    return new SecurityPosition(PositionInfo.from(info), securityId, longQuantity, shortQuantity);
   }
 
   @Override

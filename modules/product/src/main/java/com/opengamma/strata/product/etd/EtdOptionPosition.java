@@ -169,7 +169,7 @@ public final class EtdOptionPosition
   //-------------------------------------------------------------------------
   @Override
   public EtdOptionPosition withInfo(PortfolioItemInfo info) {
-    return new EtdOptionPosition(PositionInfo.empty().combinedWith(info), security, longQuantity, shortQuantity);
+    return new EtdOptionPosition(PositionInfo.from(info), security, longQuantity, shortQuantity);
   }
 
   @Override

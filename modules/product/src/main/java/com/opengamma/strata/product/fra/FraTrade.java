@@ -82,7 +82,7 @@ public final class FraTrade
   //-------------------------------------------------------------------------
   @Override
   public FraTrade withInfo(PortfolioItemInfo info) {
-    return new FraTrade(TradeInfo.empty().combinedWith(info), product);
+    return new FraTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

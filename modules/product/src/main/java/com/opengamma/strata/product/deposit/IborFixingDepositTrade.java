@@ -81,7 +81,7 @@ public final class IborFixingDepositTrade
   //-------------------------------------------------------------------------
   @Override
   public IborFixingDepositTrade withInfo(PortfolioItemInfo info) {
-    return new IborFixingDepositTrade(TradeInfo.empty().combinedWith(info), product);
+    return new IborFixingDepositTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

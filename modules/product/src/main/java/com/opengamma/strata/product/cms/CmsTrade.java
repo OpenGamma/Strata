@@ -79,7 +79,7 @@ public final class CmsTrade
   //-------------------------------------------------------------------------
   @Override
   public CmsTrade withInfo(PortfolioItemInfo info) {
-    return new CmsTrade(TradeInfo.empty().combinedWith(info), product, premium);
+    return new CmsTrade(TradeInfo.from(info), product, premium);
   }
 
   //-------------------------------------------------------------------------

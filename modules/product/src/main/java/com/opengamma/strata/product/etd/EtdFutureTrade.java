@@ -110,7 +110,7 @@ public final class EtdFutureTrade
   //-------------------------------------------------------------------------
   @Override
   public EtdFutureTrade withInfo(PortfolioItemInfo info) {
-    return new EtdFutureTrade(TradeInfo.empty().combinedWith(info), security, quantity, price);
+    return new EtdFutureTrade(TradeInfo.from(info), security, quantity, price);
   }
 
   @Override

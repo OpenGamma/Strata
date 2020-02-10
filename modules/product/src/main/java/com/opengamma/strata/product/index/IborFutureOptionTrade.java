@@ -103,7 +103,7 @@ public final class IborFutureOptionTrade
   //-------------------------------------------------------------------------
   @Override
   public IborFutureOptionTrade withInfo(PortfolioItemInfo info) {
-    return new IborFutureOptionTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new IborFutureOptionTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override

@@ -175,7 +175,7 @@ public final class GenericSecurityPosition
   //-------------------------------------------------------------------------
   @Override
   public GenericSecurityPosition withInfo(PortfolioItemInfo info) {
-    return new GenericSecurityPosition(PositionInfo.empty().combinedWith(info), security, longQuantity, shortQuantity);
+    return new GenericSecurityPosition(PositionInfo.from(info), security, longQuantity, shortQuantity);
   }
 
   @Override

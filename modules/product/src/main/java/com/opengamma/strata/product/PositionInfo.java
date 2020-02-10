@@ -84,6 +84,16 @@ public final class PositionInfo
   }
 
   /**
+   * Obtains an instance based on the supplied info.
+   *
+   * @param info  the base info
+   * @return the position information
+   */
+  public static PositionInfo from(PortfolioItemInfo info) {
+    return empty().combinedWith(info);
+  }
+
+  /**
    * Returns a builder used to create an instance of the bean.
    * 
    * @return the builder

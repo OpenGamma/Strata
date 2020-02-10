@@ -169,7 +169,7 @@ public final class EtdFuturePosition
   //-------------------------------------------------------------------------
   @Override
   public EtdFuturePosition withInfo(PortfolioItemInfo info) {
-    return new EtdFuturePosition(PositionInfo.empty().combinedWith(info), security, longQuantity, shortQuantity);
+    return new EtdFuturePosition(PositionInfo.from(info), security, longQuantity, shortQuantity);
   }
 
   @Override

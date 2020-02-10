@@ -78,7 +78,7 @@ public final class FxVanillaOptionTrade
   //-------------------------------------------------------------------------
   @Override
   public FxVanillaOptionTrade withInfo(PortfolioItemInfo info) {
-    return new FxVanillaOptionTrade(TradeInfo.empty().combinedWith(info), product, premium);
+    return new FxVanillaOptionTrade(TradeInfo.from(info), product, premium);
   }
 
   //-------------------------------------------------------------------------

@@ -78,7 +78,7 @@ public final class FxSingleBarrierOptionTrade
   //-------------------------------------------------------------------------
   @Override
   public FxSingleBarrierOptionTrade withInfo(PortfolioItemInfo info) {
-    return new FxSingleBarrierOptionTrade(TradeInfo.empty().combinedWith(info), product, premium);
+    return new FxSingleBarrierOptionTrade(TradeInfo.from(info), product, premium);
   }
 
   //-------------------------------------------------------------------------

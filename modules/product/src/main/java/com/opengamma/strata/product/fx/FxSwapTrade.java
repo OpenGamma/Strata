@@ -82,7 +82,7 @@ public final class FxSwapTrade
   //-------------------------------------------------------------------------
   @Override
   public FxSwapTrade withInfo(PortfolioItemInfo info) {
-    return new FxSwapTrade(TradeInfo.empty().combinedWith(info), product);
+    return new FxSwapTrade(TradeInfo.from(info), product);
   }
 
   //-------------------------------------------------------------------------

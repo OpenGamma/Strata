@@ -153,7 +153,7 @@ public final class DsfPosition
   //-------------------------------------------------------------------------
   @Override
   public DsfPosition withInfo(PortfolioItemInfo info) {
-    return new DsfPosition(PositionInfo.empty().combinedWith(info), product, longQuantity, shortQuantity);
+    return new DsfPosition(PositionInfo.from(info), product, longQuantity, shortQuantity);
   }
 
   @Override

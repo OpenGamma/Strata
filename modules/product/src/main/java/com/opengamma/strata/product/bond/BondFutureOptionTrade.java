@@ -89,7 +89,7 @@ public final class BondFutureOptionTrade
   //-------------------------------------------------------------------------
   @Override
   public BondFutureOptionTrade withInfo(PortfolioItemInfo info) {
-    return new BondFutureOptionTrade(TradeInfo.empty().combinedWith(info), product, quantity, price);
+    return new BondFutureOptionTrade(TradeInfo.from(info), product, quantity, price);
   }
 
   @Override
