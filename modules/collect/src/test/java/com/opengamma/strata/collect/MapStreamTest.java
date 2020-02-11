@@ -42,6 +42,7 @@ import com.opengamma.strata.collect.tuple.Pair;
 public class MapStreamTest {
 
   private final Map<String, Integer> map = ImmutableMap.of("one", 1, "two", 2, "three", 3, "four", 4);
+  private final List<String> list = ImmutableList.of("one", "two", "three", "four");
 
   //-------------------------------------------------------------------------
   @Test
@@ -54,6 +55,26 @@ public class MapStreamTest {
   public void values() {
     List<Integer> result = MapStream.of(map).values().collect(toImmutableList());
     assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
+  }
+
+  public void keys_fromList() {
+    List<String> result = MapStream.of(list).keys().collect(toImmutableList());
+    assertThat(result).isEqualTo(list);
+  }
+
+  public void values_fromList() {
+    List<String> result = MapStream.of(list).values().collect(toImmutableList());
+    assertThat(result).isEqualTo(list);
+  }
+
+  public void keys_fromStream() {
+    List<String> result = MapStream.of(list.stream()).keys().collect(toImmutableList());
+    assertThat(result).isEqualTo(list);
+  }
+
+  public void values_fromStream() {
+    List<String> result = MapStream.of(list.stream()).values().collect(toImmutableList());
+    assertThat(result).isEqualTo(list);
   }
 
   //-------------------------------------------------------------------------
