@@ -83,7 +83,7 @@ public final class ZipUtils {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
         if (!entry.isDirectory() && entry.getName().equals(relativePathName)) {
-          return Optional.of(ArrayByteSource.copyOf(ByteStreams.toByteArray(in)).withFileName(entry.getName()));
+          return Optional.of(ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(entry.getName()));
         }
         in.closeEntry();
         entry = in.getNextEntry();
@@ -246,7 +246,7 @@ public final class ZipUtils {
       while (entry != null) {
         if (!entry.isDirectory()) {
           if (deduplicate.add(new ZipKey(entry))) {
-            ArrayByteSource entrySource = ArrayByteSource.copyOf(ByteStreams.toByteArray(in)).withFileName(entry.getName());
+            ArrayByteSource entrySource = ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(entry.getName());
             consumer.accept(entry.getName(), entrySource);
           }
         }
@@ -263,7 +263,7 @@ public final class ZipUtils {
   private static void ungzInMemory(BeanByteSource source, String fileName, BiConsumer<String, ArrayByteSource> consumer) {
     try (GZIPInputStream in = new GZIPInputStream(source.openStream())) {
       String shortFileName = fileName.substring(0, fileName.length() - 3);
-      ArrayByteSource entrySource = ArrayByteSource.copyOf(ByteStreams.toByteArray(in)).withFileName(shortFileName);
+      ArrayByteSource entrySource = ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(shortFileName);
       consumer.accept(shortFileName, entrySource);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
