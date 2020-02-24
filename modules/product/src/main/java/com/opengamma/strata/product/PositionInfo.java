@@ -90,6 +90,9 @@ public final class PositionInfo
    * @return the position information
    */
   public static PositionInfo from(PortfolioItemInfo info) {
+    if (info instanceof PositionInfo) {
+      return ((PositionInfo) info);
+    }
     return empty().combinedWith(info);
   }
 

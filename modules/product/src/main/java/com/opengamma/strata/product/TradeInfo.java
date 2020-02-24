@@ -120,6 +120,9 @@ public final class TradeInfo
    * @return the trade information
    */
   public static TradeInfo from(PortfolioItemInfo info) {
+    if (info instanceof TradeInfo) {
+      return ((TradeInfo) info);
+    }
     return empty().combinedWith(info);
   }
 
