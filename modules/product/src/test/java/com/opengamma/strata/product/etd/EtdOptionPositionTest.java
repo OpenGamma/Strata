@@ -17,7 +17,6 @@ import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.product.GenericSecurity;
-import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.PortfolioItemSummary;
 import com.opengamma.strata.product.PortfolioItemType;
 import com.opengamma.strata.product.PositionInfo;
@@ -117,9 +116,7 @@ public class EtdOptionPositionTest {
     EtdOptionPosition position = sut();
     GenericSecurity resolvedSecurity = GenericSecurity.of(SECURITY.getInfo());
     ImmutableReferenceData refData = ImmutableReferenceData.of(SECURITY.getSecurityId(), resolvedSecurity);
-    GenericSecurityPosition expected =
-        GenericSecurityPosition.ofLongShort(POSITION_INFO, resolvedSecurity, LONG_QUANTITY, SHORT_QUANTITY);
-    assertThat(position.resolveTarget(refData)).isEqualTo(expected);
+    assertThat(position.resolveTarget(refData)).isEqualTo(position);
   }
 
   //-------------------------------------------------------------------------
