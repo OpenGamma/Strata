@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.junit.jupiter.api.Test;
@@ -23,8 +24,10 @@ import org.junit.jupiter.api.Test;
 import com.google.common.hash.HashCode;
 import com.google.common.hash.Hashing;
 import com.google.common.io.BaseEncoding;
+import com.google.common.io.ByteProcessor;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Files;
+import com.google.common.io.MoreFiles;
 import com.google.common.io.Resources;
 import com.opengamma.strata.collect.function.CheckedSupplier;
 
@@ -150,10 +153,33 @@ public class ArrayByteSourceTest {
   }
 
   @Test
+  public void test_from_GuavaPathByteSource() {
+    ByteSource source = MoreFiles.asByteSource(Paths.get("pom.xml"));
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.getFileName()).hasValue("pom.xml");
+  }
+
+  @Test
   public void test_from_GuavaUrlByteSource() throws MalformedURLException {
     ByteSource source = Resources.asByteSource(new File("pom.xml").toURI().toURL());
     ArrayByteSource test = ArrayByteSource.from(source);
     assertThat(test.getFileName()).hasValue("pom.xml");
+  }
+
+  @Test
+  public void test_from_GuavaSimpleByteSource() {
+    byte[] bytes = new byte[] {1, 2, 3};
+    ByteSource source = ByteSource.wrap(bytes);
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.readUnsafe()).isSameAs(bytes);
+  }
+
+  @Test
+  public void test_from_GuavaSimpleByteSourceSliced() {
+    byte[] bytes = new byte[] {1, 2, 3};
+    ByteSource source = ByteSource.wrap(bytes).slice(1, 1);
+    ArrayByteSource test = ArrayByteSource.from(source);
+    assertThat(test.readUnsafe()).containsExactly(2);
   }
 
   @Test
@@ -190,6 +216,34 @@ public class ArrayByteSourceTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_from_InputStream_sizeCorrect() throws IOException {
+    ByteSource source = ByteSource.wrap(new byte[] {1, 2, 3, 4, 5});
+    ArrayByteSource test = ArrayByteSource.from(source.openStream(), 5);
+    assertThat(test.size()).isEqualTo(5);
+    assertThat(test.getFileName()).isEmpty();
+    assertThat(test.read()).containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void test_from_InputStream_sizeTooSmall() throws IOException {
+    ByteSource source = ByteSource.wrap(new byte[] {1, 2, 3, 4, 5});
+    ArrayByteSource test = ArrayByteSource.from(source.openStream(), 2);
+    assertThat(test.size()).isEqualTo(5);
+    assertThat(test.getFileName()).isEmpty();
+    assertThat(test.read()).containsExactly(1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void test_from_InputStream_sizeTooBig() throws IOException {
+    ByteSource source = ByteSource.wrap(new byte[] {1, 2, 3, 4, 5});
+    ArrayByteSource test = ArrayByteSource.from(source.openStream(), 6);
+    assertThat(test.size()).isEqualTo(5);
+    assertThat(test.getFileName()).isEmpty();
+    assertThat(test.read()).containsExactly(1, 2, 3, 4, 5);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_withFileName() {
     ArrayByteSource test = ArrayByteSource.copyOf(new byte[] {1, 2, 3});
     assertThat(test.getFileName()).isEmpty();
@@ -219,6 +273,29 @@ public class ArrayByteSourceTest {
     assertThat(test.read()[0]).isEqualTo((byte) 4);
     assertThat(test.read()[1]).isEqualTo((byte) 2);
     assertThat(test.read()[2]).isEqualTo((byte) 3);
+  }
+
+  @Test
+  public void test_read_processor() throws IOException {
+    ArrayByteSource test = ArrayByteSource.copyOf(new byte[] {1, 2, 3});
+    ByteProcessor<Integer> processor = new ByteProcessor<Integer>() {
+
+      @Override
+      public boolean processBytes(byte[] buf, int off, int len) throws IOException {
+        assertThat(off).isEqualTo(0);
+        assertThat(len).isEqualTo(3);
+        assertThat(buf[0]).isEqualTo((byte) 1);
+        assertThat(buf[1]).isEqualTo((byte) 2);
+        assertThat(buf[2]).isEqualTo((byte) 3);
+        return false;
+      }
+
+      @Override
+      public Integer getResult() {
+        return 123;
+      }
+    };
+    assertThat(test.read(processor)).isEqualTo(123);
   }
 
   @Test
