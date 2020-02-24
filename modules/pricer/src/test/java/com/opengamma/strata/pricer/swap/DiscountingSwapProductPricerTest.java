@@ -293,7 +293,7 @@ public class DiscountingSwapProductPricerTest {
 
     // test via SwapTrade
     DiscountingSwapTradePricer pricerTrade = new DiscountingSwapTradePricer(pricerSwap);
-    assertThat(pricerTrade.parRate(SWAP_TRADE, MOCK_PROV)).isEqualTo(pricerSwap.parRate(SWAP, MOCK_PROV));
+    assertThat(pricerTrade.parRate(SWAP_TRADE, mockProv)).isEqualTo(pricerSwap.parRate(SWAP, mockProv));
   }
 
   @Test

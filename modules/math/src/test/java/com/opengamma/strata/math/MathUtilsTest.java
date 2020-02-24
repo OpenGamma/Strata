@@ -28,7 +28,7 @@ public class MathUtilsTest {
     assertThat(MathUtils.pow2(Double.NaN)).isNaN();
     assertThat(MathUtils.pow2(Double.POSITIVE_INFINITY)).isEqualTo(Math.pow(Double.POSITIVE_INFINITY, 2));
     assertThat(MathUtils.pow2(Double.NEGATIVE_INFINITY)).isEqualTo(Math.pow(Double.NEGATIVE_INFINITY, 2));
-    assertThat(MathUtils.pow2(Double.NaN)).isEqualTo(Math.pow(Double.NaN, 2));
+    assertThat(MathUtils.pow2(Double.NaN)).isNaN();
   }
 
   @Test
@@ -45,7 +45,7 @@ public class MathUtilsTest {
     assertThat(MathUtils.pow3(Double.NaN)).isNaN();
     assertThat(MathUtils.pow3(Double.POSITIVE_INFINITY)).isEqualTo(Math.pow(Double.POSITIVE_INFINITY, 3));
     assertThat(MathUtils.pow3(Double.NEGATIVE_INFINITY)).isEqualTo(Math.pow(Double.NEGATIVE_INFINITY, 3));
-    assertThat(MathUtils.pow3(Double.NaN)).isEqualTo(Math.pow(Double.NaN, 3));
+    assertThat(MathUtils.pow3(Double.NaN)).isNaN();
   }
 
   @Test
@@ -62,7 +62,7 @@ public class MathUtilsTest {
     assertThat(MathUtils.pow4(Double.NaN)).isNaN();
     assertThat(MathUtils.pow4(Double.POSITIVE_INFINITY)).isEqualTo(Math.pow(Double.POSITIVE_INFINITY, 4));
     assertThat(MathUtils.pow4(Double.NEGATIVE_INFINITY)).isEqualTo(Math.pow(Double.NEGATIVE_INFINITY, 4));
-    assertThat(MathUtils.pow4(Double.NaN)).isEqualTo(Math.pow(Double.NaN, 4));
+    assertThat(MathUtils.pow4(Double.NaN)).isNaN();
   }
 
   //-------------------------------------------------------------------------
