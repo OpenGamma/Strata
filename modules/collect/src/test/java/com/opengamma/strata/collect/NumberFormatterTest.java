@@ -80,7 +80,7 @@ public class NumberFormatterTest {
     NumberFormatter formatter = NumberFormatter.of(grouping, minDp, maxDp);
     String text = formatter.format(value);
     double actual = formatter.parse(text);
-    assertThat(actual).isEqualTo(parsed);
+    assertThat(actual).isEqualByComparingTo(parsed);
   }
 
   //-------------------------------------------------------------------------

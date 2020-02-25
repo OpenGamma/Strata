@@ -100,7 +100,7 @@
           <plugin>
             <groupId>com.ragedunicorn.tools.maven</groupId>
             <artifactId>github-release-maven-plugin</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
             <configuration>
               <owner>OpenGamma</owner>
               <repository>Strata</repository>
