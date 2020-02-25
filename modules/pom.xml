@@ -97,9 +97,12 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
+          <!-- Java module system has borked Javadoc, links to Joda-Beans/Joda-Convert don't work -->
+          <!-- The supposed fixes don't work either -->
+          <!-- https://bugs.openjdk.java.net/browse/JDK-8212233 -->
+          <!-- https://issues.apache.org/jira/browse/MJAVADOC-615 -->
+          <!-- https://issues.apache.org/jira/browse/MJAVADOC-601 -->
           <links>
-            <link>http://www.joda.org/joda-beans/apidocs</link>
-            <link>http://www.joda.org/joda-convert/apidocs</link>
             <link>https://google.github.io/guava/releases/${guava-docs.version}/api/docs/</link>
           </links>
           <!-- The "allow-script-in-comments" is needed for 1.8.0_u121 and later -->
@@ -639,11 +642,6 @@
                       <packages>com.opengamma.strata.*</packages>
                     </group>
                   </groups>
-                  <links>
-                    <link>http://www.joda.org/joda-beans/apidocs</link>
-                    <link>http://www.joda.org/joda-collect/apidocs</link>
-                    <link>https://google.github.io/guava/releases/26.0-jre/api/docs/</link>
-                  </links>
                   <validateLinks>true</validateLinks>
                 </configuration>
               </execution>
@@ -722,7 +720,7 @@
     <!-- Versions -->
     <assertj.version>3.15.0</assertj.version>
     <guava.version>26.0-jre</guava.version><!-- v27 has nasty dependencies, https://github.com/google/guava/issues/3320 -->
-    <guava-docs.version>snapshot</guava-docs.version>
+    <guava-docs.version>26.0-jre</guava-docs.version>
     <jcommander.version>1.78</jcommander.version>
     <joda-convert.version>2.2.1</joda-convert.version>
     <joda-beans.version>2.7.1</joda-beans.version>
