@@ -207,7 +207,7 @@ public final class AddFixedCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("AddFixedCurve{");
-    buf.append("fixedCurve").append('=').append(fixedCurve).append(',').append(' ');
+    buf.append("fixedCurve").append('=').append(JodaBeanUtils.toString(fixedCurve)).append(',').append(' ');
     buf.append("spreadCurve").append('=').append(JodaBeanUtils.toString(spreadCurve));
     buf.append('}');
     return buf.toString();

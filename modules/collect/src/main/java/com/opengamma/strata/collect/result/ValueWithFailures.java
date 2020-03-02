@@ -487,7 +487,7 @@ public final class ValueWithFailures<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueWithFailures{");
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("failures").append('=').append(JodaBeanUtils.toString(failures));
     buf.append('}');
     return buf.toString();

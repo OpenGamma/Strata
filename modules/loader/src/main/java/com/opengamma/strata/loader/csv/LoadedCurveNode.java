@@ -167,8 +167,8 @@ final class LoadedCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("LoadedCurveNode{");
-    buf.append("date").append('=').append(date).append(',').append(' ');
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

@@ -294,8 +294,8 @@ public final class HullWhiteOneFactorPiecewiseConstantParametersProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("HullWhiteOneFactorPiecewiseConstantParametersProvider{");
-    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
     buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime));
     buf.append('}');
     return buf.toString();

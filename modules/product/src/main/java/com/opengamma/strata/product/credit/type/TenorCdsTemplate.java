@@ -223,8 +223,8 @@ public final class TenorCdsTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TenorCdsTemplate{");
-    buf.append("accrualStart").append('=').append(accrualStart).append(',').append(' ');
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("accrualStart").append('=').append(JodaBeanUtils.toString(accrualStart)).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

@@ -352,8 +352,8 @@ public final class IsdaCreditDiscountFactors
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IsdaCreditDiscountFactors{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
     buf.append("curve").append('=').append(JodaBeanUtils.toString(curve));
     buf.append('}');
     return buf.toString();

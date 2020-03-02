@@ -182,7 +182,7 @@ final class DefaultLegalEntityDiscountingScenarioMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("DefaultLegalEntityDiscountingScenarioMarketData{");
-    buf.append("lookup").append('=').append(lookup).append(',').append(' ');
+    buf.append("lookup").append('=').append(JodaBeanUtils.toString(lookup)).append(',').append(' ');
     buf.append("marketData").append('=').append(JodaBeanUtils.toString(marketData));
     buf.append('}');
     return buf.toString();

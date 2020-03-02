@@ -479,9 +479,9 @@ public final class UnitParameterSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("UnitParameterSensitivity{");
-    buf.append("marketDataName").append('=').append(marketDataName).append(',').append(' ');
-    buf.append("parameterMetadata").append('=').append(parameterMetadata).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(sensitivity).append(',').append(' ');
+    buf.append("marketDataName").append('=').append(JodaBeanUtils.toString(marketDataName)).append(',').append(' ');
+    buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata)).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity)).append(',').append(' ');
     buf.append("parameterSplit").append('=').append(JodaBeanUtils.toString(parameterSplit));
     buf.append('}');
     return buf.toString();

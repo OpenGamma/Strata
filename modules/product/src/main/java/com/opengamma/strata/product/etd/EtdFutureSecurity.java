@@ -290,9 +290,9 @@ public final class EtdFutureSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("EtdFutureSecurity{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("contractSpecId").append('=').append(contractSpecId).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("contractSpecId").append('=').append(JodaBeanUtils.toString(contractSpecId)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
     buf.append("variant").append('=').append(JodaBeanUtils.toString(variant));
     buf.append('}');
     return buf.toString();

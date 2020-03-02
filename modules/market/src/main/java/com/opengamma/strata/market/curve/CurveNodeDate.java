@@ -218,7 +218,7 @@ public final class CurveNodeDate
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveNodeDate{");
-    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();

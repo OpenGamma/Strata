@@ -440,10 +440,10 @@ public final class InterpolatedNodalSurface
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("InterpolatedNodalSurface{");
-    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
-    buf.append("xValues").append('=').append(xValues).append(',').append(' ');
-    buf.append("yValues").append('=').append(yValues).append(',').append(' ');
-    buf.append("zValues").append('=').append(zValues).append(',').append(' ');
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
+    buf.append("xValues").append('=').append(JodaBeanUtils.toString(xValues)).append(',').append(' ');
+    buf.append("yValues").append('=').append(JodaBeanUtils.toString(yValues)).append(',').append(' ');
+    buf.append("zValues").append('=').append(JodaBeanUtils.toString(zValues)).append(',').append(' ');
     buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator));
     buf.append('}');
     return buf.toString();

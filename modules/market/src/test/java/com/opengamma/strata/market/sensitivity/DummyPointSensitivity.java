@@ -262,9 +262,9 @@ public final class DummyPointSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DummyPointSensitivity{");
-    buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
-    buf.append("date").append('=').append(date).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

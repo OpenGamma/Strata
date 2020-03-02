@@ -537,17 +537,17 @@ public final class FixedRateSwapLegConvention
   public String toString() {
     StringBuilder buf = new StringBuilder(416);
     buf.append("FixedRateSwapLegConvention{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("accrualFrequency").append('=').append(accrualFrequency).append(',').append(' ');
-    buf.append("accrualBusinessDayAdjustment").append('=').append(accrualBusinessDayAdjustment).append(',').append(' ');
-    buf.append("startDateBusinessDayAdjustment").append('=').append(startDateBusinessDayAdjustment).append(',').append(' ');
-    buf.append("endDateBusinessDayAdjustment").append('=').append(endDateBusinessDayAdjustment).append(',').append(' ');
-    buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(rollConvention).append(',').append(' ');
-    buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
-    buf.append("compoundingMethod").append('=').append(compoundingMethod).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("accrualFrequency").append('=').append(JodaBeanUtils.toString(accrualFrequency)).append(',').append(' ');
+    buf.append("accrualBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(accrualBusinessDayAdjustment)).append(',').append(' ');
+    buf.append("startDateBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(startDateBusinessDayAdjustment)).append(',').append(' ');
+    buf.append("endDateBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(endDateBusinessDayAdjustment)).append(',').append(' ');
+    buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
+    buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
+    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod)).append(',').append(' ');
     buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod));
     buf.append('}');
     return buf.toString();

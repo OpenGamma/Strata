@@ -237,7 +237,7 @@ public final class RepoCurveDiscountFactors
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("RepoCurveDiscountFactors{");
-    buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors)).append(',').append(' ');
     buf.append("repoGroup").append('=').append(JodaBeanUtils.toString(repoGroup));
     buf.append('}');
     return buf.toString();

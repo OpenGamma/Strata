@@ -126,7 +126,7 @@ public final class Quote implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Quote{");
-    buf.append("quoteId").append('=').append(quoteId).append(',').append(' ');
+    buf.append("quoteId").append('=').append(JodaBeanUtils.toString(quoteId)).append(',').append(' ');
     buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();

@@ -201,8 +201,8 @@ public final class ValuationZoneTimeDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ValuationZoneTimeDefinition{");
-    buf.append("defaultLocalTime").append('=').append(defaultLocalTime).append(',').append(' ');
-    buf.append("zoneId").append('=').append(zoneId).append(',').append(' ');
+    buf.append("defaultLocalTime").append('=').append(JodaBeanUtils.toString(defaultLocalTime)).append(',').append(' ');
+    buf.append("zoneId").append('=').append(JodaBeanUtils.toString(zoneId)).append(',').append(' ');
     buf.append("localTimes").append('=').append(JodaBeanUtils.toString(localTimes));
     buf.append('}');
     return buf.toString();

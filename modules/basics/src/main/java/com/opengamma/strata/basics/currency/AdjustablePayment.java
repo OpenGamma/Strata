@@ -306,7 +306,7 @@ public final class AdjustablePayment
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("AdjustablePayment{");
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();

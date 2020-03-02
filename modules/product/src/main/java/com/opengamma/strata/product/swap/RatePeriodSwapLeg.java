@@ -472,13 +472,13 @@ public final class RatePeriodSwapLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("RatePeriodSwapLeg{");
-    buf.append("type").append('=').append(type).append(',').append(' ');
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("paymentPeriods").append('=').append(paymentPeriods).append(',').append(' ');
-    buf.append("initialExchange").append('=').append(initialExchange).append(',').append(' ');
-    buf.append("intermediateExchange").append('=').append(intermediateExchange).append(',').append(' ');
-    buf.append("finalExchange").append('=').append(finalExchange).append(',').append(' ');
-    buf.append("paymentEvents").append('=').append(paymentEvents).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
+    buf.append("initialExchange").append('=').append(JodaBeanUtils.toString(initialExchange)).append(',').append(' ');
+    buf.append("intermediateExchange").append('=').append(JodaBeanUtils.toString(intermediateExchange)).append(',').append(' ');
+    buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange)).append(',').append(' ');
+    buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(paymentEvents)).append(',').append(' ');
     buf.append("paymentBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(paymentBusinessDayAdjustment));
     buf.append('}');
     return buf.toString();

@@ -184,7 +184,7 @@ public final class InflationMonthlyRateComputation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("InflationMonthlyRateComputation{");
-    buf.append("startObservation").append('=').append(startObservation).append(',').append(' ');
+    buf.append("startObservation").append('=').append(JodaBeanUtils.toString(startObservation)).append(',').append(' ');
     buf.append("endObservation").append('=').append(JodaBeanUtils.toString(endObservation));
     buf.append('}');
     return buf.toString();

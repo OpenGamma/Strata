@@ -166,8 +166,8 @@ public final class SimpleConstantContinuousBarrier
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SimpleConstantContinuousBarrier{");
-    buf.append("barrierType").append('=').append(barrierType).append(',').append(' ');
-    buf.append("knockType").append('=').append(knockType).append(',').append(' ');
+    buf.append("barrierType").append('=').append(JodaBeanUtils.toString(barrierType)).append(',').append(' ');
+    buf.append("knockType").append('=').append(JodaBeanUtils.toString(knockType)).append(',').append(' ');
     buf.append("barrierLevel").append('=').append(JodaBeanUtils.toString(barrierLevel));
     buf.append('}');
     return buf.toString();

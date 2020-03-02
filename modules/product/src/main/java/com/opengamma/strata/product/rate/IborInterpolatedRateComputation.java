@@ -227,7 +227,7 @@ public final class IborInterpolatedRateComputation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborInterpolatedRateComputation{");
-    buf.append("shortObservation").append('=').append(shortObservation).append(',').append(' ');
+    buf.append("shortObservation").append('=').append(JodaBeanUtils.toString(shortObservation)).append(',').append(' ');
     buf.append("longObservation").append('=').append(JodaBeanUtils.toString(longObservation));
     buf.append('}');
     return buf.toString();

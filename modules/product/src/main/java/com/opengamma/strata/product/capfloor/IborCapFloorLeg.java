@@ -417,13 +417,13 @@ public final class IborCapFloorLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("IborCapFloorLeg{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("calculation").append('=').append(calculation).append(',').append(' ');
-    buf.append("capSchedule").append('=').append(capSchedule).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation)).append(',').append(' ');
+    buf.append("capSchedule").append('=').append(JodaBeanUtils.toString(capSchedule)).append(',').append(' ');
     buf.append("floorSchedule").append('=').append(JodaBeanUtils.toString(floorSchedule));
     buf.append('}');
     return buf.toString();

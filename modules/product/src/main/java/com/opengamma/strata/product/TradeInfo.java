@@ -384,12 +384,12 @@ public final class TradeInfo
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("TradeInfo{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("counterparty").append('=').append(counterparty).append(',').append(' ');
-    buf.append("tradeDate").append('=').append(tradeDate).append(',').append(' ');
-    buf.append("tradeTime").append('=').append(tradeTime).append(',').append(' ');
-    buf.append("zone").append('=').append(zone).append(',').append(' ');
-    buf.append("settlementDate").append('=').append(settlementDate).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("counterparty").append('=').append(JodaBeanUtils.toString(counterparty)).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
+    buf.append("tradeTime").append('=').append(JodaBeanUtils.toString(tradeTime)).append(',').append(' ');
+    buf.append("zone").append('=').append(JodaBeanUtils.toString(zone)).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate)).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();

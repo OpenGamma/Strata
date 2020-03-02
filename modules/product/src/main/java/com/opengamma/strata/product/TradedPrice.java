@@ -152,7 +152,7 @@ public final class TradedPrice
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("TradedPrice{");
-    buf.append("tradeDate").append('=').append(tradeDate).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(tradeDate)).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();

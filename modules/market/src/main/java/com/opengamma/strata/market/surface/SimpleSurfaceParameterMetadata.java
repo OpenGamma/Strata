@@ -185,9 +185,9 @@ public final class SimpleSurfaceParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SimpleSurfaceParameterMetadata{");
-    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
-    buf.append("xValue").append('=').append(xValue).append(',').append(' ');
-    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
+    buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+    buf.append("xValue").append('=').append(JodaBeanUtils.toString(xValue)).append(',').append(' ');
+    buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
     buf.append("yValue").append('=').append(JodaBeanUtils.toString(yValue));
     buf.append('}');
     return buf.toString();

@@ -261,8 +261,8 @@ public final class PointShifts
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("PointShifts{");
-    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
-    buf.append("shifts").append('=').append(shifts).append(',').append(' ');
+    buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
+    buf.append("shifts").append('=').append(JodaBeanUtils.toString(shifts)).append(',').append(' ');
     buf.append("nodeIndices").append('=').append(JodaBeanUtils.toString(nodeIndices));
     buf.append('}');
     return buf.toString();

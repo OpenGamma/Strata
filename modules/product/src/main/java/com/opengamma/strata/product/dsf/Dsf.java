@@ -288,10 +288,10 @@ public final class Dsf
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("Dsf{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("deliveryDate").append('=').append(deliveryDate).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+    buf.append("deliveryDate").append('=').append(JodaBeanUtils.toString(deliveryDate)).append(',').append(' ');
     buf.append("underlyingSwap").append('=').append(JodaBeanUtils.toString(underlyingSwap));
     buf.append('}');
     return buf.toString();

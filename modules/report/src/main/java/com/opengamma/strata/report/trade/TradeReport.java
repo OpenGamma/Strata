@@ -212,9 +212,9 @@ public final class TradeReport
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("TradeReport{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("runInstant").append('=').append(runInstant).append(',').append(' ');
-    buf.append("columns").append('=').append(columns).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("runInstant").append('=').append(JodaBeanUtils.toString(runInstant)).append(',').append(' ');
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
     buf.append("data").append('=').append(JodaBeanUtils.toString(data));
     buf.append('}');
     return buf.toString();

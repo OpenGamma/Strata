@@ -312,12 +312,12 @@ public final class IborFutureOptionSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("IborFutureOptionSensitivity{");
-    buf.append("volatilitiesName").append('=').append(volatilitiesName).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
-    buf.append("futurePrice").append('=').append(futurePrice).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("volatilitiesName").append('=').append(JodaBeanUtils.toString(volatilitiesName)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
+    buf.append("futurePrice").append('=').append(JodaBeanUtils.toString(futurePrice)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

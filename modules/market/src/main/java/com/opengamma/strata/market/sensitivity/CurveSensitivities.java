@@ -381,7 +381,7 @@ public final class CurveSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveSensitivities{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
     buf.append("typedSensitivities").append('=').append(JodaBeanUtils.toString(typedSensitivities));
     buf.append('}');
     return buf.toString();

@@ -235,9 +235,9 @@ public final class ResolvedBondFutureTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ResolvedBondFutureTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(product).append(',').append(' ');
-    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
     buf.append("tradedPrice").append('=').append(JodaBeanUtils.toString(tradedPrice));
     buf.append('}');
     return buf.toString();

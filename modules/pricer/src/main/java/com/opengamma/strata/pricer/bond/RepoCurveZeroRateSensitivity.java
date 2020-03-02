@@ -318,10 +318,10 @@ public final class RepoCurveZeroRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("RepoCurveZeroRateSensitivity{");
-    buf.append("curveCurrency").append('=').append(curveCurrency).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("repoGroup").append('=').append(repoGroup).append(',').append(' ');
+    buf.append("curveCurrency").append('=').append(JodaBeanUtils.toString(curveCurrency)).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("repoGroup").append('=').append(JodaBeanUtils.toString(repoGroup)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

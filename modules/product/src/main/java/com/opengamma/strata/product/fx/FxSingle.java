@@ -504,8 +504,8 @@ public final class FxSingle
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxSingle{");
-    buf.append("baseCurrencyPayment").append('=').append(baseCurrencyPayment).append(',').append(' ');
-    buf.append("counterCurrencyPayment").append('=').append(counterCurrencyPayment).append(',').append(' ');
+    buf.append("baseCurrencyPayment").append('=').append(JodaBeanUtils.toString(baseCurrencyPayment)).append(',').append(' ');
+    buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment)).append(',').append(' ');
     buf.append("paymentDateAdjustment").append('=').append(JodaBeanUtils.toString(paymentDateAdjustment));
     buf.append('}');
     return buf.toString();

@@ -415,11 +415,11 @@ public final class GridSurfaceInterpolator
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("GridSurfaceInterpolator{");
-    buf.append("xInterpolator").append('=').append(xInterpolator).append(',').append(' ');
-    buf.append("xExtrapolatorLeft").append('=').append(xExtrapolatorLeft).append(',').append(' ');
-    buf.append("xExtrapolatorRight").append('=').append(xExtrapolatorRight).append(',').append(' ');
-    buf.append("yInterpolator").append('=').append(yInterpolator).append(',').append(' ');
-    buf.append("yExtrapolatorLeft").append('=').append(yExtrapolatorLeft).append(',').append(' ');
+    buf.append("xInterpolator").append('=').append(JodaBeanUtils.toString(xInterpolator)).append(',').append(' ');
+    buf.append("xExtrapolatorLeft").append('=').append(JodaBeanUtils.toString(xExtrapolatorLeft)).append(',').append(' ');
+    buf.append("xExtrapolatorRight").append('=').append(JodaBeanUtils.toString(xExtrapolatorRight)).append(',').append(' ');
+    buf.append("yInterpolator").append('=').append(JodaBeanUtils.toString(yInterpolator)).append(',').append(' ');
+    buf.append("yExtrapolatorLeft").append('=').append(JodaBeanUtils.toString(yExtrapolatorLeft)).append(',').append(' ');
     buf.append("yExtrapolatorRight").append('=').append(JodaBeanUtils.toString(yExtrapolatorRight));
     buf.append('}');
     return buf.toString();

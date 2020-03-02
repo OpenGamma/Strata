@@ -335,11 +335,11 @@ public final class DefaultSurfaceMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("DefaultSurfaceMetadata{");
-    buf.append("surfaceName").append('=').append(surfaceName).append(',').append(' ');
-    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
-    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
-    buf.append("zValueType").append('=').append(zValueType).append(',').append(' ');
-    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("surfaceName").append('=').append(JodaBeanUtils.toString(surfaceName)).append(',').append(' ');
+    buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+    buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
+    buf.append("zValueType").append('=').append(JodaBeanUtils.toString(zValueType)).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();

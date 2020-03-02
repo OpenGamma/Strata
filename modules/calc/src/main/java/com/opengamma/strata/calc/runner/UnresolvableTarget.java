@@ -126,7 +126,7 @@ final class UnresolvableTarget implements CalculationTarget, ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("UnresolvableTarget{");
-    buf.append("target").append('=').append(target).append(',').append(' ');
+    buf.append("target").append('=').append(JodaBeanUtils.toString(target)).append(',').append(' ');
     buf.append("message").append('=').append(JodaBeanUtils.toString(message));
     buf.append('}');
     return buf.toString();

@@ -209,7 +209,7 @@ final class RepeatedScenarioMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("RepeatedScenarioMarketData{");
-    buf.append("scenarioCount").append('=').append(scenarioCount).append(',').append(' ');
+    buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount)).append(',').append(' ');
     buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
     buf.append('}');
     return buf.toString();

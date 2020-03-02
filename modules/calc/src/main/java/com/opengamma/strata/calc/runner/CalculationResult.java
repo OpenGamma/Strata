@@ -214,8 +214,8 @@ public final class CalculationResult
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CalculationResult{");
-    buf.append("rowIndex").append('=').append(rowIndex).append(',').append(' ');
-    buf.append("columnIndex").append('=').append(columnIndex).append(',').append(' ');
+    buf.append("rowIndex").append('=').append(JodaBeanUtils.toString(rowIndex)).append(',').append(' ');
+    buf.append("columnIndex").append('=').append(JodaBeanUtils.toString(columnIndex)).append(',').append(' ');
     buf.append("result").append('=').append(JodaBeanUtils.toString(result));
     buf.append('}');
     return buf.toString();

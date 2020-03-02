@@ -175,8 +175,8 @@ public final class ColumnHeader implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ColumnHeader{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("measure").append('=').append(measure).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("measure").append('=').append(JodaBeanUtils.toString(measure)).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();

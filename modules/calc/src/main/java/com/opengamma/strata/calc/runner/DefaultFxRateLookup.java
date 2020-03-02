@@ -152,7 +152,7 @@ final class DefaultFxRateLookup
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("DefaultFxRateLookup{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();

@@ -149,7 +149,7 @@ public final class CashSwaptionSettlement
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CashSwaptionSettlement{");
-    buf.append("settlementDate").append('=').append(settlementDate).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate)).append(',').append(' ');
     buf.append("method").append('=').append(JodaBeanUtils.toString(method));
     buf.append('}');
     return buf.toString();

@@ -190,7 +190,7 @@ final class SingleScenarioArray<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SingleScenarioArray{");
-    buf.append("scenarioCount").append('=').append(scenarioCount).append(',').append(' ');
+    buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount)).append(',').append(' ');
     buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();

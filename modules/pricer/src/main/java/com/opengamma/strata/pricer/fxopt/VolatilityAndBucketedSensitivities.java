@@ -132,7 +132,7 @@ public final class VolatilityAndBucketedSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("VolatilityAndBucketedSensitivities{");
-    buf.append("volatility").append('=').append(volatility).append(',').append(' ');
+    buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility)).append(',').append(' ');
     buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();

@@ -245,8 +245,8 @@ public final class DeformedSurface
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("DeformedSurface{");
-    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
-    buf.append("originalSurface").append('=').append(originalSurface).append(',').append(' ');
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
+    buf.append("originalSurface").append('=').append(JodaBeanUtils.toString(originalSurface)).append(',').append(' ');
     buf.append("deformationFunction").append('=').append(JodaBeanUtils.toString(deformationFunction));
     buf.append('}');
     return buf.toString();

@@ -156,7 +156,7 @@ public final class CurveNodeDateOrder
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveNodeDateOrder{");
-    buf.append("minGapInDays").append('=').append(minGapInDays).append(',').append(' ');
+    buf.append("minGapInDays").append('=').append(JodaBeanUtils.toString(minGapInDays)).append(',').append(' ');
     buf.append("action").append('=').append(JodaBeanUtils.toString(action));
     buf.append('}');
     return buf.toString();

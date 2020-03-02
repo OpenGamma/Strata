@@ -156,8 +156,8 @@ public final class SimpleLegalEntity implements LegalEntity, Serializable, Immut
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SimpleLegalEntity{");
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
     buf.append("country").append('=').append(JodaBeanUtils.toString(country));
     buf.append('}');
     return buf.toString();

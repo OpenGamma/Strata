@@ -343,13 +343,16 @@ public final class KnownAmountSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("KnownAmountSwapLeg{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("amount").append('=').append(amount).append(',').append(' ');
-    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
     buf.append('}');
     return buf.toString();
   }
@@ -737,13 +740,16 @@ public final class KnownAmountSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("KnownAmountSwapLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
       buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
-      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+      buf.append("type").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("startDate").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

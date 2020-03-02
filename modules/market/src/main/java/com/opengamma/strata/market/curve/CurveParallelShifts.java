@@ -181,7 +181,7 @@ public final class CurveParallelShifts
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveParallelShifts{");
-    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
+    buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
     buf.append("shiftAmounts").append('=').append(JodaBeanUtils.toString(shiftAmounts));
     buf.append('}');
     return buf.toString();

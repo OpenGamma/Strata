@@ -378,9 +378,9 @@ public final class DiscountFxForwardRates
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DiscountFxForwardRates{");
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
-    buf.append("fxRateProvider").append('=').append(fxRateProvider).append(',').append(' ');
-    buf.append("baseCurrencyDiscountFactors").append('=').append(baseCurrencyDiscountFactors).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+    buf.append("fxRateProvider").append('=').append(JodaBeanUtils.toString(fxRateProvider)).append(',').append(' ');
+    buf.append("baseCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(baseCurrencyDiscountFactors)).append(',').append(' ');
     buf.append("counterCurrencyDiscountFactors").append('=').append(JodaBeanUtils.toString(counterCurrencyDiscountFactors));
     buf.append('}');
     return buf.toString();

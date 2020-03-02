@@ -237,7 +237,7 @@ public final class IssuerCurveDiscountFactors
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IssuerCurveDiscountFactors{");
-    buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors)).append(',').append(' ');
     buf.append("legalEntityGroup").append('=').append(JodaBeanUtils.toString(legalEntityGroup));
     buf.append('}');
     return buf.toString();

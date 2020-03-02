@@ -325,10 +325,10 @@ public final class FxForwardSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("FxForwardSensitivity{");
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
-    buf.append("referenceDate").append('=').append(referenceDate).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+    buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency)).append(',').append(' ');
+    buf.append("referenceDate").append('=').append(JodaBeanUtils.toString(referenceDate)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

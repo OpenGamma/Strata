@@ -156,7 +156,7 @@ public final class FixedOvernightCompoundedAnnualRateComputation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FixedOvernightCompoundedAnnualRateComputation{");
-    buf.append("rate").append('=').append(rate).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
     buf.append("accrualFactor").append('=').append(JodaBeanUtils.toString(accrualFactor));
     buf.append('}');
     return buf.toString();

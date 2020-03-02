@@ -295,8 +295,8 @@ public final class ConstantNodalCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ConstantNodalCurve{");
-    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
-    buf.append("xValue").append('=').append(xValue).append(',').append(' ');
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
+    buf.append("xValue").append('=').append(JodaBeanUtils.toString(xValue)).append(',').append(' ');
     buf.append("yValue").append('=').append(JodaBeanUtils.toString(yValue));
     buf.append('}');
     return buf.toString();

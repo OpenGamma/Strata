@@ -315,7 +315,7 @@ public final class CurrencyAmountArray
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurrencyAmountArray{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();

@@ -655,11 +655,11 @@ public final class RatesCurveGroupDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("RatesCurveGroupDefinition{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("entries").append('=').append(entries).append(',').append(' ');
-    buf.append("curveDefinitions").append('=').append(curveDefinitions).append(',').append(' ');
-    buf.append("seasonalityDefinitions").append('=').append(seasonalityDefinitions).append(',').append(' ');
-    buf.append("computeJacobian").append('=').append(computeJacobian).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("entries").append('=').append(JodaBeanUtils.toString(entries)).append(',').append(' ');
+    buf.append("curveDefinitions").append('=').append(JodaBeanUtils.toString(curveDefinitions)).append(',').append(' ');
+    buf.append("seasonalityDefinitions").append('=').append(JodaBeanUtils.toString(seasonalityDefinitions)).append(',').append(' ');
+    buf.append("computeJacobian").append('=').append(JodaBeanUtils.toString(computeJacobian)).append(',').append(' ');
     buf.append("computePvSensitivityToMarketQuote").append('=').append(JodaBeanUtils.toString(computePvSensitivityToMarketQuote));
     buf.append('}');
     return buf.toString();

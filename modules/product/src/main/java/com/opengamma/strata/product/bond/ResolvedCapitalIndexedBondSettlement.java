@@ -188,8 +188,8 @@ public final class ResolvedCapitalIndexedBondSettlement
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ResolvedCapitalIndexedBondSettlement{");
-    buf.append("settlementDate").append('=').append(settlementDate).append(',').append(' ');
-    buf.append("price").append('=').append(price).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate)).append(',').append(' ');
+    buf.append("price").append('=').append(JodaBeanUtils.toString(price)).append(',').append(' ');
     buf.append("payment").append('=').append(JodaBeanUtils.toString(payment));
     buf.append('}');
     return buf.toString();

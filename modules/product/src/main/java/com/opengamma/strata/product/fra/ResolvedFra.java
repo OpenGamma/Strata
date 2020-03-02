@@ -378,14 +378,14 @@ public final class ResolvedFra
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("ResolvedFra{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
-    buf.append("floatingRate").append('=').append(floatingRate).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
+    buf.append("floatingRate").append('=').append(JodaBeanUtils.toString(floatingRate)).append(',').append(' ');
     buf.append("discounting").append('=').append(JodaBeanUtils.toString(discounting));
     buf.append('}');
     return buf.toString();

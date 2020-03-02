@@ -444,13 +444,13 @@ public final class EtdOptionSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("EtdOptionSecurity{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("contractSpecId").append('=').append(contractSpecId).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("variant").append('=').append(variant).append(',').append(' ');
-    buf.append("version").append('=').append(version).append(',').append(' ');
-    buf.append("putCall").append('=').append(putCall).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("contractSpecId").append('=').append(JodaBeanUtils.toString(contractSpecId)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
+    buf.append("variant").append('=').append(JodaBeanUtils.toString(variant)).append(',').append(' ');
+    buf.append("version").append('=').append(JodaBeanUtils.toString(version)).append(',').append(' ');
+    buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
     buf.append("underlyingExpiryMonth").append('=').append(JodaBeanUtils.toString(underlyingExpiryMonth));
     buf.append('}');
     return buf.toString();

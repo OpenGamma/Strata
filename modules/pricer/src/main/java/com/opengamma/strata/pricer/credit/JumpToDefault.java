@@ -150,7 +150,7 @@ public final class JumpToDefault
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("JumpToDefault{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("amounts").append('=').append(JodaBeanUtils.toString(amounts));
     buf.append('}');
     return buf.toString();

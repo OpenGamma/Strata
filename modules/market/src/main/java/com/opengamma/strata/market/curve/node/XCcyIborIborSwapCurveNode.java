@@ -436,12 +436,12 @@ public final class XCcyIborIborSwapCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("XCcyIborIborSwapCurveNode{");
-    buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("fxRateId").append('=').append(fxRateId).append(',').append(' ');
-    buf.append("spreadId").append('=').append(spreadId).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
-    buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
+    buf.append("fxRateId").append('=').append(JodaBeanUtils.toString(fxRateId)).append(',').append(' ');
+    buf.append("spreadId").append('=').append(JodaBeanUtils.toString(spreadId)).append(',').append(' ');
+    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
     buf.append("dateOrder").append('=').append(JodaBeanUtils.toString(dateOrder));
     buf.append('}');
     return buf.toString();

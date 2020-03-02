@@ -258,8 +258,8 @@ public final class HullWhiteOneFactorPiecewiseConstantParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("HullWhiteOneFactorPiecewiseConstantParameters{");
-    buf.append("meanReversion").append('=').append(meanReversion).append(',').append(' ');
-    buf.append("volatility").append('=').append(volatility).append(',').append(' ');
+    buf.append("meanReversion").append('=').append(JodaBeanUtils.toString(meanReversion)).append(',').append(' ');
+    buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility)).append(',').append(' ');
     buf.append("volatilityTime").append('=').append(JodaBeanUtils.toString(volatilityTime));
     buf.append('}');
     return buf.toString();

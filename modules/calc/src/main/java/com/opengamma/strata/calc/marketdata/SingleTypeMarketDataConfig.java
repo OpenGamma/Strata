@@ -192,7 +192,7 @@ final class SingleTypeMarketDataConfig implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SingleTypeMarketDataConfig{");
-    buf.append("configType").append('=').append(configType).append(',').append(' ');
+    buf.append("configType").append('=').append(JodaBeanUtils.toString(configType)).append(',').append(' ');
     buf.append("configObjects").append('=').append(JodaBeanUtils.toString(configObjects));
     buf.append('}');
     return buf.toString();

@@ -230,8 +230,8 @@ public final class PerturbationMapping<T> implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("PerturbationMapping{");
-    buf.append("marketDataType").append('=').append(marketDataType).append(',').append(' ');
-    buf.append("filter").append('=').append(filter).append(',').append(' ');
+    buf.append("marketDataType").append('=').append(JodaBeanUtils.toString(marketDataType)).append(',').append(' ');
+    buf.append("filter").append('=').append(JodaBeanUtils.toString(filter)).append(',').append(' ');
     buf.append("perturbation").append('=').append(JodaBeanUtils.toString(perturbation));
     buf.append('}');
     return buf.toString();

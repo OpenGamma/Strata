@@ -141,7 +141,7 @@ public final class SimpleCurveParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SimpleCurveParameterMetadata{");
-    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
+    buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
     buf.append("xValue").append('=').append(JodaBeanUtils.toString(xValue));
     buf.append('}');
     return buf.toString();

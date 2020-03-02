@@ -262,8 +262,8 @@ public final class SecurityInfo
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SecurityInfo{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("priceInfo").append('=').append(priceInfo).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("priceInfo").append('=').append(JodaBeanUtils.toString(priceInfo)).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();

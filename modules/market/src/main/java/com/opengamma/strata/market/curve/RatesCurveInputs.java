@@ -156,7 +156,7 @@ public final class RatesCurveInputs
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("RatesCurveInputs{");
-    buf.append("marketData").append('=').append(marketData).append(',').append(' ');
+    buf.append("marketData").append('=').append(JodaBeanUtils.toString(marketData)).append(',').append(' ');
     buf.append("curveMetadata").append('=').append(JodaBeanUtils.toString(curveMetadata));
     buf.append('}');
     return buf.toString();

@@ -201,7 +201,7 @@ final class CombinedMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CombinedMarketData{");
-    buf.append("underlying1").append('=').append(underlying1).append(',').append(' ');
+    buf.append("underlying1").append('=').append(JodaBeanUtils.toString(underlying1)).append(',').append(' ');
     buf.append("underlying2").append('=').append(JodaBeanUtils.toString(underlying2));
     buf.append('}');
     return buf.toString();

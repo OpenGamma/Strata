@@ -516,13 +516,13 @@ public final class SabrParametersSwaptionVolatilities
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("SabrParametersSwaptionVolatilities{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("convention").append('=').append(convention).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
-    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
-    buf.append("dataSensitivityAlpha").append('=').append(dataSensitivityAlpha).append(',').append(' ');
-    buf.append("dataSensitivityBeta").append('=').append(dataSensitivityBeta).append(',').append(' ');
-    buf.append("dataSensitivityRho").append('=').append(dataSensitivityRho).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
+    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
+    buf.append("dataSensitivityAlpha").append('=').append(JodaBeanUtils.toString(dataSensitivityAlpha)).append(',').append(' ');
+    buf.append("dataSensitivityBeta").append('=').append(JodaBeanUtils.toString(dataSensitivityBeta)).append(',').append(' ');
+    buf.append("dataSensitivityRho").append('=').append(JodaBeanUtils.toString(dataSensitivityRho)).append(',').append(' ');
     buf.append("dataSensitivityNu").append('=').append(JodaBeanUtils.toString(dataSensitivityNu));
     buf.append('}');
     return buf.toString();

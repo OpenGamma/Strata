@@ -241,7 +241,7 @@ public final class Cms
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Cms{");
-    buf.append("cmsLeg").append('=').append(cmsLeg).append(',').append(' ');
+    buf.append("cmsLeg").append('=').append(JodaBeanUtils.toString(cmsLeg)).append(',').append(' ');
     buf.append("payLeg").append('=').append(JodaBeanUtils.toString(payLeg));
     buf.append('}');
     return buf.toString();

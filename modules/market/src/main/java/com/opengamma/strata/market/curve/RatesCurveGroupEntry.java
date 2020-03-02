@@ -211,8 +211,8 @@ public final class RatesCurveGroupEntry
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("RatesCurveGroupEntry{");
-    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
-    buf.append("discountCurrencies").append('=').append(discountCurrencies).append(',').append(' ');
+    buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
+    buf.append("discountCurrencies").append('=').append(JodaBeanUtils.toString(discountCurrencies)).append(',').append(' ');
     buf.append("indices").append('=').append(JodaBeanUtils.toString(indices));
     buf.append('}');
     return buf.toString();

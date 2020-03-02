@@ -364,9 +364,9 @@ public final class ResolvedSwapLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ResolvedSwapLeg{");
-    buf.append("type").append('=').append(type).append(',').append(' ');
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("paymentPeriods").append('=').append(paymentPeriods).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("paymentPeriods").append('=').append(JodaBeanUtils.toString(paymentPeriods)).append(',').append(' ');
     buf.append("paymentEvents").append('=').append(JodaBeanUtils.toString(paymentEvents));
     buf.append('}');
     return buf.toString();

@@ -384,7 +384,7 @@ public final class ScenarioDefinition implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ScenarioDefinition{");
-    buf.append("mappings").append('=').append(mappings).append(',').append(' ');
+    buf.append("mappings").append('=').append(JodaBeanUtils.toString(mappings)).append(',').append(' ');
     buf.append("scenarioNames").append('=').append(JodaBeanUtils.toString(scenarioNames));
     buf.append('}');
     return buf.toString();

@@ -590,12 +590,12 @@ public final class PaymentSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("PaymentSchedule{");
-    buf.append("paymentFrequency").append('=').append(paymentFrequency).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("paymentRelativeTo").append('=').append(paymentRelativeTo).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
-    buf.append("compoundingMethod").append('=').append(compoundingMethod).append(',').append(' ');
-    buf.append("firstRegularStartDate").append('=').append(firstRegularStartDate).append(',').append(' ');
+    buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency)).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+    buf.append("paymentRelativeTo").append('=').append(JodaBeanUtils.toString(paymentRelativeTo)).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
+    buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod)).append(',').append(' ');
+    buf.append("firstRegularStartDate").append('=').append(JodaBeanUtils.toString(firstRegularStartDate)).append(',').append(' ');
     buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate));
     buf.append('}');
     return buf.toString();

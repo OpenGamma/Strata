@@ -242,9 +242,9 @@ public final class OvernightAveragedDailyRateComputation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("OvernightAveragedDailyRateComputation{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingCalendar").append('=').append(fixingCalendar).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate));
     buf.append('}');
     return buf.toString();

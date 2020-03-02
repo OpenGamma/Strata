@@ -195,8 +195,8 @@ public final class GenericVolatilitySurfacePeriodParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("GenericVolatilitySurfacePeriodParameterMetadata{");
-    buf.append("period").append('=').append(period).append(',').append(' ');
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
+    buf.append("period").append('=').append(JodaBeanUtils.toString(period)).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

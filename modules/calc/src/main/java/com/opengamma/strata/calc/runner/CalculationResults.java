@@ -144,7 +144,7 @@ public final class CalculationResults
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CalculationResults{");
-    buf.append("target").append('=').append(target).append(',').append(' ');
+    buf.append("target").append('=').append(JodaBeanUtils.toString(target)).append(',').append(' ');
     buf.append("cells").append('=').append(JodaBeanUtils.toString(cells));
     buf.append('}');
     return buf.toString();

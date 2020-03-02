@@ -158,7 +158,7 @@ public final class CmsSabrExtrapolationParams
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CmsSabrExtrapolationParams{");
-    buf.append("cutOffStrike").append('=').append(cutOffStrike).append(',').append(' ');
+    buf.append("cutOffStrike").append('=').append(JodaBeanUtils.toString(cutOffStrike)).append(',').append(' ');
     buf.append("mu").append('=').append(JodaBeanUtils.toString(mu));
     buf.append('}');
     return buf.toString();

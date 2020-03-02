@@ -327,10 +327,10 @@ public final class ParameterizedFunctionalCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("ParameterizedFunctionalCurve{");
-    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
-    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
-    buf.append("valueFunction").append('=').append(valueFunction).append(',').append(' ');
-    buf.append("derivativeFunction").append('=').append(derivativeFunction).append(',').append(' ');
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
+    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
+    buf.append("valueFunction").append('=').append(JodaBeanUtils.toString(valueFunction)).append(',').append(' ');
+    buf.append("derivativeFunction").append('=').append(JodaBeanUtils.toString(derivativeFunction)).append(',').append(' ');
     buf.append("sensitivityFunction").append('=').append(JodaBeanUtils.toString(sensitivityFunction));
     buf.append('}');
     return buf.toString();

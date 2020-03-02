@@ -415,12 +415,12 @@ public final class RatePaymentPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("RatePaymentPeriod{");
-    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("accrualPeriods").append('=').append(accrualPeriods).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
+    buf.append("accrualPeriods").append('=').append(JodaBeanUtils.toString(accrualPeriods)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
     buf.append("compoundingMethod").append('=').append(JodaBeanUtils.toString(compoundingMethod));
     buf.append('}');
     return buf.toString();

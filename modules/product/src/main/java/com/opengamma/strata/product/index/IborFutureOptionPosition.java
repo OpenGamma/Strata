@@ -319,12 +319,13 @@ public final class IborFutureOptionPosition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("IborFutureOptionPosition{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(product).append(',').append(' ');
-    buf.append("longQuantity").append('=').append(longQuantity).append(',').append(' ');
-    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+    buf.append("longQuantity").append('=').append(JodaBeanUtils.toString(longQuantity)).append(',').append(' ');
+    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity()));
     buf.append('}');
     return buf.toString();
   }
@@ -623,12 +624,13 @@ public final class IborFutureOptionPosition
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("IborFutureOptionPosition.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
       buf.append("longQuantity").append('=').append(JodaBeanUtils.toString(longQuantity)).append(',').append(' ');
-      buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
+      buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity)).append(',').append(' ');
+      buf.append("quantity").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

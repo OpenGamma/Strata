@@ -357,9 +357,9 @@ public final class SmileDeltaParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SmileDeltaParameters{");
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("delta").append('=').append(delta).append(',').append(' ');
-    buf.append("volatility").append('=').append(volatility).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
+    buf.append("delta").append('=').append(JodaBeanUtils.toString(delta)).append(',').append(' ');
+    buf.append("volatility").append('=').append(JodaBeanUtils.toString(volatility)).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();

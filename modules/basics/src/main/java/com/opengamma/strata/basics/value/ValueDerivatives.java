@@ -150,7 +150,7 @@ public final class ValueDerivatives
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueDerivatives{");
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("derivatives").append('=').append(JodaBeanUtils.toString(derivatives));
     buf.append('}');
     return buf.toString();

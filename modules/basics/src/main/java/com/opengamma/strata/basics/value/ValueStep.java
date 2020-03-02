@@ -314,8 +314,8 @@ public final class ValueStep
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ValueStep{");
-    buf.append("periodIndex").append('=').append(periodIndex).append(',').append(' ');
-    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("periodIndex").append('=').append(JodaBeanUtils.toString(periodIndex)).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
     buf.append("value").append('=').append(JodaBeanUtils.toString(value));
     buf.append('}');
     return buf.toString();

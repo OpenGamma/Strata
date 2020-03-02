@@ -387,14 +387,14 @@ public final class FixedCouponBondPaymentPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("FixedCouponBondPaymentPeriod{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
-    buf.append("detachmentDate").append('=').append(detachmentDate).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
+    buf.append("detachmentDate").append('=').append(JodaBeanUtils.toString(detachmentDate)).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
     buf.append('}');
     return buf.toString();

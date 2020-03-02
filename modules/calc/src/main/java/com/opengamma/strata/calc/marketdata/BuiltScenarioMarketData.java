@@ -262,8 +262,8 @@ public final class BuiltScenarioMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("BuiltScenarioMarketData{");
-    buf.append("underlying").append('=').append(underlying).append(',').append(' ');
-    buf.append("valueFailures").append('=').append(valueFailures).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
+    buf.append("valueFailures").append('=').append(JodaBeanUtils.toString(valueFailures)).append(',').append(' ');
     buf.append("timeSeriesFailures").append('=').append(JodaBeanUtils.toString(timeSeriesFailures));
     buf.append('}');
     return buf.toString();

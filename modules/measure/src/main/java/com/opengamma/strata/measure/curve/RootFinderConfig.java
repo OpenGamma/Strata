@@ -178,8 +178,8 @@ public final class RootFinderConfig implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("RootFinderConfig{");
-    buf.append("absoluteTolerance").append('=').append(absoluteTolerance).append(',').append(' ');
-    buf.append("relativeTolerance").append('=').append(relativeTolerance).append(',').append(' ');
+    buf.append("absoluteTolerance").append('=').append(JodaBeanUtils.toString(absoluteTolerance)).append(',').append(' ');
+    buf.append("relativeTolerance").append('=').append(JodaBeanUtils.toString(relativeTolerance)).append(',').append(' ');
     buf.append("maximumSteps").append('=').append(JodaBeanUtils.toString(maximumSteps));
     buf.append('}');
     return buf.toString();

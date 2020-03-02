@@ -167,8 +167,8 @@ public final class EuropeanVanillaOption
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("EuropeanVanillaOption{");
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("timeToExpiry").append('=').append(timeToExpiry).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+    buf.append("timeToExpiry").append('=').append(JodaBeanUtils.toString(timeToExpiry)).append(',').append(' ');
     buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall));
     buf.append('}');
     return buf.toString();

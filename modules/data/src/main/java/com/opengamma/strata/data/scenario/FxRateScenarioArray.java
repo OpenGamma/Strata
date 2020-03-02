@@ -287,7 +287,7 @@ public final class FxRateScenarioArray
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxRateScenarioArray{");
-    buf.append("pair").append('=').append(pair).append(',').append(' ');
+    buf.append("pair").append('=').append(JodaBeanUtils.toString(pair)).append(',').append(' ');
     buf.append("rates").append('=').append(JodaBeanUtils.toString(rates));
     buf.append('}');
     return buf.toString();

@@ -262,8 +262,8 @@ public final class MarketDataFxRateProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("MarketDataFxRateProvider{");
-    buf.append("marketData").append('=').append(marketData).append(',').append(' ');
-    buf.append("fxRatesSource").append('=').append(fxRatesSource).append(',').append(' ');
+    buf.append("marketData").append('=').append(JodaBeanUtils.toString(marketData)).append(',').append(' ');
+    buf.append("fxRatesSource").append('=').append(JodaBeanUtils.toString(fxRatesSource)).append(',').append(' ');
     buf.append("triangulationCurrency").append('=').append(JodaBeanUtils.toString(triangulationCurrency));
     buf.append('}');
     return buf.toString();

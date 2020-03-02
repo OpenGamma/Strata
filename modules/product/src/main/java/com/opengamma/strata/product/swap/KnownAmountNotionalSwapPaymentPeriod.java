@@ -428,12 +428,12 @@ public final class KnownAmountNotionalSwapPaymentPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("KnownAmountNotionalSwapPaymentPeriod{");
-    buf.append("payment").append('=').append(payment).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
-    buf.append("notionalAmount").append('=').append(notionalAmount).append(',').append(' ');
+    buf.append("payment").append('=').append(JodaBeanUtils.toString(payment)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
+    buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(notionalAmount)).append(',').append(' ');
     buf.append("fxResetObservation").append('=').append(JodaBeanUtils.toString(fxResetObservation));
     buf.append('}');
     return buf.toString();

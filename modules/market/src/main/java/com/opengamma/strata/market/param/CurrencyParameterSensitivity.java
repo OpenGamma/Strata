@@ -632,10 +632,10 @@ public final class CurrencyParameterSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("CurrencyParameterSensitivity{");
-    buf.append("marketDataName").append('=').append(marketDataName).append(',').append(' ');
-    buf.append("parameterMetadata").append('=').append(parameterMetadata).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("sensitivity").append('=').append(sensitivity).append(',').append(' ');
+    buf.append("marketDataName").append('=').append(JodaBeanUtils.toString(marketDataName)).append(',').append(' ');
+    buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity)).append(',').append(' ');
     buf.append("parameterSplit").append('=').append(JodaBeanUtils.toString(parameterSplit));
     buf.append('}');
     return buf.toString();

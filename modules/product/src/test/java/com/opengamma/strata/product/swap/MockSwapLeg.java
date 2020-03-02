@@ -262,10 +262,10 @@ public final class MockSwapLeg implements SwapLeg, ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("MockSwapLeg{");
-    buf.append("type").append('=').append(type).append(',').append(' ');
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();

@@ -196,7 +196,7 @@ public final class FxReset
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxReset{");
-    buf.append("observation").append('=').append(observation).append(',').append(' ');
+    buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
     buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency));
     buf.append('}');
     return buf.toString();

@@ -216,7 +216,7 @@ public final class ConstantSurface
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ConstantSurface{");
-    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
     buf.append("zValue").append('=').append(JodaBeanUtils.toString(zValue));
     buf.append('}');
     return buf.toString();

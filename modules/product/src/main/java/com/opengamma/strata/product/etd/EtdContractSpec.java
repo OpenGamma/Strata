@@ -354,12 +354,12 @@ public final class EtdContractSpec
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("EtdContractSpec{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("type").append('=').append(type).append(',').append(' ');
-    buf.append("exchangeId").append('=').append(exchangeId).append(',').append(' ');
-    buf.append("contractCode").append('=').append(contractCode).append(',').append(' ');
-    buf.append("description").append('=').append(description).append(',').append(' ');
-    buf.append("priceInfo").append('=').append(priceInfo).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+    buf.append("exchangeId").append('=').append(JodaBeanUtils.toString(exchangeId)).append(',').append(' ');
+    buf.append("contractCode").append('=').append(JodaBeanUtils.toString(contractCode)).append(',').append(' ');
+    buf.append("description").append('=').append(JodaBeanUtils.toString(description)).append(',').append(' ');
+    buf.append("priceInfo").append('=').append(JodaBeanUtils.toString(priceInfo)).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();

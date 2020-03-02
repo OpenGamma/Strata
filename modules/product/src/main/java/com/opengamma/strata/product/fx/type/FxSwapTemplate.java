@@ -276,8 +276,8 @@ public final class FxSwapTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxSwapTemplate{");
-    buf.append("periodToNear").append('=').append(periodToNear).append(',').append(' ');
-    buf.append("periodToFar").append('=').append(periodToFar).append(',').append(' ');
+    buf.append("periodToNear").append('=').append(JodaBeanUtils.toString(periodToNear)).append(',').append(' ');
+    buf.append("periodToFar").append('=').append(JodaBeanUtils.toString(periodToFar)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

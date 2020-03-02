@@ -421,13 +421,13 @@ public final class SimpleRatesProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("SimpleRatesProvider{");
-    buf.append("valuationDate").append('=').append(getValuationDate()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("discountFactors").append('=').append(getDiscountFactors()).append(',').append(' ');
-    buf.append("fxIndexRates").append('=').append(getFxIndexRates()).append(',').append(' ');
-    buf.append("fxForwardRates").append('=').append(getFxForwardRates()).append(',').append(' ');
-    buf.append("iborRates").append('=').append(getIborRates()).append(',').append(' ');
-    buf.append("overnightRates").append('=').append(getOvernightRates()).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(getValuationDate())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
+    buf.append("fxIndexRates").append('=').append(JodaBeanUtils.toString(getFxIndexRates())).append(',').append(' ');
+    buf.append("fxForwardRates").append('=').append(JodaBeanUtils.toString(getFxForwardRates())).append(',').append(' ');
+    buf.append("iborRates").append('=').append(JodaBeanUtils.toString(getIborRates())).append(',').append(' ');
+    buf.append("overnightRates").append('=').append(JodaBeanUtils.toString(getOvernightRates())).append(',').append(' ');
     buf.append("priceIndexValues").append('=').append(JodaBeanUtils.toString(getPriceIndexValues()));
     buf.append('}');
     return buf.toString();

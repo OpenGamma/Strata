@@ -200,8 +200,8 @@ public final class GenericDoubleShifts
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("GenericDoubleShifts{");
-    buf.append("shiftType").append('=').append(shiftType).append(',').append(' ');
-    buf.append("shiftAmount").append('=').append(shiftAmount).append(',').append(' ');
+    buf.append("shiftType").append('=').append(JodaBeanUtils.toString(shiftType)).append(',').append(' ');
+    buf.append("shiftAmount").append('=').append(JodaBeanUtils.toString(shiftAmount)).append(',').append(' ');
     buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');
     return buf.toString();

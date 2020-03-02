@@ -315,13 +315,17 @@ public final class RateCalculationSwapLeg
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("RateCalculationSwapLeg{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("notionalSchedule").append('=').append(notionalSchedule).append(',').append(' ');
-    buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation));
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
+    buf.append("notionalSchedule").append('=').append(JodaBeanUtils.toString(notionalSchedule)).append(',').append(' ');
+    buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation)).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
@@ -718,13 +722,17 @@ public final class RateCalculationSwapLeg
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(320);
       buf.append("RateCalculationSwapLeg.Builder{");
       buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
       buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
       buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
       buf.append("notionalSchedule").append('=').append(JodaBeanUtils.toString(notionalSchedule)).append(',').append(' ');
-      buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation));
+      buf.append("calculation").append('=').append(JodaBeanUtils.toString(calculation)).append(',').append(' ');
+      buf.append("type").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("startDate").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

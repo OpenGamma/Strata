@@ -328,9 +328,9 @@ public final class BlackFxOptionSmileVolatilities
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("BlackFxOptionSmileVolatilities{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
     buf.append("smile").append('=').append(JodaBeanUtils.toString(smile));
     buf.append('}');
     return buf.toString();

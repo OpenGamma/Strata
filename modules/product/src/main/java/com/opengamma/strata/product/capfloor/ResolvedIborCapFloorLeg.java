@@ -246,7 +246,7 @@ public final class ResolvedIborCapFloorLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedIborCapFloorLeg{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
     buf.append("capletFloorletPeriods").append('=').append(JodaBeanUtils.toString(capletFloorletPeriods));
     buf.append('}');
     return buf.toString();

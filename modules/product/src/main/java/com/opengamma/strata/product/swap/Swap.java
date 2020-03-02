@@ -426,9 +426,11 @@ public final class Swap
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(64);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("Swap{");
-    buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
+    buf.append("legs").append('=').append(JodaBeanUtils.toString(legs)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate()));
     buf.append('}');
     return buf.toString();
   }
@@ -639,9 +641,11 @@ public final class Swap
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(64);
+      StringBuilder buf = new StringBuilder(128);
       buf.append("Swap.Builder{");
-      buf.append("legs").append('=').append(JodaBeanUtils.toString(legs));
+      buf.append("legs").append('=').append(JodaBeanUtils.toString(legs)).append(',').append(' ');
+      buf.append("startDate").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("endDate").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

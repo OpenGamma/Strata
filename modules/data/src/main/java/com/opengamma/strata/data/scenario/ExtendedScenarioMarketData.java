@@ -255,8 +255,8 @@ final class ExtendedScenarioMarketData<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ExtendedScenarioMarketData{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
     buf.append('}');
     return buf.toString();

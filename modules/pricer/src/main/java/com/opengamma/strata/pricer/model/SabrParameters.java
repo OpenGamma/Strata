@@ -505,11 +505,11 @@ public final class SabrParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("SabrParameters{");
-    buf.append("alphaCurve").append('=').append(alphaCurve).append(',').append(' ');
-    buf.append("betaCurve").append('=').append(betaCurve).append(',').append(' ');
-    buf.append("rhoCurve").append('=').append(rhoCurve).append(',').append(' ');
-    buf.append("nuCurve").append('=').append(nuCurve).append(',').append(' ');
-    buf.append("shiftCurve").append('=').append(shiftCurve).append(',').append(' ');
+    buf.append("alphaCurve").append('=').append(JodaBeanUtils.toString(alphaCurve)).append(',').append(' ');
+    buf.append("betaCurve").append('=').append(JodaBeanUtils.toString(betaCurve)).append(',').append(' ');
+    buf.append("rhoCurve").append('=').append(JodaBeanUtils.toString(rhoCurve)).append(',').append(' ');
+    buf.append("nuCurve").append('=').append(JodaBeanUtils.toString(nuCurve)).append(',').append(' ');
+    buf.append("shiftCurve").append('=').append(JodaBeanUtils.toString(shiftCurve)).append(',').append(' ');
     buf.append("sabrVolatilityFormula").append('=').append(JodaBeanUtils.toString(sabrVolatilityFormula));
     buf.append('}');
     return buf.toString();

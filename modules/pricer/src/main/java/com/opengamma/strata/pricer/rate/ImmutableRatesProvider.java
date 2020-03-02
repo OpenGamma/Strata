@@ -507,10 +507,10 @@ public final class ImmutableRatesProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("ImmutableRatesProvider{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("fxRateProvider").append('=').append(fxRateProvider).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
-    buf.append("indexCurves").append('=').append(indexCurves).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("fxRateProvider").append('=').append(JodaBeanUtils.toString(fxRateProvider)).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
+    buf.append("indexCurves").append('=').append(JodaBeanUtils.toString(indexCurves)).append(',').append(' ');
     buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
     buf.append('}');
     return buf.toString();

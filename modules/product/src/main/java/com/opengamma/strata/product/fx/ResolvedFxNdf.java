@@ -287,9 +287,9 @@ public final class ResolvedFxNdf
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ResolvedFxNdf{");
-    buf.append("settlementCurrencyNotional").append('=').append(settlementCurrencyNotional).append(',').append(' ');
-    buf.append("agreedFxRate").append('=').append(agreedFxRate).append(',').append(' ');
-    buf.append("observation").append('=').append(observation).append(',').append(' ');
+    buf.append("settlementCurrencyNotional").append('=').append(JodaBeanUtils.toString(settlementCurrencyNotional)).append(',').append(' ');
+    buf.append("agreedFxRate").append('=').append(JodaBeanUtils.toString(agreedFxRate)).append(',').append(' ');
+    buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
     buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate));
     buf.append('}');
     return buf.toString();

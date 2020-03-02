@@ -149,7 +149,7 @@ public final class SeasonalityDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SeasonalityDefinition{");
-    buf.append("seasonalityMonthOnMonth").append('=').append(seasonalityMonthOnMonth).append(',').append(' ');
+    buf.append("seasonalityMonthOnMonth").append('=').append(JodaBeanUtils.toString(seasonalityMonthOnMonth)).append(',').append(' ');
     buf.append("adjustmentType").append('=').append(JodaBeanUtils.toString(adjustmentType));
     buf.append('}');
     return buf.toString();

@@ -291,11 +291,11 @@ public final class SwaptionSabrSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("SwaptionSabrSensitivity{");
-    buf.append("volatilitiesName").append('=').append(volatilitiesName).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
-    buf.append("sensitivityType").append('=').append(sensitivityType).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("volatilitiesName").append('=').append(JodaBeanUtils.toString(volatilitiesName)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
+    buf.append("sensitivityType").append('=').append(JodaBeanUtils.toString(sensitivityType)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

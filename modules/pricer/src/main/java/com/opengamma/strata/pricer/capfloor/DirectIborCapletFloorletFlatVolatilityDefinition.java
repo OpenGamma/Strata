@@ -360,12 +360,12 @@ public final class DirectIborCapletFloorletFlatVolatilityDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("DirectIborCapletFloorletFlatVolatilityDefinition{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("lambda").append('=').append(lambda).append(',').append(' ');
-    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("lambda").append('=').append(JodaBeanUtils.toString(lambda)).append(',').append(' ');
+    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
     buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();

@@ -213,8 +213,8 @@ public final class ConstantRecoveryRates
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ConstantRecoveryRates{");
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
     buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(recoveryRate));
     buf.append('}');
     return buf.toString();

@@ -559,17 +559,17 @@ public final class CdsIndex
   public String toString() {
     StringBuilder buf = new StringBuilder(416);
     buf.append("CdsIndex{");
-    buf.append("buySell").append('=').append(buySell).append(',').append(' ');
-    buf.append("cdsIndexId").append('=').append(cdsIndexId).append(',').append(' ');
-    buf.append("legalEntityIds").append('=').append(legalEntityIds).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("paymentOnDefault").append('=').append(paymentOnDefault).append(',').append(' ');
-    buf.append("protectionStart").append('=').append(protectionStart).append(',').append(' ');
-    buf.append("stepinDateOffset").append('=').append(stepinDateOffset).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
+    buf.append("cdsIndexId").append('=').append(JodaBeanUtils.toString(cdsIndexId)).append(',').append(' ');
+    buf.append("legalEntityIds").append('=').append(JodaBeanUtils.toString(legalEntityIds)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
+    buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
+    buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
     buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();

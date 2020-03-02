@@ -177,9 +177,9 @@ public final class SabrSwaptionDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SabrSwaptionDefinition{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("convention").append('=').append(convention).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
     buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator));
     buf.append('}');
     return buf.toString();

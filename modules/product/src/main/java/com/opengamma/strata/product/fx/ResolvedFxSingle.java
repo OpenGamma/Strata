@@ -303,7 +303,7 @@ public final class ResolvedFxSingle
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedFxSingle{");
-    buf.append("baseCurrencyPayment").append('=').append(baseCurrencyPayment).append(',').append(' ');
+    buf.append("baseCurrencyPayment").append('=').append(JodaBeanUtils.toString(baseCurrencyPayment)).append(',').append(' ');
     buf.append("counterCurrencyPayment").append('=').append(JodaBeanUtils.toString(counterCurrencyPayment));
     buf.append('}');
     return buf.toString();

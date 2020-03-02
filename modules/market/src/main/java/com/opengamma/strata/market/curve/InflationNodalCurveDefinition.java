@@ -208,9 +208,9 @@ final class InflationNodalCurveDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("InflationNodalCurveDefinition{");
-    buf.append("curveWithoutFixingDefinition").append('=').append(curveWithoutFixingDefinition).append(',').append(' ');
-    buf.append("lastFixingMonth").append('=').append(lastFixingMonth).append(',').append(' ');
-    buf.append("lastFixingValue").append('=').append(lastFixingValue).append(',').append(' ');
+    buf.append("curveWithoutFixingDefinition").append('=').append(JodaBeanUtils.toString(curveWithoutFixingDefinition)).append(',').append(' ');
+    buf.append("lastFixingMonth").append('=').append(JodaBeanUtils.toString(lastFixingMonth)).append(',').append(' ');
+    buf.append("lastFixingValue").append('=').append(JodaBeanUtils.toString(lastFixingValue)).append(',').append(' ');
     buf.append("seasonalityDefinition").append('=').append(JodaBeanUtils.toString(seasonalityDefinition));
     buf.append('}');
     return buf.toString();

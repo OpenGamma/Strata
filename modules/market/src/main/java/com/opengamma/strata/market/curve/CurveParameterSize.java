@@ -132,7 +132,7 @@ public final class CurveParameterSize
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CurveParameterSize{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
     buf.append("parameterCount").append('=').append(JodaBeanUtils.toString(parameterCount));
     buf.append('}');
     return buf.toString();

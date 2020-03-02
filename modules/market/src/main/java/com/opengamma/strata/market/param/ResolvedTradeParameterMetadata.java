@@ -152,7 +152,7 @@ public final class ResolvedTradeParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedTradeParameterMetadata{");
-    buf.append("trade").append('=').append(trade).append(',').append(' ');
+    buf.append("trade").append('=').append(JodaBeanUtils.toString(trade)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

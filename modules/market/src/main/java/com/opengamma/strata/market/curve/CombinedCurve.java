@@ -376,8 +376,8 @@ public final class CombinedCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CombinedCurve{");
-    buf.append("baseCurve").append('=').append(baseCurve).append(',').append(' ');
-    buf.append("spreadCurve").append('=').append(spreadCurve).append(',').append(' ');
+    buf.append("baseCurve").append('=').append(JodaBeanUtils.toString(baseCurve)).append(',').append(' ');
+    buf.append("spreadCurve").append('=').append(JodaBeanUtils.toString(spreadCurve)).append(',').append(' ');
     buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata));
     buf.append('}');
     return buf.toString();

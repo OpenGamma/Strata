@@ -134,7 +134,7 @@ final class CompositeCalculationFunctions implements CalculationFunctions, Immut
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CompositeCalculationFunctions{");
-    buf.append("functions1").append('=').append(functions1).append(',').append(' ');
+    buf.append("functions1").append('=').append(JodaBeanUtils.toString(functions1)).append(',').append(' ');
     buf.append("functions2").append('=').append(JodaBeanUtils.toString(functions2));
     buf.append('}');
     return buf.toString();

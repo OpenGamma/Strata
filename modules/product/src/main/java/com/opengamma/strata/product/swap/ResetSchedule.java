@@ -238,8 +238,8 @@ public final class ResetSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ResetSchedule{");
-    buf.append("resetFrequency").append('=').append(resetFrequency).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
+    buf.append("resetFrequency").append('=').append(JodaBeanUtils.toString(resetFrequency)).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
     buf.append("resetMethod").append('=').append(JodaBeanUtils.toString(resetMethod));
     buf.append('}');
     return buf.toString();

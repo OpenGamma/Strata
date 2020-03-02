@@ -238,10 +238,10 @@ public final class PortfolioItemSummary
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("PortfolioItemSummary{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
-    buf.append("portfolioItemType").append('=').append(portfolioItemType).append(',').append(' ');
-    buf.append("productType").append('=').append(productType).append(',').append(' ');
-    buf.append("currencies").append('=').append(currencies).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
+    buf.append("portfolioItemType").append('=').append(JodaBeanUtils.toString(portfolioItemType)).append(',').append(' ');
+    buf.append("productType").append('=').append(JodaBeanUtils.toString(productType)).append(',').append(' ');
+    buf.append("currencies").append('=').append(JodaBeanUtils.toString(currencies)).append(',').append(' ');
     buf.append("description").append('=').append(JodaBeanUtils.toString(description));
     buf.append('}');
     return buf.toString();

@@ -347,7 +347,7 @@ public final class FxSwap
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FxSwap{");
-    buf.append("nearLeg").append('=').append(nearLeg).append(',').append(' ');
+    buf.append("nearLeg").append('=').append(JodaBeanUtils.toString(nearLeg)).append(',').append(' ');
     buf.append("farLeg").append('=').append(JodaBeanUtils.toString(farLeg));
     buf.append('}');
     return buf.toString();

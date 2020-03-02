@@ -210,8 +210,8 @@ public final class BulletPayment
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("BulletPayment{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("date").append('=').append(JodaBeanUtils.toString(date));
     buf.append('}');
     return buf.toString();

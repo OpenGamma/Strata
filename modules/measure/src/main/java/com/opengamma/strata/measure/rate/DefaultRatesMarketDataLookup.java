@@ -343,9 +343,9 @@ final class DefaultRatesMarketDataLookup
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DefaultRatesMarketDataLookup{");
-    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
-    buf.append("forwardCurves").append('=').append(forwardCurves).append(',').append(' ');
-    buf.append("observableSource").append('=').append(observableSource).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
+    buf.append("forwardCurves").append('=').append(JodaBeanUtils.toString(forwardCurves)).append(',').append(' ');
+    buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource)).append(',').append(' ');
     buf.append("fxRateLookup").append('=').append(JodaBeanUtils.toString(fxRateLookup));
     buf.append('}');
     return buf.toString();

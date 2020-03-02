@@ -285,11 +285,11 @@ public final class IborCapletFloorletSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("IborCapletFloorletSensitivity{");
-    buf.append("volatilitiesName").append('=').append(volatilitiesName).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("forward").append('=').append(forward).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("volatilitiesName").append('=').append(JodaBeanUtils.toString(volatilitiesName)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+    buf.append("forward").append('=').append(JodaBeanUtils.toString(forward)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

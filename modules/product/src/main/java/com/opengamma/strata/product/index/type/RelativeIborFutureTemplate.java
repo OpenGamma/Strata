@@ -213,8 +213,8 @@ final class RelativeIborFutureTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("RelativeIborFutureTemplate{");
-    buf.append("minimumPeriod").append('=').append(minimumPeriod).append(',').append(' ');
-    buf.append("sequenceNumber").append('=').append(sequenceNumber).append(',').append(' ');
+    buf.append("minimumPeriod").append('=').append(JodaBeanUtils.toString(minimumPeriod)).append(',').append(' ');
+    buf.append("sequenceNumber").append('=').append(JodaBeanUtils.toString(sequenceNumber)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

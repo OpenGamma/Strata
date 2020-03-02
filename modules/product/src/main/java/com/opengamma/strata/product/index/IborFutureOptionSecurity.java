@@ -434,15 +434,15 @@ public final class IborFutureOptionSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("IborFutureOptionSecurity{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("putCall").append('=').append(putCall).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
-    buf.append("premiumStyle").append('=').append(premiumStyle).append(',').append(' ');
-    buf.append("rounding").append('=').append(rounding).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
+    buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
     buf.append("underlyingFutureId").append('=').append(JodaBeanUtils.toString(underlyingFutureId));
     buf.append('}');
     return buf.toString();

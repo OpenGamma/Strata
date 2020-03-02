@@ -252,7 +252,7 @@ public final class IborFixingDepositTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborFixingDepositTemplate{");
-    buf.append("depositPeriod").append('=').append(depositPeriod).append(',').append(' ');
+    buf.append("depositPeriod").append('=').append(JodaBeanUtils.toString(depositPeriod)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

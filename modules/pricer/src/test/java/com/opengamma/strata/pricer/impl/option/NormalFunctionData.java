@@ -157,8 +157,8 @@ public final class NormalFunctionData
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("NormalFunctionData{");
-    buf.append("forward").append('=').append(forward).append(',').append(' ');
-    buf.append("numeraire").append('=').append(numeraire).append(',').append(' ');
+    buf.append("forward").append('=').append(JodaBeanUtils.toString(forward)).append(',').append(' ');
+    buf.append("numeraire").append('=').append(JodaBeanUtils.toString(numeraire)).append(',').append(' ');
     buf.append("normalVolatility").append('=').append(JodaBeanUtils.toString(normalVolatility));
     buf.append('}');
     return buf.toString();

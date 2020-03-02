@@ -157,7 +157,7 @@ public final class ResolvedFixedCouponBondSettlement
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedFixedCouponBondSettlement{");
-    buf.append("settlementDate").append('=').append(settlementDate).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(settlementDate)).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();

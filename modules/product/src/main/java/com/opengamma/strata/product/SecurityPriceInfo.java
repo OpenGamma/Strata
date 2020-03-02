@@ -304,11 +304,12 @@ public final class SecurityPriceInfo
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("SecurityPriceInfo{");
-    buf.append("tickSize").append('=').append(tickSize).append(',').append(' ');
-    buf.append("tickValue").append('=').append(tickValue).append(',').append(' ');
-    buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize));
+    buf.append("tickSize").append('=').append(JodaBeanUtils.toString(tickSize)).append(',').append(' ');
+    buf.append("tickValue").append('=').append(JodaBeanUtils.toString(tickValue)).append(',').append(' ');
+    buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
@@ -509,11 +510,12 @@ public final class SecurityPriceInfo
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("SecurityPriceInfo.Builder{");
       buf.append("tickSize").append('=').append(JodaBeanUtils.toString(tickSize)).append(',').append(' ');
       buf.append("tickValue").append('=').append(JodaBeanUtils.toString(tickValue)).append(',').append(' ');
-      buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize));
+      buf.append("contractSize").append('=').append(JodaBeanUtils.toString(contractSize)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

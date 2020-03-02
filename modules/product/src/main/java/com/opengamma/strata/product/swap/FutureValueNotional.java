@@ -212,8 +212,8 @@ public final class FutureValueNotional
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FutureValueNotional{");
-    buf.append("value").append('=').append(value).append(',').append(' ');
-    buf.append("valueDate").append('=').append(valueDate).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
+    buf.append("valueDate").append('=').append(JodaBeanUtils.toString(valueDate)).append(',').append(' ');
     buf.append("dayCountDays").append('=').append(JodaBeanUtils.toString(dayCountDays));
     buf.append('}');
     return buf.toString();
