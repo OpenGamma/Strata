@@ -262,9 +262,9 @@ public final class EtdFutureTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("EtdFutureTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("security").append('=').append(security).append(',').append(' ');
-    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("security").append('=').append(JodaBeanUtils.toString(security)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();

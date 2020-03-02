@@ -146,8 +146,8 @@ public final class QuantileResult
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("QuantileResult{");
-    buf.append("value").append('=').append(value).append(',').append(' ');
-    buf.append("indices").append('=').append(indices).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
+    buf.append("indices").append('=').append(JodaBeanUtils.toString(indices)).append(',').append(' ');
     buf.append("weights").append('=').append(JodaBeanUtils.toString(weights));
     buf.append('}');
     return buf.toString();

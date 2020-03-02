@@ -444,9 +444,9 @@ public final class SchedulePeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SchedulePeriod{");
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
     buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate));
     buf.append('}');
     return buf.toString();

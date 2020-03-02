@@ -237,9 +237,9 @@ public final class ResolvedSwaption
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ResolvedSwaption{");
-    buf.append("longShort").append('=').append(longShort).append(',').append(' ');
-    buf.append("swaptionSettlement").append('=').append(swaptionSettlement).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
+    buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
+    buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
     buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
     buf.append('}');
     return buf.toString();

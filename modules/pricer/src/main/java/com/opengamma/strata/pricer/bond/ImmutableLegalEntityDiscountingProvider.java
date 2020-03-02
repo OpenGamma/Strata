@@ -387,11 +387,11 @@ public final class ImmutableLegalEntityDiscountingProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ImmutableLegalEntityDiscountingProvider{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("repoCurveSecurityGroups").append('=').append(repoCurveSecurityGroups).append(',').append(' ');
-    buf.append("repoCurveGroups").append('=').append(repoCurveGroups).append(',').append(' ');
-    buf.append("repoCurves").append('=').append(repoCurves).append(',').append(' ');
-    buf.append("issuerCurveGroups").append('=').append(issuerCurveGroups).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("repoCurveSecurityGroups").append('=').append(JodaBeanUtils.toString(repoCurveSecurityGroups)).append(',').append(' ');
+    buf.append("repoCurveGroups").append('=').append(JodaBeanUtils.toString(repoCurveGroups)).append(',').append(' ');
+    buf.append("repoCurves").append('=').append(JodaBeanUtils.toString(repoCurves)).append(',').append(' ');
+    buf.append("issuerCurveGroups").append('=').append(JodaBeanUtils.toString(issuerCurveGroups)).append(',').append(' ');
     buf.append("issuerCurves").append('=').append(JodaBeanUtils.toString(issuerCurves));
     buf.append('}');
     return buf.toString();

@@ -423,14 +423,14 @@ public final class RateAccrualPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("RateAccrualPeriod{");
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("rateComputation").append('=').append(rateComputation).append(',').append(' ');
-    buf.append("gearing").append('=').append(gearing).append(',').append(' ');
-    buf.append("spread").append('=').append(spread).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("rateComputation").append('=').append(JodaBeanUtils.toString(rateComputation)).append(',').append(' ');
+    buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(spread)).append(',').append(' ');
     buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod));
     buf.append('}');
     return buf.toString();

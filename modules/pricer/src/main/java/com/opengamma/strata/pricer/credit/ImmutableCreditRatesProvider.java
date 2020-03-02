@@ -333,9 +333,9 @@ public final class ImmutableCreditRatesProvider
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ImmutableCreditRatesProvider{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("creditCurves").append('=').append(creditCurves).append(',').append(' ');
-    buf.append("discountCurves").append('=').append(discountCurves).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("creditCurves").append('=').append(JodaBeanUtils.toString(creditCurves)).append(',').append(' ');
+    buf.append("discountCurves").append('=').append(JodaBeanUtils.toString(discountCurves)).append(',').append(' ');
     buf.append("recoveryRateCurves").append('=').append(JodaBeanUtils.toString(recoveryRateCurves));
     buf.append('}');
     return buf.toString();

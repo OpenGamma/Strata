@@ -467,15 +467,15 @@ public final class BondFutureSecurity
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("BondFutureSecurity{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("deliveryBasketIds").append('=').append(deliveryBasketIds).append(',').append(' ');
-    buf.append("conversionFactors").append('=').append(conversionFactors).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("firstNoticeDate").append('=').append(firstNoticeDate).append(',').append(' ');
-    buf.append("lastNoticeDate").append('=').append(lastNoticeDate).append(',').append(' ');
-    buf.append("firstDeliveryDate").append('=').append(firstDeliveryDate).append(',').append(' ');
-    buf.append("lastDeliveryDate").append('=').append(lastDeliveryDate).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("deliveryBasketIds").append('=').append(JodaBeanUtils.toString(deliveryBasketIds)).append(',').append(' ');
+    buf.append("conversionFactors").append('=').append(JodaBeanUtils.toString(conversionFactors)).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+    buf.append("firstNoticeDate").append('=').append(JodaBeanUtils.toString(firstNoticeDate)).append(',').append(' ');
+    buf.append("lastNoticeDate").append('=').append(JodaBeanUtils.toString(lastNoticeDate)).append(',').append(' ');
+    buf.append("firstDeliveryDate").append('=').append(JodaBeanUtils.toString(firstDeliveryDate)).append(',').append(' ');
+    buf.append("lastDeliveryDate").append('=').append(JodaBeanUtils.toString(lastDeliveryDate)).append(',').append(' ');
     buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();

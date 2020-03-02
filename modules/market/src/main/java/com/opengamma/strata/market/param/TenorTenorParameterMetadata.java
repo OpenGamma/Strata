@@ -178,8 +178,8 @@ public final class TenorTenorParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TenorTenorParameterMetadata{");
-    buf.append("expiryTenor").append('=').append(expiryTenor).append(',').append(' ');
-    buf.append("underlyingTenor").append('=').append(underlyingTenor).append(',').append(' ');
+    buf.append("expiryTenor").append('=').append(JodaBeanUtils.toString(expiryTenor)).append(',').append(' ');
+    buf.append("underlyingTenor").append('=').append(JodaBeanUtils.toString(underlyingTenor)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

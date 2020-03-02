@@ -564,15 +564,15 @@ public final class SabrIborCapletFloorletVolatilityBootstrapDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("SabrIborCapletFloorletVolatilityBootstrapDefinition{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("betaCurve").append('=').append(betaCurve).append(',').append(' ');
-    buf.append("rhoCurve").append('=').append(rhoCurve).append(',').append(' ');
-    buf.append("shiftCurve").append('=').append(shiftCurve).append(',').append(' ');
-    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
-    buf.append("extrapolatorRight").append('=').append(extrapolatorRight).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("betaCurve").append('=').append(JodaBeanUtils.toString(betaCurve)).append(',').append(' ');
+    buf.append("rhoCurve").append('=').append(JodaBeanUtils.toString(rhoCurve)).append(',').append(' ');
+    buf.append("shiftCurve").append('=').append(JodaBeanUtils.toString(shiftCurve)).append(',').append(' ');
+    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
+    buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight)).append(',').append(' ');
     buf.append("sabrVolatilityFormula").append('=').append(JodaBeanUtils.toString(sabrVolatilityFormula));
     buf.append('}');
     return buf.toString();

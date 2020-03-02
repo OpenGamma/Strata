@@ -276,9 +276,9 @@ public final class CashFlow
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CashFlow{");
-    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("presentValue").append('=').append(presentValue).append(',').append(' ');
-    buf.append("forecastValue").append('=').append(forecastValue).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
+    buf.append("presentValue").append('=').append(JodaBeanUtils.toString(presentValue)).append(',').append(' ');
+    buf.append("forecastValue").append('=').append(JodaBeanUtils.toString(forecastValue)).append(',').append(' ');
     buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(discountFactor));
     buf.append('}');
     return buf.toString();

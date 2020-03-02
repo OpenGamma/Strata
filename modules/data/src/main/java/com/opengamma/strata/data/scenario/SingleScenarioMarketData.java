@@ -201,7 +201,7 @@ final class SingleScenarioMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SingleScenarioMarketData{");
-    buf.append("marketData").append('=').append(marketData).append(',').append(' ');
+    buf.append("marketData").append('=').append(JodaBeanUtils.toString(marketData)).append(',').append(' ');
     buf.append("scenarioIndex").append('=').append(JodaBeanUtils.toString(scenarioIndex));
     buf.append('}');
     return buf.toString();

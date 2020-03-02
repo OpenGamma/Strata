@@ -292,7 +292,7 @@ public final class BlackBondFutureExpiryLogMoneynessVolatilities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("BlackBondFutureExpiryLogMoneynessVolatilities{");
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
     buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
     buf.append('}');
     return buf.toString();

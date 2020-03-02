@@ -247,11 +247,11 @@ public final class ReportCalculationResults implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("ReportCalculationResults{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("targets").append('=').append(targets).append(',').append(' ');
-    buf.append("columns").append('=').append(columns).append(',').append(' ');
-    buf.append("calculationResults").append('=').append(calculationResults).append(',').append(' ');
-    buf.append("calculationFunctions").append('=').append(calculationFunctions).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("targets").append('=').append(JodaBeanUtils.toString(targets)).append(',').append(' ');
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
+    buf.append("calculationResults").append('=').append(JodaBeanUtils.toString(calculationResults)).append(',').append(' ');
+    buf.append("calculationFunctions").append('=').append(JodaBeanUtils.toString(calculationFunctions)).append(',').append(' ');
     buf.append("referenceData").append('=').append(JodaBeanUtils.toString(referenceData));
     buf.append('}');
     return buf.toString();

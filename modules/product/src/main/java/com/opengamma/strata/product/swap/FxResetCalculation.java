@@ -327,10 +327,10 @@ public final class FxResetCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("FxResetCalculation{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("referenceCurrency").append('=').append(referenceCurrency).append(',').append(' ');
-    buf.append("fixingRelativeTo").append('=').append(fixingRelativeTo).append(',').append(' ');
-    buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("referenceCurrency").append('=').append(JodaBeanUtils.toString(referenceCurrency)).append(',').append(' ');
+    buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
+    buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
     buf.append("initialNotionalValue").append('=').append(JodaBeanUtils.toString(initialNotionalValue));
     buf.append('}');
     return buf.toString();

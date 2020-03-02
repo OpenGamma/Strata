@@ -254,9 +254,9 @@ public final class SecurityTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SecurityTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();

@@ -387,9 +387,9 @@ public final class Column implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("Column{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("measure").append('=').append(measure).append(',').append(' ');
-    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("measure").append('=').append(JodaBeanUtils.toString(measure)).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();

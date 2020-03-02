@@ -273,10 +273,10 @@ public final class FxVanillaOption
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("FxVanillaOption{");
-    buf.append("longShort").append('=').append(longShort).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(expiryDate).append(',').append(' ');
-    buf.append("expiryTime").append('=').append(expiryTime).append(',').append(' ');
-    buf.append("expiryZone").append('=').append(expiryZone).append(',').append(' ');
+    buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
+    buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
+    buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
     buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
     buf.append('}');
     return buf.toString();

@@ -313,12 +313,12 @@ final class LoadedCurveSettings
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("LoadedCurveSettings{");
-    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
-    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
-    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
+    buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
+    buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+    buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
     buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();

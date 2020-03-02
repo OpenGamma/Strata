@@ -349,8 +349,8 @@ public final class DiscountOvernightIndexRates
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("DiscountOvernightIndexRates{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("discountFactors").append('=').append(discountFactors).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(discountFactors)).append(',').append(' ');
     buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
     buf.append('}');
     return buf.toString();

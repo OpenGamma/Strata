@@ -910,7 +910,7 @@ public final class Result<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Result{");
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("failure").append('=').append(JodaBeanUtils.toString(failure));
     buf.append('}');
     return buf.toString();

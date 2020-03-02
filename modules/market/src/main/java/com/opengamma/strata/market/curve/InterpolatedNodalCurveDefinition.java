@@ -460,13 +460,13 @@ public final class InterpolatedNodalCurveDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("InterpolatedNodalCurveDefinition{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
-    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("nodes").append('=').append(nodes).append(',').append(' ');
-    buf.append("interpolator").append('=').append(interpolator).append(',').append(' ');
-    buf.append("extrapolatorLeft").append('=').append(extrapolatorLeft).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+    buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("nodes").append('=').append(JodaBeanUtils.toString(nodes)).append(',').append(' ');
+    buf.append("interpolator").append('=').append(JodaBeanUtils.toString(interpolator)).append(',').append(' ');
+    buf.append("extrapolatorLeft").append('=').append(JodaBeanUtils.toString(extrapolatorLeft)).append(',').append(' ');
     buf.append("extrapolatorRight").append('=').append(JodaBeanUtils.toString(extrapolatorRight));
     buf.append('}');
     return buf.toString();

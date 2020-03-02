@@ -332,12 +332,13 @@ public final class SecurityPosition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("SecurityPosition{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("longQuantity").append('=').append(longQuantity).append(',').append(' ');
-    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("longQuantity").append('=').append(JodaBeanUtils.toString(longQuantity)).append(',').append(' ');
+    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity()));
     buf.append('}');
     return buf.toString();
   }
@@ -636,12 +637,13 @@ public final class SecurityPosition
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("SecurityPosition.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
       buf.append("longQuantity").append('=').append(JodaBeanUtils.toString(longQuantity)).append(',').append(' ');
-      buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
+      buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity)).append(',').append(' ');
+      buf.append("quantity").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

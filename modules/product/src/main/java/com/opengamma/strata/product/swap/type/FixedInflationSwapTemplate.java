@@ -192,7 +192,7 @@ public final class FixedInflationSwapTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FixedInflationSwapTemplate{");
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

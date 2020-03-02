@@ -441,7 +441,7 @@ public final class MultiCurrencyAmountArray
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("MultiCurrencyAmountArray{");
-    buf.append("size").append('=').append(size).append(',').append(' ');
+    buf.append("size").append('=').append(JodaBeanUtils.toString(size)).append(',').append(' ');
     buf.append("values").append('=').append(JodaBeanUtils.toString(values));
     buf.append('}');
     return buf.toString();

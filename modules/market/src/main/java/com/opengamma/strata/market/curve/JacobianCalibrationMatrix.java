@@ -200,7 +200,7 @@ public final class JacobianCalibrationMatrix
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("JacobianCalibrationMatrix{");
-    buf.append("order").append('=').append(order).append(',').append(' ');
+    buf.append("order").append('=').append(JodaBeanUtils.toString(order)).append(',').append(' ');
     buf.append("jacobianMatrix").append('=').append(JodaBeanUtils.toString(jacobianMatrix));
     buf.append('}');
     return buf.toString();

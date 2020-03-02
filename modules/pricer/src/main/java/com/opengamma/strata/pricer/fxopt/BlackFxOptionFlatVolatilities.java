@@ -314,8 +314,8 @@ public final class BlackFxOptionFlatVolatilities
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("BlackFxOptionFlatVolatilities{");
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
     buf.append("curve").append('=').append(JodaBeanUtils.toString(curve));
     buf.append('}');
     return buf.toString();

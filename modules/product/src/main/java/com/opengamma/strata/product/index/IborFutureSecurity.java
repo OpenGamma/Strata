@@ -304,13 +304,14 @@ public final class IborFutureSecurity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("IborFutureSecurity{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
@@ -651,13 +652,14 @@ public final class IborFutureSecurity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(192);
+      StringBuilder buf = new StringBuilder(224);
       buf.append("IborFutureSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
       buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
+      buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

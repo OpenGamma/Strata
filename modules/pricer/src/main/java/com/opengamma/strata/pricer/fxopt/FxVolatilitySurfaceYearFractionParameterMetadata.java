@@ -218,9 +218,9 @@ public final class FxVolatilitySurfaceYearFractionParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FxVolatilitySurfaceYearFractionParameterMetadata{");
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

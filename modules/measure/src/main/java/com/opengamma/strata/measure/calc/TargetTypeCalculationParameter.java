@@ -198,8 +198,8 @@ public final class TargetTypeCalculationParameter
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TargetTypeCalculationParameter{");
-    buf.append("queryType").append('=').append(queryType).append(',').append(' ');
-    buf.append("parameters").append('=').append(parameters).append(',').append(' ');
+    buf.append("queryType").append('=').append(JodaBeanUtils.toString(queryType)).append(',').append(' ');
+    buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters)).append(',').append(' ');
     buf.append("defaultParameter").append('=').append(JodaBeanUtils.toString(defaultParameter));
     buf.append('}');
     return buf.toString();

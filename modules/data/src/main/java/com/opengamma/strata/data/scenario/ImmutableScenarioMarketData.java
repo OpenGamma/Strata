@@ -384,9 +384,9 @@ public final class ImmutableScenarioMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ImmutableScenarioMarketData{");
-    buf.append("scenarioCount").append('=').append(scenarioCount).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("values").append('=').append(values).append(',').append(' ');
+    buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');
     buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
     buf.append('}');
     return buf.toString();

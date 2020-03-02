@@ -237,9 +237,9 @@ final class DefaultCreditRatesMarketDataLookup
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("DefaultCreditRatesMarketDataLookup{");
-    buf.append("creditCurveIds").append('=').append(creditCurveIds).append(',').append(' ');
-    buf.append("discountCurveIds").append('=').append(discountCurveIds).append(',').append(' ');
-    buf.append("recoveryRateCurveIds").append('=').append(recoveryRateCurveIds).append(',').append(' ');
+    buf.append("creditCurveIds").append('=').append(JodaBeanUtils.toString(creditCurveIds)).append(',').append(' ');
+    buf.append("discountCurveIds").append('=').append(JodaBeanUtils.toString(discountCurveIds)).append(',').append(' ');
+    buf.append("recoveryRateCurveIds").append('=').append(JodaBeanUtils.toString(recoveryRateCurveIds)).append(',').append(' ');
     buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();

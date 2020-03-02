@@ -272,12 +272,12 @@ public final class ConstantContinuousSingleBarrierKnockoutFunction
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("ConstantContinuousSingleBarrierKnockoutFunction{");
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("timeToExpiry").append('=').append(timeToExpiry).append(',').append(' ');
-    buf.append("sign").append('=').append(sign).append(',').append(' ');
-    buf.append("numberOfSteps").append('=').append(numberOfSteps).append(',').append(' ');
-    buf.append("barrierType").append('=').append(barrierType).append(',').append(' ');
-    buf.append("barrierLevel").append('=').append(barrierLevel).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+    buf.append("timeToExpiry").append('=').append(JodaBeanUtils.toString(timeToExpiry)).append(',').append(' ');
+    buf.append("sign").append('=').append(JodaBeanUtils.toString(sign)).append(',').append(' ');
+    buf.append("numberOfSteps").append('=').append(JodaBeanUtils.toString(numberOfSteps)).append(',').append(' ');
+    buf.append("barrierType").append('=').append(JodaBeanUtils.toString(barrierType)).append(',').append(' ');
+    buf.append("barrierLevel").append('=').append(JodaBeanUtils.toString(barrierLevel)).append(',').append(' ');
     buf.append("rebate").append('=').append(JodaBeanUtils.toString(rebate));
     buf.append('}');
     return buf.toString();

@@ -245,8 +245,8 @@ final class CombinedScenarioMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CombinedScenarioMarketData{");
-    buf.append("underlying1").append('=').append(underlying1).append(',').append(' ');
-    buf.append("underlying2").append('=').append(underlying2).append(',').append(' ');
+    buf.append("underlying1").append('=').append(JodaBeanUtils.toString(underlying1)).append(',').append(' ');
+    buf.append("underlying2").append('=').append(JodaBeanUtils.toString(underlying2)).append(',').append(' ');
     buf.append("scenarioCount").append('=').append(JodaBeanUtils.toString(scenarioCount));
     buf.append('}');
     return buf.toString();

@@ -212,7 +212,7 @@ public final class ResolvedFxSwap
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedFxSwap{");
-    buf.append("nearLeg").append('=').append(nearLeg).append(',').append(' ');
+    buf.append("nearLeg").append('=').append(JodaBeanUtils.toString(nearLeg)).append(',').append(' ');
     buf.append("farLeg").append('=').append(JodaBeanUtils.toString(farLeg));
     buf.append('}');
     return buf.toString();

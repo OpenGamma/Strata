@@ -450,12 +450,12 @@ public final class OvernightRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("OvernightRateCalculation{");
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("accrualMethod").append('=').append(accrualMethod).append(',').append(' ');
-    buf.append("negativeRateMethod").append('=').append(negativeRateMethod).append(',').append(' ');
-    buf.append("rateCutOffDays").append('=').append(rateCutOffDays).append(',').append(' ');
-    buf.append("gearing").append('=').append(gearing).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
+    buf.append("negativeRateMethod").append('=').append(JodaBeanUtils.toString(negativeRateMethod)).append(',').append(' ');
+    buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays)).append(',').append(' ');
+    buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing)).append(',').append(' ');
     buf.append("spread").append('=').append(JodaBeanUtils.toString(spread));
     buf.append('}');
     return buf.toString();

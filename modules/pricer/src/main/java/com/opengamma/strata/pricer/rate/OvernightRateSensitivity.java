@@ -330,9 +330,9 @@ public final class OvernightRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("OvernightRateSensitivity{");
-    buf.append("observation").append('=').append(observation).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

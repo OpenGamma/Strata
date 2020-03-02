@@ -327,7 +327,7 @@ public final class Results implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("Results{");
-    buf.append("columns").append('=').append(columns).append(',').append(' ');
+    buf.append("columns").append('=').append(JodaBeanUtils.toString(columns)).append(',').append(' ');
     buf.append("cells").append('=').append(JodaBeanUtils.toString(cells));
     buf.append('}');
     return buf.toString();

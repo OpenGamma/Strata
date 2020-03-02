@@ -476,16 +476,16 @@ public final class IborCapletFloorletPeriod
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("IborCapletFloorletPeriod{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("unadjustedStartDate").append('=').append(unadjustedStartDate).append(',').append(' ');
-    buf.append("unadjustedEndDate").append('=').append(unadjustedEndDate).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
-    buf.append("caplet").append('=').append(caplet).append(',').append(' ');
-    buf.append("floorlet").append('=').append(floorlet).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("unadjustedStartDate").append('=').append(JodaBeanUtils.toString(unadjustedStartDate)).append(',').append(' ');
+    buf.append("unadjustedEndDate").append('=').append(JodaBeanUtils.toString(unadjustedEndDate)).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
+    buf.append("caplet").append('=').append(JodaBeanUtils.toString(caplet)).append(',').append(' ');
+    buf.append("floorlet").append('=').append(JodaBeanUtils.toString(floorlet)).append(',').append(' ');
     buf.append("iborRate").append('=').append(JodaBeanUtils.toString(iborRate));
     buf.append('}');
     return buf.toString();

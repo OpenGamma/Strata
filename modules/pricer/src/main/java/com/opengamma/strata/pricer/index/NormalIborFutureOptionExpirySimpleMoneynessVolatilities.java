@@ -321,8 +321,8 @@ public final class NormalIborFutureOptionExpirySimpleMoneynessVolatilities
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("NormalIborFutureOptionExpirySimpleMoneynessVolatilities{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
     buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
     buf.append('}');
     return buf.toString();

@@ -184,7 +184,7 @@ final class AbsoluteIborFutureTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("AbsoluteIborFutureTemplate{");
-    buf.append("yearMonth").append('=').append(yearMonth).append(',').append(' ');
+    buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

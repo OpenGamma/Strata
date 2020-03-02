@@ -250,8 +250,8 @@ public final class HistoricPriceIndexValues
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("HistoricPriceIndexValues{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
     buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
     buf.append('}');
     return buf.toString();

@@ -225,8 +225,8 @@ public final class ResolvedFxSingleBarrierOption
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ResolvedFxSingleBarrierOption{");
-    buf.append("underlyingOption").append('=').append(underlyingOption).append(',').append(' ');
-    buf.append("barrier").append('=').append(barrier).append(',').append(' ');
+    buf.append("underlyingOption").append('=').append(JodaBeanUtils.toString(underlyingOption)).append(',').append(' ');
+    buf.append("barrier").append('=').append(JodaBeanUtils.toString(barrier)).append(',').append(' ');
     buf.append("rebate").append('=').append(JodaBeanUtils.toString(rebate));
     buf.append('}');
     return buf.toString();

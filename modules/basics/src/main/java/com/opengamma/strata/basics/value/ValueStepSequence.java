@@ -258,9 +258,9 @@ public final class ValueStepSequence
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("ValueStepSequence{");
-    buf.append("firstStepDate").append('=').append(firstStepDate).append(',').append(' ');
-    buf.append("lastStepDate").append('=').append(lastStepDate).append(',').append(' ');
-    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
+    buf.append("firstStepDate").append('=').append(JodaBeanUtils.toString(firstStepDate)).append(',').append(' ');
+    buf.append("lastStepDate").append('=').append(JodaBeanUtils.toString(lastStepDate)).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
     buf.append("adjustment").append('=').append(JodaBeanUtils.toString(adjustment));
     buf.append('}');
     return buf.toString();

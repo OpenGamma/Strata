@@ -224,7 +224,7 @@ public final class ConstantCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ConstantCurve{");
-    buf.append("metadata").append('=').append(metadata).append(',').append(' ');
+    buf.append("metadata").append('=').append(JodaBeanUtils.toString(metadata)).append(',').append(' ');
     buf.append("yValue").append('=').append(JodaBeanUtils.toString(yValue));
     buf.append('}');
     return buf.toString();

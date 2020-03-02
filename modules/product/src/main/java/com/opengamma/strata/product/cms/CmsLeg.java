@@ -533,16 +533,16 @@ public final class CmsLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("CmsLeg{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("paymentSchedule").append('=').append(paymentSchedule).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingRelativeTo").append('=').append(fixingRelativeTo).append(',').append(' ');
-    buf.append("fixingDateOffset").append('=').append(fixingDateOffset).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("capSchedule").append('=').append(capSchedule).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("paymentSchedule").append('=').append(JodaBeanUtils.toString(paymentSchedule)).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("fixingRelativeTo").append('=').append(JodaBeanUtils.toString(fixingRelativeTo)).append(',').append(' ');
+    buf.append("fixingDateOffset").append('=').append(JodaBeanUtils.toString(fixingDateOffset)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("capSchedule").append('=').append(JodaBeanUtils.toString(capSchedule)).append(',').append(' ');
     buf.append("floorSchedule").append('=').append(JodaBeanUtils.toString(floorSchedule));
     buf.append('}');
     return buf.toString();

@@ -350,12 +350,12 @@ public final class IborFuture
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("IborFuture{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("accrualFactor").append('=').append(accrualFactor).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("accrualFactor").append('=').append(JodaBeanUtils.toString(accrualFactor)).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
     buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();

@@ -253,8 +253,8 @@ public final class IborIborSwapTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("IborIborSwapTemplate{");
-    buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("periodToStart").append('=').append(JodaBeanUtils.toString(periodToStart)).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

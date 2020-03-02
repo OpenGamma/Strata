@@ -813,13 +813,13 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
   public String toString() {
     StringBuilder buf = new StringBuilder(288);
     buf.append("InterpolatedStrikeSmileDeltaTermStructure{");
-    buf.append("volatilityTerm").append('=').append(volatilityTerm).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("timeInterpolator").append('=').append(timeInterpolator).append(',').append(' ');
-    buf.append("timeExtrapolatorLeft").append('=').append(timeExtrapolatorLeft).append(',').append(' ');
-    buf.append("timeExtrapolatorRight").append('=').append(timeExtrapolatorRight).append(',').append(' ');
-    buf.append("strikeInterpolator").append('=').append(strikeInterpolator).append(',').append(' ');
-    buf.append("strikeExtrapolatorLeft").append('=').append(strikeExtrapolatorLeft).append(',').append(' ');
+    buf.append("volatilityTerm").append('=').append(JodaBeanUtils.toString(volatilityTerm)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("timeInterpolator").append('=').append(JodaBeanUtils.toString(timeInterpolator)).append(',').append(' ');
+    buf.append("timeExtrapolatorLeft").append('=').append(JodaBeanUtils.toString(timeExtrapolatorLeft)).append(',').append(' ');
+    buf.append("timeExtrapolatorRight").append('=').append(JodaBeanUtils.toString(timeExtrapolatorRight)).append(',').append(' ');
+    buf.append("strikeInterpolator").append('=').append(JodaBeanUtils.toString(strikeInterpolator)).append(',').append(' ');
+    buf.append("strikeExtrapolatorLeft").append('=').append(JodaBeanUtils.toString(strikeExtrapolatorLeft)).append(',').append(' ');
     buf.append("strikeExtrapolatorRight").append('=').append(JodaBeanUtils.toString(strikeExtrapolatorRight));
     buf.append('}');
     return buf.toString();

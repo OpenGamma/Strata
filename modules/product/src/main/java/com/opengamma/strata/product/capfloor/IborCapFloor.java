@@ -227,7 +227,7 @@ public final class IborCapFloor
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborCapFloor{");
-    buf.append("capFloorLeg").append('=').append(capFloorLeg).append(',').append(' ');
+    buf.append("capFloorLeg").append('=').append(JodaBeanUtils.toString(capFloorLeg)).append(',').append(' ');
     buf.append("payLeg").append('=').append(JodaBeanUtils.toString(payLeg));
     buf.append('}');
     return buf.toString();

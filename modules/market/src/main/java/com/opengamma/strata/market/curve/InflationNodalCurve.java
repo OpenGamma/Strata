@@ -343,8 +343,8 @@ public final class InflationNodalCurve
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("InflationNodalCurve{");
-    buf.append("underlying").append('=').append(underlying).append(',').append(' ');
-    buf.append("seasonality").append('=').append(seasonality).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying)).append(',').append(' ');
+    buf.append("seasonality").append('=').append(JodaBeanUtils.toString(seasonality)).append(',').append(' ');
     buf.append("adjustmentType").append('=').append(JodaBeanUtils.toString(adjustmentType));
     buf.append('}');
     return buf.toString();

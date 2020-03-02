@@ -275,9 +275,9 @@ public final class RecombiningTrinomialTreeData implements ImmutableBean, Serial
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("RecombiningTrinomialTreeData{");
-    buf.append("stateValue").append('=').append(stateValue).append(',').append(' ');
-    buf.append("transitionProbability").append('=').append(transitionProbability).append(',').append(' ');
-    buf.append("discountFactor").append('=').append(discountFactor).append(',').append(' ');
+    buf.append("stateValue").append('=').append(JodaBeanUtils.toString(stateValue)).append(',').append(' ');
+    buf.append("transitionProbability").append('=').append(JodaBeanUtils.toString(transitionProbability)).append(',').append(' ');
+    buf.append("discountFactor").append('=').append(JodaBeanUtils.toString(discountFactor)).append(',').append(' ');
     buf.append("time").append('=').append(JodaBeanUtils.toString(time));
     buf.append('}');
     return buf.toString();

@@ -292,7 +292,7 @@ public final class CreditCurveZeroRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CreditCurveZeroRateSensitivity{");
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
     buf.append("zeroRateSensitivity").append('=').append(JodaBeanUtils.toString(zeroRateSensitivity));
     buf.append('}');
     return buf.toString();

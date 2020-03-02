@@ -345,11 +345,11 @@ public final class InflationRateSwapLegConvention
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("InflationRateSwapLegConvention{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("lag").append('=').append(lag).append(',').append(' ');
-    buf.append("indexCalculationMethod").append('=').append(indexCalculationMethod).append(',').append(' ');
-    buf.append("notionalExchange").append('=').append(notionalExchange).append(',').append(' ');
-    buf.append("paymentDateOffset").append('=').append(paymentDateOffset).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("lag").append('=').append(JodaBeanUtils.toString(lag)).append(',').append(' ');
+    buf.append("indexCalculationMethod").append('=').append(JodaBeanUtils.toString(indexCalculationMethod)).append(',').append(' ');
+    buf.append("notionalExchange").append('=').append(JodaBeanUtils.toString(notionalExchange)).append(',').append(' ');
+    buf.append("paymentDateOffset").append('=').append(JodaBeanUtils.toString(paymentDateOffset)).append(',').append(' ');
     buf.append("accrualBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(accrualBusinessDayAdjustment));
     buf.append('}');
     return buf.toString();

@@ -198,8 +198,8 @@ public final class YearMonthDateParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("YearMonthDateParameterMetadata{");
-    buf.append("date").append('=').append(date).append(',').append(' ');
-    buf.append("yearMonth").append('=').append(yearMonth).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
+    buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

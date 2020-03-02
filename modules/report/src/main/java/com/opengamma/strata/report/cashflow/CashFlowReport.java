@@ -215,10 +215,10 @@ public final class CashFlowReport
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("CashFlowReport{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("runInstant").append('=').append(runInstant).append(',').append(' ');
-    buf.append("columnKeys").append('=').append(columnKeys).append(',').append(' ');
-    buf.append("columnHeaders").append('=').append(columnHeaders).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("runInstant").append('=').append(JodaBeanUtils.toString(runInstant)).append(',').append(' ');
+    buf.append("columnKeys").append('=').append(JodaBeanUtils.toString(columnKeys)).append(',').append(' ');
+    buf.append("columnHeaders").append('=').append(JodaBeanUtils.toString(columnHeaders)).append(',').append(' ');
     buf.append("data").append('=').append(JodaBeanUtils.toString(data));
     buf.append('}');
     return buf.toString();

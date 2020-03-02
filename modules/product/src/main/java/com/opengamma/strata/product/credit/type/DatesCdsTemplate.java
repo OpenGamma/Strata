@@ -209,8 +209,8 @@ public final class DatesCdsTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("DatesCdsTemplate{");
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

@@ -150,7 +150,7 @@ public final class IborCapletFloorletVolatilityCalibrationResult
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("IborCapletFloorletVolatilityCalibrationResult{");
-    buf.append("volatilities").append('=').append(volatilities).append(',').append(' ');
+    buf.append("volatilities").append('=').append(JodaBeanUtils.toString(volatilities)).append(',').append(' ');
     buf.append("chiSquare").append('=').append(JodaBeanUtils.toString(chiSquare));
     buf.append('}');
     return buf.toString();

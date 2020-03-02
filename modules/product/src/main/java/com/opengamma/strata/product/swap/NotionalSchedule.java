@@ -498,11 +498,11 @@ public final class NotionalSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("NotionalSchedule{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("fxReset").append('=').append(fxReset).append(',').append(' ');
-    buf.append("amount").append('=').append(amount).append(',').append(' ');
-    buf.append("initialExchange").append('=').append(initialExchange).append(',').append(' ');
-    buf.append("intermediateExchange").append('=').append(intermediateExchange).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("fxReset").append('=').append(JodaBeanUtils.toString(fxReset)).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
+    buf.append("initialExchange").append('=').append(JodaBeanUtils.toString(initialExchange)).append(',').append(' ');
+    buf.append("intermediateExchange").append('=').append(JodaBeanUtils.toString(intermediateExchange)).append(',').append(' ');
     buf.append("finalExchange").append('=').append(JodaBeanUtils.toString(finalExchange));
     buf.append('}');
     return buf.toString();

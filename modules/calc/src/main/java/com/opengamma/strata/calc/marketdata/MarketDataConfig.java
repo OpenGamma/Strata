@@ -245,7 +245,7 @@ public final class MarketDataConfig implements ImmutableBean, Serializable {
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("MarketDataConfig{");
-    buf.append("configs").append('=').append(configs).append(',').append(' ');
+    buf.append("configs").append('=').append(JodaBeanUtils.toString(configs)).append(',').append(' ');
     buf.append("defaultConfigs").append('=').append(JodaBeanUtils.toString(defaultConfigs));
     buf.append('}');
     return buf.toString();

@@ -240,7 +240,7 @@ public final class ResolvedCmsLeg
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedCmsLeg{");
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
     buf.append("cmsPeriods").append('=').append(JodaBeanUtils.toString(cmsPeriods));
     buf.append('}');
     return buf.toString();

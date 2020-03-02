@@ -145,7 +145,7 @@ public final class LegalEntityInformation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("LegalEntityInformation{");
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
     buf.append("defaulted").append('=').append(JodaBeanUtils.toString(defaulted));
     buf.append('}');
     return buf.toString();

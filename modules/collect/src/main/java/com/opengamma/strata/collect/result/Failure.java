@@ -257,8 +257,8 @@ public final class Failure
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("Failure{");
-    buf.append("reason").append('=').append(reason).append(',').append(' ');
-    buf.append("message").append('=').append(message).append(',').append(' ');
+    buf.append("reason").append('=').append(JodaBeanUtils.toString(reason)).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(message)).append(',').append(' ');
     buf.append("items").append('=').append(JodaBeanUtils.toString(items));
     buf.append('}');
     return buf.toString();

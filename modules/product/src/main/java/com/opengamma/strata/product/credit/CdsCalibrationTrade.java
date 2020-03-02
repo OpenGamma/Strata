@@ -156,7 +156,7 @@ public final class CdsCalibrationTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CdsCalibrationTrade{");
-    buf.append("underlyingTrade").append('=').append(underlyingTrade).append(',').append(' ');
+    buf.append("underlyingTrade").append('=').append(JodaBeanUtils.toString(underlyingTrade)).append(',').append(' ');
     buf.append("quote").append('=').append(JodaBeanUtils.toString(quote));
     buf.append('}');
     return buf.toString();

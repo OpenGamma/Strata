@@ -312,10 +312,10 @@ public final class DefaultCurveMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("DefaultCurveMetadata{");
-    buf.append("curveName").append('=').append(curveName).append(',').append(' ');
-    buf.append("xValueType").append('=').append(xValueType).append(',').append(' ');
-    buf.append("yValueType").append('=').append(yValueType).append(',').append(' ');
-    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("curveName").append('=').append(JodaBeanUtils.toString(curveName)).append(',').append(' ');
+    buf.append("xValueType").append('=').append(JodaBeanUtils.toString(xValueType)).append(',').append(' ');
+    buf.append("yValueType").append('=').append(JodaBeanUtils.toString(yValueType)).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
     buf.append("parameterMetadata").append('=').append(JodaBeanUtils.toString(parameterMetadata));
     buf.append('}');
     return buf.toString();

@@ -250,8 +250,8 @@ public final class LegalEntityCurveGroup
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("LegalEntityCurveGroup{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("repoCurves").append('=').append(repoCurves).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("repoCurves").append('=').append(JodaBeanUtils.toString(repoCurves)).append(',').append(' ');
     buf.append("issuerCurves").append('=').append(JodaBeanUtils.toString(issuerCurves));
     buf.append('}');
     return buf.toString();

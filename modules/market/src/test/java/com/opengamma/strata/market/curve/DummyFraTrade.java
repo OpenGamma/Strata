@@ -142,7 +142,7 @@ public final class DummyFraTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("DummyFraTrade{");
-    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
     buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
     buf.append('}');
     return buf.toString();

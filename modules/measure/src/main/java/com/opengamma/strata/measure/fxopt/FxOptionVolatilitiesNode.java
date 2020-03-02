@@ -378,14 +378,14 @@ public final class FxOptionVolatilitiesNode
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("FxOptionVolatilitiesNode{");
-    buf.append("currencyPair").append('=').append(currencyPair).append(',').append(' ');
-    buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(spotDateOffset).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("expiryDateOffset").append('=').append(expiryDateOffset).append(',').append(' ');
-    buf.append("quoteValueType").append('=').append(quoteValueType).append(',').append(' ');
-    buf.append("quoteId").append('=').append(quoteId).append(',').append(' ');
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(currencyPair)).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+    buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+    buf.append("expiryDateOffset").append('=').append(JodaBeanUtils.toString(expiryDateOffset)).append(',').append(' ');
+    buf.append("quoteValueType").append('=').append(JodaBeanUtils.toString(quoteValueType)).append(',').append(' ');
+    buf.append("quoteId").append('=').append(JodaBeanUtils.toString(quoteId)).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
     buf.append("strike").append('=').append(JodaBeanUtils.toString(strike));
     buf.append('}');
     return buf.toString();

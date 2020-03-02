@@ -223,9 +223,9 @@ public final class FunctionRequirements implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("FunctionRequirements{");
-    buf.append("valueRequirements").append('=').append(valueRequirements).append(',').append(' ');
-    buf.append("timeSeriesRequirements").append('=').append(timeSeriesRequirements).append(',').append(' ');
-    buf.append("outputCurrencies").append('=').append(outputCurrencies).append(',').append(' ');
+    buf.append("valueRequirements").append('=').append(JodaBeanUtils.toString(valueRequirements)).append(',').append(' ');
+    buf.append("timeSeriesRequirements").append('=').append(JodaBeanUtils.toString(timeSeriesRequirements)).append(',').append(' ');
+    buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies)).append(',').append(' ');
     buf.append("observableSource").append('=').append(JodaBeanUtils.toString(observableSource));
     buf.append('}');
     return buf.toString();

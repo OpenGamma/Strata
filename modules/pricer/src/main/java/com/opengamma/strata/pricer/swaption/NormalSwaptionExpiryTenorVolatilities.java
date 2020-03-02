@@ -330,8 +330,8 @@ public final class NormalSwaptionExpiryTenorVolatilities
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("NormalSwaptionExpiryTenorVolatilities{");
-    buf.append("convention").append('=').append(convention).append(',').append(' ');
-    buf.append("valuationDateTime").append('=').append(valuationDateTime).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention)).append(',').append(' ');
+    buf.append("valuationDateTime").append('=').append(JodaBeanUtils.toString(valuationDateTime)).append(',').append(' ');
     buf.append("surface").append('=').append(JodaBeanUtils.toString(surface));
     buf.append('}');
     return buf.toString();

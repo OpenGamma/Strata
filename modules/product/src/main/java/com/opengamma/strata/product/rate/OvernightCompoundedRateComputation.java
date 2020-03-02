@@ -319,10 +319,10 @@ public final class OvernightCompoundedRateComputation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("OvernightCompoundedRateComputation{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingCalendar").append('=').append(fixingCalendar).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(fixingCalendar)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
     buf.append("rateCutOffDays").append('=').append(JodaBeanUtils.toString(rateCutOffDays));
     buf.append('}');
     return buf.toString();

@@ -213,7 +213,7 @@ public final class FixedRateStubCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FixedRateStubCalculation{");
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
     buf.append("knownAmount").append('=').append(JodaBeanUtils.toString(knownAmount));
     buf.append('}');
     return buf.toString();

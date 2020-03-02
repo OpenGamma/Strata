@@ -195,8 +195,8 @@ public final class SwaptionSurfaceExpiryTenorParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("SwaptionSurfaceExpiryTenorParameterMetadata{");
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

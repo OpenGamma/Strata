@@ -386,12 +386,12 @@ public final class RawOptionData
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("RawOptionData{");
-    buf.append("expiries").append('=').append(expiries).append(',').append(' ');
-    buf.append("strikes").append('=').append(strikes).append(',').append(' ');
-    buf.append("strikeType").append('=').append(strikeType).append(',').append(' ');
-    buf.append("data").append('=').append(data).append(',').append(' ');
-    buf.append("error").append('=').append(error).append(',').append(' ');
-    buf.append("dataType").append('=').append(dataType).append(',').append(' ');
+    buf.append("expiries").append('=').append(JodaBeanUtils.toString(expiries)).append(',').append(' ');
+    buf.append("strikes").append('=').append(JodaBeanUtils.toString(strikes)).append(',').append(' ');
+    buf.append("strikeType").append('=').append(JodaBeanUtils.toString(strikeType)).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(data)).append(',').append(' ');
+    buf.append("error").append('=').append(JodaBeanUtils.toString(error)).append(',').append(' ');
+    buf.append("dataType").append('=').append(JodaBeanUtils.toString(dataType)).append(',').append(' ');
     buf.append("shift").append('=').append(JodaBeanUtils.toString(shift));
     buf.append('}');
     return buf.toString();

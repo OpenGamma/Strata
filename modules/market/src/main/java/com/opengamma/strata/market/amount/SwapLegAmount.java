@@ -210,9 +210,9 @@ public final class SwapLegAmount
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("SwapLegAmount{");
-    buf.append("amount").append('=').append(amount).append(',').append(' ');
-    buf.append("payReceive").append('=').append(payReceive).append(',').append(' ');
-    buf.append("type").append('=').append(type).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(amount)).append(',').append(' ');
+    buf.append("payReceive").append('=').append(JodaBeanUtils.toString(payReceive)).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
     buf.append("currency").append('=').append(JodaBeanUtils.toString(currency));
     buf.append('}');
     return buf.toString();

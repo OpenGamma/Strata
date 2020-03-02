@@ -190,8 +190,8 @@ public final class ResolvedIborCapFloorTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ResolvedIborCapFloorTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
     buf.append("premium").append('=').append(JodaBeanUtils.toString(premium));
     buf.append('}');
     return buf.toString();

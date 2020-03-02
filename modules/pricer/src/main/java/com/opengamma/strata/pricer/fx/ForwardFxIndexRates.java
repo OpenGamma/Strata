@@ -311,8 +311,8 @@ public final class ForwardFxIndexRates
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ForwardFxIndexRates{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fxForwardRates").append('=').append(fxForwardRates).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("fxForwardRates").append('=').append(JodaBeanUtils.toString(fxForwardRates)).append(',').append(' ');
     buf.append("fixings").append('=').append(JodaBeanUtils.toString(fixings));
     buf.append('}');
     return buf.toString();

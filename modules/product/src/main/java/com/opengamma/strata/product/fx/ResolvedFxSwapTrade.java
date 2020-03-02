@@ -171,7 +171,7 @@ public final class ResolvedFxSwapTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ResolvedFxSwapTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
     buf.append("product").append('=').append(JodaBeanUtils.toString(product));
     buf.append('}');
     return buf.toString();

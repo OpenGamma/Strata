@@ -146,8 +146,8 @@ public final class TradeReportColumn
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("TradeReportColumn{");
-    buf.append("header").append('=').append(header).append(',').append(' ');
-    buf.append("value").append('=').append(value).append(',').append(' ');
+    buf.append("header").append('=').append(JodaBeanUtils.toString(header)).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
     buf.append("ignoreFailures").append('=').append(JodaBeanUtils.toString(ignoreFailures));
     buf.append('}');
     return buf.toString();

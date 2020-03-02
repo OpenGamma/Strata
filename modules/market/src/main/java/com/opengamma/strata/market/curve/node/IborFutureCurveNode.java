@@ -374,11 +374,11 @@ public final class IborFutureCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("IborFutureCurveNode{");
-    buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("rateId").append('=').append(rateId).append(',').append(' ');
-    buf.append("additionalSpread").append('=').append(additionalSpread).append(',').append(' ');
-    buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
+    buf.append("rateId").append('=').append(JodaBeanUtils.toString(rateId)).append(',').append(' ');
+    buf.append("additionalSpread").append('=').append(JodaBeanUtils.toString(additionalSpread)).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
     buf.append("dateOrder").append('=').append(JodaBeanUtils.toString(dateOrder));
     buf.append('}');
     return buf.toString();

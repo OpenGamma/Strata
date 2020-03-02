@@ -304,12 +304,12 @@ public final class IsdaCreditCurveDefinition
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("IsdaCreditCurveDefinition{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("curveValuationDate").append('=').append(curveValuationDate).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("curveNodes").append('=').append(curveNodes).append(',').append(' ');
-    buf.append("computeJacobian").append('=').append(computeJacobian).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("curveValuationDate").append('=').append(JodaBeanUtils.toString(curveValuationDate)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("curveNodes").append('=').append(JodaBeanUtils.toString(curveNodes)).append(',').append(' ');
+    buf.append("computeJacobian").append('=').append(JodaBeanUtils.toString(computeJacobian)).append(',').append(' ');
     buf.append("storeNodeTrade").append('=').append(JodaBeanUtils.toString(storeNodeTrade));
     buf.append('}');
     return buf.toString();

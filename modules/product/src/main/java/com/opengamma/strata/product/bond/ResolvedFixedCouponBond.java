@@ -536,15 +536,15 @@ public final class ResolvedFixedCouponBond
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("ResolvedFixedCouponBond{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("nominalPayment").append('=').append(nominalPayment).append(',').append(' ');
-    buf.append("periodicPayments").append('=').append(periodicPayments).append(',').append(' ');
-    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(rollConvention).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("nominalPayment").append('=').append(JodaBeanUtils.toString(nominalPayment)).append(',').append(' ');
+    buf.append("periodicPayments").append('=').append(JodaBeanUtils.toString(periodicPayments)).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
     buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();

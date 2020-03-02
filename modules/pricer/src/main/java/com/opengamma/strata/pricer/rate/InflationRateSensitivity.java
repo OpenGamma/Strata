@@ -251,8 +251,8 @@ public final class InflationRateSensitivity
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("InflationRateSensitivity{");
-    buf.append("observation").append('=').append(observation).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
+    buf.append("observation").append('=').append(JodaBeanUtils.toString(observation)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
     buf.append("sensitivity").append('=').append(JodaBeanUtils.toString(sensitivity));
     buf.append('}');
     return buf.toString();

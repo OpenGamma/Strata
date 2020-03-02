@@ -175,7 +175,7 @@ public final class TenorParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("TenorParameterMetadata{");
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

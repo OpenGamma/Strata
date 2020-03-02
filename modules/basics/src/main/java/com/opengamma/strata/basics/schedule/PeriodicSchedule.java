@@ -1341,16 +1341,16 @@ public final class PeriodicSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(384);
     buf.append("PeriodicSchedule{");
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("startDateBusinessDayAdjustment").append('=').append(startDateBusinessDayAdjustment).append(',').append(' ');
-    buf.append("endDateBusinessDayAdjustment").append('=').append(endDateBusinessDayAdjustment).append(',').append(' ');
-    buf.append("stubConvention").append('=').append(stubConvention).append(',').append(' ');
-    buf.append("rollConvention").append('=').append(rollConvention).append(',').append(' ');
-    buf.append("firstRegularStartDate").append('=').append(firstRegularStartDate).append(',').append(' ');
-    buf.append("lastRegularEndDate").append('=').append(lastRegularEndDate).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+    buf.append("startDateBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(startDateBusinessDayAdjustment)).append(',').append(' ');
+    buf.append("endDateBusinessDayAdjustment").append('=').append(JodaBeanUtils.toString(endDateBusinessDayAdjustment)).append(',').append(' ');
+    buf.append("stubConvention").append('=').append(JodaBeanUtils.toString(stubConvention)).append(',').append(' ');
+    buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
+    buf.append("firstRegularStartDate").append('=').append(JodaBeanUtils.toString(firstRegularStartDate)).append(',').append(' ');
+    buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate)).append(',').append(' ');
     buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate));
     buf.append('}');
     return buf.toString();

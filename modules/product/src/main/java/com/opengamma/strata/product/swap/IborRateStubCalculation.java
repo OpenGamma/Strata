@@ -387,9 +387,9 @@ public final class IborRateStubCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("IborRateStubCalculation{");
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
-    buf.append("knownAmount").append('=').append(knownAmount).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
+    buf.append("knownAmount").append('=').append(JodaBeanUtils.toString(knownAmount)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
     buf.append("indexInterpolated").append('=').append(JodaBeanUtils.toString(indexInterpolated));
     buf.append('}');
     return buf.toString();

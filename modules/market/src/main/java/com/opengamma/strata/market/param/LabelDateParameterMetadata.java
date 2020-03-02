@@ -161,7 +161,7 @@ public final class LabelDateParameterMetadata
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("LabelDateParameterMetadata{");
-    buf.append("date").append('=').append(date).append(',').append(' ');
+    buf.append("date").append('=').append(JodaBeanUtils.toString(date)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
     return buf.toString();

@@ -411,17 +411,18 @@ public final class OvernightFutureSecurity
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("OvernightFutureSecurity{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("accrualFactor").append('=').append(accrualFactor).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("accrualMethod").append('=').append(accrualMethod).append(',').append(' ');
-    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("accrualFactor").append('=').append(JodaBeanUtils.toString(accrualFactor)).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency()));
     buf.append('}');
     return buf.toString();
   }
@@ -923,7 +924,7 @@ public final class OvernightFutureSecurity
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(352);
       buf.append("OvernightFutureSecurity.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
@@ -933,7 +934,8 @@ public final class OvernightFutureSecurity
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
-      buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
+      buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

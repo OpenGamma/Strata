@@ -188,9 +188,9 @@ public final class EuropeanVanillaOptionFunction
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("EuropeanVanillaOptionFunction{");
-    buf.append("strike").append('=').append(strike).append(',').append(' ');
-    buf.append("timeToExpiry").append('=').append(timeToExpiry).append(',').append(' ');
-    buf.append("sign").append('=').append(sign).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
+    buf.append("timeToExpiry").append('=').append(JodaBeanUtils.toString(timeToExpiry)).append(',').append(' ');
+    buf.append("sign").append('=').append(JodaBeanUtils.toString(sign)).append(',').append(' ');
     buf.append("numberOfSteps").append('=').append(JodaBeanUtils.toString(numberOfSteps));
     buf.append('}');
     return buf.toString();

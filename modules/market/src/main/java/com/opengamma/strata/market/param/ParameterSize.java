@@ -134,7 +134,7 @@ public final class ParameterSize
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ParameterSize{");
-    buf.append("name").append('=').append(name).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
     buf.append("parameterCount").append('=').append(JodaBeanUtils.toString(parameterCount));
     buf.append('}');
     return buf.toString();

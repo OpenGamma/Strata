@@ -253,10 +253,10 @@ public final class IborIndexObservation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("IborIndexObservation{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(fixingDate).append(',').append(' ');
-    buf.append("effectiveDate").append('=').append(effectiveDate).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(maturityDate).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(fixingDate)).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(effectiveDate)).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(maturityDate)).append(',').append(' ');
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction));
     buf.append('}');
     return buf.toString();

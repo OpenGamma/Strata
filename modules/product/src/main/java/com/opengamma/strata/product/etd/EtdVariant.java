@@ -280,9 +280,9 @@ public final class EtdVariant
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("EtdVariant{");
-    buf.append("type").append('=').append(type).append(',').append(' ');
-    buf.append("dateCode").append('=').append(dateCode).append(',').append(' ');
-    buf.append("settlementType").append('=').append(settlementType).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(type)).append(',').append(' ');
+    buf.append("dateCode").append('=').append(JodaBeanUtils.toString(dateCode)).append(',').append(' ');
+    buf.append("settlementType").append('=').append(JodaBeanUtils.toString(settlementType)).append(',').append(' ');
     buf.append("optionType").append('=').append(JodaBeanUtils.toString(optionType));
     buf.append('}');
     return buf.toString();

@@ -222,8 +222,8 @@ public final class CdsIndexTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CdsIndexTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(product).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
     buf.append("upfrontFee").append('=').append(JodaBeanUtils.toString(upfrontFee));
     buf.append('}');
     return buf.toString();

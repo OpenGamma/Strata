@@ -387,11 +387,11 @@ public final class CdsIsdaCreditCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("CdsIsdaCreditCurveNode{");
-    buf.append("template").append('=').append(template).append(',').append(' ');
-    buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("observableId").append('=').append(observableId).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("quoteConvention").append('=').append(quoteConvention).append(',').append(' ');
+    buf.append("template").append('=').append(JodaBeanUtils.toString(template)).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+    buf.append("observableId").append('=').append(JodaBeanUtils.toString(observableId)).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
+    buf.append("quoteConvention").append('=').append(JodaBeanUtils.toString(quoteConvention)).append(',').append(' ');
     buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate));
     buf.append('}');
     return buf.toString();

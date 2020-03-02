@@ -143,7 +143,7 @@ final class CombinedReferenceData
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CombinedReferenceData{");
-    buf.append("refData1").append('=').append(refData1).append(',').append(' ');
+    buf.append("refData1").append('=').append(JodaBeanUtils.toString(refData1)).append(',').append(' ');
     buf.append("refData2").append('=').append(JodaBeanUtils.toString(refData2));
     buf.append('}');
     return buf.toString();

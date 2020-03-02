@@ -315,12 +315,12 @@ public final class ResolvedBondFutureOption
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("ResolvedBondFutureOption{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("putCall").append('=').append(putCall).append(',').append(' ');
-    buf.append("strikePrice").append('=').append(strikePrice).append(',').append(' ');
-    buf.append("expiry").append('=').append(expiry).append(',').append(' ');
-    buf.append("premiumStyle").append('=').append(premiumStyle).append(',').append(' ');
-    buf.append("rounding").append('=').append(rounding).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("putCall").append('=').append(JodaBeanUtils.toString(putCall)).append(',').append(' ');
+    buf.append("strikePrice").append('=').append(JodaBeanUtils.toString(strikePrice)).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
+    buf.append("premiumStyle").append('=').append(JodaBeanUtils.toString(premiumStyle)).append(',').append(' ');
+    buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding)).append(',').append(' ');
     buf.append("underlyingFuture").append('=').append(JodaBeanUtils.toString(underlyingFuture));
     buf.append('}');
     return buf.toString();

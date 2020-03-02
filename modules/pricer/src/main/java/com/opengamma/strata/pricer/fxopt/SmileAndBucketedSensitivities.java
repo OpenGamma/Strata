@@ -138,7 +138,7 @@ public final class SmileAndBucketedSensitivities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("SmileAndBucketedSensitivities{");
-    buf.append("smile").append('=').append(smile).append(',').append(' ');
+    buf.append("smile").append('=').append(JodaBeanUtils.toString(smile)).append(',').append(' ');
     buf.append("sensitivities").append('=').append(JodaBeanUtils.toString(sensitivities));
     buf.append('}');
     return buf.toString();

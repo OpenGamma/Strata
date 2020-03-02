@@ -278,10 +278,10 @@ public final class InflationInterpolatedRateComputation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("InflationInterpolatedRateComputation{");
-    buf.append("startObservation").append('=').append(startObservation).append(',').append(' ');
-    buf.append("startSecondObservation").append('=').append(startSecondObservation).append(',').append(' ');
-    buf.append("endObservation").append('=').append(endObservation).append(',').append(' ');
-    buf.append("endSecondObservation").append('=').append(endSecondObservation).append(',').append(' ');
+    buf.append("startObservation").append('=').append(JodaBeanUtils.toString(startObservation)).append(',').append(' ');
+    buf.append("startSecondObservation").append('=').append(JodaBeanUtils.toString(startSecondObservation)).append(',').append(' ');
+    buf.append("endObservation").append('=').append(JodaBeanUtils.toString(endObservation)).append(',').append(' ');
+    buf.append("endSecondObservation").append('=').append(JodaBeanUtils.toString(endSecondObservation)).append(',').append(' ');
     buf.append("weight").append('=').append(JodaBeanUtils.toString(weight));
     buf.append('}');
     return buf.toString();

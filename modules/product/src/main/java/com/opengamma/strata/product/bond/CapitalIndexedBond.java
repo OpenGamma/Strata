@@ -468,15 +468,15 @@ public final class CapitalIndexedBond
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("CapitalIndexedBond{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("accrualSchedule").append('=').append(accrualSchedule).append(',').append(' ');
-    buf.append("rateCalculation").append('=').append(rateCalculation).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("yieldConvention").append('=').append(yieldConvention).append(',').append(' ');
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(settlementDateOffset).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("accrualSchedule").append('=').append(JodaBeanUtils.toString(accrualSchedule)).append(',').append(' ');
+    buf.append("rateCalculation").append('=').append(JodaBeanUtils.toString(rateCalculation)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(yieldConvention)).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
+    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
     buf.append("exCouponPeriod").append('=').append(JodaBeanUtils.toString(exCouponPeriod));
     buf.append('}');
     return buf.toString();

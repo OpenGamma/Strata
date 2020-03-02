@@ -289,7 +289,7 @@ public final class LegalEntitySurvivalProbabilities
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("LegalEntitySurvivalProbabilities{");
-    buf.append("legalEntityId").append('=').append(legalEntityId).append(',').append(' ');
+    buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
     buf.append("survivalProbabilities").append('=').append(JodaBeanUtils.toString(survivalProbabilities));
     buf.append('}');
     return buf.toString();

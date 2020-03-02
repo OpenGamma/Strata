@@ -519,11 +519,11 @@ public final class SabrInterestRateParameters
   public String toString() {
     StringBuilder buf = new StringBuilder(224);
     buf.append("SabrInterestRateParameters{");
-    buf.append("alphaSurface").append('=').append(alphaSurface).append(',').append(' ');
-    buf.append("betaSurface").append('=').append(betaSurface).append(',').append(' ');
-    buf.append("rhoSurface").append('=').append(rhoSurface).append(',').append(' ');
-    buf.append("nuSurface").append('=').append(nuSurface).append(',').append(' ');
-    buf.append("shiftSurface").append('=').append(shiftSurface).append(',').append(' ');
+    buf.append("alphaSurface").append('=').append(JodaBeanUtils.toString(alphaSurface)).append(',').append(' ');
+    buf.append("betaSurface").append('=').append(JodaBeanUtils.toString(betaSurface)).append(',').append(' ');
+    buf.append("rhoSurface").append('=').append(JodaBeanUtils.toString(rhoSurface)).append(',').append(' ');
+    buf.append("nuSurface").append('=').append(JodaBeanUtils.toString(nuSurface)).append(',').append(' ');
+    buf.append("shiftSurface").append('=').append(JodaBeanUtils.toString(shiftSurface)).append(',').append(' ');
     buf.append("sabrVolatilityFormula").append('=').append(JodaBeanUtils.toString(sabrVolatilityFormula));
     buf.append('}');
     return buf.toString();

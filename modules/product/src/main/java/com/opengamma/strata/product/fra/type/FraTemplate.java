@@ -285,8 +285,8 @@ public final class FraTemplate
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FraTemplate{");
-    buf.append("periodToStart").append('=').append(periodToStart).append(',').append(' ');
-    buf.append("periodToEnd").append('=').append(periodToEnd).append(',').append(' ');
+    buf.append("periodToStart").append('=').append(JodaBeanUtils.toString(periodToStart)).append(',').append(' ');
+    buf.append("periodToEnd").append('=').append(JodaBeanUtils.toString(periodToEnd)).append(',').append(' ');
     buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
     buf.append('}');
     return buf.toString();

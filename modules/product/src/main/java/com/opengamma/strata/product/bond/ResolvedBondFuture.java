@@ -407,14 +407,14 @@ public final class ResolvedBondFuture
   public String toString() {
     StringBuilder buf = new StringBuilder(320);
     buf.append("ResolvedBondFuture{");
-    buf.append("securityId").append('=').append(securityId).append(',').append(' ');
-    buf.append("deliveryBasket").append('=').append(deliveryBasket).append(',').append(' ');
-    buf.append("conversionFactors").append('=').append(conversionFactors).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(lastTradeDate).append(',').append(' ');
-    buf.append("firstNoticeDate").append('=').append(firstNoticeDate).append(',').append(' ');
-    buf.append("lastNoticeDate").append('=').append(lastNoticeDate).append(',').append(' ');
-    buf.append("firstDeliveryDate").append('=').append(firstDeliveryDate).append(',').append(' ');
-    buf.append("lastDeliveryDate").append('=').append(lastDeliveryDate).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(securityId)).append(',').append(' ');
+    buf.append("deliveryBasket").append('=').append(JodaBeanUtils.toString(deliveryBasket)).append(',').append(' ');
+    buf.append("conversionFactors").append('=').append(JodaBeanUtils.toString(conversionFactors)).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(lastTradeDate)).append(',').append(' ');
+    buf.append("firstNoticeDate").append('=').append(JodaBeanUtils.toString(firstNoticeDate)).append(',').append(' ');
+    buf.append("lastNoticeDate").append('=').append(JodaBeanUtils.toString(lastNoticeDate)).append(',').append(' ');
+    buf.append("firstDeliveryDate").append('=').append(JodaBeanUtils.toString(firstDeliveryDate)).append(',').append(' ');
+    buf.append("lastDeliveryDate").append('=').append(JodaBeanUtils.toString(lastDeliveryDate)).append(',').append(' ');
     buf.append("rounding").append('=').append(JodaBeanUtils.toString(rounding));
     buf.append('}');
     return buf.toString();

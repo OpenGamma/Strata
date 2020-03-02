@@ -211,7 +211,7 @@ final class ItemInfo
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ItemInfo{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();

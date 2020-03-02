@@ -304,8 +304,8 @@ public final class ImmutableMarketData
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ImmutableMarketData{");
-    buf.append("valuationDate").append('=').append(valuationDate).append(',').append(' ');
-    buf.append("values").append('=').append(values).append(',').append(' ');
+    buf.append("valuationDate").append('=').append(JodaBeanUtils.toString(valuationDate)).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(values)).append(',').append(' ');
     buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries));
     buf.append('}');
     return buf.toString();

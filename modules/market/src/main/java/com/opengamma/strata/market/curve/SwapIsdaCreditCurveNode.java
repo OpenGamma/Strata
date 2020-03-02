@@ -325,12 +325,12 @@ public final class SwapIsdaCreditCurveNode
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("SwapIsdaCreditCurveNode{");
-    buf.append("label").append('=').append(label).append(',').append(' ');
-    buf.append("observableId").append('=').append(observableId).append(',').append(' ');
-    buf.append("tenor").append('=').append(tenor).append(',').append(' ');
-    buf.append("spotDateOffset").append('=').append(spotDateOffset).append(',').append(' ');
-    buf.append("businessDayAdjustment").append('=').append(businessDayAdjustment).append(',').append(' ');
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
+    buf.append("label").append('=').append(JodaBeanUtils.toString(label)).append(',').append(' ');
+    buf.append("observableId").append('=').append(JodaBeanUtils.toString(observableId)).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(tenor)).append(',').append(' ');
+    buf.append("spotDateOffset").append('=').append(JodaBeanUtils.toString(spotDateOffset)).append(',').append(' ');
+    buf.append("businessDayAdjustment").append('=').append(JodaBeanUtils.toString(businessDayAdjustment)).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
     buf.append("paymentFrequency").append('=').append(JodaBeanUtils.toString(paymentFrequency));
     buf.append('}');
     return buf.toString();

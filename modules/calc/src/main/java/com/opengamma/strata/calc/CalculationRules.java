@@ -247,8 +247,8 @@ public final class CalculationRules implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("CalculationRules{");
-    buf.append("functions").append('=').append(functions).append(',').append(' ');
-    buf.append("reportingCurrency").append('=').append(reportingCurrency).append(',').append(' ');
+    buf.append("functions").append('=').append(JodaBeanUtils.toString(functions)).append(',').append(' ');
+    buf.append("reportingCurrency").append('=').append(JodaBeanUtils.toString(reportingCurrency)).append(',').append(' ');
     buf.append("parameters").append('=').append(JodaBeanUtils.toString(parameters));
     buf.append('}');
     return buf.toString();

@@ -307,9 +307,9 @@ public final class CapitalIndexedBondTrade
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("CapitalIndexedBondTrade{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("product").append('=').append(product).append(',').append(' ');
-    buf.append("quantity").append('=').append(quantity).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("product").append('=').append(JodaBeanUtils.toString(product)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(quantity)).append(',').append(' ');
     buf.append("price").append('=').append(JodaBeanUtils.toString(price));
     buf.append('}');
     return buf.toString();

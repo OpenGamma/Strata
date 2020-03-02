@@ -135,7 +135,7 @@ public final class CdsQuote
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("CdsQuote{");
-    buf.append("quoteConvention").append('=').append(quoteConvention).append(',').append(' ');
+    buf.append("quoteConvention").append('=').append(JodaBeanUtils.toString(quoteConvention)).append(',').append(' ');
     buf.append("quotedValue").append('=').append(JodaBeanUtils.toString(quotedValue));
     buf.append('}');
     return buf.toString();

@@ -656,8 +656,8 @@ public final class Schedule
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("Schedule{");
-    buf.append("periods").append('=').append(periods).append(',').append(' ');
-    buf.append("frequency").append('=').append(frequency).append(',').append(' ');
+    buf.append("periods").append('=').append(JodaBeanUtils.toString(periods)).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(frequency)).append(',').append(' ');
     buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention));
     buf.append('}');
     return buf.toString();

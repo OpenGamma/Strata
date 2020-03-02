@@ -353,12 +353,15 @@ public final class EtdOptionPosition
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("EtdOptionPosition{");
-    buf.append("info").append('=').append(info).append(',').append(' ');
-    buf.append("security").append('=').append(security).append(',').append(' ');
-    buf.append("longQuantity").append('=').append(longQuantity).append(',').append(' ');
-    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
+    buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
+    buf.append("security").append('=').append(JodaBeanUtils.toString(security)).append(',').append(' ');
+    buf.append("longQuantity").append('=').append(JodaBeanUtils.toString(longQuantity)).append(',').append(' ');
+    buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity)).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(getSecurityId()));
     buf.append('}');
     return buf.toString();
   }
@@ -691,12 +694,15 @@ public final class EtdOptionPosition
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("EtdOptionPosition.Builder{");
       buf.append("info").append('=').append(JodaBeanUtils.toString(info)).append(',').append(' ');
       buf.append("security").append('=').append(JodaBeanUtils.toString(security)).append(',').append(' ');
       buf.append("longQuantity").append('=').append(JodaBeanUtils.toString(longQuantity)).append(',').append(' ');
-      buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity));
+      buf.append("shortQuantity").append('=').append(JodaBeanUtils.toString(shortQuantity)).append(',').append(' ');
+      buf.append("quantity").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("currency").append('=').append(JodaBeanUtils.toString(null)).append(',').append(' ');
+      buf.append("securityId").append('=').append(JodaBeanUtils.toString(null));
       buf.append('}');
       return buf.toString();
     }

@@ -183,9 +183,9 @@ public final class MockSerBean implements Bean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MockSerBean{");
-    buf.append("bdConvention").append('=').append(getBdConvention()).append(',').append(' ');
-    buf.append("holidayCalendar").append('=').append(getHolidayCalendar()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("bdConvention").append('=').append(JodaBeanUtils.toString(getBdConvention())).append(',').append(' ');
+    buf.append("holidayCalendar").append('=').append(JodaBeanUtils.toString(getHolidayCalendar())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
     buf.append("objects").append('=').append(JodaBeanUtils.toString(getObjects()));
     buf.append('}');
     return buf.toString();

@@ -325,10 +325,10 @@ public final class FixedRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("FixedRateCalculation{");
-    buf.append("dayCount").append('=').append(dayCount).append(',').append(' ');
-    buf.append("rate").append('=').append(rate).append(',').append(' ');
-    buf.append("initialStub").append('=').append(initialStub).append(',').append(' ');
-    buf.append("finalStub").append('=').append(finalStub).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(dayCount)).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(rate)).append(',').append(' ');
+    buf.append("initialStub").append('=').append(JodaBeanUtils.toString(initialStub)).append(',').append(' ');
+    buf.append("finalStub").append('=').append(JodaBeanUtils.toString(finalStub)).append(',').append(' ');
     buf.append("futureValueNotional").append('=').append(JodaBeanUtils.toString(futureValueNotional));
     buf.append('}');
     return buf.toString();

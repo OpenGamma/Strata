@@ -314,8 +314,8 @@ public final class ValueSchedule
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("ValueSchedule{");
-    buf.append("initialValue").append('=').append(initialValue).append(',').append(' ');
-    buf.append("steps").append('=').append(steps).append(',').append(' ');
+    buf.append("initialValue").append('=').append(JodaBeanUtils.toString(initialValue)).append(',').append(' ');
+    buf.append("steps").append('=').append(JodaBeanUtils.toString(steps)).append(',').append(' ');
     buf.append("stepSequence").append('=').append(JodaBeanUtils.toString(stepSequence));
     buf.append('}');
     return buf.toString();

@@ -264,7 +264,7 @@ public final class PositionInfo
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("PositionInfo{");
-    buf.append("id").append('=').append(id).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(id)).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(attributes));
     buf.append('}');
     return buf.toString();

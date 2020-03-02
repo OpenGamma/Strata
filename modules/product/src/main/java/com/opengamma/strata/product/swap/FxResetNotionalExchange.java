@@ -268,8 +268,8 @@ public final class FxResetNotionalExchange
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("FxResetNotionalExchange{");
-    buf.append("notionalAmount").append('=').append(notionalAmount).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(paymentDate).append(',').append(' ');
+    buf.append("notionalAmount").append('=').append(JodaBeanUtils.toString(notionalAmount)).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(paymentDate)).append(',').append(' ');
     buf.append("observation").append('=').append(JodaBeanUtils.toString(observation));
     buf.append('}');
     return buf.toString();

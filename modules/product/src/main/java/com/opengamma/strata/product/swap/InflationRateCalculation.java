@@ -457,10 +457,10 @@ public final class InflationRateCalculation
   public String toString() {
     StringBuilder buf = new StringBuilder(192);
     buf.append("InflationRateCalculation{");
-    buf.append("index").append('=').append(index).append(',').append(' ');
-    buf.append("lag").append('=').append(lag).append(',').append(' ');
-    buf.append("indexCalculationMethod").append('=').append(indexCalculationMethod).append(',').append(' ');
-    buf.append("firstIndexValue").append('=').append(firstIndexValue).append(',').append(' ');
+    buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
+    buf.append("lag").append('=').append(JodaBeanUtils.toString(lag)).append(',').append(' ');
+    buf.append("indexCalculationMethod").append('=').append(JodaBeanUtils.toString(indexCalculationMethod)).append(',').append(' ');
+    buf.append("firstIndexValue").append('=').append(JodaBeanUtils.toString(firstIndexValue)).append(',').append(' ');
     buf.append("gearing").append('=').append(JodaBeanUtils.toString(gearing));
     buf.append('}');
     return buf.toString();

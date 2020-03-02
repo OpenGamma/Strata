@@ -300,12 +300,12 @@ public final class ResolvedIborFixingDeposit
   public String toString() {
     StringBuilder buf = new StringBuilder(256);
     buf.append("ResolvedIborFixingDeposit{");
-    buf.append("currency").append('=').append(currency).append(',').append(' ');
-    buf.append("notional").append('=').append(notional).append(',').append(' ');
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("endDate").append('=').append(endDate).append(',').append(' ');
-    buf.append("yearFraction").append('=').append(yearFraction).append(',').append(' ');
-    buf.append("fixedRate").append('=').append(fixedRate).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(currency)).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(notional)).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
+    buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("fixedRate").append('=').append(JodaBeanUtils.toString(fixedRate)).append(',').append(' ');
     buf.append("floatingRate").append('=').append(JodaBeanUtils.toString(floatingRate));
     buf.append('}');
     return buf.toString();

@@ -137,7 +137,7 @@ public final class FormatSettings<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("FormatSettings{");
-    buf.append("category").append('=').append(category).append(',').append(' ');
+    buf.append("category").append('=').append(JodaBeanUtils.toString(category)).append(',').append(' ');
     buf.append("formatter").append('=').append(JodaBeanUtils.toString(formatter));
     buf.append('}');
     return buf.toString();

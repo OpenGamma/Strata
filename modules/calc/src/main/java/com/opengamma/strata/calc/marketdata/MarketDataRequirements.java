@@ -249,9 +249,9 @@ public final class MarketDataRequirements implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(160);
     buf.append("MarketDataRequirements{");
-    buf.append("observables").append('=').append(observables).append(',').append(' ');
-    buf.append("nonObservables").append('=').append(nonObservables).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(timeSeries).append(',').append(' ');
+    buf.append("observables").append('=').append(JodaBeanUtils.toString(observables)).append(',').append(' ');
+    buf.append("nonObservables").append('=').append(JodaBeanUtils.toString(nonObservables)).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(timeSeries)).append(',').append(' ');
     buf.append("outputCurrencies").append('=').append(JodaBeanUtils.toString(outputCurrencies));
     buf.append('}');
     return buf.toString();

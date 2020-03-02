@@ -553,8 +553,8 @@ final class DenseLocalDateDoubleTimeSeries
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
     buf.append("DenseLocalDateDoubleTimeSeries{");
-    buf.append("startDate").append('=').append(startDate).append(',').append(' ');
-    buf.append("points").append('=').append(points).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
+    buf.append("points").append('=').append(JodaBeanUtils.toString(points)).append(',').append(' ');
     buf.append("dateCalculation").append('=').append(JodaBeanUtils.toString(dateCalculation));
     buf.append('}');
     return buf.toString();
