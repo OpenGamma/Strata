@@ -174,6 +174,10 @@ public final class Currency
    */
   public static final Currency KRW = of("KRW");
   /**
+   * The currency 'KZT' = Kazakhstani Tenge.
+   */
+  public static final Currency KZT = of("KZT");
+  /**
    * The currency 'MXN' - Mexican Peso.
    */
   public static final Currency MXN = of("MXN");
