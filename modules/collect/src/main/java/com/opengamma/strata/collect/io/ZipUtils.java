@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.HashSet;
@@ -21,18 +22,21 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteStreams;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Utility class to simplify accessing and creating zip files, and other packed formats.
  */
 public final class ZipUtils {
+  // need to watch out for ZIP slip attack when unzipping to file system
+  // https://github.com/snyk/zip-slip-vulnerability
+  private static final Path DUMMY_PATH = Paths.get("/dummy/");
 
   private ZipUtils() {
   }
@@ -53,6 +57,7 @@ public final class ZipUtils {
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        validateZipPathName(DUMMY_PATH, entry);
         if (!entry.isDirectory()) {
           entryNames.add(entry.getName());
         }
@@ -82,8 +87,10 @@ public final class ZipUtils {
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        validateZipPathName(DUMMY_PATH, entry);
         if (!entry.isDirectory() && entry.getName().equals(relativePathName)) {
-          return Optional.of(ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(entry.getName()));
+          ArrayByteSource extractedBytes = extractInputStream(in, entry.getName());
+          return Optional.of(extractedBytes);
         }
         in.closeEntry();
         entry = in.getNextEntry();
@@ -103,15 +110,17 @@ public final class ZipUtils {
    * @param source  the byte source to unzip
    * @param path  the path to unzip to
    * @throws UncheckedIOException if an IO error occurs
+   * @throws SecurityException if the path is not absolute and the calling thread cannot access system property "user.dir"
    */
   public static void unzip(BeanByteSource source, Path path) {
+    Path absolutePath = path.toAbsolutePath();
     Set<ZipKey> deduplicate = new HashSet<>();
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        Path resolved = validateZipPathName(absolutePath, entry);
         if (!entry.isDirectory()) {
-          if (deduplicate.add(new ZipKey(entry))) {
-            Path resolved = path.resolve(entry.getName());
+          if (deduplicate.add(new ZipKey(entry, resolved))) {
             Files.createDirectories(resolved);
             Files.copy(in, resolved, StandardCopyOption.REPLACE_EXISTING);
           }
@@ -182,6 +191,7 @@ public final class ZipUtils {
    * <p>
    * Unpacking handles ZIP, GZ and BASE64 formats based entirely on the suffix of the input file name.
    * If the input suffix is not recognized as a packed format, the consumer is invoked with the original file.
+   * This method is not recursive.
    * 
    * @param source  the byte source to unpack
    * @param consumer  the consumer, which is passed the relative path name and content for each entry
@@ -198,8 +208,8 @@ public final class ZipUtils {
     } else if (suffixMatches(fileName, ".base64")) {
       try (InputStream in = Base64.getDecoder().wrap(source.openBufferedStream())) {
         String shortFileName = fileName.substring(0, fileName.length() - 7);
-        ArrayByteSource unbase64 = ArrayByteSource.from(in).withFileName(shortFileName);
-        consumer.accept(shortFileName, unbase64);
+        ArrayByteSource extracted = extractInputStream(in, shortFileName);
+        consumer.accept(shortFileName, extracted);
       } catch (IOException ex) {
         throw new UncheckedIOException(ex);
       }
@@ -244,10 +254,11 @@ public final class ZipUtils {
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        Path resolved = validateZipPathName(DUMMY_PATH, entry);
         if (!entry.isDirectory()) {
-          if (deduplicate.add(new ZipKey(entry))) {
-            ArrayByteSource entrySource = ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(entry.getName());
-            consumer.accept(entry.getName(), entrySource);
+          if (deduplicate.add(new ZipKey(entry, resolved))) {
+            ArrayByteSource extractedBytes = extractInputStream(in, entry.getName());
+            consumer.accept(entry.getName(), extractedBytes);
           }
         }
         in.closeEntry();
@@ -263,8 +274,8 @@ public final class ZipUtils {
   private static void ungzInMemory(BeanByteSource source, String fileName, BiConsumer<String, ArrayByteSource> consumer) {
     try (GZIPInputStream in = new GZIPInputStream(source.openStream())) {
       String shortFileName = fileName.substring(0, fileName.length() - 3);
-      ArrayByteSource entrySource = ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(shortFileName);
-      consumer.accept(shortFileName, entrySource);
+      ArrayByteSource extractedBytes = extractInputStream(in, shortFileName);
+      consumer.accept(shortFileName, extractedBytes);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -275,25 +286,44 @@ public final class ZipUtils {
     return name.regionMatches(true, name.length() - suffix.length(), suffix, 0, suffix.length());
   }
 
+  // unzip the input, trying to recover from large files or ZIP bombs
+  private static ArrayByteSource extractInputStream(InputStream in, String fileName) throws IOException {
+    try {
+      return ArrayByteSource.from(in).withFileName(fileName);
+    } catch (OutOfMemoryError ex) {
+      System.gc();
+      throw new IOException("Unzipped input too large: " + fileName);
+    }
+  }
+
+  // prevent ZIP slip attack
+  private static Path validateZipPathName(Path rootPath, ZipEntry entry) throws ZipException {
+    Path resolved = rootPath.normalize().resolve(entry.getName()).normalize();
+    if (!resolved.startsWith(rootPath)) {
+      throw new ZipException("ZIP file contains illegal file name: " + entry.getName());
+    }
+    return resolved;
+  }
+
   //-------------------------------------------------------------------------
   // handle duplicate entries in a zip file
   // while such a zip file is stupid, it is apparently valid
   private static class ZipKey {
-    private final String fileName;
+    private final Path resolvedPath;
     private final long crc;
     private final long size;
 
-    private ZipKey(ZipEntry entry) {
-      fileName = entry.getName();
-      crc = entry.getCrc();
-      size = entry.getSize();
+    private ZipKey(ZipEntry entry, Path resolvedPath) {
+      this.resolvedPath = resolvedPath;
+      this.crc = entry.getCrc();
+      this.size = entry.getSize();
     }
 
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof ZipKey) {
         ZipKey key = (ZipKey) obj;
-        return fileName.equals(key.fileName) &&
+        return resolvedPath.equals(key.resolvedPath) &&
             crc == key.crc &&
             size == key.size;
       }
