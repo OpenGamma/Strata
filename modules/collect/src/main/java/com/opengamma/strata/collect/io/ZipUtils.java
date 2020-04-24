@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +26,13 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.TypedMetaBean;
+import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -270,6 +278,21 @@ public final class ZipUtils {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Provides a new source that decrypts the specified source ZIP.
+   * <p>
+   * This returns a wrapper around the input source that provides decryption.
+   * The result is normally passed directly into one of the other methods on this class.
+   * 
+   * @param source  the byte source to unpack
+   * @param password  the password to decrypt the input
+   * @return the decrypted zip file
+   */
+  public static BeanByteSource decryptZip(BeanByteSource source, String password) {
+    return new ZipDecryptByteSource(source, password);
+  }
+
+  //-------------------------------------------------------------------------
   // ungz the contents
   private static void ungzInMemory(BeanByteSource source, String fileName, BiConsumer<String, ArrayByteSource> consumer) {
     try (GZIPInputStream in = new GZIPInputStream(source.openStream())) {
@@ -336,4 +359,91 @@ public final class ZipUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
+  // byte source to wrap the underlying source
+  private static final class ZipDecryptByteSource extends BeanByteSource implements ImmutableBean {
+
+    @PropertyDefinition
+    private final BeanByteSource underlying;
+    private final char[] password;
+
+    //-------------------------------------------------------------------------
+    private ZipDecryptByteSource(BeanByteSource underlying) {
+      throw new IllegalStateException("ZipDecryptByteSource cannot be deserialized as it contains a password");
+    }
+
+    private ZipDecryptByteSource(BeanByteSource underlying, String password) {
+      this.underlying = ArgChecker.notNull(underlying, "underlying");
+      this.password = ArgChecker.notNull(password, "password").toCharArray();
+    }
+
+    @Override
+    public Optional<String> getFileName() {
+      return underlying.getFileName();
+    }
+
+    @Override
+    public InputStream openStream() throws IOException {
+      return new ZipDecryptInputStream(underlying.openStream(), password);
+    }
+
+    // originally Joda-Bean generated
+    //-----------------------------------------------------------------------
+    private static final TypedMetaBean<ZipDecryptByteSource> META_BEAN =
+        LightMetaBean.of(ZipDecryptByteSource.class, MethodHandles.lookup(), new String[] {"underlying"}, new Object[0]);
+    static {
+      MetaBean.register(META_BEAN);
+    }
+
+    /**
+     * The meta-bean for {@code ZipDecryptByteSource}.
+     * @return the meta-bean, not null
+     */
+    @SuppressWarnings("unused")  // method used by Joda-Beans
+    public static TypedMetaBean<ZipDecryptByteSource> meta() {
+      return META_BEAN;
+    }
+
+    @Override
+    public TypedMetaBean<ZipDecryptByteSource> metaBean() {
+      return META_BEAN;
+    }
+
+    /**
+     * Gets the underlying.
+     * @return the value of the property, not null
+     */
+    @SuppressWarnings("unused")  // method used by Joda-Beans
+    public BeanByteSource getUnderlying() {
+      return underlying;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj != null && obj.getClass() == this.getClass()) {
+        ZipDecryptByteSource other = (ZipDecryptByteSource) obj;
+        return JodaBeanUtils.equal(underlying, other.underlying);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      int hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
+      return hash;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(64);
+      buf.append("ZipDecryptByteSource{");
+      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
+      buf.append('}');
+      return buf.toString();
+    }
+  }
 }

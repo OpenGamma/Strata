@@ -305,14 +305,13 @@ public class Bessel extends Constants {
    */
   static public double i0(double x) throws ArithmeticException {
     double y;
-    if (x < 0)
-      x = -x;
-    if (x <= 8.0) {
-      y = (x / 2.0) - 2.0;
-      return (Math.exp(x) * Arithmetic.chbevl(y, A_i0, 30));
+    double absX = x < 0 ? -x : x;
+    if (absX <= 8.0) {
+      y = (absX / 2.0) - 2.0;
+      return (Math.exp(absX) * Arithmetic.chbevl(y, A_i0, 30));
     }
 
-    return (Math.exp(x) * Arithmetic.chbevl(32.0 / x - 2.0, B_i0, 25) / Math.sqrt(x));
+    return (Math.exp(absX) * Arithmetic.chbevl(32.0 / absX - 2.0, B_i0, 25) / Math.sqrt(absX));
   }
 
   /**
@@ -328,14 +327,13 @@ public class Bessel extends Constants {
    */
   static public double i0e(double x) throws ArithmeticException {
     double y;
-    if (x < 0)
-      x = -x;
-    if (x <= 8.0) {
-      y = (x / 2.0) - 2.0;
+    double absX = x < 0 ? -x : x;
+    if (absX <= 8.0) {
+      y = (absX / 2.0) - 2.0;
       return (Arithmetic.chbevl(y, A_i0, 30));
     }
 
-    return (Arithmetic.chbevl(32.0 / x - 2.0, B_i0, 25) / Math.sqrt(x));
+    return (Arithmetic.chbevl(32.0 / absX - 2.0, B_i0, 25) / Math.sqrt(absX));
   }
 
   /**
