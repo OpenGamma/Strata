@@ -15,6 +15,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SETTLEMENT_TYPE_FIE
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SHORT_QUANTITY_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.TYPE_FIELD;
 import static com.opengamma.strata.product.etd.EtdIdUtils.ETD_SCHEME;
+import static com.opengamma.strata.product.etd.EtdIdUtils.SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,8 @@ final class EtdFuturePositionCsvPlugin implements PositionTypeCsvWriter<EtdFutur
    * The singleton instance of the plugin.
    */
   public static final EtdFuturePositionCsvPlugin INSTANCE = new EtdFuturePositionCsvPlugin();
+  private static final int CONTRACT_CODE_INDEX = 2;
+  private static final int EXCHANGE_INDEX = 1;
 
   @Override
   public List<String> headers(List<EtdFuturePosition> positions) {
@@ -64,19 +67,17 @@ final class EtdFuturePositionCsvPlugin implements PositionTypeCsvWriter<EtdFutur
 
     String idScheme = position.getSecurity().getContractSpecId().getStandardId().getScheme();
     if (ETD_SCHEME.equals(idScheme)) {
-      String contractCode = position.getSecurity().getContractSpecId().getStandardId().getValue().split("-")[2];
-      String exchange = position.getSecurity().getContractSpecId().getStandardId().getValue().split("-")[1];
-      csv.writeCell(CONTRACT_CODE_FIELD, contractCode);
-      csv.writeCell(EXCHANGE_FIELD, exchange);
+      String[] standardIdValueComponents =
+          position.getSecurity().getContractSpecId().getStandardId().getValue().split(SEPARATOR);
+      csv.writeCell(CONTRACT_CODE_FIELD, standardIdValueComponents[CONTRACT_CODE_INDEX]);
+      csv.writeCell(EXCHANGE_FIELD, standardIdValueComponents[EXCHANGE_INDEX]);
     } else {
       throw new IllegalArgumentException("Unable to write position to CSV with id scheme: " + idScheme);
     }
-
     EtdVariant productVariant = position.getProduct().getVariant();
     if (productVariant.getSettlementType().isPresent()) {
       csv.writeCell(SETTLEMENT_TYPE_FIELD, productVariant.getSettlementType().get());
     }
-
     if (EtdExpiryType.WEEKLY == productVariant.getType() && productVariant.getDateCode().isPresent()) {
       csv.writeCell(EXPIRY_WEEK_FIELD, productVariant.getDateCode().getAsInt());
     } else if (EtdExpiryType.DAILY == productVariant.getType() && productVariant.getDateCode().isPresent()) {

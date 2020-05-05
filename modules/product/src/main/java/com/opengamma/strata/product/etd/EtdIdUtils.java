@@ -36,7 +36,7 @@ public final class EtdIdUtils {
   /**
    * The separator to use.
    */
-  private static final String SEPARATOR = "-";
+  public static final String SEPARATOR = "-";
   /**
    * Prefix for futures.
    */

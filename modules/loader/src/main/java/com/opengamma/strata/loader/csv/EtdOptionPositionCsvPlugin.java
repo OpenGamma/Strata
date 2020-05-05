@@ -20,6 +20,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.UNDERLYING_EXPIRY_F
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.TYPE_FIELD;
 import static com.opengamma.strata.product.etd.EtdIdUtils.ETD_SCHEME;
+import static com.opengamma.strata.product.etd.EtdIdUtils.SEPARATOR;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,8 @@ final class EtdOptionPositionCsvPlugin implements PositionTypeCsvWriter<EtdOptio
    * The singleton instance of the plugin.
    */
   public static final EtdOptionPositionCsvPlugin INSTANCE = new EtdOptionPositionCsvPlugin();
+  private static final int CONTRACT_CODE_INDEX = 2;
+  private static final int EXCHANGE_INDEX = 1;
 
   @Override
   public List<String> headers(List<EtdOptionPosition> positions) {
@@ -80,30 +83,26 @@ final class EtdOptionPositionCsvPlugin implements PositionTypeCsvWriter<EtdOptio
 
     String idScheme = position.getSecurity().getContractSpecId().getStandardId().getScheme();
     if (ETD_SCHEME.equals(idScheme)) {
-      String contractCode = position.getSecurity().getContractSpecId().getStandardId().getValue().split("-")[2];
-      String exchange = position.getSecurity().getContractSpecId().getStandardId().getValue().split("-")[1];
-      csv.writeCell(CONTRACT_CODE_FIELD, contractCode);
-      csv.writeCell(EXCHANGE_FIELD, exchange);
+      String[] standardIdValueComponents =
+          position.getSecurity().getContractSpecId().getStandardId().getValue().split(SEPARATOR);
+      csv.writeCell(CONTRACT_CODE_FIELD, standardIdValueComponents[CONTRACT_CODE_INDEX]);
+      csv.writeCell(EXCHANGE_FIELD, standardIdValueComponents[EXCHANGE_INDEX]);
     } else {
       throw new IllegalArgumentException("Unable to write position to CSV with id scheme: " + idScheme);
     }
-
     EtdVariant productVariant = position.getProduct().getVariant();
     if (productVariant.getSettlementType().isPresent() && productVariant.getOptionType().isPresent()) {
       csv.writeCell(SETTLEMENT_TYPE_FIELD, productVariant.getSettlementType().get());
       csv.writeCell(EXERCISE_STYLE_FIELD, productVariant.getOptionType().get().getCode());
     }
-
     if (EtdExpiryType.WEEKLY == productVariant.getType() && productVariant.getDateCode().isPresent()) {
       csv.writeCell(EXPIRY_WEEK_FIELD, productVariant.getDateCode().getAsInt());
     } else if (EtdExpiryType.DAILY == productVariant.getType() && productVariant.getDateCode().isPresent()) {
       csv.writeCell(EXPIRY_DAY_FIELD, productVariant.getDateCode().getAsInt());
     }
-
     if (position.getSecurity().getVersion() != 0) {
       csv.writeCell(VERSION_FIELD, position.getSecurity().getVersion());
     }
-
     if (position.getSecurity().getUnderlyingExpiryMonth().isPresent()) {
       csv.writeCell(UNDERLYING_EXPIRY_FIELD, position.getSecurity().getUnderlyingExpiryMonth().get());
     }

@@ -42,22 +42,21 @@ import com.opengamma.strata.product.etd.EtdVariant;
  */
 class PositionCsvWriterTest {
 
+  private static EtdContractSpec FUTURE_CONTRACT;
+  private static EtdContractSpec OPTION_CONTRACT;
+  private static EtdContractSpecId FUTURE_SPEC_ID;
+  private static EtdContractSpecId OPTION_SPEC_ID;
   private static final ResourceLocator FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/positions-2.csv");
 
-  private static EtdContractSpecId futureSpecId;
-  private static EtdContractSpecId optionSpecId;
-  private static EtdContractSpec futureContract;
-  private static EtdContractSpec optionContract;
-
   @BeforeAll
   static void beforeAll() {
-    futureSpecId = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
+    FUTURE_SPEC_ID = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
 
-    optionSpecId = EtdContractSpecId.of("OG-ETD", "O-ECAG-OGBL");
+    OPTION_SPEC_ID = EtdContractSpecId.of("OG-ETD", "O-ECAG-OGBL");
 
-    futureContract = EtdContractSpec.builder()
-        .id(futureSpecId)
+    FUTURE_CONTRACT = EtdContractSpec.builder()
+        .id(FUTURE_SPEC_ID)
         .type(EtdType.FUTURE)
         .exchangeId(ExchangeIds.ECAG)
         .contractCode(EtdContractCode.of("FGBL"))
@@ -65,8 +64,8 @@ class PositionCsvWriterTest {
         .priceInfo(SecurityPriceInfo.of(Currency.GBP, 100))
         .build();
 
-    optionContract = EtdContractSpec.builder()
-        .id(optionSpecId)
+    OPTION_CONTRACT = EtdContractSpec.builder()
+        .id(OPTION_SPEC_ID)
         .type(EtdType.OPTION)
         .exchangeId(ExchangeIds.ECAG)
         .contractCode(EtdContractCode.of("OGBL"))
@@ -82,7 +81,7 @@ class PositionCsvWriterTest {
             .id(StandardId.of("OG", "123424"))
             .build())
         .security(EtdFutureSecurity.of(
-            futureContract,
+            FUTURE_CONTRACT,
             YearMonth.of(2017, 6),
             EtdVariant.ofDaily(3)))
         .longQuantity(30d)
@@ -105,7 +104,7 @@ class PositionCsvWriterTest {
             .id(StandardId.of("OG", "123431"))
             .build())
         .security(EtdOptionSecurity.of(
-            optionContract,
+            OPTION_CONTRACT,
             YearMonth.of(2017, 6),
             EtdVariant.ofMonthly(), 0,
             PutCall.PUT, 3d,
@@ -126,8 +125,8 @@ class PositionCsvWriterTest {
   @Test
   void test_write_roundTrip() {
     ReferenceData referenceData = ImmutableReferenceData.of(ImmutableMap.of(
-        futureSpecId, futureContract,
-        optionSpecId, optionContract));
+        FUTURE_SPEC_ID, FUTURE_CONTRACT,
+        OPTION_SPEC_ID, OPTION_CONTRACT));
     PositionCsvLoader loader = PositionCsvLoader.of(referenceData);
 
     ValueWithFailures<List<Position>> parsed1 = loader.parse(ImmutableList.of(FILE.getCharSource()));
