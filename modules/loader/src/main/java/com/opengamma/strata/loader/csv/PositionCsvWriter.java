@@ -6,6 +6,20 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_CODE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXCHANGE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_STYLE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXPIRY_DAY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXPIRY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXPIRY_WEEK_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.LONG_QUANTITY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.QUANTITY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SETTLEMENT_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SHORT_QUANTITY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.UNDERLYING_EXPIRY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderUtils.VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.CCP_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DESCRIPTION_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.ID_FIELD;
@@ -50,7 +64,26 @@ public final class PositionCsvWriter {
    * The header order.
    */
   private static final ImmutableList<String> HEADER_ORDER = ImmutableList.of(
-      TYPE_FIELD);
+      TYPE_FIELD,
+      ID_SCHEME_FIELD,
+      ID_FIELD,
+      DESCRIPTION_FIELD,
+      NAME_FIELD,
+      CCP_FIELD,
+      EXCHANGE_FIELD,
+      CONTRACT_CODE_FIELD,
+      QUANTITY_FIELD,
+      LONG_QUANTITY_FIELD,
+      SHORT_QUANTITY_FIELD,
+      EXPIRY_FIELD,
+      EXPIRY_WEEK_FIELD,
+      EXPIRY_DAY_FIELD,
+      SETTLEMENT_TYPE_FIELD,
+      EXERCISE_STYLE_FIELD,
+      PUT_CALL_FIELD,
+      EXERCISE_PRICE_FIELD,
+      VERSION_FIELD,
+      UNDERLYING_EXPIRY_FIELD);
   /**
    * The header comparator.
    */

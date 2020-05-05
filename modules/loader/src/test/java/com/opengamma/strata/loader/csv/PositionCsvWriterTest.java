@@ -92,8 +92,8 @@ class PositionCsvWriterTest {
     PositionCsvWriter.standard().write(ImmutableList.of(position), buf);
     String content = buf.toString();
 
-    String expected = "Strata Position Type,Id Scheme,Id,Contract Code,Exchange,Expiry,Long Quantity,Short Quantity,Expiry Day\n" +
-        "FUT,OG,123424,FGBL,ECAG,2017-06,30,0,3\n";
+    String expected = "Strata Position Type,Id Scheme,Id,Exchange,Contract Code,Long Quantity,Short Quantity,Expiry,Expiry Day\n" +
+        "FUT,OG,123424,ECAG,FGBL,30,0,2017-06,3\n";
     assertThat(content).isEqualTo(expected);
   }
 
@@ -117,8 +117,8 @@ class PositionCsvWriterTest {
     PositionCsvWriter.standard().write(ImmutableList.of(position), buf);
     String content = buf.toString();
 
-    String expected = "Strata Position Type,Id Scheme,Id,Contract Code,Exchange,Exercise Price,Expiry,Long Quantity,Put Call,Short Quantity,Underlying Expiry\n"
-        + "OPT,OG,123431,OGBL,ECAG,3,2017-06,15,Put,2,2017-09\n";
+    String expected = "Strata Position Type,Id Scheme,Id,Exchange,Contract Code,Long Quantity,Short Quantity,Expiry,Put Call,Exercise Price,Underlying Expiry\n"
+        + "OPT,OG,123431,ECAG,OGBL,15,2,2017-06,Put,3,2017-09\n";
     assertThat(content).isEqualTo(expected);
   }
 
