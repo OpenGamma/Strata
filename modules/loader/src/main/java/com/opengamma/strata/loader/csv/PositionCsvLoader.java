@@ -141,9 +141,9 @@ public final class PositionCsvLoader {
   static final String DEFAULT_SECURITY_SCHEME = "OG-Security";
 
   // CSV column headers
-  private static final String TYPE_FIELD = "Strata Position Type";
-  private static final String ID_SCHEME_FIELD = "Id Scheme";
-  private static final String ID_FIELD = "Id";
+  static final String TYPE_FIELD = "Strata Position Type";
+  static final String ID_SCHEME_FIELD = "Id Scheme";
+  static final String ID_FIELD = "Id";
   static final String DESCRIPTION_FIELD = "Description";
   static final String NAME_FIELD = "Name";
   static final String CCP_FIELD = "CCP";
