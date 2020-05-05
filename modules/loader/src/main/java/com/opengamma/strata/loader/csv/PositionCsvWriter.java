@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
@@ -126,11 +127,11 @@ public final class PositionCsvWriter {
 
     // additional headers
     Map<Class<?>, List<Position>> splitByType = positions.stream().collect(groupingBy(Position::getClass));
-    for (Map.Entry<Class<?>, List<Position>> entry : splitByType.entrySet()) {
+    for (Entry<Class<?>, List<Position>> entry : splitByType.entrySet()) {
       PositionTypeCsvWriter detailsWriter = WRITERS.get(entry.getKey());
       if (detailsWriter == null) {
         throw new IllegalArgumentException(
-            "Unable to write position to CSV: " + entry.getKey().getClass().getSimpleName());
+            "Unable to write position to CSV: " + entry.getKey().getSimpleName());
       }
       headers.addAll(detailsWriter.headers(entry.getValue()));
     }

@@ -1,0 +1,3 @@
+Strata Position Type,Id Scheme,Id,Security Id Scheme,Security Id,Quantity,Long Quantity,Short Quantity,Exchange,Contract Code,Expiry,Expiry Week,Expiry Day,Settlement Type,Exercise Style,Put Call,Exercise Price,Underlying Expiry,Currency,Tick Size,Tick Value,Contract Size
+FUT,OG,123421,,,,15,2,ECAG,FGBL,2017-06,,,,,,,,,,,
+OPT,OG,123431,,,,15,2,ECAG,OGBL,2017-06,,,,,P,3,2017-09,,,,

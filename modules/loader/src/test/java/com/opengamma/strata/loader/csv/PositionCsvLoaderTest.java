@@ -98,7 +98,7 @@ public class PositionCsvLoaderTest {
       .build();
 
   private static final ResourceLocator FILE =
-      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/positions.csv");
+      ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/positions-1.csv");
 
   //-------------------------------------------------------------------------
   @Test
