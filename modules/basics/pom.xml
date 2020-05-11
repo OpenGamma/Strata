@@ -12,6 +12,79 @@
   <packaging>jar</packaging>
   <name>Strata-Basics</name>
   <description>Basic aspects of financial markets</description>
+  
+  <!-- ==================================================================== -->
+  <build>
+    <plugins>
+      <!-- Compile Holiday Calendar data -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>compile-holcal</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>java</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <mainClass>com.opengamma.strata.basics.date.GlobalHolidayCalendars</mainClass>
+          <classpathScope>compile</classpathScope>
+        </configuration>
+      </plugin>
+  		<plugin>
+		    <groupId>org.apache.maven.plugins</groupId>
+		    <artifactId>maven-resources-plugin</artifactId>
+		    <executions>
+	        <execution>
+	          <id>copy-resources-post-compile</id>
+	          <phase>process-classes</phase>
+	          <goals>
+	            <goal>copy-resources</goal>
+	          </goals>
+	          <configuration>
+	            <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+	            <resources>
+	              <resource>
+	                <directory>${project.build.directory}/generated-resources/holcal</directory>
+	              </resource>
+	            </resources>
+	          </configuration>
+	        </execution>
+		    </executions>
+      </plugin>      
+    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.eclipse.m2e</groupId>
+          <artifactId>lifecycle-mapping</artifactId>
+          <version>1.0.0</version>
+          <configuration>
+            <lifecycleMappingMetadata>
+              <pluginExecutions>
+                <pluginExecution>
+                  <pluginExecutionFilter>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <versionRange>[1.6.0,)</versionRange>
+                    <goals>
+                      <goal>java</goal>
+                    </goals>
+                  </pluginExecutionFilter>
+                  <action>
+                    <ignore></ignore>
+                  </action>
+                </pluginExecution>
+              </pluginExecutions>
+            </lifecycleMappingMetadata>
+          </configuration>
+      </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 
   <!-- ==================================================================== -->
   <dependencies>

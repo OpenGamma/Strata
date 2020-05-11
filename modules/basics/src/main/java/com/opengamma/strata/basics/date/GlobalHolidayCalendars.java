@@ -19,9 +19,11 @@ import static java.time.temporal.TemporalAdjusters.nextOrSame;
 import static java.time.temporal.TemporalAdjusters.previous;
 
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -30,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.io.Files;
+import com.google.common.collect.Iterators;
 
 /**
  * Implementation of some common global holiday calendars.
@@ -45,8 +47,8 @@ final class GlobalHolidayCalendars {
   // which is used at runtime (for performance reasons)
 
   /** Where to store the file. */
-  private static final File DATA_FILE =
-      new File("src/main/resources/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
+  private static final Path DATA_FILE =
+      Paths.get("target/generated-resources/holcal/com/opengamma/strata/basics/date/GlobalHolidayCalendars.bin");
 
   //-------------------------------------------------------------------------
   /**
@@ -56,7 +58,11 @@ final class GlobalHolidayCalendars {
    * @throws IOException if an IO error occurs
    */
   public static void main(String[] args) throws IOException {
-    Files.createParentDirs(DATA_FILE);
+    Path absolute = DATA_FILE.toAbsolutePath();
+    if (!Iterators.contains(absolute.iterator(), "modules")) {
+      absolute = Paths.get("modules/basics").resolve(DATA_FILE).toAbsolutePath();
+    }
+    Files.createDirectories(absolute.getParent());
     ImmutableHolidayCalendar[] calendars = {
         generateLondon(),
         generateParis(),
@@ -84,7 +90,7 @@ final class GlobalHolidayCalendars {
         generateStockholm(),
         generateJohannesburg(),
     };
-    try (FileOutputStream fos = new FileOutputStream(DATA_FILE)) {
+    try (OutputStream fos = Files.newOutputStream(absolute)) {
       try (DataOutputStream out = new DataOutputStream(fos)) {
         out.writeByte('H');
         out.writeByte('C');
@@ -96,6 +102,7 @@ final class GlobalHolidayCalendars {
         }
       }
     }
+    System.out.println("Holiday calendar binary file written: " + absolute);
   }
 
   /**
