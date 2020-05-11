@@ -48,6 +48,7 @@ public interface Sensitivities
    * @param info  the new info
    * @return the instance with the specified info
    */
+  @Override
   public abstract Sensitivities withInfo(PortfolioItemInfo info);
 
 }

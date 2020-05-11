@@ -65,6 +65,7 @@ public interface Position
    * @param info  the new info
    * @return the instance with the specified info
    */
+  @Override
   public abstract Position withInfo(PortfolioItemInfo info);
 
   /**
