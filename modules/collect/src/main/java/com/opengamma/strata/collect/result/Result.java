@@ -155,20 +155,20 @@ public final class Result<T>
   }
 
   /**
-   * Creates a failed result caused by an exception.
+   * Creates a failed result caused by a throwable.
    * <p>
    * The failure will have a reason of {@code ERROR}.
    *
    * @param <R> the expected type of the result
-   * @param exception  the cause of the failure
+   * @param cause  the cause of the failure
    * @return a failure result
    */
-  public static <R> Result<R> failure(Exception exception) {
-    return new Result<>(Failure.of(FailureReason.ERROR, exception));
+  public static <R> Result<R> failure(Throwable cause) {
+    return new Result<>(Failure.of(FailureReason.ERROR, cause));
   }
 
   /**
-   * Creates a failed result caused by an exception.
+   * Creates a failed result caused by a throwable.
    * <p>
    * The failure will have a reason of {@code ERROR}.
    * <p>
@@ -180,29 +180,29 @@ public final class Result<T>
    * See {@link Messages#format(String, Object...)} for more details.
    *
    * @param <R> the expected type of the result
-   * @param exception  the cause of the failure
+   * @param cause  the cause of the failure
    * @param message  a message explaining the failure, uses "{}" for inserting {@code messageArgs}
    * @param messageArgs  the arguments for the message
    * @return a failure result
    */
-  public static <R> Result<R> failure(Exception exception, String message, Object... messageArgs) {
-    return new Result<>(Failure.of(FailureReason.ERROR, exception, message, messageArgs));
+  public static <R> Result<R> failure(Throwable cause, String message, Object... messageArgs) {
+    return new Result<>(Failure.of(FailureReason.ERROR, cause, message, messageArgs));
   }
 
   /**
-   * Creates a failed result caused by an exception with a specified reason.
+   * Creates a failed result caused by a throwable with a specified reason.
    *
    * @param <R> the expected type of the result
    * @param reason  the result reason
-   * @param exception  the cause of the failure
+   * @param cause  the cause of the failure
    * @return a failure result
    */
-  public static <R> Result<R> failure(FailureReason reason, Exception exception) {
-    return new Result<>(Failure.of(reason, exception));
+  public static <R> Result<R> failure(FailureReason reason, Throwable cause) {
+    return new Result<>(Failure.of(reason, cause));
   }
 
   /**
-   * Creates a failed result caused by an exception with a specified reason and message.
+   * Creates a failed result caused by a throwable with a specified reason and message.
    * <p>
    * The message is produced using a template that contains zero to many "{}" placeholders.
    * Each placeholder is replaced by the next available argument.
@@ -213,18 +213,18 @@ public final class Result<T>
    *
    * @param <R> the expected type of the result
    * @param reason  the result reason
-   * @param exception  the cause of the failure
+   * @param cause  the cause of the failure
    * @param message  a message explaining the failure, uses "{}" for inserting {@code messageArgs}
    * @param messageArgs  the arguments for the message
    * @return a failure result
    */
   public static <R> Result<R> failure(
       FailureReason reason,
-      Exception exception,
+      Throwable cause,
       String message,
       Object... messageArgs) {
 
-    return new Result<>(Failure.of(reason, exception, message, messageArgs));
+    return new Result<>(Failure.of(reason, cause, message, messageArgs));
   }
 
   /**

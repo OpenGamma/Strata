@@ -100,7 +100,7 @@ public final class Failure
    * @param messageArgs  arguments used to create the failure message
    * @return the failure
    */
-  public static Failure of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
+  public static Failure of(FailureReason reason, Throwable cause, String message, Object... messageArgs) {
     return Failure.of(FailureItem.of(reason, cause, message, messageArgs));
   }
 
@@ -111,7 +111,7 @@ public final class Failure
    * @param cause  the cause
    * @return the failure
    */
-  public static Failure of(FailureReason reason, Exception cause) {
+  public static Failure of(FailureReason reason, Throwable cause) {
     return Failure.of(FailureItem.of(reason, cause));
   }
 
