@@ -24,7 +24,7 @@ import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
  * <p>
  * Swap rates for CHF, EUR, GBP, JPY and USD are established by ISDA in co-operation with
  * Reuters (now Thomson Reuters) and Intercapital Brokers (now ICAP plc). 
- * Ref: https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
+ * Ref: https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
  * <p>
  * The most common implementations are provided in {@link SwapIndices}.
  * <p>

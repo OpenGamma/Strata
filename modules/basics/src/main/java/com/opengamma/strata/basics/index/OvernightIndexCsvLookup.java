@@ -30,7 +30,7 @@ import com.opengamma.strata.collect.named.NamedLookup;
 final class OvernightIndexCsvLookup
     implements NamedLookup<OvernightIndex> {
 
-  // https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
+  // https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
 
   /**
    * The logger.
