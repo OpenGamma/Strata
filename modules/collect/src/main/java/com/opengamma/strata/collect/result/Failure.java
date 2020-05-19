@@ -85,7 +85,7 @@ public final class Failure
   }
 
   /**
-   * Obtains a failure from a reason, message and exception.
+   * Obtains a failure from a reason, message and throwable.
    * <p>
    * The message is produced using a template that contains zero to many "{}" placeholders.
    * Each placeholder is replaced by the next available argument.
@@ -105,13 +105,46 @@ public final class Failure
   }
 
   /**
-   * Obtains a failure from a reason and exception.
+   * Obtains a failure from a reason, message and exception.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   * 
+   * @param reason  the reason
+   * @param cause  the cause
+   * @param message  the failure message, possibly containing placeholders, formatted using {@link Messages#format}
+   * @param messageArgs  arguments used to create the failure message
+   * @return the failure
+   */
+  public static Failure of(FailureReason reason, Exception cause, String message, Object... messageArgs) {
+    // this method is retained to ensure binary compatibility
+    return Failure.of(FailureItem.of(reason, cause, message, messageArgs));
+  }
+
+  /**
+   * Obtains a failure from a reason and throwable.
    * 
    * @param reason  the reason
    * @param cause  the cause
    * @return the failure
    */
   public static Failure of(FailureReason reason, Throwable cause) {
+    return Failure.of(FailureItem.of(reason, cause));
+  }
+
+  /**
+   * Obtains a failure from a reason and exception.
+   * 
+   * @param reason  the reason
+   * @param cause  the cause
+   * @return the failure
+   */
+  public static Failure of(FailureReason reason, Exception cause) {
+    // this method is retained to ensure binary compatibility
     return Failure.of(FailureItem.of(reason, cause));
   }
 

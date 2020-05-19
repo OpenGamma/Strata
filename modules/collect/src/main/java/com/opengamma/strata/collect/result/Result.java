@@ -168,6 +168,20 @@ public final class Result<T>
   }
 
   /**
+   * Creates a failed result caused by an exception.
+   * <p>
+   * The failure will have a reason of {@code ERROR}.
+   *
+   * @param <R> the expected type of the result
+   * @param cause  the cause of the failure
+   * @return a failure result
+   */
+  public static <R> Result<R> failure(Exception cause) {
+    // this method is retained to ensure binary compatibility
+    return new Result<>(Failure.of(FailureReason.ERROR, cause));
+  }
+
+  /**
    * Creates a failed result caused by a throwable.
    * <p>
    * The failure will have a reason of {@code ERROR}.
@@ -190,6 +204,29 @@ public final class Result<T>
   }
 
   /**
+   * Creates a failed result caused by an exception.
+   * <p>
+   * The failure will have a reason of {@code ERROR}.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   *
+   * @param <R> the expected type of the result
+   * @param cause  the cause of the failure
+   * @param message  a message explaining the failure, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
+   * @return a failure result
+   */
+  public static <R> Result<R> failure(Exception cause, String message, Object... messageArgs) {
+    // this method is retained to ensure binary compatibility
+    return new Result<>(Failure.of(FailureReason.ERROR, cause, message, messageArgs));
+  }
+
+  /**
    * Creates a failed result caused by a throwable with a specified reason.
    *
    * @param <R> the expected type of the result
@@ -198,6 +235,19 @@ public final class Result<T>
    * @return a failure result
    */
   public static <R> Result<R> failure(FailureReason reason, Throwable cause) {
+    return new Result<>(Failure.of(reason, cause));
+  }
+
+  /**
+   * Creates a failed result caused by an exception with a specified reason.
+   *
+   * @param <R> the expected type of the result
+   * @param reason  the result reason
+   * @param cause  the cause of the failure
+   * @return a failure result
+   */
+  public static <R> Result<R> failure(FailureReason reason, Exception cause) {
+    // this method is retained to ensure binary compatibility
     return new Result<>(Failure.of(reason, cause));
   }
 
@@ -224,6 +274,33 @@ public final class Result<T>
       String message,
       Object... messageArgs) {
 
+    return new Result<>(Failure.of(reason, cause, message, messageArgs));
+  }
+
+  /**
+   * Creates a failed result caused by an exception with a specified reason and message.
+   * <p>
+   * The message is produced using a template that contains zero to many "{}" placeholders.
+   * Each placeholder is replaced by the next available argument.
+   * If there are too few arguments, then the message will be left with placeholders.
+   * If there are too many arguments, then the excess arguments are appended to the
+   * end of the message. No attempt is made to format the arguments.
+   * See {@link Messages#format(String, Object...)} for more details.
+   *
+   * @param <R> the expected type of the result
+   * @param reason  the result reason
+   * @param cause  the cause of the failure
+   * @param message  a message explaining the failure, uses "{}" for inserting {@code messageArgs}
+   * @param messageArgs  the arguments for the message
+   * @return a failure result
+   */
+  public static <R> Result<R> failure(
+      FailureReason reason,
+      Exception cause,
+      String message,
+      Object... messageArgs) {
+
+    // this method is retained to ensure binary compatibility
     return new Result<>(Failure.of(reason, cause, message, messageArgs));
   }
 
