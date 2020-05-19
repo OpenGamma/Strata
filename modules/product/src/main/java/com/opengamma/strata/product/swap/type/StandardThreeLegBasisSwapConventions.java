@@ -17,7 +17,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 /**
  * Market standard three leg basis swap conventions.
  * <p>
- * https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
+ * https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
  */
 final class StandardThreeLegBasisSwapConventions {
 
