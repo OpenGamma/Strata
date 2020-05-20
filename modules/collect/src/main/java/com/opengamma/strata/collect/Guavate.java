@@ -145,9 +145,9 @@ public final class Guavate {
    * This converts an exception throwing method into an optional returning one by discarding the exception.
    * In most cases it is better to add a `findXxx()` method to the code you want to call.
    * 
-   * @param <T> the type of the result
-   * @param supplier the supplier that might throw an exception
-   * @return the value wrapped in an exception, empty if the method returns null or an exception is thrown
+   * @param <T>  the type of the result in the optional
+   * @param supplier  the supplier that might throw an exception
+   * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
    */
   public static <T> Optional<T> tryCatchToOptional(Supplier<T> supplier) {
     try {
