@@ -15,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -121,6 +122,14 @@ public class GuavateTest {
         map2,
         (a, b) -> Double.sum(a.doubleValue(), b.doubleValue()));
     assertThat(test).isEqualTo(ImmutableMap.of("a", 6d, "b", 2, "c", 3d));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_tryCatchToOptional() {
+    assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("2020-06-01"))).hasValue(LocalDate.of(2020, 6, 1));
+    assertThat(Guavate.tryCatchToOptional(() -> null)).isEmpty();
+    assertThat(Guavate.tryCatchToOptional(() -> LocalDate.parse("XXX"))).isEmpty();
   }
 
   //-------------------------------------------------------------------------
