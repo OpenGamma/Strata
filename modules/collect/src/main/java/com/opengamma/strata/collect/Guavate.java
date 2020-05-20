@@ -140,6 +140,25 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
+   * Wraps a try-catch block around an expression, avoiding exceptions.
+   * <p>
+   * This converts an exception throwing method into an optional returning one by discarding the exception.
+   * In most cases it is better to add a `findXxx()` method to the code you want to call.
+   * 
+   * @param <T>  the type of the result in the optional
+   * @param supplier  the supplier that might throw an exception
+   * @return the value wrapped in an optional, empty if the method returns null or an exception is thrown
+   */
+  public static <T> Optional<T> tryCatchToOptional(Supplier<T> supplier) {
+    try {
+      return Optional.ofNullable(supplier.get());
+    } catch (RuntimeException ex) {
+      return Optional.empty();
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Uses a number of suppliers to create a single optional result.
    * <p>
    * This invokes each supplier in turn until a non empty optional is returned.
