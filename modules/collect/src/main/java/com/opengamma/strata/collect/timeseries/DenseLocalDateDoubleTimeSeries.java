@@ -40,6 +40,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 
@@ -197,6 +198,12 @@ final class DenseLocalDateDoubleTimeSeries
   private final DenseTimeSeriesCalculation dateCalculation;
 
   /**
+   * The size of the time series.
+   * The amount of valid values.
+   */
+  private transient int size; // not a property, derived from points and cached using racy single check as is an O(n) lookup
+
+  /**
    * Package protected factory method intended to be called
    * by the {@link LocalDateDoubleTimeSeriesBuilder}. As such
    * all the information passed is assumed to be consistent.
@@ -215,22 +222,29 @@ final class DenseLocalDateDoubleTimeSeries
 
     double[] points = new double[dateCalculation.calculatePosition(startDate, endDate) + 1];
     Arrays.fill(points, Double.NaN);
-    values.forEach(pt -> points[dateCalculation.calculatePosition(startDate, pt.getDate())] = pt.getValue());
-    return new DenseLocalDateDoubleTimeSeries(startDate, points, dateCalculation, true);
+    int size = 0;
+    for (LocalDateDoublePoint pt : Guavate.in(values)) {
+      points[dateCalculation.calculatePosition(startDate, pt.getDate())] = pt.getValue();
+      size++;
+    }
+    return new DenseLocalDateDoubleTimeSeries(startDate, points, dateCalculation, true, size);
   }
 
   // Private constructor, the trusted flag indicates whether the
   // points array should be cloned. If trusted, it will not be cloned.
+  // size is the size of the time series if known, -1 if unknown
   private DenseLocalDateDoubleTimeSeries(
       LocalDate startDate,
       double[] points,
       DenseTimeSeriesCalculation dateCalculation,
-      boolean trusted) {
+      boolean trusted,
+      int size) {
 
     ArgChecker.notNull(points, "points");
     this.startDate = ArgChecker.notNull(startDate, "startDate");
     this.points = trusted ? points : points.clone();
     this.dateCalculation = ArgChecker.notNull(dateCalculation, "dateCalculation");
+    this.size = size; 
   }
 
   @ImmutableConstructor
@@ -238,18 +252,23 @@ final class DenseLocalDateDoubleTimeSeries
       LocalDate startDate,
       double[] points,
       DenseTimeSeriesCalculation dateCalculation) {
-    this(startDate, points, dateCalculation, false);
+    this(startDate, points, dateCalculation, false, -1);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
-    return !validIndices().findFirst().isPresent();
+    return size() == 0;
   }
 
   @Override
   public int size() {
-    return (int) validIndices().count();
+    int s = size;
+    if (s == -1) {
+      s = (int) validIndices().count();
+      size = s;
+    }
+    return s;
   }
 
   @Override
@@ -313,7 +332,8 @@ final class DenseLocalDateDoubleTimeSeries
 
     // special case when this is empty or when the dates are the same
     // or the series don't intersect
-    if (isEmpty() || startInclusive.equals(endExclusive) ||
+    if (isEmpty() ||
+        startInclusive.equals(endExclusive) ||
         !startDate.isBefore(endExclusive) ||
         startInclusive.isAfter(getLatestDate())) {
       return LocalDateDoubleTimeSeries.empty();
@@ -326,7 +346,8 @@ final class DenseLocalDateDoubleTimeSeries
         resolvedStart,
         Arrays.copyOfRange(points, Math.max(0, startIndex), Math.min(points.length, endIndex)),
         dateCalculation,
-        true);
+        true,
+        -1);
   }
 
   @Override
@@ -424,7 +445,7 @@ final class DenseLocalDateDoubleTimeSeries
   @Override
   public LocalDateDoubleTimeSeries mapValues(DoubleUnaryOperator mapper) {
     DoubleStream values = DoubleStream.of(points).map(d -> isValidPoint(d) ? applyMapper(mapper, d) : d);
-    return new DenseLocalDateDoubleTimeSeries(startDate, values.toArray(), dateCalculation, true);
+    return new DenseLocalDateDoubleTimeSeries(startDate, values.toArray(), dateCalculation, true, size);
   }
 
   private double applyMapper(DoubleUnaryOperator mapper, double d) {
