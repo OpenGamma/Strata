@@ -645,7 +645,6 @@ public final class ImmutableHolidayCalendar
     }
   }
 
-
   // pulled out to aid hotspot inlining
   private int daysBetweenOutOfRange(LocalDate startInclusive, LocalDate endExclusive) {
     if (startInclusive.getYear() >= 0 && startInclusive.getYear() < 10000 &&
