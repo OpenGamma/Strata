@@ -41,6 +41,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -78,6 +79,12 @@ public final class ImmutableHolidayCalendar
    * The serialization version id.
    */
   private static final long serialVersionUID = 2L;
+
+  /**
+   * A bit mask for an integer with every bit set to 1.
+   * Used with bit shifts to do a fast lookup for business days before or after a date in the month.
+   */
+  private static final int BIT_MASK_ALL_ONES = 0xFFFFFFFF;
 
   /**
    * The identifier, such as 'GBLO'.
@@ -604,6 +611,50 @@ public final class ImmutableHolidayCalendar
       return HolidayCalendar.super.lastBusinessDayOfMonth(date);
     }
     throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
+    ArgChecker.inOrderOrEqual(startInclusive, endExclusive, "startInclusive", "endExclusive");
+    try {
+      // find data for start and end month
+      int startIndex = (startInclusive.getYear() - startYear) * 12 + startInclusive.getMonthValue() - 1;
+      int endIndex = (endExclusive.getYear() - startYear) * 12 + endExclusive.getMonthValue() - 1;
+      
+      // count of first month = ones after day of month inclusive
+      // e.g 4th day of month - want holidays from index 3 inclusive
+      int start = Integer.bitCount(lookup[startIndex] & (BIT_MASK_ALL_ONES << (startInclusive.getDayOfMonth() - 1)));
+      // count of last month = ones before day of month exclusive == total for month - ones after end inclusive
+      int missingEnd = Integer.bitCount(lookup[endIndex] & (BIT_MASK_ALL_ONES << endExclusive.getDayOfMonth() - 1));
+      if (startIndex == endIndex) {
+        // same month - return holidays up to end exclusive 
+        return start - missingEnd;
+      }
+      
+      int end = Integer.bitCount(lookup[endIndex]) - missingEnd;
+      // otherwise add start and end month counts, and sum months between
+      long count = start + end;
+      for (int i = startIndex + 1; i < endIndex; i++) {
+        count += Integer.bitCount(lookup[i]);
+      }
+      return Math.toIntExact(count);
+
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      return daysBetweenOutOfRange(startInclusive, endExclusive);
+    }
+  }
+
+
+  // pulled out to aid hotspot inlining
+  private int daysBetweenOutOfRange(LocalDate startInclusive, LocalDate endExclusive) {
+    if (startInclusive.getYear() >= 0 && startInclusive.getYear() < 10000 &&
+        endExclusive.getYear() >= 0 && endExclusive.getYear() < 10000) {
+      return HolidayCalendar.super.daysBetween(startInclusive, endExclusive);
+    }
+    throw new IllegalArgumentException(Messages.format(
+        "Dates are outside the accepted range (year 0000 to 10,000): {}, {}",
+        startInclusive, endExclusive));
   }
 
   //-------------------------------------------------------------------------
