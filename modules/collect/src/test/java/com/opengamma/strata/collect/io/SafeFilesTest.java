@@ -37,7 +37,7 @@ public class SafeFilesTest {
 
   @BeforeAll
   public void setup() throws IOException {
-    tmpDir = Files.createTempDirectory("zip-utils-test");
+    tmpDir = Files.createTempDirectory("safe-files-test");
     Files.createDirectories(tmpDir.resolve(SUBDIR));
     Files.write(tmpDir.resolve(PATH1), "HELLO".getBytes(StandardCharsets.UTF_8));
     Files.write(tmpDir.resolve(PATH2), "HELLO".getBytes(StandardCharsets.UTF_8));
@@ -63,14 +63,15 @@ public class SafeFilesTest {
 
   @Test
   public void test_walkAll() {
+    // the order seems to have changed between Java 8 and 11
     assertThat(SafeFiles.walkAll(tmpDir))
-        .containsExactly(
+        .containsOnly(
             tmpDir,
+            tmpDir.resolve(PATH3),
             tmpDir.resolve(DIR),
             tmpDir.resolve(PATH2),
             tmpDir.resolve(SUBDIR),
-            tmpDir.resolve(PATH1),
-            tmpDir.resolve(PATH3));
+            tmpDir.resolve(PATH1));
   }
 
   @Test
