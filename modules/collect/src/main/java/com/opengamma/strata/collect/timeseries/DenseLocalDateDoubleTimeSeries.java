@@ -200,8 +200,9 @@ final class DenseLocalDateDoubleTimeSeries
   /**
    * The size of the time series.
    * The amount of valid values.
+   * Offset by one to account for 0 being the unset value of an int, hence the actual size is size - 1. 
    */
-  private transient int size; // not a property, derived from points and cached using racy single check as is an O(n) lookup
+  private transient int size; // not a property, derived from points and cached as is an O(n) lookup
 
   /**
    * Package protected factory method intended to be called
@@ -222,7 +223,7 @@ final class DenseLocalDateDoubleTimeSeries
 
     double[] points = new double[dateCalculation.calculatePosition(startDate, endDate) + 1];
     Arrays.fill(points, Double.NaN);
-    int size = 0;
+    int size = 1;
     for (LocalDateDoublePoint pt : in(values)) {
       points[dateCalculation.calculatePosition(startDate, pt.getDate())] = pt.getValue();
       size++;
@@ -232,7 +233,7 @@ final class DenseLocalDateDoubleTimeSeries
 
   // Private constructor, the trusted flag indicates whether the
   // points array should be cloned. If trusted, it will not be cloned.
-  // size is the size of the time series if known, -1 if unknown
+  // size is the size of the time series + 1 if known, 0 if unknown
   private DenseLocalDateDoubleTimeSeries(
       LocalDate startDate,
       double[] points,
@@ -244,7 +245,7 @@ final class DenseLocalDateDoubleTimeSeries
     this.startDate = ArgChecker.notNull(startDate, "startDate");
     this.points = trusted ? points : points.clone();
     this.dateCalculation = ArgChecker.notNull(dateCalculation, "dateCalculation");
-    this.size = size; 
+    this.size = size;
   }
 
   @ImmutableConstructor
@@ -252,7 +253,7 @@ final class DenseLocalDateDoubleTimeSeries
       LocalDate startDate,
       double[] points,
       DenseTimeSeriesCalculation dateCalculation) {
-    this(startDate, points, dateCalculation, false, -1);
+    this(startDate, points, dateCalculation, false, 0);
   }
 
   //-------------------------------------------------------------------------
@@ -265,11 +266,12 @@ final class DenseLocalDateDoubleTimeSeries
   public int size() {
     // threadsafe via racy single-check idiom
     int s = size;
-    if (s == -1) {
-      s = (int) validIndices().count();
+    if (s == 0) {
+      s = (int) validIndices().count() + 1;
       size = s;
     }
-    return s;
+    // size field is the actual size plus 1
+    return s - 1;
   }
 
   @Override
@@ -348,7 +350,7 @@ final class DenseLocalDateDoubleTimeSeries
         Arrays.copyOfRange(points, Math.max(0, startIndex), Math.min(points.length, endIndex)),
         dateCalculation,
         true,
-        -1);
+        0);
   }
 
   @Override
