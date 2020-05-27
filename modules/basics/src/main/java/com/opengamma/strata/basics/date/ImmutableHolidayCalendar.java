@@ -626,7 +626,7 @@ public final class ImmutableHolidayCalendar
       // e.g 4th day of month - want holidays from index 3 inclusive
       int start = Integer.bitCount(lookup[startIndex] & (BIT_MASK_ALL_ONES << (startInclusive.getDayOfMonth() - 1)));
       // count of last month = ones before day of month exclusive == total for month - ones after end inclusive
-      int missingEnd = Integer.bitCount(lookup[endIndex] & (BIT_MASK_ALL_ONES << endExclusive.getDayOfMonth() - 1));
+      int missingEnd = Integer.bitCount(lookup[endIndex] & (BIT_MASK_ALL_ONES << (endExclusive.getDayOfMonth() - 1)));
       if (startIndex == endIndex) {
         // same month - return holidays up to end exclusive 
         return start - missingEnd;
@@ -634,11 +634,11 @@ public final class ImmutableHolidayCalendar
       
       int end = Integer.bitCount(lookup[endIndex]) - missingEnd;
       // otherwise add start and end month counts, and sum months between
-      long count = start + end;
+      int count = start + end;
       for (int i = startIndex + 1; i < endIndex; i++) {
         count += Integer.bitCount(lookup[i]);
       }
-      return Math.toIntExact(count);
+      return count;
 
     } catch (ArrayIndexOutOfBoundsException ex) {
       return daysBetweenOutOfRange(startInclusive, endExclusive);
