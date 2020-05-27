@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.collect.timeseries;
 
+import static com.opengamma.strata.collect.Guavate.in;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoUnit.DAYS;
@@ -40,7 +41,6 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Doubles;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.function.ObjDoublePredicate;
 
@@ -223,7 +223,7 @@ final class DenseLocalDateDoubleTimeSeries
     double[] points = new double[dateCalculation.calculatePosition(startDate, endDate) + 1];
     Arrays.fill(points, Double.NaN);
     int size = 0;
-    for (LocalDateDoublePoint pt : Guavate.in(values)) {
+    for (LocalDateDoublePoint pt : in(values)) {
       points[dateCalculation.calculatePosition(startDate, pt.getDate())] = pt.getValue();
       size++;
     }
@@ -263,6 +263,7 @@ final class DenseLocalDateDoubleTimeSeries
 
   @Override
   public int size() {
+    // threadsafe via racy single-check idiom
     int s = size;
     if (s == -1) {
       s = (int) validIndices().count();
