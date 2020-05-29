@@ -275,7 +275,7 @@ final class DenseLocalDateDoubleTimeSeries
       e = any ? 1 : -1;
       this.isEmpty = e;
     }
-    return e > 0;
+    return e < 0;
   }
 
   @Override
