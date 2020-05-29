@@ -73,18 +73,13 @@ public final class ImmutableHolidayCalendar
   /**
    * The deserializer, for compatibility.
    */
+  @SuppressWarnings("unused")
   public static final SerDeserializer DESERIALIZER = new ImmutableHolidayCalendarDeserializer();
 
   /**
    * The serialization version id.
    */
   private static final long serialVersionUID = 2L;
-
-  /**
-   * A bit mask for an integer with every bit set to 1.
-   * Used with bit shifts to do a fast lookup for business days before or after a date in the month.
-   */
-  private static final int BIT_MASK_ALL_ONES = 0xFFFFFFFF;
 
   /**
    * The identifier, such as 'GBLO'.
@@ -471,7 +466,7 @@ public final class ImmutableHolidayCalendar
     int domOffset = baseDom0;
     for (int amt = amount; amt > 0; amt--) {
       // shift to move the target day-of-month into bit-0, removing earlier days
-      int shifted = monthData >> domOffset;
+      int shifted = monthData >>> domOffset;
       // recurse to next month if no more business days in the month
       if (shifted == 0) {
         return baseMonth == 12 ? shiftNext(baseYear + 1, 1, 0, amt) : shiftNext(baseYear, baseMonth + 1, 0, amt);
@@ -549,7 +544,7 @@ public final class ImmutableHolidayCalendar
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
     // shift to move the target day-of-month into bit-0, removing earlier days
-    int shifted = monthData >> (baseDom - 1);
+    int shifted = monthData >>> (baseDom - 1);
     // return last business day-of-month if no more business days in the month
     int dom;
     if (shifted == 0) {
@@ -624,9 +619,9 @@ public final class ImmutableHolidayCalendar
       
       // count of first month = ones after day of month inclusive
       // e.g 4th day of month - want holidays from index 3 inclusive
-      int start = Integer.bitCount(lookup[startIndex] & (BIT_MASK_ALL_ONES << (startInclusive.getDayOfMonth() - 1)));
+      int start = Integer.bitCount(lookup[startIndex] >>> (startInclusive.getDayOfMonth() - 1));
       // count of last month = ones before day of month exclusive == total for month - ones after end inclusive
-      int missingEnd = Integer.bitCount(lookup[endIndex] & (BIT_MASK_ALL_ONES << (endExclusive.getDayOfMonth() - 1)));
+      int missingEnd = Integer.bitCount(lookup[endIndex] >>> (endExclusive.getDayOfMonth() - 1));
       if (startIndex == endIndex) {
         // same month - return holidays up to end exclusive 
         return start - missingEnd;
