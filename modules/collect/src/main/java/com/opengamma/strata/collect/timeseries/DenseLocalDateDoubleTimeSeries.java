@@ -253,6 +253,9 @@ final class DenseLocalDateDoubleTimeSeries
     this.points = trusted ? points : points.clone();
     this.dateCalculation = ArgChecker.notNull(dateCalculation, "dateCalculation");
     this.size = size;
+    if (size != 0) {
+      this.isEmpty = size > 1 ? 1 : -1;
+    }
   }
 
   @ImmutableConstructor
@@ -269,13 +272,33 @@ final class DenseLocalDateDoubleTimeSeries
     // threadsafe via racy single-check idiom
     int e = isEmpty;
     if (e == 0) {
-      // take cached size if already calculated
-      int s = size;
-      boolean any = s != 0 ? s > 1 : validIndices().findAny().isPresent();
-      e = any ? 1 : -1;
-      this.isEmpty = e;
+      e = calculateIsEmpty();
     }
     return e < 0;
+  }
+
+  // extracted to aid inlining
+  private int calculateIsEmpty() {
+    int s = size;
+    boolean any = false;
+    // take cached size if already calculated
+    if (s != 0) {
+      any = s > 1;
+    } else {
+      for (double point : points) {
+        if (isValidPoint(point)) {
+          any = true;
+          break;
+        }
+      }
+      if (!any) {
+        // set size to 0 if it wasn't calculated
+        this.size = 1;
+      }
+    }
+    int e = any ? 1 : -1;
+    this.isEmpty = e;
+    return e;
   }
 
   @Override
@@ -283,11 +306,26 @@ final class DenseLocalDateDoubleTimeSeries
     // threadsafe via racy single-check idiom
     int s = size;
     if (s == 0) {
-      s = (int) validIndices().count() + 1;
-      size = s;
+      s = calculateSize();
     }
     // size field is the actual size plus 1
     return s - 1;
+  }
+
+  // extracted to aid inlining
+  private int calculateSize() {
+    int s = 1;
+    // check if we are not known empty
+    if (isEmpty >= 0) {
+      for (double point : points) {
+        if (isValidPoint(point)) {
+          s++;
+        }
+      }
+    }
+    size = s;
+    isEmpty = s > 1 ? 1 : -1;
+    return s;
   }
 
   @Override
