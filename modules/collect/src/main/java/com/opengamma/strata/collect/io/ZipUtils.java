@@ -321,8 +321,9 @@ public final class ZipUtils {
 
   // prevent ZIP slip attack
   private static Path validateZipPathName(Path rootPath, ZipEntry entry) throws ZipException {
-    Path resolved = rootPath.normalize().resolve(entry.getName()).normalize();
-    if (!resolved.startsWith(rootPath)) {
+    Path normalizedRootPath = rootPath.normalize();
+    Path resolved = normalizedRootPath.resolve(entry.getName()).normalize();
+    if (!resolved.startsWith(normalizedRootPath)) {
       throw new ZipException("ZIP file contains illegal file name: " + entry.getName());
     }
     return resolved;
