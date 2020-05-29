@@ -63,9 +63,9 @@ public final class RatesCurveGroupDefinitionBuilder {
       boolean computeJacobian,
       boolean computePvSensitivityToMarketQuote) {
     this.name = name;
-    this.entries = entries;
-    this.curveDefinitions = curveDefinitions;
-    this.seasonalityDefinitions = seasonalityDefinitions;
+    this.entries = new LinkedHashMap<>(entries);
+    this.curveDefinitions = new LinkedHashMap<>(curveDefinitions);
+    this.seasonalityDefinitions = new LinkedHashMap<>(seasonalityDefinitions);
     this.computeJacobian = computeJacobian;
     this.computePvSensitivityToMarketQuote = computePvSensitivityToMarketQuote;
   }
