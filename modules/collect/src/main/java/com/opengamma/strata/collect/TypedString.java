@@ -54,6 +54,11 @@ public abstract class TypedString<T extends TypedString<T>>
   private final String name;
 
   /**
+   * The cached hash code, using the racy single-check idiom.
+   */
+  private transient int cacheHashCode;
+
+  /**
    * Creates an instance.
    * 
    * @param name  the name, not empty
@@ -153,7 +158,13 @@ public abstract class TypedString<T extends TypedString<T>>
    */
   @Override
   public final int hashCode() {
-    return name.hashCode() ^ getClass().hashCode();
+    // threadsafe via racy single-check
+    int h = cacheHashCode;
+    if (h == 0) {
+      h = name.hashCode() ^ getClass().hashCode();
+      cacheHashCode = h;
+    }
+    return h;
   }
 
   /**
