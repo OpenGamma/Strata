@@ -119,6 +119,18 @@ public class ZipUtilsTest {
   }
 
   @Test
+  public void test_unzip_toPath_notNormalized() {
+    ArrayByteSource source1 = ArrayByteSource.ofUtf8("Hello World").withFileName("TestFile3.txt");
+    ArrayByteSource source2 = ArrayByteSource.ofUtf8("Hello Planet").withFileName("TestFile4.txt");
+    ArrayByteSource zipFile = ZipUtils.zipInMemory(ImmutableList.of(source1, source2)).withFileName("Test.foo");
+
+    ZipUtils.unzip(zipFile, tmpDir.resolve("abc").resolve(".."));
+
+    assertThat(tmpDir.resolve("TestFile3.txt")).hasContent("Hello World");
+    assertThat(tmpDir.resolve("TestFile4.txt")).hasContent("Hello Planet");
+  }
+
+  @Test
   public void test_unzip_toPath_withFolders() {
     ArrayByteSource zipFile = load("TestFolder.zip");
 
