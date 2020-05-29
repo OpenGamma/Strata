@@ -198,6 +198,13 @@ final class DenseLocalDateDoubleTimeSeries
   private final DenseTimeSeriesCalculation dateCalculation;
 
   /**
+   * Whether this time series is empty.
+   * 0 is unknown, -1 is empty, 1 is non-empty.
+   * Kept separate from size so we don't iterate the whole points array unless necessary. 
+   */
+  private transient int isEmpty; // not a property, derived from points and cached as is an O(n) lookup
+
+  /**
    * The size of the time series.
    * The amount of valid values.
    * Offset by one to account for 0 being the unset value of an int, hence the actual size is size - 1. 
@@ -259,7 +266,16 @@ final class DenseLocalDateDoubleTimeSeries
   //-------------------------------------------------------------------------
   @Override
   public boolean isEmpty() {
-    return size() == 0;
+    // threadsafe via racy single-check idiom
+    int e = isEmpty;
+    if (e == 0) {
+      // take cached size if already calculated
+      int s = size;
+      boolean any = s != 0 ? s > 1 : validIndices().findAny().isPresent();
+      e = any ? 1 : -1;
+      this.isEmpty = e;
+    }
+    return e > 0;
   }
 
   @Override
