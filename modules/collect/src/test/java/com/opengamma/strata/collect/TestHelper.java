@@ -20,6 +20,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ import java.util.logging.Logger;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.joda.beans.test.BeanAssert;
 import org.joda.beans.test.JodaBeanTests;
 import org.joda.convert.StringConvert;
@@ -517,6 +519,22 @@ public class TestHelper {
     @Override
     public void flush() {
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Uses Joda-Beans to dump the object as pretty JSON.
+   * <p>
+   * Will print {@code toString} if the object is not a bean.
+   * 
+   * @param obj  the object to dump
+   * @return the string representation
+   */
+  public static String dumpJson(Object obj) {
+    if (obj instanceof Bean) {
+      return JodaBeanSer.PRETTY.jsonWriter().write((Bean) obj);
+    }
+    return Objects.toString(obj);
   }
 
   //-------------------------------------------------------------------------
