@@ -37,8 +37,14 @@ public class FixedInflationSwapConventionsTest {
 
   @ParameterizedTest
   @MethodSource("data_float_leg")
-  public void test_float_leg(FixedInflationSwapConvention convention, PriceIndex floatLeg) {
-    assertThat(convention.getFloatingLeg().getIndex()).isEqualTo(floatLeg);
+  public void test_float_leg1(FixedInflationSwapConvention convention, PriceIndex index) {
+    assertThat(convention.getFloatingLeg().getIndex()).isEqualTo(index);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_float_leg")
+  public void test_float_leg(FixedInflationSwapConvention convention, PriceIndex index) {
+    assertThat(FixedInflationSwapConventions.findByIndex(index)).hasValue(convention);
   }
 
   //-------------------------------------------------------------------------

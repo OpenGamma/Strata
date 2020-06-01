@@ -6,6 +6,8 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
+import static com.opengamma.strata.collect.TestHelper.dumpJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -35,6 +37,12 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
  */
 public class FixedOvernightSwapConventionsTest {
+
+  public static void main(String[] args) {
+    SwapTrade c = FixedOvernightSwapConventions.GBP_FIXED_1Y_SONIA_OIS.createTrade(
+        date(2020, 6, 1), Tenor.TENOR_3M, BuySell.BUY, 1_000_000, 0.01, REF_DATA);
+    System.out.println(dumpJson(c.resolve(REF_DATA)));
+  }
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
 

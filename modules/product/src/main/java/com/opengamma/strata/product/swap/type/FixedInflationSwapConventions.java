@@ -5,6 +5,12 @@
  */
 package com.opengamma.strata.product.swap.type;
 
+import java.util.Optional;
+
+import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.collect.io.IniFile;
+import com.opengamma.strata.collect.io.PropertySet;
+import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
@@ -16,6 +22,29 @@ public final class FixedInflationSwapConventions {
    * The extended enum lookup from name to instance.
    */
   static final ExtendedEnum<FixedInflationSwapConvention> ENUM_LOOKUP = ExtendedEnum.of(FixedInflationSwapConvention.class);
+  /**
+   * The default conventions.
+   */
+  static final PropertySet DEFAULTS;
+  static {
+    // do not parse here, to avoid initialization loops
+    String name = FixedInflationSwapConvention.class.getSimpleName() + ".ini";
+    IniFile config = ResourceConfig.combinedIniFile(name);
+    DEFAULTS = config.section("defaultByPriceIndex");
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a convention based on the specified index.
+   * <p>
+   * This uses a lookup to find the matching convention.
+   * 
+   * @param index  the index, from which the index name is used to find the matching convention
+   * @return the convention, empty if no convention is configured for the index
+   */
+  public static Optional<FixedInflationSwapConvention> findByIndex(PriceIndex index) {
+    return DEFAULTS.findValue(index.getName()).map(FixedInflationSwapConvention::of);
+  }
 
   //-------------------------------------------------------------------------
   /**
