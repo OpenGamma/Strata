@@ -8,6 +8,10 @@ package com.opengamma.strata.calc;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -24,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.result.Result;
 import com.opengamma.strata.data.scenario.ScenarioArray;
@@ -152,6 +157,11 @@ public final class Results implements ImmutableBean {
     if (columnIndex < 0 || columnIndex >= columnCount) {
       throw new IllegalArgumentException(invalidColumnIndexMessage(columnIndex));
     }
+    return get0(rowIndex, columnIndex);
+  }
+
+  // trusted low level method to get the cell
+  private Result<?> get0(int rowIndex, int columnIndex) {
     int index = (rowIndex * columnCount) + columnIndex;
     return cells.get(index);
   }
@@ -208,9 +218,20 @@ public final class Results implements ImmutableBean {
    * @throws IllegalArgumentException if the row index or column name is invalid
    */
   public Result<?> get(int rowIndex, ColumnName columnName) {
+    return get(rowIndex, columnIndexByName(columnName));
+  }
+
+  /**
+   * Gets the column index by name.
+   * 
+   * @param columnName  the column name
+   * @return the column index
+   * @throws IllegalArgumentException if the column name is invalid
+   */
+  public int columnIndexByName(ColumnName columnName) {
     for (int i = 0; i < columns.size(); i++) {
       if (columns.get(i).getName().equals(columnName)) {
-        return get(rowIndex, i);
+        return i;
       }
     }
     throw new IllegalArgumentException(invalidColumnNameMessage(columnName));
@@ -242,8 +263,124 @@ public final class Results implements ImmutableBean {
     return cast(get(rowIndex, columnName), type);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a stream of results for a single column by column index.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   * <p>
+   * Large streams can be processed in parallel via {@link Stream#parallel()}.
+   * See {@link Guavate#zipWithIndex(Stream)} if the row index is required.
+   *
+   * @param <T>  the result type
+   * @param columnIndex  the index of the column
+   * @return the stream of results for the specified column
+   * @throws IllegalArgumentException if the column index is invalid
+   */
+  public <T> Stream<Result<?>> columnResults(int columnIndex) {
+    if (columnIndex < 0 || columnIndex >= columnCount) {
+      throw new IllegalArgumentException(invalidColumnIndexMessage(columnIndex));
+    }
+    Spliterator<Result<?>> spliterator = new ResultSpliterator(this, columnIndex, 0, rowCount);
+    return StreamSupport.stream(spliterator, false);
+  }
+
+  /**
+   * Returns a stream of results for a single column by column index.
+   * <p>
+   * The result may be a single value or a multi-scenario value.
+   * A multi-scenario value will implement {@link ScenarioArray} unless it has been aggregated.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   * <p>
+   * Large streams can be processed in parallel via {@link Stream#parallel()}.
+   * See {@link Guavate#zipWithIndex(Stream)} if the row index is required.
+   * The stream will throw {@code ClassCastException} if the result is not of the specified type.
+   *
+   * @param <T>  the result type
+   * @param columnIndex  the index of the column
+   * @param type  the result type
+   * @return the stream of results for the specified column, cast to the specified type
+   * @throws IllegalArgumentException if the column index is invalid
+   */
+  public <T> Stream<Result<T>> columnResults(int columnIndex, Class<T> type) {
+    return columnResults(columnIndex).map(result -> cast(result, type));
+  }
+
+  // efficient spliterator for larger result sets
+  private static class ResultSpliterator implements Spliterator<Result<?>> {
+    private final Results results;
+    private final int columnIndex;
+    private final int endRowExclusive;
+    private int currentRow;
+
+    private ResultSpliterator(Results results, int columnIndex, int startRow, int endRowExclusive) {
+      this.results = results;
+      this.columnIndex = columnIndex;
+      this.endRowExclusive = endRowExclusive;
+      this.currentRow = startRow;
+    }
+
+    @Override
+    public void forEachRemaining(Consumer<? super Result<?>> action) {
+      while (currentRow < endRowExclusive) {
+        action.accept(results.get0(currentRow, columnIndex));
+        currentRow++;
+      }
+    }
+
+    @Override
+    public boolean tryAdvance(Consumer<? super Result<?>> action) {
+      if (currentRow < endRowExclusive) {
+        action.accept(results.get0(currentRow, columnIndex));
+        currentRow++;
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    @Override
+    public Spliterator<Result<?>> trySplit() {
+      // split in two
+      int lo = currentRow;
+      int mid = (lo + endRowExclusive) / 2;
+      if (lo >= mid) {
+        // no split possible
+        return null;
+      }
+      // this spliterator now represents the second half
+      currentRow = mid;
+      // the returned spliterator represents the first half
+      return new ResultSpliterator(results, columnIndex, lo, mid);
+    }
+
+    @Override
+    public long estimateSize() {
+      return endRowExclusive - currentRow;
+    }
+
+    @Override
+    public long getExactSizeIfKnown() {
+      return estimateSize();
+    }
+
+    @Override
+    public int characteristics() {
+      return IMMUTABLE | NONNULL | ORDERED | SIZED | SUBSIZED;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
-  private <T> Result<T> cast(Result<?> result, Class<T> type) {
+  private static <T> Result<T> cast(Result<?> result, Class<T> type) {
     // cannot use result.map() as we want the exception to be thrown
     if (result.isFailure() || type.isInstance(result.getValue())) {
       return (Result<T>) result;
