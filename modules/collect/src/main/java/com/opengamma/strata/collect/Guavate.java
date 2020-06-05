@@ -322,6 +322,8 @@ public final class Guavate {
    * <p>
    * Each input object is decorated with an {@link ObjIntPair}.
    * The {@code int} is the index of the element in the stream.
+   * <p>
+   * See also {@link MapStream#zipWithIndex(Stream)}.
    *
    * @param <T>  the type of the stream
    * @param stream  the stream to index
@@ -352,6 +354,8 @@ public final class Guavate {
    * Creates a stream that combines two other streams, continuing until either stream ends.
    * <p>
    * Each pair of input objects is combined into a {@link Pair}.
+   * <p>
+   * See also {@link MapStream#zip(Stream, Stream)}.
    *
    * @param <A>  the type of the first stream
    * @param <B>  the type of the second stream
