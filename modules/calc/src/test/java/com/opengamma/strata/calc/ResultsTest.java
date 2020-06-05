@@ -14,10 +14,12 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Streams;
 import com.opengamma.strata.collect.result.Result;
 
 /**
@@ -50,6 +52,9 @@ public class ResultsTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> test.get(0, NAME_A, String.class))
         .withMessageStartingWith("Column name not found");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.columnResults(0))
+        .withMessageStartingWith("Column index must be greater than or");
   }
 
   @Test
@@ -81,6 +86,43 @@ public class ResultsTest {
         .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.get(0, NAME_A, Integer.class))
         .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
+  }
+
+  @Test
+  public void stream() {
+    Results test = Results.of(ImmutableList.of(HEADER1, HEADER2, HEADER3), results("1", "2", "3", "4", "5", "6"));
+    assertThat(test.getColumns()).containsExactly(HEADER1, HEADER2, HEADER3);
+    assertThat(test.getRowCount()).isEqualTo(2);
+    assertThat(test.getColumnCount()).isEqualTo(3);
+    assertThat(test.columnResults(0)).containsExactly(Result.success("1"), Result.success("4"));
+    assertThat(test.columnResults(1, String.class)).containsExactly(Result.success("2"), Result.success("5"));
+    assertThat(test.columnResults(2, String.class)).containsExactly(Result.success("3"), Result.success("6"));
+
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> test.columnResults(3))
+        .withMessageStartingWith("Column index must be greater than or");
+    assertThatExceptionOfType(ClassCastException.class)
+        .isThrownBy(() -> test.columnResults(1, Integer.class).collect(toImmutableList()))
+        .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
+  }
+
+  @Test
+  public void stream_split() {
+    ImmutableList<Result<String>> resultList = IntStream.range(0, 1000)
+        .mapToObj(i -> Result.success(Integer.toString(i)))
+        .collect(toImmutableList());
+    Results test = Results.of(ImmutableList.of(HEADER1), resultList);
+    assertThat(test.columnResults(0).count()).isEqualTo(1000);
+    // Streams.findLast uses trySplit()
+    assertThat(Streams.findLast(test.columnResults(0))).hasValue(Result.success("999"));
+    // hopefully the large list size works with parallel
+    List<Result<?>> collected = test.columnResults(0).parallel()
+        .map(result -> Result.success(result.getValue().toString() + " " + Thread.currentThread().getName()))
+        .collect(toImmutableList());
+    System.out.println(collected);
+    assertThat(collected).hasSize(1000);
+    assertThat(collected.get(0).getValue().toString()).startsWith("0 ");
+    assertThat(collected.get(999).getValue().toString()).startsWith("999 ");
   }
 
   /**
