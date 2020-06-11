@@ -7,6 +7,7 @@ package com.opengamma.strata.measure.credit;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.calc.CalculationRules;
@@ -15,6 +16,7 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveId;
@@ -81,6 +83,65 @@ public interface CreditRatesMarketDataLookup extends CalculationParameter {
   public default Class<? extends CalculationParameter> queryType() {
     return CreditRatesMarketDataLookup.class;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the set of currencies that discount factors are provided for.
+   *
+   * @return the set of discount curve currencies
+   */
+  public abstract ImmutableSet<Currency> getDiscountCurrencies();
+
+  /**
+   * Gets the identifiers used to obtain the discount factors for the specified currency.
+   * <p>
+   * In most cases, the identifier will refer to a curve.
+   * If the currency is not found, an exception is thrown.
+   *
+   * @param currency  the currency for which identifiers are required
+   * @return the set of market data identifiers 
+   * @throws IllegalArgumentException if the currency is not found
+   */
+  public abstract ImmutableSet<MarketDataId<?>> getDiscountMarketDataIds(Currency currency);
+
+  /**
+   * Gets the set of pairs of legal entity ID and currency that credit curves are provided for.
+   *
+   * @return the set of pairs of legal entity ID and currency
+   */
+  public abstract ImmutableSet<Pair<StandardId, Currency>> getCreditLegalEntities();
+
+  /**
+   * Gets the identifiers used to obtain the credit curve for the pair of legal entity ID and currency. 
+   * <p>
+   * In most cases, the identifier will refer to a curve.
+   * If the pair is not found, an exception is thrown.
+   * 
+   * @param standardId  the legal entity ID
+   * @param currency  the currency 
+   * @return the set of market data identifiers 
+   * @throws IllegalArgumentException if the pair is not found
+   */
+  public abstract ImmutableSet<MarketDataId<?>> getCreditMarketDataIds(StandardId standardId, Currency currency);
+
+  /**
+   * Gets the set of legal entity IDs that recovery rate curves are provided for.
+   *
+   * @return the set of legal entity IDs
+   */
+  public abstract ImmutableSet<StandardId> getRecoveryRateLegalEntities();
+
+  /**
+   * Gets the identifiers used to obtain the recovery rate curve for the legal entity ID. 
+   * <p>
+   * In most cases, the identifier will refer to a curve.
+   * If the ID is not found, an exception is thrown.
+   * 
+   * @param standardId  the legal entity ID
+   * @return the set of market data identifiers 
+   * @throws IllegalArgumentException if the ID is not found
+   */
+  public abstract ImmutableSet<MarketDataId<?>> getRecoveryRateMarketDataIds(StandardId standardId);
 
   //-------------------------------------------------------------------------
   /**
