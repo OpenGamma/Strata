@@ -34,12 +34,16 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.option.Strike;
+import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceTenorParameterMetadata;
+import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
  * A node in the configuration specifying how to build FX option volatilities.
  * <p>
  * Each node is not necessarily associated with an instrument, 
  * but provides the necessary information to create {@code FxOptionVolatilities}. 
+ * <p>
+ * See {@link FxVolatilitySurfaceYearFractionParameterMetadata} when the tenor is known.
  */
 @BeanDefinition
 public final class FxOptionVolatilitiesNode
@@ -159,6 +163,29 @@ public final class FxOptionVolatilitiesNode
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns metadata for the node.
+   * <p>
+   * This provides curve metadata for the node at the specified valuation date.
+   *
+   * @param valuationDateTime  the valuation date time
+   * @param dayCount  the day count
+   * @param refData  the reference data
+   * @return metadata for the node
+   */
+  public FxVolatilitySurfaceTenorParameterMetadata metadata(
+      ZonedDateTime valuationDateTime,
+      DayCount dayCount,
+      ReferenceData refData) {
+
+    LocalDate valuationDate = valuationDateTime.toLocalDate();
+    LocalDate spotDate = spotDateOffset.adjust(valuationDate, refData);
+    LocalDate deliveryDate = businessDayAdjustment.adjust(spotDate.plus(tenor), refData);
+    LocalDate expiryDate = expiryDateOffset.adjust(deliveryDate, refData);
+    double timeToExpiry = dayCount.relativeYearFraction(valuationDate, expiryDate);
+    return FxVolatilitySurfaceTenorParameterMetadata.of(tenor, timeToExpiry, strike, currencyPair);
+  }
+
   /**
    * Calculates the time to expiry for the valuation date time.
    * 
