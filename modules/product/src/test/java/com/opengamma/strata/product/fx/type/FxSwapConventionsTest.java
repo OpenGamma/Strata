@@ -28,17 +28,21 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
  */
 public class FxSwapConventionsTest {
 
+  private static final HolidayCalendarId EUTA_JPTO = EUTA.combinedWith(JPTO);
   private static final HolidayCalendarId EUTA_USNY = EUTA.combinedWith(USNY);
-  private static final HolidayCalendarId GBLO_EUTA = GBLO.combinedWith(EUTA);
+  private static final HolidayCalendarId EUTA_GBLO = EUTA.combinedWith(GBLO);
   private static final HolidayCalendarId GBLO_USNY = GBLO.combinedWith(USNY);
   private static final HolidayCalendarId GBLO_JPTO = GBLO.combinedWith(JPTO);
+  private static final HolidayCalendarId JPTO_USNY = JPTO.combinedWith(USNY);
 
   public static Object[][] data_spotLag() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, 2},
         {FxSwapConventions.EUR_GBP, 2},
+        {FxSwapConventions.EUR_JPY, 2},
         {FxSwapConventions.GBP_USD, 2},
-        {FxSwapConventions.GBP_JPY, 2}
+        {FxSwapConventions.GBP_JPY, 2},
+        {FxSwapConventions.USD_JPY, 2}
     };
   }
 
@@ -52,23 +56,34 @@ public class FxSwapConventionsTest {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, CurrencyPair.of(EUR, USD)},
         {FxSwapConventions.EUR_GBP, CurrencyPair.of(EUR, GBP)},
+        {FxSwapConventions.EUR_JPY, CurrencyPair.of(EUR, JPY)},
         {FxSwapConventions.GBP_USD, CurrencyPair.of(GBP, USD)},
-        {FxSwapConventions.GBP_JPY, CurrencyPair.of(GBP, JPY)}
+        {FxSwapConventions.GBP_JPY, CurrencyPair.of(GBP, JPY)},
+        {FxSwapConventions.USD_JPY, CurrencyPair.of(USD, JPY)}
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_currencyPair")
-  public void test_currencyPair(ImmutableFxSwapConvention convention, CurrencyPair ccys) {
-    assertThat(convention.getCurrencyPair()).isEqualTo(ccys);
+  public void test_currencyPair(ImmutableFxSwapConvention convention, CurrencyPair pair) {
+    assertThat(convention.getCurrencyPair()).isEqualTo(pair);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_currencyPair")
+  public void test_lookup(ImmutableFxSwapConvention convention, CurrencyPair pair) {
+    assertThat(FxSwapConvention.of(pair)).isEqualTo(convention);
+    assertThat(FxSwapConvention.of(pair.inverse())).isEqualTo(convention);
   }
 
   public static Object[][] data_calendar() {
     return new Object[][] {
         {FxSwapConventions.EUR_USD, EUTA_USNY},
-        {FxSwapConventions.EUR_GBP, GBLO_EUTA},
+        {FxSwapConventions.EUR_GBP, EUTA_GBLO},
+        {FxSwapConventions.EUR_JPY, EUTA_JPTO},
         {FxSwapConventions.GBP_USD, GBLO_USNY},
-        {FxSwapConventions.GBP_JPY, GBLO_JPTO}
+        {FxSwapConventions.GBP_JPY, GBLO_JPTO},
+        {FxSwapConventions.USD_JPY, JPTO_USNY}
     };
   }
 
