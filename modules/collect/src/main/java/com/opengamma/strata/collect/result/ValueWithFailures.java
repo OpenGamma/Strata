@@ -93,7 +93,20 @@ public final class ValueWithFailures<T>
    * @return an instance wrapping the value and failures
    */
   public static <T> ValueWithFailures<T> of(T successValue, List<FailureItem> failures) {
+    // this method is retained to ensure binary compatibility
     return new ValueWithFailures<>(successValue, failures);
+  }
+
+  /**
+   * Creates an instance wrapping the success value and failures.
+   *
+   * @param <T>  the type of the success value
+   * @param successValue  the success value
+   * @param failures  the failures
+   * @return an instance wrapping the value and failures
+   */
+  public static <T> ValueWithFailures<T> of(T successValue, Collection<FailureItem> failures) {
+    return new ValueWithFailures<>(successValue, ImmutableList.copyOf(failures));
   }
 
   /**
@@ -487,7 +500,7 @@ public final class ValueWithFailures<T>
   public String toString() {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueWithFailures{");
-    buf.append("value").append('=').append(JodaBeanUtils.toString(value)).append(',').append(' ');
+    buf.append("value").append('=').append(value).append(',').append(' ');
     buf.append("failures").append('=').append(JodaBeanUtils.toString(failures));
     buf.append('}');
     return buf.toString();
