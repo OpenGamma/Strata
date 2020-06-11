@@ -115,6 +115,27 @@ public class CreditRatesMarketDataLookupTest {
         .isEqualTo(DefaultLookupCreditRatesProvider.of((DefaultCreditRatesMarketDataLookup) LOOKUP, MOCK_MARKET_DATA));
   }
 
+  @Test
+  public void test_getter() {
+    assertThat(LOOKUP.getDiscountCurrencies()).containsOnly(USD, GBP);
+    assertThat(LOOKUP.getCreditLegalEntities()).containsOnly(
+        Pair.of(ISSUER_A, USD), Pair.of(ISSUER_B, GBP), Pair.of(ISSUER_A, GBP));
+    assertThat(LOOKUP.getRecoveryRateLegalEntities()).containsOnly(ISSUER_A, ISSUER_B);
+    assertThat(LOOKUP.getDiscountMarketDataIds(USD)).containsOnly(DC_USD);
+    assertThat(LOOKUP.getDiscountMarketDataIds(GBP)).containsOnly(DC_GBP);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOOKUP.getDiscountMarketDataIds(EUR));
+    assertThat(LOOKUP.getCreditMarketDataIds(ISSUER_A, USD)).containsOnly(CC_A_USD);
+    assertThat(LOOKUP.getCreditMarketDataIds(ISSUER_B, GBP)).containsOnly(CC_B_GBP);
+    assertThat(LOOKUP.getCreditMarketDataIds(ISSUER_A, GBP)).containsOnly(CC_A_GBP);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOOKUP.getCreditMarketDataIds(ISSUER_B, USD));
+    assertThat(LOOKUP.getRecoveryRateMarketDataIds(ISSUER_A)).containsOnly(RC_A);
+    assertThat(LOOKUP.getRecoveryRateMarketDataIds(ISSUER_B)).containsOnly(RC_B);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LOOKUP.getRecoveryRateMarketDataIds(ISSUER_C));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_marketDataView() {
