@@ -110,7 +110,7 @@ public class RatesCurveGroupTest {
         .addAll(DISCOUNT_CURVES.values())
         .addAll(IBOR_CURVES.values())
         .build();
-    assertThat(test.stream().collect(toList())).containsOnlyElementsOf(expected);
+    assertThat(test.stream().collect(toList())).containsExactlyElementsOf(expected);
   }
 
   //-------------------------------------------------------------------------
