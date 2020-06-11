@@ -48,6 +48,21 @@ public interface FxSwapConvention
   }
 
   /**
+   * Obtains the standard convention for the specified currency pair.
+   * <p>
+   * The convention accessed will be for the conventional order of the currency pair.
+   * 
+   * @param currencyPair  the currency pair to get the convention for
+   * @return the convention
+   * @throws IllegalArgumentException if no convention has been defined for the pair
+   */
+  @FromString
+  public static FxSwapConvention of(CurrencyPair currencyPair) {
+    ArgChecker.notNull(currencyPair, "currencyPair");
+    return of(currencyPair.toConventional().toString());
+  }
+
+  /**
    * Gets the extended enum helper.
    * <p>
    * This helper allows instances of the convention to be looked up.
