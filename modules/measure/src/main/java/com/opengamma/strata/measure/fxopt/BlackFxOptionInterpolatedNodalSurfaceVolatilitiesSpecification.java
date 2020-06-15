@@ -47,7 +47,7 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.market.surface.interpolator.SurfaceInterpolator;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSurfaceVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesName;
-import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceTenorParameterMetadata;
+import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
  * The specification of how to build FX option volatilities. 
@@ -133,7 +133,7 @@ public final class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificatio
         Messages.format("size of parameters must be {}, but found {}", nNodes, parameters.size()));
     DoubleArray strikes = DoubleArray.of(nNodes, i -> nodes.get(i).getStrike().getValue());
     DoubleArray expiries = DoubleArray.of(nNodes, i -> nodes.get(i).timeToExpiry(valuationDateTime, dayCount, refData));
-    ImmutableList<FxVolatilitySurfaceTenorParameterMetadata> paramMetadata = nodes.stream()
+    ImmutableList<FxVolatilitySurfaceYearFractionParameterMetadata> paramMetadata = nodes.stream()
         .map(node -> node.metadata(valuationDateTime, dayCount, refData))
         .collect(toImmutableList());
     SurfaceMetadata metadata = Surfaces.blackVolatilityByExpiryStrike(SurfaceName.of(name.getName()), dayCount)

@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.option.DeltaStrike;
@@ -54,15 +55,22 @@ public final class SmileDeltaParameters
    * The delta of the different data points.
    * Must be positive and sorted in ascending order.
    * The put will have as delta the opposite of the numbers.
+   * The array is typically {@code [0.1, 0.25]}. The at-the-money value of 0.5 is not included.
    */
   @PropertyDefinition
   private final DoubleArray delta;
   /**
    * The volatilities associated with the strikes.
+   * This will be of size {@code (delta.size() * 2) + 1} with the put with lower delta (in absolute value) first,
+   * at-the-money and call with larger delta first.
    */
   @PropertyDefinition
   private final DoubleArray volatility;
-
+  /**
+   * The associated metadata.
+   * This will be of size {@code (delta.size() * 2) + 1} with the put with lower delta (in absolute value) first,
+   * at-the-money and call with larger delta first.
+   */
   @PropertyDefinition
   private final ImmutableList<ParameterMetadata> parameterMetadata;
 
@@ -79,8 +87,23 @@ public final class SmileDeltaParameters
    * @return the smile definition
    */
   public static SmileDeltaParameters of(double expiry, DoubleArray delta, DoubleArray volatility) {
+    return of(expiry, delta, volatility, createParameterMetadata(expiry, null, delta));
+  }
 
-    return of(expiry, delta, volatility, createParameterMetadata(expiry, delta));
+  /**
+   * Obtains an instance from volatility.
+   * <p>
+   * {@code GenericVolatilitySurfaceYearFractionParameterMetadata} is used for parameter metadata.
+   * 
+   * @param expiry  the time to expiry associated to the data
+   * @param expiryTenor  the tenor associated with the expiry
+   * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
+   *   the put will have as delta the opposite of the numbers
+   * @param volatility  the volatilities
+   * @return the smile definition
+   */
+  public static SmileDeltaParameters of(double expiry, Tenor expiryTenor, DoubleArray delta, DoubleArray volatility) {
+    return of(expiry, delta, volatility, createParameterMetadata(expiry, expiryTenor, delta));
   }
 
   /**
@@ -124,7 +147,32 @@ public final class SmileDeltaParameters
       DoubleArray riskReversal,
       DoubleArray strangle) {
 
-    return of(expiry, atmVolatility, delta, riskReversal, strangle, createParameterMetadata(expiry, delta));
+    return of(expiry, atmVolatility, delta, riskReversal, strangle, createParameterMetadata(expiry, null, delta));
+  }
+
+  /**
+   * Obtains an instance from market data at-the-money, delta, risk-reversal and strangle.
+   * <p>
+   * This factory allows the tenor to be included in the parameter metadata.
+   * 
+   * @param expiry  the time to expiry associated to the data
+   * @param expiryTenor  the tenor associated with the expiry
+   * @param atmVolatility  the at-the-money volatility
+   * @param delta  the delta of the different data points, must be positive and sorted in ascending order,
+   *   the put will have as delta the opposite of the numbers
+   * @param riskReversal  the risk reversal volatility figures, in the same order as the delta
+   * @param strangle  the strangle volatility figures, in the same order as the delta
+   * @return the smile definition
+   */
+  public static SmileDeltaParameters of(
+      double expiry,
+      Tenor expiryTenor,
+      double atmVolatility,
+      DoubleArray delta,
+      DoubleArray riskReversal,
+      DoubleArray strangle) {
+
+    return of(expiry, atmVolatility, delta, riskReversal, strangle, createParameterMetadata(expiry, expiryTenor, delta));
   }
 
   /**
@@ -166,24 +214,34 @@ public final class SmileDeltaParameters
   }
 
   //-------------------------------------------------------------------------
-  private static ImmutableList<ParameterMetadata> createParameterMetadata(double expiry, DoubleArray delta) {
+  // creates the metadata, tenor may be null
+  private static ImmutableList<ParameterMetadata> createParameterMetadata(
+      double expiry,
+      Tenor expiryTenor,
+      DoubleArray delta) {
+
     ArgChecker.notNull(delta, "delta");
     int nbDelta = delta.size();
-    ParameterMetadata[] parameterMetadata = new ParameterMetadata[2 * nbDelta + 1];
-    parameterMetadata[nbDelta] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(0.5d));
+    ParameterMetadata[] paramMetadata = new ParameterMetadata[2 * nbDelta + 1];
+    // at the money, 0.5
+    DeltaStrike strikeAtm = DeltaStrike.of(0.5d);
+    paramMetadata[nbDelta] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, expiryTenor, strikeAtm);
     for (int i = 0; i < nbDelta; i++) {
-      parameterMetadata[i] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(1d - delta.get(i))); // Put
-      parameterMetadata[2 * nbDelta - i] =
-          GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, DeltaStrike.of(delta.get(i))); // Call
+      // put, such as 0.1 and 0.25
+      DeltaStrike strikePut = DeltaStrike.of(1d - delta.get(i));
+      paramMetadata[i] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, expiryTenor, strikePut);
+      // call, such as 0.75 and 0.9
+      DeltaStrike strikeCall = DeltaStrike.of(delta.get(i));
+      paramMetadata[2 * nbDelta - i] = GenericVolatilitySurfaceYearFractionParameterMetadata.of(expiry, expiryTenor, strikeCall);
     }
-    return ImmutableList.copyOf(parameterMetadata);
+    return ImmutableList.copyOf(paramMetadata);
   }
 
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.parameterMetadata == null) {
       if (builder.delta != null) {
-        builder.parameterMetadata = createParameterMetadata(builder.expiry, builder.delta);
+        builder.parameterMetadata = createParameterMetadata(builder.expiry, null, builder.delta);
       }
     }
   }
@@ -303,6 +361,7 @@ public final class SmileDeltaParameters
    * Gets the delta of the different data points.
    * Must be positive and sorted in ascending order.
    * The put will have as delta the opposite of the numbers.
+   * The array is typically {@code [0.1, 0.25]}. The at-the-money value of 0.5 is not included.
    * @return the value of the property
    */
   public DoubleArray getDelta() {
@@ -312,6 +371,8 @@ public final class SmileDeltaParameters
   //-----------------------------------------------------------------------
   /**
    * Gets the volatilities associated with the strikes.
+   * This will be of size {@code (delta.size() * 2) + 1} with the put with lower delta (in absolute value) first,
+   * at-the-money and call with larger delta first.
    * @return the value of the property
    */
   public DoubleArray getVolatility() {
@@ -320,7 +381,9 @@ public final class SmileDeltaParameters
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the parameterMetadata.
+   * Gets the associated metadata.
+   * This will be of size {@code (delta.size() * 2) + 1} with the put with lower delta (in absolute value) first,
+   * at-the-money and call with larger delta first.
    * @return the value of the property
    */
   public ImmutableList<ParameterMetadata> getParameterMetadata() {

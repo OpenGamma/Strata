@@ -47,7 +47,7 @@ import com.opengamma.strata.market.surface.Surfaces;
 import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSurfaceVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesName;
-import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceTenorParameterMetadata;
+import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
  * Test {@link BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecification}.
@@ -134,7 +134,7 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
           date, expOffset.adjust(BDA.adjust(SPOT_OFFSET.adjust(date, REF_DATA).plus(tenor), REF_DATA), REF_DATA));
       for (int j = 0; j < STRIKES.size(); ++j) {
         SimpleStrike strike = SimpleStrike.of(STRIKES.get(j));
-        paramMetadata.add(FxVolatilitySurfaceTenorParameterMetadata.of(tenor, expiry, strike, GBP_USD));
+        paramMetadata.add(FxVolatilitySurfaceYearFractionParameterMetadata.of(expiry, tenor, strike, GBP_USD));
         expiries[STRIKES.size() * i + j] = expiry;
         strikes[STRIKES.size() * i + j] = STRIKES.get(j);
       }

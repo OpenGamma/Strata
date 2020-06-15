@@ -127,7 +127,7 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
       List<SmileDeltaParameters> volatilityTerm,
       DayCount dayCount) {
 
-    return of(volatilityTerm, dayCount, FLAT, TIME_SQUARE, FLAT, FLAT, LINEAR, FLAT);
+    return of(volatilityTerm, dayCount, TIME_SQUARE, FLAT, FLAT, LINEAR, FLAT, FLAT);
   }
 
   /**
@@ -153,11 +153,11 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
     return of(
         volatilityTerm,
         dayCount,
-        FLAT,
         TIME_SQUARE,
         FLAT,
-        strikeExtrapolatorLeft,
+        FLAT,
         strikeInterpolator,
+        strikeExtrapolatorLeft,
         strikeExtrapolatorRight);
   }
 
@@ -174,7 +174,9 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
    * @param strikeInterpolator  interpolator used in the strike dimension
    * @param strikeExtrapolatorRight  right extrapolator used in the strike dimension
    * @return the instance
+   * @deprecated Use variant with correct interpolator/extrapolator order
    */
+  @Deprecated
   public static InterpolatedStrikeSmileDeltaTermStructure of(
       List<SmileDeltaParameters> volatilityTerm,
       DayCount dayCount,
@@ -183,6 +185,41 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
       CurveExtrapolator timeExtrapolatorRight,
       CurveExtrapolator strikeExtrapolatorLeft,
       CurveInterpolator strikeInterpolator,
+      CurveExtrapolator strikeExtrapolatorRight) {
+
+    return of(
+        volatilityTerm,
+        dayCount,
+        timeInterpolator,
+        timeExtrapolatorLeft,
+        timeExtrapolatorRight,
+        strikeInterpolator,
+        strikeExtrapolatorLeft,
+        strikeExtrapolatorRight);
+  }
+
+  /**
+   * Obtains volatility term structure from a set of smile descriptions 
+   * with interpolator and extrapolators fully specified.
+   * 
+   * @param volatilityTerm  the volatility descriptions
+   * @param dayCount  the day count used for the expiry year-fraction
+   * @param timeInterpolator  interpolator used in the time dimension
+   * @param timeExtrapolatorLeft  left extrapolator used in the time dimension
+   * @param timeExtrapolatorRight  right extrapolator used in the time dimension
+   * @param strikeInterpolator  interpolator used in the strike dimension
+   * @param strikeExtrapolatorLeft  left extrapolator used in the strike dimension
+   * @param strikeExtrapolatorRight  right extrapolator used in the strike dimension
+   * @return the instance
+   */
+  public static InterpolatedStrikeSmileDeltaTermStructure of(
+      List<SmileDeltaParameters> volatilityTerm,
+      DayCount dayCount,
+      CurveInterpolator timeInterpolator,
+      CurveExtrapolator timeExtrapolatorLeft,
+      CurveExtrapolator timeExtrapolatorRight,
+      CurveInterpolator strikeInterpolator,
+      CurveExtrapolator strikeExtrapolatorLeft,
       CurveExtrapolator strikeExtrapolatorRight) {
 
     ArgChecker.notEmpty(volatilityTerm, "volatilityTerm");
