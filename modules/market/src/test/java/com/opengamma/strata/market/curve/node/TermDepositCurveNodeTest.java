@@ -172,7 +172,7 @@ public class TermDepositCurveNodeTest {
     TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     LocalDate valuationDate = LocalDate.of(2015, 1, 22);
     ResolvedTermDepositTrade trade = node.sampleResolvedTrade(valuationDate, FxRateProvider.minimal(), REF_DATA);
-    ResolvedTermDepositTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.SELL, 1d, SPREAD, REF_DATA).resolve(REF_DATA);
+    ResolvedTermDepositTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1d, SPREAD, REF_DATA).resolve(REF_DATA);
     assertThat(trade).isEqualTo(expected);
   }
 
