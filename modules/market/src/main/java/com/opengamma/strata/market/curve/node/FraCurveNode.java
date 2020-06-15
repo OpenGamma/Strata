@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
@@ -194,6 +195,16 @@ public final class FraCurveNode
   @Override
   public ResolvedFraTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
     return trade(quantity, marketData, refData).resolve(refData);
+  }
+
+  @Override
+  public ResolvedFraTrade sampleResolvedTrade(
+      LocalDate valuationDate,
+      FxRateProvider fxProvider,
+      ReferenceData refData) {
+
+    FraTrade trade = template.createTrade(valuationDate, BuySell.SELL, 1d, additionalSpread, refData);
+    return trade.resolve(refData);
   }
 
   @Override

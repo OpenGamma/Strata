@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.market.ValueType;
@@ -112,6 +113,34 @@ public interface CurveNode {
    * @throws RuntimeException if unable to resolve due to an invalid definition
    */
   public abstract ResolvedTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData);
+
+  /**
+   * Creates a resolved trade representing the instrument at the node.
+   * <p>
+   * This uses an arbitrary quantity, typically 1, and an arbitrary market data quote, typically 0, to create a trade.
+   * This is useful when the trade is to be used to calculate the current par value.
+   * The FX provider is typically only used for cross-currency trades.
+   * In many cases, {@link FxRateProvider#minimal()} can be passed in.
+   * <p>
+   * Resolved objects may be bound to data that changes over time, such as holiday calendars.
+   * If the data changes, such as the addition of a new holiday, the resolved form will not be updated.
+   * Care must be taken when placing the resolved form in a cache or persistence layer.
+   *
+   * @param valuationDate  the valuation date
+   * @param fxProvider  the FX rate provider
+   * @param refData  the reference data, used to resolve the trade
+   * @return a trade representing the instrument at the node
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @throws RuntimeException if unable to resolve due to an invalid definition
+   */
+  public default ResolvedTrade sampleResolvedTrade(
+      LocalDate valuationDate,
+      FxRateProvider fxProvider,
+      ReferenceData refData) {
+
+    // deprecated - this will be made abstract with next set of breaking changes
+    throw new UnsupportedOperationException("CurveNode.sampleResolvedTrade() is not supported");
+  }
 
   /**
    * Gets the initial guess used for calibrating the node.

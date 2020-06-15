@@ -20,7 +20,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.FxRateId;
@@ -149,7 +148,7 @@ public final class SyntheticRatesCurveCalibrator {
       ReferenceData refData) {
 
     // Retrieve the set of required indices and the list of required currencies
-    Set<Index> indicesRequired = new HashSet<Index>();
+    Set<Index> indicesRequired = new HashSet<>();
     List<Currency> ccyRequired = new ArrayList<>();
     for (RatesCurveGroupEntry entry : group.getEntries()) {
       indicesRequired.addAll(entry.getIndices());
@@ -162,20 +161,6 @@ public final class SyntheticRatesCurveCalibrator {
     }
     LocalDate valuationDate = inputProvider.getValuationDate();
     ImmutableList<CurveDefinition> curveGroups = group.getCurveDefinitions();
-    // Create fake market quotes of 0, only to be able to generate trades
-    Map<MarketDataId<?>, Object> mapId0 = new HashMap<>();
-    for (CurveDefinition entry : curveGroups) {
-      ImmutableList<CurveNode> nodes = entry.getNodes();
-      for (int i = 0; i < nodes.size(); i++) {
-        for (MarketDataId<?> key : nodes.get(i).requirements()) {
-          ArgChecker.isTrue((key instanceof QuoteId) || (key instanceof FxRateId),
-              "For Synthetic curve calibration, the MarketDataId must be QuoteId or FxRateId");
-          if (key instanceof QuoteId) {
-            mapId0.put(key, 0.0d);
-          }
-        }
-      }
-    }
     // Generate market quotes from the trades
     Map<MarketDataId<?>, Object> mapIdSy = new HashMap<>();
     // Generate quotes for FX pairs. The first currency is arbitrarily selected as starting point. 
@@ -185,18 +170,11 @@ public final class SyntheticRatesCurveCalibrator {
       FxRateId fxId = FxRateId.of(ccyPair);
       mapIdSy.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));
     }
-    for (int loopccy1 = 0; loopccy1 < ccyRequired.size(); loopccy1++) {
-      for (int loopccy2 = loopccy1 + 1; loopccy2 < ccyRequired.size(); loopccy2++) {
-        CurrencyPair ccyPair = CurrencyPair.of(ccyRequired.get(loopccy1), ccyRequired.get(loopccy2));
-        FxRateId fxId = FxRateId.of(ccyPair);
-        mapId0.put(fxId, FxRate.of(ccyPair, inputProvider.fxRate(ccyPair)));  // Required to generate the trade
-      }
-    }
-    ImmutableMarketData marketQuotes0 = ImmutableMarketData.of(valuationDate, mapId0);
+    // create a synthetic value for each node
     for (CurveDefinition entry : curveGroups) {
       ImmutableList<CurveNode> nodes = entry.getNodes();
       for (CurveNode node : nodes) {
-        ResolvedTrade trade = node.resolvedTrade(1d, marketQuotes0, refData);
+        ResolvedTrade trade = node.sampleResolvedTrade(valuationDate, inputProvider, refData);
         double mq = measures.value(trade, inputProvider);
         for (MarketDataId<?> key : node.requirements()) {
           if (key instanceof QuoteId) {

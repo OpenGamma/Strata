@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
@@ -35,6 +36,8 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.OvernightIborSwapConventions;
 import com.opengamma.strata.product.swap.type.OvernightIborSwapTemplate;
@@ -126,6 +129,15 @@ public class OvernightIborSwapCurveNodeTest {
     MarketData marketData = MarketData.empty(valuationDate);
     assertThatExceptionOfType(MarketDataNotFoundException.class)
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
+  }
+
+  @Test
+  public void test_sampleResolvedTrade() {
+    OvernightIborSwapCurveNode node = OvernightIborSwapCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    ResolvedSwapTrade trade = node.sampleResolvedTrade(valuationDate, FxRateProvider.minimal(), REF_DATA);
+    ResolvedSwapTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.SELL, 1d, SPREAD, REF_DATA).resolve(REF_DATA);
+    assertThat(trade).isEqualTo(expected);
   }
 
   @Test

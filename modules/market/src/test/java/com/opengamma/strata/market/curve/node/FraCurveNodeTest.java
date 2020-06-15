@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -46,6 +47,7 @@ import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFra;
+import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.rate.IborRateComputation;
 
@@ -169,6 +171,15 @@ public class FraCurveNodeTest {
     MarketData marketData = MarketData.empty(valuationDate);
     assertThatExceptionOfType(MarketDataNotFoundException.class)
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
+  }
+
+  @Test
+  public void test_sampleResolvedTrade() {
+    FraCurveNode node = FraCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    ResolvedFraTrade trade = node.sampleResolvedTrade(valuationDate, FxRateProvider.minimal(), REF_DATA);
+    ResolvedFraTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.SELL, 1d, SPREAD, REF_DATA).resolve(REF_DATA);
+    assertThat(trade).isEqualTo(expected);
   }
 
   @Test
