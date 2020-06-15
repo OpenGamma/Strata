@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
@@ -188,6 +189,17 @@ public final class IborFutureCurveNode
   @Override
   public ResolvedIborFutureTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
     return trade(quantity, marketData, refData).resolve(refData);
+  }
+
+  @Override
+  public ResolvedIborFutureTrade sampleResolvedTrade(
+      LocalDate valuationDate,
+      FxRateProvider fxProvider,
+      ReferenceData refData) {
+
+    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
+    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1d, 1d, 1d, refData);
+    return trade.resolve(refData);
   }
 
   @Override

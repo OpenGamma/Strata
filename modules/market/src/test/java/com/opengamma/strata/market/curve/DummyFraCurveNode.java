@@ -21,6 +21,7 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.HolidayCalendars;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.data.MarketData;
@@ -107,6 +108,15 @@ public final class DummyFraCurveNode
   @Override
   public DummyFraTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
     return trade(quantity, marketData, refData);
+  }
+
+  @Override
+  public DummyFraTrade sampleResolvedTrade(
+      LocalDate valuationDate,
+      FxRateProvider fxProvider,
+      ReferenceData refData) {
+
+    return DummyFraTrade.of(valuationDate, spread);
   }
 
   @Override

@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.FxRate;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.FxRateId;
@@ -197,6 +198,17 @@ public final class FxSwapCurveNode
   @Override
   public ResolvedFxSwapTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
     return trade(quantity, marketData, refData).resolve(refData);
+  }
+
+  @Override
+  public ResolvedFxSwapTrade sampleResolvedTrade(
+      LocalDate valuationDate,
+      FxRateProvider fxProvider,
+      ReferenceData refData) {
+
+    double rate = fxProvider.fxRate(template.getCurrencyPair());
+    FxSwapTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1d, rate, 0d, refData);
+    return trade.resolve(refData);
   }
 
   @Override

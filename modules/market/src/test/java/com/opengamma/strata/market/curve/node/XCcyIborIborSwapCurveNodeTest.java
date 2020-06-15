@@ -39,6 +39,8 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.param.DatedParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapTemplate;
@@ -159,6 +161,16 @@ public class XCcyIborIborSwapCurveNodeTest {
     MarketData marketData = MarketData.empty(VAL_DATE);
     assertThatExceptionOfType(MarketDataNotFoundException.class)
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
+  }
+
+  @Test
+  public void test_sampleResolvedTrade() {
+    XCcyIborIborSwapCurveNode node = XCcyIborIborSwapCurveNode.of(TEMPLATE, SPREAD_ID, SPREAD_ADJ);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    ResolvedSwapTrade trade = node.sampleResolvedTrade(valuationDate, FX_EUR_USD, REF_DATA);
+    ResolvedSwapTrade expected =
+        TEMPLATE.createTrade(valuationDate, BuySell.SELL, 1d, 1.25d, SPREAD_ADJ, REF_DATA).resolve(REF_DATA);
+    assertThat(trade).isEqualTo(expected);
   }
 
   @Test
