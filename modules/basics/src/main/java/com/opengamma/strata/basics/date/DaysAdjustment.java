@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.basics.date;
 
+import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
@@ -149,12 +151,18 @@ public final class DaysAdjustment
    * This is equivalent to repeatedly finding the next business day.
    * <p>
    * No business day adjustment is applied to the result of the addition.
+   * <p>
+   * If the input is a holiday, the first business day counted will be the next business day.
+   * If the input is a holiday and the number of days to add is zero, the result will be the next business day.
    * 
    * @param numberOfDays  the number of days
    * @param holidayCalendar  the calendar that defines holidays and business days
    * @return the days adjustment
    */
   public static DaysAdjustment ofBusinessDays(int numberOfDays, HolidayCalendarId holidayCalendar) {
+    if (numberOfDays == 0) {
+      return new DaysAdjustment(0, HolidayCalendarIds.NO_HOLIDAYS, BusinessDayAdjustment.of(FOLLOWING, holidayCalendar));
+    }
     return new DaysAdjustment(numberOfDays, holidayCalendar, BusinessDayAdjustment.NONE);
   }
 
