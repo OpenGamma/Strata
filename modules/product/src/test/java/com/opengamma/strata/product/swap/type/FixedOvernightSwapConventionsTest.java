@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.swap.type;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -173,6 +174,13 @@ public class FixedOvernightSwapConventionsTest {
     LocalDate endDate = swapResolved.getLeg(PayReceive.PAY).get().getEndDate();
     assertThat(endDate.isAfter(tradeDate.plus(tenor).minusMonths(1))).isTrue();
     assertThat(endDate.isBefore(tradeDate.plus(tenor).plusMonths(1))).isTrue();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_spotFromHoliday() {
+    FixedOvernightSwapConvention convention = FixedOvernightSwapConventions.GBP_FIXED_TERM_SONIA_OIS;
+    assertThat(convention.getSpotDateOffset().adjust(date(2020, 6, 14), REF_DATA)).isEqualTo(date(2020, 6, 15));
   }
 
   //-------------------------------------------------------------------------
