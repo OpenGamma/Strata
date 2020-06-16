@@ -14,6 +14,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.list;
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.RISK_REVERSAL;
 import static com.opengamma.strata.market.ValueType.STRANGLE;
@@ -39,13 +40,13 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSmileVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesName;
 import com.opengamma.strata.pricer.fxopt.InterpolatedStrikeSmileDeltaTermStructure;
+import com.opengamma.strata.pricer.fxopt.SmileDeltaParameters;
 import com.opengamma.strata.pricer.fxopt.SmileDeltaTermStructure;
 
 /**
@@ -125,12 +126,17 @@ public class BlackFxOptionSmileVolatilitiesSpecificationTest {
     BlackFxOptionSmileVolatilities computed = base.volatilities(dateTime, parameters, REF_DATA);
     LocalDate spotDate = SPOT_OFFSET.adjust(dateTime.toLocalDate(), REF_DATA);
     DaysAdjustment expOffset = DaysAdjustment.ofBusinessDays(-2, TA_LO);
-    DoubleArray expiries = DoubleArray.of(
-        ACT_360.relativeYearFraction(date, expOffset.adjust(BUS_ADJ.adjust(spotDate.plus(Tenor.TENOR_3M), REF_DATA), REF_DATA)),
-        ACT_360.relativeYearFraction(date, expOffset.adjust(BUS_ADJ.adjust(spotDate.plus(Tenor.TENOR_1Y), REF_DATA), REF_DATA)));
+    double expiry3m = ACT_360.relativeYearFraction(
+        date, expOffset.adjust(BUS_ADJ.adjust(spotDate.plus(Tenor.TENOR_3M), REF_DATA), REF_DATA));
+    double expiry1y = ACT_360.relativeYearFraction(
+        date, expOffset.adjust(BUS_ADJ.adjust(spotDate.plus(Tenor.TENOR_1Y), REF_DATA), REF_DATA));
+    DoubleArray deltas = DoubleArray.of(0.1);
+    SmileDeltaParameters params3m = SmileDeltaParameters.of(
+        expiry3m, Tenor.TENOR_3M, 0.25, deltas, DoubleArray.of(-0.1), DoubleArray.of(0.1));
+    SmileDeltaParameters params1y = SmileDeltaParameters.of(
+        expiry1y, Tenor.TENOR_1Y, 0.15, deltas, DoubleArray.of(-0.05), DoubleArray.of(0.05));
     SmileDeltaTermStructure smiles = InterpolatedStrikeSmileDeltaTermStructure.of(
-        expiries, DoubleArray.of(0.1), DoubleArray.of(0.25, 0.15), DoubleMatrix.ofUnsafe(new double[][] {{-0.1}, {-0.05}}),
-        DoubleMatrix.ofUnsafe(new double[][] {{0.1}, {0.05}}), ACT_360, PCHIP, FLAT, FLAT, PCHIP, FLAT, FLAT);
+        list(params3m, params1y), ACT_360, PCHIP, FLAT, FLAT, PCHIP, FLAT, FLAT);
     BlackFxOptionSmileVolatilities expected = BlackFxOptionSmileVolatilities.of(VOL_NAME, EUR_GBP, dateTime, smiles);
     assertThat(computed).isEqualTo(expected);
   }
