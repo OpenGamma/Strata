@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.market.curve.interpolator.CurveExtrapolators.FLAT;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.TIME_SQUARE;
@@ -14,6 +15,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -31,6 +33,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -640,6 +643,13 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
   @Override
   public DoubleArray getExpiries() {
     return expiries;
+  }
+
+  @Override
+  public List<Optional<Tenor>> getExpiryTenors() {
+    return volatilityTerm.stream()
+        .map(smileDeltaParams -> smileDeltaParams.getExpiryTenor())
+        .collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------

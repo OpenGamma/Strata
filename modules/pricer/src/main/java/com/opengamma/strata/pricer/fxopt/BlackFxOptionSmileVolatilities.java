@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -161,25 +162,32 @@ public final class BlackFxOptionSmileVolatilities
     double forward = currencyPair.isInverse(point.getCurrencyPair()) ? 1d / point.getForward() : point.getForward();
     double pointValue = point.getSensitivity();
     DoubleMatrix bucketedSensi = smile.volatilityAndSensitivities(expiryTime, strike, forward).getSensitivities();
-    double[] times = smile.getExpiries().toArray();
-    int nTimes = times.length;
-    List<Double> sensiList = new ArrayList<Double>();
-    List<ParameterMetadata> paramList = new ArrayList<ParameterMetadata>();
+    DoubleArray smileExpiries = smile.getExpiries();
+    List<Optional<Tenor>> smileExpiryTenors = smile.getExpiryTenors();
+    int nTimes = smileExpiries.size();
+    List<Double> sensiList = new ArrayList<>();
+    List<ParameterMetadata> paramList = new ArrayList<>();
+    DoubleArray deltas = smile.getDelta();
+    int nDeltas = deltas.size();
+    // convert sensitivity
     for (int i = 0; i < nTimes; ++i) {
-      DoubleArray deltas = smile.getVolatilityTerm().get(i).getDelta();
-      int nDeltas = deltas.size();
+      double smileExpiry = smileExpiries.get(i);
+      Optional<Tenor> tenorOpt = smileExpiryTenors.get(i);
+      // calculate absolute delta
       int nDeltasTotal = 2 * nDeltas + 1;
-      double[] deltasTotal = new double[nDeltasTotal]; // absolute delta
+      double[] deltasTotal = new double[nDeltasTotal];
       deltasTotal[nDeltas] = 0.5d;
       for (int j = 0; j < nDeltas; ++j) {
         deltasTotal[j] = 1d - deltas.get(j);
         deltasTotal[2 * nDeltas - j] = deltas.get(j);
       }
+      // convert sensitivities
       for (int j = 0; j < nDeltasTotal; ++j) {
         sensiList.add(bucketedSensi.get(i, j) * pointValue);
         DeltaStrike absoluteDelta = DeltaStrike.of(deltasTotal[j]);
-        ParameterMetadata parameterMetadata = FxVolatilitySurfaceYearFractionParameterMetadata.of(
-            times[i], absoluteDelta, currencyPair);
+        ParameterMetadata parameterMetadata = tenorOpt
+            .map(tenor -> FxVolatilitySurfaceYearFractionParameterMetadata.of(smileExpiry, tenor, absoluteDelta, currencyPair))
+            .orElseGet(() -> FxVolatilitySurfaceYearFractionParameterMetadata.of(smileExpiry, absoluteDelta, currencyPair));
         paramList.add(parameterMetadata);
       }
     }
