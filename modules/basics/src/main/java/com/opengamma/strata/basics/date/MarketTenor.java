@@ -27,27 +27,21 @@ import com.opengamma.strata.collect.ArgChecker;
  * </ul>
  * <p>
  * The period from start date to end date is represented by {@link Tenor}.
- * By contrast, the market tenor describes both the spot lag and tenor.
+ * {@code MarketTenor} includes the tenor, but also allows the market conventional spot lag to be overridden.
  * <p>
- * In most cases, the market tenor is the same as the tenor, with the the spot lag implied and included by market convention.
- * However, for very short trades there are special cases used in the market:
+ * {@code MarketTenor} represents the 4 special cases used in the market as well as more normal tenors:
  * <ul>
  * <li>ON - Overnight, from today to tomorrow, spot lag of 0 and tenor of 1 day
  * <li>TN - Tomorrow-Next, from tomorrow to the next day, spot lag of 1 and tenor of 1 day
  * <li>SN - Spot-Next, from spot to the next day, market conventional spot lag and tenor of 1 day
  * <li>SW - Spot-Week, from spot for one week, market conventional spot lag and tenor of 1 week
+ * <li>"Normal" tenors - 2W, 1M, 1Y etc - from spot for the specified period, market conventional spot lag
  * </ul>
  * <p>
  * Note that if the market conventional spot lag is 1 day, TN and SN would resolve to the same dates.
  * Note also that SN and SW exist for clarity, they might also be expressed as 1D and 1W with the spot implied.
  * Other date combinations are possible in theory but tend not to exist in the market, for example a three day
  * trade starting tomorrow, something which might require a code like T3D.
- * 
- * <h4>Usage</h4>
- * {@code Tenor} implements {@code TemporalAmount} allowing it to be directly added to a date:
- * <pre>
- *  LocalDate later = baseDate.plus(tenor);
- * </pre>
  */
 public final class MarketTenor
     implements Comparable<MarketTenor>, Serializable {
@@ -56,6 +50,10 @@ public final class MarketTenor
    * Serialization version.
    */
   private static final long serialVersionUID = 1;
+  /**
+   * Constant used to indicate market convention swap lag.
+   */
+  private static final int MARKET_CONVENTION_LAG = Integer.MAX_VALUE;
 
   /**
    * A tenor code for Overnight, meaning from today to tomorrow.
@@ -69,12 +67,12 @@ public final class MarketTenor
    * A tenor code for Spot-Next, meaning from the spot date to the next day.
    * The spot date is usually two working days after today, but this varies by currency.
    */
-  public static final MarketTenor SN = new MarketTenor("SN", Tenor.ofDays(1), 2);
+  public static final MarketTenor SN = new MarketTenor("SN", Tenor.ofDays(1), MARKET_CONVENTION_LAG);
   /**
    * A tenor code for Spot-Week, meaning one week starting from the spot date.
    * The spot date is usually two working days after today, but this varies by currency.
    */
-  public static final MarketTenor SW = new MarketTenor("SW", Tenor.ofWeeks(1), 2);
+  public static final MarketTenor SW = new MarketTenor("SW", Tenor.ofWeeks(1), MARKET_CONVENTION_LAG);
 
   /**
    * The code of the tenor.
@@ -85,9 +83,9 @@ public final class MarketTenor
    */
   private final Tenor tenor;
   /**
-   * The order.
+   * The spot lag or 0, 1 or MARKET_CONVENTION_LAG.
    */
-  private final int order;
+  private final int spotLagIndicator;
 
   //-------------------------------------------------------------------------
   /**
@@ -142,14 +140,14 @@ public final class MarketTenor
    * Creates a tenor.
    * @param code  the code
    * @param tenor  the tenor to represent
-   * @param order  the order, 0 for ON, 1 for TN and 2 for spot-starting
+   * @param spotLagIndicator  the order, 0 for ON, 1 for TN and MARKET_CONVENTION_LAG for spot-starting
    */
-  private MarketTenor(String code, Tenor tenor, int order) {
+  private MarketTenor(String code, Tenor tenor, int spotLagIndicator) {
     ArgChecker.notNull(code, "code");
     ArgChecker.notNull(tenor, "tenor");
     this.code = code;
     this.tenor = tenor;
-    this.order = order;
+    this.spotLagIndicator = spotLagIndicator;
   }
 
   // safe deserialization
@@ -180,15 +178,15 @@ public final class MarketTenor
 
   //-------------------------------------------------------------------------
   /**
-   * Checks if the market tenor implies a short spot lag.
+   * Checks if the market tenor implies a non-standard spot lag.
    * <p>
    * This returns true for ON and TN as they need special date handling.
    * SN and SW return false as they imply market conventional spot.
    *
    * @return true if this market tenor is short
    */
-  public boolean isShortSpotLag() {
-    return order < 2;
+  public boolean isNonStandardSpotLag() {
+    return spotLagIndicator != MARKET_CONVENTION_LAG;
   }
 
   /**
@@ -201,9 +199,9 @@ public final class MarketTenor
    * @return true if this market tenor is short
    */
   public DaysAdjustment adjustSpotLag(DaysAdjustment marketConventionalSpotLag) {
-    if (isShortSpotLag()) {
+    if (isNonStandardSpotLag()) {
       // this way ensures the result is a valid business day
-      return DaysAdjustment.ofBusinessDays(order, marketConventionalSpotLag.getResultCalendar());
+      return DaysAdjustment.ofBusinessDays(spotLagIndicator, marketConventionalSpotLag.getResultCalendar());
     } else {
       return marketConventionalSpotLag;
     }
@@ -221,8 +219,8 @@ public final class MarketTenor
    */
   @Override
   public int compareTo(MarketTenor other) {
-    if (isShortSpotLag() || other.isShortSpotLag()) {
-      return Integer.compare(order, other.order);
+    if (isNonStandardSpotLag() || other.isNonStandardSpotLag()) {
+      return Integer.compare(spotLagIndicator, other.spotLagIndicator);
     }
     return tenor.compareTo(other.tenor);
   }

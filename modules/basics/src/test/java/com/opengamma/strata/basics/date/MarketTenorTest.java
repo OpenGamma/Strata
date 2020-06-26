@@ -37,7 +37,7 @@ public class MarketTenorTest {
     MarketTenor test = MarketTenor.ON;
     assertThat(test.getCode()).isEqualTo("ON");
     assertThat(test.getTenor()).isEqualTo(TENOR_1D);
-    assertThat(test.isShortSpotLag()).isTrue();
+    assertThat(test.isNonStandardSpotLag()).isTrue();
     assertThat(test.adjustSpotLag(SPOT_LAG_2)).isEqualTo(SPOT_LAG_0);
     assertThat(test.adjustSpotLag(SPOT_LAG_1)).isEqualTo(SPOT_LAG_0);
     assertThat(test.adjustSpotLag(SPOT_LAG_0)).isEqualTo(SPOT_LAG_0);
@@ -48,7 +48,7 @@ public class MarketTenorTest {
     MarketTenor test = MarketTenor.TN;
     assertThat(test.getCode()).isEqualTo("TN");
     assertThat(test.getTenor()).isEqualTo(TENOR_1D);
-    assertThat(test.isShortSpotLag()).isTrue();
+    assertThat(test.isNonStandardSpotLag()).isTrue();
     assertThat(test.adjustSpotLag(SPOT_LAG_2)).isEqualTo(SPOT_LAG_1);
     assertThat(test.adjustSpotLag(SPOT_LAG_1)).isEqualTo(SPOT_LAG_1);
     assertThat(test.adjustSpotLag(SPOT_LAG_0)).isEqualTo(SPOT_LAG_1);
@@ -59,7 +59,7 @@ public class MarketTenorTest {
     MarketTenor test = MarketTenor.SN;
     assertThat(test.getCode()).isEqualTo("SN");
     assertThat(test.getTenor()).isEqualTo(TENOR_1D);
-    assertThat(test.isShortSpotLag()).isFalse();
+    assertThat(test.isNonStandardSpotLag()).isFalse();
     assertThat(test.adjustSpotLag(SPOT_LAG_2)).isEqualTo(SPOT_LAG_2);
     assertThat(test.adjustSpotLag(SPOT_LAG_1)).isEqualTo(SPOT_LAG_1);
     assertThat(test.adjustSpotLag(SPOT_LAG_0)).isEqualTo(SPOT_LAG_0);
@@ -70,7 +70,7 @@ public class MarketTenorTest {
     MarketTenor test = MarketTenor.SW;
     assertThat(test.getCode()).isEqualTo("SW");
     assertThat(test.getTenor()).isEqualTo(TENOR_1W);
-    assertThat(test.isShortSpotLag()).isFalse();
+    assertThat(test.isNonStandardSpotLag()).isFalse();
     assertThat(test.adjustSpotLag(SPOT_LAG_2)).isEqualTo(SPOT_LAG_2);
     assertThat(test.adjustSpotLag(SPOT_LAG_1)).isEqualTo(SPOT_LAG_1);
     assertThat(test.adjustSpotLag(SPOT_LAG_0)).isEqualTo(SPOT_LAG_0);
@@ -81,7 +81,7 @@ public class MarketTenorTest {
     MarketTenor test = MarketTenor.ofSpot(TENOR_3Y);
     assertThat(test.getCode()).isEqualTo("3Y");
     assertThat(test.getTenor()).isEqualTo(TENOR_3Y);
-    assertThat(test.isShortSpotLag()).isFalse();
+    assertThat(test.isNonStandardSpotLag()).isFalse();
     assertThat(test.adjustSpotLag(SPOT_LAG_2)).isEqualTo(SPOT_LAG_2);
     assertThat(test.adjustSpotLag(SPOT_LAG_1)).isEqualTo(SPOT_LAG_1);
     assertThat(test.adjustSpotLag(SPOT_LAG_0)).isEqualTo(SPOT_LAG_0);
