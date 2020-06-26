@@ -14,14 +14,21 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.JPTO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.MarketTenor;
+import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.fx.FxSwapTrade;
 
 /**
  * Test {@link FxSwapConventions}.
@@ -92,6 +99,25 @@ public class FxSwapConventionsTest {
   public void test_calendar(ImmutableFxSwapConvention convention, HolidayCalendarId cal) {
     assertThat(convention.getSpotDateOffset().getCalendar()).isEqualTo(cal);
     assertThat(convention.getBusinessDayAdjustment().getCalendar()).isEqualTo(cal);
+  }
+
+  //-------------------------------------------------------------------------
+  public static Object[][] data_dates() {
+    return new Object[][] {
+        {MarketTenor.ON, date(2020, 6, 22), date(2020, 6, 23)},
+        {MarketTenor.TN, date(2020, 6, 23), date(2020, 6, 24)},
+        {MarketTenor.SN, date(2020, 6, 24), date(2020, 6, 25)},
+        {MarketTenor.SW, date(2020, 6, 24), date(2020, 7, 1)},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_dates")
+  public void test_dates(MarketTenor marketTenor, LocalDate startDate, LocalDate endDate) {
+    FxSwapTrade trade = FxSwapConventions.EUR_USD.createTrade(
+        date(2020, 6, 22), marketTenor, BuySell.BUY, 1_000_000, 1.1, 0.01, ReferenceData.standard());
+    assertThat(trade.getProduct().getNearLeg().getPaymentDate()).isEqualTo(startDate);
+    assertThat(trade.getProduct().getFarLeg().getPaymentDate()).isEqualTo(endDate);
   }
 
   //-------------------------------------------------------------------------

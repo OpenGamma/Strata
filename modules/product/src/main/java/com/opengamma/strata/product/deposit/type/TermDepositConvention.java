@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -81,9 +82,43 @@ public interface TermDepositConvention
 
   //-------------------------------------------------------------------------
   /**
+   * Creates a trade based on this convention using a market tenor, such as ON, TN, SN, SW or 1M.
+   * <p>
+   * This returns a trade based on the market tenor.
+   * If the market tenor is ON or TN, the spot lag of the convention will be overridden.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the term deposit, the principal is paid at the start date and the
+   * principal plus interest is received at the end date.
+   * If selling the term deposit, the principal is received at the start date and the
+   * principal plus interest is paid at the end date.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param marketTenor  the market tenor, defining the spot lag and tenor
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the payment currency of the template
+   * @param rate  the fixed rate, typically derived from the market
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default TermDepositTrade createTrade(
+      LocalDate tradeDate,
+      MarketTenor marketTenor,
+      BuySell buySell,
+      double notional,
+      double rate,
+      ReferenceData refData) {
+
+    LocalDate startDate = marketTenor.adjustSpotLag(getSpotDateOffset()).adjust(tradeDate, refData);
+    LocalDate endDate = startDate.plus(marketTenor.getTenor());
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, rate);
+  }
+
+  /**
    * Creates a trade based on this convention.
    * <p>
-   * This returns a trade based on the specified deposit period.
+   * This returns a trade based on the specified deposit period, starting from the spot date.
    * <p>
    * The notional is unsigned, with buy/sell determining the direction of the trade.
    * If buying the term deposit, the principal is paid at the start date and the

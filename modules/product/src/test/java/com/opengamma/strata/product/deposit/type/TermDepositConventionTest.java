@@ -16,6 +16,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -32,6 +33,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -180,6 +182,25 @@ public class TermDepositConventionTest {
   public void test_spotAndConv(ImmutableTermDepositConvention convention, int spotT, BusinessDayConvention conv) {
     assertThat(convention.getSpotDateOffset().getDays()).isEqualTo(spotT);
     assertThat(convention.getBusinessDayAdjustment().getConvention()).isEqualTo(conv);
+  }
+
+  //-------------------------------------------------------------------------
+  public static Object[][] data_dates() {
+    return new Object[][] {
+        {MarketTenor.ON, date(2020, 6, 22), date(2020, 6, 23)},
+        {MarketTenor.TN, date(2020, 6, 23), date(2020, 6, 24)},
+        {MarketTenor.SN, date(2020, 6, 24), date(2020, 6, 25)},
+        {MarketTenor.SW, date(2020, 6, 24), date(2020, 7, 1)},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_dates")
+  public void test_dates(MarketTenor marketTenor, LocalDate startDate, LocalDate endDate) {
+    TermDepositTrade trade = TermDepositConventions.EUR_SHORT_DEPOSIT_T2.createTrade(
+        date(2020, 6, 22), marketTenor, BuySell.BUY, 1_000_000, 0.01, ReferenceData.standard());
+    assertThat(trade.getProduct().getStartDate()).isEqualTo(startDate);
+    assertThat(trade.getProduct().getEndDate()).isEqualTo(endDate);
   }
 
   //-------------------------------------------------------------------------
