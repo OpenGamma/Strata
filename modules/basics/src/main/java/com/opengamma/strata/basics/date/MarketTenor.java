@@ -105,7 +105,7 @@ public final class MarketTenor
     if (tenor.getPeriod().equals(Period.ofDays(7))) {
       return MarketTenor.SW;
     }
-    return new MarketTenor(tenor.toString(), tenor, 2);
+    return new MarketTenor(tenor.toString(), tenor, MARKET_CONVENTION_LAG);
   }
 
   //-------------------------------------------------------------------------
