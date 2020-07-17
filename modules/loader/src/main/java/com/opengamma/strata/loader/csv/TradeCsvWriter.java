@@ -286,7 +286,7 @@ public final class TradeCsvWriter {
       TradeTypeCsvWriter detailsWriter = WRITERS.get(entry.getKey());
       if (detailsWriter == null) {
         throw new IllegalArgumentException(
-            "Unable to write trade to CSV: " + entry.getKey().getClass().getSimpleName());
+            "Unable to write trade type to CSV: " + entry.getKey().getSimpleName());
       }
       headers.addAll(detailsWriter.headers((List) entry.getValue()));
     }
