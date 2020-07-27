@@ -15,6 +15,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_AFB;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ICMA;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_YEAR;
+import static com.opengamma.strata.basics.date.DayCounts.NL_360;
 import static com.opengamma.strata.basics.date.DayCounts.NL_365;
 import static com.opengamma.strata.basics.date.DayCounts.ONE_ONE;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_ISDA;
@@ -22,6 +23,7 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_360_PSA;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_EPLUS_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_360_ISDA;
+import static com.opengamma.strata.basics.date.DayCounts.THIRTY_E_365;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360_EOM;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
@@ -234,6 +236,18 @@ public class DayCountTest {
         {ACT_365_25, 2012, 3, 1, 2012, 3, 28, 27d / 365.25d},
 
         //-------------------------------------------------------
+        {NL_360, 2011, 12, 28, 2012, 2, 28, (62d / 360d)},
+        {NL_360, 2011, 12, 28, 2012, 2, 29, (62d / 360d)},
+        {NL_360, 2011, 12, 28, 2012, 3, 1, (63d / 360d)},
+        {NL_360, 2011, 12, 28, 2016, 2, 28, ((62d + 365d + 365d + 365d + 365d) / 360d)},
+        {NL_360, 2011, 12, 28, 2016, 2, 29, ((62d + 365d + 365d + 365d + 365d) / 360d)},
+        {NL_360, 2011, 12, 28, 2016, 3, 1, ((63d + 365d + 365d + 365d + 365d) / 360d)},
+        {NL_360, 2012, 2, 28, 2012, 3, 28, 28d / 360d},
+        {NL_360, 2012, 2, 29, 2012, 3, 28, 28d / 360d},
+        {NL_360, 2012, 3, 1, 2012, 3, 28, 27d / 360d},
+        {NL_360, 2011, 12, 1, 2012, 12, 1, 365d / 360d},
+
+        //-------------------------------------------------------
         {NL_365, 2011, 12, 28, 2012, 2, 28, (62d / 365d)},
         {NL_365, 2011, 12, 28, 2012, 2, 29, (62d / 365d)},
         {NL_365, 2011, 12, 28, 2012, 3, 1, (63d / 365d)},
@@ -337,6 +351,29 @@ public class DayCountTest {
         {THIRTY_EPLUS_360, 2012, 5, 30, 2013, 8, 31, calc360(2012, 5, 30, 2013, 9, 1)},
         {THIRTY_EPLUS_360, 2012, 5, 31, 2013, 8, 30, calc360(2012, 5, 30, 2013, 8, 30)},
         {THIRTY_EPLUS_360, 2012, 5, 31, 2013, 8, 31, calc360(2012, 5, 30, 2013, 9, 1)},
+
+        //-------------------------------------------------------
+        {THIRTY_E_365, 2011, 12, 28, 2012, 2, 28, calc360Days(2011, 12, 28, 2012, 2, 28) / 365d},
+        {THIRTY_E_365, 2011, 12, 28, 2012, 2, 29, calc360Days(2011, 12, 28, 2012, 2, 30) / 365d},
+        {THIRTY_E_365, 2011, 12, 28, 2012, 3, 1, calc360Days(2011, 12, 28, 2012, 3, 1) / 365d},
+        {THIRTY_E_365, 2011, 12, 28, 2016, 2, 28, calc360Days(2011, 12, 28, 2016, 2, 28) / 365d},
+        {THIRTY_E_365, 2011, 12, 28, 2016, 2, 29, calc360Days(2011, 12, 28, 2016, 2, 30) / 365d},
+        {THIRTY_E_365, 2011, 12, 28, 2016, 3, 1, calc360Days(2011, 12, 28, 2016, 3, 1) / 365d},
+
+        {THIRTY_E_365, 2012, 2, 28, 2012, 3, 28, calc360Days(2012, 2, 28, 2012, 3, 28) / 365d},
+        {THIRTY_E_365, 2012, 2, 29, 2012, 3, 28, calc360Days(2012, 2, 30, 2012, 3, 28) / 365d},
+        {THIRTY_E_365, 2011, 2, 28, 2012, 2, 28, calc360Days(2011, 2, 30, 2012, 2, 28) / 365d},
+        {THIRTY_E_365, 2011, 2, 28, 2012, 2, 29, calc360Days(2011, 2, 30, 2012, 2, 30) / 365d},
+        {THIRTY_E_365, 2012, 2, 29, 2016, 2, 29, calc360Days(2012, 2, 30, 2016, 2, 30) / 365d},
+
+        {THIRTY_E_365, 2012, 3, 1, 2012, 3, 28, calc360Days(2012, 3, 1, 2012, 3, 28) / 365d},
+        {THIRTY_E_365, 2012, 5, 30, 2013, 8, 29, calc360Days(2012, 5, 30, 2013, 8, 29) / 365d},
+        {THIRTY_E_365, 2012, 5, 29, 2013, 8, 30, calc360Days(2012, 5, 29, 2013, 8, 30) / 365d},
+        {THIRTY_E_365, 2012, 5, 30, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30) / 365d},
+        {THIRTY_E_365, 2012, 5, 29, 2013, 8, 31, calc360Days(2012, 5, 29, 2013, 8, 30) / 365d},
+        {THIRTY_E_365, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30) / 365d},
+        {THIRTY_E_365, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30) / 365d},
+        {THIRTY_E_365, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30) / 365d},
     };
   }
 
@@ -467,6 +504,18 @@ public class DayCountTest {
         {ACT_365_25, 2012, 3, 1, 2012, 3, 28, 27},
 
         //-------------------------------------------------------
+        {NL_360, 2011, 12, 28, 2012, 2, 28, 62},
+        {NL_360, 2011, 12, 28, 2012, 2, 29, 62},
+        {NL_360, 2011, 12, 28, 2012, 3, 1, 63},
+        {NL_360, 2011, 12, 28, 2016, 2, 28, 62 + 365 + 365 + 365 + 365},
+        {NL_360, 2011, 12, 28, 2016, 2, 29, 62 + 365 + 365 + 365 + 365},
+        {NL_360, 2011, 12, 28, 2016, 3, 1, 63 + 365 + 365 + 365 + 365},
+        {NL_360, 2012, 2, 28, 2012, 3, 28, 28},
+        {NL_360, 2012, 2, 29, 2012, 3, 28, 28},
+        {NL_360, 2012, 3, 1, 2012, 3, 28, 27},
+        {NL_360, 2011, 12, 1, 2012, 12, 1, 365},
+
+        //-------------------------------------------------------
         {NL_365, 2011, 12, 28, 2012, 2, 28, 62},
         {NL_365, 2011, 12, 28, 2012, 2, 29, 62},
         {NL_365, 2011, 12, 28, 2012, 3, 1, 63},
@@ -570,6 +619,29 @@ public class DayCountTest {
         {THIRTY_EPLUS_360, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 9, 1)},
         {THIRTY_EPLUS_360, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30)},
         {THIRTY_EPLUS_360, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 9, 1)},
+
+        //-------------------------------------------------------
+        {THIRTY_E_365, 2011, 12, 28, 2012, 2, 28, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2011, 12, 28, 2012, 2, 29, calc360Days(2011, 12, 28, 2012, 2, 30)},
+        {THIRTY_E_365, 2011, 12, 28, 2012, 3, 1, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2011, 12, 28, 2016, 2, 28, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2011, 12, 28, 2016, 2, 29, calc360Days(2011, 12, 28, 2016, 2, 30)},
+        {THIRTY_E_365, 2011, 12, 28, 2016, 3, 1, SIMPLE_30_360DAYS},
+
+        {THIRTY_E_365, 2012, 2, 28, 2012, 3, 28, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2012, 2, 29, 2012, 3, 28, calc360Days(2012, 2, 30, 2012, 3, 28)},
+        {THIRTY_E_365, 2011, 2, 28, 2012, 2, 28, calc360Days(2011, 2, 30, 2012, 2, 28)},
+        {THIRTY_E_365, 2011, 2, 28, 2012, 2, 29, calc360Days(2011, 2, 30, 2012, 2, 30)},
+        {THIRTY_E_365, 2012, 2, 29, 2016, 2, 29, calc360Days(2012, 2, 30, 2012, 2, 30)},
+
+        {THIRTY_E_365, 2012, 3, 1, 2012, 3, 28, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2012, 5, 30, 2013, 8, 29, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2012, 5, 29, 2013, 8, 30, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2012, 5, 30, 2013, 8, 30, SIMPLE_30_360DAYS},
+        {THIRTY_E_365, 2012, 5, 29, 2013, 8, 31, calc360Days(2012, 5, 29, 2013, 8, 30)},
+        {THIRTY_E_365, 2012, 5, 30, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_E_365, 2012, 5, 31, 2013, 8, 30, calc360Days(2012, 5, 30, 2013, 8, 30)},
+        {THIRTY_E_365, 2012, 5, 31, 2013, 8, 31, calc360Days(2012, 5, 30, 2013, 8, 30)},
     };
   }
 
@@ -1051,6 +1123,7 @@ public class DayCountTest {
         {ACT_364, "Act/364"},
         {ACT_365F, "Act/365F"},
         {ACT_365_25, "Act/365.25"},
+        {NL_360, "NL/360"},
         {NL_365, "NL/365"},
         {THIRTY_360_ISDA, "30/360 ISDA"},
         {THIRTY_U_360, "30U/360"},
@@ -1059,6 +1132,7 @@ public class DayCountTest {
         {THIRTY_E_360_ISDA, "30E/360 ISDA"},
         {THIRTY_E_360, "30E/360"},
         {THIRTY_EPLUS_360, "30E+/360"},
+        {THIRTY_E_365, "30E/365"},
     };
   }
 
@@ -1170,6 +1244,9 @@ public class DayCountTest {
         {"A/365.25", ACT_365_25},
         {"Actual/365.25", ACT_365_25},
 
+        {"NL360", NL_360},
+        {"Act/360 No leap year", NL_360},
+
         {"A/NL", NL_365},
         {"Actual/NL", NL_365},
         {"NL365", NL_365},
@@ -1195,6 +1272,8 @@ public class DayCountTest {
         {"ISMA-30/360", THIRTY_U_360},
         {"30/360 SIA", THIRTY_U_360},
         {"30/360 (SIA)", THIRTY_U_360},
+
+        {"30/365 German", THIRTY_E_365},
 
         {"BUS/252", DayCount.ofBus252(HolidayCalendarIds.BRBD)},
     };
