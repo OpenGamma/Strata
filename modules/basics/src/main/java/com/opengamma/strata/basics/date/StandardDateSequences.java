@@ -144,6 +144,44 @@ enum StandardDateSequences implements DateSequence {
     public LocalDate dateMatching(YearMonth yearMonth) {
       return nextOrSame(yearMonth.atDay(1));
     }
+  },
+
+  // 10th in Mar/Jun/Sep/Dec
+  MONTHLY_1ST("Monthly-1st") {
+    @Override
+    public LocalDate next(LocalDate date) {
+      return nth(date, 1);
+    }
+
+    @Override
+    public LocalDate nextOrSame(LocalDate date) {
+      return nthOrSame(date, 1);
+    }
+
+    @Override
+    public LocalDate nth(LocalDate date, int sequenceNumber) {
+      ArgChecker.notNegativeOrZero(sequenceNumber, "sequenceNumber");
+      LocalDate base = date.withDayOfMonth(1);
+      if (!base.isAfter(date)) {
+        base = base.plusMonths(1);
+      }
+      return base.plusMonths(sequenceNumber - 1);
+    }
+
+    @Override
+    public LocalDate nthOrSame(LocalDate date, int sequenceNumber) {
+      ArgChecker.notNegativeOrZero(sequenceNumber, "sequenceNumber");
+      LocalDate base = date.withDayOfMonth(1);
+      if (base.isBefore(date)) {
+        base = base.plusMonths(1);
+      }
+      return base.plusMonths(sequenceNumber - 1);
+    }
+
+    @Override
+    public LocalDate dateMatching(YearMonth yearMonth) {
+      return nextOrSame(yearMonth.atDay(1));
+    }
   };
 
   // Third Wednesday

@@ -45,6 +45,12 @@ public final class DateSequences {
    * The quarterly months are March, June, September and December.
    */
   public static final DateSequence QUARTERLY_10TH = DateSequence.of(StandardDateSequences.QUARTERLY_10TH.getName());
+  /**
+   * The 'Monthly-1st' date sequence, equivalent to a sequence of calendar months.
+   * <p>
+   * An instance defining the sequence of monthly dates on the 1st of each month.
+   */
+  public static final DateSequence MONTHLY_1ST = DateSequence.of(StandardDateSequences.MONTHLY_1ST.getName());
 
   //-------------------------------------------------------------------------
   /**

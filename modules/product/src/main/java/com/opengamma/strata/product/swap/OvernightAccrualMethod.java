@@ -14,8 +14,7 @@ import com.opengamma.strata.collect.named.NamedEnum;
 /**
  * The method of accruing interest based on an Overnight index.
  * <p>
- * Two methods of accrual are supported - compounded and averaged.
- * Averaging is primarily related to the 'USD-FED-FUND' index.
+ * Four methods of accrual are supported, see the Javadoc for when each is applicable.
  */
 public enum OvernightAccrualMethod implements NamedEnum {
 
