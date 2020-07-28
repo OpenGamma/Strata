@@ -44,6 +44,12 @@ public class DateSequenceTest {
     assertThat(test).isEqualTo(DateSequences.QUARTERLY_10TH);
   }
 
+  @Test
+  public void test_MONTHLY_1ST_of() {
+    DateSequence test = DateSequence.of("Monthly-1st");
+    assertThat(test).isEqualTo(DateSequences.MONTHLY_1ST);
+  }
+
   //-------------------------------------------------------------------------
   public static Object[][] data_quarterlyImm() {
     return new Object[][] {
@@ -169,6 +175,48 @@ public class DateSequenceTest {
         assertThat(DateSequences.QUARTERLY_10TH.nth(date, 1)).isEqualTo(expect1);
         assertThat(DateSequences.QUARTERLY_10TH.nth(date, 2)).isEqualTo(expect2);
         assertThat(DateSequences.QUARTERLY_10TH.nth(date, 3)).isEqualTo(expect3);
+      }
+      date = date.plusDays(1);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  public static Object[][] data_monthly1st() {
+    return new Object[][] {
+        {date(2013, 1, 1), date(2013, 2, 1), date(2013, 3, 1), date(2013, 4, 1)},
+        {date(2013, 1, 2), date(2013, 2, 1), date(2013, 3, 1), date(2013, 4, 1)},
+        {date(2013, 4, 2), date(2013, 5, 1), date(2013, 6, 1), date(2013, 7, 1)},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_monthly1st")
+  public void test_nextOrSameMonthly1st(LocalDate base, LocalDate expect1, LocalDate expect2, LocalDate expect3) {
+    LocalDate date = base.plusDays(1);
+    while (!date.isAfter(expect1)) {
+      assertThat(DateSequences.MONTHLY_1ST.nextOrSame(date)).isEqualTo(expect1);
+      assertThat(DateSequences.MONTHLY_1ST.nthOrSame(date, 1)).isEqualTo(expect1);
+      assertThat(DateSequences.MONTHLY_1ST.nthOrSame(date, 2)).isEqualTo(expect2);
+      assertThat(DateSequences.MONTHLY_1ST.nthOrSame(date, 3)).isEqualTo(expect3);
+      date = date.plusDays(1);
+    }
+    assertThat(DateSequences.MONTHLY_1ST.dateMatching(YearMonth.from(date))).isEqualTo(expect1);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_monthly1st")
+  public void test_nextMonthly1st(LocalDate base, LocalDate expect1, LocalDate expect2, LocalDate expect3) {
+    LocalDate date = base;
+    while (!date.isAfter(expect1)) {
+      if (date.equals(expect1)) {
+        assertThat(DateSequences.MONTHLY_1ST.next(date)).isEqualTo(expect2);
+        assertThat(DateSequences.MONTHLY_1ST.nth(date, 1)).isEqualTo(expect2);
+        assertThat(DateSequences.MONTHLY_1ST.nth(date, 2)).isEqualTo(expect3);
+      } else {
+        assertThat(DateSequences.MONTHLY_1ST.next(date)).isEqualTo(expect1);
+        assertThat(DateSequences.MONTHLY_1ST.nth(date, 1)).isEqualTo(expect1);
+        assertThat(DateSequences.MONTHLY_1ST.nth(date, 2)).isEqualTo(expect2);
+        assertThat(DateSequences.MONTHLY_1ST.nth(date, 3)).isEqualTo(expect3);
       }
       date = date.plusDays(1);
     }
