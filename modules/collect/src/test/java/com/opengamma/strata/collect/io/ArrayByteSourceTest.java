@@ -419,15 +419,19 @@ public class ArrayByteSourceTest {
     String json = JodaBeanSer.PRETTY.jsonWriter().write(test);
     ArrayByteSource roundTrip = JodaBeanSer.PRETTY.jsonReader().read(json, ArrayByteSource.class);
     assertThat(roundTrip).isEqualTo(test);
+    assertThat(roundTrip.getFileName()).isNotPresent();
   }
 
   @Test
   public void testSerializeNamed() {
     byte[] bytes = new byte[] {65, 66, 67, 99};
-    ArrayByteSource test = ArrayByteSource.copyOf(bytes).withFileName("foo.txt");
+    String fileName = "foo.txt";
+    ArrayByteSource test = ArrayByteSource.copyOf(bytes).withFileName(fileName);
     String json = JodaBeanSer.PRETTY.jsonWriter().write(test);
     ArrayByteSource roundTrip = JodaBeanSer.PRETTY.jsonReader().read(json, ArrayByteSource.class);
     assertThat(roundTrip).isEqualTo(test);
+    // additional checks to ensure filenames are also equal
+    assertThat(roundTrip.getFileName()).hasValue(fileName);
   }
 
 }
