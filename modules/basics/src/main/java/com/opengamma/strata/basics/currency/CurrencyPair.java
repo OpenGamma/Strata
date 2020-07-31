@@ -262,6 +262,12 @@ public final class CurrencyPair
     if (CONFIGURED.containsKey(this)) {
       return true;
     }
+
+    // If the inverse of the pair is in the configuration file then it is not a market convention pair
+    if (CONFIGURED.containsKey(inverse())) {
+      return false;
+    }
+
     // Get the priorities of the currencies to determine which should be the base
     Integer basePriority = CURRENCY_ORDERING.getOrDefault(base, Integer.MAX_VALUE);
     Integer counterPriority = CURRENCY_ORDERING.getOrDefault(counter, Integer.MAX_VALUE);

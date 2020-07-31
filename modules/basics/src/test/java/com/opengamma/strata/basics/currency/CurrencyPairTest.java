@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.google.common.collect.ImmutableList;
+
 /**
  * Test {@link CurrencyPair}.
  */
@@ -79,7 +81,7 @@ public class CurrencyPairTest {
 
   //-------------------------------------------------------------------------
   public static Object[][] data_parseGood() {
-    return new Object[][] {
+    return new Object[][]{
         {"USD/EUR", USD, EUR},
         {"EUR/USD", EUR, USD},
         {"EUR/EUR", EUR, EUR},
@@ -94,7 +96,7 @@ public class CurrencyPairTest {
   }
 
   public static Object[][] data_parseBad() {
-    return new Object[][] {
+    return new Object[][]{
         {"AUD"},
         {"AUD/GB"},
         {"AUD GBP"},
@@ -234,6 +236,23 @@ public class CurrencyPairTest {
     assertThat(CurrencyPair.of(BHD, BRL).isConventional()).isEqualTo(true);
     assertThat(CurrencyPair.of(BRL, BHD).isConventional()).isEqualTo(false);
     assertThat(CurrencyPair.of(GBP, GBP).isConventional()).isEqualTo(true);
+  }
+
+  @Test
+  public void test_isConventional_Consistency() {
+
+    // Assert that all possible pairs of currencies have 1 'conventional' direction
+    ImmutableList<Currency> allCurrencies = ImmutableList.copyOf(Currency.getAvailableCurrencies());
+
+    for (int i = 0; i < allCurrencies.size(); i++) {
+      Currency currency1 = allCurrencies.get(i);
+      for (int j = i + 1; j < allCurrencies.size(); j++) {
+        Currency currency2 = allCurrencies.get(j);
+        CurrencyPair pair = CurrencyPair.of(currency1, currency2);
+        CurrencyPair inversePair = CurrencyPair.of(currency2, currency1);
+        assertThat(pair.isConventional()).isNotEqualTo(inversePair.isConventional());
+      }
+    }
   }
 
   @Test
