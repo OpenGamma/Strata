@@ -35,6 +35,7 @@ import com.opengamma.strata.measure.fxopt.FxSingleBarrierOptionTradeCalculationF
 import com.opengamma.strata.measure.fxopt.FxVanillaOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureOptionTradeCalculationFunction;
 import com.opengamma.strata.measure.index.IborFutureTradeCalculationFunction;
+import com.opengamma.strata.measure.index.OvernightFutureTradeCalculationFunction;
 import com.opengamma.strata.measure.payment.BulletPaymentTradeCalculationFunction;
 import com.opengamma.strata.measure.rate.RatesCurveGroupMarketDataFunction;
 import com.opengamma.strata.measure.rate.RatesCurveInputsMarketDataFunction;
@@ -72,6 +73,8 @@ import com.opengamma.strata.product.index.IborFutureOptionPosition;
 import com.opengamma.strata.product.index.IborFutureOptionTrade;
 import com.opengamma.strata.product.index.IborFuturePosition;
 import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.OvernightFuturePosition;
+import com.opengamma.strata.product.index.OvernightFutureTrade;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
@@ -125,6 +128,8 @@ public final class StandardComponents {
       BillTradeCalculationFunction.POSITION,
       IborFutureTradeCalculationFunction.TRADE,
       IborFutureTradeCalculationFunction.POSITION,
+      OvernightFutureTradeCalculationFunction.TRADE,
+      OvernightFutureTradeCalculationFunction.POSITION,
       IborFutureOptionTradeCalculationFunction.TRADE,
       IborFutureOptionTradeCalculationFunction.POSITION);
 
@@ -217,6 +222,7 @@ public final class StandardComponents {
    *  <li>Swaption - {@link SwaptionTrade}
    *  <li>Security - {@link SecurityTrade} and {@link SecurityPosition}
    *  <li>STIR Future (Ibor) - {@link IborFutureTrade} and {@link IborFuturePosition}
+   *  <li>STIR Future (Overnight Indices) - {@link OvernightFutureTrade} and {@link OvernightFuturePosition}
    *  <li>STIR Future Option (Ibor) - {@link IborFutureOptionTrade} and {@link IborFutureOptionPosition}
    *  <li>Term Deposit - {@link TermDepositTrade}
    * </ul>
