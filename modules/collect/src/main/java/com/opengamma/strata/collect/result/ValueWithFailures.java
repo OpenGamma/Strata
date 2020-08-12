@@ -93,7 +93,20 @@ public final class ValueWithFailures<T>
    * @return an instance wrapping the value and failures
    */
   public static <T> ValueWithFailures<T> of(T successValue, List<FailureItem> failures) {
+    // this method is retained to ensure binary compatibility
     return new ValueWithFailures<>(successValue, failures);
+  }
+
+  /**
+   * Creates an instance wrapping the success value and failures.
+   *
+   * @param <T>  the type of the success value
+   * @param successValue  the success value
+   * @param failures  the failures
+   * @return an instance wrapping the value and failures
+   */
+  public static <T> ValueWithFailures<T> of(T successValue, Collection<FailureItem> failures) {
+    return new ValueWithFailures<>(successValue, ImmutableList.copyOf(failures));
   }
 
   /**

@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.data;
 
+import static com.opengamma.strata.collect.Guavate.entry;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -128,6 +129,27 @@ public class MarketDataTest {
     assertThat(test.getValues().get(ID2)).isEqualTo("124");
     assertThat(test.getIds()).containsExactly(ID1, ID2, ID3);
     assertThat(test.getTimeSeries().get(ID4)).isEqualTo(TIME_SERIES);
+  }
+
+  @Test
+  public void test_builder_combine() {
+    ImmutableMarketData base = ImmutableMarketData.builder(VAL_DATE).addValue(ID1, "123").build();
+    ImmutableMarketData extra = ImmutableMarketData.builder(VAL_DATE).addValue(ID2, "456").build();
+    ImmutableMarketData test = base.toBuilder().add(extra).build();
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(test.getValues()).containsOnly(entry(ID1, "123"), entry(ID2, "456"));
+    assertThat(test.getTimeSeries()).isEmpty();
+  }
+
+  @Test
+  public void test_builder_removeIf() {
+    ImmutableMarketData base = ImmutableMarketData.builder(VAL_DATE).addValue(ID1, "123").addValue(ID2, "456").build();
+    ImmutableMarketData test = base.toBuilder()
+        .removeValueIf(id -> id.equals(ID1))
+        .build();
+    assertThat(test.getValuationDate()).isEqualTo(VAL_DATE);
+    assertThat(test.getValues()).containsOnly(entry(ID2, "456"));
+    assertThat(test.getTimeSeries()).isEmpty();
   }
 
   @Test

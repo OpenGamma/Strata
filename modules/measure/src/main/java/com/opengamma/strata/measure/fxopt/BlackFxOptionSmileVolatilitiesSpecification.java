@@ -12,8 +12,6 @@ import static java.util.stream.Collectors.toSet;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -45,7 +43,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.interpolator.CurveExtrapolator;
@@ -55,6 +52,7 @@ import com.opengamma.strata.market.option.Strike;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSmileVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilitiesName;
 import com.opengamma.strata.pricer.fxopt.InterpolatedStrikeSmileDeltaTermStructure;
+import com.opengamma.strata.pricer.fxopt.SmileDeltaParameters;
 
 /**
  * The specification of how to build FX option volatilities. 
@@ -134,8 +132,29 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
       DoubleArray parameters,
       ReferenceData refData) {
 
+    ArgChecker.notNull(valuationDateTime, "valuationDateTime");
     ArgChecker.isTrue(parameters.size() == getParameterCount(),
         Messages.format("Size of parameters must be {}, but found {}", getParameterCount(), parameters.size()));
+    List<SmileDeltaParameters> volatilityTerm = createVolatilityTerm(valuationDateTime, parameters, refData);
+    InterpolatedStrikeSmileDeltaTermStructure smiles = InterpolatedStrikeSmileDeltaTermStructure.of(
+        volatilityTerm,
+        dayCount,
+        timeInterpolator,
+        timeExtrapolatorLeft,
+        timeExtrapolatorRight,
+        strikeInterpolator,
+        strikeExtrapolatorLeft,
+        strikeExtrapolatorRight);
+    return BlackFxOptionSmileVolatilities.of(name, currencyPair, valuationDateTime, smiles);
+  }
+
+  // creates the volatility term, ensuring the expiry tenor is passed through
+  private List<SmileDeltaParameters> createVolatilityTerm(
+      ZonedDateTime valuationDateTime,
+      DoubleArray parameters,
+      ReferenceData refData) {
+
+    // match the nodes against the parameters, grouping by tenor
     ImmutableListMultimap.Builder<Tenor, Pair<FxOptionVolatilitiesNode, Double>> builder = ImmutableListMultimap.builder();
     for (Tenor tenor : nodesByTenor.keys()) {
       ImmutableList<Pair<FxOptionVolatilitiesNode, Double>> nodesAndQuotes = nodesByTenor.get(tenor).stream()
@@ -145,69 +164,64 @@ public final class BlackFxOptionSmileVolatilitiesSpecification
     }
     ImmutableListMultimap<Tenor, Pair<FxOptionVolatilitiesNode, Double>> nodesAndQuotesByTenor = builder.build();
 
-    List<Tenor> tenors = new ArrayList<>(nodesByTenor.keySet());
-    Collections.sort(tenors);
-    int nTenors = tenors.size();
-    int nDeltas = deltas.size();
-
-    double[] expiries = new double[nTenors];
-    double[] atm = new double[nTenors];
-    double[][] rr = new double[nTenors][nDeltas];
-    double[][] str = new double[nTenors][nDeltas];
-    for (int i = 0; i < nTenors; ++i) {
-      parametersForPeriod(
-          valuationDateTime, nodesAndQuotesByTenor.get(tenors.get(i)), i, expiries, atm, rr, str, refData);
-    }
-    InterpolatedStrikeSmileDeltaTermStructure smiles = InterpolatedStrikeSmileDeltaTermStructure.of(
-        DoubleArray.copyOf(expiries),
-        DoubleArray.copyOf(deltas.subList(0, nDeltas)),
-        DoubleArray.copyOf(atm),
-        DoubleMatrix.copyOf(rr),
-        DoubleMatrix.copyOf(str),
-        dayCount,
-        timeInterpolator,
-        timeExtrapolatorLeft,
-        timeExtrapolatorRight,
-        strikeInterpolator,
-        strikeExtrapolatorLeft,
-        strikeExtrapolatorRight);
-
-    return BlackFxOptionSmileVolatilities.of(name, currencyPair, valuationDateTime, smiles);
+    // for each tenor create the smile delta parameters
+    DoubleArray deltasArray = DoubleArray.copyOf(deltas);
+    return nodesByTenor.keySet().stream()
+        .sorted()
+        .map(tenor -> createDeltaParameters(
+            valuationDateTime,
+            tenor,
+            deltasArray,
+            nodesAndQuotesByTenor.get(tenor),
+            dayCount,
+            refData))
+        .collect(toImmutableList());
   }
 
-  private void parametersForPeriod(
+  // creates the smile delta params for one tenor, handling nodes arriving in any order
+  private static SmileDeltaParameters createDeltaParameters(
       ZonedDateTime valuationDateTime,
+      Tenor tenor,
+      DoubleArray deltas,
       List<Pair<FxOptionVolatilitiesNode, Double>> nodesAndQuotes,
-      int index,
-      double[] expiries,
-      double[] atm,
-      double[][] rr,
-      double[][] str,
+      DayCount dayCount,
       ReferenceData refData) {
 
     int nDeltas = deltas.size();
+    double expiry = 0;
+    double atm = 0;
+    double[] rr = new double[nDeltas];
+    double[] str = new double[nDeltas];
+
     for (Pair<FxOptionVolatilitiesNode, Double> entry : nodesAndQuotes) {
       FxOptionVolatilitiesNode node = entry.getFirst();
       ValueType quoteValyeType = node.getQuoteValueType();
       if (quoteValyeType.equals(ValueType.BLACK_VOLATILITY)) {
-        atm[index] = entry.getSecond();
-        expiries[index] = node.timeToExpiry(valuationDateTime, dayCount, refData);
+        atm = entry.getSecond();
+        expiry = node.timeToExpiry(valuationDateTime, dayCount, refData);
       } else if (quoteValyeType.equals(ValueType.RISK_REVERSAL)) {
         for (int i = 0; i < nDeltas; ++i) {
           if (node.getStrike().getValue() == deltas.get(i)) {
-            rr[index][i] = entry.getSecond();
+            rr[i] = entry.getSecond();
           }
         }
       } else if (quoteValyeType.equals(ValueType.STRANGLE)) {
         for (int i = 0; i < nDeltas; ++i) {
           if (node.getStrike().getValue() == deltas.get(i)) {
-            str[index][i] = entry.getSecond();
+            str[i] = entry.getSecond();
           }
         }
       } else {
         throw new IllegalArgumentException("Unsupported value type");
       }
     }
+    return SmileDeltaParameters.of(
+        expiry,
+        tenor,
+        atm,
+        deltas,
+        DoubleArray.ofUnsafe(rr),
+        DoubleArray.ofUnsafe(str));
   }
 
   //-------------------------------------------------------------------------

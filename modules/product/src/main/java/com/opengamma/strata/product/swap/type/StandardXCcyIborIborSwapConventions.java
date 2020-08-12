@@ -20,7 +20,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 /**
  * Market standard cross-currency Ibor-Ibor swap conventions.
  * <p>
- * https://developers.opengamma.com/quantitative-research/Interest-Rate-Instruments-and-Market-Conventions.pdf
+ * https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
  * <p>
  * For the cross currency swap convention we have used the following approach to the naming: the first part
  * of the name refers to the leg on which the spread is paid and the second leg is the flat leg. 

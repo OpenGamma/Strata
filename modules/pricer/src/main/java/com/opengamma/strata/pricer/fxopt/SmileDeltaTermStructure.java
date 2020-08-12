@@ -5,8 +5,13 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.ParameterizedData;
@@ -70,6 +75,15 @@ public interface SmileDeltaTermStructure
    * @return the set of expiry
    */
   public abstract DoubleArray getExpiries();
+
+  /**
+   * Gets the tenor associated with each expiry in the volatility term.
+   * 
+   * @return the list of tenors associated with the expiries, empty if not available
+   */
+  public default List<Optional<Tenor>> getExpiryTenors() {
+    return Collections.nCopies(getExpiries().size(), Optional.empty());
+  }
 
   /**
    * Computes full delta for all strikes including put delta absolute value.

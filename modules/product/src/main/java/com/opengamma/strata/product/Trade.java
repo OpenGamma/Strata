@@ -43,6 +43,7 @@ public interface Trade
    * @param info  the new info
    * @return the instance with the specified info
    */
+  @Override
   public abstract Trade withInfo(PortfolioItemInfo info);
 
 }

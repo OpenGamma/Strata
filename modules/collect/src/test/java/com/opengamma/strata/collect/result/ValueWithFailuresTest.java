@@ -57,6 +57,14 @@ public class ValueWithFailuresTest {
   }
 
   @Test
+  public void test_of_set() {
+    ValueWithFailures<String> test = ValueWithFailures.of("success", ImmutableSet.of(FAILURE1, FAILURE2));
+    assertThat(test.hasFailures()).isEqualTo(true);
+    assertThat(test.getValue()).isEqualTo("success");
+    assertThat(test.getFailures()).containsExactlyInAnyOrder(FAILURE1, FAILURE2);
+  }
+
+  @Test
   public void test_of_supplier_success() {
     ValueWithFailures<String> test = ValueWithFailures.of("", () -> "A");
     assertThat(test.hasFailures()).isEqualTo(false);

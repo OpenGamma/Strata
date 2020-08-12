@@ -86,6 +86,19 @@ public interface Attributes {
   }
 
   /**
+   * Determines if an attribute associated with the specified type is present <em>and</em> its value is {@code equal}
+   * to the supplied value.
+   *
+   * @param <T>  the type of the attribute value
+   * @param type  the type to find
+   * @param attributeValue  the value to match against
+   * @return true if a matching attribute is present
+   */
+  public default <T> boolean containsAttribute(AttributeType<T> type, T attributeValue) {
+    return findAttribute(type).map(attribute -> attribute.equals(attributeValue)).orElse(false);
+  }
+
+  /**
    * Finds the attribute associated with the specified type.
    * <p>
    * This method obtains the specified attribute.

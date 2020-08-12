@@ -9,8 +9,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.invoke.MethodHandles;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.HashSet;
@@ -21,18 +23,28 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.TypedMetaBean;
+import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.light.LightMetaBean;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.ByteStreams;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * Utility class to simplify accessing and creating zip files, and other packed formats.
  */
 public final class ZipUtils {
+  // need to watch out for ZIP slip attack when unzipping to file system
+  // https://github.com/snyk/zip-slip-vulnerability
+  private static final Path DUMMY_PATH = Paths.get("/dummy/");
 
   private ZipUtils() {
   }
@@ -53,6 +65,7 @@ public final class ZipUtils {
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        validateZipPathName(DUMMY_PATH, entry);
         if (!entry.isDirectory()) {
           entryNames.add(entry.getName());
         }
@@ -82,8 +95,10 @@ public final class ZipUtils {
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        validateZipPathName(DUMMY_PATH, entry);
         if (!entry.isDirectory() && entry.getName().equals(relativePathName)) {
-          return Optional.of(ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(entry.getName()));
+          ArrayByteSource extractedBytes = extractInputStream(in, entry.getName());
+          return Optional.of(extractedBytes);
         }
         in.closeEntry();
         entry = in.getNextEntry();
@@ -103,15 +118,17 @@ public final class ZipUtils {
    * @param source  the byte source to unzip
    * @param path  the path to unzip to
    * @throws UncheckedIOException if an IO error occurs
+   * @throws SecurityException if the path is not absolute and the calling thread cannot access system property "user.dir"
    */
   public static void unzip(BeanByteSource source, Path path) {
+    Path absolutePath = path.toAbsolutePath();
     Set<ZipKey> deduplicate = new HashSet<>();
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        Path resolved = validateZipPathName(absolutePath, entry);
         if (!entry.isDirectory()) {
-          if (deduplicate.add(new ZipKey(entry))) {
-            Path resolved = path.resolve(entry.getName());
+          if (deduplicate.add(new ZipKey(entry, resolved))) {
             Files.createDirectories(resolved);
             Files.copy(in, resolved, StandardCopyOption.REPLACE_EXISTING);
           }
@@ -182,6 +199,7 @@ public final class ZipUtils {
    * <p>
    * Unpacking handles ZIP, GZ and BASE64 formats based entirely on the suffix of the input file name.
    * If the input suffix is not recognized as a packed format, the consumer is invoked with the original file.
+   * This method is not recursive.
    * 
    * @param source  the byte source to unpack
    * @param consumer  the consumer, which is passed the relative path name and content for each entry
@@ -198,8 +216,8 @@ public final class ZipUtils {
     } else if (suffixMatches(fileName, ".base64")) {
       try (InputStream in = Base64.getDecoder().wrap(source.openBufferedStream())) {
         String shortFileName = fileName.substring(0, fileName.length() - 7);
-        ArrayByteSource unbase64 = ArrayByteSource.from(in).withFileName(shortFileName);
-        consumer.accept(shortFileName, unbase64);
+        ArrayByteSource extracted = extractInputStream(in, shortFileName);
+        consumer.accept(shortFileName, extracted);
       } catch (IOException ex) {
         throw new UncheckedIOException(ex);
       }
@@ -244,10 +262,11 @@ public final class ZipUtils {
     try (ZipInputStream in = new ZipInputStream(source.openStream())) {
       ZipEntry entry = in.getNextEntry();
       while (entry != null) {
+        Path resolved = validateZipPathName(DUMMY_PATH, entry);
         if (!entry.isDirectory()) {
-          if (deduplicate.add(new ZipKey(entry))) {
-            ArrayByteSource entrySource = ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(entry.getName());
-            consumer.accept(entry.getName(), entrySource);
+          if (deduplicate.add(new ZipKey(entry, resolved))) {
+            ArrayByteSource extractedBytes = extractInputStream(in, entry.getName());
+            consumer.accept(entry.getName(), extractedBytes);
           }
         }
         in.closeEntry();
@@ -259,12 +278,27 @@ public final class ZipUtils {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Provides a new source that decrypts the specified source ZIP.
+   * <p>
+   * This returns a wrapper around the input source that provides decryption.
+   * The result is normally passed directly into one of the other methods on this class.
+   * 
+   * @param source  the byte source to unpack
+   * @param password  the password to decrypt the input
+   * @return the decrypted zip file
+   */
+  public static BeanByteSource decryptZip(BeanByteSource source, String password) {
+    return new ZipDecryptByteSource(source, password);
+  }
+
+  //-------------------------------------------------------------------------
   // ungz the contents
   private static void ungzInMemory(BeanByteSource source, String fileName, BiConsumer<String, ArrayByteSource> consumer) {
     try (GZIPInputStream in = new GZIPInputStream(source.openStream())) {
       String shortFileName = fileName.substring(0, fileName.length() - 3);
-      ArrayByteSource entrySource = ArrayByteSource.ofUnsafe(ByteStreams.toByteArray(in)).withFileName(shortFileName);
-      consumer.accept(shortFileName, entrySource);
+      ArrayByteSource extractedBytes = extractInputStream(in, shortFileName);
+      consumer.accept(shortFileName, extractedBytes);
     } catch (IOException ex) {
       throw new UncheckedIOException(ex);
     }
@@ -275,25 +309,45 @@ public final class ZipUtils {
     return name.regionMatches(true, name.length() - suffix.length(), suffix, 0, suffix.length());
   }
 
+  // unzip the input, trying to recover from large files or ZIP bombs
+  private static ArrayByteSource extractInputStream(InputStream in, String fileName) throws IOException {
+    try {
+      return ArrayByteSource.from(in).withFileName(fileName);
+    } catch (OutOfMemoryError ex) {
+      System.gc();
+      throw new IOException("Unzipped input too large: " + fileName);
+    }
+  }
+
+  // prevent ZIP slip attack
+  private static Path validateZipPathName(Path rootPath, ZipEntry entry) throws ZipException {
+    Path normalizedRootPath = rootPath.normalize();
+    Path resolved = normalizedRootPath.resolve(entry.getName()).normalize();
+    if (!resolved.startsWith(normalizedRootPath)) {
+      throw new ZipException("ZIP file contains illegal file name: " + entry.getName());
+    }
+    return resolved;
+  }
+
   //-------------------------------------------------------------------------
   // handle duplicate entries in a zip file
   // while such a zip file is stupid, it is apparently valid
   private static class ZipKey {
-    private final String fileName;
+    private final Path resolvedPath;
     private final long crc;
     private final long size;
 
-    private ZipKey(ZipEntry entry) {
-      fileName = entry.getName();
-      crc = entry.getCrc();
-      size = entry.getSize();
+    private ZipKey(ZipEntry entry, Path resolvedPath) {
+      this.resolvedPath = resolvedPath;
+      this.crc = entry.getCrc();
+      this.size = entry.getSize();
     }
 
     @Override
     public boolean equals(Object obj) {
       if (obj instanceof ZipKey) {
         ZipKey key = (ZipKey) obj;
-        return fileName.equals(key.fileName) &&
+        return resolvedPath.equals(key.resolvedPath) &&
             crc == key.crc &&
             size == key.size;
       }
@@ -306,4 +360,91 @@ public final class ZipUtils {
     }
   }
 
+  //-------------------------------------------------------------------------
+  // byte source to wrap the underlying source
+  private static final class ZipDecryptByteSource extends BeanByteSource implements ImmutableBean {
+
+    @PropertyDefinition
+    private final BeanByteSource underlying;
+    private final char[] password;
+
+    //-------------------------------------------------------------------------
+    private ZipDecryptByteSource(BeanByteSource underlying) {
+      throw new IllegalStateException("ZipDecryptByteSource cannot be deserialized as it contains a password");
+    }
+
+    private ZipDecryptByteSource(BeanByteSource underlying, String password) {
+      this.underlying = ArgChecker.notNull(underlying, "underlying");
+      this.password = ArgChecker.notNull(password, "password").toCharArray();
+    }
+
+    @Override
+    public Optional<String> getFileName() {
+      return underlying.getFileName();
+    }
+
+    @Override
+    public InputStream openStream() throws IOException {
+      return new ZipDecryptInputStream(underlying.openStream(), password);
+    }
+
+    // originally Joda-Bean generated
+    //-----------------------------------------------------------------------
+    private static final TypedMetaBean<ZipDecryptByteSource> META_BEAN =
+        LightMetaBean.of(ZipDecryptByteSource.class, MethodHandles.lookup(), new String[] {"underlying"}, new Object[0]);
+    static {
+      MetaBean.register(META_BEAN);
+    }
+
+    /**
+     * The meta-bean for {@code ZipDecryptByteSource}.
+     * @return the meta-bean, not null
+     */
+    @SuppressWarnings("unused")  // method used by Joda-Beans
+    public static TypedMetaBean<ZipDecryptByteSource> meta() {
+      return META_BEAN;
+    }
+
+    @Override
+    public TypedMetaBean<ZipDecryptByteSource> metaBean() {
+      return META_BEAN;
+    }
+
+    /**
+     * Gets the underlying.
+     * @return the value of the property, not null
+     */
+    @SuppressWarnings("unused")  // method used by Joda-Beans
+    public BeanByteSource getUnderlying() {
+      return underlying;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj == this) {
+        return true;
+      }
+      if (obj != null && obj.getClass() == this.getClass()) {
+        ZipDecryptByteSource other = (ZipDecryptByteSource) obj;
+        return JodaBeanUtils.equal(underlying, other.underlying);
+      }
+      return false;
+    }
+
+    @Override
+    public int hashCode() {
+      int hash = getClass().hashCode();
+      hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
+      return hash;
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder buf = new StringBuilder(64);
+      buf.append("ZipDecryptByteSource{");
+      buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
+      buf.append('}');
+      return buf.toString();
+    }
+  }
 }

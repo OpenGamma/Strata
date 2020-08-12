@@ -27,6 +27,7 @@ import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.data.MarketData;
+import com.opengamma.strata.data.MarketDataId;
 import com.opengamma.strata.data.ObservableSource;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.curve.CurveId;
@@ -78,6 +79,54 @@ final class DefaultCreditRatesMarketDataLookup
 
     return new DefaultCreditRatesMarketDataLookup(
         creditCurveIds, discountCurveIds, recoveryRateCurveIds, observableSource);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ImmutableSet<Currency> getDiscountCurrencies() {
+    return discountCurveIds.keySet();
+  }
+
+  @Override
+  public ImmutableSet<MarketDataId<?>> getDiscountMarketDataIds(Currency currency) {
+    CurveId id = discountCurveIds.get(currency);
+    if (id == null) {
+      throw new IllegalArgumentException(Messages.format(
+          "Credit rates lookup has no discount curve defined for currency '{}'", currency));
+    }
+    return ImmutableSet.of(id);
+  }
+
+  @Override
+  public ImmutableSet<Pair<StandardId, Currency>> getCreditLegalEntities() {
+    return creditCurveIds.keySet();
+  }
+
+  @Override
+  public ImmutableSet<MarketDataId<?>> getCreditMarketDataIds(StandardId legalEntityId, Currency currency) {
+    CurveId id = creditCurveIds.get(Pair.of(legalEntityId, currency));
+    if (id == null) {
+      throw new IllegalArgumentException(Messages.format(
+          "Credit rates lookup has no credit curve defined for legal entity ID '{}' and currency '{}'",
+          legalEntityId,
+          currency));
+    }
+    return ImmutableSet.of(id);
+  }
+
+  @Override
+  public ImmutableSet<StandardId> getRecoveryRateLegalEntities() {
+    return recoveryRateCurveIds.keySet();
+  }
+
+  @Override
+  public ImmutableSet<MarketDataId<?>> getRecoveryRateMarketDataIds(StandardId legalEntityId) {
+    CurveId id = recoveryRateCurveIds.get(legalEntityId);
+    if (id == null) {
+      throw new IllegalArgumentException(Messages.format(
+          "Credit rates lookup has no recovery rate curve defined for legal entity ID '{}'", legalEntityId));
+    }
+    return ImmutableSet.of(id);
   }
 
   //-------------------------------------------------------------------------

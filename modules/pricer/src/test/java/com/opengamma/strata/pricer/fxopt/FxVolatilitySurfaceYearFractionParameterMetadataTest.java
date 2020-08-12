@@ -19,6 +19,7 @@ import org.joda.beans.BeanBuilder;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.option.MoneynessStrike;
@@ -44,6 +45,18 @@ public class FxVolatilitySurfaceYearFractionParameterMetadataTest {
     assertThat(test.getLabel()).isEqualTo(Pair.of(TIME_TO_EXPIRY, STRIKE.getLabel()).toString());
     assertThat(test.getStrike()).isEqualTo(STRIKE);
     assertThat(test.getYearFraction()).isEqualTo(TIME_TO_EXPIRY);
+  }
+
+  @Test
+  public void test_of_withTenor() {
+    FxVolatilitySurfaceYearFractionParameterMetadata test =
+        FxVolatilitySurfaceYearFractionParameterMetadata.of(TIME_TO_EXPIRY, Tenor.TENOR_18M, STRIKE, CURRENCY_PAIR);
+    assertThat(test.getCurrencyPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(test.getIdentifier()).isEqualTo(Pair.of(TIME_TO_EXPIRY, STRIKE));
+    assertThat(test.getLabel()).isEqualTo("[18M, Delta=0.75]");
+    assertThat(test.getStrike()).isEqualTo(STRIKE);
+    assertThat(test.getYearFraction()).isEqualTo(TIME_TO_EXPIRY);
+    assertThat(test.getYearFractionTenor()).hasValue(Tenor.TENOR_18M);
   }
 
   @Test

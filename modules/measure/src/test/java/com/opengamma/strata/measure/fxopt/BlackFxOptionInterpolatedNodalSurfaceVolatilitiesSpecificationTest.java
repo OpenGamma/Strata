@@ -129,10 +129,12 @@ public class BlackFxOptionInterpolatedNodalSurfaceVolatilitiesSpecificationTest 
     double[] strikes = new double[STRIKES.size() * TENORS.size()];
     ImmutableList.Builder<ParameterMetadata> paramMetadata = ImmutableList.builder();
     for (int i = 0; i < TENORS.size(); ++i) {
+      Tenor tenor = TENORS.get(i);
       double expiry = ACT_365F.relativeYearFraction(
-          date, expOffset.adjust(BDA.adjust(SPOT_OFFSET.adjust(date, REF_DATA).plus(TENORS.get(i)), REF_DATA), REF_DATA));
+          date, expOffset.adjust(BDA.adjust(SPOT_OFFSET.adjust(date, REF_DATA).plus(tenor), REF_DATA), REF_DATA));
       for (int j = 0; j < STRIKES.size(); ++j) {
-        paramMetadata.add(FxVolatilitySurfaceYearFractionParameterMetadata.of(expiry, SimpleStrike.of(STRIKES.get(j)), GBP_USD));
+        SimpleStrike strike = SimpleStrike.of(STRIKES.get(j));
+        paramMetadata.add(FxVolatilitySurfaceYearFractionParameterMetadata.of(expiry, tenor, strike, GBP_USD));
         expiries[STRIKES.size() * i + j] = expiry;
         strikes[STRIKES.size() * i + j] = STRIKES.get(j);
       }

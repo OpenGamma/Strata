@@ -35,6 +35,14 @@ public final class FxSwapConventions {
       FxSwapConvention.of(StandardFxSwapConventions.EUR_GBP.getName());
 
   /**
+   * The "EUR/JPY" FX Swap convention.
+   * <p>
+   * EUR/JPY convention with 2 days spot date.
+   */
+  public static final FxSwapConvention EUR_JPY =
+      FxSwapConvention.of(StandardFxSwapConventions.EUR_JPY.getName());
+
+  /**
    * The "GBP/USD" FX Swap convention.
    * <p>
    * GBP/USD convention with 2 days spot date.
@@ -49,6 +57,14 @@ public final class FxSwapConventions {
    */
   public static final FxSwapConvention GBP_JPY =
       FxSwapConvention.of(StandardFxSwapConventions.GBP_JPY.getName());
+
+  /**
+   * The "USD/JPY" FX Swap convention.
+   * <p>
+   * USD/JPY convention with 2 days spot date.
+   */
+  public static final FxSwapConvention USD_JPY =
+      FxSwapConvention.of(StandardFxSwapConventions.USD_JPY.getName());
 
   //-------------------------------------------------------------------------
   /**

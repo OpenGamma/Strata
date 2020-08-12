@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
@@ -41,6 +42,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.deposit.TermDeposit;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConvention;
@@ -163,6 +165,15 @@ public class TermDepositCurveNodeTest {
     MarketData marketData = MarketData.empty(valuationDate);
     assertThatExceptionOfType(MarketDataNotFoundException.class)
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
+  }
+
+  @Test
+  public void test_sampleResolvedTrade() {
+    TermDepositCurveNode node = TermDepositCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    ResolvedTermDepositTrade trade = node.sampleResolvedTrade(valuationDate, FxRateProvider.minimal(), REF_DATA);
+    ResolvedTermDepositTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1d, SPREAD, REF_DATA).resolve(REF_DATA);
+    assertThat(trade).isEqualTo(expected);
   }
 
   @Test

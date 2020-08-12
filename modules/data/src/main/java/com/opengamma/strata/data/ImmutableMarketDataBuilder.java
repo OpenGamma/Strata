@@ -8,6 +8,7 @@ package com.opengamma.strata.data;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -166,6 +167,53 @@ public class ImmutableMarketDataBuilder {
 
     ArgChecker.notNull(timeSeriesMap, "timeSeriesMap");
     this.timeSeries.putAll(timeSeriesMap);
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Adds all time series and values from another market data instance.
+   * <p>
+   * The valuation date of the other market data instance is ignored.
+   *
+   * @param other  the other market data instance
+   * @return this builder
+   */
+  public ImmutableMarketDataBuilder add(MarketData other) {
+    ArgChecker.notNull(other, "other");
+    if (other instanceof ImmutableMarketData) {
+      ImmutableMarketData otherMd = (ImmutableMarketData) other;
+      addTimeSeriesMap(otherMd.getTimeSeries());
+      addValueMap(otherMd.getValues());
+    } else {
+      other.getTimeSeriesIds().forEach(id -> addTimeSeries(id, other.getTimeSeries(id)));
+      other.getIds().forEach(id -> addValueUnsafe(id, other.getValue(id)));
+    }
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Removes values where the time series ID matches the specified predicate.
+   *
+   * @param predicate  the predicate to apply, item removed if the predicate returns true
+   * @return this builder
+   */
+  public ImmutableMarketDataBuilder removeTimeSeriesIf(Predicate<ObservableId> predicate) {
+    ArgChecker.notNull(predicate, "predicate");
+    timeSeries.keySet().removeIf(predicate);
+    return this;
+  }
+
+  /**
+   * Removes values where the value ID matches the specified predicate.
+   *
+   * @param predicate  the predicate to apply, item removed if the predicate returns true
+   * @return this builder
+   */
+  public ImmutableMarketDataBuilder removeValueIf(Predicate<MarketDataId<?>> predicate) {
+    ArgChecker.notNull(predicate, "predicate");
+    values.keySet().removeIf(predicate);
     return this;
   }
 

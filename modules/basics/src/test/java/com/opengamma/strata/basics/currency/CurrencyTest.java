@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.basics.currency;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.assertJodaConvert;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
@@ -12,12 +13,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.opengamma.strata.collect.Unchecked;
 
 /**
  * Test {@link Currency}.
@@ -254,6 +261,34 @@ public class CurrencyTest {
   @Test
   public void test_jodaConvert() {
     assertJodaConvert(Currency.class, Currency.GBP);
+  }
+
+  //-----------------------------------------------------------------------
+  @Test
+  public void test_consistency() {
+    ImmutableMap<String, Currency> iniCurrencies = CurrencyDataLoader.loadCurrencies(false);
+    ImmutableSet<Currency> filteredCurrencies = iniCurrencies.values().stream()
+        .filter(ccy -> ccy.getCode().charAt(0) != 'X')
+        .collect(toImmutableSet());
+
+    ImmutableMap<CurrencyPair, Integer> iniPairs = CurrencyDataLoader.loadPairs();
+    ImmutableSet<Currency> pairCurrencies = iniPairs.keySet().stream()
+        .flatMap(pair -> Stream.of(pair.getBase(), pair.getCounter()))
+        .distinct()
+        .filter(ccy -> ccy.getCode().charAt(0) != 'X')
+        .collect(toImmutableSet());
+
+    ImmutableSet<Currency> fields = Stream.of(Currency.class.getDeclaredFields())
+        .filter(field -> Modifier.isPublic(field.getModifiers()))
+        .filter(field -> Modifier.isStatic(field.getModifiers()))
+        .filter(field -> Modifier.isFinal(field.getModifiers()))
+        .filter(field -> field.getType() == Currency.class)
+        .map(field -> Unchecked.wrap(() -> (Currency) field.get(null)))
+        .filter(ccy -> ccy.getCode().charAt(0) != 'X')
+        .collect(toImmutableSet());
+
+    assertThat(filteredCurrencies).containsExactlyInAnyOrderElementsOf(pairCurrencies);
+    assertThat(filteredCurrencies).containsExactlyInAnyOrderElementsOf(fields);
   }
 
 }

@@ -230,6 +230,17 @@ public final class DayCounts {
    */
   public static final DayCount ACT_365_25 = DayCount.of(StandardDayCounts.ACT_365_25.getName());
   /**
+   * The 'NL/360' day count, which divides the actual number of days omitting leap days by 360.
+   * <p>
+   * The result is a simple division.
+   * The numerator is the actual number of days in the requested period minus the number of occurrences of February 29.
+   * The denominator is always 360.
+   * The first day in the period is excluded, the last day is included.
+   * <p>
+   * Also known as 'NoLeap/360', 'Actual/360 No Leap' or 'Actual (no leap year)/360'.
+   */
+  public static final DayCount NL_360 = DayCount.of(StandardDayCounts.NL_360.getName());
+  /**
    * The 'NL/365' day count, which divides the actual number of days omitting leap days by 365.
    * <p>
    * The result is a simple division.
@@ -237,7 +248,7 @@ public final class DayCounts {
    * The denominator is always 365.
    * The first day in the period is excluded, the last day is included.
    * <p>
-   * Also known as 'Actual/365 No Leap'.
+   * Also known as 'NoLeap/365', 'Actual/365 No Leap' or 'Actual (no leap year)/365'.
    */
   public static final DayCount NL_365 = DayCount.of(StandardDayCounts.NL_365.getName());
   /**
@@ -351,6 +362,17 @@ public final class DayCounts {
    * If the second day-of-month is 31, it is changed to 1 and the second month is incremented.
    */
   public static final DayCount THIRTY_EPLUS_360 = DayCount.of(StandardDayCounts.THIRTY_EPLUS_360.getName());
+  /**
+   * The '30E/365' day count, which treats input day-of-month 31 and end of February specially.
+   * <p>
+   * The result is calculated as {@code (360 * deltaYear + 30 * deltaMonth + deltaDay) / 365}.
+   * The deltaDay is calculated once day-of-month adjustments have occurred.
+   * If the first day-of-month is the last day-of-month, change the first day-of-month to 30.
+   * If the second day-of-month is the last day-of-month, change the second day-of-month to 30.
+   * <p>
+   * Also known as '30/365 German'.
+   */
+  public static final DayCount THIRTY_E_365 = DayCount.of(StandardDayCounts.THIRTY_E_365.getName());
 
   //-------------------------------------------------------------------------
   /**

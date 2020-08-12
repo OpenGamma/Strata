@@ -27,6 +27,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.ObservableId;
@@ -202,6 +203,16 @@ public final class IborFixingDepositCurveNode
   @Override
   public ResolvedIborFixingDepositTrade resolvedTrade(double quantity, MarketData marketData, ReferenceData refData) {
     return trade(quantity, marketData, refData).resolve(refData);
+  }
+
+  @Override
+  public ResolvedIborFixingDepositTrade sampleResolvedTrade(
+      LocalDate valuationDate,
+      FxRateProvider fxProvider,
+      ReferenceData refData) {
+
+    IborFixingDepositTrade trade = template.createTrade(valuationDate, BuySell.BUY, 1d, additionalSpread, refData);
+    return trade.resolve(refData);
   }
 
   @Override

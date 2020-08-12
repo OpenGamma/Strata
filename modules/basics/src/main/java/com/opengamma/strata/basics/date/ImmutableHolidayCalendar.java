@@ -41,6 +41,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.tuple.Pair;
 
 /**
@@ -72,6 +73,7 @@ public final class ImmutableHolidayCalendar
   /**
    * The deserializer, for compatibility.
    */
+  @SuppressWarnings("unused")
   public static final SerDeserializer DESERIALIZER = new ImmutableHolidayCalendarDeserializer();
 
   /**
@@ -464,7 +466,7 @@ public final class ImmutableHolidayCalendar
     int domOffset = baseDom0;
     for (int amt = amount; amt > 0; amt--) {
       // shift to move the target day-of-month into bit-0, removing earlier days
-      int shifted = monthData >> domOffset;
+      int shifted = monthData >>> domOffset;
       // recurse to next month if no more business days in the month
       if (shifted == 0) {
         return baseMonth == 12 ? shiftNext(baseYear + 1, 1, 0, amt) : shiftNext(baseYear, baseMonth + 1, 0, amt);
@@ -542,7 +544,7 @@ public final class ImmutableHolidayCalendar
     int index = (baseYear - startYear) * 12 + baseMonth - 1;
     int monthData = lookup[index];
     // shift to move the target day-of-month into bit-0, removing earlier days
-    int shifted = monthData >> (baseDom - 1);
+    int shifted = monthData >>> (baseDom - 1);
     // return last business day-of-month if no more business days in the month
     int dom;
     if (shifted == 0) {
@@ -604,6 +606,49 @@ public final class ImmutableHolidayCalendar
       return HolidayCalendar.super.lastBusinessDayOfMonth(date);
     }
     throw new IllegalArgumentException("Date is outside the accepted range (year 0000 to 10,000): " + date);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public int daysBetween(LocalDate startInclusive, LocalDate endExclusive) {
+    ArgChecker.inOrderOrEqual(startInclusive, endExclusive, "startInclusive", "endExclusive");
+    try {
+      // find data for start and end month
+      int startIndex = (startInclusive.getYear() - startYear) * 12 + startInclusive.getMonthValue() - 1;
+      int endIndex = (endExclusive.getYear() - startYear) * 12 + endExclusive.getMonthValue() - 1;
+      
+      // count of first month = ones after day of month inclusive
+      // e.g 4th day of month - want holidays from index 3 inclusive
+      int start = Integer.bitCount(lookup[startIndex] >>> (startInclusive.getDayOfMonth() - 1));
+      // count of last month = ones before day of month exclusive == total for month - ones after end inclusive
+      int missingEnd = Integer.bitCount(lookup[endIndex] >>> (endExclusive.getDayOfMonth() - 1));
+      if (startIndex == endIndex) {
+        // same month - return holidays up to end exclusive 
+        return start - missingEnd;
+      }
+      
+      int end = Integer.bitCount(lookup[endIndex]) - missingEnd;
+      // otherwise add start and end month counts, and sum months between
+      int count = start + end;
+      for (int i = startIndex + 1; i < endIndex; i++) {
+        count += Integer.bitCount(lookup[i]);
+      }
+      return count;
+
+    } catch (ArrayIndexOutOfBoundsException ex) {
+      return daysBetweenOutOfRange(startInclusive, endExclusive);
+    }
+  }
+
+  // pulled out to aid hotspot inlining
+  private int daysBetweenOutOfRange(LocalDate startInclusive, LocalDate endExclusive) {
+    if (startInclusive.getYear() >= 0 && startInclusive.getYear() < 10000 &&
+        endExclusive.getYear() >= 0 && endExclusive.getYear() < 10000) {
+      return HolidayCalendar.super.daysBetween(startInclusive, endExclusive);
+    }
+    throw new IllegalArgumentException(Messages.format(
+        "Dates are outside the accepted range (year 0000 to 10,000): {}, {}",
+        startInclusive, endExclusive));
   }
 
   //-------------------------------------------------------------------------

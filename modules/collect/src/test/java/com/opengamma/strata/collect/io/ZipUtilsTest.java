@@ -6,11 +6,13 @@
 package com.opengamma.strata.collect.io;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.Assertions.within;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -55,17 +57,34 @@ public class ZipUtilsTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_unzipPathNames() {
-    ArrayByteSource zipFile = ResourceLocator.ofClasspath(ZipUtilsTest.class, "TestFolder.zip").getByteSource().load();
+    ArrayByteSource zipFile = load("TestFolder.zip");
 
     Set<String> names = ZipUtils.unzipPathNames(zipFile);
 
     assertThat(names).containsOnly("test/alpha/Alpha.txt", "test/beta/Beta1.txt", "test/beta/Beta2.txt");
   }
 
+  @Test
+  public void test_unzipPathNames_encrypted() {
+    ArrayByteSource zipFile = load("TestFileEncrypted.zip");
+
+    Set<String> names = ZipUtils.unzipPathNames(ZipUtils.decryptZip(zipFile, "ThePassword"));
+
+    assertThat(names).containsOnly("TestFile.txt");
+  }
+
+  @Test
+  public void test_unzipPathNames_zipSlip() {
+    ArrayByteSource zipFile = load("zip-slip.zip");
+
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzipPathNames(zipFile));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_unzipPathNameInMemory() {
-    ArrayByteSource zipFile = ResourceLocator.ofClasspath(ZipUtilsTest.class, "TestFolder.zip").getByteSource().load();
+    ArrayByteSource zipFile = load("TestFolder.zip");
 
     assertThat(ZipUtils.unzipPathNameInMemory(zipFile, "test/alpha/Alpha.txt"))
         .map(source -> source.readUtf8())
@@ -76,6 +95,14 @@ public class ZipUtilsTest {
     assertThat(ZipUtils.unzipPathNameInMemory(zipFile, "test/beta/Beta2.txt"))
         .map(source -> source.readUtf8())
         .hasValue("BETA2");
+  }
+
+  @Test
+  public void test_unzipPathNameInMemory_zipSlip() {
+    ArrayByteSource zipFile = load("zip-slip.zip");
+
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzipPathNameInMemory(zipFile, "test/alpha/Alpha.txt"));
   }
 
   //-------------------------------------------------------------------------
@@ -92,14 +119,34 @@ public class ZipUtilsTest {
   }
 
   @Test
+  public void test_unzip_toPath_notNormalized() {
+    ArrayByteSource source1 = ArrayByteSource.ofUtf8("Hello World").withFileName("TestFile3.txt");
+    ArrayByteSource source2 = ArrayByteSource.ofUtf8("Hello Planet").withFileName("TestFile4.txt");
+    ArrayByteSource zipFile = ZipUtils.zipInMemory(ImmutableList.of(source1, source2)).withFileName("Test.foo");
+
+    ZipUtils.unzip(zipFile, tmpDir.resolve("abc").resolve(".."));
+
+    assertThat(tmpDir.resolve("TestFile3.txt")).hasContent("Hello World");
+    assertThat(tmpDir.resolve("TestFile4.txt")).hasContent("Hello Planet");
+  }
+
+  @Test
   public void test_unzip_toPath_withFolders() {
-    ArrayByteSource zipFile = ResourceLocator.ofClasspath(ZipUtilsTest.class, "TestFolder.zip").getByteSource().load();
+    ArrayByteSource zipFile = load("TestFolder.zip");
 
     ZipUtils.unzip(zipFile, tmpDir);
 
     assertThat(tmpDir.resolve("test/alpha/Alpha.txt")).hasContent("ALPHA");
     assertThat(tmpDir.resolve("test/beta/Beta1.txt")).hasContent("BETA1");
     assertThat(tmpDir.resolve("test/beta/Beta2.txt")).hasContent("BETA2");
+  }
+
+  @Test
+  public void test_unzip_toPath_zipSlip() {
+    ArrayByteSource zipFile = load("zip-slip.zip");
+
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzip(zipFile, tmpDir));
   }
 
   //-------------------------------------------------------------------------
@@ -141,9 +188,39 @@ public class ZipUtilsTest {
     assertThat(map.get("TestFile2.txt").readUtf8()).isEqualTo("Hello Planet");
   }
 
+  @Test
+  public void test_unzipInMemory_toMap_encrypted() {
+    ArrayByteSource zipFile = load("TestFileEncrypted.zip");
+
+    Map<String, ArrayByteSource> map = ZipUtils.unzipInMemory(ZipUtils.decryptZip(zipFile, "ThePassword"));
+    assertThat(map).hasSize(1);
+    assertThat(map.get("TestFile.txt").getFileName()).hasValue("TestFile.txt");
+    assertThat(map.get("TestFile.txt").readUtf8()).startsWith("HelloWorld");
+  }
+
+  @Test
+  public void test_unzipInMemory_toMap_encryptedBadPassword() {
+    ArrayByteSource zipFile = load("TestFileEncrypted.zip");
+
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzipInMemory(ZipUtils.decryptZip(zipFile, "WrongPassword")))
+        .withMessageContaining("Unable to decrypt ZIP file, wrong password");
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzipInMemory(zipFile));
+  }
+
+  @Test
+  public void test_unzipInMemory_toMap_noDecryptWhenNotEncrypted() {
+    ArrayByteSource zipFile = load("TestFile.zip");  // not encrypted
+
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzipInMemory(ZipUtils.decryptZip(zipFile, "AnyPassword")))
+        .withMessageContaining("Unable to decrypt ZIP file, ZIP is not password protected");
+  }
+
   //-------------------------------------------------------------------------
   @Test
-  public void test_unzipInMemory_zip() {
+  public void test_unzipInMemory() {
     ArrayByteSource source1 = ArrayByteSource.ofUtf8("Hello World").withFileName("TestFile1.txt");
     ArrayByteSource source2 = ArrayByteSource.ofUtf8("Hello Planet").withFileName("TestFile2.txt");
     ArrayByteSource zipFile = ZipUtils.zipInMemory(ImmutableList.of(source1, source2)).withFileName("Test.foo");
@@ -164,6 +241,20 @@ public class ZipUtilsTest {
     assertThat(counter).hasValue(2);
   }
 
+  @Test
+  public void test_unzipInMemory_zipSlip() {
+    ArrayByteSource zipFile = load("zip-slip.zip");
+
+    assertThatExceptionOfType(UncheckedIOException.class)
+        .isThrownBy(() -> ZipUtils.unzipInMemory(
+            zipFile, 
+            (name, extracted) -> {
+              if (!name.equals("good.txt")) {
+                fail("Should not get here: " + name);
+              }
+            }));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_unpackInMemory_toMap_zip() {
@@ -181,7 +272,7 @@ public class ZipUtilsTest {
 
   @Test
   public void test_unpackInMemory_toMap_zipWithFolders() {
-    ArrayByteSource zipFile = ResourceLocator.ofClasspath(ZipUtilsTest.class, "TestFolder.zip").getByteSource().load();
+    ArrayByteSource zipFile = load("TestFolder.zip");
 
     Map<String, ArrayByteSource> map = ZipUtils.unpackInMemory(zipFile);
     assertThat(map).hasSize(3);
@@ -218,7 +309,7 @@ public class ZipUtilsTest {
 
   @Test
   public void test_unpackInMemory_zipWithFolders() {
-    ArrayByteSource zipFile = ResourceLocator.ofClasspath(ZipUtilsTest.class, "TestFolder.zip").getByteSource().load();
+    ArrayByteSource zipFile = load("TestFolder.zip");
 
     AtomicInteger counter = new AtomicInteger();
     ZipUtils.unpackInMemory(zipFile, (name, extracted) -> {
@@ -311,6 +402,21 @@ public class ZipUtilsTest {
       }
     });
     assertThat(counter).hasValue(1);
+  }
+
+  @Test
+  public void test_unpackInMemory_toMap_encrypted() {
+    ArrayByteSource zipFile = load("TestFileEncrypted.zip");
+
+    Map<String, ArrayByteSource> map = ZipUtils.unpackInMemory(ZipUtils.decryptZip(zipFile, "ThePassword"));
+    assertThat(map).hasSize(1);
+    assertThat(map.get("TestFile.txt").getFileName()).hasValue("TestFile.txt");
+    assertThat(map.get("TestFile.txt").readUtf8()).startsWith("HelloWorld");
+  }
+
+  //-------------------------------------------------------------------------
+  private static ArrayByteSource load(String fileName) {
+    return ResourceLocator.ofClasspath(ZipUtilsTest.class, fileName).getByteSource().load();
   }
 
 }

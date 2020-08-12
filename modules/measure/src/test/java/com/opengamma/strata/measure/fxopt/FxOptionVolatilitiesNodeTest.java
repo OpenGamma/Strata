@@ -36,6 +36,7 @@ import com.opengamma.strata.market.observable.QuoteId;
 import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.option.SimpleStrike;
 import com.opengamma.strata.market.option.Strike;
+import com.opengamma.strata.pricer.fxopt.FxVolatilitySurfaceYearFractionParameterMetadata;
 
 /**
  * Test {@link FxOptionVolatilitiesNode}.
@@ -125,6 +126,11 @@ public class FxOptionVolatilitiesNodeTest {
         expAdj.adjust(BDA.adjust(SPOT_DATE_OFFSET.adjust(dateTime.toLocalDate(), REF_DATA).plus(Tenor.TENOR_3M), REF_DATA),
             REF_DATA));
     assertThat(computed).isEqualTo(expected);
+    FxVolatilitySurfaceYearFractionParameterMetadata metadata = test.metadata(dateTime, ACT_365F, REF_DATA);
+    assertThat(metadata.getYearFraction()).isEqualTo(computed);
+    assertThat(metadata.getYearFractionTenor()).hasValue(Tenor.TENOR_3M);
+    assertThat(metadata.getStrike()).isEqualTo(STRIKE);
+    assertThat(metadata.getCurrencyPair()).isEqualTo(EUR_GBP);
   }
 
   @Test

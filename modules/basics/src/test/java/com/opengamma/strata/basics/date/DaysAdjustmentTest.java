@@ -101,6 +101,14 @@ public class DaysAdjustmentTest {
   }
 
   @Test
+  public void test_ofCalendarDays2_adjustHoliday() {
+    DaysAdjustment test = DaysAdjustment.ofCalendarDays(2, BDA_FOLLOW_SAT_SUN);
+    LocalDate base = date(2014, 8, 16);  // Sat
+    assertThat(test.adjust(base, REF_DATA)).isEqualTo(date(2014, 8, 18));  // Mon
+    assertThat(test.resolve(REF_DATA).adjust(base)).isEqualTo(date(2014, 8, 18));  // Mon
+  }
+
+  @Test
   public void test_ofCalendarDays2_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofCalendarDays(2, null));
   }
@@ -173,6 +181,20 @@ public class DaysAdjustmentTest {
     assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(3, null, BDA_FOLLOW_SAT_SUN));
     assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(3, SAT_SUN, null));
     assertThatIllegalArgumentException().isThrownBy(() -> DaysAdjustment.ofBusinessDays(3, null, null));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_ofBusinessDays0() {
+    DaysAdjustment test = DaysAdjustment.ofBusinessDays(0, SAT_SUN);
+    assertThat(test.getDays()).isEqualTo(0);
+    assertThat(test.getCalendar()).isEqualTo(NO_HOLIDAYS);
+    assertThat(test.getAdjustment()).isEqualTo(BDA_FOLLOW_SAT_SUN);
+    assertThat(test.toString()).isEqualTo("0 calendar days then apply Following using calendar Sat/Sun");
+    assertThat(test.adjust(date(2014, 8, 15), REF_DATA)).isEqualTo(date(2014, 8, 15));  // Fri
+    assertThat(test.adjust(date(2014, 8, 16), REF_DATA)).isEqualTo(date(2014, 8, 18));  // Sat -> Mon
+    assertThat(test.adjust(date(2014, 8, 17), REF_DATA)).isEqualTo(date(2014, 8, 18));  // Sun -> Mon
+    assertThat(test.adjust(date(2014, 8, 18), REF_DATA)).isEqualTo(date(2014, 8, 18));  // Mon
   }
 
   //-------------------------------------------------------------------------

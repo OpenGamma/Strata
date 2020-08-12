@@ -12,6 +12,7 @@ import static org.assertj.core.data.Offset.offset;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.option.DeltaStrike;
@@ -75,9 +76,18 @@ public class SmileDeltaParametersTest {
   @Test
   public void getter() {
     assertThat(SMILE.getExpiry()).as("Smile by delta: time to expiry").isEqualTo(TIME_TO_EXPIRY);
+    assertThat(SMILE.getExpiryTenor()).isEmpty();
     assertThat(SMILE.getDelta()).as("Smile by delta: delta").isEqualTo(DELTA);
-    SmileDeltaParameters smile2 = SmileDeltaParameters.of(TIME_TO_EXPIRY, DELTA, SMILE.getVolatility());
-    assertThat(smile2.getVolatility()).as("Smile by delta: volatility").isEqualTo(SMILE.getVolatility());
+  }
+
+  /**
+   * Tests the getters.
+   */
+  @Test
+  public void getter2() {
+    SmileDeltaParameters test = SmileDeltaParameters.of(TIME_TO_EXPIRY, Tenor.TENOR_2Y, DELTA, SMILE.getVolatility());
+    assertThat(test.getExpiryTenor()).hasValue(Tenor.TENOR_2Y);
+    assertThat(test.getVolatility()).as("Smile by delta: volatility").isEqualTo(SMILE.getVolatility());
   }
 
   /**

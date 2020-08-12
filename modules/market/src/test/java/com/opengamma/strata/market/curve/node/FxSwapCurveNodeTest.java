@@ -44,6 +44,7 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.TenorDateParameterMetadata;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fx.ResolvedFxSwapTrade;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.fx.type.ImmutableFxSwapConvention;
 
@@ -154,6 +155,15 @@ public class FxSwapCurveNodeTest {
     MarketData marketData = MarketData.empty(VAL_DATE);
     assertThatExceptionOfType(MarketDataNotFoundException.class)
         .isThrownBy(() -> node.trade(1d, marketData, REF_DATA));
+  }
+
+  @Test
+  public void test_sampleResolvedTrade() {
+    FxSwapCurveNode node = FxSwapCurveNode.of(TEMPLATE, QUOTE_ID_PTS);
+    LocalDate valuationDate = LocalDate.of(2015, 1, 22);
+    ResolvedFxSwapTrade trade = node.sampleResolvedTrade(valuationDate, FX_RATE_NEAR, REF_DATA);
+    ResolvedFxSwapTrade expected = TEMPLATE.createTrade(valuationDate, BuySell.BUY, 1d, 1.3d, 0d, REF_DATA).resolve(REF_DATA);
+    assertThat(trade).isEqualTo(expected);
   }
 
   @Test

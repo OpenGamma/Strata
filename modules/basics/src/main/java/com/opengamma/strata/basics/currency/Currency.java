@@ -174,6 +174,14 @@ public final class Currency
    */
   public static final Currency KRW = of("KRW");
   /**
+   * The currency 'KZT' = Kazakhstani Tenge.
+   */
+  public static final Currency KZT = of("KZT");
+  /**
+   * The currency 'MAD' - Moroccan Dirham.
+   */
+  public static final Currency MAD = of("MAD");
+  /**
    * The currency 'MXN' - Mexican Peso.
    */
   public static final Currency MXN = of("MXN");
@@ -185,6 +193,10 @@ public final class Currency
    * The currency 'NOK' - Norwegian Krone.
    */
   public static final Currency NOK = of("NOK");
+  /**
+   * The currency 'OMR' - Omani Rial.
+   */
+  public static final Currency OMR = of("OMR");
   /**
    * The currency 'PEN' - Peruvian Nuevo Sol.
    */
@@ -201,6 +213,10 @@ public final class Currency
    * The currency 'PLN' - Polish Zloty.
    */
   public static final Currency PLN = of("PLN");
+  /**
+   * The currency 'QAR' - Qatari Riyal.
+   */
+  public static final Currency QAR = of("QAR");
   /**
    * The currency 'RON' - Romanian New Leu.
    */
@@ -237,6 +253,10 @@ public final class Currency
    * The currency 'UAH' - Ukrainian Hryvnia.
    */
   public static final Currency UAH = of("UAH");
+  /**
+   * The currency 'VND' - Vietnamese Dong.
+   */
+  public static final Currency VND = of("VND");
   /**
    * The currency 'ZAR' - South African Rand.
    */

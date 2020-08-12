@@ -15,6 +15,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
@@ -45,6 +46,21 @@ public interface FxSwapConvention
   public static FxSwapConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
+  }
+
+  /**
+   * Obtains the standard convention for the specified currency pair.
+   * <p>
+   * The convention accessed will be for the conventional order of the currency pair.
+   * 
+   * @param currencyPair  the currency pair to get the convention for
+   * @return the convention
+   * @throws IllegalArgumentException if no convention has been defined for the pair
+   */
+  @FromString
+  public static FxSwapConvention of(CurrencyPair currencyPair) {
+    ArgChecker.notNull(currencyPair, "currencyPair");
+    return of(currencyPair.toConventional().toString());
   }
 
   /**
@@ -79,9 +95,43 @@ public interface FxSwapConvention
 
   //-------------------------------------------------------------------------
   /**
+   * Creates a trade based on this convention using a market tenor, such as ON, TN, SN, SW or 1M.
+   * <p>
+   * This returns a trade based on the market tenor.
+   * If the market tenor is ON or TN, the spot lag of the convention will be overridden.
+   * <p>
+   * The notional is unsigned, with buy/sell determining the direction of the trade.
+   * If buying the FX Swap, the amount in the first currency of the pair is received in the near leg and paid in the 
+   * far leg, while the second currency is paid in the near leg and received in the far leg.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param marketTenor  the market tenor, defining the spot lag and tenor
+   * @param buySell  the buy/sell flag
+   * @param notional  the notional amount, in the first currency of the currency pair
+   * @param nearFxRate  the FX rate for the near leg
+   * @param farLegForwardPoints  the FX points to be added to the FX rate at the far leg
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public default FxSwapTrade createTrade(
+      LocalDate tradeDate,
+      MarketTenor marketTenor,
+      BuySell buySell,
+      double notional,
+      double nearFxRate,
+      double farLegForwardPoints,
+      ReferenceData refData) {
+
+    LocalDate startDate = marketTenor.adjustSpotLag(getSpotDateOffset()).adjust(tradeDate, refData);
+    LocalDate endDate = startDate.plus(marketTenor.getTenor());
+    return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
+  }
+
+  /**
    * Creates a trade based on this convention.
    * <p>
-   * This returns a trade based on the specified periods.
+   * This returns a trade based on the specified periods, starting from the spot date.
    * For example, a '3M x 6M' FX swap has a period from spot to the start date of 3 months and
    * a period from spot to the end date of 6 months
    * <p>
@@ -110,9 +160,9 @@ public interface FxSwapConvention
       double farLegForwardPoints,
       ReferenceData refData) {
 
-    LocalDate spotValue = calculateSpotDateFromTradeDate(tradeDate, refData);
-    LocalDate startDate = spotValue.plus(periodToNear);
-    LocalDate endDate = spotValue.plus(periodToFar);
+    LocalDate spotDate = calculateSpotDateFromTradeDate(tradeDate, refData);
+    LocalDate startDate = spotDate.plus(periodToNear);
+    LocalDate endDate = spotDate.plus(periodToFar);
     return toTrade(tradeDate, startDate, endDate, buySell, notional, nearFxRate, farLegForwardPoints);
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.common;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -23,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.market.option.Strike;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -42,6 +44,11 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
    */
   @PropertyDefinition
   private final double yearFraction;
+  /**
+   * The tenor associated with the year fraction.
+   */
+  @PropertyDefinition(get = "optional")
+  private final Tenor yearFractionTenor;
   /**
    * The strike of the surface node.
    * <p>
@@ -68,7 +75,24 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       Strike strike) {
 
     String label = Pair.of(yearFraction, strike.getLabel()).toString();
-    return new GenericVolatilitySurfaceYearFractionParameterMetadata(yearFraction, strike, label);
+    return new GenericVolatilitySurfaceYearFractionParameterMetadata(yearFraction, null, strike, label);
+  }
+
+  /**
+   * Creates node metadata using year fraction, associated tenor and strike.
+   * 
+   * @param yearFraction  the year fraction
+   * @param yearFractionTenor  the tenor associated with year fraction
+   * @param strike  the strike
+   * @return node metadata 
+   */
+  public static GenericVolatilitySurfaceYearFractionParameterMetadata of(
+      double yearFraction,
+      Tenor yearFractionTenor,
+      Strike strike) {
+
+    String label = Pair.of(yearFraction, strike.getLabel()).toString();
+    return new GenericVolatilitySurfaceYearFractionParameterMetadata(yearFraction, yearFractionTenor, strike, label);
   }
 
   /**
@@ -84,7 +108,25 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       Strike strike,
       String label) {
 
-    return new GenericVolatilitySurfaceYearFractionParameterMetadata(yearFraction, strike, label);
+    return new GenericVolatilitySurfaceYearFractionParameterMetadata(yearFraction, null, strike, label);
+  }
+
+  /**
+   * Creates node using year fraction, associated tenor, strike and label.
+   * 
+   * @param yearFraction  the year fraction
+   * @param yearFractionTenor  the tenor associated with year fraction
+   * @param strike  the strike
+   * @param label  the label to use
+   * @return the metadata
+   */
+  public static GenericVolatilitySurfaceYearFractionParameterMetadata of(
+      double yearFraction,
+      Tenor yearFractionTenor,
+      Strike strike,
+      String label) {
+
+    return new GenericVolatilitySurfaceYearFractionParameterMetadata(yearFraction, yearFractionTenor, strike, label);
   }
 
   @ImmutablePreBuild
@@ -119,11 +161,13 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
 
   private GenericVolatilitySurfaceYearFractionParameterMetadata(
       double yearFraction,
+      Tenor yearFractionTenor,
       Strike strike,
       String label) {
     JodaBeanUtils.notNull(strike, "strike");
     JodaBeanUtils.notEmpty(label, "label");
     this.yearFraction = yearFraction;
+    this.yearFractionTenor = yearFractionTenor;
     this.strike = strike;
     this.label = label;
   }
@@ -143,6 +187,15 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
    */
   public double getYearFraction() {
     return yearFraction;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the tenor associated with the year fraction.
+   * @return the optional value of the property, not null
+   */
+  public Optional<Tenor> getYearFractionTenor() {
+    return Optional.ofNullable(yearFractionTenor);
   }
 
   //-----------------------------------------------------------------------
@@ -175,6 +228,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
     if (obj != null && obj.getClass() == this.getClass()) {
       GenericVolatilitySurfaceYearFractionParameterMetadata other = (GenericVolatilitySurfaceYearFractionParameterMetadata) obj;
       return JodaBeanUtils.equal(yearFraction, other.yearFraction) &&
+          JodaBeanUtils.equal(yearFractionTenor, other.yearFractionTenor) &&
           JodaBeanUtils.equal(strike, other.strike) &&
           JodaBeanUtils.equal(label, other.label);
     }
@@ -185,6 +239,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(yearFraction);
+    hash = hash * 31 + JodaBeanUtils.hashCode(yearFractionTenor);
     hash = hash * 31 + JodaBeanUtils.hashCode(strike);
     hash = hash * 31 + JodaBeanUtils.hashCode(label);
     return hash;
@@ -192,9 +247,10 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("GenericVolatilitySurfaceYearFractionParameterMetadata{");
     buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+    buf.append("yearFractionTenor").append('=').append(JodaBeanUtils.toString(yearFractionTenor)).append(',').append(' ');
     buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
     buf.append("label").append('=').append(JodaBeanUtils.toString(label));
     buf.append('}');
@@ -217,6 +273,11 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
     private final MetaProperty<Double> yearFraction = DirectMetaProperty.ofImmutable(
         this, "yearFraction", GenericVolatilitySurfaceYearFractionParameterMetadata.class, Double.TYPE);
     /**
+     * The meta-property for the {@code yearFractionTenor} property.
+     */
+    private final MetaProperty<Tenor> yearFractionTenor = DirectMetaProperty.ofImmutable(
+        this, "yearFractionTenor", GenericVolatilitySurfaceYearFractionParameterMetadata.class, Tenor.class);
+    /**
      * The meta-property for the {@code strike} property.
      */
     private final MetaProperty<Strike> strike = DirectMetaProperty.ofImmutable(
@@ -232,6 +293,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "yearFraction",
+        "yearFractionTenor",
         "strike",
         "label");
 
@@ -246,6 +308,8 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
           return yearFraction;
+        case -1032770399:  // yearFractionTenor
+          return yearFractionTenor;
         case -891985998:  // strike
           return strike;
         case 102727412:  // label
@@ -279,6 +343,14 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
     }
 
     /**
+     * The meta-property for the {@code yearFractionTenor} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Tenor> yearFractionTenor() {
+      return yearFractionTenor;
+    }
+
+    /**
      * The meta-property for the {@code strike} property.
      * @return the meta-property, not null
      */
@@ -300,6 +372,8 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
           return ((GenericVolatilitySurfaceYearFractionParameterMetadata) bean).getYearFraction();
+        case -1032770399:  // yearFractionTenor
+          return ((GenericVolatilitySurfaceYearFractionParameterMetadata) bean).yearFractionTenor;
         case -891985998:  // strike
           return ((GenericVolatilitySurfaceYearFractionParameterMetadata) bean).getStrike();
         case 102727412:  // label
@@ -326,6 +400,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
   private static final class Builder extends DirectPrivateBeanBuilder<GenericVolatilitySurfaceYearFractionParameterMetadata> {
 
     private double yearFraction;
+    private Tenor yearFractionTenor;
     private Strike strike;
     private String label;
 
@@ -341,6 +416,8 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
           return yearFraction;
+        case -1032770399:  // yearFractionTenor
+          return yearFractionTenor;
         case -891985998:  // strike
           return strike;
         case 102727412:  // label
@@ -355,6 +432,9 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       switch (propertyName.hashCode()) {
         case -1731780257:  // yearFraction
           this.yearFraction = (Double) newValue;
+          break;
+        case -1032770399:  // yearFractionTenor
+          this.yearFractionTenor = (Tenor) newValue;
           break;
         case -891985998:  // strike
           this.strike = (Strike) newValue;
@@ -373,6 +453,7 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
       preBuild(this);
       return new GenericVolatilitySurfaceYearFractionParameterMetadata(
           yearFraction,
+          yearFractionTenor,
           strike,
           label);
     }
@@ -380,9 +461,10 @@ public final class GenericVolatilitySurfaceYearFractionParameterMetadata
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("GenericVolatilitySurfaceYearFractionParameterMetadata.Builder{");
       buf.append("yearFraction").append('=').append(JodaBeanUtils.toString(yearFraction)).append(',').append(' ');
+      buf.append("yearFractionTenor").append('=').append(JodaBeanUtils.toString(yearFractionTenor)).append(',').append(' ');
       buf.append("strike").append('=').append(JodaBeanUtils.toString(strike)).append(',').append(' ');
       buf.append("label").append('=').append(JodaBeanUtils.toString(label));
       buf.append('}');
