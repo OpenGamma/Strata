@@ -90,6 +90,14 @@ public final class FxSingleBarrierOptionTrade
     CurrencyAmount counter = product.getUnderlyingOption().getUnderlying().getCounterCurrencyAmount();
     buf.append(product.getUnderlyingOption().getLongShort());
     buf.append(" Barrier ");
+    buf.append(product.getBarrier().getBarrierType().toString());
+    buf.append("-and-");
+    buf.append(product.getBarrier().getKnockType().toString());
+    buf.append(" @ ");
+    buf.append(product.getUnderlyingOption().getCurrencyPair());
+    buf.append(" ");
+    buf.append(product.getBarrier().getBarrierLevel(product.getUnderlyingOption().getExpiryDate()));
+    buf.append(" ");
     buf.append(SummarizerUtils.fx(base, counter));
     buf.append(" Premium ");
     buf.append(SummarizerUtils.amount(premium.getValue().mapAmount(v -> Math.abs(v))));

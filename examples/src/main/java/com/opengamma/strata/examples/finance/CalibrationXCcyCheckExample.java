@@ -72,7 +72,7 @@ public class CalibrationXCcyCheckExample {
   /**
    * The location of the data files.
    */
-  private static final String PATH_CONFIG = "src/main/resources/example-calibration/";
+  private static final String PATH_CONFIG = "examples/src/main/resources/example-calibration/";
   /**
    * The location of the curve calibration groups file.
    */
@@ -169,7 +169,11 @@ public class CalibrationXCcyCheckExample {
     // the reference data, such as holidays and securities
     ReferenceData refData = ReferenceData.standard();
 
+    System.out.println("current system path: " + System.getProperty("user.dir"));
+
     // load quotes and FX rates
+    System.out.println("quotes location: " + QUOTES_RESOURCE);
+    System.out.println("fx rates location: " + FX_RATES_RESOURCE);
     Map<QuoteId, Double> quotes = QuotesCsvLoader.load(VAL_DATE, QUOTES_RESOURCE);
     Map<FxRateId, FxRate> fxRates = FxRatesCsvLoader.load(VAL_DATE, FX_RATES_RESOURCE);
 
