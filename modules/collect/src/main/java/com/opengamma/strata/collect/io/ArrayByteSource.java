@@ -35,7 +35,6 @@ import org.joda.beans.impl.BasicImmutableBeanBuilder;
 import org.joda.beans.impl.BasicMetaBean;
 import org.joda.beans.impl.BasicMetaProperty;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -529,7 +528,7 @@ public final class ArrayByteSource extends BeanByteSource implements ImmutableBe
   @Override
   public boolean contentEquals(ByteSource other) throws IOException {
     if (other instanceof ArrayByteSource) {
-      return equals(other);
+      return JodaBeanUtils.equal(array, ((ArrayByteSource) other).array);
     }
     return super.contentEquals(other);
   }
