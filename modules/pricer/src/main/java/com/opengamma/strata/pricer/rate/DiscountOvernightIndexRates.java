@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -132,6 +133,11 @@ public final class DiscountOvernightIndexRates
   @Override
   public ParameterMetadata getParameterMetadata(int parameterIndex) {
     return discountFactors.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public OptionalInt findParameterIndex(ParameterMetadata metadata) {
+    return discountFactors.findParameterIndex(metadata);
   }
 
   @Override

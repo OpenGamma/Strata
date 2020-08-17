@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.time.Period;
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 import com.google.common.collect.ImmutableList;
@@ -72,6 +73,11 @@ public interface Curve extends ParameterizedData {
   @Override
   public default ParameterMetadata getParameterMetadata(int parameterIndex) {
     return getMetadata().getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public default OptionalInt findParameterIndex(ParameterMetadata metadata) {
+    return getMetadata().findParameterIndex(metadata);
   }
 
   @Override

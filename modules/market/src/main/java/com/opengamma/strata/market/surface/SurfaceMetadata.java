@@ -7,6 +7,7 @@ package com.opengamma.strata.market.surface;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.Messages;
@@ -109,6 +110,27 @@ public interface SurfaceMetadata {
    * @return the parameter metadata
    */
   public abstract Optional<List<ParameterMetadata>> getParameterMetadata();
+
+  /**
+   * Finds the parameter index of the specified metadata.
+   * <p>
+   * If the parameter metadata is not matched, an empty optional will be returned.
+   * 
+   * @param metadata  the parameter metadata to find the index of
+   * @return the index of the parameter
+   */
+  public default OptionalInt findParameterIndex(ParameterMetadata metadata) {
+    if (!ParameterMetadata.empty().equals(metadata)) {
+      Optional<List<ParameterMetadata>> pmOpt = getParameterMetadata();
+      if (pmOpt.isPresent()) {
+        int index = pmOpt.get().indexOf(metadata);
+        if (index >= 0) {
+          return OptionalInt.of(index);
+        }
+      }
+    }
+    return OptionalInt.empty();
+  }
 
   //-------------------------------------------------------------------------
   /**

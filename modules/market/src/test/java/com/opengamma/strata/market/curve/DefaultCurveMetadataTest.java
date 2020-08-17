@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
@@ -29,6 +30,8 @@ public class DefaultCurveMetadataTest {
 
   private static final String NAME = "TestCurve";
   private static final CurveName CURVE_NAME = CurveName.of(NAME);
+  private static final LabelParameterMetadata LABEL_METADATA = LabelParameterMetadata.of("LABEL");
+  private static final LabelParameterMetadata LABEL_METADATA2 = LabelParameterMetadata.of("LABEL2");
   private static final JacobianCalibrationMatrix JACOBIAN_DATA = JacobianCalibrationMatrix.of(
       ImmutableList.of(CurveParameterSize.of(CURVE_NAME, 1)),
       DoubleMatrix.filled(2, 2));
@@ -52,6 +55,8 @@ public class DefaultCurveMetadataTest {
     assertThat(test.getYValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getInfo()).isEqualTo(ImmutableMap.of());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
+    assertThat(test.findParameterIndex(ParameterMetadata.empty())).isEmpty();
+    assertThat(test.findParameterIndex(LABEL_METADATA)).isEmpty();
   }
 
   @Test
@@ -84,7 +89,7 @@ public class DefaultCurveMetadataTest {
         .yValueType(ValueType.DISCOUNT_FACTOR)
         .addInfo(CurveInfoType.DAY_COUNT, ACT_360)
         .jacobian(JACOBIAN_DATA)
-        .parameterMetadata(ParameterMetadata.empty())
+        .parameterMetadata(LABEL_METADATA)
         .build();
     assertThat(test.getCurveName()).isEqualTo(CURVE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
@@ -95,7 +100,10 @@ public class DefaultCurveMetadataTest {
     assertThat(test.findInfo(CurveInfoType.JACOBIAN)).isEqualTo(Optional.of(JACOBIAN_DATA));
     assertThat(test.findInfo(CurveInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
+    assertThat(test.getParameterMetadata().get()).containsExactly(LABEL_METADATA);
+    assertThat(test.findParameterIndex(ParameterMetadata.empty())).isEmpty();
+    assertThat(test.findParameterIndex(LABEL_METADATA)).hasValue(0);
+    assertThat(test.findParameterIndex(LABEL_METADATA2)).isEmpty();
   }
 
   @Test

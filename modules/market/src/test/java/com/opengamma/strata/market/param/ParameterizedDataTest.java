@@ -14,12 +14,15 @@ import org.junit.jupiter.api.Test;
  */
 public class ParameterizedDataTest {
 
+  private static final LabelParameterMetadata LABEL_METADATA = LabelParameterMetadata.of("LABEL");
   private static final ParameterizedData CURVE = new TestingParameterizedData(1d);
 
   @Test
   public void test_withPerturbation() {
     assertThat(CURVE.withPerturbation((i, v, m) -> v)).isSameAs(CURVE);
     assertThat(CURVE.withPerturbation((i, v, m) -> v + 2d).getParameter(0)).isEqualTo(3d);
+    assertThat(CURVE.findParameterIndex(ParameterMetadata.empty())).isEmpty();
+    assertThat(CURVE.findParameterIndex(LABEL_METADATA)).isEmpty();
   }
 
 }

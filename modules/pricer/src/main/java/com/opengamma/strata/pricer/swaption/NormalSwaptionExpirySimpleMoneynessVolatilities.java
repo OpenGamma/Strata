@@ -11,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -164,6 +165,11 @@ public final class NormalSwaptionExpirySimpleMoneynessVolatilities
   @Override
   public ParameterMetadata getParameterMetadata(int parameterIndex) {
     return surface.getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public OptionalInt findParameterIndex(ParameterMetadata metadata) {
+    return surface.findParameterIndex(metadata);
   }
 
   @Override
