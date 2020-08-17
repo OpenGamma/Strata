@@ -8,6 +8,7 @@ package com.opengamma.strata.market.surface;
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.util.List;
+import java.util.OptionalInt;
 import java.util.stream.IntStream;
 
 import com.opengamma.strata.basics.currency.Currency;
@@ -68,6 +69,11 @@ public interface Surface extends ParameterizedData {
   @Override
   public default ParameterMetadata getParameterMetadata(int parameterIndex) {
     return getMetadata().getParameterMetadata(parameterIndex);
+  }
+
+  @Override
+  public default OptionalInt findParameterIndex(ParameterMetadata metadata) {
+    return getMetadata().findParameterIndex(metadata);
   }
 
   @Override

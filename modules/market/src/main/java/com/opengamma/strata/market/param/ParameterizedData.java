@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.market.param;
 
+import java.util.OptionalInt;
+
 import org.joda.beans.JodaBeanUtils;
 
 /**
@@ -48,6 +50,25 @@ public interface ParameterizedData {
    * @throws IndexOutOfBoundsException if the index is invalid
    */
   public abstract ParameterMetadata getParameterMetadata(int parameterIndex);
+
+  /**
+   * Finds the parameter index of the specified metadata.
+   * <p>
+   * If the parameter metadata is not matched, an empty optional will be returned.
+   * 
+   * @param metadata  the parameter metadata to find the index of
+   * @return the index of the parameter
+   */
+  public default OptionalInt findParameterIndex(ParameterMetadata metadata) {
+    if (!ParameterMetadata.empty().equals(metadata)) {
+      for (int i = 0; i < getParameterCount(); i++) {
+        if (getParameterMetadata(i).equals(metadata)) {
+          return OptionalInt.of(i);
+        }
+      }
+    }
+    return OptionalInt.empty();
+  }
 
   //-------------------------------------------------------------------------
   /**

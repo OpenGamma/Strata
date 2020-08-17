@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.market.ValueType;
+import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
 
 /**
@@ -29,6 +30,8 @@ public class DefaultSurfaceMetadataTest {
 
   private static final String NAME = "TestSurface";
   private static final SurfaceName SURFACE_NAME = SurfaceName.of(NAME);
+  private static final LabelParameterMetadata LABEL_METADATA = LabelParameterMetadata.of("LABEL");
+  private static final LabelParameterMetadata LABEL_METADATA2 = LabelParameterMetadata.of("LABEL2");
   private static final SurfaceInfoType<String> DESCRIPTION = SurfaceInfoType.of("Description");
 
   //-------------------------------------------------------------------------
@@ -52,6 +55,8 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.getZValueType()).isEqualTo(ValueType.UNKNOWN);
     assertThat(test.getInfo()).isEqualTo(ImmutableMap.of());
     assertThat(test.getParameterMetadata().isPresent()).isFalse();
+    assertThat(test.findParameterIndex(ParameterMetadata.empty())).isEmpty();
+    assertThat(test.findParameterIndex(LABEL_METADATA)).isEmpty();
   }
 
   @Test
@@ -88,7 +93,7 @@ public class DefaultSurfaceMetadataTest {
         .dayCount(ACT_365F)
         .addInfo(SurfaceInfoType.DAY_COUNT, null)
         .addInfo(DESCRIPTION, "Hello")
-        .parameterMetadata(ImmutableList.of(ParameterMetadata.empty()))
+        .parameterMetadata(ImmutableList.of(LABEL_METADATA))
         .build();
     assertThat(test.getSurfaceName()).isEqualTo(SURFACE_NAME);
     assertThat(test.getXValueType()).isEqualTo(ValueType.YEAR_FRACTION);
@@ -101,7 +106,10 @@ public class DefaultSurfaceMetadataTest {
     assertThat(test.findInfo(DESCRIPTION)).isEqualTo(Optional.of("Hello"));
     assertThat(test.findInfo(SurfaceInfoType.of("Rubbish"))).isEqualTo(Optional.empty());
     assertThat(test.getParameterMetadata().isPresent()).isTrue();
-    assertThat(test.getParameterMetadata().get()).containsExactly(ParameterMetadata.empty());
+    assertThat(test.getParameterMetadata().get()).containsExactly(LABEL_METADATA);
+    assertThat(test.findParameterIndex(ParameterMetadata.empty()).isPresent()).isFalse();
+    assertThat(test.findParameterIndex(LABEL_METADATA)).hasValue(0);
+    assertThat(test.findParameterIndex(LABEL_METADATA2)).isEmpty();
   }
 
   @Test
