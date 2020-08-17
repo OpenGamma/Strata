@@ -81,8 +81,12 @@ public class StandardIdTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_encodeScheme() {
-    String test = StandardId.encodeScheme("https://opengamma.com/foo/../~bar#test");
-    assertThat(test).isEqualTo("https://opengamma.com/foo/../%7Ebar%23test");
+    String testScheme = StandardId.encodeScheme("https://opengamma.com/foo/../~bar#test");
+    String expectedScheme = "https://opengamma.com/foo/../%7Ebar%23test";
+
+    assertThat(testScheme).isEqualTo(expectedScheme);
+    // Test use of the encoded scheme
+    assertThat(StandardId.of(testScheme, "value").getScheme()).isEqualTo(expectedScheme);
   }
 
   //-------------------------------------------------------------------------

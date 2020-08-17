@@ -74,6 +74,7 @@ public final class StandardId
           .or(CharMatcher.is('='))
           .or(CharMatcher.is('_'))
           .or(CharMatcher.is('-'))
+          .or(CharMatcher.is('%'))
           .precomputed();
   /**
    * Matcher for checking the value.
@@ -106,7 +107,7 @@ public final class StandardId
   /**
    * Obtains an instance from a scheme and value.
    * <p>
-   * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_-]*}'.
+   * The scheme must be non-empty and match the regular expression '{@code [A-Za-z0-9:/+.=_%-]*}'.
    * This permits letters, numbers, colon, forward-slash, plus, dot, equals, underscore and dash.
    * If necessary, the scheme can be encoded using {@link StandardId#encodeScheme(String)}.
    * <p>
@@ -161,7 +162,7 @@ public final class StandardId
    */
   @ImmutableConstructor
   private StandardId(String scheme, String value) {
-    ArgChecker.matches(SCHEME_MATCHER, 1, Integer.MAX_VALUE, scheme, "scheme", "[A-Za-z0-9:/+.=_-]+");
+    ArgChecker.matches(SCHEME_MATCHER, 1, Integer.MAX_VALUE, scheme, "scheme", "[A-Za-z0-9:/+.=_%-]+");
     ArgChecker.matches(VALUE_MATCHER, 1, Integer.MAX_VALUE, value, "value", "[!-z][ -z]+");
     if (value.charAt(0) == ' ') {
       throw new IllegalArgumentException(Messages.format(
