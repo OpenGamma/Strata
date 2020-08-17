@@ -41,7 +41,7 @@ import com.opengamma.strata.product.option.Barrier;
  * down-and-in, up-and-out and down-and-out.
  * <p>
  * For example, an up-and-out call on a 'EUR 1.00 / USD -1.41' exchange with barrier of 1.5 is the option to
- * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00, only when EUR/USD rate does 
+ * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00, only when EUR/USD rate does
  * not exceed 1.5 during the barrier event observation period.
  * <p>
  * In case of the occurrence (non-occurrence for knock-in options) of the barrier event, the option becomes worthless, 
