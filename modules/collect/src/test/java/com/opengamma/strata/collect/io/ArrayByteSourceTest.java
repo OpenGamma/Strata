@@ -331,6 +331,7 @@ public class ArrayByteSourceTest {
     assertThat(test.contentEquals(test)).isTrue();
     assertThat(test.toString()).isEqualTo("ArrayByteSource[3 bytes]");
     assertThat(test.withFileName("name.txt").toString()).isEqualTo("ArrayByteSource[3 bytes, name.txt]");
+    assertThat(test.withFileName("name.txt").contentEquals(test)).isTrue();
   }
 
   //-------------------------------------------------------------------------
