@@ -26,4 +26,10 @@ public class RatesProviderTest {
     assertThat(mockProv.fxRate(CurrencyPair.of(GBP, USD))).isEqualTo(RATE);
   }
 
+  @Test
+  public void test_indices() {
+    RatesProvider mockProv = new MockRatesProvider();
+    assertThat(mockProv.indices()).isEmpty();
+  }
+
 }

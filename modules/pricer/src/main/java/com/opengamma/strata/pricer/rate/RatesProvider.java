@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.rate;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
@@ -15,6 +16,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.basics.index.PriceIndex;
+import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.curve.Curve;
@@ -42,6 +44,18 @@ import com.opengamma.strata.pricer.fx.FxIndexSensitivity;
  */
 public interface RatesProvider
     extends BaseProvider {
+
+  /**
+   * Gets the forward indices that are available.
+   * <p>
+   * Normally this will only return Ibor, Overnight and Price indices,
+   * however it may return other types of index.
+   *
+   * @return the indices
+   */
+  public default Stream<Index> indices() {
+    return Guavate.<Index>concatToSet(getIborIndices(), getOvernightIndices(), getPriceIndices()).stream();
+  }
 
   /**
    * Gets the set of Ibor indices that are available.

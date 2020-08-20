@@ -122,6 +122,11 @@ final class DefaultLookupRatesProvider
   }
 
   @Override
+  public Stream<Index> indices() {
+    return lookup.getForwardIndices().stream();
+  }
+
+  @Override
   public ImmutableSet<IborIndex> getIborIndices() {
     return lookup.getForwardIndices().stream()
         .flatMap(filtering(IborIndex.class))
