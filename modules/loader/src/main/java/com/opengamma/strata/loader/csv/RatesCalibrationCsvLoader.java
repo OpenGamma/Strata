@@ -52,6 +52,7 @@ import com.opengamma.strata.market.curve.node.FxSwapCurveNode;
 import com.opengamma.strata.market.curve.node.IborFixingDepositCurveNode;
 import com.opengamma.strata.market.curve.node.IborFutureCurveNode;
 import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.OvernightFutureCurveNode;
 import com.opengamma.strata.market.curve.node.OvernightIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
@@ -67,6 +68,8 @@ import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
 import com.opengamma.strata.product.index.type.IborFutureConvention;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
+import com.opengamma.strata.product.index.type.OvernightFutureContractSpec;
+import com.opengamma.strata.product.index.type.OvernightFutureTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedInflationSwapConvention;
@@ -416,6 +419,9 @@ public final class RatesCalibrationCsvLoader {
     if ("IFU".equalsIgnoreCase(typeStr) || "IborFuture".equalsIgnoreCase(typeStr)) {
       return curveIborFutureCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
+    if ("ONF".equalsIgnoreCase(typeStr) || "OvernightFuture".equalsIgnoreCase(typeStr)) {
+      return curveOvernightFutureCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
+    }
     if ("OIS".equalsIgnoreCase(typeStr) || "FixedOvernightSwap".equalsIgnoreCase(typeStr)) {
       return curveFixedOvernightCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
@@ -557,6 +563,47 @@ public final class RatesCalibrationCsvLoader {
           .build();
     }
     throw new IllegalArgumentException(Messages.format("Invalid time format for Ibor Future: {}", timeStr));
+  }
+
+  private static CurveNode curveOvernightFutureCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteId quoteId,
+      double spread,
+      CurveNodeDate date,
+      CurveNodeDateOrder order) {
+
+    Matcher matcher = FUT_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (matcher.matches()) {
+      Period periodToStart = Period.parse("P" + matcher.group(1));
+      int sequenceNumber = Integer.parseInt(matcher.group(2));
+      OvernightFutureContractSpec contractSpec = OvernightFutureContractSpec.of(conventionStr);
+      OvernightFutureTemplate template = OvernightFutureTemplate.of(periodToStart, sequenceNumber, contractSpec);
+      return OvernightFutureCurveNode.builder()
+          .template(template)
+          .rateId(quoteId)
+          .additionalSpread(spread)
+          .label(label)
+          .date(date)
+          .dateOrder(order)
+          .build();
+    }
+    Matcher matcher2 = FUT_MONTH_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (matcher2.matches()) {
+      YearMonth yearMonth = YearMonth.parse(matcher2.group(1), YM_FORMATTER);
+      OvernightFutureContractSpec contractSpec = OvernightFutureContractSpec.of(conventionStr);
+      OvernightFutureTemplate template = OvernightFutureTemplate.of(yearMonth, contractSpec);
+      return OvernightFutureCurveNode.builder()
+          .template(template)
+          .rateId(quoteId)
+          .additionalSpread(spread)
+          .label(label)
+          .date(date)
+          .dateOrder(order)
+          .build();
+    }
+    throw new IllegalArgumentException(Messages.format("Invalid time format for Overnight Future: {}", timeStr));
   }
 
   //-------------------------------------------------------------------------
