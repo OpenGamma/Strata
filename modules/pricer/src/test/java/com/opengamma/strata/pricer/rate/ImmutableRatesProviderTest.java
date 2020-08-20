@@ -161,6 +161,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertThat(test.iborIndexRates(USD_LIBOR_3M).getIndex()).isEqualTo(USD_LIBOR_3M);
     assertThat(test.iborIndexRates(USD_LIBOR_3M).getFixings()).isEqualTo(ts);
+    assertThat(test.indices()).containsOnly(USD_LIBOR_3M);
     assertThat(test.getIborIndices()).containsOnly(USD_LIBOR_3M);
     assertThat(test.getTimeSeriesIndices()).containsOnly(USD_LIBOR_3M);
   }
@@ -181,6 +182,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertThat(test.iborIndexRates(inactiveIndex).getIndex()).isEqualTo(inactiveIndex);
     assertThat(test.iborIndexRates(inactiveIndex).getFixings()).isEqualTo(ts);
+    assertThat(test.indices()).isEmpty();
     assertThat(test.getIborIndices()).isEmpty();
     assertThat(test.getTimeSeriesIndices()).containsOnly(inactiveIndex);
     assertThat(test.iborIndexRates(inactiveIndex).getClass()).isEqualTo(HistoricIborIndexRates.class);
@@ -204,6 +206,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertThat(test.overnightIndexRates(USD_FED_FUND).getIndex()).isEqualTo(USD_FED_FUND);
     assertThat(test.overnightIndexRates(USD_FED_FUND).getFixings()).isEqualTo(ts);
+    assertThat(test.indices()).containsOnly(USD_FED_FUND);
     assertThat(test.getOvernightIndices()).containsOnly(USD_FED_FUND);
     assertThat(test.getTimeSeriesIndices()).containsOnly(USD_FED_FUND);
   }
@@ -224,7 +227,8 @@ public class ImmutableRatesProviderTest {
         .build();
     assertThat(test.overnightIndexRates(inactiveIndex).getIndex()).isEqualTo(inactiveIndex);
     assertThat(test.overnightIndexRates(inactiveIndex).getFixings()).isEqualTo(ts);
-    assertThat(test.getIborIndices()).isEmpty();
+    assertThat(test.indices()).isEmpty();
+    assertThat(test.getOvernightIndices()).isEmpty();
     assertThat(test.getTimeSeriesIndices()).containsOnly(inactiveIndex);
     assertThat(test.overnightIndexRates(inactiveIndex).getClass()).isEqualTo(HistoricOvernightIndexRates.class);
   }
@@ -247,6 +251,7 @@ public class ImmutableRatesProviderTest {
         .build();
     assertThat(test.priceIndexValues(GB_RPI).getIndex()).isEqualTo(GB_RPI);
     assertThat(test.priceIndexValues(GB_RPI).getFixings()).isEqualTo(ts);
+    assertThat(test.indices()).containsOnly(GB_RPI);
     assertThat(test.getPriceIndices()).containsOnly(GB_RPI);
     assertThat(test.getTimeSeriesIndices()).containsOnly(GB_RPI);
   }

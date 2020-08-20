@@ -160,6 +160,11 @@ public final class ImmutableRatesProvider
   }
 
   @Override
+  public Stream<Index> indices() {
+    return indexCurves.keySet().stream();
+  }
+
+  @Override
   public ImmutableSet<IborIndex> getIborIndices() {
     return indexCurves.keySet().stream()
         .flatMap(filtering(IborIndex.class))

@@ -243,8 +243,10 @@ public final class ImmutableRatesProviderBuilder {
    * Adds an index forward curve to the provider.
    * <p>
    * This adds the specified forward curve to the provider.
-   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * <p>
+   * Any index may be used, however {@link RatesProvider} only directly supports
+   * Ibor, Overnight and Price indices.
    * 
    * @param index  the index of the curve
    * @param forwardCurve  the Ibor index forward curve
@@ -253,11 +255,7 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
-    if (index instanceof IborIndex || index instanceof OvernightIndex || index instanceof PriceIndex) {
-      this.indexCurves.put(index, forwardCurve);
-    } else {
-      throw new IllegalArgumentException("Unsupported index: " + index);
-    }
+    this.indexCurves.put(index, forwardCurve);
     return this;
   }
 
@@ -265,8 +263,10 @@ public final class ImmutableRatesProviderBuilder {
    * Adds an index forward curve to the provider with associated time-series.
    * <p>
    * This adds the specified forward curve to the provider.
-   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * <p>
+   * Any index may be used, however {@link RatesProvider} only directly supports
+   * Ibor, Overnight and Price indices.
    * 
    * @param index  the index of the curve
    * @param forwardCurve  the Ibor index forward curve
@@ -276,12 +276,8 @@ public final class ImmutableRatesProviderBuilder {
   public ImmutableRatesProviderBuilder indexCurve(Index index, Curve forwardCurve, LocalDateDoubleTimeSeries timeSeries) {
     ArgChecker.notNull(index, "index");
     ArgChecker.notNull(forwardCurve, "forwardCurve");
-    if (index instanceof IborIndex || index instanceof OvernightIndex || index instanceof PriceIndex) {
-      this.indexCurves.put(index, forwardCurve);
-      this.timeSeries.put(index, timeSeries);
-    } else {
-      throw new IllegalArgumentException("Unsupported index: " + index);
-    }
+    this.indexCurves.put(index, forwardCurve);
+    this.timeSeries.put(index, timeSeries);
     return this;
   }
 
@@ -289,8 +285,10 @@ public final class ImmutableRatesProviderBuilder {
    * Adds index forward curves to the provider with associated time-series.
    * <p>
    * This adds the specified index forward curves to the provider.
-   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
+   * <p>
+   * Any index may be used, however {@link RatesProvider} only directly supports
+   * Ibor, Overnight and Price indices.
    * 
    * @param indexCurves  the index forward curves
    * @return this, for chaining
@@ -307,8 +305,10 @@ public final class ImmutableRatesProviderBuilder {
    * Adds index forward curves to the provider with associated time-series.
    * <p>
    * This adds the specified index forward curves to the provider.
-   * This is used for Ibor, Overnight and Price indices.
    * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
+   * <p>
+   * Any index may be used, however {@link RatesProvider} only directly supports
+   * Ibor, Overnight and Price indices.
    * 
    * @param indexCurves  the index forward curves
    * @param timeSeries  the associated time-series
@@ -334,6 +334,9 @@ public final class ImmutableRatesProviderBuilder {
    * <p>
    * This adds the specified time-series to the provider.
    * This operates using {@link Map#put(Object, Object)} semantics using the index as the key.
+   * <p>
+   * Any index may be used, however {@link RatesProvider} only directly supports
+   * Ibor, Overnight and Price indices.
    * 
    * @param index  the FX index
    * @param timeSeries  the FX index time-series
@@ -351,6 +354,9 @@ public final class ImmutableRatesProviderBuilder {
    * <p>
    * This adds the specified time-series to the provider.
    * This operates using {@link Map#putAll(Map)} semantics using the index as the key.
+   * <p>
+   * Any index may be used, however {@link RatesProvider} only directly supports
+   * Ibor, Overnight and Price indices.
    * 
    * @param timeSeries  the FX index time-series
    * @return this, for chaining

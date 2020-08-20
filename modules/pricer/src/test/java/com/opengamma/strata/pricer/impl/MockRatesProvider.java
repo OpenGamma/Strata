@@ -69,17 +69,17 @@ public class MockRatesProvider
 
   @Override
   public ImmutableSet<IborIndex> getIborIndices() {
-    throw new UnsupportedOperationException();
+    return ImmutableSet.of();
   }
 
   @Override
   public ImmutableSet<OvernightIndex> getOvernightIndices() {
-    throw new UnsupportedOperationException();
+    return ImmutableSet.of();
   }
 
   @Override
   public ImmutableSet<PriceIndex> getPriceIndices() {
-    throw new UnsupportedOperationException();
+    return ImmutableSet.of();
   }
 
   @Override
