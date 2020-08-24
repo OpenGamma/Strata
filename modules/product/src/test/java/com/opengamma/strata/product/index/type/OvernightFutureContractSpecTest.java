@@ -140,9 +140,9 @@ public class OvernightFutureContractSpecTest {
     assertThat(trade.getProduct().getIndex()).isEqualTo(GBP_SONIA);
     assertThat(trade.getProduct().getAccrualMethod()).isEqualTo(COMPOUNDED);
     assertThat(trade.getProduct().getAccrualFactor()).isEqualTo(0.25);
-    assertThat(trade.getProduct().getStartDate()).isEqualTo(date(2020, 2, 19));
-    assertThat(trade.getProduct().getEndDate()).isEqualTo(date(2020, 5, 19));
-    assertThat(trade.getProduct().getLastTradeDate()).isEqualTo(date(2020, 5, 20));
+    assertThat(trade.getProduct().getStartDate()).isEqualTo(date(2020, 3, 18));
+    assertThat(trade.getProduct().getEndDate()).isEqualTo(date(2020, 6, 16));
+    assertThat(trade.getProduct().getLastTradeDate()).isEqualTo(date(2020, 6, 17));
     assertThat(trade.getProduct().getNotional()).isEqualTo(500_000d);
   }
 
