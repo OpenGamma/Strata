@@ -152,7 +152,8 @@ public final class InflationNodalCurve
     this.yFixing = curve.getYValues().get(0);
     int i = seasonalityIndex(xFixing);
     ArgChecker.isTrue(
-        adjustmentType.applyShift(yFixing, seasonality.get(i)) - yFixing < 1.0E-10, "Fixing value should be unadjusted");
+        Math.abs(adjustmentType.applyShift(yFixing, seasonality.get(i)) - yFixing) < 1e-12,
+        "Fixing value should be unadjusted");
     this.adjustmentType = adjustmentType;
   }
 
