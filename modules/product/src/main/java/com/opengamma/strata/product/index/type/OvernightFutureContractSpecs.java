@@ -37,7 +37,9 @@ public final class OvernightFutureContractSpecs {
   /**
    * The 'GBP-SONIA-3M-IMM-LCH' contract.
    * <p>
-   * The LCH "SON" contract based on IMM dates.
+   * The LCH "SON" contract based on quarterly IMM dates.
+   * <p>
+   * Serial months can be traded for this contract, but no constant is defined here for that at present.
    */
   public static final OvernightFutureContractSpec GBP_SONIA_3M_IMM_LCH =
       OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.GBP_SONIA_3M_IMM_LCH.getName());
@@ -53,7 +55,7 @@ public final class OvernightFutureContractSpecs {
   /**
    * The 'GBP-SONIA-1M-IMM-LCH' contract.
    * <p>
-   * The LCH "OSN" contract based on IMM dates.
+   * The LCH "OSN" contract based on monthly IMM dates.
    */
   public static final OvernightFutureContractSpec GBP_SONIA_1M_IMM_LCH =
       OvernightFutureContractSpec.of(StandardOvernightFutureContractSpecs.GBP_SONIA_1M_IMM_LCH.getName());

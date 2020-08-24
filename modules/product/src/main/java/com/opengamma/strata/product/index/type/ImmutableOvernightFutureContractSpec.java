@@ -27,7 +27,6 @@ import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.MinimalMetaBean;
 
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -141,21 +140,6 @@ public final class ImmutableOvernightFutureContractSpec
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a trade based on this contract specification.
-   * <p>
-   * This returns a trade based on the specified minimum period and sequence number.
-   * 
-   * @param tradeDate  the trade date
-   * @param securityId  the identifier of the security
-   * @param minimumPeriod  minimum period between the value date and the first future
-   * @param sequenceNumber  the 1-based sequence number of the futures
-   * @param quantity  the number of contracts traded, positive if buying, negative if selling
-   * @param price  the trade price of the future
-   * @param refData  the reference data, used to resolve the trade dates
-   * @return the trade
-   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
-   */
   @Override
   public OvernightFutureTrade createTrade(
       LocalDate tradeDate,
@@ -170,20 +154,6 @@ public final class ImmutableOvernightFutureContractSpec
     return createTrade(tradeDate, securityId, quantity, price, startDate, refData);
   }
 
-  /**
-   * Creates a trade based on this contract specification.
-   * <p>
-   * This returns a trade based on the specified year-month.
-   * 
-   * @param tradeDate  the trade date
-   * @param securityId  the identifier of the security
-   * @param yearMonth  the year-month that the future is defined to be for
-   * @param quantity  the number of contracts traded, positive if buying, negative if selling
-   * @param price  the trade price of the future
-   * @param refData  the reference data, used to resolve the trade dates
-   * @return the trade
-   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
-   */
   @Override
   public OvernightFutureTrade createTrade(
       LocalDate tradeDate,
