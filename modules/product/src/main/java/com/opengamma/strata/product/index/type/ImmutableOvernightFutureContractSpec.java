@@ -62,10 +62,13 @@ public final class ImmutableOvernightFutureContractSpec
   @PropertyDefinition(validate = "notNull", overrideGet = true)
   private final OvernightIndex index;
   /**
-   * The method of accruing Overnight interest.
+   * The sequence of dates that the future is based on.
+   * <p>
+   * This is used to calculate the reference date of the future that is the start
+   * date of the underlying synthetic deposit.
    */
   @PropertyDefinition(validate = "notNull")
-  private final OvernightAccrualMethod accrualMethod;
+  private final DateSequence dateSequence;
   /**
    * The number of date sequence periods that interest accrues for.
    * <p>
@@ -75,13 +78,10 @@ public final class ImmutableOvernightFutureContractSpec
   @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
   private final int accrualSequenceCount;
   /**
-   * The sequence of dates that the future is based on.
-   * <p>
-   * This is used to calculate the reference date of the future that is the start
-   * date of the underlying synthetic deposit.
+   * The method of accruing Overnight interest.
    */
   @PropertyDefinition(validate = "notNull")
-  private final DateSequence dateSequence;
+  private final OvernightAccrualMethod accrualMethod;
   /**
    * The business day adjustment to apply to get the start date.
    * <p>
@@ -114,7 +114,7 @@ public final class ImmutableOvernightFutureContractSpec
    * The notional expressed here must be positive.
    * The currency of the notional is specified by the index.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero", overrideGet = true)
   private final double notional;
 
   //-------------------------------------------------------------------------
@@ -150,7 +150,7 @@ public final class ImmutableOvernightFutureContractSpec
       double price,
       ReferenceData refData) {
 
-    LocalDate startDate = calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber, refData);
+    LocalDate startDate = calculateReferenceDate(tradeDate, minimumPeriod, sequenceNumber, refData);
     return createTrade(tradeDate, securityId, quantity, price, startDate, refData);
   }
 
@@ -163,7 +163,7 @@ public final class ImmutableOvernightFutureContractSpec
       double price,
       ReferenceData refData) {
 
-    LocalDate startDate = calculateReferenceDateFromTradeDate(tradeDate, yearMonth, refData);
+    LocalDate startDate = calculateReferenceDate(yearMonth, refData);
     return createTrade(tradeDate, securityId, quantity, price, startDate, refData);
   }
 
@@ -200,7 +200,7 @@ public final class ImmutableOvernightFutureContractSpec
   }
 
   @Override
-  public LocalDate calculateReferenceDateFromTradeDate(
+  public LocalDate calculateReferenceDate(
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,
@@ -212,11 +212,7 @@ public final class ImmutableOvernightFutureContractSpec
   }
 
   @Override
-  public LocalDate calculateReferenceDateFromTradeDate(
-      LocalDate tradeDate,
-      YearMonth yearMonth,
-      ReferenceData refData) {
-
+  public LocalDate calculateReferenceDate(YearMonth yearMonth, ReferenceData refData) {
     LocalDate referenceDate = dateSequence.dateMatching(yearMonth);
     return startDateAdjustment.adjust(referenceDate, refData);
   }
@@ -237,9 +233,9 @@ public final class ImmutableOvernightFutureContractSpec
           new String[] {
               "name",
               "index",
-              "accrualMethod",
-              "accrualSequenceCount",
               "dateSequence",
+              "accrualSequenceCount",
+              "accrualMethod",
               "startDateAdjustment",
               "endDateAdjustment",
               "lastTradeDateAdjustment",
@@ -247,9 +243,9 @@ public final class ImmutableOvernightFutureContractSpec
           () -> new ImmutableOvernightFutureContractSpec.Builder(),
           b -> b.getName(),
           b -> b.getIndex(),
-          b -> b.getAccrualMethod(),
-          b -> b.getAccrualSequenceCount(),
           b -> b.getDateSequence(),
+          b -> b.getAccrualSequenceCount(),
+          b -> b.getAccrualMethod(),
           b -> b.getStartDateAdjustment(),
           b -> b.getEndDateAdjustment(),
           b -> b.getLastTradeDateAdjustment(),
@@ -283,26 +279,26 @@ public final class ImmutableOvernightFutureContractSpec
   private ImmutableOvernightFutureContractSpec(
       String name,
       OvernightIndex index,
-      OvernightAccrualMethod accrualMethod,
-      int accrualSequenceCount,
       DateSequence dateSequence,
+      int accrualSequenceCount,
+      OvernightAccrualMethod accrualMethod,
       BusinessDayAdjustment startDateAdjustment,
       DaysAdjustment endDateAdjustment,
       DaysAdjustment lastTradeDateAdjustment,
       double notional) {
     JodaBeanUtils.notNull(name, "name");
     JodaBeanUtils.notNull(index, "index");
-    JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
-    ArgChecker.notNegativeOrZero(accrualSequenceCount, "accrualSequenceCount");
     JodaBeanUtils.notNull(dateSequence, "dateSequence");
+    ArgChecker.notNegativeOrZero(accrualSequenceCount, "accrualSequenceCount");
+    JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
     JodaBeanUtils.notNull(startDateAdjustment, "startDateAdjustment");
     JodaBeanUtils.notNull(lastTradeDateAdjustment, "lastTradeDateAdjustment");
     ArgChecker.notNegativeOrZero(notional, "notional");
     this.name = name;
     this.index = index;
-    this.accrualMethod = accrualMethod;
-    this.accrualSequenceCount = accrualSequenceCount;
     this.dateSequence = dateSequence;
+    this.accrualSequenceCount = accrualSequenceCount;
+    this.accrualMethod = accrualMethod;
     this.startDateAdjustment = startDateAdjustment;
     this.endDateAdjustment = endDateAdjustment;
     this.lastTradeDateAdjustment = lastTradeDateAdjustment;
@@ -339,11 +335,14 @@ public final class ImmutableOvernightFutureContractSpec
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the method of accruing Overnight interest.
+   * Gets the sequence of dates that the future is based on.
+   * <p>
+   * This is used to calculate the reference date of the future that is the start
+   * date of the underlying synthetic deposit.
    * @return the value of the property, not null
    */
-  public OvernightAccrualMethod getAccrualMethod() {
-    return accrualMethod;
+  public DateSequence getDateSequence() {
+    return dateSequence;
   }
 
   //-----------------------------------------------------------------------
@@ -360,14 +359,11 @@ public final class ImmutableOvernightFutureContractSpec
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sequence of dates that the future is based on.
-   * <p>
-   * This is used to calculate the reference date of the future that is the start
-   * date of the underlying synthetic deposit.
+   * Gets the method of accruing Overnight interest.
    * @return the value of the property, not null
    */
-  public DateSequence getDateSequence() {
-    return dateSequence;
+  public OvernightAccrualMethod getAccrualMethod() {
+    return accrualMethod;
   }
 
   //-----------------------------------------------------------------------
@@ -416,6 +412,7 @@ public final class ImmutableOvernightFutureContractSpec
    * The currency of the notional is specified by the index.
    * @return the value of the property
    */
+  @Override
   public double getNotional() {
     return notional;
   }
@@ -438,9 +435,9 @@ public final class ImmutableOvernightFutureContractSpec
       ImmutableOvernightFutureContractSpec other = (ImmutableOvernightFutureContractSpec) obj;
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(index, other.index) &&
-          JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
-          (accrualSequenceCount == other.accrualSequenceCount) &&
           JodaBeanUtils.equal(dateSequence, other.dateSequence) &&
+          (accrualSequenceCount == other.accrualSequenceCount) &&
+          JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
           JodaBeanUtils.equal(startDateAdjustment, other.startDateAdjustment) &&
           JodaBeanUtils.equal(endDateAdjustment, other.endDateAdjustment) &&
           JodaBeanUtils.equal(lastTradeDateAdjustment, other.lastTradeDateAdjustment) &&
@@ -454,9 +451,9 @@ public final class ImmutableOvernightFutureContractSpec
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
-    hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
-    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSequenceCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(dateSequence);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSequenceCount);
+    hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDateAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDateAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastTradeDateAdjustment);
@@ -472,9 +469,9 @@ public final class ImmutableOvernightFutureContractSpec
 
     private String name;
     private OvernightIndex index;
-    private OvernightAccrualMethod accrualMethod;
-    private int accrualSequenceCount;
     private DateSequence dateSequence;
+    private int accrualSequenceCount;
+    private OvernightAccrualMethod accrualMethod;
     private BusinessDayAdjustment startDateAdjustment;
     private DaysAdjustment endDateAdjustment;
     private DaysAdjustment lastTradeDateAdjustment;
@@ -494,9 +491,9 @@ public final class ImmutableOvernightFutureContractSpec
     private Builder(ImmutableOvernightFutureContractSpec beanToCopy) {
       this.name = beanToCopy.getName();
       this.index = beanToCopy.getIndex();
-      this.accrualMethod = beanToCopy.getAccrualMethod();
-      this.accrualSequenceCount = beanToCopy.getAccrualSequenceCount();
       this.dateSequence = beanToCopy.getDateSequence();
+      this.accrualSequenceCount = beanToCopy.getAccrualSequenceCount();
+      this.accrualMethod = beanToCopy.getAccrualMethod();
       this.startDateAdjustment = beanToCopy.getStartDateAdjustment();
       this.endDateAdjustment = beanToCopy.getEndDateAdjustment();
       this.lastTradeDateAdjustment = beanToCopy.getLastTradeDateAdjustment();
@@ -511,12 +508,12 @@ public final class ImmutableOvernightFutureContractSpec
           return name;
         case 100346066:  // index
           return index;
-        case -1335729296:  // accrualMethod
-          return accrualMethod;
-        case -1379870625:  // accrualSequenceCount
-          return accrualSequenceCount;
         case -258065009:  // dateSequence
           return dateSequence;
+        case -1379870625:  // accrualSequenceCount
+          return accrualSequenceCount;
+        case -1335729296:  // accrualMethod
+          return accrualMethod;
         case -1235962691:  // startDateAdjustment
           return startDateAdjustment;
         case 1599713654:  // endDateAdjustment
@@ -539,14 +536,14 @@ public final class ImmutableOvernightFutureContractSpec
         case 100346066:  // index
           this.index = (OvernightIndex) newValue;
           break;
-        case -1335729296:  // accrualMethod
-          this.accrualMethod = (OvernightAccrualMethod) newValue;
+        case -258065009:  // dateSequence
+          this.dateSequence = (DateSequence) newValue;
           break;
         case -1379870625:  // accrualSequenceCount
           this.accrualSequenceCount = (Integer) newValue;
           break;
-        case -258065009:  // dateSequence
-          this.dateSequence = (DateSequence) newValue;
+        case -1335729296:  // accrualMethod
+          this.accrualMethod = (OvernightAccrualMethod) newValue;
           break;
         case -1235962691:  // startDateAdjustment
           this.startDateAdjustment = (BusinessDayAdjustment) newValue;
@@ -578,9 +575,9 @@ public final class ImmutableOvernightFutureContractSpec
       return new ImmutableOvernightFutureContractSpec(
           name,
           index,
-          accrualMethod,
-          accrualSequenceCount,
           dateSequence,
+          accrualSequenceCount,
+          accrualMethod,
           startDateAdjustment,
           endDateAdjustment,
           lastTradeDateAdjustment,
@@ -614,13 +611,16 @@ public final class ImmutableOvernightFutureContractSpec
     }
 
     /**
-     * Sets the method of accruing Overnight interest.
-     * @param accrualMethod  the new value, not null
+     * Sets the sequence of dates that the future is based on.
+     * <p>
+     * This is used to calculate the reference date of the future that is the start
+     * date of the underlying synthetic deposit.
+     * @param dateSequence  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder accrualMethod(OvernightAccrualMethod accrualMethod) {
-      JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
-      this.accrualMethod = accrualMethod;
+    public Builder dateSequence(DateSequence dateSequence) {
+      JodaBeanUtils.notNull(dateSequence, "dateSequence");
+      this.dateSequence = dateSequence;
       return this;
     }
 
@@ -639,16 +639,13 @@ public final class ImmutableOvernightFutureContractSpec
     }
 
     /**
-     * Sets the sequence of dates that the future is based on.
-     * <p>
-     * This is used to calculate the reference date of the future that is the start
-     * date of the underlying synthetic deposit.
-     * @param dateSequence  the new value, not null
+     * Sets the method of accruing Overnight interest.
+     * @param accrualMethod  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder dateSequence(DateSequence dateSequence) {
-      JodaBeanUtils.notNull(dateSequence, "dateSequence");
-      this.dateSequence = dateSequence;
+    public Builder accrualMethod(OvernightAccrualMethod accrualMethod) {
+      JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
+      this.accrualMethod = accrualMethod;
       return this;
     }
 
@@ -716,9 +713,9 @@ public final class ImmutableOvernightFutureContractSpec
       buf.append("ImmutableOvernightFutureContractSpec.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
-      buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
-      buf.append("accrualSequenceCount").append('=').append(JodaBeanUtils.toString(accrualSequenceCount)).append(',').append(' ');
       buf.append("dateSequence").append('=').append(JodaBeanUtils.toString(dateSequence)).append(',').append(' ');
+      buf.append("accrualSequenceCount").append('=').append(JodaBeanUtils.toString(accrualSequenceCount)).append(',').append(' ');
+      buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
       buf.append("startDateAdjustment").append('=').append(JodaBeanUtils.toString(startDateAdjustment)).append(',').append(' ');
       buf.append("endDateAdjustment").append('=').append(JodaBeanUtils.toString(endDateAdjustment)).append(',').append(' ');
       buf.append("lastTradeDateAdjustment").append('=').append(JodaBeanUtils.toString(lastTradeDateAdjustment)).append(',').append(' ');

@@ -70,6 +70,15 @@ public interface OvernightFutureContractSpec
    */
   public abstract OvernightIndex getIndex();
 
+  /**
+   * Gets the notional.
+   * <p>
+   * The notional is a positive number in the index currency.
+   * 
+   * @return the notional
+   */
+  public abstract double getNotional();
+
   //-------------------------------------------------------------------------
   /**
    * Creates a trade based on this convention.
@@ -121,7 +130,8 @@ public interface OvernightFutureContractSpec
   /**
    * Calculates the reference date from the trade date.
    * <p>
-   * This determines the date from the specified minimum period and sequence number.
+   * This determines the reference date from the specified trade date, minimum period and sequence number.
+   * The reference date is the start date of the accrual period.
    * 
    * @param tradeDate  the trade date
    * @param minimumPeriod  minimum period between the trade date and the first future
@@ -129,7 +139,7 @@ public interface OvernightFutureContractSpec
    * @param refData  the reference data, used to resolve the date
    * @return the future reference date
    */
-  public abstract LocalDate calculateReferenceDateFromTradeDate(
+  public abstract LocalDate calculateReferenceDate(
       LocalDate tradeDate,
       Period minimumPeriod,
       int sequenceNumber,
@@ -138,17 +148,14 @@ public interface OvernightFutureContractSpec
   /**
    * Calculates the reference date from the trade date.
    * <p>
-   * This determines the date from the specified year-month.
+   * This determines the reference date from the specified year-month.
+   * The reference date is the start date of the accrual period.
    * 
-   * @param tradeDate  the trade date
    * @param yearMonth  the year-month that the future is defined to be for
    * @param refData  the reference data, used to resolve the date
    * @return the future reference date
    */
-  public abstract LocalDate calculateReferenceDateFromTradeDate(
-      LocalDate tradeDate,
-      YearMonth yearMonth,
-      ReferenceData refData);
+  public abstract LocalDate calculateReferenceDate(YearMonth yearMonth, ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**
