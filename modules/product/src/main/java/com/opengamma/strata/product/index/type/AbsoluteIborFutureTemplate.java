@@ -37,6 +37,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
  * The future is selected from a sequence of futures based on a year-month.
  */
 @BeanDefinition(builderScope = "private")
+@SuppressWarnings("deprecation")
 final class AbsoluteIborFutureTemplate
     implements IborFutureTemplate, ImmutableBean, Serializable {
 
@@ -50,14 +51,29 @@ final class AbsoluteIborFutureTemplate
   @PropertyDefinition(validate = "notNull")
   private final YearMonth yearMonth;
   /**
-   * The underlying futures convention.
+   * The underlying contract specification.
    * <p>
-   * This specifies the market convention of the future to be created.
+   * This specifies the contract of the Ibor Futures to be created.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final IborFutureConvention convention;
+  private final IborFutureContractSpec contractSpec;
 
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a template based on the specified contract specification.
+   * <p>
+   * The future is selected from a sequence of futures based on a year-month.
+   * In most cases, the date of the future will be in the same month as the specified month,
+   * but this is not guaranteed.
+   * 
+   * @param yearMonth  the year-month to use to select the future
+   * @param contractSpec  the contract specification
+   * @return the template
+   */
+  public static AbsoluteIborFutureTemplate of(YearMonth yearMonth, IborFutureContractSpec contractSpec) {
+    return new AbsoluteIborFutureTemplate(yearMonth, contractSpec);
+  }
+
   /**
    * Obtains a template based on the specified convention.
    * <p>
@@ -68,15 +84,29 @@ final class AbsoluteIborFutureTemplate
    * @param yearMonth  the year-month to use to select the future
    * @param convention  the future convention
    * @return the template
+   * @deprecated Use {@link #of(YearMonth, IborFutureContractSpec)}
    */
+  @Deprecated
   public static AbsoluteIborFutureTemplate of(YearMonth yearMonth, IborFutureConvention convention) {
-    return new AbsoluteIborFutureTemplate(yearMonth, convention);
+    IborFutureContractSpec contractSpec = IborFutureContractSpec.of(convention.getName());
+    return new AbsoluteIborFutureTemplate(yearMonth, contractSpec);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public IborIndex getIndex() {
-    return convention.getIndex();
+    return contractSpec.getIndex();
+  }
+
+  @Override
+  public IborFutureTrade createTrade(
+      LocalDate tradeDate,
+      SecurityId securityId,
+      double quantity,
+      double price,
+      ReferenceData refData) {
+
+    return contractSpec.createTrade(tradeDate, securityId, yearMonth, quantity, price, refData);
   }
 
   @Override
@@ -88,12 +118,12 @@ final class AbsoluteIborFutureTemplate
       double price,
       ReferenceData refData) {
 
-    return convention.createTrade(tradeDate, securityId, yearMonth, quantity, notional, price, refData);
+    return contractSpec.createTrade(tradeDate, securityId, yearMonth, quantity, price, refData);
   }
 
   @Override
   public LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
-    return convention.calculateReferenceDateFromTradeDate(tradeDate, yearMonth, refData);
+    return contractSpec.calculateReferenceDateFromTradeDate(tradeDate, yearMonth, refData);
   }
 
   @Override
@@ -121,11 +151,11 @@ final class AbsoluteIborFutureTemplate
 
   private AbsoluteIborFutureTemplate(
       YearMonth yearMonth,
-      IborFutureConvention convention) {
+      IborFutureContractSpec contractSpec) {
     JodaBeanUtils.notNull(yearMonth, "yearMonth");
-    JodaBeanUtils.notNull(convention, "convention");
+    JodaBeanUtils.notNull(contractSpec, "contractSpec");
     this.yearMonth = yearMonth;
-    this.convention = convention;
+    this.contractSpec = contractSpec;
   }
 
   @Override
@@ -148,14 +178,14 @@ final class AbsoluteIborFutureTemplate
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying futures convention.
+   * Gets the underlying contract specification.
    * <p>
-   * This specifies the market convention of the future to be created.
+   * This specifies the contract of the Ibor Futures to be created.
    * @return the value of the property, not null
    */
   @Override
-  public IborFutureConvention getConvention() {
-    return convention;
+  public IborFutureContractSpec getContractSpec() {
+    return contractSpec;
   }
 
   //-----------------------------------------------------------------------
@@ -167,7 +197,7 @@ final class AbsoluteIborFutureTemplate
     if (obj != null && obj.getClass() == this.getClass()) {
       AbsoluteIborFutureTemplate other = (AbsoluteIborFutureTemplate) obj;
       return JodaBeanUtils.equal(yearMonth, other.yearMonth) &&
-          JodaBeanUtils.equal(convention, other.convention);
+          JodaBeanUtils.equal(contractSpec, other.contractSpec);
     }
     return false;
   }
@@ -176,7 +206,7 @@ final class AbsoluteIborFutureTemplate
   public int hashCode() {
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(yearMonth);
-    hash = hash * 31 + JodaBeanUtils.hashCode(convention);
+    hash = hash * 31 + JodaBeanUtils.hashCode(contractSpec);
     return hash;
   }
 
@@ -185,7 +215,7 @@ final class AbsoluteIborFutureTemplate
     StringBuilder buf = new StringBuilder(96);
     buf.append("AbsoluteIborFutureTemplate{");
     buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth)).append(',').append(' ');
-    buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
+    buf.append("contractSpec").append('=').append(JodaBeanUtils.toString(contractSpec));
     buf.append('}');
     return buf.toString();
   }
@@ -206,17 +236,17 @@ final class AbsoluteIborFutureTemplate
     private final MetaProperty<YearMonth> yearMonth = DirectMetaProperty.ofImmutable(
         this, "yearMonth", AbsoluteIborFutureTemplate.class, YearMonth.class);
     /**
-     * The meta-property for the {@code convention} property.
+     * The meta-property for the {@code contractSpec} property.
      */
-    private final MetaProperty<IborFutureConvention> convention = DirectMetaProperty.ofImmutable(
-        this, "convention", AbsoluteIborFutureTemplate.class, IborFutureConvention.class);
+    private final MetaProperty<IborFutureContractSpec> contractSpec = DirectMetaProperty.ofImmutable(
+        this, "contractSpec", AbsoluteIborFutureTemplate.class, IborFutureContractSpec.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "yearMonth",
-        "convention");
+        "contractSpec");
 
     /**
      * Restricted constructor.
@@ -229,8 +259,8 @@ final class AbsoluteIborFutureTemplate
       switch (propertyName.hashCode()) {
         case -496678845:  // yearMonth
           return yearMonth;
-        case 2039569265:  // convention
-          return convention;
+        case -1402362899:  // contractSpec
+          return contractSpec;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -260,11 +290,11 @@ final class AbsoluteIborFutureTemplate
     }
 
     /**
-     * The meta-property for the {@code convention} property.
+     * The meta-property for the {@code contractSpec} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<IborFutureConvention> convention() {
-      return convention;
+    public MetaProperty<IborFutureContractSpec> contractSpec() {
+      return contractSpec;
     }
 
     //-----------------------------------------------------------------------
@@ -273,8 +303,8 @@ final class AbsoluteIborFutureTemplate
       switch (propertyName.hashCode()) {
         case -496678845:  // yearMonth
           return ((AbsoluteIborFutureTemplate) bean).getYearMonth();
-        case 2039569265:  // convention
-          return ((AbsoluteIborFutureTemplate) bean).getConvention();
+        case -1402362899:  // contractSpec
+          return ((AbsoluteIborFutureTemplate) bean).getContractSpec();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -297,7 +327,7 @@ final class AbsoluteIborFutureTemplate
   private static final class Builder extends DirectPrivateBeanBuilder<AbsoluteIborFutureTemplate> {
 
     private YearMonth yearMonth;
-    private IborFutureConvention convention;
+    private IborFutureContractSpec contractSpec;
 
     /**
      * Restricted constructor.
@@ -311,8 +341,8 @@ final class AbsoluteIborFutureTemplate
       switch (propertyName.hashCode()) {
         case -496678845:  // yearMonth
           return yearMonth;
-        case 2039569265:  // convention
-          return convention;
+        case -1402362899:  // contractSpec
+          return contractSpec;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -324,8 +354,8 @@ final class AbsoluteIborFutureTemplate
         case -496678845:  // yearMonth
           this.yearMonth = (YearMonth) newValue;
           break;
-        case 2039569265:  // convention
-          this.convention = (IborFutureConvention) newValue;
+        case -1402362899:  // contractSpec
+          this.contractSpec = (IborFutureContractSpec) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -337,7 +367,7 @@ final class AbsoluteIborFutureTemplate
     public AbsoluteIborFutureTemplate build() {
       return new AbsoluteIborFutureTemplate(
           yearMonth,
-          convention);
+          contractSpec);
     }
 
     //-----------------------------------------------------------------------
@@ -346,7 +376,7 @@ final class AbsoluteIborFutureTemplate
       StringBuilder buf = new StringBuilder(96);
       buf.append("AbsoluteIborFutureTemplate.Builder{");
       buf.append("yearMonth").append('=').append(JodaBeanUtils.toString(yearMonth)).append(',').append(' ');
-      buf.append("convention").append('=').append(JodaBeanUtils.toString(convention));
+      buf.append("contractSpec").append('=').append(JodaBeanUtils.toString(contractSpec));
       buf.append('}');
       return buf.toString();
     }

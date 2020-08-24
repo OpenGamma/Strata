@@ -37,7 +37,6 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
-import com.opengamma.strata.basics.date.DateSequences;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
@@ -84,9 +83,9 @@ import com.opengamma.strata.product.deposit.type.ImmutableTermDepositConvention;
 import com.opengamma.strata.product.deposit.type.TermDepositConvention;
 import com.opengamma.strata.product.deposit.type.TermDepositTemplate;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
-import com.opengamma.strata.product.index.type.IborFutureConvention;
+import com.opengamma.strata.product.index.type.IborFutureContractSpec;
+import com.opengamma.strata.product.index.type.IborFutureContractSpecs;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
-import com.opengamma.strata.product.index.type.ImmutableIborFutureConvention;
 import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
@@ -194,9 +193,9 @@ public class CalibrationZeroRateUsd2OisFuturesHWIrsTest {
   static {
     FWD3_NODES[0] = IborFixingDepositCurveNode.of(IborFixingDepositTemplate.of(USD_LIBOR_3M),
         QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[0])));
-    IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, DateSequences.QUARTERLY_IMM);
+    IborFutureContractSpec spec = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
-      IborFutureTemplate template = IborFutureTemplate.of(Period.ofDays(7), FWD3_FUT_SEQ[i], convention);
+      IborFutureTemplate template = IborFutureTemplate.of(Period.ofDays(7), FWD3_FUT_SEQ[i], spec);
       FWD3_NODES[i + 1] = IborFutureCurveNode.of(template, 
           QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i + 1])));
     }

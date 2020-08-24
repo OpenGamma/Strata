@@ -23,6 +23,38 @@ public interface IborFutureTemplate
     extends TradeTemplate {
 
   /**
+   * Obtains a template based on the specified contract specification using a relative definition of time.
+   * <p>
+   * The specific future is defined by two date-related inputs, the minimum period and the 1-based future number.
+   * For example, the 2nd future of the series where the 1st future is at least 1 week after the value date
+   * would be represented by a minimum period of 1 week and future number 2.
+   * 
+   * @param minimumPeriod  the minimum period between the base date and the first future
+   * @param sequenceNumber  the 1-based index of the future after the minimum period, must be 1 or greater
+   * @param contractSpec  the contract specification
+   * @return the template
+   */
+  public static IborFutureTemplate of(Period minimumPeriod, int sequenceNumber, IborFutureContractSpec contractSpec) {
+    return RelativeIborFutureTemplate.of(minimumPeriod, sequenceNumber, contractSpec);
+  }
+
+  /**
+   * Obtains a template based on the specified contract specification using an absolute definition of time.
+   * <p>
+   * The future is selected from a sequence of futures based on a year-month.
+   * In most cases, the date of the future will be in the same month as the specified month,
+   * but this is not guaranteed.
+   * 
+   * @param yearMonth  the year-month to use to select the future
+   * @param contractSpec  the contract specification
+   * @return the template
+   */
+  public static IborFutureTemplate of(YearMonth yearMonth, IborFutureContractSpec contractSpec) {
+    return AbsoluteIborFutureTemplate.of(yearMonth, contractSpec);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Obtains a template based on the specified convention using a relative definition of time.
    * <p>
    * The specific future is defined by two date-related inputs, the minimum period and the 1-based future number.
@@ -33,7 +65,9 @@ public interface IborFutureTemplate
    * @param sequenceNumber  the 1-based index of the future after the minimum period, must be 1 or greater
    * @param convention  the future convention
    * @return the template
+   * @deprecated Use {@link ImmutableIborFutureContractSpec}
    */
+  @Deprecated
   public static IborFutureTemplate of(Period minimumPeriod, int sequenceNumber, IborFutureConvention convention) {
     return RelativeIborFutureTemplate.of(minimumPeriod, sequenceNumber, convention);
   }
@@ -48,7 +82,9 @@ public interface IborFutureTemplate
    * @param yearMonth  the year-month to use to select the future
    * @param convention  the future convention
    * @return the template
+   * @deprecated Use {@link ImmutableIborFutureContractSpec}
    */
+  @Deprecated
   public static IborFutureTemplate of(YearMonth yearMonth, IborFutureConvention convention) {
     return AbsoluteIborFutureTemplate.of(yearMonth, convention);
   }
@@ -62,11 +98,49 @@ public interface IborFutureTemplate
   public abstract IborIndex getIndex();
 
   /**
-   * Gets the market convention of the Ibor future.
+   * Gets the contract specification of the Ibor future.
    * 
    * @return the convention
    */
-  public abstract IborFutureConvention getConvention();
+  public abstract IborFutureContractSpec getContractSpec();
+
+  /**
+   * Gets the market convention of the Ibor future.
+   * 
+   * @return the convention
+   * @deprecated Use {@link #getContractSpec()}
+   */
+  @Deprecated
+  public default IborFutureConvention getConvention() {
+    // this should smooth over the transition to contract specs in most cass
+    ImmutableIborFutureContractSpec spec = (ImmutableIborFutureContractSpec) getContractSpec();
+    return ImmutableIborFutureConvention.builder()
+        .name(spec.getName())
+        .index(spec.getIndex())
+        .dateSequence(spec.getDateSequence())
+        .businessDayAdjustment(spec.getBusinessDayAdjustment())
+        .build();
+  }
+
+  /**
+   * Creates a trade based on this template.
+   * <p>
+   * This returns a trade based on the specified date.
+   * 
+   * @param tradeDate  the date of the trade
+   * @param securityId  the identifier of the security
+   * @param quantity  the number of contracts traded, positive if buying, negative if selling
+   * @param price  the trade price
+   * @param refData  the reference data, used to resolve the trade dates
+   * @return the trade
+   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   */
+  public abstract IborFutureTrade createTrade(
+      LocalDate tradeDate,
+      SecurityId securityId,
+      double quantity,
+      double price,
+      ReferenceData refData);
 
   /**
    * Creates a trade based on this template.
@@ -82,7 +156,9 @@ public interface IborFutureTemplate
    * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
+   * @deprecated Use {@link #createTrade(LocalDate, SecurityId, double, double, ReferenceData)}
    */
+  @Deprecated
   public abstract IborFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,

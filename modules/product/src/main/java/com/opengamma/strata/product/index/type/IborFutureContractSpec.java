@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2020 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -19,22 +19,20 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.named.Named;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.TradeConvention;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
- * A market convention for Ibor Future trades.
+ * A contract specification for exchange traded Ibor Futures.
  * <p>
- * This defines the market convention for a future against a particular index.
+ * The contract specification defines how the future is traded.
+ * A specific future is created by specifying the year-month.
  * <p>
- * To manually create a convention, see {@link ImmutableIborFutureConvention}.
- * To register a specific convention, see {@code IborFutureConvention.ini}.
- * 
- * @deprecated Use {@link IborFutureContractSpec}
+ * For commonly traded contract specifications, see {@link IborFutureContractSpecs}.
+ * To manually create a contract specification, see {@link ImmutableIborFutureContractSpec}.
+ * To register a specific contract specification, see {@code OvernightIborContractSpec.ini}.
  */
-@Deprecated
-public interface IborFutureConvention
-    extends TradeConvention, Named {
+public interface IborFutureContractSpec
+    extends Named {
 
   /**
    * Obtains an instance from the specified unique name.
@@ -44,7 +42,7 @@ public interface IborFutureConvention
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static IborFutureConvention of(String uniqueName) {
+  public static IborFutureContractSpec of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return extendedEnum().lookup(uniqueName);
   }
@@ -57,8 +55,8 @@ public interface IborFutureConvention
    * 
    * @return the extended enum helper
    */
-  public static ExtendedEnum<IborFutureConvention> extendedEnum() {
-    return IborFutureConventions.ENUM_LOOKUP;
+  public static ExtendedEnum<IborFutureContractSpec> extendedEnum() {
+    return IborFutureContractSpecs.ENUM_LOOKUP;
   }
 
   //-------------------------------------------------------------------------
@@ -83,7 +81,6 @@ public interface IborFutureConvention
    * @param minimumPeriod  minimum period between the value date and the first future
    * @param sequenceNumber  the 1-based sequence number of the futures
    * @param quantity  the number of contracts traded, positive if buying, negative if selling
-   * @param notional  the notional amount of one future contract
    * @param price  the trade price of the future
    * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
@@ -95,7 +92,6 @@ public interface IborFutureConvention
       Period minimumPeriod,
       int sequenceNumber,
       double quantity,
-      double notional,
       double price,
       ReferenceData refData);
 
@@ -108,7 +104,6 @@ public interface IborFutureConvention
    * @param securityId  the identifier of the security
    * @param yearMonth  the year-month that the future is defined to be for
    * @param quantity  the number of contracts traded, positive if buying, negative if selling
-   * @param notional  the notional amount of one future contract
    * @param price  the trade price of the future
    * @param refData  the reference data, used to resolve the trade dates
    * @return the trade
@@ -119,7 +114,6 @@ public interface IborFutureConvention
       SecurityId securityId,
       YearMonth yearMonth,
       double quantity,
-      double notional,
       double price,
       ReferenceData refData);
 
