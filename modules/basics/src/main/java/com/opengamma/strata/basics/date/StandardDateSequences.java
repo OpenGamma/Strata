@@ -64,6 +64,114 @@ enum StandardDateSequences implements DateSequence {
     }
   },
 
+  // IMM in Mar/Jun/Sep/Dec plus first 4 non quarterly serial months
+  QUARTERLY_IMM_4_SERIAL("Quarterly-IMM-4-Serial") {
+    @Override
+    public DateSequence baseSequence() {
+      return QUARTERLY_IMM;
+    }
+
+    @Override
+    public LocalDate next(LocalDate date) {
+      return nth(date, 1);
+    }
+
+    @Override
+    public LocalDate nextOrSame(LocalDate date) {
+      return nthOrSame(date, 1);
+    }
+
+    @Override
+    public LocalDate nth(LocalDate date, int sequenceNumber) {
+      ArgChecker.notNegativeOrZero(sequenceNumber, "sequenceNumber");
+      LocalDate baseImm = date.with(THIRD_WEDNESDAY);
+      if (!baseImm.isAfter(date)) {
+        baseImm = baseImm.plusMonths(1);
+      }
+      return shift(baseImm, sequenceNumber);
+    }
+
+    @Override
+    public LocalDate nthOrSame(LocalDate date, int sequenceNumber) {
+      ArgChecker.notNegativeOrZero(sequenceNumber, "sequenceNumber");
+      LocalDate baseImm = date.with(THIRD_WEDNESDAY);
+      if (baseImm.isBefore(date)) {
+        baseImm = baseImm.plusMonths(1);
+      }
+      return shift(baseImm, sequenceNumber);
+    }
+
+    private LocalDate shift(LocalDate base, int sequenceNumber) {
+      // first 4 serial can be expanded to first 6 serial by subsuming first two quarterly
+      if (sequenceNumber <= 6) {
+        return base.plusMonths(sequenceNumber - 1).with(THIRD_WEDNESDAY);
+      }
+      int effectiveQuarterlySequenceNumber = sequenceNumber - 4;
+      int month = base.getMonthValue();
+      int offset = (month % 3 == 0 ? 0 : 3 - month % 3) + (effectiveQuarterlySequenceNumber - 1) * 3;
+      return base.plusMonths(offset).with(THIRD_WEDNESDAY);
+    }
+
+    @Override
+    public LocalDate dateMatching(YearMonth yearMonth) {
+      return nextOrSame(yearMonth.atDay(1));
+    }
+  },
+
+  // IMM in Mar/Jun/Sep/Dec plus first 2 non quarterly serial months
+  QUARTERLY_IMM_2_SERIAL("Quarterly-IMM-2-Serial") {
+    @Override
+    public DateSequence baseSequence() {
+      return QUARTERLY_IMM;
+    }
+
+    @Override
+    public LocalDate next(LocalDate date) {
+      return nth(date, 1);
+    }
+
+    @Override
+    public LocalDate nextOrSame(LocalDate date) {
+      return nthOrSame(date, 1);
+    }
+
+    @Override
+    public LocalDate nth(LocalDate date, int sequenceNumber) {
+      ArgChecker.notNegativeOrZero(sequenceNumber, "sequenceNumber");
+      LocalDate baseImm = date.with(THIRD_WEDNESDAY);
+      if (!baseImm.isAfter(date)) {
+        baseImm = baseImm.plusMonths(1);
+      }
+      return shift(baseImm, sequenceNumber);
+    }
+
+    @Override
+    public LocalDate nthOrSame(LocalDate date, int sequenceNumber) {
+      ArgChecker.notNegativeOrZero(sequenceNumber, "sequenceNumber");
+      LocalDate baseImm = date.with(THIRD_WEDNESDAY);
+      if (baseImm.isBefore(date)) {
+        baseImm = baseImm.plusMonths(1);
+      }
+      return shift(baseImm, sequenceNumber);
+    }
+
+    private LocalDate shift(LocalDate base, int sequenceNumber) {
+      // first 2 serial can be expanded to first 3 serial by subsuming first quarterly
+      if (sequenceNumber <= 3) {
+        return base.plusMonths(sequenceNumber - 1).with(THIRD_WEDNESDAY);
+      }
+      int effectiveQuarterlySequenceNumber = sequenceNumber - 2;
+      int month = base.getMonthValue();
+      int offset = (month % 3 == 0 ? 0 : 3 - month % 3) + (effectiveQuarterlySequenceNumber - 1) * 3;
+      return base.plusMonths(offset).with(THIRD_WEDNESDAY);
+    }
+
+    @Override
+    public LocalDate dateMatching(YearMonth yearMonth) {
+      return nextOrSame(yearMonth.atDay(1));
+    }
+  },
+
   // Third Wednesday
   MONTHLY_IMM("Monthly-IMM") {
     @Override
@@ -146,7 +254,7 @@ enum StandardDateSequences implements DateSequence {
     }
   },
 
-  // 10th in Mar/Jun/Sep/Dec
+  // 1st of the month
   MONTHLY_1ST("Monthly-1st") {
     @Override
     public LocalDate next(LocalDate date) {
