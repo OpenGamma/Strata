@@ -49,9 +49,9 @@ public final class ImmutableIborFutureContractSpec
     implements IborFutureContractSpec, ImmutableBean, Serializable {
 
   /**
-   * The name, such as 'USD-LIBOR-3M-CME'.
+   * The name, such as 'USD-LIBOR-3M-IMM-CME'.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notBlank", overrideGet = true)
   private final String name;
   /**
    * The Ibor index.
@@ -216,7 +216,7 @@ public final class ImmutableIborFutureContractSpec
       DateSequence dateSequence,
       BusinessDayAdjustment businessDayAdjustment,
       double notional) {
-    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notBlank(name, "name");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(dateSequence, "dateSequence");
     JodaBeanUtils.notNull(businessDayAdjustment, "businessDayAdjustment");
@@ -235,8 +235,8 @@ public final class ImmutableIborFutureContractSpec
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name, such as 'USD-LIBOR-3M-CME'.
-   * @return the value of the property, not null
+   * Gets the name, such as 'USD-LIBOR-3M-IMM-CME'.
+   * @return the value of the property, not blank
    */
   @Override
   public String getName() {
@@ -574,12 +574,12 @@ public final class ImmutableIborFutureContractSpec
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the name, such as 'USD-LIBOR-3M-CME'.
-     * @param name  the new value, not null
+     * Sets the name, such as 'USD-LIBOR-3M-IMM-CME'.
+     * @param name  the new value, not blank
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
+      JodaBeanUtils.notBlank(name, "name");
       this.name = name;
       return this;
     }
