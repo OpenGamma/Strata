@@ -38,6 +38,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.data.ImmutableMarketData;
@@ -190,7 +191,7 @@ public class CalibrationZeroRateUsd2OisFuturesIrsTest {
         QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[0])));
     IborFutureContractSpec spec = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
     for (int i = 0; i < FWD3_NB_FUT_NODES; i++) {
-      IborFutureTemplate template = IborFutureTemplate.of(Period.ofDays(7), FWD3_FUT_SEQ[i], spec);
+      IborFutureTemplate template = IborFutureTemplate.of(SequenceDate.base(Period.ofDays(7), FWD3_FUT_SEQ[i]), spec);
       FWD3_NODES[i + 1] = IborFutureCurveNode.of(template, 
           QuoteId.of(StandardId.of(SCHEME, FWD3_ID_VALUE[i + 1])));
     }

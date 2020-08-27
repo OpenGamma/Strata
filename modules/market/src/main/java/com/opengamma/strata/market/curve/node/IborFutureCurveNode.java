@@ -209,8 +209,7 @@ public final class IborFutureCurveNode
       return rate;
     }
     if (ValueType.DISCOUNT_FACTOR.equals(valueType)) {
-      double approximateMaturity = template.approximateMaturity(marketData.getValuationDate());
-      return Math.exp(-approximateMaturity * rate);
+      return 1d;
     }
     return 0d;
   }

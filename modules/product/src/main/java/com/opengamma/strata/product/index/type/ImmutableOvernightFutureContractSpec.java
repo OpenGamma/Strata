@@ -10,8 +10,6 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.YearMonth;
 import java.util.NoSuchElementException;
 
 import org.joda.beans.ImmutableBean;
@@ -20,7 +18,6 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.TypedMetaBean;
 import org.joda.beans.gen.BeanDefinition;
-import org.joda.beans.gen.ImmutableDefaults;
 import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
@@ -30,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecurityId;
@@ -69,14 +67,6 @@ public final class ImmutableOvernightFutureContractSpec
    */
   @PropertyDefinition(validate = "notNull")
   private final DateSequence dateSequence;
-  /**
-   * The number of date sequence periods that interest accrues for.
-   * <p>
-   * This could be used for futures that last 3 months but can start on any month.
-   * This defaults to 1, which indicates that the date sequence also specifies the interest accrual period.
-   */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
-  private final int accrualSequenceCount;
   /**
    * The method of accruing Overnight interest.
    */
@@ -118,11 +108,6 @@ public final class ImmutableOvernightFutureContractSpec
   private final double notional;
 
   //-------------------------------------------------------------------------
-  @ImmutableDefaults
-  private static void applyDefaults(Builder builder) {
-    builder.accrualSequenceCount = 1;
-  }
-
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.index != null) {
@@ -144,26 +129,12 @@ public final class ImmutableOvernightFutureContractSpec
   public OvernightFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,
-      Period minimumPeriod,
-      int sequenceNumber,
+      SequenceDate sequenceDate,
       double quantity,
       double price,
       ReferenceData refData) {
 
-    LocalDate startDate = calculateReferenceDate(tradeDate, minimumPeriod, sequenceNumber, refData);
-    return createTrade(tradeDate, securityId, quantity, price, startDate, refData);
-  }
-
-  @Override
-  public OvernightFutureTrade createTrade(
-      LocalDate tradeDate,
-      SecurityId securityId,
-      YearMonth yearMonth,
-      double quantity,
-      double price,
-      ReferenceData refData) {
-
-    LocalDate startDate = calculateReferenceDate(yearMonth, refData);
+    LocalDate startDate = calculateReferenceDate(tradeDate, sequenceDate, refData);
     return createTrade(tradeDate, securityId, quantity, price, startDate, refData);
   }
 
@@ -176,7 +147,7 @@ public final class ImmutableOvernightFutureContractSpec
       LocalDate startDate,
       ReferenceData refData) {
 
-    LocalDate nextReferenceDate = dateSequence.nth(startDate, accrualSequenceCount);
+    LocalDate nextReferenceDate = dateSequence.baseSequence().next(startDate);
     double accrualFactor = startDate.withDayOfMonth(1).until(nextReferenceDate.withDayOfMonth(1), MONTHS) / 12d;
     LocalDate endDate = endDateAdjustment.adjust(nextReferenceDate, refData);
     LocalDate lastTradeDate = lastTradeDateAdjustment.adjust(nextReferenceDate, refData);
@@ -200,20 +171,8 @@ public final class ImmutableOvernightFutureContractSpec
   }
 
   @Override
-  public LocalDate calculateReferenceDate(
-      LocalDate tradeDate,
-      Period minimumPeriod,
-      int sequenceNumber,
-      ReferenceData refData) {
-
-    LocalDate earliestDate = tradeDate.plus(minimumPeriod);
-    LocalDate referenceDate = dateSequence.nthOrSame(earliestDate, sequenceNumber);
-    return startDateAdjustment.adjust(referenceDate, refData);
-  }
-
-  @Override
-  public LocalDate calculateReferenceDate(YearMonth yearMonth, ReferenceData refData) {
-    LocalDate referenceDate = dateSequence.dateMatching(yearMonth);
+  public LocalDate calculateReferenceDate(LocalDate tradeDate, SequenceDate sequenceDate, ReferenceData refData) {
+    LocalDate referenceDate = dateSequence.selectDate(tradeDate, sequenceDate);
     return startDateAdjustment.adjust(referenceDate, refData);
   }
 
@@ -234,7 +193,6 @@ public final class ImmutableOvernightFutureContractSpec
               "name",
               "index",
               "dateSequence",
-              "accrualSequenceCount",
               "accrualMethod",
               "startDateAdjustment",
               "endDateAdjustment",
@@ -244,7 +202,6 @@ public final class ImmutableOvernightFutureContractSpec
           b -> b.getName(),
           b -> b.getIndex(),
           b -> b.getDateSequence(),
-          b -> b.getAccrualSequenceCount(),
           b -> b.getAccrualMethod(),
           b -> b.getStartDateAdjustment(),
           b -> b.getEndDateAdjustment(),
@@ -280,7 +237,6 @@ public final class ImmutableOvernightFutureContractSpec
       String name,
       OvernightIndex index,
       DateSequence dateSequence,
-      int accrualSequenceCount,
       OvernightAccrualMethod accrualMethod,
       BusinessDayAdjustment startDateAdjustment,
       DaysAdjustment endDateAdjustment,
@@ -289,7 +245,6 @@ public final class ImmutableOvernightFutureContractSpec
     JodaBeanUtils.notBlank(name, "name");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(dateSequence, "dateSequence");
-    ArgChecker.notNegativeOrZero(accrualSequenceCount, "accrualSequenceCount");
     JodaBeanUtils.notNull(accrualMethod, "accrualMethod");
     JodaBeanUtils.notNull(startDateAdjustment, "startDateAdjustment");
     JodaBeanUtils.notNull(lastTradeDateAdjustment, "lastTradeDateAdjustment");
@@ -297,7 +252,6 @@ public final class ImmutableOvernightFutureContractSpec
     this.name = name;
     this.index = index;
     this.dateSequence = dateSequence;
-    this.accrualSequenceCount = accrualSequenceCount;
     this.accrualMethod = accrualMethod;
     this.startDateAdjustment = startDateAdjustment;
     this.endDateAdjustment = endDateAdjustment;
@@ -343,18 +297,6 @@ public final class ImmutableOvernightFutureContractSpec
    */
   public DateSequence getDateSequence() {
     return dateSequence;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the number of date sequence periods that interest accrues for.
-   * <p>
-   * This could be used for futures that last 3 months but can start on any month.
-   * This defaults to 1, which indicates that the date sequence also specifies the interest accrual period.
-   * @return the value of the property
-   */
-  public int getAccrualSequenceCount() {
-    return accrualSequenceCount;
   }
 
   //-----------------------------------------------------------------------
@@ -436,7 +378,6 @@ public final class ImmutableOvernightFutureContractSpec
       return JodaBeanUtils.equal(name, other.name) &&
           JodaBeanUtils.equal(index, other.index) &&
           JodaBeanUtils.equal(dateSequence, other.dateSequence) &&
-          (accrualSequenceCount == other.accrualSequenceCount) &&
           JodaBeanUtils.equal(accrualMethod, other.accrualMethod) &&
           JodaBeanUtils.equal(startDateAdjustment, other.startDateAdjustment) &&
           JodaBeanUtils.equal(endDateAdjustment, other.endDateAdjustment) &&
@@ -452,7 +393,6 @@ public final class ImmutableOvernightFutureContractSpec
     hash = hash * 31 + JodaBeanUtils.hashCode(name);
     hash = hash * 31 + JodaBeanUtils.hashCode(index);
     hash = hash * 31 + JodaBeanUtils.hashCode(dateSequence);
-    hash = hash * 31 + JodaBeanUtils.hashCode(accrualSequenceCount);
     hash = hash * 31 + JodaBeanUtils.hashCode(accrualMethod);
     hash = hash * 31 + JodaBeanUtils.hashCode(startDateAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(endDateAdjustment);
@@ -470,7 +410,6 @@ public final class ImmutableOvernightFutureContractSpec
     private String name;
     private OvernightIndex index;
     private DateSequence dateSequence;
-    private int accrualSequenceCount;
     private OvernightAccrualMethod accrualMethod;
     private BusinessDayAdjustment startDateAdjustment;
     private DaysAdjustment endDateAdjustment;
@@ -481,7 +420,6 @@ public final class ImmutableOvernightFutureContractSpec
      * Restricted constructor.
      */
     private Builder() {
-      applyDefaults(this);
     }
 
     /**
@@ -492,7 +430,6 @@ public final class ImmutableOvernightFutureContractSpec
       this.name = beanToCopy.getName();
       this.index = beanToCopy.getIndex();
       this.dateSequence = beanToCopy.getDateSequence();
-      this.accrualSequenceCount = beanToCopy.getAccrualSequenceCount();
       this.accrualMethod = beanToCopy.getAccrualMethod();
       this.startDateAdjustment = beanToCopy.getStartDateAdjustment();
       this.endDateAdjustment = beanToCopy.getEndDateAdjustment();
@@ -510,8 +447,6 @@ public final class ImmutableOvernightFutureContractSpec
           return index;
         case -258065009:  // dateSequence
           return dateSequence;
-        case -1379870625:  // accrualSequenceCount
-          return accrualSequenceCount;
         case -1335729296:  // accrualMethod
           return accrualMethod;
         case -1235962691:  // startDateAdjustment
@@ -538,9 +473,6 @@ public final class ImmutableOvernightFutureContractSpec
           break;
         case -258065009:  // dateSequence
           this.dateSequence = (DateSequence) newValue;
-          break;
-        case -1379870625:  // accrualSequenceCount
-          this.accrualSequenceCount = (Integer) newValue;
           break;
         case -1335729296:  // accrualMethod
           this.accrualMethod = (OvernightAccrualMethod) newValue;
@@ -576,7 +508,6 @@ public final class ImmutableOvernightFutureContractSpec
           name,
           index,
           dateSequence,
-          accrualSequenceCount,
           accrualMethod,
           startDateAdjustment,
           endDateAdjustment,
@@ -621,20 +552,6 @@ public final class ImmutableOvernightFutureContractSpec
     public Builder dateSequence(DateSequence dateSequence) {
       JodaBeanUtils.notNull(dateSequence, "dateSequence");
       this.dateSequence = dateSequence;
-      return this;
-    }
-
-    /**
-     * Sets the number of date sequence periods that interest accrues for.
-     * <p>
-     * This could be used for futures that last 3 months but can start on any month.
-     * This defaults to 1, which indicates that the date sequence also specifies the interest accrual period.
-     * @param accrualSequenceCount  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder accrualSequenceCount(int accrualSequenceCount) {
-      ArgChecker.notNegativeOrZero(accrualSequenceCount, "accrualSequenceCount");
-      this.accrualSequenceCount = accrualSequenceCount;
       return this;
     }
 
@@ -709,12 +626,11 @@ public final class ImmutableOvernightFutureContractSpec
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(320);
+      StringBuilder buf = new StringBuilder(288);
       buf.append("ImmutableOvernightFutureContractSpec.Builder{");
       buf.append("name").append('=').append(JodaBeanUtils.toString(name)).append(',').append(' ');
       buf.append("index").append('=').append(JodaBeanUtils.toString(index)).append(',').append(' ');
       buf.append("dateSequence").append('=').append(JodaBeanUtils.toString(dateSequence)).append(',').append(' ');
-      buf.append("accrualSequenceCount").append('=').append(JodaBeanUtils.toString(accrualSequenceCount)).append(',').append(' ');
       buf.append("accrualMethod").append('=').append(JodaBeanUtils.toString(accrualMethod)).append(',').append(' ');
       buf.append("startDateAdjustment").append('=').append(JodaBeanUtils.toString(startDateAdjustment)).append(',').append(' ');
       buf.append("endDateAdjustment").append('=').append(JodaBeanUtils.toString(endDateAdjustment)).append(',').append(' ');

@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
@@ -70,13 +71,13 @@ public class IborFutureContractSpecTest {
   @Test
   public void test_toTrade() {
     LocalDate date = LocalDate.of(2015, 10, 20);
-    Period start = Period.ofMonths(2);
-    int number = 2; // Future should be 20 Dec 15 + 2 IMM = effective 15-Jun-2016, fixing 13-Jun-2016    
+    // Future should be 20 Dec 15 + 2 IMM = effective 15-Jun-2016, fixing 13-Jun-2016    
+    SequenceDate seqDate = SequenceDate.base(Period.ofMonths(2), 2);
     IborFutureContractSpec convention = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
     double quantity = 3;
     double price = 0.99;
     SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
-    IborFutureTrade trade = convention.createTrade(date, secId, start, number, quantity, price, REF_DATA);
+    IborFutureTrade trade = convention.createTrade(date, secId, seqDate, quantity, price, REF_DATA);
     assertThat(trade.getProduct().getFixingDate()).isEqualTo(LocalDate.of(2016, 6, 13));
     assertThat(trade.getProduct().getIndex()).isEqualTo(USD_LIBOR_3M);
     assertThat(trade.getProduct().getNotional()).isEqualTo(NOTIONAL_1M);
@@ -89,7 +90,7 @@ public class IborFutureContractSpecTest {
   public static Object[][] data_name() {
     return new Object[][] {
         {IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME, "USD-LIBOR-3M-IMM-CME"},
-        {IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME_SERIAL, "USD-LIBOR-3M-IMM-CME-SERIAL"},
+        {IborFutureContractSpecs.GBP_LIBOR_3M_IMM_ICE, "GBP-LIBOR-3M-IMM-ICE"},
     };
   }
 

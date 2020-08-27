@@ -6,15 +6,19 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
+import static com.opengamma.strata.product.index.type.IborFutureContractSpecs.GBP_LIBOR_3M_IMM_ICE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.time.Period;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.collect.io.ResourceLocator;
@@ -23,8 +27,13 @@ import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.CurveDefinition;
 import com.opengamma.strata.market.curve.CurveGroupName;
 import com.opengamma.strata.market.curve.CurveName;
+import com.opengamma.strata.market.curve.CurveNodeDate;
+import com.opengamma.strata.market.curve.CurveNodeDateOrder;
 import com.opengamma.strata.market.curve.RatesCurveGroupDefinition;
 import com.opengamma.strata.market.curve.RatesCurveGroupEntry;
+import com.opengamma.strata.market.curve.node.IborFutureCurveNode;
+import com.opengamma.strata.market.observable.QuoteId;
+import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
  * Test {@link RatesCalibrationCsvLoader}.
@@ -117,6 +126,39 @@ public class RatesCalibrationCsvLoaderTest {
 
   private RatesCurveGroupEntry findEntry(RatesCurveGroupDefinition defn, String curveName) {
     return defn.getEntries().stream().filter(d -> d.getCurveName().getName().equals(curveName)).findFirst().get();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_iborFuture1() {
+    QuoteId quoteId = QuoteId.of(StandardId.of("OG", "123"));
+    IborFutureCurveNode test = RatesCalibrationCsvLoader.curveIborFutureCurveNode(
+        "GBP-LIBOR-3M-IMM-ICE", "2M+3", "ABC", quoteId, 1.2d, CurveNodeDate.END, CurveNodeDateOrder.DEFAULT);
+    IborFutureTemplate expected = IborFutureTemplate.of(SequenceDate.base(Period.ofMonths(2), 3), GBP_LIBOR_3M_IMM_ICE);
+    assertThat(test.getTemplate()).isEqualTo(expected);
+    assertThat(test.getLabel()).isEqualTo("ABC");
+    assertThat(test.getRateId()).isEqualTo(quoteId);
+    assertThat(test.getAdditionalSpread()).isEqualTo(1.2d);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
+    assertThat(test.getDateOrder()).isEqualTo(CurveNodeDateOrder.DEFAULT);
+
+    IborFutureCurveNode test2 = RatesCalibrationCsvLoader.curveIborFutureCurveNode(
+        "GBP-LIBOR-3M-IMM-ICE", "2M+3B", "ABC", quoteId, 1.2d, CurveNodeDate.END, CurveNodeDateOrder.DEFAULT);
+    assertThat(test2.getTemplate()).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_iborFuture2() {
+    QuoteId quoteId = QuoteId.of(StandardId.of("OG", "123"));
+    IborFutureCurveNode test = RatesCalibrationCsvLoader.curveIborFutureCurveNode(
+        "GBP-LIBOR-3M-IMM-ICE", "2M+3F", "ABC", quoteId, 1.2d, CurveNodeDate.END, CurveNodeDateOrder.DEFAULT);
+    IborFutureTemplate expected = IborFutureTemplate.of(SequenceDate.full(Period.ofMonths(2), 3), GBP_LIBOR_3M_IMM_ICE);
+    assertThat(test.getTemplate()).isEqualTo(expected);
+    assertThat(test.getLabel()).isEqualTo("ABC");
+    assertThat(test.getRateId()).isEqualTo(quoteId);
+    assertThat(test.getAdditionalSpread()).isEqualTo(1.2d);
+    assertThat(test.getDate()).isEqualTo(CurveNodeDate.END);
+    assertThat(test.getDateOrder()).isEqualTo(CurveNodeDateOrder.DEFAULT);
   }
 
   //-------------------------------------------------------------------------

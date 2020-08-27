@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataNotFoundException;
@@ -47,8 +48,9 @@ public class OvernightFutureCurveNodeTest {
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
   private static final OvernightFutureContractSpec SPEC = OvernightFutureContractSpecs.USD_SOFR_3M_IMM_CME;
   private static final YearMonth YEAR_MONTH = YearMonth.of(2015, 9);
-  private static final OvernightFutureTemplate TEMPLATE = OvernightFutureTemplate.of(YEAR_MONTH, SPEC);
-  private static final OvernightFutureTemplate TEMPLATE2 = OvernightFutureTemplate.of(YEAR_MONTH.plusMonths(3), SPEC);
+  private static final OvernightFutureTemplate TEMPLATE = OvernightFutureTemplate.of(SequenceDate.base(YEAR_MONTH), SPEC);
+  private static final OvernightFutureTemplate TEMPLATE2 =
+      OvernightFutureTemplate.of(SequenceDate.full(YEAR_MONTH.plusMonths(3)), SPEC);
   private static final StandardId STANDARD_ID = StandardId.of("OG-Ticker", "OG-EDH6");
   private static final QuoteId QUOTE_ID = QuoteId.of(STANDARD_ID);
   private static final double SPREAD = 0.0001;
@@ -111,7 +113,7 @@ public class OvernightFutureCurveNodeTest {
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
     OvernightFutureTrade trade = node.trade(1d, marketData, REF_DATA);
     OvernightFutureTrade expected = SPEC.createTrade(
-        VAL_DATE, SecurityId.of(STANDARD_ID), YEAR_MONTH, 1L, price + SPREAD, REF_DATA);
+        VAL_DATE, SecurityId.of(STANDARD_ID), SequenceDate.base(YEAR_MONTH), 1L, price + SPREAD, REF_DATA);
     assertThat(trade).isEqualTo(expected);
   }
 
@@ -138,7 +140,7 @@ public class OvernightFutureCurveNodeTest {
   public void test_metadata_end() {
     OvernightFutureCurveNode node = OvernightFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
     LocalDate date = LocalDate.of(2015, 10, 20);
-    LocalDate referenceDate = SPEC.calculateReferenceDate(YEAR_MONTH, REF_DATA);
+    LocalDate referenceDate = SPEC.calculateReferenceDate(VAL_DATE, SequenceDate.base(YEAR_MONTH), REF_DATA);
     LocalDate maturityDate = SPEC.getIndex().calculateMaturityFromEffective(referenceDate, REF_DATA);
     ParameterMetadata metadata = node.metadata(date, REF_DATA);
     assertThat(metadata.getLabel()).isEqualTo(LABEL);
@@ -166,7 +168,7 @@ public class OvernightFutureCurveNodeTest {
     LocalDate fixingDate = trade.getProduct().getEndDate();
     DatedParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertThat(metadata.getDate()).isEqualTo(fixingDate);
-    LocalDate referenceDate = SPEC.calculateReferenceDate(YEAR_MONTH, REF_DATA);
+    LocalDate referenceDate = SPEC.calculateReferenceDate(VAL_DATE, SequenceDate.base(YEAR_MONTH), REF_DATA);
     assertThat(((YearMonthDateParameterMetadata) metadata).getYearMonth()).isEqualTo(YearMonth.from(referenceDate));
   }
 

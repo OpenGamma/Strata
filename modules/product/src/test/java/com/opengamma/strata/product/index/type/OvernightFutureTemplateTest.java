@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2020 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -17,24 +16,26 @@ import java.time.YearMonth;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.product.SecurityId;
-import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.OvernightFutureTrade;
 
 /**
- * Tests {@link AbsoluteIborFutureTemplate}.
+ * Tests {@link OvernightFutureTemplate}.
  */
-public class AbsoluteIborFutureTemplateTest {
+public class OvernightFutureTemplateTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
-  private static final IborFutureContractSpec SPEC = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
-  private static final IborFutureContractSpec SPEC2 = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME_SERIAL;
+  private static final OvernightFutureContractSpec SPEC = OvernightFutureContractSpecs.USD_SOFR_3M_IMM_CME;
+  private static final OvernightFutureContractSpec SPEC2 = OvernightFutureContractSpecs.GBP_SONIA_3M_IMM_ICE;
   private static final YearMonth YEAR_MONTH = YearMonth.of(2016, 6);
+  private static final SequenceDate SEQ_DATE = SequenceDate.base(YearMonth.of(2016, 6));
 
   //-------------------------------------------------------------------------
   @Test
   public void test_of() {
-    AbsoluteIborFutureTemplate test = AbsoluteIborFutureTemplate.of(YEAR_MONTH, SPEC);
-    assertThat(test.getYearMonth()).isEqualTo(YEAR_MONTH);
+    OvernightFutureTemplate test = OvernightFutureTemplate.of(SEQ_DATE, SPEC);
+    assertThat(test.getSequenceDate()).isEqualTo(SEQ_DATE);
     assertThat(test.getContractSpec()).isEqualTo(SPEC);
     assertThat(test.getIndex()).isEqualTo(SPEC.getIndex());
   }
@@ -42,42 +43,36 @@ public class AbsoluteIborFutureTemplateTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_createTrade() {
-    IborFutureTemplate base = IborFutureTemplate.of(YEAR_MONTH, SPEC);
+    OvernightFutureTemplate base = OvernightFutureTemplate.of(SEQ_DATE, SPEC);
     LocalDate date = LocalDate.of(2015, 10, 20);
     double quantity = 3;
     double price = 0.99;
     SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
-    IborFutureTrade trade = base.createTrade(date, secId, quantity, price, REF_DATA);
-    IborFutureTrade expected = SPEC.createTrade(date, secId, YEAR_MONTH, quantity, price, REF_DATA);
+    OvernightFutureTrade trade = base.createTrade(date, secId, quantity, price, REF_DATA);
+    OvernightFutureTrade expected = SPEC.createTrade(date, secId, SEQ_DATE, quantity, price, REF_DATA);
     assertThat(trade).isEqualTo(expected);
   }
 
   @Test
   public void test_calculateReferenceDateFromTradeDate() {
-    IborFutureTemplate base = IborFutureTemplate.of(YEAR_MONTH, SPEC);
+    OvernightFutureTemplate base = OvernightFutureTemplate.of(SEQ_DATE, SPEC);
     LocalDate date = LocalDate.of(2015, 10, 20);
     LocalDate expected = LocalDate.of(2016, 6, 15);
     assertThat(base.calculateReferenceDateFromTradeDate(date, REF_DATA)).isEqualTo(expected);
   }
 
-  @Test
-  public void test_approximateMaturity() {
-    IborFutureTemplate base = IborFutureTemplate.of(YEAR_MONTH, SPEC);
-    assertThat(base.approximateMaturity(LocalDate.of(2015, 10, 20))).isCloseTo(8d / 12d, offset(0.1d));
-  }
-
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
-    AbsoluteIborFutureTemplate test = AbsoluteIborFutureTemplate.of(YEAR_MONTH, SPEC);
+    OvernightFutureTemplate test = OvernightFutureTemplate.of(SEQ_DATE, SPEC);
     coverImmutableBean(test);
-    AbsoluteIborFutureTemplate test2 = AbsoluteIborFutureTemplate.of(YEAR_MONTH.plusMonths(1), SPEC2);
+    OvernightFutureTemplate test2 = OvernightFutureTemplate.of(SequenceDate.full(YEAR_MONTH), SPEC2);
     coverBeanEquals(test, test2);
   }
 
   @Test
   public void test_serialization() {
-    AbsoluteIborFutureTemplate test = AbsoluteIborFutureTemplate.of(YEAR_MONTH, SPEC);
+    OvernightFutureTemplate test = OvernightFutureTemplate.of(SEQ_DATE, SPEC);
     assertSerialization(test);
   }
 

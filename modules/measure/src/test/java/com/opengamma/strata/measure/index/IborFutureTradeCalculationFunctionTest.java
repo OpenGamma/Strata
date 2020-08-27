@@ -21,6 +21,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -54,7 +55,7 @@ public class IborFutureTradeCalculationFunctionTest {
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double MARKET_PRICE = 99.42;
   public static final IborFutureTrade TRADE = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME.createTrade(
-      LocalDate.of(2014, 9, 12), SecurityId.of("test", "test"), Period.ofMonths(1), 2, 5, 0.9998, REF_DATA);
+      LocalDate.of(2014, 9, 12), SecurityId.of("test", "test"), SequenceDate.base(Period.ofMonths(1), 2), 5, 0.9998, REF_DATA);
   public static final ResolvedIborFutureTrade RTRADE = TRADE.resolve(REF_DATA);
 
   private static final StandardId SEC_ID = TRADE.getProduct().getSecurityId().getStandardId();

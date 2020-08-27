@@ -9,28 +9,25 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.YearMonth;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.TypedMetaBean;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.impl.direct.MinimalMetaBean;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateSequence;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecurityId;
@@ -44,7 +41,7 @@ import com.opengamma.strata.product.index.IborFutureTrade;
  * The contract specification defines how the future is traded.
  * A specific future is created by specifying the year-month.
  */
-@BeanDefinition
+@BeanDefinition(style = "minimal")
 public final class ImmutableIborFutureContractSpec
     implements IborFutureContractSpec, ImmutableBean, Serializable {
 
@@ -83,7 +80,7 @@ public final class ImmutableIborFutureContractSpec
    * The notional expressed here must be positive.
    * The currency of the notional is specified by the index.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero", overrideGet = true)
   private final double notional;
 
   //-------------------------------------------------------------------------
@@ -102,30 +99,15 @@ public final class ImmutableIborFutureContractSpec
   public IborFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,
-      Period minimumPeriod,
-      int sequenceNumber,
+      SequenceDate sequenceDate,
       double quantity,
       double price,
       ReferenceData refData) {
 
-    LocalDate referenceDate = calculateReferenceDateFromTradeDate(tradeDate, minimumPeriod, sequenceNumber, refData);
+    LocalDate referenceDate = calculateReferenceDate(tradeDate, sequenceDate, refData);
     LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate, refData);
     YearMonth yearMonth = YearMonth.from(lastTradeDate);
-    return createTrade(tradeDate, securityId, quantity, notional, price, yearMonth, lastTradeDate, referenceDate);
-  }
-
-  @Override
-  public IborFutureTrade createTrade(
-      LocalDate tradeDate,
-      SecurityId securityId,
-      YearMonth yearMonth,
-      double quantity,
-      double price,
-      ReferenceData refData) {
-
-    LocalDate referenceDate = calculateReferenceDateFromTradeDate(tradeDate, yearMonth, refData);
-    LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate, refData);
-    return createTrade(tradeDate, securityId, quantity, notional, price, yearMonth, lastTradeDate, referenceDate);
+    return createTrade(tradeDate, securityId, quantity, price, yearMonth, lastTradeDate, referenceDate);
   }
 
   // creates the trade
@@ -133,7 +115,6 @@ public final class ImmutableIborFutureContractSpec
       LocalDate tradeDate,
       SecurityId securityId,
       double quantity,
-      double notional,
       double price,
       YearMonth yearMonth,
       LocalDate lastTradeDate,
@@ -157,24 +138,8 @@ public final class ImmutableIborFutureContractSpec
   }
 
   @Override
-  public LocalDate calculateReferenceDateFromTradeDate(
-      LocalDate tradeDate,
-      Period minimumPeriod,
-      int sequenceNumber,
-      ReferenceData refData) {
-
-    LocalDate earliestDate = tradeDate.plus(minimumPeriod);
-    LocalDate referenceDate = dateSequence.nthOrSame(earliestDate, sequenceNumber);
-    return businessDayAdjustment.adjust(referenceDate, refData);
-  }
-
-  @Override
-  public LocalDate calculateReferenceDateFromTradeDate(
-      LocalDate tradeDate,
-      YearMonth yearMonth,
-      ReferenceData refData) {
-
-    LocalDate referenceDate = dateSequence.dateMatching(yearMonth);
+  public LocalDate calculateReferenceDate(LocalDate tradeDate, SequenceDate sequenceDate, ReferenceData refData) {
+    LocalDate referenceDate = dateSequence.selectDate(tradeDate, sequenceDate);
     return businessDayAdjustment.adjust(referenceDate, refData);
   }
 
@@ -187,14 +152,33 @@ public final class ImmutableIborFutureContractSpec
   //------------------------- AUTOGENERATED START -------------------------
   /**
    * The meta-bean for {@code ImmutableIborFutureContractSpec}.
+   */
+  private static final TypedMetaBean<ImmutableIborFutureContractSpec> META_BEAN =
+      MinimalMetaBean.of(
+          ImmutableIborFutureContractSpec.class,
+          new String[] {
+              "name",
+              "index",
+              "dateSequence",
+              "businessDayAdjustment",
+              "notional"},
+          () -> new ImmutableIborFutureContractSpec.Builder(),
+          b -> b.getName(),
+          b -> b.getIndex(),
+          b -> b.getDateSequence(),
+          b -> b.getBusinessDayAdjustment(),
+          b -> b.getNotional());
+
+  /**
+   * The meta-bean for {@code ImmutableIborFutureContractSpec}.
    * @return the meta-bean, not null
    */
-  public static ImmutableIborFutureContractSpec.Meta meta() {
-    return ImmutableIborFutureContractSpec.Meta.INSTANCE;
+  public static TypedMetaBean<ImmutableIborFutureContractSpec> meta() {
+    return META_BEAN;
   }
 
   static {
-    MetaBean.register(ImmutableIborFutureContractSpec.Meta.INSTANCE);
+    MetaBean.register(META_BEAN);
   }
 
   /**
@@ -229,8 +213,8 @@ public final class ImmutableIborFutureContractSpec
   }
 
   @Override
-  public ImmutableIborFutureContractSpec.Meta metaBean() {
-    return ImmutableIborFutureContractSpec.Meta.INSTANCE;
+  public TypedMetaBean<ImmutableIborFutureContractSpec> metaBean() {
+    return META_BEAN;
   }
 
   //-----------------------------------------------------------------------
@@ -288,6 +272,7 @@ public final class ImmutableIborFutureContractSpec
    * The currency of the notional is specified by the index.
    * @return the value of the property
    */
+  @Override
   public double getNotional() {
     return notional;
   }
@@ -326,160 +311,6 @@ public final class ImmutableIborFutureContractSpec
     hash = hash * 31 + JodaBeanUtils.hashCode(businessDayAdjustment);
     hash = hash * 31 + JodaBeanUtils.hashCode(notional);
     return hash;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The meta-bean for {@code ImmutableIborFutureContractSpec}.
-   */
-  public static final class Meta extends DirectMetaBean {
-    /**
-     * The singleton instance of the meta-bean.
-     */
-    static final Meta INSTANCE = new Meta();
-
-    /**
-     * The meta-property for the {@code name} property.
-     */
-    private final MetaProperty<String> name = DirectMetaProperty.ofImmutable(
-        this, "name", ImmutableIborFutureContractSpec.class, String.class);
-    /**
-     * The meta-property for the {@code index} property.
-     */
-    private final MetaProperty<IborIndex> index = DirectMetaProperty.ofImmutable(
-        this, "index", ImmutableIborFutureContractSpec.class, IborIndex.class);
-    /**
-     * The meta-property for the {@code dateSequence} property.
-     */
-    private final MetaProperty<DateSequence> dateSequence = DirectMetaProperty.ofImmutable(
-        this, "dateSequence", ImmutableIborFutureContractSpec.class, DateSequence.class);
-    /**
-     * The meta-property for the {@code businessDayAdjustment} property.
-     */
-    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
-        this, "businessDayAdjustment", ImmutableIborFutureContractSpec.class, BusinessDayAdjustment.class);
-    /**
-     * The meta-property for the {@code notional} property.
-     */
-    private final MetaProperty<Double> notional = DirectMetaProperty.ofImmutable(
-        this, "notional", ImmutableIborFutureContractSpec.class, Double.TYPE);
-    /**
-     * The meta-properties.
-     */
-    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
-        "name",
-        "index",
-        "dateSequence",
-        "businessDayAdjustment",
-        "notional");
-
-    /**
-     * Restricted constructor.
-     */
-    private Meta() {
-    }
-
-    @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
-      switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return name;
-        case 100346066:  // index
-          return index;
-        case -258065009:  // dateSequence
-          return dateSequence;
-        case -1065319863:  // businessDayAdjustment
-          return businessDayAdjustment;
-        case 1585636160:  // notional
-          return notional;
-      }
-      return super.metaPropertyGet(propertyName);
-    }
-
-    @Override
-    public ImmutableIborFutureContractSpec.Builder builder() {
-      return new ImmutableIborFutureContractSpec.Builder();
-    }
-
-    @Override
-    public Class<? extends ImmutableIborFutureContractSpec> beanType() {
-      return ImmutableIborFutureContractSpec.class;
-    }
-
-    @Override
-    public Map<String, MetaProperty<?>> metaPropertyMap() {
-      return metaPropertyMap$;
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code name} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<String> name() {
-      return name;
-    }
-
-    /**
-     * The meta-property for the {@code index} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<IborIndex> index() {
-      return index;
-    }
-
-    /**
-     * The meta-property for the {@code dateSequence} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<DateSequence> dateSequence() {
-      return dateSequence;
-    }
-
-    /**
-     * The meta-property for the {@code businessDayAdjustment} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
-      return businessDayAdjustment;
-    }
-
-    /**
-     * The meta-property for the {@code notional} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Double> notional() {
-      return notional;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
-      switch (propertyName.hashCode()) {
-        case 3373707:  // name
-          return ((ImmutableIborFutureContractSpec) bean).getName();
-        case 100346066:  // index
-          return ((ImmutableIborFutureContractSpec) bean).getIndex();
-        case -258065009:  // dateSequence
-          return ((ImmutableIborFutureContractSpec) bean).getDateSequence();
-        case -1065319863:  // businessDayAdjustment
-          return ((ImmutableIborFutureContractSpec) bean).getBusinessDayAdjustment();
-        case 1585636160:  // notional
-          return ((ImmutableIborFutureContractSpec) bean).getNotional();
-      }
-      return super.propertyGet(bean, propertyName, quiet);
-    }
-
-    @Override
-    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
   }
 
   //-----------------------------------------------------------------------

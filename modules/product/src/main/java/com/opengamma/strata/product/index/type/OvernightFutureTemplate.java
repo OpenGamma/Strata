@@ -5,12 +5,21 @@
  */
 package com.opengamma.strata.product.index.type;
 
+import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.YearMonth;
+
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.TypedMetaBean;
+import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.light.LightMetaBean;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeTemplate;
@@ -19,38 +28,36 @@ import com.opengamma.strata.product.index.OvernightFutureTrade;
 /**
  * A template for creating an Overnight Future trade.
  */
-public interface OvernightFutureTemplate
-    extends TradeTemplate {
+@BeanDefinition(style = "light")
+public final class OvernightFutureTemplate
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
-   * Obtains a template based on the specified contract specification using a relative definition of time.
+   * The instructions that define which future is desired.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SequenceDate sequenceDate;
+  /**
+   * The underlying contract specification.
    * <p>
-   * The specific future is defined by two date-related inputs, the minimum period and the 1-based future number.
-   * For example, the 2nd future of the series where the 1st future is at least 1 week after the value date
-   * would be represented by a minimum period of 1 week and future number 2.
+   * This specifies the contract of the Overnight Futures to be created.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final OvernightFutureContractSpec contractSpec;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a template based on the specified contract specification and sequence date.
+   * <p>
+   * The specific future is defined by two date-related inputs -
+   * the sequence date and the date sequence embedded in the contract specification.
    * 
-   * @param minimumPeriod  the minimum period between the base date and the first future
-   * @param sequenceNumber  the 1-based index of the future after the minimum period, must be 1 or greater
+   * @param sequenceDate  the instructions that define which future is desired
    * @param contractSpec  the contract specification
    * @return the template
    */
-  public static OvernightFutureTemplate of(Period minimumPeriod, int sequenceNumber, OvernightFutureContractSpec contractSpec) {
-    return RelativeOvernightFutureTemplate.of(minimumPeriod, sequenceNumber, contractSpec);
-  }
-
-  /**
-   * Obtains a template based on the specified convention using an absolute definition of time.
-   * <p>
-   * The future is selected from a sequence of futures based on a year-month.
-   * In most cases, the date of the future will be in the same month as the specified month,
-   * but this is not guaranteed.
-   * 
-   * @param yearMonth  the year-month to use to select the future
-   * @param contractSpec  the contract specification
-   * @return the template
-   */
-  public static OvernightFutureTemplate of(YearMonth yearMonth, OvernightFutureContractSpec contractSpec) {
-    return AbsoluteOvernightFutureTemplate.of(yearMonth, contractSpec);
+  public static OvernightFutureTemplate of(SequenceDate sequenceDate, OvernightFutureContractSpec contractSpec) {
+    return new OvernightFutureTemplate(sequenceDate, contractSpec);
   }
 
   //-------------------------------------------------------------------------
@@ -59,14 +66,9 @@ public interface OvernightFutureTemplate
    * 
    * @return the index
    */
-  public abstract OvernightIndex getIndex();
-
-  /**
-   * Gets the contract specification of the Overnight future.
-   * 
-   * @return the convention
-   */
-  public abstract OvernightFutureContractSpec getContractSpec();
+  public OvernightIndex getIndex() {
+    return contractSpec.getIndex();
+  }
 
   /**
    * Creates a trade based on this template.
@@ -81,12 +83,15 @@ public interface OvernightFutureTemplate
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public abstract OvernightFutureTrade createTrade(
+  public OvernightFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,
       double quantity,
       double price,
-      ReferenceData refData);
+      ReferenceData refData) {
+
+    return contractSpec.createTrade(tradeDate, securityId, sequenceDate, quantity, price, refData);
+  }
 
   /**
    * Calculates the reference date of the trade.
@@ -95,6 +100,105 @@ public interface OvernightFutureTemplate
    * @param refData  the reference data, used to resolve the date
    * @return the future reference date
    */
-  public abstract LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate, ReferenceData refData);
+  public LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return contractSpec.calculateReferenceDate(tradeDate, sequenceDate, refData);
+  }
 
+  //------------------------- AUTOGENERATED START -------------------------
+  /**
+   * The meta-bean for {@code OvernightFutureTemplate}.
+   */
+  private static final TypedMetaBean<OvernightFutureTemplate> META_BEAN =
+      LightMetaBean.of(
+          OvernightFutureTemplate.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "sequenceDate",
+              "contractSpec"},
+          new Object[0]);
+
+  /**
+   * The meta-bean for {@code OvernightFutureTemplate}.
+   * @return the meta-bean, not null
+   */
+  public static TypedMetaBean<OvernightFutureTemplate> meta() {
+    return META_BEAN;
+  }
+
+  static {
+    MetaBean.register(META_BEAN);
+  }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private OvernightFutureTemplate(
+      SequenceDate sequenceDate,
+      OvernightFutureContractSpec contractSpec) {
+    JodaBeanUtils.notNull(sequenceDate, "sequenceDate");
+    JodaBeanUtils.notNull(contractSpec, "contractSpec");
+    this.sequenceDate = sequenceDate;
+    this.contractSpec = contractSpec;
+  }
+
+  @Override
+  public TypedMetaBean<OvernightFutureTemplate> metaBean() {
+    return META_BEAN;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instructions that define which future is desired.
+   * @return the value of the property, not null
+   */
+  public SequenceDate getSequenceDate() {
+    return sequenceDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying contract specification.
+   * <p>
+   * This specifies the contract of the Overnight Futures to be created.
+   * @return the value of the property, not null
+   */
+  public OvernightFutureContractSpec getContractSpec() {
+    return contractSpec;
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OvernightFutureTemplate other = (OvernightFutureTemplate) obj;
+      return JodaBeanUtils.equal(sequenceDate, other.sequenceDate) &&
+          JodaBeanUtils.equal(contractSpec, other.contractSpec);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(sequenceDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(contractSpec);
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("OvernightFutureTemplate{");
+    buf.append("sequenceDate").append('=').append(JodaBeanUtils.toString(sequenceDate)).append(',').append(' ');
+    buf.append("contractSpec").append('=').append(JodaBeanUtils.toString(contractSpec));
+    buf.append('}');
+    return buf.toString();
+  }
+
+  //-------------------------- AUTOGENERATED END --------------------------
 }
