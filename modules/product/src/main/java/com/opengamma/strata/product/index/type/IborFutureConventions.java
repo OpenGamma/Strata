@@ -9,7 +9,10 @@ import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
  * Market standard Ibor future conventions.
+ * 
+ * @deprecated Use {@link IborFutureContractSpecs}
  */
+@Deprecated
 public final class IborFutureConventions {
 
   /**

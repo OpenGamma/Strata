@@ -66,7 +66,7 @@ import com.opengamma.strata.product.fra.type.FraConvention;
 import com.opengamma.strata.product.fra.type.FraTemplate;
 import com.opengamma.strata.product.fx.type.FxSwapConvention;
 import com.opengamma.strata.product.fx.type.FxSwapTemplate;
-import com.opengamma.strata.product.index.type.IborFutureConvention;
+import com.opengamma.strata.product.index.type.IborFutureContractSpec;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 import com.opengamma.strata.product.index.type.OvernightFutureContractSpec;
 import com.opengamma.strata.product.index.type.OvernightFutureTemplate;
@@ -524,6 +524,7 @@ public final class RatesCalibrationCsvLoader {
         .build();
   }
 
+  //-------------------------------------------------------------------------
   private static CurveNode curveIborFutureCurveNode(
       String conventionStr,
       String timeStr,
@@ -537,8 +538,8 @@ public final class RatesCalibrationCsvLoader {
     if (matcher.matches()) {
       Period periodToStart = Period.parse("P" + matcher.group(1));
       int sequenceNumber = Integer.parseInt(matcher.group(2));
-      IborFutureConvention convention = IborFutureConvention.of(conventionStr);
-      IborFutureTemplate template = IborFutureTemplate.of(periodToStart, sequenceNumber, convention);
+      IborFutureContractSpec contractSpec = IborFutureContractSpec.of(conventionStr);
+      IborFutureTemplate template = IborFutureTemplate.of(periodToStart, sequenceNumber, contractSpec);
       return IborFutureCurveNode.builder()
           .template(template)
           .rateId(quoteId)
@@ -551,8 +552,8 @@ public final class RatesCalibrationCsvLoader {
     Matcher matcher2 = FUT_MONTH_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
     if (matcher2.matches()) {
       YearMonth yearMonth = YearMonth.parse(matcher2.group(1), YM_FORMATTER);
-      IborFutureConvention convention = IborFutureConvention.of(conventionStr);
-      IborFutureTemplate template = IborFutureTemplate.of(yearMonth, convention);
+      IborFutureContractSpec contractSpec = IborFutureContractSpec.of(conventionStr);
+      IborFutureTemplate template = IborFutureTemplate.of(yearMonth, contractSpec);
       return IborFutureCurveNode.builder()
           .template(template)
           .rateId(quoteId)

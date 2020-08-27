@@ -15,7 +15,10 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
  * Market standard Fixed-Ibor swap conventions.
  * <p>
  * https://quant.opengamma.io/Interest-Rate-Instruments-and-Market-Conventions.pdf
+ * 
+ * @deprecated Use {@link StandardIborFutureContractSpecs}
  */
+@Deprecated
 final class StandardIborFutureConventions {
 
   /**

@@ -174,7 +174,7 @@ public final class IborFutureCurveNode
   // calculate the last fixing date
   private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
     SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
-    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, 1, refData);
+    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, refData);
     return trade.getProduct().getFixingDate();
   }
 
@@ -183,7 +183,7 @@ public final class IborFutureCurveNode
     LocalDate valuationDate = marketData.getValuationDate();
     double price = marketPrice(marketData) + additionalSpread;
     SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
-    return template.createTrade(valuationDate, secId, quantity, 1d, price, refData);
+    return template.createTrade(valuationDate, secId, quantity, price, refData);
   }
 
   @Override
@@ -198,7 +198,7 @@ public final class IborFutureCurveNode
       ReferenceData refData) {
 
     SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
-    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1d, 1d, 1d, refData);
+    IborFutureTrade trade = template.createTrade(valuationDate, secId, 1d, 1d, refData);
     return trade.resolve(refData);
   }
 

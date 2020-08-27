@@ -35,8 +35,8 @@ import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.param.YearMonthDateParameterMetadata;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
-import com.opengamma.strata.product.index.type.IborFutureConvention;
-import com.opengamma.strata.product.index.type.IborFutureConventions;
+import com.opengamma.strata.product.index.type.IborFutureContractSpec;
+import com.opengamma.strata.product.index.type.IborFutureContractSpecs;
 import com.opengamma.strata.product.index.type.IborFutureTemplate;
 
 /**
@@ -46,10 +46,10 @@ public class IborFutureCurveNodeTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final LocalDate VAL_DATE = date(2015, 6, 30);
-  private static final IborFutureConvention CONVENTION = IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM;
+  private static final IborFutureContractSpec SPEC = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
   private static final Period PERIOD_TO_START = Period.ofMonths(2);
   private static final int NUMBER = 2;
-  private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION);
+  private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(PERIOD_TO_START, NUMBER, SPEC);
   private static final StandardId STANDARD_ID = StandardId.of("OG-Ticker", "OG-EDH6");
   private static final QuoteId QUOTE_ID = QuoteId.of(STANDARD_ID);
   private static final double SPREAD = 0.0001;
@@ -112,7 +112,7 @@ public class IborFutureCurveNodeTest {
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
     IborFutureTrade trade = node.trade(1d, marketData, REF_DATA);
     IborFutureTrade expected = TEMPLATE.createTrade(
-        VAL_DATE, SecurityId.of(STANDARD_ID), 1L, 1.0, price + SPREAD, REF_DATA);
+        VAL_DATE, SecurityId.of(STANDARD_ID), 1L, price + SPREAD, REF_DATA);
     assertThat(trade).isEqualTo(expected);
   }
 
@@ -179,7 +179,7 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode test = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
     IborFutureCurveNode test2 = IborFutureCurveNode.of(
-        IborFutureTemplate.of(PERIOD_TO_START, NUMBER, CONVENTION),
+        IborFutureTemplate.of(PERIOD_TO_START, NUMBER, SPEC),
         QuoteId.of(StandardId.of("OG-Ticker", "Unknown")));
     coverBeanEquals(test, test2);
   }

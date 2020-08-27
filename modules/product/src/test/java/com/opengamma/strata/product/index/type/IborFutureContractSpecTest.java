@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2020 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,6 +7,7 @@ package com.opengamma.strata.product.index.type;
 
 import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
+import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -30,12 +31,9 @@ import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
- * Tests {@link IborFutureConvention}.
- * 
- * @deprecated Replaced by IborFutureContractSpecTest
+ * Tests {@link IborFutureContractSpec}.
  */
-@Deprecated
-public class IborFutureConventionTest {
+public class IborFutureContractSpecTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
   private static final double NOTIONAL_1M = 1_000_000d;
@@ -44,20 +42,12 @@ public class IborFutureConventionTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_of() {
-    ImmutableIborFutureConvention test = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
-    assertThat(test.getName()).isEqualTo("USD-LIBOR-3M-Quarterly-IMM");
-    assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
-    assertThat(test.getDateSequence()).isEqualTo(QUARTERLY_IMM);
-    assertThat(test.getBusinessDayAdjustment()).isEqualTo(BDA);
-  }
-
-  @Test
   public void test_builder() {
-    ImmutableIborFutureConvention test = ImmutableIborFutureConvention.builder()
+    ImmutableIborFutureContractSpec test = ImmutableIborFutureContractSpec.builder()
         .name("USD-IMM")
         .index(USD_LIBOR_3M)
         .dateSequence(QUARTERLY_IMM)
+        .notional(1_000_000d)
         .build();
     assertThat(test.getName()).isEqualTo("USD-IMM");
     assertThat(test.getIndex()).isEqualTo(USD_LIBOR_3M);
@@ -68,11 +58,11 @@ public class IborFutureConventionTest {
   @Test
   public void test_builder_incomplete() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableIborFutureConvention.builder()
+        .isThrownBy(() -> ImmutableIborFutureContractSpec.builder()
             .index(USD_LIBOR_3M)
             .build());
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> ImmutableIborFutureConvention.builder()
+        .isThrownBy(() -> ImmutableIborFutureContractSpec.builder()
             .dateSequence(QUARTERLY_IMM)
             .build());
   }
@@ -82,11 +72,11 @@ public class IborFutureConventionTest {
     LocalDate date = LocalDate.of(2015, 10, 20);
     Period start = Period.ofMonths(2);
     int number = 2; // Future should be 20 Dec 15 + 2 IMM = effective 15-Jun-2016, fixing 13-Jun-2016    
-    IborFutureConvention convention = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
+    IborFutureContractSpec convention = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
     double quantity = 3;
     double price = 0.99;
     SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
-    IborFutureTrade trade = convention.createTrade(date, secId, start, number, quantity, NOTIONAL_1M, price, REF_DATA);
+    IborFutureTrade trade = convention.createTrade(date, secId, start, number, quantity, price, REF_DATA);
     assertThat(trade.getProduct().getFixingDate()).isEqualTo(LocalDate.of(2016, 6, 13));
     assertThat(trade.getProduct().getIndex()).isEqualTo(USD_LIBOR_3M);
     assertThat(trade.getProduct().getNotional()).isEqualTo(NOTIONAL_1M);
@@ -98,68 +88,70 @@ public class IborFutureConventionTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {IborFutureConventions.USD_LIBOR_3M_QUARTERLY_IMM, "USD-LIBOR-3M-Quarterly-IMM"},
-        {IborFutureConventions.USD_LIBOR_3M_MONTHLY_IMM, "USD-LIBOR-3M-Monthly-IMM"},
+        {IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME, "USD-LIBOR-3M-IMM-CME"},
+        {IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME_SERIAL, "USD-LIBOR-3M-IMM-CME-SERIAL"},
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_name(IborFutureConvention convention, String name) {
+  public void test_name(IborFutureContractSpec convention, String name) {
     assertThat(convention.getName()).isEqualTo(name);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_toString(IborFutureConvention convention, String name) {
+  public void test_toString(IborFutureContractSpec convention, String name) {
     assertThat(convention.toString()).isEqualTo(name);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_of_lookup(IborFutureConvention convention, String name) {
-    assertThat(IborFutureConvention.of(name)).isEqualTo(convention);
+  public void test_of_lookup(IborFutureContractSpec convention, String name) {
+    assertThat(IborFutureContractSpec.of(name)).isEqualTo(convention);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_extendedEnum(IborFutureConvention convention, String name) {
-    IborFutureConvention.of(name);  // ensures map is populated
-    ImmutableMap<String, IborFutureConvention> map = IborFutureConvention.extendedEnum().lookupAll();
+  public void test_extendedEnum(IborFutureContractSpec convention, String name) {
+    IborFutureContractSpec.of(name);  // ensures map is populated
+    ImmutableMap<String, IborFutureContractSpec> map = IborFutureContractSpec.extendedEnum().lookupAll();
     assertThat(map.get(name)).isEqualTo(convention);
   }
 
   @Test
   public void test_of_lookup_notFound() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> IborFutureConvention.of("Rubbish"));
+        .isThrownBy(() -> IborFutureContractSpec.of("Rubbish"));
   }
 
   @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> IborFutureConvention.of((String) null));
+        .isThrownBy(() -> IborFutureContractSpec.of((String) null));
   }
 
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {
-    ImmutableIborFutureConvention test = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
+    ImmutableIborFutureContractSpec test = (ImmutableIborFutureContractSpec) IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
     coverImmutableBean(test);
-    ImmutableIborFutureConvention test2 = ImmutableIborFutureConvention.builder()
-        .index(USD_LIBOR_3M)
+    ImmutableIborFutureContractSpec test2 = ImmutableIborFutureContractSpec.builder()
+        .name("GBP-TEST")
+        .index(GBP_LIBOR_3M)
         .dateSequence(MONTHLY_IMM)
         .businessDayAdjustment(BDA)
+        .notional(1000d)
         .build();
     coverBeanEquals(test, test2);
 
-    coverPrivateConstructor(IborFutureConventions.class);
-    coverPrivateConstructor(StandardIborFutureConventions.class);
+    coverPrivateConstructor(IborFutureContractSpecs.class);
+    coverPrivateConstructor(StandardIborFutureContractSpecs.class);
   }
 
   @Test
   public void test_serialization() {
-    IborFutureConvention test = ImmutableIborFutureConvention.of(USD_LIBOR_3M, QUARTERLY_IMM);
+    IborFutureContractSpec test = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
     assertSerialization(test);
   }
 

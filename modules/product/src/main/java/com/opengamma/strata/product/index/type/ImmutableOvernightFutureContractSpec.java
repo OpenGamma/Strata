@@ -49,9 +49,9 @@ public final class ImmutableOvernightFutureContractSpec
     implements OvernightFutureContractSpec, ImmutableBean, Serializable {
 
   /**
-   * The name, such as 'GBP-SONIA-1M-IMM'.
+   * The name, such as 'GBP-SONIA-3M-IMM-ICE'.
    */
-  @PropertyDefinition(validate = "notNull", overrideGet = true)
+  @PropertyDefinition(validate = "notBlank", overrideGet = true)
   private final String name;
   /**
    * The Overnight index.
@@ -286,7 +286,7 @@ public final class ImmutableOvernightFutureContractSpec
       DaysAdjustment endDateAdjustment,
       DaysAdjustment lastTradeDateAdjustment,
       double notional) {
-    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notBlank(name, "name");
     JodaBeanUtils.notNull(index, "index");
     JodaBeanUtils.notNull(dateSequence, "dateSequence");
     ArgChecker.notNegativeOrZero(accrualSequenceCount, "accrualSequenceCount");
@@ -312,8 +312,8 @@ public final class ImmutableOvernightFutureContractSpec
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name, such as 'GBP-SONIA-1M-IMM'.
-   * @return the value of the property, not null
+   * Gets the name, such as 'GBP-SONIA-3M-IMM-ICE'.
+   * @return the value of the property, not blank
    */
   @Override
   public String getName() {
@@ -586,12 +586,12 @@ public final class ImmutableOvernightFutureContractSpec
 
     //-----------------------------------------------------------------------
     /**
-     * Sets the name, such as 'GBP-SONIA-1M-IMM'.
-     * @param name  the new value, not null
+     * Sets the name, such as 'GBP-SONIA-3M-IMM-ICE'.
+     * @param name  the new value, not blank
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
-      JodaBeanUtils.notNull(name, "name");
+      JodaBeanUtils.notBlank(name, "name");
       this.name = name;
       return this;
     }
