@@ -726,7 +726,7 @@
     <joda-beans.version>2.8.0</joda-beans.version>
     <joda.beans.version>${joda-beans.version}</joda.beans.version>
     <junit5.version>5.6.2</junit5.version>
-    <mockito.version>3.5.5</mockito.version>
+    <mockito.version>3.5.7</mockito.version>
     <slf4j.version>1.7.30</slf4j.version>
     <!-- Properties for maven-checkstyle-plugin -->
     <!-- versions must be retained to allow the version to be overridden on the command line -->
