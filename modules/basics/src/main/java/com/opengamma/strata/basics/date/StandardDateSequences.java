@@ -53,9 +53,8 @@ enum StandardDateSequences implements DateSequence {
     }
 
     private LocalDate shift(LocalDate base, int sequenceNumber) {
-      int month = base.getMonthValue();
-      int offset = (month % 3 == 0 ? 0 : 3 - month % 3) + (sequenceNumber - 1) * 3;
-      return base.plusMonths(offset).with(THIRD_WEDNESDAY);
+      int monthsToAdd = monthsToAdd(base.getMonthValue(), sequenceNumber);
+      return base.plusMonths(monthsToAdd).with(THIRD_WEDNESDAY);
     }
 
     @Override
@@ -64,8 +63,8 @@ enum StandardDateSequences implements DateSequence {
     }
   },
 
-  // IMM in Mar/Jun/Sep/Dec plus first 4 non quarterly serial months
-  QUARTERLY_IMM_4_SERIAL("Quarterly-IMM-4-Serial") {
+  // IMM in Mar/Jun/Sep/Dec plus first 4 non quarterly serial months making 6 serial months in total
+  QUARTERLY_IMM_6_SERIAL("Quarterly-IMM-6-Serial") {
     @Override
     public DateSequence baseSequence() {
       return QUARTERLY_IMM;
@@ -107,9 +106,8 @@ enum StandardDateSequences implements DateSequence {
         return base.plusMonths(sequenceNumber - 1).with(THIRD_WEDNESDAY);
       }
       int effectiveQuarterlySequenceNumber = sequenceNumber - 4;
-      int month = base.getMonthValue();
-      int offset = (month % 3 == 0 ? 0 : 3 - month % 3) + (effectiveQuarterlySequenceNumber - 1) * 3;
-      return base.plusMonths(offset).with(THIRD_WEDNESDAY);
+      int monthsToAdd = monthsToAdd(base.getMonthValue(), effectiveQuarterlySequenceNumber);
+      return base.plusMonths(monthsToAdd).with(THIRD_WEDNESDAY);
     }
 
     @Override
@@ -118,8 +116,8 @@ enum StandardDateSequences implements DateSequence {
     }
   },
 
-  // IMM in Mar/Jun/Sep/Dec plus first 2 non quarterly serial months
-  QUARTERLY_IMM_2_SERIAL("Quarterly-IMM-2-Serial") {
+  // IMM in Mar/Jun/Sep/Dec plus first 2 non quarterly serial months making 3 serial months in total
+  QUARTERLY_IMM_3_SERIAL("Quarterly-IMM-3-Serial") {
     @Override
     public DateSequence baseSequence() {
       return QUARTERLY_IMM;
@@ -161,9 +159,8 @@ enum StandardDateSequences implements DateSequence {
         return base.plusMonths(sequenceNumber - 1).with(THIRD_WEDNESDAY);
       }
       int effectiveQuarterlySequenceNumber = sequenceNumber - 2;
-      int month = base.getMonthValue();
-      int offset = (month % 3 == 0 ? 0 : 3 - month % 3) + (effectiveQuarterlySequenceNumber - 1) * 3;
-      return base.plusMonths(offset).with(THIRD_WEDNESDAY);
+      int monthsToAdd = monthsToAdd(base.getMonthValue(), effectiveQuarterlySequenceNumber);
+      return base.plusMonths(monthsToAdd).with(THIRD_WEDNESDAY);
     }
 
     @Override
@@ -243,9 +240,8 @@ enum StandardDateSequences implements DateSequence {
     }
 
     private LocalDate shift(LocalDate base, int sequenceNumber) {
-      int month = base.getMonthValue();
-      int offset = (month % 3 == 0 ? 0 : 3 - month % 3) + (sequenceNumber - 1) * 3;
-      return base.plusMonths(offset).withDayOfMonth(10);
+      int monthsToAdd = monthsToAdd(base.getMonthValue(), sequenceNumber);
+      return base.plusMonths(monthsToAdd).withDayOfMonth(10);
     }
 
     @Override
@@ -292,9 +288,18 @@ enum StandardDateSequences implements DateSequence {
     }
   };
 
+  //-------------------------------------------------------------------------
   // Third Wednesday
   private static final TemporalAdjuster THIRD_WEDNESDAY = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
 
+  // calculates the number of months to add to the base date for a quarterly sequence (Mar/Jun/Sep/Dec)
+  private static int monthsToAdd(int baseMonth, int sequenceNumber) {
+    int monthInQuarter = (baseMonth + 2) % 3;  // Jan/Apr/Jul/Oct is 0, Feb/May/Aug/Nov is 1, Mar/Jun/Sep/Dec is 2
+    int monthsUntilNextQuarter = 2 - monthInQuarter;
+    return monthsUntilNextQuarter + (sequenceNumber - 1) * 3;
+  }
+
+  //-------------------------------------------------------------------------
   // name
   private final String name;
 

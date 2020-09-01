@@ -32,25 +32,27 @@ public final class DateSequences {
    */
   public static final DateSequence QUARTERLY_IMM = DateSequence.of(StandardDateSequences.QUARTERLY_IMM.getName());
   /**
-   * The 'Quarterly-IMM-4-Serial' date sequence.
+   * The 'Quarterly-IMM-6-Serial' date sequence.
    * <p>
-   * An instance defining the sequence of quarterly IMM dates with 4 additional serial non-quarterly months.
-   * The quarterly IMM dates are the third Wednesday of March, June, September and December.
+   * An instance defining the sequence of 6 serial monthly IMM dates followed by the standard quarterly IMM dates.
+   * The IMM dates are the third Wednesday of each month.
+   * The quarterly months are March, June, September and December.
    * The base sequence consists of just the quarterly IMM dates.
-   * The full sequence consists of six serial months before joining the base quarterly sequence.
+   * The full sequence consists of the six serial months before joining the base quarterly sequence.
    */
-  public static final DateSequence QUARTERLY_IMM_4_SERIAL =
-      DateSequence.of(StandardDateSequences.QUARTERLY_IMM_4_SERIAL.getName());
+  public static final DateSequence QUARTERLY_IMM_6_SERIAL =
+      DateSequence.of(StandardDateSequences.QUARTERLY_IMM_6_SERIAL.getName());
   /**
-   * The 'Quarterly-IMM-2-Serial' date sequence.
+   * The 'Quarterly-IMM-3-Serial' date sequence.
    * <p>
-   * An instance defining the sequence of quarterly IMM dates with 2 additional serial non-quarterly months.
-   * The quarterly IMM dates are the third Wednesday of March, June, September and December.
+   * An instance defining the sequence of 3 serial monthly IMM dates followed by the standard quarterly IMM dates.
+   * The IMM dates are the third Wednesday of each month.
+   * The quarterly months are March, June, September and December.
    * The base sequence consists of just the quarterly IMM dates.
-   * The full sequence consists of three serial months before joining the base quarterly sequence.
+   * The full sequence consists of the three serial months before joining the base quarterly sequence.
    */
-  public static final DateSequence QUARTERLY_IMM_2_SERIAL =
-      DateSequence.of(StandardDateSequences.QUARTERLY_IMM_2_SERIAL.getName());
+  public static final DateSequence QUARTERLY_IMM_3_SERIAL =
+      DateSequence.of(StandardDateSequences.QUARTERLY_IMM_3_SERIAL.getName());
   /**
    * The 'Monthly-IMM' date sequence.
    * <p>

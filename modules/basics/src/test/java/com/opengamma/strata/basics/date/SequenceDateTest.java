@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test;
  */
 public class SequenceDateTest {
 
-  private static final DateSequence SEQUENCE = DateSequences.QUARTERLY_IMM_2_SERIAL;
+  private static final DateSequence SEQUENCE = DateSequences.QUARTERLY_IMM_3_SERIAL;
   private static final YearMonth YM_2020_02 = YearMonth.of(2020, 2);
   private static final YearMonth YM_2020_03 = YearMonth.of(2020, 3);
   private static final Period PERIOD = Period.ofMonths(2);

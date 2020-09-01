@@ -184,8 +184,7 @@ public interface DateSequence
    * @throws IllegalArgumentException if there are no more sequence dates
    */
   public default LocalDate selectDate(LocalDate inputDate, SequenceDate sequenceDate) {
-    DateSequence seq = sequenceDate.isFullSequence() ? this : baseSequence();
-    return sequenceDate.selectDate(inputDate, seq, false);
+    return sequenceDate.selectDate(inputDate, this, false);
   }
 
   /**
@@ -201,8 +200,7 @@ public interface DateSequence
    * @throws IllegalArgumentException if there are no more sequence dates
    */
   public default LocalDate selectDateOrSame(LocalDate inputDate, SequenceDate sequenceDate) {
-    DateSequence seq = sequenceDate.isFullSequence() ? this : baseSequence();
-    return sequenceDate.selectDate(inputDate, seq, true);
+    return sequenceDate.selectDate(inputDate, this, true);
   }
 
   //-------------------------------------------------------------------------

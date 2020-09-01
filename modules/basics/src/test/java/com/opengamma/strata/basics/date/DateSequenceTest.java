@@ -40,17 +40,17 @@ public class DateSequenceTest {
   }
 
   @Test
-  public void test_QUARTERLY_IMM_4_SERIAL_of() {
-    DateSequence test = DateSequence.of("Quarterly-IMM-4-Serial");
-    assertThat(test).isEqualTo(DateSequences.QUARTERLY_IMM_4_SERIAL);
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.baseSequence()).isEqualTo(DateSequences.QUARTERLY_IMM);
+  public void test_QUARTERLY_IMM_6_SERIAL_of() {
+    DateSequence test = DateSequence.of("Quarterly-IMM-6-Serial");
+    assertThat(test).isEqualTo(DateSequences.QUARTERLY_IMM_6_SERIAL);
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.baseSequence()).isEqualTo(DateSequences.QUARTERLY_IMM);
   }
 
   @Test
-  public void test_QUARTERLY_IMM_2_SERIAL_of() {
-    DateSequence test = DateSequence.of("Quarterly-IMM-2-Serial");
-    assertThat(test).isEqualTo(DateSequences.QUARTERLY_IMM_2_SERIAL);
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.baseSequence()).isEqualTo(DateSequences.QUARTERLY_IMM);
+  public void test_QUARTERLY_IMM_3_SERIAL_of() {
+    DateSequence test = DateSequence.of("Quarterly-IMM-3-Serial");
+    assertThat(test).isEqualTo(DateSequences.QUARTERLY_IMM_3_SERIAL);
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.baseSequence()).isEqualTo(DateSequences.QUARTERLY_IMM);
   }
 
   @Test
@@ -119,7 +119,7 @@ public class DateSequenceTest {
   }
 
   //-------------------------------------------------------------------------
-  public static Object[][] data_quarterlyImm4Serial() {
+  public static Object[][] data_quarterlyImm6Serial() {
     return new Object[][] {
         {date(2013, 1, 1)},
         {date(2013, 1, 25)},
@@ -131,35 +131,35 @@ public class DateSequenceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("data_quarterlyImm4Serial")
-  public void test_nextOrSameQuarterlyImm4Serial(LocalDate base) {
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nextOrSame(base)).isEqualTo(DateSequences.MONTHLY_IMM.nextOrSame(base));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 1));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 2));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 3));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 4)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 4));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 5)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 5));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 6)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 6));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 7)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 3));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nthOrSame(base, 8)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 4));
+  @MethodSource("data_quarterlyImm6Serial")
+  public void test_nextOrSameQuarterlyImm6Serial(LocalDate base) {
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nextOrSame(base)).isEqualTo(DateSequences.MONTHLY_IMM.nextOrSame(base));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 1));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 2));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 3));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 4)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 4));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 5)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 5));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 6)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 6));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 7)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 3));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nthOrSame(base, 8)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 4));
   }
 
   @ParameterizedTest
-  @MethodSource("data_quarterlyImm4Serial")
-  public void test_nextQuarterlyImm4Serial(LocalDate base) {
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.next(base)).isEqualTo(DateSequences.MONTHLY_IMM.next(base));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 1));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 2));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 3));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 4)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 4));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 5)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 5));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 6)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 6));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 7)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 3));
-    assertThat(DateSequences.QUARTERLY_IMM_4_SERIAL.nth(base, 8)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 4));
+  @MethodSource("data_quarterlyImm6Serial")
+  public void test_nextQuarterlyImm6Serial(LocalDate base) {
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.next(base)).isEqualTo(DateSequences.MONTHLY_IMM.next(base));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 1));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 2));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 3));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 4)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 4));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 5)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 5));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 6)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 6));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 7)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 3));
+    assertThat(DateSequences.QUARTERLY_IMM_6_SERIAL.nth(base, 8)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 4));
   }
 
   //-------------------------------------------------------------------------
-  public static Object[][] data_quarterlyImm2Serial() {
+  public static Object[][] data_quarterlyImm3Serial() {
     return new Object[][] {
         {date(2013, 1, 1)},
         {date(2013, 1, 25)},
@@ -171,25 +171,25 @@ public class DateSequenceTest {
   }
 
   @ParameterizedTest
-  @MethodSource("data_quarterlyImm2Serial")
-  public void test_nextOrSameQuarterlyImm2Serial(LocalDate base) {
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nextOrSame(base)).isEqualTo(DateSequences.MONTHLY_IMM.nextOrSame(base));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nthOrSame(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 1));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nthOrSame(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 2));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nthOrSame(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 3));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nthOrSame(base, 4)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 2));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nthOrSame(base, 5)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 3));
+  @MethodSource("data_quarterlyImm3Serial")
+  public void test_nextOrSameQuarterlyImm3Serial(LocalDate base) {
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nextOrSame(base)).isEqualTo(DateSequences.MONTHLY_IMM.nextOrSame(base));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nthOrSame(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 1));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nthOrSame(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 2));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nthOrSame(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nthOrSame(base, 3));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nthOrSame(base, 4)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 2));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nthOrSame(base, 5)).isEqualTo(DateSequences.QUARTERLY_IMM.nthOrSame(base, 3));
   }
 
   @ParameterizedTest
-  @MethodSource("data_quarterlyImm2Serial")
-  public void test_nextQuarterlyImm2Serial(LocalDate base) {
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.next(base)).isEqualTo(DateSequences.MONTHLY_IMM.next(base));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nth(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 1));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nth(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 2));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nth(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 3));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nth(base, 4)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 2));
-    assertThat(DateSequences.QUARTERLY_IMM_2_SERIAL.nth(base, 5)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 3));
+  @MethodSource("data_quarterlyImm3Serial")
+  public void test_nextQuarterlyImm3Serial(LocalDate base) {
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.next(base)).isEqualTo(DateSequences.MONTHLY_IMM.next(base));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nth(base, 1)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 1));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nth(base, 2)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 2));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nth(base, 3)).isEqualTo(DateSequences.MONTHLY_IMM.nth(base, 3));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nth(base, 4)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 2));
+    assertThat(DateSequences.QUARTERLY_IMM_3_SERIAL.nth(base, 5)).isEqualTo(DateSequences.QUARTERLY_IMM.nth(base, 3));
   }
 
   //-------------------------------------------------------------------------
