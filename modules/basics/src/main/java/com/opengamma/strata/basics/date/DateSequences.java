@@ -32,6 +32,28 @@ public final class DateSequences {
    */
   public static final DateSequence QUARTERLY_IMM = DateSequence.of(StandardDateSequences.QUARTERLY_IMM.getName());
   /**
+   * The 'Quarterly-IMM-6-Serial' date sequence.
+   * <p>
+   * An instance defining the sequence of 6 serial monthly IMM dates followed by the standard quarterly IMM dates.
+   * The IMM dates are the third Wednesday of each month.
+   * The quarterly months are March, June, September and December.
+   * The base sequence consists of just the quarterly IMM dates.
+   * The full sequence consists of the six serial months before joining the base quarterly sequence.
+   */
+  public static final DateSequence QUARTERLY_IMM_6_SERIAL =
+      DateSequence.of(StandardDateSequences.QUARTERLY_IMM_6_SERIAL.getName());
+  /**
+   * The 'Quarterly-IMM-3-Serial' date sequence.
+   * <p>
+   * An instance defining the sequence of 3 serial monthly IMM dates followed by the standard quarterly IMM dates.
+   * The IMM dates are the third Wednesday of each month.
+   * The quarterly months are March, June, September and December.
+   * The base sequence consists of just the quarterly IMM dates.
+   * The full sequence consists of the three serial months before joining the base quarterly sequence.
+   */
+  public static final DateSequence QUARTERLY_IMM_3_SERIAL =
+      DateSequence.of(StandardDateSequences.QUARTERLY_IMM_3_SERIAL.getName());
+  /**
    * The 'Monthly-IMM' date sequence.
    * <p>
    * An instance defining the sequence of monthly IMM dates.

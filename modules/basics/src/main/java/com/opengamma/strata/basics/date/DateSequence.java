@@ -60,6 +60,26 @@ public interface DateSequence
 
   //-------------------------------------------------------------------------
   /**
+   * Returns the simpler "base" sequence underlying this one.
+   * <p>
+   * Many date sequences have two interlinked sequences.
+   * One is considered to be the base sequence, the other is considered to be the full sequence.
+   * <p>
+   * For example, the "base sequence" of a future is often March, June, September and December.
+   * But additionally, the nearest two "serial" months are also listed.
+   * Together these make the "full sequence".
+   * <p>
+   * If this instance represents the "full sequence", this method returns the "base sequence".
+   * If this instance represents the "base sequence", or there is no "base sequence", this method returns {@code this}.
+   * 
+   * @return the base sequence
+   */
+  public default DateSequence baseSequence() {
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Finds the next date in the sequence, always returning a date later than the input date.
    * <p>
    * Given an input date, this method returns the next date after it from the sequence.
@@ -149,6 +169,39 @@ public interface DateSequence
    * @throws IllegalArgumentException if there are no more sequence dates
    */
   public abstract LocalDate dateMatching(YearMonth yearMonth);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Selects a date from the sequence.
+   * <p>
+   * Given an input date, this uses the {@link SequenceDate} to select a single matching date from the sequence.
+   * If the {@code SequenceDate} specifies a year-month, the match starts from the first date of the specified month.
+   * Otherwise, the match starts from the day after the input date.
+   * 
+   * @param inputDate  the input date
+   * @param sequenceDate  the instructions specifying which date to select
+   * @return the next sequence date after the input date
+   * @throws IllegalArgumentException if there are no more sequence dates
+   */
+  public default LocalDate selectDate(LocalDate inputDate, SequenceDate sequenceDate) {
+    return sequenceDate.selectDate(inputDate, this, false);
+  }
+
+  /**
+   * Selects a date from the sequence.
+   * <p>
+   * Given an input date, this uses the {@link SequenceDate} to select a single matching date from the sequence.
+   * If the {@code SequenceDate} specifies a year-month, the match starts from the first date of the specified month.
+   * Otherwise, the match starts from the input date.
+   * 
+   * @param inputDate  the input date
+   * @param sequenceDate  the instructions specifying which date to select
+   * @return the next sequence date after the input date
+   * @throws IllegalArgumentException if there are no more sequence dates
+   */
+  public default LocalDate selectDateOrSame(LocalDate inputDate, SequenceDate sequenceDate) {
+    return sequenceDate.selectDate(inputDate, this, true);
+  }
 
   //-------------------------------------------------------------------------
   /**
