@@ -12,6 +12,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.CalculationRunner;
 import com.opengamma.strata.calc.Column;
@@ -94,7 +95,7 @@ public class StirFuturePricingExample {
   private static Trade createTrade1(ReferenceData refData) {
     SecurityId secId = SecurityId.of("OG-Future", "Ibor-USD-LIBOR-3M-Mar15");
     IborFutureTrade trade = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME.createTrade(
-        LocalDate.of(2014, 9, 12), secId, Period.ofMonths(1), 2, 5, 0.9998, refData);
+        LocalDate.of(2014, 9, 12), secId, SequenceDate.base(Period.ofMonths(1), 2), 5, 0.9998, refData);
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))
@@ -112,7 +113,7 @@ public class StirFuturePricingExample {
   private static Trade createTrade2(ReferenceData refData) {
     SecurityId secId = SecurityId.of("OG-Future", "Ibor-USD-LIBOR-3M-Jun15");
     IborFutureTrade trade = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME.createTrade(
-        LocalDate.of(2014, 9, 12), secId, Period.ofMonths(1), 3, 10, 0.9996, refData);
+        LocalDate.of(2014, 9, 12), secId, SequenceDate.base(Period.ofMonths(1), 3), 10, 0.9996, refData);
     return trade.toBuilder()
         .info(TradeInfo.builder()
             .id(StandardId.of("example", "1"))

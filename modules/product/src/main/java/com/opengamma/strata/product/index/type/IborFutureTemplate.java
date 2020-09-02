@@ -5,12 +5,23 @@
  */
 package com.opengamma.strata.product.index.type;
 
+import java.io.Serializable;
+import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
 
+import org.joda.beans.ImmutableBean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
+import org.joda.beans.TypedMetaBean;
+import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.PropertyDefinition;
+import org.joda.beans.impl.light.LightMetaBean;
+
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeTemplate;
@@ -19,38 +30,37 @@ import com.opengamma.strata.product.index.IborFutureTrade;
 /**
  * A template for creating an Ibor Future trade.
  */
-public interface IborFutureTemplate
-    extends TradeTemplate {
+@BeanDefinition(style = "light")
+@SuppressWarnings("deprecation")
+public final class IborFutureTemplate
+    implements TradeTemplate, ImmutableBean, Serializable {
 
   /**
-   * Obtains a template based on the specified contract specification using a relative definition of time.
+   * The instructions that define which future is desired.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SequenceDate sequenceDate;
+  /**
+   * The underlying contract specification.
    * <p>
-   * The specific future is defined by two date-related inputs, the minimum period and the 1-based future number.
-   * For example, the 2nd future of the series where the 1st future is at least 1 week after the value date
-   * would be represented by a minimum period of 1 week and future number 2.
+   * This specifies the contract of the Ibor Futures to be created.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final IborFutureContractSpec contractSpec;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a template based on the specified contract specification and sequence date.
+   * <p>
+   * The specific future is defined by two date-related inputs -
+   * the sequence date and the date sequence embedded in the contract specification.
    * 
-   * @param minimumPeriod  the minimum period between the base date and the first future
-   * @param sequenceNumber  the 1-based index of the future after the minimum period, must be 1 or greater
+   * @param sequenceDate  the instructions that define which future is desired
    * @param contractSpec  the contract specification
    * @return the template
    */
-  public static IborFutureTemplate of(Period minimumPeriod, int sequenceNumber, IborFutureContractSpec contractSpec) {
-    return RelativeIborFutureTemplate.of(minimumPeriod, sequenceNumber, contractSpec);
-  }
-
-  /**
-   * Obtains a template based on the specified contract specification using an absolute definition of time.
-   * <p>
-   * The future is selected from a sequence of futures based on a year-month.
-   * In most cases, the date of the future will be in the same month as the specified month,
-   * but this is not guaranteed.
-   * 
-   * @param yearMonth  the year-month to use to select the future
-   * @param contractSpec  the contract specification
-   * @return the template
-   */
-  public static IborFutureTemplate of(YearMonth yearMonth, IborFutureContractSpec contractSpec) {
-    return AbsoluteIborFutureTemplate.of(yearMonth, contractSpec);
+  public static IborFutureTemplate of(SequenceDate sequenceDate, IborFutureContractSpec contractSpec) {
+    return new IborFutureTemplate(sequenceDate, contractSpec);
   }
 
   //-------------------------------------------------------------------------
@@ -65,11 +75,12 @@ public interface IborFutureTemplate
    * @param sequenceNumber  the 1-based index of the future after the minimum period, must be 1 or greater
    * @param convention  the future convention
    * @return the template
-   * @deprecated Use {@link ImmutableIborFutureContractSpec}
+   * @deprecated Use {@link #of(SequenceDate, IborFutureContractSpec)}
    */
   @Deprecated
   public static IborFutureTemplate of(Period minimumPeriod, int sequenceNumber, IborFutureConvention convention) {
-    return RelativeIborFutureTemplate.of(minimumPeriod, sequenceNumber, convention);
+    IborFutureContractSpec contractSpec = IborFutureContractSpec.of(convention.getName());
+    return IborFutureTemplate.of(SequenceDate.base(minimumPeriod, sequenceNumber), contractSpec);
   }
 
   /**
@@ -82,11 +93,12 @@ public interface IborFutureTemplate
    * @param yearMonth  the year-month to use to select the future
    * @param convention  the future convention
    * @return the template
-   * @deprecated Use {@link ImmutableIborFutureContractSpec}
+   * @deprecated Use {@link #of(SequenceDate, IborFutureContractSpec)}
    */
   @Deprecated
   public static IborFutureTemplate of(YearMonth yearMonth, IborFutureConvention convention) {
-    return AbsoluteIborFutureTemplate.of(yearMonth, convention);
+    IborFutureContractSpec contractSpec = IborFutureContractSpec.of(convention.getName());
+    return IborFutureTemplate.of(SequenceDate.base(yearMonth), contractSpec);
   }
 
   //-------------------------------------------------------------------------
@@ -95,14 +107,9 @@ public interface IborFutureTemplate
    * 
    * @return the index
    */
-  public abstract IborIndex getIndex();
-
-  /**
-   * Gets the contract specification of the Ibor future.
-   * 
-   * @return the convention
-   */
-  public abstract IborFutureContractSpec getContractSpec();
+  public IborIndex getIndex() {
+    return contractSpec.getIndex();
+  }
 
   /**
    * Gets the market convention of the Ibor future.
@@ -111,7 +118,7 @@ public interface IborFutureTemplate
    * @deprecated Use {@link #getContractSpec()}
    */
   @Deprecated
-  public default IborFutureConvention getConvention() {
+  public IborFutureConvention getConvention() {
     // this should smooth over the transition to contract specs in most cass
     ImmutableIborFutureContractSpec spec = (ImmutableIborFutureContractSpec) getContractSpec();
     return ImmutableIborFutureConvention.builder()
@@ -135,12 +142,15 @@ public interface IborFutureTemplate
    * @return the trade
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    */
-  public abstract IborFutureTrade createTrade(
+  public IborFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,
       double quantity,
       double price,
-      ReferenceData refData);
+      ReferenceData refData) {
+
+    return contractSpec.createTrade(tradeDate, securityId, sequenceDate, quantity, price, refData);
+  }
 
   /**
    * Creates a trade based on this template.
@@ -159,13 +169,16 @@ public interface IborFutureTemplate
    * @deprecated Use {@link #createTrade(LocalDate, SecurityId, double, double, ReferenceData)}
    */
   @Deprecated
-  public abstract IborFutureTrade createTrade(
+  public IborFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,
       double quantity,
       double notional,
       double price,
-      ReferenceData refData);
+      ReferenceData refData) {
+
+    return createTrade(tradeDate, securityId, quantity, price, refData);
+  }
 
   /**
    * Calculates the reference date of the trade.
@@ -174,19 +187,105 @@ public interface IborFutureTemplate
    * @param refData  the reference data, used to resolve the date
    * @return the future reference date
    */
-  public abstract LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate, ReferenceData refData);
+  public LocalDate calculateReferenceDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
+    return contractSpec.calculateReferenceDate(tradeDate, sequenceDate, refData);
+  }
 
-  //-------------------------------------------------------------------------
+  //------------------------- AUTOGENERATED START -------------------------
   /**
-   * Calculates the approximate maturity from the trade date.
-   * <p>
-   * This returns a year fraction that estimates the time to maturity.
-   * For example, this might take the number of months between the trade date
-   * and the date of the end of the future and divide it by 12.
-   * 
-   * @param tradeDate  the trade date
-   * @return the approximate time to maturity
+   * The meta-bean for {@code IborFutureTemplate}.
    */
-  public abstract double approximateMaturity(LocalDate tradeDate);
+  private static final TypedMetaBean<IborFutureTemplate> META_BEAN =
+      LightMetaBean.of(
+          IborFutureTemplate.class,
+          MethodHandles.lookup(),
+          new String[] {
+              "sequenceDate",
+              "contractSpec"},
+          new Object[0]);
 
+  /**
+   * The meta-bean for {@code IborFutureTemplate}.
+   * @return the meta-bean, not null
+   */
+  public static TypedMetaBean<IborFutureTemplate> meta() {
+    return META_BEAN;
+  }
+
+  static {
+    MetaBean.register(META_BEAN);
+  }
+
+  /**
+   * The serialization version id.
+   */
+  private static final long serialVersionUID = 1L;
+
+  private IborFutureTemplate(
+      SequenceDate sequenceDate,
+      IborFutureContractSpec contractSpec) {
+    JodaBeanUtils.notNull(sequenceDate, "sequenceDate");
+    JodaBeanUtils.notNull(contractSpec, "contractSpec");
+    this.sequenceDate = sequenceDate;
+    this.contractSpec = contractSpec;
+  }
+
+  @Override
+  public TypedMetaBean<IborFutureTemplate> metaBean() {
+    return META_BEAN;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the instructions that define which future is desired.
+   * @return the value of the property, not null
+   */
+  public SequenceDate getSequenceDate() {
+    return sequenceDate;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying contract specification.
+   * <p>
+   * This specifies the contract of the Ibor Futures to be created.
+   * @return the value of the property, not null
+   */
+  public IborFutureContractSpec getContractSpec() {
+    return contractSpec;
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IborFutureTemplate other = (IborFutureTemplate) obj;
+      return JodaBeanUtils.equal(sequenceDate, other.sequenceDate) &&
+          JodaBeanUtils.equal(contractSpec, other.contractSpec);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash = hash * 31 + JodaBeanUtils.hashCode(sequenceDate);
+    hash = hash * 31 + JodaBeanUtils.hashCode(contractSpec);
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("IborFutureTemplate{");
+    buf.append("sequenceDate").append('=').append(JodaBeanUtils.toString(sequenceDate)).append(',').append(' ');
+    buf.append("contractSpec").append('=').append(JodaBeanUtils.toString(contractSpec));
+    buf.append('}');
+    return buf.toString();
+  }
+
+  //-------------------------- AUTOGENERATED END --------------------------
 }

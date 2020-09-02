@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_1ST;
 import static com.opengamma.strata.basics.date.DateSequences.MONTHLY_IMM;
 import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM;
+import static com.opengamma.strata.basics.date.DateSequences.QUARTERLY_IMM_6_SERIAL;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
@@ -59,22 +60,7 @@ final class StandardOvernightFutureContractSpecs {
       ImmutableOvernightFutureContractSpec.builder()
           .name("GBP-SONIA-3M-IMM-LCH")
           .index(GBP_SONIA)
-          .dateSequence(QUARTERLY_IMM)
-          .accrualMethod(COMPOUNDED)
-          .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)))
-          .notional(500_000d)
-          .build();
-
-  /**
-   * The 'GBP-SONIA-3M-IMM-LCH-SERIAL' convention, not currently exposed as a public constant.
-   * https://docs.londonstockexchange.com/sites/default/files/documents/CurveGlobal%2520SONIA%2520Futures%2520Contract%2520Specs%2520-%2520JULY%25202019.pdf
-   */
-  public static final OvernightFutureContractSpec GBP_SONIA_3M_IMM_LCH_SERIAL =
-      ImmutableOvernightFutureContractSpec.builder()
-          .name("GBP-SONIA-3M-IMM-LCH-SERIAL")
-          .index(GBP_SONIA)
-          .dateSequence(MONTHLY_IMM)
-          .accrualSequenceCount(3)
+          .dateSequence(QUARTERLY_IMM_6_SERIAL)
           .accrualMethod(COMPOUNDED)
           .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(0, BusinessDayAdjustment.of(FOLLOWING, GBLO)))
           .notional(500_000d)

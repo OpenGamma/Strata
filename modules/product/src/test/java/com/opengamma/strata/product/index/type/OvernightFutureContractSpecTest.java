@@ -33,6 +33,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.index.OvernightFutureTrade;
 
@@ -86,7 +87,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -108,7 +109,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -130,7 +131,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -153,7 +154,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -175,7 +176,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -198,7 +199,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -220,7 +221,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -243,7 +244,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -265,7 +266,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -288,7 +289,7 @@ public class OvernightFutureContractSpecTest {
     OvernightFutureTrade trade = test.createTrade(
         date(2020, 1, 25),
         SecurityId.of("OG", "1"),
-        YearMonth.of(2020, 2),
+        SequenceDate.base(YearMonth.of(2020, 2)),
         20,
         0.999d,
         REF_DATA);
@@ -375,7 +376,6 @@ public class OvernightFutureContractSpecTest {
         .index(USD_SOFR)
         .accrualMethod(AVERAGED_DAILY)
         .dateSequence(MONTHLY_IMM)
-        .accrualSequenceCount(3)
         .startDateAdjustment(BDA_FOLLOW)
         .endDateAdjustment(DaysAdjustment.ofCalendarDays(-2, BDA_FOLLOW))
         .lastTradeDateAdjustment(DaysAdjustment.ofCalendarDays(-2, BDA_FOLLOW))

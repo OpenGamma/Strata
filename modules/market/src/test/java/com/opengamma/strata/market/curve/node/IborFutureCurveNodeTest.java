@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.data.ImmutableMarketData;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataNotFoundException;
@@ -49,7 +50,7 @@ public class IborFutureCurveNodeTest {
   private static final IborFutureContractSpec SPEC = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
   private static final Period PERIOD_TO_START = Period.ofMonths(2);
   private static final int NUMBER = 2;
-  private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(PERIOD_TO_START, NUMBER, SPEC);
+  private static final IborFutureTemplate TEMPLATE = IborFutureTemplate.of(SequenceDate.base(PERIOD_TO_START, NUMBER), SPEC);
   private static final StandardId STANDARD_ID = StandardId.of("OG-Ticker", "OG-EDH6");
   private static final QuoteId QUOTE_ID = QuoteId.of(STANDARD_ID);
   private static final double SPREAD = 0.0001;
@@ -129,12 +130,10 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode node = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     double price = 0.99;
     MarketData marketData = ImmutableMarketData.builder(VAL_DATE).addValue(QUOTE_ID, price).build();
-    assertThat(node.initialGuess(marketData, ValueType.ZERO_RATE)).isCloseTo(1.0 - price, offset(TOLERANCE_RATE));
-    assertThat(node.initialGuess(marketData, ValueType.FORWARD_RATE)).isCloseTo(1.0 - price, offset(TOLERANCE_RATE));
-    double approximateMaturity = TEMPLATE.approximateMaturity(VAL_DATE);
-    double df = Math.exp(-approximateMaturity * (1.0 - price));
-    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR)).isCloseTo(df, offset(TOLERANCE_RATE));
-    assertThat(node.initialGuess(marketData, ValueType.UNKNOWN)).isCloseTo(0.0d, offset(TOLERANCE_RATE));
+    assertThat(node.initialGuess(marketData, ValueType.ZERO_RATE)).isCloseTo(1d - price, offset(TOLERANCE_RATE));
+    assertThat(node.initialGuess(marketData, ValueType.FORWARD_RATE)).isCloseTo(1d - price, offset(TOLERANCE_RATE));
+    assertThat(node.initialGuess(marketData, ValueType.DISCOUNT_FACTOR)).isCloseTo(1d, offset(TOLERANCE_RATE));
+    assertThat(node.initialGuess(marketData, ValueType.UNKNOWN)).isCloseTo(0d, offset(TOLERANCE_RATE));
   }
 
   @Test
@@ -179,7 +178,7 @@ public class IborFutureCurveNodeTest {
     IborFutureCurveNode test = IborFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD);
     coverImmutableBean(test);
     IborFutureCurveNode test2 = IborFutureCurveNode.of(
-        IborFutureTemplate.of(PERIOD_TO_START, NUMBER, SPEC),
+        IborFutureTemplate.of(SequenceDate.full(PERIOD_TO_START, NUMBER), SPEC),
         QuoteId.of(StandardId.of("OG-Ticker", "Unknown")));
     coverBeanEquals(test, test2);
   }

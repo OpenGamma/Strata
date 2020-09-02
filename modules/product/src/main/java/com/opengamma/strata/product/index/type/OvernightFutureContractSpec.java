@@ -6,14 +6,13 @@
 package com.opengamma.strata.product.index.type;
 
 import java.time.LocalDate;
-import java.time.Period;
-import java.time.YearMonth;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
+import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.named.ExtendedEnum;
@@ -83,12 +82,11 @@ public interface OvernightFutureContractSpec
   /**
    * Creates a trade based on this convention.
    * <p>
-   * This returns a trade based on the specified minimum period and sequence number.
+   * This returns a trade based on the instructions in the {@link SequenceDate}.
    * 
    * @param tradeDate  the trade date
    * @param securityId  the identifier of the security
-   * @param minimumPeriod  minimum period between the value date and the first future
-   * @param sequenceNumber  the 1-based sequence number of the futures
+   * @param sequenceDate  the date to be used from the sequence 
    * @param quantity  the number of contracts traded, positive if buying, negative if selling
    * @param price  the trade price of the future
    * @param refData  the reference data, used to resolve the trade dates
@@ -98,30 +96,7 @@ public interface OvernightFutureContractSpec
   public abstract OvernightFutureTrade createTrade(
       LocalDate tradeDate,
       SecurityId securityId,
-      Period minimumPeriod,
-      int sequenceNumber,
-      double quantity,
-      double price,
-      ReferenceData refData);
-
-  /**
-   * Creates a trade based on this convention.
-   * <p>
-   * This returns a trade based on the specified year-month.
-   * 
-   * @param tradeDate  the trade date
-   * @param securityId  the identifier of the security
-   * @param yearMonth  the year-month that the future is defined to be for
-   * @param quantity  the number of contracts traded, positive if buying, negative if selling
-   * @param price  the trade price of the future
-   * @param refData  the reference data, used to resolve the trade dates
-   * @return the trade
-   * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
-   */
-  public abstract OvernightFutureTrade createTrade(
-      LocalDate tradeDate,
-      SecurityId securityId,
-      YearMonth yearMonth,
+      SequenceDate sequenceDate,
       double quantity,
       double price,
       ReferenceData refData);
@@ -130,32 +105,17 @@ public interface OvernightFutureContractSpec
   /**
    * Calculates the reference date from the trade date.
    * <p>
-   * This determines the reference date from the specified trade date, minimum period and sequence number.
-   * The reference date is the start date of the accrual period.
+   * This determines the date from the {@link SequenceDate}.
    * 
    * @param tradeDate  the trade date
-   * @param minimumPeriod  minimum period between the trade date and the first future
-   * @param sequenceNumber  the 1-based sequence number of the futures
+   * @param sequenceDate  the date to be used from the sequence 
    * @param refData  the reference data, used to resolve the date
    * @return the future reference date
    */
   public abstract LocalDate calculateReferenceDate(
       LocalDate tradeDate,
-      Period minimumPeriod,
-      int sequenceNumber,
+      SequenceDate sequenceDate,
       ReferenceData refData);
-
-  /**
-   * Calculates the reference date from the trade date.
-   * <p>
-   * This determines the reference date from the specified year-month.
-   * The reference date is the start date of the accrual period.
-   * 
-   * @param yearMonth  the year-month that the future is defined to be for
-   * @param refData  the reference data, used to resolve the date
-   * @return the future reference date
-   */
-  public abstract LocalDate calculateReferenceDate(YearMonth yearMonth, ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**
