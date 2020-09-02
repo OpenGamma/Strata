@@ -11,6 +11,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.explain.ExplainKey;
 import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.math.MathException;
 import com.opengamma.strata.pricer.rate.RateComputationFn;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
@@ -152,6 +153,20 @@ public class DispatchingRateComputationFn
   //-------------------------------------------------------------------------
   @Override
   public double rate(
+      RateComputation computation,
+      LocalDate startDate,
+      LocalDate endDate,
+      RatesProvider provider) {
+
+    double rate = rate0(computation, startDate, endDate, provider);
+    if (rate != rate) {
+      // this is most likely to occur during curve calibration
+      throw new MathException("Unable to calculate rate, NaN found");
+    }
+    return rate;
+  }
+
+  private double rate0(
       RateComputation computation,
       LocalDate startDate,
       LocalDate endDate,
