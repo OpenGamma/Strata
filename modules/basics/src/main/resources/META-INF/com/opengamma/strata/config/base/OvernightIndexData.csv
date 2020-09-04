@@ -23,4 +23,6 @@ PLN-POLONIA,PLN,TRUE,Act/365F,PLWA,0,0,Act/365F
 # SIOR is same as STIBOR T/N,,,,,,,
 SEK-SIOR,SEK,TRUE,Act/360,SEST,0,1,Act/360
 SGD-SONAR,SGD,TRUE,Act/365F,SGSI,0,0,Act/365F
+# SORA will replace other SGD indices, "Compounded SORA" offers 1M/3M/6M rates based on historic SORA
+SGD-SORA,SGD,TRUE,Act/365F,SGSI,1,0,Act/365F
 ZAR-SABOR,ZAR,TRUE,Act/365F,ZAJO,0,0,Act/365F
