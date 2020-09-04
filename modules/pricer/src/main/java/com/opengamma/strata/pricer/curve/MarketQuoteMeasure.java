@@ -15,6 +15,7 @@ import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPr
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureProductPricer;
+import com.opengamma.strata.pricer.index.DiscountingOvernightFutureProductPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.ResolvedTrade;
@@ -22,6 +23,7 @@ import com.opengamma.strata.product.deposit.ResolvedIborFixingDepositTrade;
 import com.opengamma.strata.product.deposit.ResolvedTermDepositTrade;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedOvernightFutureTrade;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
 /**
@@ -53,6 +55,16 @@ public final class MarketQuoteMeasure<T extends ResolvedTrade>
           ResolvedIborFutureTrade.class,
           (trade, p) -> DiscountingIborFutureProductPricer.DEFAULT.price(trade.getProduct(), p),
           (trade, p) -> DiscountingIborFutureProductPricer.DEFAULT.priceSensitivity(trade.getProduct(), p));
+
+  /**
+   * The measure for {@link ResolvedOvernightFutureTrade} using price discounting.
+   */
+  public static final MarketQuoteMeasure<ResolvedOvernightFutureTrade> OVERNIGHT_FUTURE_MQ =
+      MarketQuoteMeasure.of(
+          "OvernightFuturePriceDiscounting",
+          ResolvedOvernightFutureTrade.class,
+          (trade, p) -> DiscountingOvernightFutureProductPricer.DEFAULT.price(trade.getProduct(), p),
+          (trade, p) -> DiscountingOvernightFutureProductPricer.DEFAULT.priceSensitivity(trade.getProduct(), p));
 
   /**
    * The measure for {@link ResolvedSwapTrade} using par rate discounting. Apply only to swap with a fixed leg.
@@ -123,7 +135,7 @@ public final class MarketQuoteMeasure<T extends ResolvedTrade>
       ToDoubleBiFunction<R, RatesProvider> valueFn,
       BiFunction<R, RatesProvider, PointSensitivities> sensitivityFn) {
 
-    return new MarketQuoteMeasure<R>(name, tradeType, valueFn, sensitivityFn);
+    return new MarketQuoteMeasure<>(name, tradeType, valueFn, sensitivityFn);
   }
 
   // restricted constructor
