@@ -20,6 +20,13 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
 public final class Measures {
 
   /**
+   * Measure representing the open trade equity (OTE) of the calculation target.
+   * <p>
+   * The result is a single currency monetary amount in the reporting currency.
+   */
+  public static final Measure OPEN_TRADE_EQUITY = Measure.of(StandardMeasures.OPEN_TRADE_EQUITY.getName());
+
+  /**
    * Measure representing the present value of the calculation target.
    * <p>
    * The result is a single currency monetary amount in the reporting currency.

@@ -13,6 +13,8 @@ import com.opengamma.strata.calc.Measure;
  */
 final class StandardMeasures {
 
+  // open trade equity, with currency conversion
+  public static final Measure OPEN_TRADE_EQUITY = ImmutableMeasure.of("OpenTradeEquity");
   // present value, with currency conversion
   public static final Measure PRESENT_VALUE = ImmutableMeasure.of("PresentValue");
   // explain present value, with no currency conversion
