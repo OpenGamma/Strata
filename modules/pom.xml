@@ -718,7 +718,7 @@
     <!-- Locate the root directory of the multi-module build -->
     <root.dir>${project.basedir}/..</root.dir>
     <!-- Versions -->
-    <assertj.version>3.17.1</assertj.version>
+    <assertj.version>3.17.2</assertj.version>
     <guava.version>26.0-jre</guava.version><!-- v27 has nasty dependencies, https://github.com/google/guava/issues/3320 -->
     <guava-docs.version>26.0-jre</guava-docs.version>
     <jcommander.version>1.78</jcommander.version>
