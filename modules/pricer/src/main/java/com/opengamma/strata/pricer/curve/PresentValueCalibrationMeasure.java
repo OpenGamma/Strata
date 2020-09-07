@@ -63,7 +63,7 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
    */
   public static final PresentValueCalibrationMeasure<ResolvedIborFutureTrade> IBOR_FUTURE_PV =
       PresentValueCalibrationMeasure.of(
-          "IborFutureParSpreadDiscounting",
+          "IborFuturePresentValueDiscounting",
           ResolvedIborFutureTrade.class,
           (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.presentValue(trade, p, 0.0).getAmount(),
           (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.presentValueSensitivity(trade, p));
@@ -73,7 +73,7 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
    */
   public static final PresentValueCalibrationMeasure<ResolvedOvernightFutureTrade> OVERNIGHT_FUTURE_PV =
       PresentValueCalibrationMeasure.of(
-          "OvernightFutureParSpreadDiscounting",
+          "OvernightFuturePresentValueDiscounting",
           ResolvedOvernightFutureTrade.class,
           (trade, p) -> DiscountingOvernightFutureTradePricer.DEFAULT.presentValue(trade, p, 0.0).getAmount(),
           (trade, p) -> DiscountingOvernightFutureTradePricer.DEFAULT.presentValueSensitivity(trade, p));
@@ -83,7 +83,7 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
    */
   public static final PresentValueCalibrationMeasure<ResolvedSwapTrade> SWAP_PV =
       PresentValueCalibrationMeasure.of(
-          "SwapParSpreadDiscounting",
+          "SwapPresentValueDiscounting",
           ResolvedSwapTrade.class,
           (trade, p) -> DiscountingSwapProductPricer.DEFAULT.presentValue(trade.getProduct(), p)
               .convertedTo(trade.getProduct().getLegs().get(0).getCurrency(), p).getAmount(),
@@ -95,7 +95,7 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
    */
   public static final PresentValueCalibrationMeasure<ResolvedIborFixingDepositTrade> IBOR_FIXING_DEPOSIT_PV =
       PresentValueCalibrationMeasure.of(
-          "IborFixingDepositParSpreadDiscounting",
+          "IborFixingDepositPresentValueDiscounting",
           ResolvedIborFixingDepositTrade.class,
           (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.presentValue(trade.getProduct(), p).getAmount(),
           (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.presentValueSensitivity(trade.getProduct(), p));
@@ -105,7 +105,7 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
    */
   public static final PresentValueCalibrationMeasure<ResolvedTermDepositTrade> TERM_DEPOSIT_PV =
       PresentValueCalibrationMeasure.of(
-          "TermDepositParSpreadDiscounting",
+          "TermDepositPresentValueDiscounting",
           ResolvedTermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.presentValue(trade.getProduct(), p).getAmount(),
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.presentValueSensitivity(trade.getProduct(), p));
