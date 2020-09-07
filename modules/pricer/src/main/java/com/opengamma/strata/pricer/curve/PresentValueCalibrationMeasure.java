@@ -15,6 +15,7 @@ import com.opengamma.strata.pricer.deposit.DiscountingIborFixingDepositProductPr
 import com.opengamma.strata.pricer.deposit.DiscountingTermDepositProductPricer;
 import com.opengamma.strata.pricer.fra.DiscountingFraProductPricer;
 import com.opengamma.strata.pricer.index.DiscountingIborFutureTradePricer;
+import com.opengamma.strata.pricer.index.DiscountingOvernightFutureTradePricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.sensitivity.MarketQuoteSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
@@ -26,7 +27,9 @@ import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.ResolvedFraTrade;
 import com.opengamma.strata.product.index.IborFutureTrade;
+import com.opengamma.strata.product.index.OvernightFutureTrade;
 import com.opengamma.strata.product.index.ResolvedIborFutureTrade;
+import com.opengamma.strata.product.index.ResolvedOvernightFutureTrade;
 import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -56,21 +59,31 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
           (trade, p) -> DiscountingFraProductPricer.DEFAULT.presentValueSensitivity(trade.getProduct(), p));
 
   /**
-   * The calibrator for {@link IborFutureTrade} using par spread discounting.
+   * The calibrator for {@link IborFutureTrade} using present value discounting.
    */
   public static final PresentValueCalibrationMeasure<ResolvedIborFutureTrade> IBOR_FUTURE_PV =
       PresentValueCalibrationMeasure.of(
-          "IborFutureParSpreadDiscounting",
+          "IborFuturePresentValueDiscounting",
           ResolvedIborFutureTrade.class,
           (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.presentValue(trade, p, 0.0).getAmount(),
           (trade, p) -> DiscountingIborFutureTradePricer.DEFAULT.presentValueSensitivity(trade, p));
 
   /**
-   * The calibrator for {@link SwapTrade} using par spread discounting.
+   * The calibrator for {@link OvernightFutureTrade} using present value discounting.
+   */
+  public static final PresentValueCalibrationMeasure<ResolvedOvernightFutureTrade> OVERNIGHT_FUTURE_PV =
+      PresentValueCalibrationMeasure.of(
+          "OvernightFuturePresentValueDiscounting",
+          ResolvedOvernightFutureTrade.class,
+          (trade, p) -> DiscountingOvernightFutureTradePricer.DEFAULT.presentValue(trade, p, 0.0).getAmount(),
+          (trade, p) -> DiscountingOvernightFutureTradePricer.DEFAULT.presentValueSensitivity(trade, p));
+
+  /**
+   * The calibrator for {@link SwapTrade} using present value discounting.
    */
   public static final PresentValueCalibrationMeasure<ResolvedSwapTrade> SWAP_PV =
       PresentValueCalibrationMeasure.of(
-          "SwapParSpreadDiscounting",
+          "SwapPresentValueDiscounting",
           ResolvedSwapTrade.class,
           (trade, p) -> DiscountingSwapProductPricer.DEFAULT.presentValue(trade.getProduct(), p)
               .convertedTo(trade.getProduct().getLegs().get(0).getCurrency(), p).getAmount(),
@@ -78,21 +91,21 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
               .convertedTo(trade.getProduct().getLegs().get(0).getCurrency(), p));
 
   /**
-   * The calibrator for {@link IborFixingDepositTrade} using par spread discounting.
+   * The calibrator for {@link IborFixingDepositTrade} using present value discounting.
    */
   public static final PresentValueCalibrationMeasure<ResolvedIborFixingDepositTrade> IBOR_FIXING_DEPOSIT_PV =
       PresentValueCalibrationMeasure.of(
-          "IborFixingDepositParSpreadDiscounting",
+          "IborFixingDepositPresentValueDiscounting",
           ResolvedIborFixingDepositTrade.class,
           (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.presentValue(trade.getProduct(), p).getAmount(),
           (trade, p) -> DiscountingIborFixingDepositProductPricer.DEFAULT.presentValueSensitivity(trade.getProduct(), p));
 
   /**
-   * The calibrator for {@link TermDepositTrade} using par spread discounting.
+   * The calibrator for {@link TermDepositTrade} using present value discounting.
    */
   public static final PresentValueCalibrationMeasure<ResolvedTermDepositTrade> TERM_DEPOSIT_PV =
       PresentValueCalibrationMeasure.of(
-          "TermDepositParSpreadDiscounting",
+          "TermDepositPresentValueDiscounting",
           ResolvedTermDepositTrade.class,
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.presentValue(trade.getProduct(), p).getAmount(),
           (trade, p) -> DiscountingTermDepositProductPricer.DEFAULT.presentValueSensitivity(trade.getProduct(), p));
@@ -134,7 +147,7 @@ public final class PresentValueCalibrationMeasure<T extends ResolvedTrade>
       ToDoubleBiFunction<R, RatesProvider> valueFn,
       BiFunction<R, RatesProvider, PointSensitivities> sensitivityFn) {
 
-    return new PresentValueCalibrationMeasure<R>(name, tradeType, valueFn, sensitivityFn);
+    return new PresentValueCalibrationMeasure<>(name, tradeType, valueFn, sensitivityFn);
   }
 
   // restricted constructor

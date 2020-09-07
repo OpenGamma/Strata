@@ -41,6 +41,7 @@ public final class CalibrationMeasures {
       TradeCalibrationMeasure.FX_SWAP_PAR_SPREAD,
       TradeCalibrationMeasure.IBOR_FIXING_DEPOSIT_PAR_SPREAD,
       TradeCalibrationMeasure.IBOR_FUTURE_PAR_SPREAD,
+      TradeCalibrationMeasure.OVERNIGHT_FUTURE_PAR_SPREAD,
       TradeCalibrationMeasure.SWAP_PAR_SPREAD,
       TradeCalibrationMeasure.TERM_DEPOSIT_PAR_SPREAD);
   /**
@@ -54,6 +55,7 @@ public final class CalibrationMeasures {
       MarketQuoteMeasure.FRA_MQ,
       MarketQuoteMeasure.IBOR_FIXING_DEPOSIT_MQ,
       MarketQuoteMeasure.IBOR_FUTURE_MQ,
+      MarketQuoteMeasure.OVERNIGHT_FUTURE_MQ,
       MarketQuoteMeasure.SWAP_MQ,
       MarketQuoteMeasure.TERM_DEPOSIT_MQ);
   /**
@@ -68,6 +70,7 @@ public final class CalibrationMeasures {
       PresentValueCalibrationMeasure.FRA_PV,
       PresentValueCalibrationMeasure.IBOR_FIXING_DEPOSIT_PV,
       PresentValueCalibrationMeasure.IBOR_FUTURE_PV,
+      PresentValueCalibrationMeasure.OVERNIGHT_FUTURE_PV,
       PresentValueCalibrationMeasure.SWAP_PV,
       PresentValueCalibrationMeasure.TERM_DEPOSIT_PV);
 
