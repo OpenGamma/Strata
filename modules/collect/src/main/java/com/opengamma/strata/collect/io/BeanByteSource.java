@@ -49,6 +49,19 @@ public abstract class BeanByteSource extends ByteSource implements ImmutableBean
     return Optional.empty();
   }
 
+  /**
+   * Gets the file name of the source.
+   * <p>
+   * Most sources originate from a file-based location.
+   * This is captured and returned here where available.
+   *
+   * @return the file name
+   * @throws IllegalArgumentException if the file name is not known
+   */
+  public String getFileNameOrThrow() {
+    return getFileName().orElseThrow(() -> new IllegalArgumentException("No file name present on byte source"));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if the byte source is empty, throwing an unchecked exception.

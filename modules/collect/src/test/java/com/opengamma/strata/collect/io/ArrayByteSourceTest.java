@@ -249,7 +249,9 @@ public class ArrayByteSourceTest {
     assertThat(test.getFileName()).isEmpty();
     assertThat(test.withFileName("name.txt").getFileName()).hasValue("name.txt");
     assertThat(test.withFileName("foo/name.txt").getFileName()).hasValue("name.txt");
+    assertThat(test.withFileName("foo/name.txt").getFileNameOrThrow()).isEqualTo("name.txt");
     assertThat(test.withFileName("").getFileName()).isEmpty();
+    assertThatIllegalArgumentException().isThrownBy(() -> test.withFileName("").getFileNameOrThrow());
     assertThatIllegalArgumentException().isThrownBy(() -> test.withFileName(null).getFileName());
   }
 

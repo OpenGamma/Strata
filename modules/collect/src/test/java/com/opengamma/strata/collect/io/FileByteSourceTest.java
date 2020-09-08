@@ -26,6 +26,7 @@ public class FileByteSourceTest {
     File file = new File("pom.xml");
     FileByteSource test = FileByteSource.of(file);
     assertThat(test.getFileName()).hasValue("pom.xml");
+    assertThat(test.getFileNameOrThrow()).isEqualTo("pom.xml");
     assertThat(test.getFile()).isSameAs(file);
     assertThat(test.isEmpty()).isFalse();
     assertThat(test.size()).isGreaterThan(100);
@@ -36,6 +37,7 @@ public class FileByteSourceTest {
     assertThat(test.asCharSourceUtf8().read()).startsWith("<");
     assertThat(test.asCharSourceUtf8UsingBom().read()).startsWith("<");
     assertThat(test.load().getFileName()).hasValue("pom.xml");
+    assertThat(test.load().getFileNameOrThrow()).isEqualTo("pom.xml");
     assertThat(test.load().readUtf8()).startsWith("<");
   }
 
