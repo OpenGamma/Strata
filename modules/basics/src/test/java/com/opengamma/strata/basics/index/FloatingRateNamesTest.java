@@ -117,6 +117,7 @@ public class FloatingRateNamesTest {
         {"HKD-HONIA-OIS-COMPOUND", "HKD-HONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"HKD-HONIX-OIS-COMPOUND", "HKD-HONIA", FloatingRateType.OVERNIGHT_COMPOUNDED},
         {"INR-MIBOR-OIS-COMPOUND", "INR-OMIBOR", FloatingRateType.OVERNIGHT_COMPOUNDED},
+        {"SGD-SORA-COMPOUND", "SGD-SORA", FloatingRateType.OVERNIGHT_COMPOUNDED},
     };
   }
 

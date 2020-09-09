@@ -340,6 +340,21 @@ public class OvernightIndexTest {
   }
 
   @Test
+  public void test_sgdSora() {
+    HolidayCalendarId cal = HolidayCalendarId.of("SGSI");
+    OvernightIndex test = OvernightIndex.of("SGD-SORA");
+    assertThat(test.getName()).isEqualTo("SGD-SORA");
+    assertThat(test.getCurrency()).isEqualTo(SGD);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getFixingCalendar()).isEqualTo(cal);
+    assertThat(test.getPublicationDateOffset()).isEqualTo(1);
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
+    assertThat(test.getDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.getDefaultFixedLegDayCount()).isEqualTo(ACT_365F);
+    assertThat(test.toString()).isEqualTo("SGD-SORA");
+  }
+
+  @Test
   public void test_zarSabor() {
     OvernightIndex test = OvernightIndex.of("ZAR-SABOR");
     assertThat(test.getName()).isEqualTo("ZAR-SABOR");
