@@ -110,12 +110,22 @@ public interface OvernightFutureContractSpec
    * @param tradeDate  the trade date
    * @param sequenceDate  the date to be used from the sequence 
    * @param refData  the reference data, used to resolve the date
-   * @return the future reference date
+   * @return the reference date of the contract, also known as the start date
    */
   public abstract LocalDate calculateReferenceDate(
       LocalDate tradeDate,
       SequenceDate sequenceDate,
       ReferenceData refData);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the last fixing date from the trade date.
+   * 
+   * @param referenceDate  the reference date of the contract, also known as the start date
+   * @param refData  the reference data, used to resolve the date
+   * @return the last fixing date
+   */
+  public abstract LocalDate calculateLastFixingDate(LocalDate referenceDate, ReferenceData refData);
 
   //-------------------------------------------------------------------------
   /**

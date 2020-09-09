@@ -176,6 +176,12 @@ public final class ImmutableOvernightFutureContractSpec
     return startDateAdjustment.adjust(referenceDate, refData);
   }
 
+  @Override
+  public LocalDate calculateLastFixingDate(LocalDate referenceDate, ReferenceData refData) {
+    LocalDate nextReferenceDate = dateSequence.baseSequence().next(referenceDate);
+    return endDateAdjustment.adjust(nextReferenceDate, refData);
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public String toString() {

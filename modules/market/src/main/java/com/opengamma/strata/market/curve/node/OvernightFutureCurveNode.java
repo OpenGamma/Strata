@@ -147,10 +147,10 @@ public final class OvernightFutureCurveNode
 
   @Override
   public LocalDate date(LocalDate valuationDate, ReferenceData refData) {
-    LocalDate referenceDate = template.calculateReferenceDateFromTradeDate(valuationDate, refData);
+    LocalDate lastFixingDate = template.calculateLastFixingDateFromTradeDate(valuationDate, refData);
     return date.calculate(
-        () -> calculateEnd(referenceDate, refData),
-        () -> calculateLastFixingDate(valuationDate, refData));
+        () -> template.getIndex().calculateMaturityFromEffective(lastFixingDate, refData),
+        () -> lastFixingDate);
   }
 
   @Override
@@ -161,19 +161,6 @@ public final class OvernightFutureCurveNode
       return YearMonthDateParameterMetadata.of(nodeDate, YearMonth.from(referenceDate));
     }
     return YearMonthDateParameterMetadata.of(nodeDate, YearMonth.from(referenceDate), label);
-  }
-
-  // calculate the end date
-  private LocalDate calculateEnd(LocalDate referenceDate, ReferenceData refData) {
-    return template.getIndex().calculateMaturityFromEffective(referenceDate, refData);
-  }
-
-  // calculate the last fixing date
-  private LocalDate calculateLastFixingDate(LocalDate valuationDate, ReferenceData refData) {
-    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
-    OvernightFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, refData);
-    LocalDate endDate = trade.getProduct().getEndDate();
-    return trade.getProduct().getIndex().calculateFixingFromEffective(endDate, refData);
   }
 
   @Override

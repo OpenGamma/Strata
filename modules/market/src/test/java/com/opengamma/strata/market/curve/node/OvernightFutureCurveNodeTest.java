@@ -139,10 +139,9 @@ public class OvernightFutureCurveNodeTest {
   @Test
   public void test_metadata_end() {
     OvernightFutureCurveNode node = OvernightFutureCurveNode.of(TEMPLATE, QUOTE_ID, SPREAD, LABEL);
-    LocalDate date = LocalDate.of(2015, 10, 20);
-    LocalDate referenceDate = SPEC.calculateReferenceDate(VAL_DATE, SequenceDate.base(YEAR_MONTH), REF_DATA);
-    LocalDate maturityDate = SPEC.getIndex().calculateMaturityFromEffective(referenceDate, REF_DATA);
-    ParameterMetadata metadata = node.metadata(date, REF_DATA);
+    LocalDate maturityDate = LocalDate.of(2015, 12, 16); // 3rd Wednesday Dec
+    LocalDate referenceDate = TEMPLATE.calculateReferenceDateFromTradeDate(VAL_DATE, REF_DATA);
+    ParameterMetadata metadata = node.metadata(VAL_DATE, REF_DATA);
     assertThat(metadata.getLabel()).isEqualTo(LABEL);
     assertThat(metadata instanceof YearMonthDateParameterMetadata).isTrue();
     assertThat(((YearMonthDateParameterMetadata) metadata).getDate()).isEqualTo(maturityDate);
