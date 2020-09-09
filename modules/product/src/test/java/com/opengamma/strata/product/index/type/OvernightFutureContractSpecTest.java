@@ -21,6 +21,7 @@ import static com.opengamma.strata.product.swap.OvernightAccrualMethod.COMPOUNDE
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 
 import org.junit.jupiter.api.Test;
@@ -83,11 +84,13 @@ public class OvernightFutureContractSpecTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_createTrade_gbpSonia3mImmCme() {
+    LocalDate tradeDate = date(2020, 1, 25);
+    SequenceDate seqDate = SequenceDate.base(YearMonth.of(2020, 2));
     OvernightFutureContractSpec test = OvernightFutureContractSpecs.GBP_SONIA_3M_IMM_CME;
     OvernightFutureTrade trade = test.createTrade(
-        date(2020, 1, 25),
+        tradeDate,
         SecurityId.of("OG", "1"),
-        SequenceDate.base(YearMonth.of(2020, 2)),
+        seqDate,
         20,
         0.999d,
         REF_DATA);
@@ -101,6 +104,11 @@ public class OvernightFutureContractSpecTest {
     assertThat(trade.getProduct().getEndDate()).isEqualTo(date(2020, 6, 16));
     assertThat(trade.getProduct().getLastTradeDate()).isEqualTo(date(2020, 6, 17));
     assertThat(trade.getProduct().getNotional()).isEqualTo(1_000_000d);
+
+    LocalDate startDate = test.calculateReferenceDate(tradeDate, seqDate, REF_DATA);
+    LocalDate lastFixingDate = test.calculateLastFixingDate(startDate, REF_DATA);
+    assertThat(startDate).isEqualTo(date(2020, 3, 18));
+    assertThat(lastFixingDate).isEqualTo(date(2020, 6, 16));
   }
 
   @Test

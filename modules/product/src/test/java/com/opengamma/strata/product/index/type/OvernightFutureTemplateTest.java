@@ -61,6 +61,14 @@ public class OvernightFutureTemplateTest {
     assertThat(base.calculateReferenceDateFromTradeDate(date, REF_DATA)).isEqualTo(expected);
   }
 
+  @Test
+  public void test_calculateLastFixingDateFromTradeDate() {
+    OvernightFutureTemplate base = OvernightFutureTemplate.of(SEQ_DATE, SPEC);
+    LocalDate date = LocalDate.of(2015, 10, 20);
+    LocalDate expected = LocalDate.of(2016, 9, 20);
+    assertThat(base.calculateLastFixingDateFromTradeDate(date, REF_DATA)).isEqualTo(expected);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void coverage() {

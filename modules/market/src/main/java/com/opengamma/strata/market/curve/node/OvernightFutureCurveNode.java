@@ -147,12 +147,10 @@ public final class OvernightFutureCurveNode
 
   @Override
   public LocalDate date(LocalDate valuationDate, ReferenceData refData) {
-    SecurityId secId = SecurityId.of(rateId.getStandardId());  // quote must also be security
-    OvernightFutureTrade trade = template.createTrade(valuationDate, secId, 1, 1, refData);
-    LocalDate endDate = trade.getProduct().getEndDate(); // Last fixing date
+    LocalDate lastFixingDate = template.calculateLastFixingDateFromTradeDate(valuationDate, refData);
     return date.calculate(
-        () -> trade.getProduct().getIndex().calculateMaturityFromEffective(endDate, refData),
-        () -> endDate);
+        () -> template.getIndex().calculateMaturityFromEffective(lastFixingDate, refData),
+        () -> lastFixingDate);
   }
 
   @Override
