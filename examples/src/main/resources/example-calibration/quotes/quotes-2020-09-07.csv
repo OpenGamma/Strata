@@ -1,0 +1,19 @@
+Valuation Date,Symbology,Ticker,Field Name,Value
+,,,,
+2020-09-07,OG-Ticker,USD-DEP-ON,MarketValue,0.001
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-1,MarketValue,0.9992
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-2,MarketValue,0.9993
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-3,MarketValue,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-4,MarketValue,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-5,MarketValue,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-6,MarketValue,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-7,MarketValue,0.9999
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-8,MarketValue,0.9999
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-1,SettlementPrice,0.9992
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-2,SettlementPrice,0.9993
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-3,SettlementPrice,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-4,SettlementPrice,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-5,SettlementPrice,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-6,SettlementPrice,0.9996
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-7,SettlementPrice,0.9999
+2020-09-07,OG-Ticker,USD-SOFR-QFUT-8,SettlementPrice,0.9999
