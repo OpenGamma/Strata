@@ -39,7 +39,7 @@ import com.opengamma.strata.collect.named.Named;
  * config file.
  */
 public interface FloatingRateName
-    extends Named {
+    extends FloatingRate, Named {
 
   /**
    * Obtains an instance from the specified unique name.
@@ -136,10 +136,9 @@ public interface FloatingRateName
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the name that uniquely identifies this floating rate.
+   * Gets the name that uniquely identifies this floating rate, such as 'GBP-LIBOR'.
    * <p>
    * This name is used in serialization and can be parsed using {@link #of(String)}.
-   * It will be the external name, typically from FpML, such as 'GBP-LIBOR-BBA'.
    * 
    * @return the external name
    */
@@ -161,6 +160,7 @@ public interface FloatingRateName
    * @throws IllegalArgumentException if unable to return an index, which should
    *   only happen if the system is not configured correctly
    */
+  @Override
   public default Currency getCurrency() {
     return toFloatingRateIndex().getCurrency();
   }

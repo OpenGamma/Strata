@@ -20,7 +20,7 @@ import com.opengamma.strata.collect.ArgChecker;
  * All implementations of this interface must be immutable and thread-safe.
  */
 public interface FloatingRateIndex
-    extends Index {
+    extends Index, FloatingRate {
 
   /**
    * Parses a string, handling different types of index.
@@ -108,24 +108,16 @@ public interface FloatingRateIndex
    */
   @SuppressWarnings({"rawtypes", "unchecked"})
   public static Optional<FloatingRateIndex> tryParse(String indexStr, Tenor defaultIborTenor) {
-    Optional<IborIndex> iborOpt = IborIndex.extendedEnum().find(indexStr);
-    if (iborOpt.isPresent()) {
-      return (Optional) iborOpt;
-    }
-    Optional<OvernightIndex> overnightOpt = OvernightIndex.extendedEnum().find(indexStr);
-    if (overnightOpt.isPresent()) {
-      return (Optional) overnightOpt;
-    }
-    Optional<PriceIndex> priceOpt = PriceIndex.extendedEnum().find(indexStr);
-    if (priceOpt.isPresent()) {
-      return (Optional) priceOpt;
-    }
-    Optional<FloatingRateName> frnOpt = FloatingRateName.extendedEnum().find(indexStr);
-    if (frnOpt.isPresent()) {
-      return frnOpt
-          .map(frn -> frn.toFloatingRateIndex(defaultIborTenor != null ? defaultIborTenor : frn.getDefaultTenor()));
-    }
-    return Optional.empty();
+    // using a block lambda as code is too complex for a ternary and private interface methods are not available
+    return FloatingRate.tryParse(indexStr)
+        .map(fr -> {
+          if (fr instanceof FloatingRateName) {
+            FloatingRateName frName = (FloatingRateName) fr;
+            return frName.toFloatingRateIndex(defaultIborTenor != null ? defaultIborTenor : frName.getDefaultTenor());
+          } else {
+            return (FloatingRateIndex) fr;
+          }
+        });
   }
 
   //-------------------------------------------------------------------------
@@ -134,6 +126,7 @@ public interface FloatingRateIndex
    * 
    * @return the currency of the index
    */
+  @Override
   public abstract Currency getCurrency();
 
   /**
@@ -161,6 +154,7 @@ public interface FloatingRateIndex
    * 
    * @return the floating rate name
    */
+  @Override
   public abstract FloatingRateName getFloatingRateName();
 
   /**

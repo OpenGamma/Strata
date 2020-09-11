@@ -110,6 +110,11 @@ public final class ImmutableFloatingRateName
   }
 
   @Override
+  public FloatingRateName getFloatingRateName() {
+    return this;
+  }
+
+  @Override
   public Set<Tenor> getTenors() {
     if (!type.isIbor()) {
       return ImmutableSet.of();
