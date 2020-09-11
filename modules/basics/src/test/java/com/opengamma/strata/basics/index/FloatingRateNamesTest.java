@@ -206,6 +206,14 @@ public class FloatingRateNamesTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_getFloatingRateName() {
+    for (FloatingRateName name : FloatingRateName.extendedEnum().lookupAll().values()) {
+      assertThat(name.getFloatingRateName()).isEqualTo(name);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_iborIndex_tenor() {
     assertThat(FloatingRateName.of("GBP-LIBOR-BBA").getDefaultTenor()).isEqualTo(Tenor.TENOR_3M);
     assertThat(FloatingRateName.of("GBP-LIBOR-BBA").toFloatingRateIndex()).isEqualTo(IborIndices.GBP_LIBOR_3M);
