@@ -69,6 +69,7 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseInteger() {
     assertThat(LoaderUtils.parseInteger("2")).isEqualTo(2);
+    assertThat(LoaderUtils.parseInteger("(2)")).isEqualTo(-2);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseInteger("Rubbish"))
         .withMessage("Unable to parse integer from 'Rubbish'");
@@ -77,6 +78,7 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseDouble() {
     assertThat(LoaderUtils.parseDouble("1.2")).isEqualTo(1.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("(1.2)")).isEqualTo(-1.2d, within(1e-10));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
         .withMessage("Unable to parse double from 'Rubbish'");
@@ -85,6 +87,7 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseDoublePercent() {
     assertThat(LoaderUtils.parseDoublePercent("1.2")).isEqualTo(0.012d, within(1e-10));
+    assertThat(LoaderUtils.parseDoublePercent("(1.2)")).isEqualTo(-0.012d, within(1e-10));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
         .withMessage("Unable to parse percentage from 'Rubbish'");
@@ -93,6 +96,7 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseBigDecimal() {
     assertThat(LoaderUtils.parseBigDecimal("1.2")).isEqualTo(BigDecimal.valueOf(1.2d));
+    assertThat(LoaderUtils.parseBigDecimal("(1.2)")).isEqualTo(BigDecimal.valueOf(-1.2d));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
         .withMessage("Unable to parse double from 'Rubbish'");
@@ -101,6 +105,7 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseBigDecimalPercent() {
     assertThat(LoaderUtils.parseBigDecimalPercent("1.2")).isEqualTo(BigDecimal.valueOf(0.012d));
+    assertThat(LoaderUtils.parseBigDecimalPercent("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.012d));
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
         .withMessage("Unable to parse percentage from 'Rubbish'");

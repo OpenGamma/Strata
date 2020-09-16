@@ -166,7 +166,7 @@ public final class LoaderUtils {
    */
   public static int parseInteger(String str) {
     try {
-      return Integer.parseInt(str);
+      return Integer.parseInt(normalizeIfBracketed(str));
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse integer from '" + str + "'");
       nfex.initCause(ex);
@@ -183,7 +183,7 @@ public final class LoaderUtils {
    */
   public static double parseDouble(String str) {
     try {
-      return new BigDecimal(str).doubleValue();
+      return new BigDecimal(normalizeIfBracketed(str)).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
       nfex.initCause(ex);
@@ -200,7 +200,7 @@ public final class LoaderUtils {
    */
   public static double parseDoublePercent(String str) {
     try {
-      return new BigDecimal(str).movePointLeft(2).doubleValue();
+      return new BigDecimal(normalizeIfBracketed(str)).movePointLeft(2).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse percentage from '" + str + "'");
       nfex.initCause(ex);
@@ -217,7 +217,7 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimal(String str) {
     try {
-      return new BigDecimal(str);
+      return new BigDecimal(normalizeIfBracketed(str));
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal from '" + str + "'");
       nfex.initCause(ex);
@@ -234,11 +234,19 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimalPercent(String str) {
     try {
-      return new BigDecimal(str).movePointLeft(2);
+      return new BigDecimal(normalizeIfBracketed(str)).movePointLeft(2);
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
       nfex.initCause(ex);
       throw nfex;
+    }
+  }
+
+  private static String normalizeIfBracketed(String value) {
+    if (value.startsWith("(") && value.endsWith(")")) {
+      return "-" + value.replace("(", "").replace(")", "");
+    } else {
+      return value;
     }
   }
 
