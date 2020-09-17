@@ -199,7 +199,7 @@ public final class LoaderUtils {
    * Parses a double from the input string, converting it from a percentage to a decimal values.
    * <p>
    * If input value is bracketed, it will be parsed as a negative decimal percentage.
-   * For e.g. '(12.34)' will be parsed as -0.1234.
+   * For e.g. '(12.34)' will be parsed as -0.1234d.
    * 
    * @param str  the string to parse
    * @return the parsed value
