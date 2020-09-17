@@ -159,6 +159,8 @@ public final class LoaderUtils {
 
   /**
    * Parses an integer from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative integer. For e.g. '(23)' will be parsed as -23.
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -176,7 +178,9 @@ public final class LoaderUtils {
 
   /**
    * Parses a double from the input string.
-   * 
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative number. For e.g. '(1.23)' will be parsed as -1.23d.
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws NumberFormatException if the string cannot be parsed
@@ -193,6 +197,9 @@ public final class LoaderUtils {
 
   /**
    * Parses a double from the input string, converting it from a percentage to a decimal values.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative decimal percentage.
+   * For e.g. '(12.34)' will be parsed as -0.1234.
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -210,6 +217,9 @@ public final class LoaderUtils {
 
   /**
    * Parses a decimal from the input string.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative big decimal.
+   * For e.g. '(12.3456789)' will be parsed as a big decimal -12.3456789.
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -227,7 +237,10 @@ public final class LoaderUtils {
 
   /**
    * Parses a decimal from the input string, converting it from a percentage to a decimal values.
-   * 
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative decimal percent.
+   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws NumberFormatException if the string cannot be parsed
@@ -243,8 +256,9 @@ public final class LoaderUtils {
   }
 
   private static String normalizeIfBracketed(String value) {
-    if (value.startsWith("(") && value.endsWith(")")) {
-      return "-" + value.replace("(", "").replace(")", "");
+    if (value.length() > 2 && value.startsWith("(") && value.endsWith(")")) {
+      String valueWithoutBrackets = value.substring(1, value.length() - 1);
+      return "-" + valueWithoutBrackets; // prepends the negative sign
     } else {
       return value;
     }

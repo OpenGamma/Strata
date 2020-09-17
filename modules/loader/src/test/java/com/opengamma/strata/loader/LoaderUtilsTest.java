@@ -70,6 +70,13 @@ public class LoaderUtilsTest {
   public void test_parseInteger() {
     assertThat(LoaderUtils.parseInteger("2")).isEqualTo(2);
     assertThat(LoaderUtils.parseInteger("(2)")).isEqualTo(-2);
+    assertThat(LoaderUtils.parseInteger("(23)")).isEqualTo(-23);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseInteger("()"))
+        .withMessage("Unable to parse integer from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseInteger("(2)3)"))
+        .withMessage("Unable to parse integer from '(2)3)'");
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseInteger("Rubbish"))
         .withMessage("Unable to parse integer from 'Rubbish'");
@@ -80,6 +87,12 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseDouble("1.2")).isEqualTo(1.2d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("(1.2)")).isEqualTo(-1.2d, within(1e-10));
     assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("()"))
+        .withMessage("Unable to parse double from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("(1.2)3)"))
+        .withMessage("Unable to parse double from '(1.2)3)'");
+    assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
         .withMessage("Unable to parse double from 'Rubbish'");
   }
@@ -88,6 +101,12 @@ public class LoaderUtilsTest {
   public void test_parseDoublePercent() {
     assertThat(LoaderUtils.parseDoublePercent("1.2")).isEqualTo(0.012d, within(1e-10));
     assertThat(LoaderUtils.parseDoublePercent("(1.2)")).isEqualTo(-0.012d, within(1e-10));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDoublePercent("()"))
+        .withMessage("Unable to parse percentage from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDoublePercent("(1.2(3)"))
+        .withMessage("Unable to parse percentage from '(1.2(3)'");
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
         .withMessage("Unable to parse percentage from 'Rubbish'");
@@ -98,8 +117,14 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBigDecimal("1.2")).isEqualTo(BigDecimal.valueOf(1.2d));
     assertThat(LoaderUtils.parseBigDecimal("(1.2)")).isEqualTo(BigDecimal.valueOf(-1.2d));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> LoaderUtils.parseDouble("Rubbish"))
-        .withMessage("Unable to parse double from 'Rubbish'");
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("()"))
+        .withMessage("Unable to parse BigDecimal from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("(1.2(3)"))
+        .withMessage("Unable to parse BigDecimal from '(1.2(3)'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("Rubbish"))
+        .withMessage("Unable to parse BigDecimal from 'Rubbish'");
   }
 
   @Test
@@ -107,8 +132,14 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBigDecimalPercent("1.2")).isEqualTo(BigDecimal.valueOf(0.012d));
     assertThat(LoaderUtils.parseBigDecimalPercent("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.012d));
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> LoaderUtils.parseDoublePercent("Rubbish"))
-        .withMessage("Unable to parse percentage from 'Rubbish'");
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("()"))
+        .withMessage("Unable to parse BigDecimal percentage from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("(1.2(3)"))
+        .withMessage("Unable to parse BigDecimal percentage from '(1.2(3)'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("Rubbish"))
+        .withMessage("Unable to parse BigDecimal percentage from 'Rubbish'");
   }
 
   //-------------------------------------------------------------------------
