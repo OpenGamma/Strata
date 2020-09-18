@@ -83,10 +83,11 @@ public interface IborFutureContractSpec
    * Creates a trade based on this convention.
    * <p>
    * This returns a trade based on the instructions in the {@link SequenceDate}.
+   * The sequence date points at the expiry of the future, which is how they are referred to in the market.
    * 
    * @param tradeDate  the trade date
    * @param securityId  the identifier of the security
-   * @param sequenceDate  the date to be used from the sequence 
+   * @param sequenceDate  the date to be used from the sequence identifying the expiry of the future
    * @param quantity  the number of contracts traded, positive if buying, negative if selling
    * @param price  the trade price of the future
    * @param refData  the reference data, used to resolve the trade dates
