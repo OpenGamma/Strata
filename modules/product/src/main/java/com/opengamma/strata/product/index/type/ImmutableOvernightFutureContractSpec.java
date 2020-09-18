@@ -10,6 +10,7 @@ import static java.time.temporal.ChronoUnit.MONTHS;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.NoSuchElementException;
 
 import org.joda.beans.ImmutableBean;
@@ -30,9 +31,11 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.OvernightIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.OvernightFuture;
+import com.opengamma.strata.product.index.OvernightFuturePosition;
 import com.opengamma.strata.product.index.OvernightFutureTrade;
 import com.opengamma.strata.product.swap.OvernightAccrualMethod;
 
@@ -168,6 +171,41 @@ public final class ImmutableOvernightFutureContractSpec
         .quantity(quantity)
         .price(price)
         .build();
+  }
+
+  @Override
+  public OvernightFuturePosition createPosition(
+      SecurityId securityId,
+      YearMonth expiry,
+      double quantity,
+      ReferenceData refData) {
+
+    LocalDate startDate = dateSequence.dateMatching(expiry);
+    return createPosition(securityId, quantity, startDate, refData);
+  }
+
+  // creates the position
+  private OvernightFuturePosition createPosition(
+      SecurityId securityId,
+      double quantity,
+      LocalDate startDate,
+      ReferenceData refData) {
+
+    LocalDate nextReferenceDate = dateSequence.baseSequence().next(startDate);
+    double accrualFactor = startDate.withDayOfMonth(1).until(nextReferenceDate.withDayOfMonth(1), MONTHS) / 12d;
+    LocalDate endDate = endDateAdjustment.adjust(nextReferenceDate, refData);
+    LocalDate lastTradeDate = lastTradeDateAdjustment.adjust(nextReferenceDate, refData);
+    OvernightFuture product = OvernightFuture.builder()
+        .securityId(securityId)
+        .index(index)
+        .accrualMethod(accrualMethod)
+        .accrualFactor(accrualFactor)
+        .startDate(startDate)
+        .endDate(endDate)
+        .lastTradeDate(lastTradeDate)
+        .notional(notional)
+        .build();
+    return OvernightFuturePosition.ofNet(PositionInfo.empty(), product, quantity);
   }
 
   @Override

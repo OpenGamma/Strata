@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.YearMonth;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -29,6 +30,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.index.IborFuturePosition;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
@@ -84,6 +86,20 @@ public class IborFutureContractSpecTest {
     assertThat(trade.getProduct().getAccrualFactor()).isEqualTo(0.25);
     assertThat(trade.getQuantity()).isEqualTo(quantity);
     assertThat(trade.getPrice()).isEqualTo(price);
+  }
+
+  @Test
+  public void test_toPosition() {
+    YearMonth expiry = YearMonth.of(2016, 6);
+    IborFutureContractSpec convention = IborFutureContractSpecs.USD_LIBOR_3M_IMM_CME;
+    double quantity = 3;
+    SecurityId secId = SecurityId.of("OG-Future", "GBP-LIBOR-3M-Jun16");
+    IborFuturePosition trade = convention.createPosition(secId, expiry, quantity, REF_DATA);
+    assertThat(trade.getProduct().getFixingDate()).isEqualTo(LocalDate.of(2016, 6, 13));
+    assertThat(trade.getProduct().getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(trade.getProduct().getNotional()).isEqualTo(NOTIONAL_1M);
+    assertThat(trade.getProduct().getAccrualFactor()).isEqualTo(0.25);
+    assertThat(trade.getQuantity()).isEqualTo(quantity);
   }
 
   //-------------------------------------------------------------------------

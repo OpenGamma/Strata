@@ -30,9 +30,11 @@ import com.opengamma.strata.basics.date.DateSequence;
 import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.index.IborFuture;
+import com.opengamma.strata.product.index.IborFuturePosition;
 import com.opengamma.strata.product.index.IborFutureTrade;
 
 /**
@@ -106,8 +108,7 @@ public final class ImmutableIborFutureContractSpec
 
     LocalDate referenceDate = calculateReferenceDate(tradeDate, sequenceDate, refData);
     LocalDate lastTradeDate = index.calculateFixingFromEffective(referenceDate, refData);
-    YearMonth yearMonth = YearMonth.from(lastTradeDate);
-    return createTrade(tradeDate, securityId, quantity, price, yearMonth, lastTradeDate, referenceDate);
+    return createTrade(tradeDate, securityId, quantity, price, lastTradeDate);
   }
 
   // creates the trade
@@ -116,9 +117,7 @@ public final class ImmutableIborFutureContractSpec
       SecurityId securityId,
       double quantity,
       double price,
-      YearMonth yearMonth,
-      LocalDate lastTradeDate,
-      LocalDate referenceDate) {
+      LocalDate lastTradeDate) {
 
     double accrualFactor = index.getTenor().get(ChronoUnit.MONTHS) / 12.0;
     IborFuture product = IborFuture.builder()
@@ -141,6 +140,36 @@ public final class ImmutableIborFutureContractSpec
   public LocalDate calculateReferenceDate(LocalDate tradeDate, SequenceDate sequenceDate, ReferenceData refData) {
     LocalDate referenceDate = dateSequence.selectDate(tradeDate, sequenceDate);
     return businessDayAdjustment.adjust(referenceDate, refData);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public IborFuturePosition createPosition(
+      SecurityId securityId,
+      YearMonth expiry,
+      double quantity,
+      ReferenceData refData) {
+
+    LocalDate effectiveDate = dateSequence.dateMatching(expiry);
+    LocalDate lastTradeDate = index.calculateFixingFromEffective(effectiveDate, refData);
+    return createPosition(securityId, quantity, lastTradeDate);
+  }
+
+  // creates the position
+  private IborFuturePosition createPosition(
+      SecurityId securityId,
+      double quantity,
+      LocalDate lastTradeDate) {
+
+    double accrualFactor = index.getTenor().get(ChronoUnit.MONTHS) / 12.0;
+    IborFuture product = IborFuture.builder()
+        .securityId(securityId)
+        .index(index)
+        .accrualFactor(accrualFactor)
+        .lastTradeDate(lastTradeDate)
+        .notional(notional)
+        .build();
+    return IborFuturePosition.ofNet(PositionInfo.empty(), product, quantity);
   }
 
   //-------------------------------------------------------------------------
