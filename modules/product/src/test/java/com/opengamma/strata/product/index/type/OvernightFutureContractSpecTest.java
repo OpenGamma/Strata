@@ -36,6 +36,7 @@ import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.SequenceDate;
 import com.opengamma.strata.product.SecurityId;
+import com.opengamma.strata.product.index.OvernightFuturePosition;
 import com.opengamma.strata.product.index.OvernightFutureTrade;
 
 /**
@@ -303,6 +304,22 @@ public class OvernightFutureContractSpecTest {
         REF_DATA);
     assertThat(trade.getCurrency()).isEqualTo(Currency.USD);
     assertThat(trade.getPrice()).isEqualTo(.999d);
+    assertThat(trade.getQuantity()).isEqualTo(20);
+    assertThat(trade.getProduct().getIndex()).isEqualTo(USD_FED_FUND);
+    assertThat(trade.getProduct().getAccrualMethod()).isEqualTo(AVERAGED_DAILY);
+    assertThat(trade.getProduct().getAccrualFactor()).isEqualTo(1 / 12d);
+    assertThat(trade.getProduct().getStartDate()).isEqualTo(date(2020, 2, 1));
+    assertThat(trade.getProduct().getEndDate()).isEqualTo(date(2020, 2, 29));
+    assertThat(trade.getProduct().getLastTradeDate()).isEqualTo(date(2020, 2, 28));
+    assertThat(trade.getProduct().getNotional()).isEqualTo(5_000_000d);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_createPosition_usdFedFund1mCme() {
+    OvernightFutureContractSpec test = OvernightFutureContractSpecs.USD_FED_FUND_1M_CME;
+    OvernightFuturePosition trade = test.createPosition(SecurityId.of("OG", "1"), YearMonth.of(2020, 2), 20, REF_DATA);
+    assertThat(trade.getCurrency()).isEqualTo(Currency.USD);
     assertThat(trade.getQuantity()).isEqualTo(20);
     assertThat(trade.getProduct().getIndex()).isEqualTo(USD_FED_FUND);
     assertThat(trade.getProduct().getAccrualMethod()).isEqualTo(AVERAGED_DAILY);
