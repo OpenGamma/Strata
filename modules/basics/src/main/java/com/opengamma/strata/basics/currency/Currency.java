@@ -283,6 +283,10 @@ public final class Currency
    * The currency 'XPT' - Platinum (troy ounce).
    */
   public static final Currency XPT = of("XPT");
+  /**
+   * The currency 'KWD' - Kuwait Dollar.
+   */
+  public static final Currency KWD = of("KWD");
 
   /**
    * The currency code.
