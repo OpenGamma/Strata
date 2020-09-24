@@ -10,9 +10,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
+import java.util.function.Function;
+
 import org.junit.jupiter.api.Test;
 
-import com.google.common.base.Function;
 import com.opengamma.strata.math.impl.function.PiecewisePolynomialFunction1D;
 
 /**
