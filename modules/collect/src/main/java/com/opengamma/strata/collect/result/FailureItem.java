@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -247,6 +248,19 @@ public final class FailureItem
     Map<String, String> newAttributes = new HashMap<>(this.attributes);
     newAttributes.putAll(attributes);
     return new FailureItem(reason, message, newAttributes, stackTrace, causeType);
+  }
+
+  /**
+   * Processes the failure item by applying a function that alters the message.
+   * <p>
+   * This operation allows wrapping a failure message with additional information that may have not been available
+   * to the code that created the original failure.
+   *
+   * @param function  the function to transform the message with
+   * @return the transformed instance
+   */
+  public FailureItem mapMessage(Function<String, String> function) {
+    return new FailureItem(reason, function.apply(message), attributes, stackTrace, causeType);
   }
 
   /**

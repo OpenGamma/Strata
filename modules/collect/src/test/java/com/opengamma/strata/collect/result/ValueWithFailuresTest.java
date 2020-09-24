@@ -94,6 +94,23 @@ public class ValueWithFailuresTest {
   }
 
   @Test
+  public void test_mapFailureItems() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("1", "2"), ImmutableList.of(FAILURE1));
+    ValueWithFailures<List<String>> test = base.mapFailures(item -> FAILURE2);
+
+    assertThat(test.getValue()).isEqualTo(base.getValue());
+    assertThat(test.getFailures()).isEqualTo(ImmutableList.of(FAILURE2));
+  }
+
+  @Test
+  public void test_mapFailureItems_noFailures() {
+    ValueWithFailures<List<String>> base = ValueWithFailures.of(ImmutableList.of("1", "2"), ImmutableList.of());
+    ValueWithFailures<List<String>> test = base.mapFailures(item -> FAILURE2);
+
+    assertThat(test).isEqualTo(base);
+  }
+
+  @Test
   public void test_flatMap() {
     ValueWithFailures<List<String>> base =
         ValueWithFailures.of(ImmutableList.of("1", "a", "2"), ImmutableList.of(FAILURE1));

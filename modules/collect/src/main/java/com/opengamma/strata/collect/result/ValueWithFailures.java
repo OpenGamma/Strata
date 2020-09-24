@@ -6,6 +6,7 @@
 package com.opengamma.strata.collect.result;
 
 import static com.opengamma.strata.collect.Guavate.concatToList;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -315,6 +316,25 @@ public final class ValueWithFailures<T>
   public <R> ValueWithFailures<R> map(Function<? super T, ? extends R> function) {
     R transformedValue = Objects.requireNonNull(function.apply(value));
     return ValueWithFailures.of(transformedValue, this.failures);
+  }
+
+  /**
+   * Processes the value by applying a function that alters the failures.
+   * <p>
+   * This operation allows post-processing of a result failures.
+   * The specified function represents a conversion to be performed on the failures.
+   * <p>
+   * It is strongly advised to ensure that the function cannot throw an exception.
+   * Exceptions from the function are not caught.
+   *
+   * @param function  the function to transform the failures with
+   * @return the transformed instance of value and failures
+   */
+  public ValueWithFailures<T> mapFailures(Function<FailureItem, FailureItem> function) {
+    if (failures.isEmpty()) {
+      return this;
+    }
+    return ValueWithFailures.of(value, failures.stream().map(function).collect(toImmutableList()));
   }
 
   /**
