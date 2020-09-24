@@ -9,7 +9,6 @@ import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.collect.result.FailureReason.CALCULATION_FAILED;
 import static com.opengamma.strata.collect.result.FailureReason.ERROR;
 import static com.opengamma.strata.collect.result.FailureReason.MISSING_DATA;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
@@ -81,6 +80,20 @@ public class ResultTest {
     Result<Integer> test = success.map(MAP_STRLEN);
     assertThat(test.isSuccess()).isEqualTo(true);
     assertThat(test.getValue()).isEqualTo(Integer.valueOf(7));
+  }
+
+  @Test
+  public void success_mapFailure() {
+    Result<String> success = Result.success("success");
+    Result<String> test = success.mapFailure(failure -> Failure.of(FailureReason.NOT_APPLICABLE, "Failure"));
+    assertThat(test).isSameAs(success);
+  }
+
+  @Test
+  public void success_mapFailureItems() {
+    Result<String> success = Result.success("success");
+    Result<String> test = success.mapFailureItems(item -> FailureItem.of(FailureReason.NOT_APPLICABLE, "Failure"));
+    assertThat(test).isSameAs(success);
   }
 
   @Test
@@ -195,6 +208,24 @@ public class ResultTest {
     assertThat(item.getMessage()).isEqualTo("failure");
     assertThat(item.getCauseType().get()).isEqualTo(ex.getClass());
     assertThat(item.getStackTrace()).isEqualTo(Throwables.getStackTraceAsString(ex).replace(System.lineSeparator(), "\n"));
+  }
+
+  @Test
+  public void failure_mapFailure() {
+    Result<String> base = Result.failure(new IllegalArgumentException("failure"));
+    Failure testFailure = Failure.of(FailureReason.ERROR, new IllegalArgumentException("failure2"));
+    Result<String> test = base.mapFailure(failure -> testFailure);
+    assertThat(test.getFailure()).isSameAs(testFailure);
+  }
+
+  @Test
+  public void failure_mapFailureItems() {
+    Result<String> base = Result.failure(new IllegalArgumentException("failure"));
+    FailureItem testFailureItem = FailureItem.of(FailureReason.ERROR, new IllegalArgumentException("failure2"));
+    Result<String> test = base.mapFailureItems(failure -> testFailureItem);
+    assertThat(test.getFailure().getMessage()).isEqualTo(base.getFailure().getMessage());
+    assertThat(test.getFailure().getReason()).isEqualTo(base.getFailure().getReason());
+    assertThat(test.getFailure().getItems()).allSatisfy(failureItem -> assertThat(failureItem).isSameAs(testFailureItem));
   }
 
   @Test

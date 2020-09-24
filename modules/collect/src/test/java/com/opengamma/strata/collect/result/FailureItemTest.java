@@ -155,4 +155,15 @@ public class FailureItemTest {
     assertThat(test.toString()).isEqualTo("INVALID: my big bad failure");
   }
 
+  @Test
+  public void test_map() {
+    FailureItem base = FailureItem.of(FailureReason.INVALID, "Failure");
+    FailureItem test = base.mapMessage(message -> "Big " + message);
+    assertThat(test.getMessage()).isEqualTo("Big Failure");
+    assertThat(test.getReason()).isEqualTo(base.getReason());
+    assertThat(test.getStackTrace()).isEqualTo(base.getStackTrace());
+    assertThat(test.getAttributes()).isEqualTo(base.getAttributes());
+    assertThat(test.getCauseType()).isEmpty();
+  }
+
 }

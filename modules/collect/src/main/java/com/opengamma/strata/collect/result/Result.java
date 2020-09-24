@@ -833,6 +833,64 @@ public final class Result<T>
   }
 
   /**
+   * Processes a failed result by applying a function that alters the failure.
+   * <p>
+   * This operation allows post-processing of a result failure.
+   * The specified function represents a conversion to be performed on the failure.
+   * <p>
+   * If this result is a failure, then the specified function is invoked.
+   * The return value of the specified function is returned to the caller
+   * wrapped in a failure result. If an exception is thrown when the function
+   * is invoked, this will be caught and a failure {@code Result} returned.
+   * <p>
+   * If this result is a success, then {@code this} is returned.
+   * The specified function is not invoked.
+   *
+   * @param function  the function to transform the failure with
+   * @return the new result
+   */
+  public Result<T> mapFailure(Function<Failure, Failure> function) {
+    if (isFailure()) {
+      try {
+        return Result.failure(function.apply(failure));
+      } catch (Exception e) {
+        return Result.failure(e);
+      }
+    } else {
+      return this;
+    }
+  }
+
+  /**
+   * Processes a failed result by applying a function that alters the failure items.
+   * <p>
+   * This operation allows post-processing of a result failure.
+   * The specified function represents a conversion to be performed on the failure.
+   * <p>
+   * If this result is a failure, then the specified function is invoked.
+   * The return values of the specified function is returned to the caller
+   * wrapped in a failure result. If an exception is thrown when the function
+   * is invoked, this will be caught and a failure {@code Result} returned.
+   * <p>
+   * If this result is a success, then {@code this} is returned.
+   * The specified function is not invoked.
+   *
+   * @param function  the function to transform the failure with
+   * @return the new result
+   */
+  public Result<T> mapFailureItems(Function<FailureItem, FailureItem> function) {
+    if (isFailure()) {
+      try {
+        return Result.failure(failure.mapItems(function));
+      } catch (Exception e) {
+        return Result.failure(e);
+      }
+    } else {
+      return this;
+    }
+  }
+
+  /**
    * Processes a successful result by applying a function that returns another result.
    * <p>
    * This operation allows chaining of function calls that produce a result.
