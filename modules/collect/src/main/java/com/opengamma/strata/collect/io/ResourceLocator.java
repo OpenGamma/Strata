@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.collect.io;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -197,7 +195,11 @@ public final class ResourceLocator {
    * @return the class loader
    */
   static ClassLoader classLoader() {
-    return firstNonNull(Thread.currentThread().getContextClassLoader(), ResourceConfig.class.getClassLoader());
+    ClassLoader loader = ResourceConfig.class.getClassLoader();
+    if (loader != null) {
+      return loader;
+    }
+    return Thread.currentThread().getContextClassLoader();
   }
 
   //-------------------------------------------------------------------------
