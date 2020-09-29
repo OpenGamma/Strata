@@ -396,6 +396,8 @@ public final class CurrencyAmount
   public CurrencyAmount convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     if (currency.equals(resultCurrency)) {
       return this;
+    } else if (this.getAmount() == 0d) {
+      return CurrencyAmount.zero(resultCurrency);
     }
     double converted = rateProvider.convert(amount, currency, resultCurrency);
     return CurrencyAmount.of(resultCurrency, converted);
