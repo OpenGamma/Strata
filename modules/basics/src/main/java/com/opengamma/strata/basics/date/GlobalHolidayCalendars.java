@@ -1050,7 +1050,7 @@ final class GlobalHolidayCalendars {
       // state foundation day
       // in 2015 the working saturday was 2 weeks before, in 2020 it was 1 week after
       // unclear what the logic behind this is,
-      int foundationDayThuRelativeWeeks = year == 2020 ? 1 : -2 ;
+      int foundationDayThuRelativeWeeks = year == 2020 ? 1 : -2;
       addDateWithHungarianBridging(date(year, 8, 20), 0 , foundationDayThuRelativeWeeks, holidays, workDays);
       // national day
       addDateWithHungarianBridging(date(year, 10, 23), 0, -1, holidays, workDays);
