@@ -1028,6 +1028,7 @@ final class GlobalHolidayCalendars {
   // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2015/
   // http://www.ucmsgroup.hu/newsletter/public-holiday-and-related-work-schedule-changes-in-2014/
   // https://www.bse.hu/Products-and-Services/Trading-information/tranding-calendar-2019
+  // https://www.bse.hu/Products-and-Services/Trading-information/trading-calendar-2020
   static ImmutableHolidayCalendar generateBudapest() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     Set<LocalDate> workDays = new HashSet<>(500);
@@ -1047,7 +1048,10 @@ final class GlobalHolidayCalendars {
       // pentecost monday
       holidays.add(easter(year).plusDays(50));
       // state foundation day
-      addDateWithHungarianBridging(date(year, 8, 20), 0, -2, holidays, workDays);
+      // in 2015 the working saturday was 2 weeks before, in 2020 it was 1 week after
+      // unclear what the logic behind this is,
+      int foundationDayThuRelativeWeeks = year == 2020 ? 1 : -2 ;
+      addDateWithHungarianBridging(date(year, 8, 20), 0 , foundationDayThuRelativeWeeks, holidays, workDays);
       // national day
       addDateWithHungarianBridging(date(year, 10, 23), 0, -1, holidays, workDays);
       // all saints day

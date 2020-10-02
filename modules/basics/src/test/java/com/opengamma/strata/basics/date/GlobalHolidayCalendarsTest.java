@@ -899,6 +899,9 @@ public class GlobalHolidayCalendarsTest {
         {2016, mds(2016, md(1, 1), md(3, 14), md(3, 15), md(3, 28), md(5, 1), md(5, 16),
             md(10, 31), md(11, 1), md(12, 24), md(12, 25), md(12, 26)),
             ImmutableList.of(date(2016, 3, 5), date(2016, 10, 15))},
+        {2020, mds(2020, md(1, 1), md(3, 15), md(4, 10), md(4, 13), md(5, 1), md(6, 1),
+            md(8, 20), md(8, 21), md(10, 23), md(12, 24), md(12, 25), md(12, 26)),
+            ImmutableList.of(date(2020, 8, 29), date(2020, 12, 12))},
     };
   }
 
