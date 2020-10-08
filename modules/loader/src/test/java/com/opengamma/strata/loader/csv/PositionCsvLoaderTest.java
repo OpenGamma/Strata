@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.StandardSchemes.OG_ETD_SCHEME;
+import static com.opengamma.strata.basics.StandardSchemes.OG_SECURITY_SCHEME;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.Guavate.casting;
 import static com.opengamma.strata.collect.Guavate.filtering;
@@ -64,7 +66,7 @@ public class PositionCsvLoaderTest {
       .info(PositionInfo.builder()
           .id(StandardId.of("OG", "123431"))
           .build())
-      .securityId(SecurityId.of("OG-Security", "AAPL"))
+      .securityId(SecurityId.of(OG_SECURITY_SCHEME, "AAPL"))
       .longQuantity(12d)
       .shortQuantity(14.5d)
       .build();
@@ -80,7 +82,7 @@ public class PositionCsvLoaderTest {
       .info(PositionInfo.builder()
           .id(StandardId.of("OG", "123433"))
           .build())
-      .securityId(SecurityId.of("OG-Security", "AAPL"))
+      .securityId(SecurityId.of(OG_SECURITY_SCHEME, "AAPL"))
       .longQuantity(12d)
       .shortQuantity(14.5d)
       .build();
@@ -91,7 +93,7 @@ public class PositionCsvLoaderTest {
       .security(
           GenericSecurity.of(
               SecurityInfo.of(
-                  SecurityId.of("OG-Security", "AAPL"),
+                  SecurityId.of(OG_SECURITY_SCHEME, "AAPL"),
                   SecurityPriceInfo.of(5, CurrencyAmount.of(USD, 0.01), 10))))
       .longQuantity(12d)
       .shortQuantity(14.5d)
@@ -147,7 +149,7 @@ public class PositionCsvLoaderTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_parse_future() {
-    EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
+    EtdContractSpecId specId = EtdContractSpecId.of(OG_ETD_SCHEME, "F-ECAG-FGBL");
     EtdContractSpec contract = EtdContractSpec.builder()
         .id(specId)
         .type(EtdType.FUTURE)
@@ -207,7 +209,7 @@ public class PositionCsvLoaderTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_parse_option() {
-    EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "O-ECAG-OGBL");
+    EtdContractSpecId specId = EtdContractSpecId.of(OG_ETD_SCHEME, "O-ECAG-OGBL");
     EtdContractSpec contract = EtdContractSpec.builder()
         .id(specId)
         .type(EtdType.OPTION)
@@ -405,7 +407,7 @@ public class PositionCsvLoaderTest {
 
   @Test
   public void test_load_invalidNoQuantity() {
-    EtdContractSpecId specId = EtdContractSpecId.of("OG-ETD", "F-ECAG-FGBL");
+    EtdContractSpecId specId = EtdContractSpecId.of(OG_ETD_SCHEME, "F-ECAG-FGBL");
     EtdContractSpec contract = EtdContractSpec.builder()
         .id(specId)
         .type(EtdType.FUTURE)

@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.io.CsvIterator;
@@ -204,8 +205,8 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 public final class TradeCsvLoader {
 
   // default schemes
-  private static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
-  private static final String DEFAULT_CPTY_SCHEME = "OG-Counterparty";
+  private static final String DEFAULT_TRADE_SCHEME = StandardSchemes.OG_TRADE_SCHEME;
+  private static final String DEFAULT_CPTY_SCHEME = StandardSchemes.OG_COUNTERPARTY;
 
   // common CSV headers
   static final String CONVENTION_FIELD = "Convention";
