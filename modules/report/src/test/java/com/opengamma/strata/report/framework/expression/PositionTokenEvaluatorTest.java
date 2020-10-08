@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.report.framework.expression;
 
+import static com.opengamma.strata.basics.StandardSchemes.OG_POSITION_SCHEME;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +73,7 @@ public class PositionTokenEvaluatorTest {
   }
 
   private static Position trade() {
-    PositionInfo info = PositionInfo.of(StandardId.of("OG-Position", "1"));
+    PositionInfo info = PositionInfo.of(StandardId.of(OG_POSITION_SCHEME, "1"));
     return GenericSecurityPosition.ofNet(info, SECURITY, 6);
   }
 

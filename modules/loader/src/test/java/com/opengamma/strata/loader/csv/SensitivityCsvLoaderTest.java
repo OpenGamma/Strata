@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.StandardSchemes.OG_SENSITIVITY_SCHEME;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.Tenor.TENOR_1M;
@@ -318,7 +319,7 @@ public final class SensitivityCsvLoaderTest {
     List<CurveSensitivities> list1 = test.getValue().get("OG-Sensitivity~TR2");
     assertThat(list1).hasSize(1);
     CurveSensitivities csens1 = list1.get(0);
-    assertThat(csens1.getId()).isEqualTo(Optional.of(StandardId.of("OG-Sensitivity", "TR2")));
+    assertThat(csens1.getId()).isEqualTo(Optional.of(StandardId.of(OG_SENSITIVITY_SCHEME, "TR2")));
     assertThat(csens1.getInfo().getAttribute(CCP_ATTR)).isEqualTo("CME");
     assertThat(csens1.getTypedSensitivities()).hasSize(1);
     assertSens(csens1, ZERO_RATE_DELTA, "GBCURVE", GBP, "1M, 3M, 6M", 7, 8, 9);

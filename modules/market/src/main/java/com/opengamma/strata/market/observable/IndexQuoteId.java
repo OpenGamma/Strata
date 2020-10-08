@@ -92,7 +92,7 @@ public final class IndexQuoteId
   /**
    * Gets the identifier of the data.
    * <p>
-   * This returns an artificial identifier with a scheme of 'OG-Future' and
+   * This returns an artificial identifier with a scheme of 'OG-Index' and
    * a value of the index name.
    * 
    * @return the standard identifier

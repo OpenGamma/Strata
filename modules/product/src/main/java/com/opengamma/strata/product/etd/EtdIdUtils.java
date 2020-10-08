@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.Locale;
 
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecurityId;
 import com.opengamma.strata.product.common.ExchangeId;
@@ -32,7 +33,7 @@ public final class EtdIdUtils {
   /**
    * Scheme used for ETDs.
    */
-  public static final String ETD_SCHEME = "OG-ETD";
+  public static final String ETD_SCHEME = StandardSchemes.OG_ETD_SCHEME;
   /**
    * The separator to use.
    */

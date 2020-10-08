@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import com.google.common.base.CharMatcher;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
@@ -52,15 +53,15 @@ public final class LoaderUtils {
   /**
    * Default scheme for trades.
    */
-  public static final String DEFAULT_TRADE_SCHEME = "OG-Trade";
+  public static final String DEFAULT_TRADE_SCHEME = StandardSchemes.OG_TRADE_SCHEME;
   /**
    * Default scheme for positions.
    */
-  public static final String DEFAULT_POSITION_SCHEME = "OG-Position";
+  public static final String DEFAULT_POSITION_SCHEME = StandardSchemes.OG_POSITION_SCHEME;
   /**
    * Default scheme for securities.
    */
-  public static final String DEFAULT_SECURITY_SCHEME = "OG-Security";
+  public static final String DEFAULT_SECURITY_SCHEME = StandardSchemes.OG_SECURITY_SCHEME;
 
   // date formats
   private static final DateTimeFormatter D_M_YEAR_SLASH = new DateTimeFormatterBuilder()

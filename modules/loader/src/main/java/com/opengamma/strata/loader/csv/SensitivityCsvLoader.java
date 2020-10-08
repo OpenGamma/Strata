@@ -25,6 +25,7 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FloatingRateName;
@@ -141,7 +142,7 @@ import com.opengamma.strata.product.PortfolioItemInfo;
 public final class SensitivityCsvLoader {
 
   // default schemes
-  static final String DEFAULT_SCHEME = "OG-Sensitivity";
+  static final String DEFAULT_SCHEME = StandardSchemes.OG_SENSITIVITY_SCHEME;
 
   // CSV column headers
   private static final String ID_SCHEME_HEADER = "Id Scheme";

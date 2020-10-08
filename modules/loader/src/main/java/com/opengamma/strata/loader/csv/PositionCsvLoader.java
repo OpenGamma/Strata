@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
 import com.opengamma.strata.collect.io.CsvIterator;
@@ -137,8 +138,8 @@ import com.opengamma.strata.product.etd.EtdSettlementType;
 public final class PositionCsvLoader {
 
   // default schemes
-  static final String DEFAULT_POSITION_SCHEME = "OG-Position";
-  static final String DEFAULT_SECURITY_SCHEME = "OG-Security";
+  static final String DEFAULT_POSITION_SCHEME = StandardSchemes.OG_POSITION_SCHEME;
+  static final String DEFAULT_SECURITY_SCHEME = StandardSchemes.OG_SECURITY_SCHEME;
 
   // CSV column headers
   private static final String TYPE_FIELD = "Strata Position Type";

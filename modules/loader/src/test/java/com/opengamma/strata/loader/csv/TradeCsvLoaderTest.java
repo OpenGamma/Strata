@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.StandardSchemes.OG_COUNTERPARTY;
+import static com.opengamma.strata.basics.StandardSchemes.OG_SECURITY_SCHEME;
 import static com.opengamma.strata.basics.currency.Currency.CAD;
 import static com.opengamma.strata.basics.currency.Currency.CZK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
@@ -486,7 +488,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(date(2017, 6, 1))
             .tradeTime(LocalTime.of(12, 35))
             .zone(ZoneId.of("Europe/London"))
-            .counterparty(StandardId.of("OG-Counterparty", "Bank B"))
+            .counterparty(StandardId.of(OG_COUNTERPARTY, "Bank B"))
             .build())
         .build();
     assertBeanEquals(expected2, filtered.get(1));
@@ -1891,7 +1893,7 @@ public class TradeCsvLoaderTest {
             .tradeDate(date(2017, 6, 1))
             .settlementDate(date(2017, 6, 3))
             .build())
-        .securityId(SecurityId.of("OG-Security", "AAPL"))
+        .securityId(SecurityId.of(OG_SECURITY_SCHEME, "AAPL"))
         .quantity(12)
         .price(14.5)
         .build();
@@ -1931,7 +1933,7 @@ public class TradeCsvLoaderTest {
         .security(
             GenericSecurity.of(
                 SecurityInfo.of(
-                    SecurityId.of("OG-Security", "AAPL"),
+                    SecurityId.of(OG_SECURITY_SCHEME, "AAPL"),
                     SecurityPriceInfo.of(5, CurrencyAmount.of(USD, 0.01), 10))))
         .quantity(12)
         .price(14.5)
