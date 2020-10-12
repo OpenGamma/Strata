@@ -531,6 +531,16 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(expected);
   }
 
+  @Test
+  public void toMapGroupingRetainsOrder() {
+    Map<String, Integer> map = ImmutableMap.of("d", 1, "dd", 2, "b", 10, "bb", 20, "c", 1);
+    Map<String, Integer> expected = ImmutableMap.of("d", 3, "b", 30, "c", 1);
+    Map<String, Integer> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1))
+        .toMapGrouping(reducing(0, Integer::sum));
+    assertThat(result).isEqualTo(expected);
+    assertThat(result).containsExactlyEntriesOf(expected);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void toListMultimap() {

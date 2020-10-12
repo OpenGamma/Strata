@@ -14,6 +14,7 @@ import static java.util.stream.Collectors.toList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -719,7 +720,7 @@ public final class MapStream<K, V>
    */
   public <A, R> ImmutableMap<K, R> toMapGrouping(Collector<? super V, A, R> valueCollector) {
     return underlying.collect(collectingAndThen(
-        groupingBy(Entry::getKey, mapping(Entry::getValue, valueCollector)),
+        groupingBy(Entry::getKey, LinkedHashMap::new, mapping(Entry::getValue, valueCollector)),
         ImmutableMap::copyOf));
   }
 
