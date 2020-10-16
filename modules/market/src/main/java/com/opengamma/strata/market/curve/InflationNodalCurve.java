@@ -117,10 +117,19 @@ public final class InflationNodalCurve
       SeasonalityDefinition seasonalityDefinition) {
 
     YearMonth valuationMonth = YearMonth.from(valuationDate);
-    ArgChecker.isTrue(lastMonth.isBefore(valuationMonth), "Last fixing month must be before valuation date");
+    ArgChecker.isTrue(
+        lastMonth.isBefore(valuationMonth),
+        "Last fixing month {} for curve '{}' must be before valuation date {}",
+        lastMonth,
+        curveWithoutFixing.getName().getName(),
+        valuationDate);
     double nbMonth = valuationMonth.until(lastMonth, MONTHS);
     DoubleArray x = curveWithoutFixing.getXValues();
-    ArgChecker.isTrue(nbMonth < x.get(0), "The first estimation month should be after the last known index fixing");
+    ArgChecker.isTrue(
+        nbMonth < x.get(0),
+        "First estimation month for curve '{}' must be after the last fixing month {}",
+        curveWithoutFixing.getName().getName(),
+        lastMonth);
     NodalCurve extendedCurve = curveWithoutFixing.withNode(nbMonth, lastFixingValue, ParameterMetadata.empty());
     double[] seasonalityCompoundedArray = new double[12];
     int lastMonthIndex = lastMonth.getMonth().getValue() - 1;
