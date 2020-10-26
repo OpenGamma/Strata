@@ -723,7 +723,7 @@
     <guava-docs.version>26.0-jre</guava-docs.version>
     <jcommander.version>1.78</jcommander.version>
     <joda-convert.version>2.2.1</joda-convert.version>
-    <joda-beans.version>2.8.0</joda-beans.version>
+    <joda-beans.version>2.8.1</joda-beans.version>
     <joda.beans.version>${joda-beans.version}</joda.beans.version>
     <junit5.version>5.7.0</junit5.version>
     <mockito.version>3.5.13</mockito.version>
