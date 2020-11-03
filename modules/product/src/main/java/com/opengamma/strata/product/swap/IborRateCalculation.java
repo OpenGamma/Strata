@@ -6,6 +6,8 @@
 package com.opengamma.strata.product.swap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.opengamma.strata.basics.currency.Currency.CNY;
+import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_0;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
@@ -44,6 +46,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
@@ -319,7 +322,9 @@ public final class IborRateCalculation
     // resolve against reference data once
     DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
     Function<SchedulePeriod, Schedule> resetScheduleFn =
-        getResetPeriods().map(rp -> rp.createSchedule(accrualSchedule.getRollConvention(), refData)).orElse(null);
+        getResetPeriods().map(rp -> getIndex().getCurrency().equals(CNY) && rp.getResetFrequency().equals(P1W) ?
+            rp.createSchedule(RollConventions.NONE, refData) :
+            rp.createSchedule(accrualSchedule.getRollConvention(), refData)).orElse(null);
     Function<LocalDate, IborIndexObservation> iborObservationFn = index.resolve(refData);
     // build accrual periods
     Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();

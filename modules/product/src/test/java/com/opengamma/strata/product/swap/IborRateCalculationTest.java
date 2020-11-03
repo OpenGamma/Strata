@@ -9,12 +9,14 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
+import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
@@ -31,6 +33,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -39,9 +43,14 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.PeriodAdditionConventions;
+import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.IborIndexObservation;
+import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -66,6 +75,9 @@ public class IborRateCalculationTest {
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
   private static final LocalDate DATE_01_07 = date(2014, 1, 7);
   private static final LocalDate DATE_01_08 = date(2014, 1, 8);
+  private static final LocalDate DATE_01_13 = date(2014, 1, 13);
+  private static final LocalDate DATE_01_20 = date(2014, 1, 20);
+  private static final LocalDate DATE_01_27 = date(2014, 1, 27);
   private static final LocalDate DATE_01_31 = date(2014, 1, 31);
   private static final LocalDate DATE_02_03 = date(2014, 2, 3);
   private static final LocalDate DATE_02_05 = date(2014, 2, 5);
@@ -887,6 +899,69 @@ public class IborRateCalculationTest {
         .build();
     ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
     assertThat(periods).containsExactly(rap1, rap2, rap3);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_createAccrualPeriodsCny1wFixingStub() {
+    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
+    TenorAdjustment tenorAdjustment =
+        TenorAdjustment.of(Tenor.TENOR_1W, PeriodAdditionConventions.NONE, businessDayAdjustment);
+
+    ImmutableIborIndex index = ImmutableIborIndex.builder()
+        .currency(Currency.CNY)
+        .dayCount(ACT_365F)
+        .name("CNY-REPO-1W")
+        .fixingCalendar(SAT_SUN)
+        .fixingZone(ZoneId.of("Asia/Shanghai"))
+        .fixingTime(LocalTime.NOON)
+        .fixingDateOffset(DaysAdjustment.NONE)
+        .effectiveDateOffset(DaysAdjustment.NONE)
+        .maturityDateOffset(tenorAdjustment)
+        .build();
+
+    IborRateCalculation calculation = IborRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(index)
+        .resetPeriods(ResetSchedule.builder()
+            .businessDayAdjustment(businessDayAdjustment)
+            .resetMethod(WEIGHTED)
+            .resetFrequency(P1W)
+            .build())
+        .fixingRelativeTo(PERIOD_START)
+        .build();
+
+    ImmutableList<RateAccrualPeriod> accrualPeriods =
+        calculation.createAccrualPeriods(ACCRUAL_SCHEDULE, ACCRUAL_SCHEDULE, REF_DATA);
+
+    RateAccrualPeriod rateAccrualPeriod = RateAccrualPeriod.builder(ACCRUAL1)
+        .yearFraction(ACCRUAL1.yearFraction(ACT_365F, ACCRUAL_SCHEDULE))
+        .rateComputation(IborAveragedRateComputation.of(
+            ImmutableList.of(
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(index, DATE_01_06, REF_DATA))
+                    .weight(7.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(index, DATE_01_13, REF_DATA))
+                    .weight(7.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(index, DATE_01_20, REF_DATA))
+                    .weight(7.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(index, DATE_01_27, REF_DATA))
+                    .weight(7.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(index, DATE_02_03, REF_DATA))
+                    .weight(2.0)
+                    .build())))
+        .negativeRateMethod(ALLOW_NEGATIVE)
+        .build();
+
+    assertThat(accrualPeriods).first().isEqualTo(rateAccrualPeriod);
   }
 
   //-------------------------------------------------------------------------

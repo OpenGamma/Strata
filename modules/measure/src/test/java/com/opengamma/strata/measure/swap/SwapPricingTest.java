@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
 import static com.opengamma.strata.collect.CollectProjectAssertions.assertThat;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
 import java.time.LocalDate;
