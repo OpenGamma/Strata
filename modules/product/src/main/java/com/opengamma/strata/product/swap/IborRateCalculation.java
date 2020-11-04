@@ -46,6 +46,7 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -322,9 +323,11 @@ public final class IborRateCalculation
     // resolve against reference data once
     DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
     Function<SchedulePeriod, Schedule> resetScheduleFn =
-        getResetPeriods().map(rp -> getIndex().getCurrency().equals(CNY) && rp.getResetFrequency().equals(P1W) ?
-            rp.createSchedule(RollConventions.NONE, refData) :
-            rp.createSchedule(accrualSchedule.getRollConvention(), refData)).orElse(null);
+        getResetPeriods().map(rp ->
+            accrualSchedule.getFrequency().isMonthBased() && rp.getResetFrequency().isWeekBased() ?
+                rp.createSchedule(RollConventions.NONE, refData) :
+                rp.createSchedule(accrualSchedule.getRollConvention(), refData))
+            .orElse(null);
     Function<LocalDate, IborIndexObservation> iborObservationFn = index.resolve(refData);
     // build accrual periods
     Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();

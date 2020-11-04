@@ -9,7 +9,6 @@ import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
-import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1M;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_1W;
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_2M;
@@ -18,6 +17,7 @@ import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_6M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.RollConventions.DAY_11;
 import static com.opengamma.strata.basics.schedule.RollConventions.DAY_5;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
@@ -33,8 +33,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -43,14 +41,9 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
-import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
-import com.opengamma.strata.basics.date.PeriodAdditionConventions;
-import com.opengamma.strata.basics.date.Tenor;
-import com.opengamma.strata.basics.date.TenorAdjustment;
 import com.opengamma.strata.basics.index.IborIndexObservation;
-import com.opengamma.strata.basics.index.ImmutableIborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
@@ -89,8 +82,14 @@ public class IborRateCalculationTest {
   private static final LocalDate DATE_04_04 = date(2014, 4, 4);
   private static final LocalDate DATE_04_05 = date(2014, 4, 5);
   private static final LocalDate DATE_04_07 = date(2014, 4, 7);
+  private static final LocalDate DATE_04_11 = date(2014, 4, 11);
+  private static final LocalDate DATE_04_22 = date(2014, 4, 22);
+  private static final LocalDate DATE_04_25 = date(2014, 4, 25);
   private static final LocalDate DATE_05_01 = date(2014, 5, 1);
+  private static final LocalDate DATE_05_02 = date(2014, 5, 2);
   private static final LocalDate DATE_05_06 = date(2014, 5, 6);
+  private static final LocalDate DATE_05_09 = date(2014, 5, 9);
+  private static final LocalDate DATE_05_10 = date(2014, 5, 11);
   private static final LocalDate DATE_06_03 = date(2014, 6, 3);
   private static final LocalDate DATE_06_05 = date(2014, 6, 5);
   private static final LocalDate DATE_07_05 = date(2014, 7, 5);
@@ -903,28 +902,12 @@ public class IborRateCalculationTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_createAccrualPeriodsCny1wFixingStub() {
-    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(FOLLOWING, SAT_SUN);
-    TenorAdjustment tenorAdjustment =
-        TenorAdjustment.of(Tenor.TENOR_1W, PeriodAdditionConventions.NONE, businessDayAdjustment);
-
-    ImmutableIborIndex index = ImmutableIborIndex.builder()
-        .currency(Currency.CNY)
-        .dayCount(ACT_365F)
-        .name("CNY-REPO-1W")
-        .fixingCalendar(SAT_SUN)
-        .fixingZone(ZoneId.of("Asia/Shanghai"))
-        .fixingTime(LocalTime.NOON)
-        .fixingDateOffset(DaysAdjustment.NONE)
-        .effectiveDateOffset(DaysAdjustment.NONE)
-        .maturityDateOffset(tenorAdjustment)
-        .build();
-
+  public void test_createAccrualPeriodsAccrualFrequencyResetFrequencyMismatch() {
     IborRateCalculation calculation = IborRateCalculation.builder()
-        .dayCount(ACT_365F)
-        .index(index)
+        .dayCount(GBP_LIBOR_1M.getDayCount())
+        .index(GBP_LIBOR_1M)
         .resetPeriods(ResetSchedule.builder()
-            .businessDayAdjustment(businessDayAdjustment)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
             .resetMethod(WEIGHTED)
             .resetFrequency(P1W)
             .build())
@@ -939,24 +922,77 @@ public class IborRateCalculationTest {
         .rateComputation(IborAveragedRateComputation.of(
             ImmutableList.of(
                 IborAveragedFixing.builder()
-                    .observation(IborIndexObservation.of(index, DATE_01_06, REF_DATA))
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_01_06, REF_DATA))
                     .weight(7.0)
                     .build(),
                 IborAveragedFixing.builder()
-                    .observation(IborIndexObservation.of(index, DATE_01_13, REF_DATA))
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_01_13, REF_DATA))
                     .weight(7.0)
                     .build(),
                 IborAveragedFixing.builder()
-                    .observation(IborIndexObservation.of(index, DATE_01_20, REF_DATA))
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_01_20, REF_DATA))
                     .weight(7.0)
                     .build(),
                 IborAveragedFixing.builder()
-                    .observation(IborIndexObservation.of(index, DATE_01_27, REF_DATA))
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_01_27, REF_DATA))
                     .weight(7.0)
                     .build(),
                 IborAveragedFixing.builder()
-                    .observation(IborIndexObservation.of(index, DATE_02_03, REF_DATA))
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_02_03, REF_DATA))
                     .weight(2.0)
+                    .build())))
+        .negativeRateMethod(ALLOW_NEGATIVE)
+        .build();
+
+    assertThat(accrualPeriods).first().isEqualTo(rateAccrualPeriod);
+  }
+
+  @Test
+  public void test_createAccrualPeriodSecondFixingDateHoliday() {
+    SchedulePeriod schedulePeriod = SchedulePeriod.of(DATE_04_11, DATE_05_10, DATE_04_11, DATE_05_10);
+    Schedule schedule = Schedule.builder()
+        .periods(schedulePeriod)
+        .frequency(P1M)
+        .rollConvention(DAY_11)
+        .build();
+
+    IborRateCalculation calculation = IborRateCalculation.builder()
+        .dayCount(GBP_LIBOR_1M.getDayCount())
+        .index(GBP_LIBOR_1M)
+        .resetPeriods(ResetSchedule.builder()
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .resetMethod(WEIGHTED)
+            .resetFrequency(P1W)
+            .build())
+        .fixingRelativeTo(PERIOD_START)
+        .build();
+
+    ImmutableList<RateAccrualPeriod> accrualPeriods =
+        calculation.createAccrualPeriods(schedule, schedule, REF_DATA);
+
+    RateAccrualPeriod rateAccrualPeriod = RateAccrualPeriod.builder(schedulePeriod)
+        .yearFraction(schedulePeriod.yearFraction(ACT_365F, schedule))
+        .rateComputation(IborAveragedRateComputation.of(
+            ImmutableList.of(
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_04_11, REF_DATA))
+                    .weight(11.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_04_22, REF_DATA))
+                    .weight(3.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_04_25, REF_DATA))
+                    .weight(7.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_05_02, REF_DATA))
+                    .weight(7.0)
+                    .build(),
+                IborAveragedFixing.builder()
+                    .observation(IborIndexObservation.of(GBP_LIBOR_1M, DATE_05_09, REF_DATA))
+                    .weight(3.0)
                     .build())))
         .negativeRateMethod(ALLOW_NEGATIVE)
         .build();
