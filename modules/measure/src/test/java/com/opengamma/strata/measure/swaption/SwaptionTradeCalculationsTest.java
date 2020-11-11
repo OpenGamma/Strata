@@ -63,11 +63,10 @@ public class SwaptionTradeCalculationsTest {
     MultiCurrencyAmount expectedPv01Cal = pvParamSens.total().multipliedBy(1e-4);
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
     PointSensitivities pvVegaPointSens = pricer.presentValueSensitivityModelParamsVolatility(RTRADE, provider, VOLS);
-    CurrencyParameterSensitivities pvVegaParamSens = VOLS.parameterSensitivity(pvVegaPointSens);
-    CurrencyParameterSensitivities expectedPv01VegaCalBucketed = pvVegaParamSens.multipliedBy(1e-2);
+    CurrencyParameterSensitivities expectedPv01VegaCal = VOLS.parameterSensitivity(pvVegaPointSens);
 
     assertThat(SwaptionTradeCalculations.DEFAULT.bachelierVega(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
-        .isEqualTo(ScenarioArray.of(expectedPv01VegaCalBucketed));
+        .isEqualTo(ScenarioArray.of(expectedPv01VegaCal));
     assertThat(SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
         .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertThat(SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
