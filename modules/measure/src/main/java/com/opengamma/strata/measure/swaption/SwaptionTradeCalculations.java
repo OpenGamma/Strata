@@ -279,7 +279,7 @@ public class SwaptionTradeCalculations {
   /**
    * Calculates present value vega sensitivity across one or more scenarios.
    * <p>
-   * This is the sensitivity of present value to normal implied volatilities
+   * This is the sensitivity of present value to the normal implied volatilities
    * used to calibrate the curves.
    *
    * @param trade  the trade
