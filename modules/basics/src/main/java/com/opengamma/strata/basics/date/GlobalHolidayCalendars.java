@@ -120,6 +120,7 @@ final class GlobalHolidayCalendars {
   // 1968, 3rd Jun, 2nd Sep - http://hansard.millbanksystems.com/written_answers/1965/jun/03/bank-holidays-1967-and-1968
   // 1969, 26th May, 1st Sep - http://hansard.millbanksystems.com/written_answers/1967/mar/21/bank-holidays-1969-dates
   // 1970, 25th May, 31st Aug - http://hansard.millbanksystems.com/written_answers/1967/jul/28/bank-holidays
+  // 2022, 2nd and 3rd Jun - https://www.gov.uk/government/news/extra-bank-holiday-to-mark-the-queens-platinum-jubilee-in-2022
   static ImmutableHolidayCalendar generateLondon() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -146,6 +147,10 @@ final class GlobalHolidayCalendars {
         // diamond jubilee
         holidays.add(date(2012, 6, 4));
         holidays.add(date(2012, 6, 5));
+      } else if (year == 2022) {
+        // platinum jubilee
+        holidays.add(date(2022, 6, 2));
+        holidays.add(date(2022, 6, 3));
       } else if (year == 1967 || year == 1970) {
         holidays.add(first(year, 5).with(lastInMonth(MONDAY)));
       } else if (year < 1971) {
