@@ -44,7 +44,9 @@ public class RatesCalibrationCsvLoaderTest {
   private static final String SETTINGS_1 = "classpath:com/opengamma/strata/loader/csv/settings.csv";
   private static final String SEASONALITY_1 = "classpath:com/opengamma/strata/loader/csv/seasonality.csv";
   private static final String CALIBRATION_1 = "classpath:com/opengamma/strata/loader/csv/calibration-1.csv";
-
+  private static final String CALIBRATION_NO_NODES = 
+      "classpath:com/opengamma/strata/loader/csv/calibration-no-nodes.csv";
+  
   private static final String SETTINGS_EMPTY = "classpath:com/opengamma/strata/loader/csv/settings-empty.csv";
   private static final String CALIBRATION_INVALID_TYPE =
       "classpath:com/opengamma/strata/loader/csv/calibration-invalid-type.csv";
@@ -71,7 +73,17 @@ public class RatesCalibrationCsvLoaderTest {
             ResourceLocator.of(CALIBRATION_1)))
         .withMessageMatching("Missing settings for curve: .*");
   }
-
+  
+  @Test
+  public void test_noNodes() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> RatesCalibrationCsvLoader.load(
+            ResourceLocator.of(GROUPS_1),
+            ResourceLocator.of(SETTINGS_1),
+            ResourceLocator.of(CALIBRATION_NO_NODES)))
+        .withMessageMatching("Missing nodes for curve: .*");
+  }
+  
   @Test
   public void test_single_curve_multiple_Files() {
     assertThatIllegalArgumentException()
