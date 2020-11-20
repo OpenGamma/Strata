@@ -63,6 +63,36 @@ public enum EtdSettlementType implements NamedEnum {
     return NAMES.parse(name);
   }
 
+  /**
+   * Obtains an instance from the specified code.
+   * 
+   * @param code  the code to parse
+   * @return the type
+   * @throws IllegalArgumentException if the code is not known
+   */
+  static EtdSettlementType parseCode(String code) {
+    switch (code) {
+      case "C":
+        return CASH;
+      case "E":
+        return PHYSICAL;
+      case "D":
+        return DERIVATIVE;
+      case "N":
+        return NOTIONAL;
+      case "P":
+        return PAYMENT_VS_PAYMENT;
+      case "S":
+        return STOCK;
+      case "T":
+        return CASCADE;
+      case "A":
+        return ALTERNATE;
+      default:
+        throw new IllegalArgumentException("Unknown EtdSettlementType code: " + code);
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the short code for the type.

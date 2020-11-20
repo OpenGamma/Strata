@@ -23,21 +23,33 @@ public class EtdOptionTypeTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {EtdOptionType.AMERICAN, "American"},
-        {EtdOptionType.EUROPEAN, "European"},
+        {EtdOptionType.AMERICAN, "American", "A"},
+        {EtdOptionType.EUROPEAN, "European", "E"},
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_toString(EtdOptionType convention, String name) {
+  public void test_toString(EtdOptionType convention, String name, String code) {
     assertThat(convention.toString()).isEqualTo(name);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_of_lookup(EtdOptionType convention, String name) {
+  public void test_of_lookup(EtdOptionType convention, String name, String code) {
     assertThat(EtdOptionType.of(name)).isEqualTo(convention);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_getCode(EtdOptionType convention, String name, String code) {
+    assertThat(convention.getCode()).isEqualTo(code);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_parseCode(EtdOptionType convention, String name, String code) {
+    assertThat(EtdOptionType.parseCode(code)).isEqualTo(convention);
   }
 
   @Test
@@ -53,9 +65,9 @@ public class EtdOptionTypeTest {
   }
 
   @Test
-  public void test_getCode() {
-    assertThat(EtdOptionType.AMERICAN.getCode()).isEqualTo("A");
-    assertThat(EtdOptionType.EUROPEAN.getCode()).isEqualTo("E");
+  public void test_parseCode_notFound() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdOptionType.parseCode("Rubbish"));
   }
 
   //-------------------------------------------------------------------------

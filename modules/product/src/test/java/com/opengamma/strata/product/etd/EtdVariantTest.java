@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +27,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isFalse();
     assertThat(test.getCode()).isEmpty();
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -37,6 +39,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isFalse();
     assertThat(test.getCode()).isEqualTo("W2");
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -48,6 +51,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isFalse();
     assertThat(test.getCode()).isEqualTo("24");
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -59,6 +63,7 @@ public class EtdVariantTest {
     assertThat(test.getOptionType()).isNotPresent();
     assertThat(test.isFlex()).isTrue();
     assertThat(test.getCode()).isEqualTo("02C");
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
   }
 
   @Test
@@ -70,6 +75,30 @@ public class EtdVariantTest {
     assertThat(test.getOptionType().get()).isEqualTo(EtdOptionType.AMERICAN);
     assertThat(test.isFlex()).isTrue();
     assertThat(test.getCode()).isEqualTo("24CA");
+    assertThat(EtdVariant.parseCode(test.getCode())).isEqualTo(test);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_of() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.ofWeekly(0));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.ofWeekly(6));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.ofDaily(0));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.ofDaily(32));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.ofFlexOption(5, null, EtdOptionType.EUROPEAN));
+  }
+
+  @Test
+  public void test_parseCode_wrongLength() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.parseCode("1"));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdVariant.parseCode("12345"));
   }
 
   //-------------------------------------------------------------------------
