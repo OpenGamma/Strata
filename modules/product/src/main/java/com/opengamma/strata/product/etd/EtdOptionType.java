@@ -55,6 +55,24 @@ public enum EtdOptionType implements NamedEnum {
     return NAMES.parse(name);
   }
 
+  /**
+   * Obtains an instance from the specified code.
+   * 
+   * @param code  the code to parse
+   * @return the type
+   * @throws IllegalArgumentException if the code is not known
+   */
+  static EtdOptionType parseCode(String code) {
+    switch (code) {
+      case "A":
+        return AMERICAN;
+      case "E":
+        return EUROPEAN;
+      default:
+        throw new IllegalArgumentException("Unknown EtdOptionType code: " + code);
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the short code for the type.

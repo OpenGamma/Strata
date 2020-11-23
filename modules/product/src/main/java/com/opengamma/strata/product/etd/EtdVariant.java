@@ -104,7 +104,7 @@ public final class EtdVariant
   }
 
   /**
-   * The standard monthly ETD.
+   * The flex future.
    * 
    * @param dayOfMonth  the day-of-month
    * @param settlementType  the settlement type
@@ -115,7 +115,7 @@ public final class EtdVariant
   }
 
   /**
-   * The standard monthly ETD.
+   * The flex option.
    * 
    * @param dayOfMonth  the day-of-month
    * @param settlementType  the settlement type
@@ -126,6 +126,45 @@ public final class EtdVariant
     return new EtdVariant(EtdExpiryType.DAILY, dayOfMonth, settlementType, optionType);
   }
 
+  /**
+   * Parses the variant code.
+   * 
+   * @param code the variant code
+   * @return the variant
+   */
+  static EtdVariant parseCode(String code) {
+    switch (code.length()) {
+      case 0:
+        return MONTHLY;
+      case 2: {
+        if (code.charAt(0) == 'W') {
+          return ofWeekly(Integer.parseInt(code.substring(1)));
+        } else {
+          return ofDaily(Integer.parseInt(code));
+        }
+      }
+      case 3: {
+        int dom = parseDay(code);
+        EtdSettlementType settlementType = EtdSettlementType.parseCode(code.substring(2));
+        return ofFlexFuture(dom, settlementType);
+      }
+      case 4: {
+        int dom = parseDay(code);
+        EtdSettlementType settlementType = EtdSettlementType.parseCode(code.substring(2, 3));
+        EtdOptionType optionType = EtdOptionType.parseCode(code.substring(3, 4));
+        return ofFlexOption(dom, settlementType, optionType);
+      }
+      default:
+        throw new IllegalArgumentException("Invalid EtdVariant code: " + code);
+    }
+  }
+
+  // parses the day of month
+  private static int parseDay(String code) {
+    return code.charAt(0) == '0' ? Integer.parseInt(code.substring(1, 2)) : Integer.parseInt(code.substring(0, 2));
+  }
+
+  //-------------------------------------------------------------------------
   @ImmutableConstructor
   private EtdVariant(
       EtdExpiryType type,
