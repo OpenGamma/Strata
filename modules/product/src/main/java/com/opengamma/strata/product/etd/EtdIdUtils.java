@@ -12,8 +12,10 @@ import java.text.NumberFormat;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.util.List;
 import java.util.Locale;
 
+import com.google.common.base.Splitter;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.SecurityId;
@@ -211,6 +213,81 @@ public final class EtdIdUtils {
         .append(underlying)
         .toString();
     return SecurityId.of(ETD_SCHEME, id);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Splits an OG-ETD identifier.
+   *
+   * @param securityId  the security ID
+   * @return a split representation of the ID
+   * @throws IllegalArgumentException if the ID is not of the right scheme or format
+   */
+  public static SplitEtdId splitId(SecurityId securityId) {
+    ArgChecker.notNull(securityId, "securityId");
+    if (!securityId.getStandardId().getScheme().equals(ETD_SCHEME)) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+    List<String> split = Splitter.on('-').splitToList(securityId.getStandardId().getValue());
+    if (split.size() < 4) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+    // common fields
+    ExchangeId exchangeId = ExchangeId.of(split.get(1));
+    EtdContractCode contractCode = EtdContractCode.of(split.get(2));
+    String dateStr = split.get(3);
+    if (dateStr.length() < 6) {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+    YearMonth month = YearMonth.parse(dateStr.substring(0, 6), YM_FORMAT);
+    EtdVariant variant = EtdVariant.parseCode(dateStr.substring(6));
+    SplitEtdId.Builder parsed = SplitEtdId.builder()
+        .securityId(securityId)
+        .exchangeId(exchangeId)
+        .contractCode(contractCode)
+        .expiry(month)
+        .variant(variant);
+    // future vs option
+    if (securityId.getStandardId().getValue().startsWith(FUT_PREFIX) && split.size() == 4) {
+      return parsed.build();
+    } else if (securityId.getStandardId().getValue().startsWith(OPT_PREFIX) && split.size() > 4) {
+      SplitEtdOption parsedOption = parseEtdOptionId(split, securityId);
+      return parsed.option(parsedOption).build();
+    } else {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+  }
+
+  // parses an option
+  private static SplitEtdOption parseEtdOptionId(List<String> split, SecurityId securityId) {
+    String versionStr = split.get(4);
+    String putCallStrikeStr = split.size() > 5 ? split.get(5) : "";
+    String underlyingMonthStr = split.size() > 6 ? split.get(6) : "";
+    int version = 0;
+    if (versionStr.startsWith("V")) {
+      version = Integer.parseInt(versionStr.substring(1));
+    } else {
+      underlyingMonthStr = putCallStrikeStr;
+      putCallStrikeStr = versionStr;
+    }
+    PutCall putCall;
+    if (putCallStrikeStr.startsWith("P")) {
+      putCall = PutCall.PUT;
+    } else if (putCallStrikeStr.startsWith("C")) {
+      putCall = PutCall.CALL;
+    } else {
+      throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+    }
+    String strikeStr = putCallStrikeStr.substring(1).replace('M', '-');
+    double strike = Double.parseDouble(strikeStr);
+    YearMonth underlyingMonth = null;
+    if (!underlyingMonthStr.isEmpty()) {
+      if (!underlyingMonthStr.startsWith("U") || underlyingMonthStr.length() != 7) {
+        throw new IllegalArgumentException("ETD ID cannot be parsed: " + securityId);
+      }
+      underlyingMonth = YearMonth.parse(underlyingMonthStr.substring(1), YM_FORMAT);
+    }
+    return SplitEtdOption.of(version, putCall, strike, underlyingMonth);
   }
 
   //-------------------------------------------------------------------------

@@ -23,27 +23,39 @@ public class EtdSettlementTypeTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_name() {
     return new Object[][] {
-        {EtdSettlementType.CASH, "Cash"},
-        {EtdSettlementType.PHYSICAL, "Physical"},
-        {EtdSettlementType.DERIVATIVE, "Derivative"},
-        {EtdSettlementType.PAYMENT_VS_PAYMENT, "PaymentVsPayment"},
-        {EtdSettlementType.NOTIONAL, "Notional"},
-        {EtdSettlementType.STOCK, "Stock"},
-        {EtdSettlementType.CASCADE, "Cascade"},
-        {EtdSettlementType.ALTERNATE, "Alternate"},
+        {EtdSettlementType.CASH, "Cash", "C"},
+        {EtdSettlementType.PHYSICAL, "Physical", "E"},
+        {EtdSettlementType.DERIVATIVE, "Derivative", "D"},
+        {EtdSettlementType.PAYMENT_VS_PAYMENT, "PaymentVsPayment", "P"},
+        {EtdSettlementType.NOTIONAL, "Notional", "N"},
+        {EtdSettlementType.STOCK, "Stock", "S"},
+        {EtdSettlementType.CASCADE, "Cascade", "T"},
+        {EtdSettlementType.ALTERNATE, "Alternate", "A"},
     };
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_toString(EtdSettlementType convention, String name) {
+  public void test_toString(EtdSettlementType convention, String name, String code) {
     assertThat(convention.toString()).isEqualTo(name);
   }
 
   @ParameterizedTest
   @MethodSource("data_name")
-  public void test_of_lookup(EtdSettlementType convention, String name) {
+  public void test_of_lookup(EtdSettlementType convention, String name, String code) {
     assertThat(EtdSettlementType.of(name)).isEqualTo(convention);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_getCode(EtdSettlementType convention, String name, String code) {
+    assertThat(convention.getCode()).isEqualTo(code);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_parseCode(EtdSettlementType convention, String name, String code) {
+    assertThat(EtdSettlementType.parseCode(code)).isEqualTo(convention);
   }
 
   @Test
@@ -59,15 +71,9 @@ public class EtdSettlementTypeTest {
   }
 
   @Test
-  public void test_getCode() {
-    assertThat(EtdSettlementType.CASH.getCode()).isEqualTo("C");
-    assertThat(EtdSettlementType.PHYSICAL.getCode()).isEqualTo("E");
-    assertThat(EtdSettlementType.DERIVATIVE.getCode()).isEqualTo("D");
-    assertThat(EtdSettlementType.NOTIONAL.getCode()).isEqualTo("N");
-    assertThat(EtdSettlementType.PAYMENT_VS_PAYMENT.getCode()).isEqualTo("P");
-    assertThat(EtdSettlementType.STOCK.getCode()).isEqualTo("S");
-    assertThat(EtdSettlementType.CASCADE.getCode()).isEqualTo("T");
-    assertThat(EtdSettlementType.ALTERNATE.getCode()).isEqualTo("A");
+  public void test_parseCode_notFound() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> EtdSettlementType.parseCode("Rubbish"));
   }
 
   //-------------------------------------------------------------------------
