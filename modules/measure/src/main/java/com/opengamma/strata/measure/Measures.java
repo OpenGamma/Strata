@@ -67,7 +67,13 @@ public final class Measures {
    * It is expressed in the reporting currency.
    */
   public static final Measure PV01_MARKET_QUOTE_BUCKETED = Measure.of(StandardMeasures.PV01_MARKET_QUOTE_BUCKETED.getName());
-
+  /**
+   * Measure representing the bachelier (normal) vega on the calculation target.
+   * <p>
+   * This is the sensitivity of the present value to the bachelier (normal) implied volatilities
+   * used to calibrate the data structure.
+   */
+  public static final Measure BACHELIER_VEGA = Measure.of(StandardMeasures.BACHELIER_VEGA.getName());
   //-------------------------------------------------------------------------
   /**
    * Measure representing the par rate of the calculation target.

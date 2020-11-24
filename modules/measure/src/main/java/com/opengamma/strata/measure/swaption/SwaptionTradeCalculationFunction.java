@@ -43,6 +43,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed on rate curves}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum on rate curves}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
+ *   <li>{@linkplain Measures#BACHELIER_VEGA bachelier (normal) vega}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
@@ -63,6 +64,7 @@ public class SwaptionTradeCalculationFunction
           .put(Measures.PV01_CALIBRATED_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesCalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
+          .put(Measures.BACHELIER_VEGA, SwaptionMeasureCalculations.DEFAULT::bachelierVega)
           .put(Measures.CURRENCY_EXPOSURE, SwaptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, SwaptionMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
