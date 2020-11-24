@@ -325,8 +325,8 @@ public final class IborRateCalculation
     Function<SchedulePeriod, Schedule> resetScheduleFn =
         getResetPeriods().map(rp ->
             accrualSchedule.getFrequency().isMonthBased() && rp.getResetFrequency().isWeekBased() ?
-                rp.createSchedule(RollConventions.NONE, refData) :
-                rp.createSchedule(accrualSchedule.getRollConvention(), refData))
+                rp.createSchedule(RollConventions.NONE, refData, true) :
+                rp.createSchedule(accrualSchedule.getRollConvention(), refData, false))
             .orElse(null);
     Function<LocalDate, IborIndexObservation> iborObservationFn = index.resolve(refData);
     // build accrual periods

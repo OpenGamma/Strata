@@ -158,7 +158,7 @@ public class SchedulePeriodTest {
   @Test
   public void test_subSchedule_1monthIn3Month() {
     SchedulePeriod test = SchedulePeriod.of(JUN_17, SEP_17);
-    Schedule schedule = test.subSchedule(P1M, RollConventions.DAY_17, StubConvention.NONE, BusinessDayAdjustment.NONE)
+    Schedule schedule = test.subSchedule(P1M, RollConventions.DAY_17, StubConvention.NONE, BusinessDayAdjustment.NONE, false)
         .createSchedule(REF_DATA);
     assertThat(schedule.size()).isEqualTo(3);
     assertThat(schedule.getPeriod(0)).isEqualTo(SchedulePeriod.of(JUN_17, JUL_17));
@@ -172,7 +172,7 @@ public class SchedulePeriodTest {
   public void test_subSchedule_3monthIn3Month() {
     SchedulePeriod test = SchedulePeriod.of(JUN_17, SEP_17);
     Schedule schedule =
-        test.subSchedule(P3M, RollConventions.DAY_17, StubConvention.NONE, BusinessDayAdjustment.NONE)
+        test.subSchedule(P3M, RollConventions.DAY_17, StubConvention.NONE, BusinessDayAdjustment.NONE, false)
             .createSchedule(REF_DATA);
     assertThat(schedule.size()).isEqualTo(1);
     assertThat(schedule.getPeriod(0)).isEqualTo(SchedulePeriod.of(JUN_17, SEP_17));
@@ -182,7 +182,7 @@ public class SchedulePeriodTest {
   public void test_subSchedule_2monthIn3Month_shortInitial() {
     SchedulePeriod test = SchedulePeriod.of(JUN_17, SEP_17);
     Schedule schedule =
-        test.subSchedule(P2M, RollConventions.DAY_17, StubConvention.SHORT_INITIAL, BusinessDayAdjustment.NONE)
+        test.subSchedule(P2M, RollConventions.DAY_17, StubConvention.SHORT_INITIAL, BusinessDayAdjustment.NONE, false)
             .createSchedule(REF_DATA);
     assertThat(schedule.size()).isEqualTo(2);
     assertThat(schedule.getPeriod(0)).isEqualTo(SchedulePeriod.of(JUN_17, JUL_17));
@@ -195,7 +195,7 @@ public class SchedulePeriodTest {
   public void test_subSchedule_2monthIn3Month_shortFinal() {
     SchedulePeriod test = SchedulePeriod.of(JUN_17, SEP_17);
     Schedule schedule =
-        test.subSchedule(P2M, RollConventions.DAY_17, StubConvention.SHORT_FINAL, BusinessDayAdjustment.NONE)
+        test.subSchedule(P2M, RollConventions.DAY_17, StubConvention.SHORT_FINAL, BusinessDayAdjustment.NONE, false)
             .createSchedule(REF_DATA);
     assertThat(schedule.size()).isEqualTo(2);
     assertThat(schedule.getPeriod(0)).isEqualTo(SchedulePeriod.of(JUN_17, AUG_17));

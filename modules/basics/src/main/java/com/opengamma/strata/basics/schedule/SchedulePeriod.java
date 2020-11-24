@@ -227,11 +227,12 @@ public final class SchedulePeriod
    * The frequency and roll convention are used to build unadjusted schedule dates.
    * The stub convention is used to handle any remaining time when the new frequency
    * does not evenly divide into the period.
-   * 
+   *
    * @param frequency  the frequency of the sub-schedule
    * @param rollConvention  the roll convention to use for rolling
    * @param stubConvention  the stub convention to use for any excess
    * @param adjustment  the business day adjustment to apply to the sub-schedule
+   * @param combinePeriodIfNecessary whether to combine periods
    * @return the sub-schedule
    * @throws ScheduleException if the schedule cannot be created
    */
@@ -239,7 +240,8 @@ public final class SchedulePeriod
       Frequency frequency,
       RollConvention rollConvention,
       StubConvention stubConvention,
-      BusinessDayAdjustment adjustment) {
+      BusinessDayAdjustment adjustment,
+      boolean combinePeriodIfNecessary) {
 
     return PeriodicSchedule.builder()
         .startDate(unadjustedStartDate)
@@ -248,6 +250,7 @@ public final class SchedulePeriod
         .businessDayAdjustment(adjustment)
         .rollConvention(rollConvention)
         .stubConvention(stubConvention)
+        .combinePeriodsIfNecessary(combinePeriodIfNecessary)
         .build();
   }
 
