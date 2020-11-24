@@ -232,7 +232,6 @@ public final class SchedulePeriod
    * @param rollConvention  the roll convention to use for rolling
    * @param stubConvention  the stub convention to use for any excess
    * @param adjustment  the business day adjustment to apply to the sub-schedule
-   * @param combinePeriodIfNecessary whether to combine periods
    * @return the sub-schedule
    * @throws ScheduleException if the schedule cannot be created
    */
@@ -240,8 +239,7 @@ public final class SchedulePeriod
       Frequency frequency,
       RollConvention rollConvention,
       StubConvention stubConvention,
-      BusinessDayAdjustment adjustment,
-      boolean combinePeriodIfNecessary) {
+      BusinessDayAdjustment adjustment) {
 
     return PeriodicSchedule.builder()
         .startDate(unadjustedStartDate)
@@ -250,7 +248,6 @@ public final class SchedulePeriod
         .businessDayAdjustment(adjustment)
         .rollConvention(rollConvention)
         .stubConvention(stubConvention)
-        .combinePeriodsIfNecessary(combinePeriodIfNecessary)
         .build();
   }
 

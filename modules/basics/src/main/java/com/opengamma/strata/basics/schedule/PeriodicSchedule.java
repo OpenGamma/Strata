@@ -10,19 +10,22 @@ import java.time.LocalDate;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.TypedMetaBean;
 import org.joda.beans.gen.BeanDefinition;
 import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
-import org.joda.beans.impl.direct.MinimalMetaBean;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
@@ -106,14 +109,13 @@ import com.opengamma.strata.collect.ArgChecker;
  * When the unadjusted schedule has been determined, the appropriate business day adjustment
  * is applied to create a parallel schedule of "adjusted" dates.
  */
-@BeanDefinition(style = "minimal")
+@BeanDefinition
 public final class PeriodicSchedule implements ImmutableBean, Serializable {
 
   /**
    * The start date, which is the start of the first schedule period.
    * <p>
-   * This is the start date of the schedule.
-   * It is unadjusted and as such might be a weekend or holiday.
+   * This is the start date of the schedule, it is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted effective date.
    * <p>
@@ -126,8 +128,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
   /**
    * The end date, which is the end of the last schedule period.
    * <p>
-   * This is the end date of the schedule.
-   * It is unadjusted and as such might be a weekend or holiday.
+   * This is the end date of the schedule, it is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted maturity date or unadjusted termination date.
    * This date must be after the start date.
@@ -268,11 +269,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    */
   @PropertyDefinition(get = "optional")
   private final AdjustableDate overrideStartDate;
-  /**
-   * If set this will combine periods if necessary, this defaults to false.
-   */
-  @PropertyDefinition
-  private final boolean combinePeriodsIfNecessary;
 
   //-------------------------------------------------------------------------
   /**
@@ -380,10 +376,20 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
 
   //-------------------------------------------------------------------------
   /**
+   * Creates the schedule from the definition, see {@link #createSchedule(ReferenceData, boolean)}.
+   *
+   * @return the schedule
+   * @param refData  the reference data, used to find the holiday calendars
+   * @throws ScheduleException if the definition is invalid
+   */
+  public Schedule createSchedule(ReferenceData refData) {
+    return createSchedule(refData, false);
+  }
+
+  /**
    * Creates the schedule from the definition.
    * <p>
-   * The schedule consists of an optional initial stub, a number of regular periods
-   * and an optional final stub.
+   * The schedule consists of an optional initial stub, a number of regular periods and an optional final stub.
    * <p>
    * The roll convention, stub convention and additional dates are all used to determine the schedule.
    * If the roll convention is not present it will be defaulted from the stub convention, with 'None' as the default.
@@ -410,12 +416,13 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * <li>applying {@code businessDayAdjustment} to the day-of-month implied by the roll convention
    *  yields the first/last regular date that was specified
    * </ul>
-   * 
+   *
    * @return the schedule
    * @param refData  the reference data, used to find the holiday calendars
+   * @param combinePeriodsIfNecessary  determines whether periods should be combined if necessary
    * @throws ScheduleException if the definition is invalid
    */
-  public Schedule createSchedule(ReferenceData refData) {
+  public Schedule createSchedule(ReferenceData refData, boolean combinePeriodsIfNecessary) {
     LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
     LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
     LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
@@ -527,18 +534,23 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createUnadjustedDates(ReferenceData refData) {
-    LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
-    LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
-    LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
-    LocalDate regularEnd = calculatedLastRegularEndDate(unadjEnd, refData);
-    RollConvention rollConv = calculatedRollConvention(regularStart, regularEnd);
-    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, unadjEnd, rollConv);
+    List<LocalDate> unadj = unadjustedDates(refData);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(unadj).asList();
     if (deduplicated.size() < unadj.size()) {
       throw new ScheduleException(this, "Schedule calculation resulted in duplicate unadjusted dates {}", unadj);
     }
     return deduplicated;
+  }
+
+  // using the provided reference data create the unadjusted dates
+  private List<LocalDate> unadjustedDates(ReferenceData refData) {
+    LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
+    LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
+    LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
+    LocalDate regularEnd = calculatedLastRegularEndDate(unadjEnd, refData);
+    RollConvention rollConv = calculatedRollConvention(regularStart, regularEnd);
+    return generateUnadjustedDates(unadjStart, regularStart, regularEnd, unadjEnd, rollConv);
   }
 
   // creates the unadjusted dates, returning the mutable list
@@ -581,13 +593,10 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
   private StubConvention generateImplicitStubConvention(boolean explicitInitialStub, boolean explicitFinalStub) {
-    // null is not same as NONE
-    // NONE validates that there are no explicit stubs
+    // null is not same as NONE; NONE validates that there are no explicit stubs whereas
     // null ensures that remainder after explicit stubs are removed has no stubs
-    if (stubConvention != null) {
-      return stubConvention.toImplicit(this, explicitInitialStub, explicitFinalStub);
-    }
-    return StubConvention.NONE;
+    return stubConvention != null ?
+        stubConvention.toImplicit(this, explicitInitialStub, explicitFinalStub) : StubConvention.NONE;
   }
 
   // generate dates, forwards or backwards
@@ -602,8 +611,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       LocalDate end) {
 
     if (stubCnv.isCalculateBackwards()) {
-      // called only when stub is initial
-      // validate that explicit stub flags have been resolved to stub convention of NONE
+      // called only when stub is initial, validate that explicit stub flags have been resolved to stub convention NONE
       ArgChecker.isFalse(explicitInitStub, "Value explicitInitStub must be false");
       ArgChecker.isFalse(explicitFinalStub, "Value explicitFinalStub must be false");
       return generateBackwards(this, regStart, regEnd, frequency, rollCnv, stubCnv, overrideStart);
@@ -645,8 +653,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     return dates;
   }
 
-  // dedicated list implementation for backwards looping for performance
-  // only implements those methods that are needed
+  // dedicated list implementation for backwards looping for performance only implements those methods that are needed
   private static class BackwardsList extends AbstractList<LocalDate> {
     private int first;
     private LocalDate[] array;
@@ -785,12 +792,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * @throws ScheduleException if the definition is invalid
    */
   public ImmutableList<LocalDate> createAdjustedDates(ReferenceData refData) {
-    LocalDate unadjStart = calculatedUnadjustedStartDate(refData);
-    LocalDate unadjEnd = calculatedUnadjustedEndDate(refData);
-    LocalDate regularStart = calculatedFirstRegularStartDate(unadjStart, refData);
-    LocalDate regularEnd = calculatedLastRegularEndDate(unadjEnd, refData);
-    RollConvention rollConv = calculatedRollConvention(regularStart, regularEnd);
-    List<LocalDate> unadj = generateUnadjustedDates(unadjStart, regularStart, regularEnd, unadjEnd, rollConv);
+    List<LocalDate> unadj = unadjustedDates(refData);
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     // ensure schedule is valid with no duplicated dates
     ImmutableList<LocalDate> deduplicated = ImmutableSet.copyOf(adj).asList();
@@ -864,14 +866,9 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
   // For 'StandardRollConventions', such as IMM, adjusted date is identified by finding the closest valid roll date
   // and applying the trade level business day adjustment
   private LocalDate calculatedUnadjustedStartDate(ReferenceData refData) {
-    // change date if
-    // reference data is available
-    // and explicit start adjustment must be NONE or roll convention is EOM
-    // and either
-    // numeric roll convention and day-of-month actually differs
-    // or
-    // StandardDayConvention is used and the day is not a valid roll date
-
+    // change date if reference data is available and explicit start adjustment must be NONE or roll convention
+    // is EOM and either numeric roll convention and day-of-month actually differs or StandardDayConvention is used
+    // and the day is not a valid roll date
     if (refData != null &&
         rollConvention != null &&
         (BusinessDayAdjustment.NONE.equals(startDateBusinessDayAdjustment) || rollConvention == RollConventions.EOM)) {
@@ -900,7 +897,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       ReferenceData refData) {
 
     int rollDom = rollConvention.getDayOfMonth();
-
     if (rollDom > 0 && baseDate.getDayOfMonth() != rollDom) {
       int lengthOfMonth = baseDate.lengthOfMonth();
       int actualDom = Math.min(rollDom, lengthOfMonth);
@@ -914,10 +910,8 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       }
     } else if (rollDom == 0) {
       //0 roll day implies that the roll date is calculated relative to the month or week
-
       //Find the valid (unadjusted) roll date for the given month or week
       LocalDate rollImpliedDate = rollConvention.adjust(baseDate);
-
       if (!rollImpliedDate.equals(baseDate)) {
         //If roll date is relative to the month the assumption is that the adjusted date is not in a different month to
         //the original unadjusted date. This is safe as the roll day produced by monthly roll conventions are typically
@@ -925,10 +919,8 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
         //adjust() method for "day of week" roll conventions will roll forward from the passed date; hence this logic
         //will not work for "day of week" conventions if the passed baseDate has been adjusted to be after the original
         //unadjusted date (i.e. has been rolled forward).
-
         //Calculate the expected adjusted roll date, based on the valid unadjusted roll date
         LocalDate adjDate = businessDayAdjustment.adjust(rollImpliedDate, refData);
-
         //If the adjusted roll date equals the original base date then that the base date is in fact an adjusted date
         //and hence return the unadjusted date for building the schedule.
         if (adjDate.equals(baseDate)) {
@@ -952,8 +944,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     return MoreObjects.firstNonNull(firstRegularStartDate, startDate);
   }
 
-  // calculates the first regular start date
-  // adjust when numeric roll convention present
+  // calculates the first regular start date, adjust when numeric roll convention present
   private LocalDate calculatedFirstRegularStartDate(LocalDate unadjStart, ReferenceData refData) {
     if (firstRegularStartDate == null) {
       return unadjStart;
@@ -976,8 +967,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     return MoreObjects.firstNonNull(lastRegularEndDate, endDate);
   }
 
-  // calculates the last regular end date
-  // adjust when numeric roll convention present
+  // calculates the last regular end date, adjust when numeric roll convention present
   private LocalDate calculatedLastRegularEndDate(LocalDate unadjEnd, ReferenceData refData) {
     if (lastRegularEndDate == null) {
       return unadjEnd;
@@ -1040,47 +1030,14 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
   //------------------------- AUTOGENERATED START -------------------------
   /**
    * The meta-bean for {@code PeriodicSchedule}.
-   */
-  private static final TypedMetaBean<PeriodicSchedule> META_BEAN =
-      MinimalMetaBean.of(
-          PeriodicSchedule.class,
-          new String[] {
-              "startDate",
-              "endDate",
-              "frequency",
-              "businessDayAdjustment",
-              "startDateBusinessDayAdjustment",
-              "endDateBusinessDayAdjustment",
-              "stubConvention",
-              "rollConvention",
-              "firstRegularStartDate",
-              "lastRegularEndDate",
-              "overrideStartDate",
-              "combinePeriodsIfNecessary"},
-          () -> new PeriodicSchedule.Builder(),
-          b -> b.getStartDate(),
-          b -> b.getEndDate(),
-          b -> b.getFrequency(),
-          b -> b.getBusinessDayAdjustment(),
-          b -> b.startDateBusinessDayAdjustment,
-          b -> b.endDateBusinessDayAdjustment,
-          b -> b.stubConvention,
-          b -> b.rollConvention,
-          b -> b.firstRegularStartDate,
-          b -> b.lastRegularEndDate,
-          b -> b.overrideStartDate,
-          b -> b.isCombinePeriodsIfNecessary());
-
-  /**
-   * The meta-bean for {@code PeriodicSchedule}.
    * @return the meta-bean, not null
    */
-  public static TypedMetaBean<PeriodicSchedule> meta() {
-    return META_BEAN;
+  public static PeriodicSchedule.Meta meta() {
+    return PeriodicSchedule.Meta.INSTANCE;
   }
 
   static {
-    MetaBean.register(META_BEAN);
+    MetaBean.register(PeriodicSchedule.Meta.INSTANCE);
   }
 
   /**
@@ -1107,8 +1064,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       RollConvention rollConvention,
       LocalDate firstRegularStartDate,
       LocalDate lastRegularEndDate,
-      AdjustableDate overrideStartDate,
-      boolean combinePeriodsIfNecessary) {
+      AdjustableDate overrideStartDate) {
     JodaBeanUtils.notNull(startDate, "startDate");
     JodaBeanUtils.notNull(endDate, "endDate");
     JodaBeanUtils.notNull(frequency, "frequency");
@@ -1124,21 +1080,19 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     this.firstRegularStartDate = firstRegularStartDate;
     this.lastRegularEndDate = lastRegularEndDate;
     this.overrideStartDate = overrideStartDate;
-    this.combinePeriodsIfNecessary = combinePeriodsIfNecessary;
     validate();
   }
 
   @Override
-  public TypedMetaBean<PeriodicSchedule> metaBean() {
-    return META_BEAN;
+  public PeriodicSchedule.Meta metaBean() {
+    return PeriodicSchedule.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
   /**
    * Gets the start date, which is the start of the first schedule period.
    * <p>
-   * This is the start date of the schedule.
-   * It is unadjusted and as such might be a weekend or holiday.
+   * This is the start date of the schedule, it is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted effective date.
    * <p>
@@ -1155,8 +1109,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
   /**
    * Gets the end date, which is the end of the last schedule period.
    * <p>
-   * This is the end date of the schedule.
-   * It is unadjusted and as such might be a weekend or holiday.
+   * This is the end date of the schedule, it is unadjusted and as such might be a weekend or holiday.
    * Any applicable business day adjustment will be applied when creating the schedule.
    * This is also known as the unadjusted maturity date or unadjusted termination date.
    * This date must be after the start date.
@@ -1338,15 +1291,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets if set this will combine periods if necessary, this defaults to false.
-   * @return the value of the property
-   */
-  public boolean isCombinePeriodsIfNecessary() {
-    return combinePeriodsIfNecessary;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -1371,8 +1315,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
           JodaBeanUtils.equal(rollConvention, other.rollConvention) &&
           JodaBeanUtils.equal(firstRegularStartDate, other.firstRegularStartDate) &&
           JodaBeanUtils.equal(lastRegularEndDate, other.lastRegularEndDate) &&
-          JodaBeanUtils.equal(overrideStartDate, other.overrideStartDate) &&
-          (combinePeriodsIfNecessary == other.combinePeriodsIfNecessary);
+          JodaBeanUtils.equal(overrideStartDate, other.overrideStartDate);
     }
     return false;
   }
@@ -1391,13 +1334,12 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     hash = hash * 31 + JodaBeanUtils.hashCode(firstRegularStartDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(lastRegularEndDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(overrideStartDate);
-    hash = hash * 31 + JodaBeanUtils.hashCode(combinePeriodsIfNecessary);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("PeriodicSchedule{");
     buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
     buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
@@ -1409,10 +1351,271 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
     buf.append("firstRegularStartDate").append('=').append(JodaBeanUtils.toString(firstRegularStartDate)).append(',').append(' ');
     buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate)).append(',').append(' ');
-    buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate)).append(',').append(' ');
-    buf.append("combinePeriodsIfNecessary").append('=').append(JodaBeanUtils.toString(combinePeriodsIfNecessary));
+    buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate));
     buf.append('}');
     return buf.toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code PeriodicSchedule}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code startDate} property.
+     */
+    private final MetaProperty<LocalDate> startDate = DirectMetaProperty.ofImmutable(
+        this, "startDate", PeriodicSchedule.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code endDate} property.
+     */
+    private final MetaProperty<LocalDate> endDate = DirectMetaProperty.ofImmutable(
+        this, "endDate", PeriodicSchedule.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code frequency} property.
+     */
+    private final MetaProperty<Frequency> frequency = DirectMetaProperty.ofImmutable(
+        this, "frequency", PeriodicSchedule.class, Frequency.class);
+    /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> businessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "businessDayAdjustment", PeriodicSchedule.class, BusinessDayAdjustment.class);
+    /**
+     * The meta-property for the {@code startDateBusinessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> startDateBusinessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "startDateBusinessDayAdjustment", PeriodicSchedule.class, BusinessDayAdjustment.class);
+    /**
+     * The meta-property for the {@code endDateBusinessDayAdjustment} property.
+     */
+    private final MetaProperty<BusinessDayAdjustment> endDateBusinessDayAdjustment = DirectMetaProperty.ofImmutable(
+        this, "endDateBusinessDayAdjustment", PeriodicSchedule.class, BusinessDayAdjustment.class);
+    /**
+     * The meta-property for the {@code stubConvention} property.
+     */
+    private final MetaProperty<StubConvention> stubConvention = DirectMetaProperty.ofImmutable(
+        this, "stubConvention", PeriodicSchedule.class, StubConvention.class);
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     */
+    private final MetaProperty<RollConvention> rollConvention = DirectMetaProperty.ofImmutable(
+        this, "rollConvention", PeriodicSchedule.class, RollConvention.class);
+    /**
+     * The meta-property for the {@code firstRegularStartDate} property.
+     */
+    private final MetaProperty<LocalDate> firstRegularStartDate = DirectMetaProperty.ofImmutable(
+        this, "firstRegularStartDate", PeriodicSchedule.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code lastRegularEndDate} property.
+     */
+    private final MetaProperty<LocalDate> lastRegularEndDate = DirectMetaProperty.ofImmutable(
+        this, "lastRegularEndDate", PeriodicSchedule.class, LocalDate.class);
+    /**
+     * The meta-property for the {@code overrideStartDate} property.
+     */
+    private final MetaProperty<AdjustableDate> overrideStartDate = DirectMetaProperty.ofImmutable(
+        this, "overrideStartDate", PeriodicSchedule.class, AdjustableDate.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "startDate",
+        "endDate",
+        "frequency",
+        "businessDayAdjustment",
+        "startDateBusinessDayAdjustment",
+        "endDateBusinessDayAdjustment",
+        "stubConvention",
+        "rollConvention",
+        "firstRegularStartDate",
+        "lastRegularEndDate",
+        "overrideStartDate");
+
+    /**
+     * Restricted constructor.
+     */
+    private Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          return startDate;
+        case -1607727319:  // endDate
+          return endDate;
+        case -70023844:  // frequency
+          return frequency;
+        case -1065319863:  // businessDayAdjustment
+          return businessDayAdjustment;
+        case 429197561:  // startDateBusinessDayAdjustment
+          return startDateBusinessDayAdjustment;
+        case -734327136:  // endDateBusinessDayAdjustment
+          return endDateBusinessDayAdjustment;
+        case -31408449:  // stubConvention
+          return stubConvention;
+        case -10223666:  // rollConvention
+          return rollConvention;
+        case 2011803076:  // firstRegularStartDate
+          return firstRegularStartDate;
+        case -1540679645:  // lastRegularEndDate
+          return lastRegularEndDate;
+        case -599936828:  // overrideStartDate
+          return overrideStartDate;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public PeriodicSchedule.Builder builder() {
+      return new PeriodicSchedule.Builder();
+    }
+
+    @Override
+    public Class<? extends PeriodicSchedule> beanType() {
+      return PeriodicSchedule.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code startDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> startDate() {
+      return startDate;
+    }
+
+    /**
+     * The meta-property for the {@code endDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> endDate() {
+      return endDate;
+    }
+
+    /**
+     * The meta-property for the {@code frequency} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Frequency> frequency() {
+      return frequency;
+    }
+
+    /**
+     * The meta-property for the {@code businessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> businessDayAdjustment() {
+      return businessDayAdjustment;
+    }
+
+    /**
+     * The meta-property for the {@code startDateBusinessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> startDateBusinessDayAdjustment() {
+      return startDateBusinessDayAdjustment;
+    }
+
+    /**
+     * The meta-property for the {@code endDateBusinessDayAdjustment} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<BusinessDayAdjustment> endDateBusinessDayAdjustment() {
+      return endDateBusinessDayAdjustment;
+    }
+
+    /**
+     * The meta-property for the {@code stubConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<StubConvention> stubConvention() {
+      return stubConvention;
+    }
+
+    /**
+     * The meta-property for the {@code rollConvention} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<RollConvention> rollConvention() {
+      return rollConvention;
+    }
+
+    /**
+     * The meta-property for the {@code firstRegularStartDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> firstRegularStartDate() {
+      return firstRegularStartDate;
+    }
+
+    /**
+     * The meta-property for the {@code lastRegularEndDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<LocalDate> lastRegularEndDate() {
+      return lastRegularEndDate;
+    }
+
+    /**
+     * The meta-property for the {@code overrideStartDate} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<AdjustableDate> overrideStartDate() {
+      return overrideStartDate;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2129778896:  // startDate
+          return ((PeriodicSchedule) bean).getStartDate();
+        case -1607727319:  // endDate
+          return ((PeriodicSchedule) bean).getEndDate();
+        case -70023844:  // frequency
+          return ((PeriodicSchedule) bean).getFrequency();
+        case -1065319863:  // businessDayAdjustment
+          return ((PeriodicSchedule) bean).getBusinessDayAdjustment();
+        case 429197561:  // startDateBusinessDayAdjustment
+          return ((PeriodicSchedule) bean).startDateBusinessDayAdjustment;
+        case -734327136:  // endDateBusinessDayAdjustment
+          return ((PeriodicSchedule) bean).endDateBusinessDayAdjustment;
+        case -31408449:  // stubConvention
+          return ((PeriodicSchedule) bean).stubConvention;
+        case -10223666:  // rollConvention
+          return ((PeriodicSchedule) bean).rollConvention;
+        case 2011803076:  // firstRegularStartDate
+          return ((PeriodicSchedule) bean).firstRegularStartDate;
+        case -1540679645:  // lastRegularEndDate
+          return ((PeriodicSchedule) bean).lastRegularEndDate;
+        case -599936828:  // overrideStartDate
+          return ((PeriodicSchedule) bean).overrideStartDate;
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
   }
 
   //-----------------------------------------------------------------------
@@ -1432,7 +1635,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     private LocalDate firstRegularStartDate;
     private LocalDate lastRegularEndDate;
     private AdjustableDate overrideStartDate;
-    private boolean combinePeriodsIfNecessary;
 
     /**
      * Restricted constructor.
@@ -1456,7 +1658,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       this.firstRegularStartDate = beanToCopy.firstRegularStartDate;
       this.lastRegularEndDate = beanToCopy.lastRegularEndDate;
       this.overrideStartDate = beanToCopy.overrideStartDate;
-      this.combinePeriodsIfNecessary = beanToCopy.isCombinePeriodsIfNecessary();
     }
 
     //-----------------------------------------------------------------------
@@ -1485,8 +1686,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
           return lastRegularEndDate;
         case -599936828:  // overrideStartDate
           return overrideStartDate;
-        case -1997148129:  // combinePeriodsIfNecessary
-          return combinePeriodsIfNecessary;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1528,9 +1727,6 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
         case -599936828:  // overrideStartDate
           this.overrideStartDate = (AdjustableDate) newValue;
           break;
-        case -1997148129:  // combinePeriodsIfNecessary
-          this.combinePeriodsIfNecessary = (Boolean) newValue;
-          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1556,16 +1752,14 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
           rollConvention,
           firstRegularStartDate,
           lastRegularEndDate,
-          overrideStartDate,
-          combinePeriodsIfNecessary);
+          overrideStartDate);
     }
 
     //-----------------------------------------------------------------------
     /**
      * Sets the start date, which is the start of the first schedule period.
      * <p>
-     * This is the start date of the schedule.
-     * It is unadjusted and as such might be a weekend or holiday.
+     * This is the start date of the schedule, it is unadjusted and as such might be a weekend or holiday.
      * Any applicable business day adjustment will be applied when creating the schedule.
      * This is also known as the unadjusted effective date.
      * <p>
@@ -1584,8 +1778,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     /**
      * Sets the end date, which is the end of the last schedule period.
      * <p>
-     * This is the end date of the schedule.
-     * It is unadjusted and as such might be a weekend or holiday.
+     * This is the end date of the schedule, it is unadjusted and as such might be a weekend or holiday.
      * Any applicable business day adjustment will be applied when creating the schedule.
      * This is also known as the unadjusted maturity date or unadjusted termination date.
      * This date must be after the start date.
@@ -1779,20 +1972,10 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       return this;
     }
 
-    /**
-     * Sets if set this will combine periods if necessary, this defaults to false.
-     * @param combinePeriodsIfNecessary  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder combinePeriodsIfNecessary(boolean combinePeriodsIfNecessary) {
-      this.combinePeriodsIfNecessary = combinePeriodsIfNecessary;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(416);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("PeriodicSchedule.Builder{");
       buf.append("startDate").append('=').append(JodaBeanUtils.toString(startDate)).append(',').append(' ');
       buf.append("endDate").append('=').append(JodaBeanUtils.toString(endDate)).append(',').append(' ');
@@ -1804,8 +1987,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       buf.append("rollConvention").append('=').append(JodaBeanUtils.toString(rollConvention)).append(',').append(' ');
       buf.append("firstRegularStartDate").append('=').append(JodaBeanUtils.toString(firstRegularStartDate)).append(',').append(' ');
       buf.append("lastRegularEndDate").append('=').append(JodaBeanUtils.toString(lastRegularEndDate)).append(',').append(' ');
-      buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate)).append(',').append(' ');
-      buf.append("combinePeriodsIfNecessary").append('=').append(JodaBeanUtils.toString(combinePeriodsIfNecessary));
+      buf.append("overrideStartDate").append('=').append(JodaBeanUtils.toString(overrideStartDate));
       buf.append('}');
       return buf.toString();
     }

@@ -1099,10 +1099,9 @@ public class PeriodicScheduleTest {
         .businessDayAdjustment(businessDayAdjustment)
         .stubConvention(SHORT_FINAL)
         .rollConvention(null)
-        .combinePeriodsIfNecessary(true)
         .build();
 
-    Schedule schedule = defn.createSchedule(referenceData);
+    Schedule schedule = defn.createSchedule(referenceData, true);
     assertThat(schedule.getPeriods()).hasSize(12);
     assertThat(schedule.getPeriod(1).getStartDate()).isEqualTo(date(2020, 9, 25));
     assertThat(schedule.getPeriod(2).getStartDate()).isEqualTo(date(2020, 10, 9));
