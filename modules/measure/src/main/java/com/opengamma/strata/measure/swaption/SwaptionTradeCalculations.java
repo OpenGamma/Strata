@@ -275,6 +275,49 @@ public class SwaptionTradeCalculations {
 
     return calc.pv01RatesMarketQuoteBucketed(trade, ratesProvider, volatilities);
   }
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates present value vega sensitivity across one or more scenarios.
+   * <p>
+   * This is the sensitivity of present value to the normal implied volatilities
+   * used to calibrate the curves.
+   *
+   * @param trade  the trade
+   * @param ratesLookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @param swaptionLookup  the lookup used to query the swaption market data
+   * @return the present value sensitivity, one entry per scenario
+   */
+  public ScenarioArray<CurrencyParameterSensitivities> bachelierVega(
+      ResolvedSwaptionTrade trade,
+      RatesMarketDataLookup ratesLookup,
+      SwaptionMarketDataLookup swaptionLookup,
+      ScenarioMarketData marketData) {
+
+    return calc.bachelierVega(
+        trade,
+        ratesLookup.marketDataView(marketData),
+        swaptionLookup.marketDataView(marketData));
+  }
+
+  /**
+   * Calculates present value vega sensitivity for a single set of market data.
+   * <p>
+   * This is the sensitivity of present value of the normal implied volatilities
+   * used to calibrate the curves.
+   *
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @param volatilities  the swaption volatilities
+   * @return the present value sensitivity
+   */
+  public CurrencyParameterSensitivities bachelierVega(
+      ResolvedSwaptionTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    return calc.bachelierVega(trade, ratesProvider, volatilities);
+  }
 
   //-------------------------------------------------------------------------
   /**

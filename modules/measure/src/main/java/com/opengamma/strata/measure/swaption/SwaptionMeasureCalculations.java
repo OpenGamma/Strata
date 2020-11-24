@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.measure.swaption;
 
+import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
+
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -211,6 +213,45 @@ final class SwaptionMeasureCalculations {
           trade, ratesProvider, (SabrSwaptionVolatilities) volatilities);
     }
     return tradePricer.presentValueSensitivityRatesStickyStrike(trade, ratesProvider, volatilities);
+  }
+
+  //-------------------------------------------------------------------------
+  // calculates bachelier (normal) vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> bachelierVega(
+      ResolvedSwaptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      SwaptionScenarioMarketData swaptionMarketData) {
+
+    IborIndex index = trade.getProduct().getIndex();
+    return ScenarioArray.of(
+        ratesMarketData.getScenarioCount(),
+        i -> bachelierVega(
+            trade,
+            ratesMarketData.scenario(i).ratesProvider(),
+            swaptionMarketData.scenario(i).volatilities(index)));
+  }
+
+  //  bachelier (normal) vega for one scenario
+  CurrencyParameterSensitivities bachelierVega(
+      ResolvedSwaptionTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    if (!volatilities.getVolatilityType().equals(NORMAL_VOLATILITY)) {
+      throw new IllegalArgumentException("Bachelier vega calculation requires normal volatilities.");
+    }
+
+    PointSensitivities pointSensitivity = pointSensitivityBachelierVega(trade, ratesProvider, volatilities);
+    return volatilities.parameterSensitivity(pointSensitivity);
+  }
+
+  //  bachelier (normal) vega point sensitivity
+  private PointSensitivities pointSensitivityBachelierVega(
+      ResolvedSwaptionTrade trade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities volatilities) {
+
+    return tradePricer.presentValueSensitivityModelParamsVolatility(trade, ratesProvider, volatilities);
   }
 
   //-------------------------------------------------------------------------
