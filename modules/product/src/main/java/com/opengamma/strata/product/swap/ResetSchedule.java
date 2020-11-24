@@ -106,7 +106,7 @@ public final class ResetSchedule
    * 
    * @param rollConvention  the applicable roll convention
    * @param refData  the reference data to use when resolving
-   * @param combinePeriodsIfNecessary whether to combine periods if necessary
+   * @param combinePeriodsIfNecessary  whether to combine periods if necessary
    * @return the reset schedule
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    * @throws RuntimeException if the schedule is invalid

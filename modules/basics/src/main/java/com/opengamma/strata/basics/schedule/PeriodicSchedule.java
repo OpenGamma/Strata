@@ -425,7 +425,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     List<LocalDate> adj = applyBusinessDayAdjustment(unadj, refData);
     List<SchedulePeriod> periods = new ArrayList<>();
     try {
-      // Remove any duplicate adjusted dates
+      // Remove any duplicate adjusted dates if requested
       if (combinePeriodsIfNecessary) {
         adj = new ArrayList<>(adj);
         unadj = new ArrayList<>(unadj);

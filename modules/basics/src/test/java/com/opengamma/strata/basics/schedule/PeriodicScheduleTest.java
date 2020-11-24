@@ -67,6 +67,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -1089,7 +1090,7 @@ public class PeriodicScheduleTest {
       }
     };
 
-    ReferenceData referenceData = ReferenceData.of(ImmutableMap.of(id, calendar));
+    ReferenceData referenceData = ImmutableReferenceData.of(id, calendar);
     BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, id);
     PeriodicSchedule defn = PeriodicSchedule.builder()
         .startDate(date(2020, 9, 18))
