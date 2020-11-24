@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.util.stream.Collectors.toList;
 
 import java.time.Period;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -299,6 +301,19 @@ public final class RatesCalibrationCsvLoader {
     List<CurveDefinition> curveDefinitions = curveNodeCharSources.stream()
         .flatMap(res -> parseSingle(res, settingsMap).stream())
         .collect(toImmutableList());
+
+    // check for any curve setting without a matching definition
+    List<CurveName> defCurveNames = curveDefinitions.stream()
+        .map(def -> def.getName())
+        .collect(toImmutableList());
+    Set<CurveName> settingCurveNames = settingsMap.keySet();
+
+    for (CurveName settingCurveName: settingCurveNames) {
+      if (!defCurveNames.contains(settingCurveName)) {
+        throw new IllegalArgumentException(Messages.format(
+            "Missing nodes for curve: {}", settingCurveName.getName()));
+      }
+    }
 
     // Add the curve definitions to the curve group definitions
     return curveGroups.stream()
