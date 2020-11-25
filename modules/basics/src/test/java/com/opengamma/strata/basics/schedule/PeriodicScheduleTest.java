@@ -14,6 +14,7 @@ import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.SAT_SUN;
 import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
 import static com.opengamma.strata.basics.schedule.Frequency.P6M;
@@ -35,6 +36,7 @@ import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SHORT_INITIAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_FINAL;
 import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
+import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static com.opengamma.strata.collect.TestHelper.date;
@@ -56,17 +58,23 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.HolidayCalendar;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
+import com.opengamma.strata.basics.date.HolidayCalendars;
 
 /**
  * Test {@link PeriodicSchedule}.
@@ -1061,6 +1069,42 @@ public class PeriodicScheduleTest {
     assertThatExceptionOfType(ScheduleException.class)
         .isThrownBy(() -> defn.createSchedule(REF_DATA))
         .withMessageMatching(".*duplicate adjusted dates.*");
+  }
+
+  @Test
+  public void test_combinePeriodsWhenNecessary_1w_createSchedule() {
+    HolidayCalendarId id = HolidayCalendarId.of("calendar");
+    HolidayCalendar calendar = new HolidayCalendar() {
+      private Set<LocalDate> holidays = IntStream.range(1, 9)
+          .mapToObj(day -> date(2020, 10, day))
+          .collect(toImmutableSet());
+
+      @Override
+      public boolean isHoliday(LocalDate date) {
+        return HolidayCalendars.SAT_SUN.isHoliday(date) || holidays.contains(date);
+      }
+
+      @Override
+      public HolidayCalendarId getId() {
+        return id;
+      }
+    };
+
+    ReferenceData referenceData = ImmutableReferenceData.of(id, calendar);
+    BusinessDayAdjustment businessDayAdjustment = BusinessDayAdjustment.of(MODIFIED_FOLLOWING, id);
+    PeriodicSchedule defn = PeriodicSchedule.builder()
+        .startDate(date(2020, 9, 18))
+        .endDate(date(2020, 12, 18))
+        .frequency(P1W)
+        .businessDayAdjustment(businessDayAdjustment)
+        .stubConvention(SHORT_FINAL)
+        .rollConvention(null)
+        .build();
+
+    Schedule schedule = defn.createSchedule(referenceData, true);
+    assertThat(schedule.getPeriods()).hasSize(12);
+    assertThat(schedule.getPeriod(1).getStartDate()).isEqualTo(date(2020, 9, 25));
+    assertThat(schedule.getPeriod(2).getStartDate()).isEqualTo(date(2020, 10, 9));
   }
 
   @Test

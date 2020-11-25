@@ -227,7 +227,7 @@ public final class SchedulePeriod
    * The frequency and roll convention are used to build unadjusted schedule dates.
    * The stub convention is used to handle any remaining time when the new frequency
    * does not evenly divide into the period.
-   * 
+   *
    * @param frequency  the frequency of the sub-schedule
    * @param rollConvention  the roll convention to use for rolling
    * @param stubConvention  the stub convention to use for any excess
