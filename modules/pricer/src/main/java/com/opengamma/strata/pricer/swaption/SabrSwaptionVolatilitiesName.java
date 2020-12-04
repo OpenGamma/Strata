@@ -13,7 +13,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketDataName;
 
 /**
- * The name of a set of swaption volatilities.
+ * The name of a set of swaption SABR volatilities.
  */
 public final class SabrSwaptionVolatilitiesName
     extends MarketDataName<SabrSwaptionVolatilities>
