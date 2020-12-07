@@ -41,7 +41,7 @@ import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
  * data that the function needs and the data that is available in {@link ScenarioMarketData}.
  */
 @BeanDefinition(style = "light")
-final public class DefaultCmsMarketDataLookup
+final class DefaultCmsMarketDataLookup
     implements CmsMarketDataLookup, ImmutableBean, Serializable {
 
   /**
