@@ -56,7 +56,6 @@ public interface CmsMarketDataLookup extends SwaptionMarketDataLookup {
     return DefaultCmsMarketDataLookup.of(volatilityIds);
   }
 
-
   //-------------------------------------------------------------------------
   /**
    * Gets the type that the lookup will be queried by.
