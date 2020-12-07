@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.strata.measure.cms;
+package com.opengamma.strata.measure.swaption;
 
 import static com.opengamma.strata.basics.index.IborIndices.GBP_LIBOR_3M;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
@@ -28,9 +28,8 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.measure.cms.CmsMarketDataLookup;
 import com.opengamma.strata.measure.curve.TestMarketDataMap;
-import com.opengamma.strata.measure.swaption.SwaptionMarketData;
-import com.opengamma.strata.measure.swaption.SwaptionScenarioMarketData;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 

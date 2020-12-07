@@ -13,6 +13,7 @@ import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
+import com.opengamma.strata.measure.swaption.DefaultCmsMarketDataLookup;
 import com.opengamma.strata.measure.swaption.SwaptionMarketDataLookup;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 
