@@ -5,11 +5,16 @@
  */
 package com.opengamma.strata.measure.cms;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.swaption.SwaptionMarketDataLookup;
+import com.opengamma.strata.pricer.swaption.SwaptionVolatilitiesId;
 
 /**
  * The lookup that provides access to swaption volatilities in market data.
@@ -24,6 +29,32 @@ import com.opengamma.strata.measure.swaption.SwaptionMarketDataLookup;
  * Implementations of this interface must be immutable.
  */
 public interface CmsMarketDataLookup extends SwaptionMarketDataLookup {
+
+  /**
+   * Obtains an instance based on a single mapping from index to volatility identifier.
+   * <p>
+   * The lookup provides volatilities for the specified index.
+   *
+   * @param index  the Ibor index
+   * @param volatilityId  the volatility identifier
+   * @return the CMS lookup containing the specified mapping
+   */
+  public static CmsMarketDataLookup of(IborIndex index, SwaptionVolatilitiesId volatilityId) {
+    return DefaultCmsMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
+  }
+
+  /**
+   * Obtains an instance based on a map of volatility identifiers.
+   * <p>
+   * The map is used to specify the appropriate volatilities to use for each index.
+   *
+   * @param volatilityIds  the volatility identifiers, keyed by index
+   * @return the CMS lookup containing the specified volatilities
+   */
+  public static CmsMarketDataLookup of(Map<IborIndex, SwaptionVolatilitiesId> volatilityIds) {
+    return DefaultCmsMarketDataLookup.of(volatilityIds);
+  }
+
 
   //-------------------------------------------------------------------------
   /**
