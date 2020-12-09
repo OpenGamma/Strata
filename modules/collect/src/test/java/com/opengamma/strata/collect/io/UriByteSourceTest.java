@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.joda.beans.ser.JodaBeanSer;
 import org.junit.jupiter.api.Test;
@@ -66,6 +67,14 @@ public class UriByteSourceTest {
     String json = JodaBeanSer.PRETTY.jsonWriter().write(test);
     UriByteSource roundTrip = JodaBeanSer.PRETTY.jsonReader().read(json, UriByteSource.class);
     assertThat(roundTrip).isEqualTo(test);
+  }
+
+  @Test
+  public void testFileName() throws URISyntaxException {
+    UriByteSource hierarchicalFile = UriByteSource.of(new File("pom.xml").toURI());
+    assertThat(hierarchicalFile.getFileName()).hasValue("pom.xml");
+    UriByteSource opaqueFile = UriByteSource.of(new URI("test:file/pom.xml"));
+    assertThat(opaqueFile.getFileName()).isEmpty();
   }
 
 }
