@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.basics;
 
+import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.tuple.Pair;
+
 /**
  * A set of schemes that can be used with {@code StandardId}.
  * <p>
@@ -42,6 +45,27 @@ public final class StandardSchemes {
    */
   public static final String OG_COUNTERPARTY = "OG-Counterparty";
 
+  /**
+   * The scheme for exchange Tickers.
+   * <p>
+   * A ticker is the human-readable identifier used by the exchange for a security.
+   * It is not a stable identifier, and each exchange defines their own tickers.
+   * A company can change ticker over time, such as if the company merges or changes it's name.
+   * If a company ceases to use a particular ticker, the ticker can be reused for an entirely different company.
+   * Tickers are typically reused over time as companies change.
+   * <p>
+   * A ticker is unlikely to be useful as an identifier without an exchange, see {@link #TICMIC_SCHEME}.
+   */
+  public static final String TICKER_SCHEME = "TICKER";
+  /**
+   * The scheme for TICMICs combining the exchange Ticker with the exchange MIC.
+   * <p>
+   * A TICMIC is an identifier that combines the {@linkplain #TICKER_SCHEME Ticker}, as defined by the exchange,
+   * with the MIC (Market Identifier Code) that identifies the exchange.
+   * The format is {@code <ticker>@<exchangeMic>}.
+   * For example, ULVR@XLON represents Unilever on the London Stock Exchange.
+   */
+  public static final String TICMIC_SCHEME = "TICMIC";
   /**
    * The scheme for ISINs.
    * <p>
@@ -114,6 +138,44 @@ public final class StandardSchemes {
 
   // restricted constructor
   private StandardSchemes() {
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates a TICMIC identifier.
+   * <p>
+   * A TICMIC is an identifier that combines the {@linkplain #TICKER_SCHEME Ticker}, as defined by the exchange,
+   * with the MIC (Market Identifier Code) that defines the exchange.
+   * 
+   * @param ticker the ticker, as defined by the exchange
+   * @param exchangeMic the MIC code of the exchange, four characters
+   * @return the TICMIC identifier
+   */
+  public static StandardId createTicMic(String ticker, String exchangeMic) {
+    ArgChecker.notNull(ticker, "ticker");
+    ArgChecker.notNull(exchangeMic, "exchangeMic");
+    ArgChecker.isTrue(exchangeMic.length() == 4, "MIC must have 4 characters, but was {}", exchangeMic);
+    return StandardId.of(TICMIC_SCHEME, ticker + '@' + exchangeMic);
+  }
+
+  /**
+   * Splits a TICMIC identifier.
+   * <p>
+   * This method extracts the Ticker and exchange MIC from the identifier.
+   * 
+   * @param ticMic the TICMIC identifier
+   * @return the pair, holding the Ticker and MIC
+   * @throws IllegalArgumentException if unable to split the identifier
+   */
+  public static Pair<String, String> splitTicMic(StandardId ticMic) {
+    ArgChecker.notNull(ticMic, "ticMic");
+    int splitPos = ticMic.getValue().lastIndexOf('@');
+    if (splitPos < 0 || ticMic.getValue().length() < 6 || splitPos != ticMic.getValue().length() - 5) {
+      throw new IllegalArgumentException("Invalid TICMIC identifier: " + ticMic);
+    }
+    String ticker = ticMic.getValue().substring(0, splitPos);
+    String mic = ticMic.getValue().substring(splitPos + 1);
+    return Pair.of(ticker, mic);
   }
 
 }
