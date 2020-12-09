@@ -68,8 +68,8 @@ public class SwaptionNormalVolatilityDataSets {
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
   private static final List<ParameterMetadata> PARAMETER_METADATA =
       MapStream.zip(TIMES.stream().boxed(), TENORS.stream().boxed())
-      .map(SwaptionSurfaceExpiryTenorParameterMetadata::of)
-      .collect(toList());
+          .map(SwaptionSurfaceExpiryTenorParameterMetadata::of)
+          .collect(toList());
   private static final SurfaceMetadata METADATA =
       Surfaces.normalVolatilityByExpiryTenor("Normal Vol", ACT_365F);
   private static final InterpolatedNodalSurface SURFACE_STD = InterpolatedNodalSurface.of(
