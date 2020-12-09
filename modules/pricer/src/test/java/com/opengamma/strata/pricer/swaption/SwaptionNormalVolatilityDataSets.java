@@ -12,15 +12,20 @@ import static com.opengamma.strata.basics.date.DayCounts.THIRTY_U_360;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.market.curve.interpolator.CurveInterpolators.LINEAR;
+import static java.util.stream.Collectors.toList;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.schedule.Frequency;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
@@ -61,10 +66,18 @@ public class SwaptionNormalVolatilityDataSets {
       IborRateSwapLegConvention.of(USD_LIBOR_3M);
   public static final FixedIborSwapConvention USD_1Y_LIBOR3M =
       ImmutableFixedIborSwapConvention.of("USD-Swap", USD_FIXED_1Y_30U360, USD_IBOR_LIBOR3M);
+  private static final List<ParameterMetadata> PARAMETER_METADATA =
+      MapStream.zip(TIMES.stream().boxed(), TENORS.stream().boxed())
+          .map(SwaptionSurfaceExpiryTenorParameterMetadata::of)
+          .collect(toList());
   private static final SurfaceMetadata METADATA =
       Surfaces.normalVolatilityByExpiryTenor("Normal Vol", ACT_365F);
-  private static final InterpolatedNodalSurface SURFACE_STD =
-      InterpolatedNodalSurface.of(METADATA, TIMES, TENORS, NORMAL_VOL, INTERPOLATOR_2D);
+  private static final InterpolatedNodalSurface SURFACE_STD = InterpolatedNodalSurface.of(
+          METADATA.withParameterMetadata(PARAMETER_METADATA),
+          TIMES,
+          TENORS,
+          NORMAL_VOL,
+          INTERPOLATOR_2D);
 
   private static final LocalDate VAL_DATE_STD = RatesProviderDataSets.VAL_DATE_2014_01_22;
   private static final LocalTime VAL_TIME_STD = LocalTime.of(13, 45);

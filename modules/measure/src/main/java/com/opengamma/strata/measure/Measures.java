@@ -72,6 +72,7 @@ public final class Measures {
    * <p>
    * This is the sensitivity of the present value to the bachelier (normal) implied volatilities
    * used to calibrate the data structure.
+   * The resulting sensitivity is multiplied by the applicable volatility.
    */
   public static final Measure BACHELIER_VEGA = Measure.of(StandardMeasures.BACHELIER_VEGA.getName());
   //-------------------------------------------------------------------------

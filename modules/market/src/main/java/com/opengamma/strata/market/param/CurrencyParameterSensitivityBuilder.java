@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.UnaryOperator;
 
@@ -75,6 +76,20 @@ final class CurrencyParameterSensitivityBuilder {
     sensitivity.clear();
     MapStream.of(base)
         .mapKeys(metadataFn)
+        .forEach((md, v) -> add(md, v));
+    return this;
+  }
+
+  /**
+   * Maps the sensitivity using based on the existing value and the metadata.
+   *
+   * @return this, for chaining
+   */
+  CurrencyParameterSensitivityBuilder mapSensitivity(BiFunction<ParameterMetadata, Double, Double> mapFn) {
+    ImmutableMap<ParameterMetadata, Double> base = ImmutableMap.copyOf(sensitivity);
+    sensitivity.clear();
+    MapStream.of(base)
+        .mapValues(mapFn)
         .forEach((md, v) -> add(md, v));
     return this;
   }
