@@ -1156,7 +1156,7 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
   public static <T extends Comparable<T>> T inRange(T argument, T lowInclusive, T highExclusive, String name) {
-    if (argument.compareTo(lowInclusive) < 0 || argument.compareTo(highExclusive) >= 0) {
+    if (argument == null || argument.compareTo(lowInclusive) < 0 || argument.compareTo(highExclusive) >= 0) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} <= '{}' < {}, but found {}", lowInclusive, name, highExclusive, argument));
     }
@@ -1180,7 +1180,7 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
   public static <T extends Comparable<T>> T inRangeInclusive(T argument, T lowInclusive, T highInclusive, String name) {
-    if (argument.compareTo(lowInclusive) < 0 || argument.compareTo(highInclusive) > 0) {
+    if (argument == null || argument.compareTo(lowInclusive) < 0 || argument.compareTo(highInclusive) > 0) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} <= '{}' <= {}, but found {}", lowInclusive, name, highInclusive, argument));
     }
@@ -1204,7 +1204,7 @@ public final class ArgChecker {
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
   public static <T extends Comparable<T>> T inRangeExclusive(T argument, T lowExclusive, T highExclusive, String name) {
-    if (argument.compareTo(lowExclusive) <= 0 || argument.compareTo(highExclusive) >= 0) {
+    if (argument == null || argument.compareTo(lowExclusive) <= 0 || argument.compareTo(highExclusive) >= 0) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} < '{}' < {}, but found {}", lowExclusive, name, highExclusive, argument));
     }
