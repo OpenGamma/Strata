@@ -1,3 +1,4 @@
+// CSOFF: ALL (class over 2000 lines)
 /*
  * Copyright (C) 2014 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
@@ -205,8 +206,9 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * end date backwards. Date generation may or may not result in a stub, but if it does then
    * the stub will be of the correct type.
    * <p>
-   * When the stub convention is not present, the generation of stubs is based entirely on
-   * the presence or absence of the explicit dates.
+   * When the stub convention is not present, the generation of stubs is based on the presence or absence
+   * of the explicit dates. When there are no explicit stubs and there is a roll convention that matches
+   * the start or end date, then the stub convention will be defaulted to 'SmartInitial' or 'SmartFinal'.
    */
   @PropertyDefinition(get = "optional")
   private final StubConvention stubConvention;
@@ -576,7 +578,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       return ImmutableList.of(overrideStart, end);
     }
     // calculate base schedule excluding explicit stubs
-    StubConvention stubConv = generateImplicitStubConvention(explicitInitStub, explicitFinalStub);
+    StubConvention stubConv = generateImplicitStubConvention(explicitInitStub, explicitFinalStub, regStart, regEnd);
     // special fallback if there is an override start date with a specified roll convention
     if (overrideStartDate != null &&
         rollConvention != null &&
@@ -592,11 +594,27 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
   }
 
   // using knowledge of the explicit stubs, generate the correct convention for implicit stubs
-  private StubConvention generateImplicitStubConvention(boolean explicitInitialStub, boolean explicitFinalStub) {
+  private StubConvention generateImplicitStubConvention(
+      boolean explicitInitialStub,
+      boolean explicitFinalStub,
+      LocalDate regStart,
+      LocalDate regEnd) {
+
     // null is not same as NONE; NONE validates that there are no explicit stubs whereas
     // null ensures that remainder after explicit stubs are removed has no stubs
-    return stubConvention != null ?
-        stubConvention.toImplicit(this, explicitInitialStub, explicitFinalStub) : StubConvention.NONE;
+    if (stubConvention != null) {
+      return stubConvention.toImplicit(this, explicitInitialStub, explicitFinalStub);
+    }
+    // if stub convention is missing, but roll convention is present and matches start/end date, then set roll
+    if (rollConvention != null && !explicitInitialStub && !explicitFinalStub) {
+      if (rollConvention.getDayOfMonth() == regEnd.getDayOfMonth()) {
+        return StubConvention.SMART_INITIAL;
+      }
+      if (rollConvention.getDayOfMonth() == regStart.getDayOfMonth()) {
+        return StubConvention.SMART_FINAL;
+      }
+    }
+    return StubConvention.NONE;
   }
 
   // generate dates, forwards or backwards
@@ -1206,8 +1224,9 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * end date backwards. Date generation may or may not result in a stub, but if it does then
    * the stub will be of the correct type.
    * <p>
-   * When the stub convention is not present, the generation of stubs is based entirely on
-   * the presence or absence of the explicit dates.
+   * When the stub convention is not present, the generation of stubs is based on the presence or absence
+   * of the explicit dates. When there are no explicit stubs and there is a roll convention that matches
+   * the start or end date, then the stub convention will be defaulted to 'SmartInitial' or 'SmartFinal'.
    * @return the optional value of the property, not null
    */
   public Optional<StubConvention> getStubConvention() {
@@ -1883,8 +1902,9 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
      * end date backwards. Date generation may or may not result in a stub, but if it does then
      * the stub will be of the correct type.
      * <p>
-     * When the stub convention is not present, the generation of stubs is based entirely on
-     * the presence or absence of the explicit dates.
+     * When the stub convention is not present, the generation of stubs is based on the presence or absence
+     * of the explicit dates. When there are no explicit stubs and there is a roll convention that matches
+     * the start or end date, then the stub convention will be defaulted to 'SmartInitial' or 'SmartFinal'.
      * @param stubConvention  the new value
      * @return this, for chaining, not null
      */

@@ -66,7 +66,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -431,6 +430,14 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, BDA, JUN_17, SEP_17, null,
             list(JUN_17, JUL_17, AUG_17, SEP_17),
             list(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+
+        // stub null derive from roll convention
+        {JUN_04, SEP_17, P1M, null, DAY_17, BDA, null, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, SEP_17),
+            list(JUN_04, JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_04, SEP_17, P1M, null, DAY_4, BDA, null, null, null,
+            list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17),
+            list(JUN_04, JUL_04, AUG_04, SEP_04, SEP_17), DAY_4},
 
         // near end of month
         // EOM flag false, thus roll on 30th
@@ -908,7 +915,8 @@ public class PeriodicScheduleTest {
     assertThat(test.calculatedStartDate()).isEqualTo(AdjustableDate.of(date(2014, 10, 4), bda1));
     assertThat(test.calculatedEndDate()).isEqualTo(AdjustableDate.of(date(2015, 4, 4), bda2));
     assertThat(test.createUnadjustedDates()).containsExactly(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4));
-    assertThat(test.createAdjustedDates(REF_DATA)).containsExactly(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3));
+    assertThat(test.createAdjustedDates(REF_DATA))
+        .containsExactly(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3));
   }
 
   //-------------------------------------------------------------------------
