@@ -11,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.calc.runner.CalculationFunctions;
-import com.opengamma.strata.measure.cms.CmsTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.deposit.TermDepositTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fra.FraTradeCalculationFunctionTest;
 import com.opengamma.strata.measure.fx.FxNdfTradeCalculationFunctionTest;
@@ -33,7 +32,6 @@ public class StandardComponentsTest {
     assertThat(test.findFunction(FxSwapTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(SwapTradeCalculationFunctionTest.TRADE)).isPresent();
     assertThat(test.findFunction(TermDepositTradeCalculationFunctionTest.TRADE)).isPresent();
-    assertThat(test.findFunction(CmsTradeCalculationFunctionTest.TRADE)).isPresent();
   }
 
   @Test
