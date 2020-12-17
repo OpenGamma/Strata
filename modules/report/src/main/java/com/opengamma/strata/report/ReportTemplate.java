@@ -20,7 +20,7 @@ public interface ReportTemplate {
    * @throws RuntimeException if the ini file cannot be parsed
    */
   public static ReportTemplate load(IniFile iniFile) {
-    return MasterReportTemplateIniLoader.load(iniFile);
+    return DispatchingReportTemplateIniLoader.load(iniFile);
   }
 
 }
