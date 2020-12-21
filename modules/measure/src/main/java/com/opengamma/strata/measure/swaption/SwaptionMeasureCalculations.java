@@ -17,6 +17,9 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesBuilder;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
+import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -242,7 +245,29 @@ final class SwaptionMeasureCalculations {
     }
 
     PointSensitivities pointSensitivity = pointSensitivityBachelierVega(trade, ratesProvider, volatilities);
-    return volatilities.parameterSensitivity(pointSensitivity);
+    CurrencyParameterSensitivities sensitivities = volatilities.parameterSensitivity(pointSensitivity);
+    return adjustVega(sensitivities, volatilities);
+  }
+
+  // multiply the calculated vega by the volatility
+  private static CurrencyParameterSensitivities adjustVega(
+      CurrencyParameterSensitivities vega,
+      SwaptionVolatilities vols) {
+
+    CurrencyParameterSensitivitiesBuilder builder = CurrencyParameterSensitivities.builder();
+    for (CurrencyParameterSensitivity sens : vega.getSensitivities()) {
+      for (int i = 0; i < sens.getParameterCount(); i++) {
+        ParameterMetadata sensMeta = sens.getParameterMetadata(i);
+        double sensValue = sens.getSensitivity().get(i);
+        if (sensValue != 0d) {
+          int paramIndex = vols.findParameterIndex(sensMeta)
+              .orElseThrow(() -> new IllegalArgumentException("Unable to match parameter metadata: " + sensMeta));
+          double vol = vols.getParameter(paramIndex);
+          builder.add(sens.getMarketDataName(), sens.getCurrency(), sensMeta, vol * sensValue);
+        }
+      }
+    }
+    return builder.build();
   }
 
   //  bachelier (normal) vega point sensitivity
