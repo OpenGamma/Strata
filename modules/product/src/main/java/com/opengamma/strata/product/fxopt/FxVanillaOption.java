@@ -110,8 +110,8 @@ public final class FxVanillaOption
       double baseNotional,
       LocalDate paymentDate) {
 
-    ArgChecker.isTrue(baseNotional > 0);
-    ArgChecker.isTrue(strike > 0);
+    ArgChecker.isTrue(baseNotional > 0, "Base notional must be positive");
+    ArgChecker.isTrue(strike > 0, "FX strike must be positive");
 
     // for a vanilla call, will be long the base currency and short the counter currency
     // for a vanilla put, will be short the base currency and long the counter currency
