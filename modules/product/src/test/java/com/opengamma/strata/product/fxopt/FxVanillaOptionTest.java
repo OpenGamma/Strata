@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.FxSingle;
 
 /**
@@ -56,6 +57,37 @@ public class FxVanillaOptionTest {
     assertThat(test.isCrossCurrency()).isTrue();
     assertThat(test.allPaymentCurrencies()).containsOnly(EUR, USD);
     assertThat(test.allCurrencies()).containsOnly(EUR, USD);
+  }
+
+  @Test
+  public void test_of_constructor() {
+    // long call
+    FxVanillaOption test = sut();
+    CurrencyAmount baseCcyAmount = test.getUnderlying().getBaseCurrencyAmount();
+    CurrencyAmount counterCcyAmount = test.getUnderlying().getCounterCurrencyAmount();
+    FxVanillaOption testEquivalent = FxVanillaOption.of(
+        test.getLongShort(),
+        test.getExpiry(),
+        test.getCurrencyPair(),
+        baseCcyAmount.isPositive() ? PutCall.CALL : PutCall.PUT,
+        Math.abs(baseCcyAmount.getAmount() / counterCcyAmount.getAmount()),
+        baseCcyAmount,
+        test.getUnderlying().getPaymentDate());
+    assertThat(test.equals(testEquivalent));
+
+    // short put
+    FxVanillaOption test2 = sut2();
+    CurrencyAmount baseCcyAmount2 = test2.getUnderlying().getBaseCurrencyAmount();
+    CurrencyAmount counterCcyAmount2 = test2.getUnderlying().getCounterCurrencyAmount();
+    FxVanillaOption testEquivalent2 = FxVanillaOption.of(
+        test2.getLongShort(),
+        test2.getExpiry(),
+        test2.getCurrencyPair(),
+        baseCcyAmount2.isPositive() ? PutCall.CALL : PutCall.PUT,
+        Math.abs(baseCcyAmount2.getAmount() / counterCcyAmount2.getAmount()),
+        baseCcyAmount2.positive(),
+        test.getUnderlying().getPaymentDate());
+    assertThat(test2.equals(testEquivalent2));
   }
 
   @Test
