@@ -63,31 +63,31 @@ public class FxVanillaOptionTest {
   public void test_of_constructor() {
     // long call
     FxVanillaOption test = sut();
-    CurrencyAmount baseCcyAmount = test.getUnderlying().getBaseCurrencyAmount();
-    CurrencyAmount counterCcyAmount = test.getUnderlying().getCounterCurrencyAmount();
+    CurrencyAmount baseCcyAmt = test.getUnderlying().getBaseCurrencyAmount();
+    CurrencyAmount counterCcyAmt = test.getUnderlying().getCounterCurrencyAmount();
     FxVanillaOption testEquivalent = FxVanillaOption.of(
         test.getLongShort(),
         test.getExpiry(),
         test.getCurrencyPair(),
-        baseCcyAmount.isPositive() ? PutCall.CALL : PutCall.PUT,
-        Math.abs(baseCcyAmount.getAmount() / counterCcyAmount.getAmount()),
-        baseCcyAmount,
+        baseCcyAmt.isPositive() ? PutCall.CALL : PutCall.PUT,
+        Math.abs(counterCcyAmt.getAmount() / baseCcyAmt.getAmount()),
+        baseCcyAmt.positive().getAmount(),
         test.getUnderlying().getPaymentDate());
-    assertThat(test.equals(testEquivalent));
+    assertThat(test).isEqualTo(testEquivalent);
 
     // short put
     FxVanillaOption test2 = sut2();
-    CurrencyAmount baseCcyAmount2 = test2.getUnderlying().getBaseCurrencyAmount();
-    CurrencyAmount counterCcyAmount2 = test2.getUnderlying().getCounterCurrencyAmount();
+    CurrencyAmount baseCcyAmt2 = test2.getUnderlying().getBaseCurrencyAmount();
+    CurrencyAmount counterCcyAmt2 = test2.getUnderlying().getCounterCurrencyAmount();
     FxVanillaOption testEquivalent2 = FxVanillaOption.of(
         test2.getLongShort(),
         test2.getExpiry(),
         test2.getCurrencyPair(),
-        baseCcyAmount2.isPositive() ? PutCall.CALL : PutCall.PUT,
-        Math.abs(baseCcyAmount2.getAmount() / counterCcyAmount2.getAmount()),
-        baseCcyAmount2.positive(),
+        baseCcyAmt2.isPositive() ? PutCall.CALL : PutCall.PUT,
+        Math.abs(counterCcyAmt2.getAmount() / baseCcyAmt2.getAmount()),
+        baseCcyAmt2.positive().getAmount(),
         test.getUnderlying().getPaymentDate());
-    assertThat(test2.equals(testEquivalent2));
+    assertThat(test2).isEqualTo(testEquivalent2);
   }
 
   @Test
