@@ -8,6 +8,6 @@ jobs:
   pr:
     runs-on: ubuntu-latest
     steps:
-    - uses: OpenGamma/OGBot@master
+    - uses: OpenGamma/OGBot@main
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
