@@ -161,7 +161,14 @@ public final class LoaderUtils {
   /**
    * Parses an integer from the input string.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative integer. For e.g. '(23)' will be parsed as -23.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789" formatted as "12.456.789") will not be parsed.
+   * <p>
+   * For e.g. "12,300" and "12300" will be parsed as integer "12300" and similarly "(12,300)",
+   * "-12,300" and "-12300" will be parsed as integer "-12300".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6" will be parsed as integer "123456".
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -180,7 +187,14 @@ public final class LoaderUtils {
   /**
    * Parses a double from the input string.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative number. For e.g. '(1.23)' will be parsed as -1.23d.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * <p>
+   * For e.g. "12,300.12" and "12300.12" will be parsed as "12300.12d" and similarly "(12,300.12)",
+   * "-12,300.12" and "-12300.12" will be parsed as "-12300.12d".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6.12" will be parsed as "123456.12d".
    *
    * @param str  the string to parse
    * @return the parsed value
@@ -219,8 +233,14 @@ public final class LoaderUtils {
   /**
    * Parses a decimal from the input string.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative big decimal.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -12.3456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * <p>
+   * For e.g. "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -273,24 +293,14 @@ public final class LoaderUtils {
   }
 
   private static String normalizeIfCommaSeparated(String value) {
-    String integerPart;
-    String decimalPart;
-
-    int decimalIndex = value.indexOf(".");
-    if (decimalIndex < 0) {
-      integerPart = value;
-      decimalPart = "";
-    } else {
-      integerPart = value.substring(0, decimalIndex);
-      decimalPart = value.substring(decimalIndex);
+    if (!value.startsWith(",") && !value.startsWith("-,") && !value.endsWith(",") && !value.contains(",,")) {
+      String[] parts = value.split("\\.");
+      // ensure that we only deal with
+      if (parts.length == 1 || (parts.length == 2 && !parts[1].contains(","))) {
+        return value.replace(",", "");
+      }
     }
-
-    // only remove commas in the integer part, if those commas are followed by pattern "###," or ends with pattern "###"
-    // E.g. "1,234,567" => "123456" or "1,234" => "1234"
-    // Should ignore incorrectly placed commas, e.g. "1,234,57" => "1234,57" or "1,234," => "1234,"
-    String normalizedIntegerPart = integerPart.replaceAll("(?<=\\d),(?=\\d{3}(,|$))", "");
-
-    return normalizedIntegerPart + decimalPart;
+    return value; // incorrect formatted values cannot be normalized
   }
 
   //-------------------------------------------------------------------------

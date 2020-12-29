@@ -73,15 +73,17 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseInteger("(2)")).isEqualTo(-2);
     assertThat(LoaderUtils.parseInteger("(23)")).isEqualTo(-23);
     assertThat(LoaderUtils.parseInteger("(12,345,000)")).isEqualTo(-12_345_000);
+    assertThat(LoaderUtils.parseInteger("12,345,6,7,8")).isEqualTo(12_345_678);
+    assertThat(LoaderUtils.parseInteger("(12,345,6,7,8)")).isEqualTo(-12_345_678);
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseInteger("12,,000"))
         .withMessage("Unable to parse integer from '12,,000'");
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> LoaderUtils.parseInteger("12,00,0"))
-        .withMessage("Unable to parse integer from '12,00,0'");
+        .isThrownBy(() -> LoaderUtils.parseInteger("12,000,"))
+        .withMessage("Unable to parse integer from '12,000,'");
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> LoaderUtils.parseInteger("(12,12,00)"))
-        .withMessage("Unable to parse integer from '(12,12,00)'");
+        .isThrownBy(() -> LoaderUtils.parseInteger("(12,120,)"))
+        .withMessage("Unable to parse integer from '(12,120,)'");
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseInteger("()"))
         .withMessage("Unable to parse integer from '()'");
@@ -99,6 +101,8 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseDouble("(1.2)")).isEqualTo(-1.2d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("1,234,567.2")).isEqualTo(1_234_567.2d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("(1,234,567.2)")).isEqualTo(-1_234_567.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("1,234,5,6,7.2")).isEqualTo(1_234_567.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("(1,234,5,6,7.2)")).isEqualTo(-1_234_567.2d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("1,234.")).isEqualTo(1_234.0d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("(1,234.)")).isEqualTo(-1_234.0d, within(1e-10));
     assertThat(LoaderUtils.parseDouble(".123")).isEqualTo(0.123d, within(1e-10));
@@ -107,8 +111,11 @@ public class LoaderUtilsTest {
         .isThrownBy(() -> LoaderUtils.parseDouble("12,,000.2"))
         .withMessage("Unable to parse double from '12,,000.2'");
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> LoaderUtils.parseDouble("12,00,0.2"))
-        .withMessage("Unable to parse double from '12,00,0.2'");
+        .isThrownBy(() -> LoaderUtils.parseDouble("12,000.2,"))
+        .withMessage("Unable to parse double from '12,000.2,'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("12.345.678,12"))
+        .withMessage("Unable to parse double from '12.345.678,12'"); // European formats are not supported
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDouble("()"))
         .withMessage("Unable to parse double from '()'");
@@ -141,6 +148,8 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseBigDecimal("(1.2)")).isEqualTo(BigDecimal.valueOf(-1.2d));
     assertThat(LoaderUtils.parseBigDecimal("1,234,567.2")).isEqualTo(BigDecimal.valueOf(1_234_567.2d));
     assertThat(LoaderUtils.parseBigDecimal("(1,234,567.2)")).isEqualTo(BigDecimal.valueOf(-1_234_567.2d));
+    assertThat(LoaderUtils.parseBigDecimal("1,234,5,6,7.2")).isEqualTo(BigDecimal.valueOf(1_234_567.2d));
+    assertThat(LoaderUtils.parseBigDecimal("(1,234,5,6,7.2)")).isEqualTo(BigDecimal.valueOf(-1_234_567.2d));
     assertThat(LoaderUtils.parseBigDecimal("1,234.")).isEqualTo(BigDecimal.valueOf(1_234d).setScale(0));
     assertThat(LoaderUtils.parseBigDecimal("(1,234.)")).isEqualTo(BigDecimal.valueOf(-1_234d).setScale(0));
     assertThat(LoaderUtils.parseBigDecimal(".123")).isEqualTo(BigDecimal.valueOf(0.123d));
@@ -149,8 +158,11 @@ public class LoaderUtilsTest {
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,,000.2"))
         .withMessage("Unable to parse BigDecimal from '12,,000.2'");
     assertThatIllegalArgumentException()
-        .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,00,0.2"))
-        .withMessage("Unable to parse BigDecimal from '12,00,0.2'");
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,000.2,"))
+        .withMessage("Unable to parse BigDecimal from '12,000.2,'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("12.345.678,12"))
+        .withMessage("Unable to parse BigDecimal from '12.345.678,12'"); // European formats are not supported
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("()"))
         .withMessage("Unable to parse BigDecimal from '()'");
