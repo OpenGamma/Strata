@@ -295,12 +295,12 @@ public final class LoaderUtils {
   private static String normalizeIfCommaSeparated(String value) {
     if (!value.startsWith(",") && !value.startsWith("-,") && !value.endsWith(",") && !value.contains(",,")) {
       String[] parts = value.split("\\.");
-      // ensure that we only deal with
+      // ensure we only deal with american decimal format
       if (parts.length == 1 || (parts.length == 2 && !parts[1].contains(","))) {
         return value.replace(",", "");
       }
     }
-    return value; // incorrect formatted values cannot be normalized
+    return value; // incorrectly formatted values or values in european decimal formats will not be normalized
   }
 
   //-------------------------------------------------------------------------
