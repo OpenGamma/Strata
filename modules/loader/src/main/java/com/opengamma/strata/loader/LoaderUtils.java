@@ -169,7 +169,7 @@ public final class LoaderUtils {
    */
   public static int parseInteger(String str) {
     try {
-      return Integer.parseInt(normalizeIfBracketed(str));
+      return Integer.parseInt(normalize(str));
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse integer from '" + str + "'");
       nfex.initCause(ex);
@@ -188,7 +188,7 @@ public final class LoaderUtils {
    */
   public static double parseDouble(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str)).doubleValue();
+      return new BigDecimal(normalize(str)).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
       nfex.initCause(ex);
@@ -208,7 +208,7 @@ public final class LoaderUtils {
    */
   public static double parseDoublePercent(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str)).movePointLeft(2).doubleValue();
+      return parseBigDecimalPercent(str).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse percentage from '" + str + "'");
       nfex.initCause(ex);
@@ -228,7 +228,7 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimal(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str));
+      return new BigDecimal(normalize(str));
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal from '" + str + "'");
       nfex.initCause(ex);
@@ -248,12 +248,19 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimalPercent(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str)).movePointLeft(2);
+      return new BigDecimal(normalize(str)).movePointLeft(2);
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
       nfex.initCause(ex);
       throw nfex;
     }
+  }
+
+  private static String normalize(String value) {
+    String normalizedValue = value.trim();
+    normalizedValue = normalizeIfBracketed(normalizedValue);
+    normalizedValue = normalizeIfCommaSeparated(normalizedValue);
+    return normalizedValue;
   }
 
   private static String normalizeIfBracketed(String value) {
@@ -263,6 +270,27 @@ public final class LoaderUtils {
     } else {
       return value;
     }
+  }
+
+  private static String normalizeIfCommaSeparated(String value) {
+    String integerPart;
+    String decimalPart;
+
+    int decimalIndex = value.indexOf(".");
+    if (decimalIndex < 0) {
+      integerPart = value;
+      decimalPart = "";
+    } else {
+      integerPart = value.substring(0, decimalIndex);
+      decimalPart = value.substring(decimalIndex);
+    }
+
+    // only remove commas in the integer part, if those commas are followed by pattern "###," or ends with pattern "###"
+    // E.g. "1,234,567" => "123456" or "1,234" => "1234"
+    // Should ignore incorrectly placed commas, e.g. "1,234,57" => "1234,57" or "1,234," => "1234,"
+    String normalizedIntegerPart = integerPart.replaceAll("(?<=\\d),(?=\\d{3}(,|$))", "");
+
+    return normalizedIntegerPart + decimalPart;
   }
 
   //-------------------------------------------------------------------------
