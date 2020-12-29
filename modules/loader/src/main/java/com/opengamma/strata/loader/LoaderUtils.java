@@ -188,7 +188,7 @@ public final class LoaderUtils {
    */
   public static double parseDouble(String str) {
     try {
-      return new BigDecimal(normalize(str)).doubleValue();
+      return parseBigDecimal(str).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
       nfex.initCause(ex);
@@ -248,7 +248,7 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimalPercent(String str) {
     try {
-      return new BigDecimal(normalize(str)).movePointLeft(2);
+      return parseBigDecimal(str).movePointLeft(2);
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
       nfex.initCause(ex);
