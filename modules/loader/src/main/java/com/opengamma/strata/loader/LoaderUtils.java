@@ -23,10 +23,13 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -111,6 +114,8 @@ public final class LoaderUtils {
       .withResolverStyle(ResolverStyle.STRICT);
   // match a currency
   private static final CharMatcher CURRENCY_MATCHER = CharMatcher.inRange('A', 'Z');
+
+  private static final Splitter DOT_SPLITTER = Splitter.on('.');
 
   //-------------------------------------------------------------------------
   /**
@@ -294,9 +299,9 @@ public final class LoaderUtils {
 
   private static String normalizeIfCommaSeparated(String value) {
     if (!value.startsWith(",") && !value.startsWith("-,") && !value.endsWith(",") && !value.contains(",,")) {
-      String[] parts = value.split("\\.");
+      List<String> parts = ImmutableList.copyOf(DOT_SPLITTER.split(value));
       // ensure we only deal with american decimal format
-      if (parts.length == 1 || (parts.length == 2 && !parts[1].contains(","))) {
+      if (parts.size() == 1 || (parts.size() == 2 && !parts.get(1).contains(","))) {
         return value.replace(",", "");
       }
     }
