@@ -737,11 +737,10 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       boolean stub = temp.equals(end) == false;
       if (stub && dates.size() > 1) {
         StubConvention applicableStubConv = stubConv;
-        if (stubConv == StubConvention.NONE) {
+        if (stubConv == StubConvention.NONE && !explicitFinalStub) {
           // handle edge case where the end date does not follow the EOM rule
           if (rollConv == RollConventions.EOM &&
               frequency.isMonthBased() &&
-              !explicitFinalStub &&
               start.getDayOfMonth() == start.lengthOfMonth() &&
               end.getDayOfMonth() == start.getDayOfMonth()) {
             // accept the date and move on using smart rules
