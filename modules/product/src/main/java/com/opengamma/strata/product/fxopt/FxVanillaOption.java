@@ -30,19 +30,22 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.LongShort;
+import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.fx.FxProduct;
 import com.opengamma.strata.product.fx.FxSingle;
 
 /**
  * A vanilla FX option.
  * <p>
- * An FX option is a financial instrument that provides an option based on the future value of
- * a foreign exchange. The option is European, exercised only on the exercise date.
+ * An FX option is a financial instrument that provides an option based on the future value of a foreign exchange. The
+ * option is European, exercised only on the exercise date.
  * <p>
- * For example, a call on a 'EUR 1.00 / USD -1.41' exchange is the option to
- * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00.
+ * For example, a call on a 'EUR 1.00 / USD -1.41' exchange is the option to perform a foreign exchange on the expiry
+ * date, where USD 1.41 is paid to receive EUR 1.00.
  */
 @BeanDefinition
 public final class FxVanillaOption
@@ -51,8 +54,8 @@ public final class FxVanillaOption
   /**
    * Whether the option is long or short.
    * <p>
-   * At expiry, the long party will have the option to enter in this transaction; 
-   * the short party will, at the option of the long party, potentially enter into the inverse transaction.
+   * At expiry, the long party will have the option to enter in this transaction; the short party will, at the option of
+   * the long party, potentially enter into the inverse transaction.
    */
   @PropertyDefinition(validate = "notNull")
   private final LongShort longShort;
@@ -85,6 +88,50 @@ public final class FxVanillaOption
   @PropertyDefinition(validate = "notNull")
   private final FxSingle underlying;
 
+  /**
+   * Creates an equivalent {@code FxVanillaOption} using currency pair, option expiry, call/put flag, strike, base
+   * currency notional, and underlying payment date.
+   *
+   * @param longShort the long/short flag of the option
+   * @param expiry the option expiry
+   * @param currencyPair the FX currency pair
+   * @param putCall the put/call flag of the option
+   * @param strike the FX strike
+   * @param baseNotional the base currency notional amount: should always be positive
+   * @param paymentDate the payment date of the underlying FX cash flows
+   * @return an equivalent fx vanilla option
+   */
+  public static FxVanillaOption of(
+      LongShort longShort,
+      ZonedDateTime expiry,
+      CurrencyPair currencyPair,
+      PutCall putCall,
+      double strike,
+      double baseNotional,
+      LocalDate paymentDate) {
+
+    ArgChecker.isTrue(baseNotional > 0, "Base notional must be positive");
+    ArgChecker.isTrue(strike > 0, "FX strike must be positive");
+
+    // for a vanilla call, will be long the base currency and short the counter currency
+    // for a vanilla put, will be short the base currency and long the counter currency
+    double baseAmount = putCall.isCall() ? baseNotional : -baseNotional;
+    double counterNotional = strike * baseNotional;
+    double counterAmount = putCall.isCall() ? -counterNotional : counterNotional;
+    FxSingle equivalentUnderlying = FxSingle.of(
+        CurrencyAmount.of(currencyPair.getBase(), baseAmount),
+        CurrencyAmount.of(currencyPair.getCounter(), counterAmount),
+        paymentDate);
+
+    return FxVanillaOption.builder()
+        .longShort(longShort)
+        .expiryDate(expiry.toLocalDate())
+        .expiryTime(expiry.toLocalTime())
+        .expiryZone(expiry.getZone())
+        .underlying(equivalentUnderlying)
+        .build();
+  }
+
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
@@ -92,11 +139,12 @@ public final class FxVanillaOption
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets currency pair of the base currency and counter currency.
    * <p>
    * This currency pair is conventional, thus indifferent to the direction of FX.
-   * 
+   *
    * @return the currency pair
    */
   @Override
@@ -110,7 +158,7 @@ public final class FxVanillaOption
    * The option expires at this date and time.
    * <p>
    * The result is returned by combining the expiry date, time and time-zone.
-   * 
+   *
    * @return the expiry date and time
    */
   public ZonedDateTime getExpiry() {
@@ -181,8 +229,8 @@ public final class FxVanillaOption
   /**
    * Gets whether the option is long or short.
    * <p>
-   * At expiry, the long party will have the option to enter in this transaction;
-   * the short party will, at the option of the long party, potentially enter into the inverse transaction.
+   * At expiry, the long party will have the option to enter in this transaction; the short party will, at the option of
+   * the long party, potentially enter into the inverse transaction.
    * @return the value of the property, not null
    */
   public LongShort getLongShort() {
@@ -529,8 +577,8 @@ public final class FxVanillaOption
     /**
      * Sets whether the option is long or short.
      * <p>
-     * At expiry, the long party will have the option to enter in this transaction;
-     * the short party will, at the option of the long party, potentially enter into the inverse transaction.
+     * At expiry, the long party will have the option to enter in this transaction; the short party will, at the option of
+     * the long party, potentially enter into the inverse transaction.
      * @param longShort  the new value, not null
      * @return this, for chaining, not null
      */
