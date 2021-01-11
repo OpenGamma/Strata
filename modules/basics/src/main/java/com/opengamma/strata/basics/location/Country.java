@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.location;
 import java.io.Serializable;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -318,12 +319,9 @@ public final class Country
    */
   public static Country of3Char(String countryCode) {
     ArgChecker.matches(CODE_MATCHER, 3, 3, countryCode, "countryCode", "[A-Z][A-Z]");
-    if (COUNTRY_CODES.get().containsKey(countryCode)) {
-      String alpha2Code = COUNTRY_CODES.get().get(countryCode);
-      return of(alpha2Code.toUpperCase(Locale.ENGLISH));
-    } else {
-      throw new IllegalArgumentException();
-    }
+    return Optional.ofNullable(COUNTRY_CODES.get().get(countryCode))
+        .map(alpha2Code -> of(alpha2Code.toUpperCase(Locale.ENGLISH)))
+        .orElseThrow(() -> new IllegalArgumentException("Unknown country code: " + countryCode));
   }
 
   //-------------------------------------------------------------------------
@@ -366,7 +364,7 @@ public final class Country
     if (COUNTRY_CODES.get().containsValue(this.getCode())) {
       return COUNTRY_CODES.get().inverse().get(this.getCode());
     } else {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Unknown country: " + this.getCode());
     }
   }
 
