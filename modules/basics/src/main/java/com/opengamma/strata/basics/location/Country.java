@@ -16,6 +16,10 @@ import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.io.PropertiesFile;
@@ -35,8 +39,13 @@ public final class Country
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  private static final PropertiesFile COUNTRY_CODES =
-      PropertiesFile.of(ResourceLocator.ofClasspath(Country.class, "country.properties").getCharSource());
+  /**
+   * Loads the ISO alpha-2 and alpha-3 country codes into a bidirectional map.
+   */
+  private static final Supplier<ImmutableBiMap<String, String>> COUNTRY_CODES = Suppliers.memoize(() ->
+      ImmutableBiMap.copyOf(PropertiesFile.of(
+          ResourceLocator.ofClasspath(Country.class, "country.properties").getCharSource())
+          .getProperties().asMap()));
 
   /**
    * A cache of instances.
@@ -309,26 +318,10 @@ public final class Country
    */
   public static Country of3Char(String countryCode) {
     ArgChecker.matches(CODE_MATCHER, 3, 3, countryCode, "countryCode", "[A-Z][A-Z]");
-    String alpha2Code = COUNTRY_CODES.getProperties().value(countryCode);
-    return of(alpha2Code.toUpperCase(Locale.ENGLISH));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Obtains an ISO-3166-1 alpha-3 three letter country code from a
-   * {@code Country}.
-   *
-   * @param country the country
-   * @return the three letter country code
-   * @throws IllegalArgumentException if the country is invalid
-   */
-  public static String getCode3Char(Country country) {
-    ArgChecker.notNull(country, "country");
-    return COUNTRY_CODES.getProperties().asMap().entrySet().stream()
-        .filter(entry -> country.getCode().equals(entry.getValue()))
-        .map(Map.Entry::getKey)
-        .findFirst()
-        .orElseThrow(IllegalArgumentException::new);
+    if (COUNTRY_CODES.get().containsKey(countryCode)) {
+      String alpha2Code = COUNTRY_CODES.get().get(countryCode);
+      return of(alpha2Code.toUpperCase(Locale.ENGLISH));
+    } else throw new IllegalArgumentException();
   }
 
   //-------------------------------------------------------------------------
@@ -358,6 +351,19 @@ public final class Country
    */
   public String getCode() {
     return code;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the ISO-3166-1 alpha-3 three letter country code.
+   *
+   * @return the three letter country code
+   * @throws IllegalArgumentException if the country is invalid
+   */
+  public String getCode3Char() {
+    if (COUNTRY_CODES.get().containsValue(this.getCode())) {
+      return COUNTRY_CODES.get().inverse().get(this.getCode());
+    } else throw new IllegalArgumentException();
   }
 
   //-------------------------------------------------------------------------

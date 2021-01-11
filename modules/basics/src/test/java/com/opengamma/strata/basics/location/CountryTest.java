@@ -209,18 +209,17 @@ public class CountryTest {
   //-----------------------------------------------------------------------
   @Test
   public void test_get3CharString() {
-    assertThat(Country.getCode3Char(Country.GB)).isEqualTo("GBR");
-    assertThat(Country.getCode3Char(Country.FR)).isEqualTo("FRA");
-    assertThat(Country.getCode3Char(Country.US)).isEqualTo("USA");
-    assertThat(Country.getCode3Char(Country.of("CR"))).isEqualTo("CRI");
-    assertThat(Country.getCode3Char(Country.of("GI"))).isEqualTo("GIB");
+    assertThat(Country.GB.getCode3Char()).isEqualTo("GBR");
+    assertThat(Country.FR.getCode3Char()).isEqualTo("FRA");
+    assertThat(Country.US.getCode3Char()).isEqualTo("USA");
+    assertThat(Country.of("CR").getCode3Char()).isEqualTo("CRI");
+    assertThat(Country.of("GI").getCode3Char()).isEqualTo("GIB");
   }
 
   //-----------------------------------------------------------------------
   @Test
   public void test_get3CharString_missing() {
-    assertThatIllegalArgumentException().isThrownBy(() -> Country.getCode3Char(Country.of("ZZ")));
-    assertThatIllegalArgumentException().isThrownBy(() -> Country.getCode3Char(Country.of(null)));
+    assertThatIllegalArgumentException().isThrownBy(() -> Country.of("ZZ").getCode3Char());
   }
 
   //-----------------------------------------------------------------------
