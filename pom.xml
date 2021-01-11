@@ -105,6 +105,7 @@
               <owner>OpenGamma</owner>
               <repository>Strata</repository>
               <server>github</server>
+			  <targetCommitish>main</targetCommitish>
               <tagName>v${project.version}</tagName>
               <name>Release v${project.version}</name>
               <body>See the [release notes](http://strata.opengamma.io/releases/) for more details.</body>
