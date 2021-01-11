@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.location;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -17,6 +18,8 @@ import org.joda.convert.ToString;
 import com.google.common.base.CharMatcher;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.io.PropertiesFile;
+import com.opengamma.strata.collect.io.ResourceLocator;
 
 /**
  * A country or territory.
@@ -31,6 +34,9 @@ public final class Country
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
+
+  private static final PropertiesFile COUNTRY_CODES =
+      PropertiesFile.of(ResourceLocator.ofClasspath(Country.class, "country.properties").getCharSource());
 
   /**
    * A cache of instances.
@@ -287,6 +293,42 @@ public final class Country
   public static Country parse(String countryCode) {
     ArgChecker.notNull(countryCode, "countryCode");
     return of(countryCode.toUpperCase(Locale.ENGLISH));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an instance from the specified ISO-3166-1 alpha-3
+   * three letter country code dynamically creating a country if necessary.
+   * <p>
+   * A country is uniquely identified by ISO-3166-1 alpha-3 three letter code.
+   * This method creates the country if it is not known.
+   *
+   * @param countryCode  the three letter country code, ASCII and upper case
+   * @return the singleton instance
+   * @throws IllegalArgumentException if the country code is invalid
+   */
+  public static Country of3Char(String countryCode) {
+    ArgChecker.matches(CODE_MATCHER, 3, 3, countryCode, "countryCode", "[A-Z][A-Z]");
+    String alpha2Code = COUNTRY_CODES.getProperties().value(countryCode);
+    return of(alpha2Code.toUpperCase(Locale.ENGLISH));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains an ISO-3166-1 alpha-3 three letter country code from a
+   * {@code Country}.
+   *
+   * @param country the country
+   * @return the three letter country code
+   * @throws IllegalArgumentException if the country is invalid
+   */
+  public static String getCode3Char(Country country) {
+    ArgChecker.notNull(country, "country");
+    return COUNTRY_CODES.getProperties().asMap().entrySet().stream()
+        .filter(entry -> country.getCode().equals(entry.getValue()))
+        .map(Map.Entry::getKey)
+        .findFirst()
+        .orElseThrow(IllegalArgumentException::new);
   }
 
   //-------------------------------------------------------------------------
