@@ -321,7 +321,9 @@ public final class Country
     if (COUNTRY_CODES.get().containsKey(countryCode)) {
       String alpha2Code = COUNTRY_CODES.get().get(countryCode);
       return of(alpha2Code.toUpperCase(Locale.ENGLISH));
-    } else throw new IllegalArgumentException();
+    } else {
+      throw new IllegalArgumentException();
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -363,7 +365,9 @@ public final class Country
   public String getCode3Char() {
     if (COUNTRY_CODES.get().containsValue(this.getCode())) {
       return COUNTRY_CODES.get().inverse().get(this.getCode());
-    } else throw new IllegalArgumentException();
+    } else {
+      throw new IllegalArgumentException();
+    }
   }
 
   //-------------------------------------------------------------------------
