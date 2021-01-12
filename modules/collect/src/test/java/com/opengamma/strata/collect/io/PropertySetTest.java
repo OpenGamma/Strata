@@ -57,6 +57,7 @@ public class PropertySetTest {
     assertThat(test.asMap()).isEqualTo(ImmutableMap.of("a", "x", "b", "y"));
     assertThat(test.asMultimap()).isEqualTo(ImmutableListMultimap.of("a", "x", "b", "y"));
     assertThat(test.valueList("unknown")).isEqualTo(ImmutableList.of());
+    assertThat(test.stream()).containsExactly(entry("a", "x"), entry("b", "y"));
 
     assertThatIllegalArgumentException().isThrownBy(() -> test.value("unknown"));
     assertThat(test.toString()).isEqualTo("{a=[x], b=[y]}");
