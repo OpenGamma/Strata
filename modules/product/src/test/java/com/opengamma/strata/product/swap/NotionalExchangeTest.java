@@ -71,9 +71,9 @@ public class NotionalExchangeTest {
   @Test
   public void test_isPaymentFixedAt() {
     NotionalExchange test = NotionalExchange.of(GBP_1000, DATE_2014_06_30);
-    assertThat(test.isPaymentFixedAt(DATE_2013_06_30)).isTrue();
-    assertThat(test.isPaymentFixedAt(DATE_2014_06_30)).isTrue();
-    assertThat(test.isPaymentFixedAt(DATE_2015_06_30)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2013_06_30)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2014_06_30)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2015_06_30)).isTrue();
   }
 
   //-------------------------------------------------------------------------

@@ -107,7 +107,7 @@ public final class NotionalExchange
   }
 
   @Override
-  public boolean isPaymentFixedAt(LocalDate date) {
+  public boolean isKnownAmountAt(LocalDate date) {
     return true;
   }
 
