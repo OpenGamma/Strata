@@ -26,7 +26,9 @@ import com.opengamma.strata.basics.currency.Payment;
  */
 public class NotionalExchangeTest {
 
+  private static final LocalDate DATE_2013_06_30 = date(2013, 6, 30);
   private static final LocalDate DATE_2014_06_30 = date(2014, 6, 30);
+  private static final LocalDate DATE_2015_06_30 = date(2015, 6, 30);
   private static final CurrencyAmount GBP_1000 = CurrencyAmount.of(GBP, 1000d);
 
   @Test
@@ -64,6 +66,14 @@ public class NotionalExchangeTest {
     NotionalExchange expected = NotionalExchange.of(GBP_1000, DATE_2014_06_30.plusDays(2));
     assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(0)))).isEqualTo(test);
     assertThat(test.adjustPaymentDate(TemporalAdjusters.ofDateAdjuster(d -> d.plusDays(2)))).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_isPaymentFixedAt() {
+    NotionalExchange test = NotionalExchange.of(GBP_1000, DATE_2014_06_30);
+    assertThat(test.isKnownAmountAt(DATE_2013_06_30)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2014_06_30)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2015_06_30)).isTrue();
   }
 
   //-------------------------------------------------------------------------
