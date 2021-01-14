@@ -65,6 +65,6 @@ public interface SwapPaymentEvent {
    * @param date  the date to check whether payment amount is known or not
    * @return true if payment is fixed at given date
    */
-  public abstract boolean isPaymentFixedAt(LocalDate date);
+  public abstract boolean isKnownAmountAt(LocalDate date);
 
 }

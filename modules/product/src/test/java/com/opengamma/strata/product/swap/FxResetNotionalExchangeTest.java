@@ -72,9 +72,9 @@ public class FxResetNotionalExchangeTest {
   public void test_isPaymentFixedAt() {
     FxResetNotionalExchange test = FxResetNotionalExchange.of(
         CurrencyAmount.of(USD, 1000d), DATE_2014_06_30, FxIndexObservation.of(GBP_USD_WM, DATE_2014_03_28, REF_DATA));
-    assertThat(test.isPaymentFixedAt(DATE_2014_06_30)).isTrue();
-    assertThat(test.isPaymentFixedAt(DATE_2014_03_28)).isTrue();
-    assertThat(test.isPaymentFixedAt(DATE_2013_12_30)).isFalse();
+    assertThat(test.isKnownAmountAt(DATE_2014_06_30)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2014_03_28)).isTrue();
+    assertThat(test.isKnownAmountAt(DATE_2013_12_30)).isFalse();
   }
 
   //-------------------------------------------------------------------------

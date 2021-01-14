@@ -164,7 +164,7 @@ public final class FxResetNotionalExchange
   }
 
   @Override
-  public boolean isPaymentFixedAt(LocalDate date) {
+  public boolean isKnownAmountAt(LocalDate date) {
     return !observation.getFixingDate().isAfter(date);
   }
 
