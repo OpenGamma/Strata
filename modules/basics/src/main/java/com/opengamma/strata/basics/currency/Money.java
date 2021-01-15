@@ -47,6 +47,26 @@ public class Money
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains a USD amount instance of {@code Money} for the specified currency.
+   *
+   * @param amount the amount in USD
+   * @return the USD amount instance
+   */
+  public static Money ofUsd(BigDecimal amount) {
+    return of(Currency.USD, amount);
+  }
+
+  /**
+   * Obtains a USD amount instance of {@code Money} for the specified currency.
+   *
+   * @param amount the amount in USD
+   * @return the USD amount instance
+   */
+  public static Money ofUsd(double amount) {
+    return of(Currency.USD, amount);
+  }
+
+  /**
    * Obtains a zero amount instance of {@code Money} for the specified currency.
    *
    * @param currency  the currency the amount is in

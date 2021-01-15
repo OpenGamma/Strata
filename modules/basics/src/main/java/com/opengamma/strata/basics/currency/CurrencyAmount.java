@@ -63,6 +63,16 @@ public final class CurrencyAmount
 
   //-------------------------------------------------------------------------
   /**
+   * Obtains a USD amount instance of {@code CurrencyAmount} for the specified currency.
+   *
+   * @param amount the amount in USD
+   * @return the USD amount instance
+   */
+  public static CurrencyAmount ofUsd(double amount) {
+    return of(Currency.USD, 0d);
+  }
+
+  /**
    * Obtains a zero amount instance of {@code CurrencyAmount} for the specified currency.
    *
    * @param currency  the currency the amount is in
