@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader;
 
+import static com.opengamma.strata.collect.Guavate.tryCatchToOptional;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
@@ -34,6 +35,7 @@ import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.IborIndex;
@@ -262,7 +264,7 @@ public final class LoaderUtils {
   }
 
   /**
-   * Parses a decimal from the input string, converting it from a percentage to a decimal values.
+   * Parses a decimal from the input string, converting it from a percentage to a decimal value.
    * <p>
    * If input value is bracketed, it will be parsed as a negative decimal percent.
    * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
@@ -276,6 +278,27 @@ public final class LoaderUtils {
       return parseBigDecimal(str).movePointLeft(2);
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
+      nfex.initCause(ex);
+      throw nfex;
+    }
+  }
+
+  /**
+   * Parses a decimal from the input string, converting it from a basis point to a decimal value.
+   * <p>
+   * If input value is bracketed, it will be parsed as a negative decimal percent.
+   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   *
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws NumberFormatException if the string cannot be parsed
+   */
+  public static BigDecimal parseBigDecimalBasisPoint(String str) {
+    try {
+      return parseBigDecimal(str).movePointLeft(4);
+    } catch (NumberFormatException ex) {
+      NumberFormatException nfex =
+          new NumberFormatException("Unable to parse BigDecimal basis point from '" + str + "'");
       nfex.initCause(ex);
       throw nfex;
     }
@@ -480,6 +503,50 @@ public final class LoaderUtils {
   }
 
   /**
+   * Tries to parse a period from the input string.
+   * 
+   * @param str  the string to parse, may be null
+   * @return the parsed period, empty if unable to parse
+   */
+  public static Optional<Period> tryParsePeriod(String str) {
+    if (str != null && str.length() >= 2) {
+      return tryCatchToOptional(() -> parsePeriod(str));
+    }
+    return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a market tenor from the input string.
+   * 
+   * @param str  the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static MarketTenor parseMarketTenor(String str) {
+    try {
+      return MarketTenor.parse(str);
+
+    } catch (RuntimeException ex) {
+      throw new IllegalArgumentException("Unknown tenor format: " + str);
+    }
+  }
+
+  /**
+   * Tries to parse a market tenor from the input string.
+   * 
+   * @param str  the string to parse, may be null
+   * @return the parsed market tenor, empty if unable to parse
+   */
+  public static Optional<MarketTenor> tryParseMarketTenor(String str) {
+    if (str != null && str.length() >= 2) {
+      return tryCatchToOptional(() -> MarketTenor.parse(str));
+    }
+    return Optional.empty();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Parses a tenor from the input string.
    * <p>
    * A tenor cannot be zero or negative.
@@ -506,16 +573,13 @@ public final class LoaderUtils {
    * @return the parsed tenor, empty if unable to parse
    */
   public static Optional<Tenor> tryParseTenor(String str) {
-    if (str != null && str.length() > 1) {
-      try {
-        return Optional.of(Tenor.parse(str));
-      } catch (RuntimeException ex) {
-        // ignore
-      }
+    if (str != null && str.length() >= 2) {
+      return tryCatchToOptional(() -> Tenor.parse(str));
     }
     return Optional.empty();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Parses a frequency from the input string.
    * 
@@ -530,6 +594,19 @@ public final class LoaderUtils {
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unknown frequency format: " + str);
     }
+  }
+
+  /**
+   * Tries to parse a frequency from the input string.
+   * 
+   * @param str  the string to parse, may be null
+   * @return the parsed frequency, empty if unable to parse
+   */
+  public static Optional<Frequency> tryParseFrequency(String str) {
+    if (str != null && !str.isEmpty()) {
+      return tryCatchToOptional(() -> Frequency.parse(str));
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------
@@ -561,11 +638,7 @@ public final class LoaderUtils {
    */
   public static Optional<Currency> tryParseCurrency(String str) {
     if (str != null && str.length() == 3 && CURRENCY_MATCHER.matchesAllOf(str)) {
-      try {
-        return Optional.of(Currency.parse(str));
-      } catch (RuntimeException ex) {
-        // ignore
-      }
+      return tryCatchToOptional(() -> Currency.parse(str));
     }
     return Optional.empty();
   }

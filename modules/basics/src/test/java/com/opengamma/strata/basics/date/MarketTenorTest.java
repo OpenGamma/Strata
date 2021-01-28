@@ -93,6 +93,29 @@ public class MarketTenorTest {
     assertThat(MarketTenor.ofSpot(TENOR_1D)).isEqualTo(MarketTenor.SN);
   }
 
+  @Test
+  public void test_ofSpotDays() {
+    assertThat(MarketTenor.ofSpotDays(1).getCode()).isEqualTo("SN");
+    assertThat(MarketTenor.ofSpotDays(7).getCode()).isEqualTo("SW");
+    assertThat(MarketTenor.ofSpotDays(3).getCode()).isEqualTo("3D");
+    assertThat(MarketTenor.ofSpotDays(20).getCode()).isEqualTo("20D");
+    assertThatIllegalArgumentException().isThrownBy(() -> MarketTenor.ofSpotDays(-1));
+  }
+
+  @Test
+  public void test_ofSpotMonths() {
+    assertThat(MarketTenor.ofSpotMonths(3).getCode()).isEqualTo("3M");
+    assertThat(MarketTenor.ofSpotMonths(20).getCode()).isEqualTo("20M");
+    assertThatIllegalArgumentException().isThrownBy(() -> MarketTenor.ofSpotDays(-1));
+  }
+
+  @Test
+  public void test_ofSpotYears() {
+    assertThat(MarketTenor.ofSpotYears(3).getCode()).isEqualTo("3Y");
+    assertThat(MarketTenor.ofSpotYears(20).getCode()).isEqualTo("20Y");
+    assertThatIllegalArgumentException().isThrownBy(() -> MarketTenor.ofSpotYears(-1));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_parse_String_roundTrip() {

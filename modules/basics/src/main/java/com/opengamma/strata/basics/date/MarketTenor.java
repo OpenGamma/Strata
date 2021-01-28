@@ -108,6 +108,48 @@ public final class MarketTenor
     return new MarketTenor(tenor.toString(), tenor, MARKET_CONVENTION_LAG);
   }
 
+  /**
+   * Obtains an instance from a number of days from spot.
+   * <p>
+   * A tenor of 1D will return SN.
+   * A tenor of 7D will return SW.
+   *
+   * @param days  the tenor in days
+   * @return the tenor
+   */
+  public static MarketTenor ofSpotDays(int days) {
+    if (days == 1) {
+      return MarketTenor.SN;
+    }
+    if (days == 7) {
+      return MarketTenor.SW;
+    }
+    Tenor tenor = Tenor.ofDays(days);
+    return new MarketTenor(tenor.toString(), tenor, MARKET_CONVENTION_LAG);
+  }
+
+  /**
+   * Obtains an instance from a number of months from spot.
+   *
+   * @param months  the tenor in months
+   * @return the tenor
+   */
+  public static MarketTenor ofSpotMonths(int months) {
+    Tenor tenor = Tenor.ofMonths(months);
+    return new MarketTenor(tenor.toString(), tenor, MARKET_CONVENTION_LAG);
+  }
+
+  /**
+   * Obtains an instance from a number of years from spot.
+   *
+   * @param years  the tenor in years
+   * @return the tenor
+   */
+  public static MarketTenor ofSpotYears(int years) {
+    Tenor tenor = Tenor.ofYears(years);
+    return new MarketTenor(tenor.toString(), tenor, MARKET_CONVENTION_LAG);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a formatted string representing the market tenor.
