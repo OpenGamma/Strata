@@ -287,7 +287,7 @@ public final class LoaderUtils {
    * Parses a decimal from the input string, converting it from a basis point to a decimal value.
    * <p>
    * If input value is bracketed, it will be parsed as a negative decimal percent.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.123456789.
+   * For e.g. '(12.3456789)' will be parsed as a big decimal -0.00123456789.
    *
    * @param str  the string to parse
    * @return the parsed value
