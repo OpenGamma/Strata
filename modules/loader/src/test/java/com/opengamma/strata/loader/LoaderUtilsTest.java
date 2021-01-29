@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -189,6 +190,21 @@ public class LoaderUtilsTest {
         .withMessage("Unable to parse BigDecimal percentage from 'Rubbish'");
   }
 
+  @Test
+  public void test_parseBigDecimalBasisPoint() {
+    assertThat(LoaderUtils.parseBigDecimalBasisPoint("1.2")).isEqualTo(BigDecimal.valueOf(0.00012d));
+    assertThat(LoaderUtils.parseBigDecimalBasisPoint("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.00012d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("()"))
+        .withMessage("Unable to parse BigDecimal basis point from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("(1.2(3)"))
+        .withMessage("Unable to parse BigDecimal basis point from '(1.2(3)'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("Rubbish"))
+        .withMessage("Unable to parse BigDecimal basis point from 'Rubbish'");
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_parseDate_formatter() {
@@ -265,6 +281,39 @@ public class LoaderUtilsTest {
   }
 
   @Test
+  public void test_tryParsePeriod() {
+    assertThat(LoaderUtils.tryParsePeriod("P2D")).hasValue(Period.ofDays(2));
+    assertThat(LoaderUtils.tryParsePeriod("2D")).hasValue(Period.ofDays(2));
+    assertThat(LoaderUtils.tryParsePeriod("2X")).isEmpty();
+    assertThat(LoaderUtils.tryParsePeriod("2")).isEmpty();
+    assertThat(LoaderUtils.tryParsePeriod("")).isEmpty();
+    assertThat(LoaderUtils.tryParsePeriod(null)).isEmpty();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parseMarketTenor() {
+    assertThat(LoaderUtils.parseMarketTenor("P2D")).isEqualTo(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.parseMarketTenor("2D")).isEqualTo(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.parseMarketTenor("ON")).isEqualTo(MarketTenor.ON);
+    assertThat(LoaderUtils.parseMarketTenor("TN")).isEqualTo(MarketTenor.TN);
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseMarketTenor("2"));
+  }
+
+  @Test
+  public void test_tryParseMarketTenor() {
+    assertThat(LoaderUtils.tryParseMarketTenor("P2D")).hasValue(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.tryParseMarketTenor("2D")).hasValue(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.tryParseMarketTenor("ON")).hasValue(MarketTenor.ON);
+    assertThat(LoaderUtils.tryParseMarketTenor("TN")).hasValue(MarketTenor.TN);
+    assertThat(LoaderUtils.tryParseMarketTenor("2X")).isEmpty();
+    assertThat(LoaderUtils.tryParseMarketTenor("2")).isEmpty();
+    assertThat(LoaderUtils.tryParseMarketTenor("")).isEmpty();
+    assertThat(LoaderUtils.tryParseMarketTenor(null)).isEmpty();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_parseTenor() {
     assertThat(LoaderUtils.parseTenor("P2D")).isEqualTo(Tenor.ofDays(2));
     assertThat(LoaderUtils.parseTenor("2D")).isEqualTo(Tenor.ofDays(2));
@@ -281,6 +330,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.tryParseTenor(null)).isEmpty();
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_parseFrequency() {
     assertThat(LoaderUtils.parseFrequency("P2D")).isEqualTo(Frequency.ofDays(2));
@@ -290,6 +340,20 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseFrequency("0T")).isEqualTo(Frequency.TERM);
     assertThat(LoaderUtils.parseFrequency("1T")).isEqualTo(Frequency.TERM);
     assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseFrequency("2"));
+  }
+
+  @Test
+  public void test_tryParseFrequency() {
+    assertThat(LoaderUtils.tryParseFrequency("P2D")).hasValue(Frequency.ofDays(2));
+    assertThat(LoaderUtils.tryParseFrequency("2D")).hasValue(Frequency.ofDays(2));
+    assertThat(LoaderUtils.tryParseFrequency("TERM")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("T")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("0T")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("1T")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("2X")).isEmpty();
+    assertThat(LoaderUtils.tryParseFrequency("2")).isEmpty();
+    assertThat(LoaderUtils.tryParseFrequency("")).isEmpty();
+    assertThat(LoaderUtils.tryParseFrequency(null)).isEmpty();
   }
 
   //-------------------------------------------------------------------------
