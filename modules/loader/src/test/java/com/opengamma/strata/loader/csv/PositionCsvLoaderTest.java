@@ -402,7 +402,7 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV file position type 'Foo' is not known at line 2");
+    assertThat(failure.getMessage()).isEqualTo("CSV position file type 'Foo' is not known at line 2");
   }
 
   @Test
@@ -425,7 +425,7 @@ public class PositionCsvLoaderTest {
     assertThat(trades.getFailures()).hasSize(1);
     FailureItem failure = trades.getFailures().get(0);
     assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage()).isEqualTo("CSV file position could not be parsed at line 2: " +
+    assertThat(failure.getMessage()).isEqualTo("CSV position file type 'FUT' could not be parsed at line 2: " +
         "Security must contain a quantity column, either 'Quantity' or 'Long Quantity' and 'Short Quantity'");
   }
 
