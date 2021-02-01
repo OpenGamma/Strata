@@ -7,7 +7,6 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
-import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.util.stream.Collectors.toList;
 
 import java.time.Period;

@@ -30,8 +30,10 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -42,6 +44,7 @@ import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.fra.Fra;
@@ -52,12 +55,37 @@ import com.opengamma.strata.product.fra.type.FraConvention;
 /**
  * Handles the CSV file format for FRA trades.
  */
-final class FraTradeCsvPlugin implements TradeTypeCsvWriter<FraTrade> {
+final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<FraTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
   public static final FraTradeCsvPlugin INSTANCE = new FraTradeCsvPlugin();
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("FRA");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    if (requiredJavaType.isAssignableFrom(FraTrade.class)) {
+      return Optional.of(resolver.parseFraTrade(baseRow, info));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "Fra";
+  }
 
   //-------------------------------------------------------------------------
   /**

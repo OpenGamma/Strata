@@ -18,13 +18,18 @@ import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_CAL_FI
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.TradeCsvLoader.TYPE_FIELD;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -33,6 +38,7 @@ import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.loader.csv.FullSwapTradeCsvPlugin.VariableElements;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
@@ -48,17 +54,48 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Handles the CSV file format for Swaption trades.
  */
-final class SwaptionTradeCsvPlugin implements TradeTypeCsvWriter<SwaptionTrade> {
+final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<SwaptionTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
-  static final SwaptionTradeCsvPlugin INSTANCE = new SwaptionTradeCsvPlugin();
+  public static final SwaptionTradeCsvPlugin INSTANCE = new SwaptionTradeCsvPlugin();
 
   private static final String PAYOFF_SETTLEMENT_TYPE_FIELD = "Payoff Settlement Type";
   private static final String PAYOFF_SETTLEMENT_DATE_FIELD = "Payoff Settlement Date";
   private static final String PHYSICAL = "PHYSICAL";
 
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("SWAPTION");
+  }
+
+  @Override
+  public boolean isAdditionalRow(CsvRow baseRow, CsvRow additionalRow) {
+    return additionalRow.getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    if (requiredJavaType.isAssignableFrom(SwaptionTrade.class)) {
+      return Optional.of(resolver.parseSwaptionTrade(baseRow, additionalRows, info));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "Swaption";
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
    * 
