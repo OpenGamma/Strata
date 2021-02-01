@@ -44,6 +44,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -52,6 +53,7 @@ import org.joda.beans.MetaProperty;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -69,6 +71,7 @@ import com.opengamma.strata.basics.schedule.StubConvention;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
@@ -83,8 +86,12 @@ import com.opengamma.strata.product.credit.type.CdsConvention;
 /**
  * Handles the CSV file format for CDS and CDS index trades.
  */
-final class CdsTradeCsvPlugin {
+final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
 
+  /**
+   * The singleton instance of the plugin.
+   */
+  public static final CdsTradeCsvPlugin INSTANCE = new CdsTradeCsvPlugin();
   /**
    * The singleton instance of the plugin.
    */
@@ -110,6 +117,31 @@ final class CdsTradeCsvPlugin {
   private static final String SETTLEMENT_DATE_OFFSET_CAL_FIELD = "Settlement Date Offset Calendar";
   private static final String SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD = "Settlement Date Offset Adjustment Convention";
   private static final String SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD = "Settlement Date Offset Adjustment Calendar";
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("CDS");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    if (requiredJavaType.isAssignableFrom(CdsTrade.class)) {
+      return Optional.of(resolver.parseCdsTrade(baseRow, info));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "Cds";
+  }
 
   //-------------------------------------------------------------------------
   /**

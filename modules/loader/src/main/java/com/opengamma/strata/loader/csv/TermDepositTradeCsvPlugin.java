@@ -23,8 +23,10 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -34,6 +36,7 @@ import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.deposit.TermDeposit;
@@ -43,7 +46,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositConvention;
 /**
  * Handles the CSV file format for Term Deposit trades.
  */
-final class TermDepositTradeCsvPlugin implements TradeTypeCsvWriter<TermDepositTrade> {
+final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<TermDepositTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -62,6 +65,31 @@ final class TermDepositTradeCsvPlugin implements TradeTypeCsvWriter<TermDepositT
       .add(DATE_ADJ_CNV_FIELD)
       .add(DATE_ADJ_CAL_FIELD)
       .build();
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("TERMDEPOSIT", "TERM DEPOSIT");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    if (requiredJavaType.isAssignableFrom(TermDepositTrade.class)) {
+      return Optional.of(resolver.parseTermDepositTrade(baseRow, info));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "TermDeposit";
+  }
 
   //-------------------------------------------------------------------------
   /**
