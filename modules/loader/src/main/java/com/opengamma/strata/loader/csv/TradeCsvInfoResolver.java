@@ -5,6 +5,10 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CCP_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DESCRIPTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NAME_FIELD;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -73,11 +77,11 @@ public interface TradeCsvInfoResolver {
    * @param builder  the builder to update
    */
   public default void parseStandardAttributes(CsvRow row, TradeInfoBuilder builder) {
-    row.findValue(TradeCsvLoader.DESCRIPTION_FIELD)
+    row.findValue(DESCRIPTION_FIELD)
         .ifPresent(str -> builder.addAttribute(AttributeType.DESCRIPTION, str));
-    row.findValue(TradeCsvLoader.NAME_FIELD)
+    row.findValue(NAME_FIELD)
         .ifPresent(str -> builder.addAttribute(AttributeType.NAME, str));
-    row.findValue(TradeCsvLoader.CCP_FIELD)
+    row.findValue(CCP_FIELD)
         .ifPresent(str -> builder.addAttribute(AttributeType.CCP, CcpId.of(str)));
   }
 

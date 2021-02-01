@@ -6,12 +6,13 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +113,7 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, BulletPaymentTrade trade) {
     BulletPayment product = trade.getProduct();
-    csv.writeCell(TradeCsvLoader.TYPE_FIELD, "BulletPayment");
+    csv.writeCell(TRADE_TYPE_FIELD, "BulletPayment");
     csv.writeCell(DIRECTION_FIELD, product.getPayReceive());
     csv.writeCell(CURRENCY_FIELD, product.getValue().getCurrency());
     csv.writeCell(NOTIONAL_FIELD, product.getValue().getAmount());
