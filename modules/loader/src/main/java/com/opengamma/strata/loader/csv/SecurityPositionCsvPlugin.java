@@ -16,7 +16,7 @@ import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.SecurityPosition;
 
 /**
- * Handles the CSV file format for CDS index trades.
+ * Handles the CSV file format for security trades.
  */
 final class SecurityPositionCsvPlugin implements PositionCsvParserPlugin {
 

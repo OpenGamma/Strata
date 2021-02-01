@@ -16,7 +16,7 @@ import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.etd.EtdFuturePosition;
 
 /**
- * Handles the CSV file format for CDS index trades.
+ * Handles the CSV file format for ETD future trades.
  */
 final class EtdFuturePositionCsvPlugin implements PositionCsvParserPlugin {
 
