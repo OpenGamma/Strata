@@ -42,6 +42,8 @@ public class StandardSchemesTest {
     assertThat(StandardSchemes.LEI_SCHEME).isEqualTo("LEI");
     assertThat(StandardSchemes.RED6_SCHEME).isEqualTo("RED6");
     assertThat(StandardSchemes.RED9_SCHEME).isEqualTo("RED9");
+    assertThat(StandardSchemes.OPRA_SCHEME).isEqualTo("OPRA");
+    assertThat(StandardSchemes.OCC_SCHEME).isEqualTo("OCC");
   }
 
   @Test
