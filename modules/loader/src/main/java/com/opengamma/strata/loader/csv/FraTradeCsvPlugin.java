@@ -5,25 +5,26 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DAY_COUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FRA_DISCOUNTING_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INDEX_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INTERPOLATED_INDEX_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PERIOD_TO_START_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CONVENTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FRA_DISCOUNTING_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.INDEX_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.INTERPOLATED_INDEX_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PERIOD_TO_START_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_DATE_FIELD;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -245,7 +246,7 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWrite
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FraTrade trade) {
     Fra product = trade.getProduct();
-    csv.writeCell(TradeCsvLoader.TYPE_FIELD, "Fra");
+    csv.writeCell(TRADE_TYPE_FIELD, "Fra");
     csv.writeCell(START_DATE_FIELD, product.getStartDate());
     csv.writeCell(END_DATE_FIELD, product.getEndDate());
     csv.writeCell(BUY_SELL_FIELD, product.getBuySell());

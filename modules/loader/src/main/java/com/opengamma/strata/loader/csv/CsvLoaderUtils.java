@@ -45,88 +45,130 @@ public final class CsvLoaderUtils {
 
   /**
    * The column name for the security ID scheme/symbology.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String SECURITY_ID_SCHEME_FIELD = "Security Id Scheme";
+  @Deprecated
+  public static final String SECURITY_ID_SCHEME_FIELD = CsvLoaderColumns.SECURITY_ID_SCHEME_FIELD;
   /**
    * The column name for the security ID.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String SECURITY_ID_FIELD = "Security Id";
+  @Deprecated
+  public static final String SECURITY_ID_FIELD = CsvLoaderColumns.SECURITY_ID_FIELD;
   /**
    * The column name for the exchange.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String EXCHANGE_FIELD = "Exchange";
+  @Deprecated
+  public static final String EXCHANGE_FIELD = CsvLoaderColumns.EXCHANGE_FIELD;
   /**
    * The column name for the contract code.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String CONTRACT_CODE_FIELD = "Contract Code";
+  @Deprecated
+  public static final String CONTRACT_CODE_FIELD = CsvLoaderColumns.CONTRACT_CODE_FIELD;
   /**
    * The column name for the long quantity.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String LONG_QUANTITY_FIELD = "Long Quantity";
+  @Deprecated
+  public static final String LONG_QUANTITY_FIELD = CsvLoaderColumns.LONG_QUANTITY_FIELD;
   /**
    * The column name for the short quantity.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String SHORT_QUANTITY_FIELD = "Short Quantity";
+  @Deprecated
+  public static final String SHORT_QUANTITY_FIELD = CsvLoaderColumns.SHORT_QUANTITY_FIELD;
   /**
    * The column name for the quantity.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String QUANTITY_FIELD = "Quantity";
+  @Deprecated
+  public static final String QUANTITY_FIELD = CsvLoaderColumns.QUANTITY_FIELD;
   /**
    * The column name for the price.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String PRICE_FIELD = "Price";
+  @Deprecated
+  public static final String PRICE_FIELD = CsvLoaderColumns.PRICE_FIELD;
   /**
    * The column name for the expiry month/year.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String EXPIRY_FIELD = "Expiry";
+  @Deprecated
+  public static final String EXPIRY_FIELD = CsvLoaderColumns.EXPIRY_FIELD;
   /**
    * The column name for the expiry week.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String EXPIRY_WEEK_FIELD = "Expiry Week";
+  @Deprecated
+  public static final String EXPIRY_WEEK_FIELD = CsvLoaderColumns.EXPIRY_WEEK_FIELD;
   /**
    * The column name for the expiry day.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String EXPIRY_DAY_FIELD = "Expiry Day";
+  @Deprecated
+  public static final String EXPIRY_DAY_FIELD = CsvLoaderColumns.EXPIRY_DAY_FIELD;
   /**
    * The column name for the settlement type.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String SETTLEMENT_TYPE_FIELD = "Settlement Type";
+  @Deprecated
+  public static final String SETTLEMENT_TYPE_FIELD = CsvLoaderColumns.SETTLEMENT_TYPE_FIELD;
   /**
    * The column name for the exercise style.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String EXERCISE_STYLE_FIELD = "Exercise Style";
+  @Deprecated
+  public static final String EXERCISE_STYLE_FIELD = CsvLoaderColumns.EXERCISE_STYLE_FIELD;
   /**
    * The column name for the option version.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String VERSION_FIELD = "Version";
+  @Deprecated
+  public static final String VERSION_FIELD = CsvLoaderColumns.VERSION_FIELD;
   /**
    * The column name for the put/call flag.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String PUT_CALL_FIELD = "Put Call";
+  @Deprecated
+  public static final String PUT_CALL_FIELD = CsvLoaderColumns.PUT_CALL_FIELD;
   /**
    * The column name for the option strike price.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
+  @Deprecated
+  public static final String EXERCISE_PRICE_FIELD = CsvLoaderColumns.EXERCISE_PRICE_FIELD;
   /**
    * The column name for the underlying expiry month/year.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
+  @Deprecated
+  public static final String UNDERLYING_EXPIRY_FIELD = CsvLoaderColumns.UNDERLYING_EXPIRY_FIELD;
   /**
    * The column name for the currency.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String CURRENCY = "Currency";
+  @Deprecated
+  public static final String CURRENCY = CsvLoaderColumns.CURRENCY_FIELD;
   /**
    * The column name for the tick size.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String TICK_SIZE = "Tick Size";
+  @Deprecated
+  public static final String TICK_SIZE = CsvLoaderColumns.TICK_SIZE_FIELD;
   /**
    * The column name for the tick value.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String TICK_VALUE = "Tick Value";
+  @Deprecated
+  public static final String TICK_VALUE = CsvLoaderColumns.TICK_VALUE_FIELD;
   /**
    * The column name for the contract size.
+   * @deprecated Use {@link CsvLoaderColumns}.
    */
-  public static final String CONTRACT_SIZE = "Contract Size";
+  @Deprecated
+  public static final String CONTRACT_SIZE = CsvLoaderColumns.CONTRACT_SIZE_FIELD;
 
   /**
    * Default version used as an option might not specify a version number.
@@ -262,7 +304,7 @@ public final class CsvLoaderUtils {
    * @return the adjustment
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  static AdjustableDate parseAdjustableDate(
+  public static AdjustableDate parseAdjustableDate(
       CsvRow row,
       String dateField,
       String conventionField,
@@ -286,7 +328,7 @@ public final class CsvLoaderUtils {
    * @return the adjustment
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  static AdjustableDate parseAdjustableDate(
+  public static AdjustableDate parseAdjustableDate(
       CsvRow row,
       String dateField,
       String conventionField,
@@ -310,7 +352,7 @@ public final class CsvLoaderUtils {
    * @return the adjustment
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  static Optional<BusinessDayAdjustment> parseBusinessDayAdjustment(
+  public static Optional<BusinessDayAdjustment> parseBusinessDayAdjustment(
       CsvRow row,
       String conventionField,
       String calendarField) {
@@ -341,7 +383,7 @@ public final class CsvLoaderUtils {
    * @return the adjustment
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  static DaysAdjustment parseDaysAdjustment(
+  public static DaysAdjustment parseDaysAdjustment(
       CsvRow row,
       String daysField,
       String daysCalField,
@@ -371,7 +413,7 @@ public final class CsvLoaderUtils {
    * @return the currency amount
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  static CurrencyAmount parseCurrencyAmount(CsvRow row, String currencyField, String amountField) {
+  public static CurrencyAmount parseCurrencyAmount(CsvRow row, String currencyField, String amountField) {
     Currency currency = row.getValue(currencyField, LoaderUtils::parseCurrency);
     double amount = row.getValue(amountField, LoaderUtils::parseDouble);
     return CurrencyAmount.of(currency, amount);
@@ -387,7 +429,7 @@ public final class CsvLoaderUtils {
    * @return the currency amount
    * @throws IllegalArgumentException if the row cannot be parsed
    */
-  static CurrencyAmount parseCurrencyAmountWithDirection(
+  public static CurrencyAmount parseCurrencyAmountWithDirection(
       CsvRow row,
       String currencyField,
       String amountField,

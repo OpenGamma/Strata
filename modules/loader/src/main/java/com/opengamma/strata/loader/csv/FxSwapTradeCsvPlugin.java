@@ -5,6 +5,17 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FAR_FX_RATE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FAR_PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FX_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_NOTIONAL_FIELD;
@@ -13,14 +24,6 @@ import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_CURRE
 import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_PAYMENT_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CONVENTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FX_RATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -54,8 +57,6 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<F
   public static final FxSwapTradeCsvPlugin INSTANCE = new FxSwapTradeCsvPlugin();
 
   private static final String FAR = "Far ";
-  private static final String FAR_FX_RATE_DATE_FIELD = "Far FX Rate";
-  private static final String FAR_PAYMENT_DATE_FIELD = "Far Payment Date";
 
   /** The headers. */
   private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
@@ -165,7 +166,7 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<F
 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxSwapTrade trade) {
-    csv.writeCell(TradeCsvLoader.TYPE_FIELD, "FxSwap");
+    csv.writeCell(TRADE_TYPE_FIELD, "FxSwap");
     FxSingleTradeCsvPlugin.INSTANCE.writeProduct(csv, "", trade.getProduct().getNearLeg());
     FxSingleTradeCsvPlugin.INSTANCE.writeProduct(csv, FAR, trade.getProduct().getFarLeg());
     csv.writeNewLine();
