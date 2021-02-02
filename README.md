@@ -24,7 +24,7 @@ The JAR files are available in [Maven Central](https://search.maven.org/search?q
 <dependency>
   <groupId>com.opengamma.strata</groupId>
   <artifactId>strata-measure</artifactId>
-  <version>2.7.3</version>
+  <version>2.9.0</version>
 </dependency>
 ```
 
@@ -52,7 +52,7 @@ Simply run this command to compile and install the source code locally:
 Strata is based on Java SE 8.
 Our continuous integration regularly builds on both Java 8 and Java 11.
 When using Java 8, version 8u40 or later is required due to bugs in earlier versions.
-We do not recommend use of non-LTS releases, such as Java 9, 10 and 12.
+We do not recommend use of non-LTS releases, such as Java 9, 10 and 12 to 16.
 
 The Strata examples project includes a GUI based on JavaFX.
 On Java 8, this will be excluded from compilation if JavaFX is not available in the JDK.
