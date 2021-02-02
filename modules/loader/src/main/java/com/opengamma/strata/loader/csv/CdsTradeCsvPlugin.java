@@ -7,37 +7,52 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.Guavate.zip;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CDS_INDEX_ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CDS_INDEX_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DAY_COUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIRST_REGULAR_START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FREQUENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LAST_REGULAR_END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.OVERRIDE_START_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.OVERRIDE_START_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.OVERRIDE_START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_ON_DEFAULT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PROTECTION_START_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ROLL_CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_OFFSET_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_OFFSET_DAYS_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STEP_IN_DATE_OFFSET_ADJ_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STEP_IN_DATE_OFFSET_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STEP_IN_DATE_OFFSET_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STEP_IN_DATE_OFFSET_DAYS_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STUB_CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TENOR_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CONVENTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIRST_REGULAR_START_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FREQUENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.LAST_REGULAR_END_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.OVERRIDE_START_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.OVERRIDE_START_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.OVERRIDE_START_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_AMOUNT_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.ROLL_CONVENTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.STUB_CONVENTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TENOR_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_DATE_FIELD;
 import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
@@ -102,21 +117,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
   public static final TradeTypeCsvWriter<CdsIndexTrade> CDS_INDEX_INSTANCE = new CdsIndexTradeCsvWriter();
 
   private static final String DEFAULT_CDS_INDEX_SCHEME = "OG-CDS";
-  private static final String CDS_INDEX_ID_SCHEME_FIELD = "CDS Index Id Scheme";
-  private static final String CDS_INDEX_ID_FIELD = "CDS Index Id";
   private static final String DEFAULT_LEGAL_ENTITY_SCHEME = "OG-Entity";
-  private static final String LEGAL_ENTITY_ID_SCHEME_FIELD = "Legal Entity Id Scheme";
-  private static final String LEGAL_ENTITY_ID_FIELD = "Legal Entity Id";
-  private static final String PAYMENT_ON_DEFAULT_FIELD = "Payment On Default";
-  private static final String PROTECTION_START_FIELD = "Protection Start";
-  private static final String STEP_IN_DATE_OFFSET_DAYS_FIELD = "Step In Date Offset Days";
-  private static final String STEP_IN_DATE_OFFSET_CAL_FIELD = "Step In Date Offset Calendar";
-  private static final String STEP_IN_DATE_OFFSET_ADJ_CNV_FIELD = "Step In Date Offset Adjustment Convention";
-  private static final String STEP_IN_DATE_OFFSET_ADJ_CAL_FIELD = "Step In Date Offset Adjustment Calendar";
-  private static final String SETTLEMENT_DATE_OFFSET_DAYS_FIELD = "Settlement Date Offset Days";
-  private static final String SETTLEMENT_DATE_OFFSET_CAL_FIELD = "Settlement Date Offset Calendar";
-  private static final String SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD = "Settlement Date Offset Adjustment Convention";
-  private static final String SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD = "Settlement Date Offset Adjustment Calendar";
 
   //-------------------------------------------------------------------------
   @Override
@@ -405,7 +406,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     @Override
     public void writeCsv(CsvRowOutputWithHeaders csv, CdsTrade trade) {
       Cds product = trade.getProduct();
-      csv.writeCell(TradeCsvLoader.TYPE_FIELD, "Cds");
+      csv.writeCell(TRADE_TYPE_FIELD, "Cds");
       csv.writeCell(LEGAL_ENTITY_ID_SCHEME_FIELD, product.getLegalEntityId().getScheme());
       csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityId().getValue());
       trade.getUpfrontFee().ifPresent(premium -> writeCdsPremium(csv, premium));
@@ -454,7 +455,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     @Override
     public void writeCsv(CsvRowOutputWithHeaders csv, CdsIndexTrade trade) {
       CdsIndex product = trade.getProduct();
-      csv.writeCell(TradeCsvLoader.TYPE_FIELD, "CdsIndex");
+      csv.writeCell(TRADE_TYPE_FIELD, "CdsIndex");
       csv.writeCell(CDS_INDEX_ID_SCHEME_FIELD, product.getCdsIndexId().getScheme());
       csv.writeCell(CDS_INDEX_ID_FIELD, product.getCdsIndexId().getValue());
       String scheme = "";

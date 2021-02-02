@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.POSITION_TYPE_FIELD;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -140,14 +143,6 @@ public final class PositionCsvLoader {
   static final String DEFAULT_POSITION_SCHEME = StandardSchemes.OG_POSITION_SCHEME;
   static final String DEFAULT_SECURITY_SCHEME = StandardSchemes.OG_SECURITY_SCHEME;
 
-  // CSV column headers
-  private static final String TYPE_FIELD = "Strata Position Type";
-  private static final String ID_SCHEME_FIELD = "Id Scheme";
-  private static final String ID_FIELD = "Id";
-  static final String DESCRIPTION_FIELD = "Description";
-  static final String NAME_FIELD = "Name";
-  static final String CCP_FIELD = "CCP";
-
   /**
    * The lookup of position parsers.
    */
@@ -245,7 +240,7 @@ public final class PositionCsvLoader {
    */
   public boolean isKnownFormat(CharSource charSource) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
-      return csv.containsHeader(TYPE_FIELD);
+      return csv.containsHeader(POSITION_TYPE_FIELD);
     } catch (RuntimeException ex) {
       return false;
     }
@@ -321,10 +316,10 @@ public final class PositionCsvLoader {
   // loads a single CSV file, filtering by position type
   private <T extends Position> ValueWithFailures<List<T>> parseFile(CharSource charSource, Class<T> positionType) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
-      if (!csv.headers().contains(TYPE_FIELD)) {
+      if (!csv.headers().contains(POSITION_TYPE_FIELD)) {
         return ValueWithFailures.of(
             ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TYPE_FIELD, charSource));
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", POSITION_TYPE_FIELD, charSource));
       }
       return parseFile(csv, positionType);
 
@@ -342,7 +337,7 @@ public final class PositionCsvLoader {
     List<T> positions = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
     for (CsvRow row : csv.asIterable()) {
-      String typeRaw = row.findValue(TYPE_FIELD).orElse("SMART");
+      String typeRaw = row.findValue(POSITION_TYPE_FIELD).orElse("SMART");
       String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
       try {
         PositionInfo info = parsePositionInfo(row);
