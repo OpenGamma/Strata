@@ -42,7 +42,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TIME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_ZONE_FIELD;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 
 import java.io.UncheckedIOException;
 import java.util.Comparator;
@@ -52,6 +51,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -285,8 +285,8 @@ public final class TradeCsvWriter {
     // types
     Map<Class<?>, List<Trade>> splitByType = trades.stream().collect(groupingBy(
         Object::getClass,
-        LinkedHashMap::new,
-        toList()));
+        LinkedHashMap<Class<?>, List<Trade>>::new,
+        Collectors.<Trade>toList()));
     for (Entry<Class<?>, List<Trade>> entry : splitByType.entrySet()) {
       TradeTypeCsvWriter detailsWriter = WRITERS.get(entry.getKey());
       if (detailsWriter == null) {
