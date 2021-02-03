@@ -45,11 +45,13 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -281,7 +283,10 @@ public final class TradeCsvWriter {
         .collect(toImmutableList()));
 
     // types
-    Map<Class<?>, List<Trade>> splitByType = trades.stream().collect(groupingBy(t -> t.getClass()));
+    Map<Class<?>, List<Trade>> splitByType = trades.stream().collect(groupingBy(
+        Object::getClass,
+        LinkedHashMap<Class<?>, List<Trade>>::new,
+        Collectors.<Trade>toList()));
     for (Entry<Class<?>, List<Trade>> entry : splitByType.entrySet()) {
       TradeTypeCsvWriter detailsWriter = WRITERS.get(entry.getKey());
       if (detailsWriter == null) {
