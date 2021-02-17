@@ -166,6 +166,19 @@ public class OvernightIndexTest {
     assertThat(test.toString()).isEqualTo("USD-SOFR");
   }
 
+  @Test
+  public void test_usdAmeribor() {
+    OvernightIndex test = OvernightIndex.of("USD-AMERIBOR");
+    assertThat(test.getName()).isEqualTo("USD-AMERIBOR");
+    assertThat(test.getCurrency()).isEqualTo(USD);
+    assertThat(test.isActive()).isEqualTo(true);
+    assertThat(test.getFixingCalendar()).isEqualTo(USNY);
+    assertThat(test.getPublicationDateOffset()).isEqualTo(0);
+    assertThat(test.getEffectiveDateOffset()).isEqualTo(0);
+    assertThat(test.getDayCount()).isEqualTo(ACT_360);
+    assertThat(test.toString()).isEqualTo("USD-AMERIBOR");
+  }
+
   //-------------------------------------------------------------------------
 
   @Test

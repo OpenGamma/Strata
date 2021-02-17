@@ -23,10 +23,13 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -112,6 +115,8 @@ public final class LoaderUtils {
   // match a currency
   private static final CharMatcher CURRENCY_MATCHER = CharMatcher.inRange('A', 'Z');
 
+  private static final Splitter DOT_SPLITTER = Splitter.on('.');
+
   //-------------------------------------------------------------------------
   /**
    * Attempts to locate a rate index by reference name.
@@ -161,7 +166,14 @@ public final class LoaderUtils {
   /**
    * Parses an integer from the input string.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative integer. For e.g. '(23)' will be parsed as -23.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789" formatted as "12.456.789") will not be parsed.
+   * <p>
+   * For e.g. "12,300" and "12300" will be parsed as integer "12300" and similarly "(12,300)",
+   * "-12,300" and "-12300" will be parsed as integer "-12300".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6" will be parsed as integer "123456".
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -169,7 +181,7 @@ public final class LoaderUtils {
    */
   public static int parseInteger(String str) {
     try {
-      return Integer.parseInt(normalizeIfBracketed(str));
+      return Integer.parseInt(normalize(str));
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse integer from '" + str + "'");
       nfex.initCause(ex);
@@ -180,7 +192,14 @@ public final class LoaderUtils {
   /**
    * Parses a double from the input string.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative number. For e.g. '(1.23)' will be parsed as -1.23d.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * <p>
+   * For e.g. "12,300.12" and "12300.12" will be parsed as "12300.12d" and similarly "(12,300.12)",
+   * "-12,300.12" and "-12300.12" will be parsed as "-12300.12d".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6.12" will be parsed as "123456.12d".
    *
    * @param str  the string to parse
    * @return the parsed value
@@ -188,7 +207,7 @@ public final class LoaderUtils {
    */
   public static double parseDouble(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str)).doubleValue();
+      return parseBigDecimal(str).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse double from '" + str + "'");
       nfex.initCause(ex);
@@ -208,7 +227,7 @@ public final class LoaderUtils {
    */
   public static double parseDoublePercent(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str)).movePointLeft(2).doubleValue();
+      return parseBigDecimalPercent(str).doubleValue();
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse percentage from '" + str + "'");
       nfex.initCause(ex);
@@ -219,8 +238,14 @@ public final class LoaderUtils {
   /**
    * Parses a decimal from the input string.
    * <p>
-   * If input value is bracketed, it will be parsed as a negative big decimal.
-   * For e.g. '(12.3456789)' will be parsed as a big decimal -12.3456789.
+   * If input value is bracketed, it will be parsed as a negative value.
+   * Comma separated values will be parsed assuming American decimal format. Values in European decimal formats
+   * (e.g. "12456789.444" formatted as "12.456.789,444") will not be parsed.
+   * <p>
+   * For e.g. "12,300.12" and "12300.12" will be parsed as big decimal "12300.12" and similarly "(12,300.12)",
+   * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
+   * <p>
+   * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
    * 
    * @param str  the string to parse
    * @return the parsed value
@@ -228,7 +253,7 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimal(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str));
+      return new BigDecimal(normalize(str));
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal from '" + str + "'");
       nfex.initCause(ex);
@@ -248,12 +273,19 @@ public final class LoaderUtils {
    */
   public static BigDecimal parseBigDecimalPercent(String str) {
     try {
-      return new BigDecimal(normalizeIfBracketed(str)).movePointLeft(2);
+      return parseBigDecimal(str).movePointLeft(2);
     } catch (NumberFormatException ex) {
       NumberFormatException nfex = new NumberFormatException("Unable to parse BigDecimal percentage from '" + str + "'");
       nfex.initCause(ex);
       throw nfex;
     }
+  }
+
+  private static String normalize(String value) {
+    String normalizedValue = value.trim();
+    normalizedValue = normalizeIfBracketed(normalizedValue);
+    normalizedValue = normalizeIfCommaSeparated(normalizedValue);
+    return normalizedValue;
   }
 
   private static String normalizeIfBracketed(String value) {
@@ -263,6 +295,17 @@ public final class LoaderUtils {
     } else {
       return value;
     }
+  }
+
+  private static String normalizeIfCommaSeparated(String value) {
+    if (!value.startsWith(",") && !value.startsWith("-,") && !value.endsWith(",") && !value.contains(",,")) {
+      List<String> parts = ImmutableList.copyOf(DOT_SPLITTER.split(value));
+      // ensure we only deal with american decimal format
+      if (parts.size() == 1 || (parts.size() == 2 && !parts.get(1).contains(","))) {
+        return value.replace(",", "");
+      }
+    }
+    return value; // incorrectly formatted values or values in european decimal formats will not be normalized
   }
 
   //-------------------------------------------------------------------------
