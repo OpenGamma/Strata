@@ -60,6 +60,9 @@ final class StandardMeasures {
   //-------------------------------------------------------------------------
   // bachelier (normal) vega bucketed
   public static final Measure BACHELIER_VEGA = ImmutableMeasure.of("BachelierVega");
+  //-------------------------------------------------------------------------
+  // black (log-normal) vega bucketed
+  public static final Measure BLACK_VEGA = ImmutableMeasure.of("BlackVega");
 
   //-------------------------------------------------------------------------
   // restricted constructor

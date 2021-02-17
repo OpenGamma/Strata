@@ -48,6 +48,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#BLACK_VEGA Black vega}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
@@ -69,6 +70,7 @@ public class FxSingleBarrierOptionTradeCalculationFunction
               FxSingleBarrierOptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, FxSingleBarrierOptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FxSingleBarrierOptionMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.BLACK_VEGA, FxSingleBarrierOptionMeasureCalculations.DEFAULT::blackVega)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m, meth) -> rt)
           .build();
 

@@ -72,9 +72,15 @@ public final class Measures {
    * <p>
    * This is the sensitivity of the present value to the bachelier (normal) implied volatilities
    * used to calibrate the data structure.
-   * The resulting sensitivity is multiplied by the applicable volatility.
    */
   public static final Measure BACHELIER_VEGA = Measure.of(StandardMeasures.BACHELIER_VEGA.getName());
+  /**
+   * Measure representing the black (log-normal) vega on the calculation target.
+   * <p>
+   * This is the sensitivity of the present value to the black (log-normal) implied volatilities
+   * used to calibrate the data structure.
+   */
+  public static final Measure BLACK_VEGA = Measure.of(StandardMeasures.BLACK_VEGA.getName());
   //-------------------------------------------------------------------------
   /**
    * Measure representing the par rate of the calculation target.

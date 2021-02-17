@@ -245,29 +245,7 @@ final class SwaptionMeasureCalculations {
     }
 
     PointSensitivities pointSensitivity = pointSensitivityBachelierVega(trade, ratesProvider, volatilities);
-    CurrencyParameterSensitivities sensitivities = volatilities.parameterSensitivity(pointSensitivity);
-    return adjustVega(sensitivities, volatilities);
-  }
-
-  // multiply the calculated vega by the volatility
-  private static CurrencyParameterSensitivities adjustVega(
-      CurrencyParameterSensitivities vega,
-      SwaptionVolatilities vols) {
-
-    CurrencyParameterSensitivitiesBuilder builder = CurrencyParameterSensitivities.builder();
-    for (CurrencyParameterSensitivity sens : vega.getSensitivities()) {
-      for (int i = 0; i < sens.getParameterCount(); i++) {
-        ParameterMetadata sensMeta = sens.getParameterMetadata(i);
-        double sensValue = sens.getSensitivity().get(i);
-        if (sensValue != 0d) {
-          int paramIndex = vols.findParameterIndex(sensMeta)
-              .orElseThrow(() -> new IllegalArgumentException("Unable to match parameter metadata: " + sensMeta));
-          double vol = vols.getParameter(paramIndex);
-          builder.add(sens.getMarketDataName(), sens.getCurrency(), sensMeta, vol * sensValue);
-        }
-      }
-    }
-    return builder.build();
+    return volatilities.parameterSensitivity(pointSensitivity);
   }
 
   //  bachelier (normal) vega point sensitivity

@@ -59,9 +59,9 @@ final class FxVanillaOptionMeasureCalculations {
 
   /**
    * Creates an instance.
-   * 
-   * @param blackPricer  the pricer for {@link ResolvedFxVanillaOptionTrade} using Black
-   * @param vannaVolgaPricer  the pricer for {@link ResolvedFxVanillaOptionTrade} using Vanna-Volga
+   *
+   * @param blackPricer the pricer for {@link ResolvedFxVanillaOptionTrade} using Black
+   * @param vannaVolgaPricer the pricer for {@link ResolvedFxVanillaOptionTrade} using Vanna-Volga
    */
   FxVanillaOptionMeasureCalculations(
       BlackFxVanillaOptionTradePricer blackPricer,
@@ -314,4 +314,37 @@ final class FxVanillaOptionMeasureCalculations {
     throw new IllegalArgumentException("FX vanilla option Vanna Volga pricing requires BlackFxOptionSmileVolatilities");
   }
 
+  //-------------------------------------------------------------------------
+  // calculates present value volatility sensitivities for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> blackVega(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxVanillaOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    if (method == FxVanillaOptionMethod.VANNA_VOLGA) {
+      return ScenarioArray.of(
+          ratesMarketData.getScenarioCount(),
+          i -> {
+            BlackFxOptionVolatilities vol =
+                FxCalculationUtils.toBlackVolatilities(optionMarketData.scenario(i).volatilities(currencyPair));
+            return vol.parameterSensitivity(vannaVolgaPricer.presentValueSensitivityModelParamsVolatility(
+                trade,
+                ratesMarketData.scenario(i).ratesProvider(),
+                checkVannaVolgaVolatilities(vol)));
+          });
+    } else {
+      return ScenarioArray.of(
+          ratesMarketData.getScenarioCount(),
+          i -> {
+            BlackFxOptionVolatilities vol =
+                FxCalculationUtils.toBlackVolatilities(optionMarketData.scenario(i).volatilities(currencyPair));
+            return vol.parameterSensitivity(blackPricer.presentValueSensitivityModelParamsVolatility(
+                trade,
+                ratesMarketData.scenario(i).ratesProvider(),
+                vol));
+          });
+    }
+  }
 }

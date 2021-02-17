@@ -58,9 +58,9 @@ final class FxSingleBarrierOptionMeasureCalculations {
 
   /**
    * Creates an instance.
-   * 
-   * @param blackPricer  the pricer for {@link ResolvedFxSingleBarrierOptionTrade}
-   * @param trinomialTreePricer  the pricer for {@link ResolvedFxSingleBarrierOptionTrade} SABR
+   *
+   * @param blackPricer the pricer for {@link ResolvedFxSingleBarrierOptionTrade}
+   * @param trinomialTreePricer the pricer for {@link ResolvedFxSingleBarrierOptionTrade} SABR
    */
   FxSingleBarrierOptionMeasureCalculations(
       BlackFxSingleBarrierOptionTradePricer blackPricer,
@@ -309,7 +309,33 @@ final class FxSingleBarrierOptionMeasureCalculations {
     if (volatilities instanceof BlackFxOptionVolatilities) {
       return (BlackFxOptionVolatilities) volatilities;
     }
-    throw new IllegalArgumentException("FX single barrier option Trinomial Tree pricing requires BlackFxOptionVolatilities");
+    throw new IllegalArgumentException(
+        "FX single barrier option Trinomial Tree pricing requires BlackFxOptionVolatilities");
   }
 
+  //-------------------------------------------------------------------------
+  // calculates present value volatility sensitivities for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> blackVega(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxSingleBarrierOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    if (method == FxSingleBarrierOptionMethod.TRINOMIAL_TREE) {
+      throw new IllegalArgumentException(
+          "FX single barrier option Trinomial Tree pricer does not currently support vega calculation.");
+    } else {
+      return ScenarioArray.of(
+          ratesMarketData.getScenarioCount(),
+          i -> {
+            BlackFxOptionVolatilities vol =
+                FxCalculationUtils.toBlackVolatilities(optionMarketData.scenario(i).volatilities(currencyPair));
+            return vol.parameterSensitivity(blackPricer.presentValueSensitivityModelParamsVolatility(
+                trade,
+                ratesMarketData.scenario(i).ratesProvider(),
+                vol));
+          });
+    }
+  }
 }
