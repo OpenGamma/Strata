@@ -316,7 +316,7 @@ final class FxVanillaOptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value volatility sensitivities for all scenarios
-  ScenarioArray<CurrencyParameterSensitivities> blackVega(
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
       ResolvedFxVanillaOptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData,

@@ -12,8 +12,7 @@ import com.opengamma.strata.data.scenario.ScenarioArray;
 /**
  * The standard set of measures that can be calculated by Strata.
  * <p>
- * A measure identifies the calculation result that is required.
- * For example present value, par rate or spread.
+ * A measure identifies the calculation result that is required. For example present value, par rate or spread.
  * <p>
  * Note that not all measures will be available for all targets.
  */
@@ -36,51 +35,40 @@ public final class Measures {
   /**
    * Measure representing the calibrated sum PV01 on the calculation target.
    * <p>
-   * This is the sensitivity of present value to a one basis point shift in the calibrated data structure.
-   * The result is the sum of the sensitivities of all affected curves.
-   * It is expressed in the reporting currency.
+   * This is the sensitivity of present value to a one basis point shift in the calibrated data structure. The result is
+   * the sum of the sensitivities of all affected curves. It is expressed in the reporting currency.
    */
   public static final Measure PV01_CALIBRATED_SUM = Measure.of(StandardMeasures.PV01_CALIBRATED_SUM.getName());
   /**
    * Measure representing the calibrated bucketed PV01 on the calculation target.
    * <p>
-   * This is the sensitivity of present value to a one basis point shift in the calibrated data structure.
-   * The result is provided for each affected curve and currency, bucketed by parameter.
-   * It is expressed in the reporting currency.
+   * This is the sensitivity of present value to a one basis point shift in the calibrated data structure. The result is
+   * provided for each affected curve and currency, bucketed by parameter. It is expressed in the reporting currency.
    */
   public static final Measure PV01_CALIBRATED_BUCKETED = Measure.of(StandardMeasures.PV01_CALIBRATED_BUCKETED.getName());
   /**
    * Measure representing the market quote sum PV01 on the calculation target.
    * <p>
-   * This is the sensitivity of present value to a one basis point shift in the
-   * market quotes used to calibrate the data structure.
-   * The result is the sum of the sensitivities of all affected curves.
-   * It is expressed in the reporting currency.
+   * This is the sensitivity of present value to a one basis point shift in the market quotes used to calibrate the data
+   * structure. The result is the sum of the sensitivities of all affected curves. It is expressed in the reporting
+   * currency.
    */
   public static final Measure PV01_MARKET_QUOTE_SUM = Measure.of(StandardMeasures.PV01_MARKET_QUOTE_SUM.getName());
   /**
    * Measure representing the market quote bucketed PV01 on the calculation target.
    * <p>
-   * This is the sensitivity of present value to a one basis point shift in the
-   * market quotes used to calibrate the data structure.
-   * The result is provided for each affected curve and currency, bucketed by parameter.
-   * It is expressed in the reporting currency.
+   * This is the sensitivity of present value to a one basis point shift in the market quotes used to calibrate the data
+   * structure. The result is provided for each affected curve and currency, bucketed by parameter. It is expressed in
+   * the reporting currency.
    */
   public static final Measure PV01_MARKET_QUOTE_BUCKETED = Measure.of(StandardMeasures.PV01_MARKET_QUOTE_BUCKETED.getName());
   /**
-   * Measure representing the bachelier (normal) vega on the calculation target.
+   * Measure representing the market quote bucketed vega on the calculation target.
    * <p>
-   * This is the sensitivity of the present value to the bachelier (normal) implied volatilities
-   * used to calibrate the data structure.
+   * This is the sensitivity of the present value to the market implied volatilities used to calibrate the data structure.
    */
-  public static final Measure BACHELIER_VEGA = Measure.of(StandardMeasures.BACHELIER_VEGA.getName());
-  /**
-   * Measure representing the black (log-normal) vega on the calculation target.
-   * <p>
-   * This is the sensitivity of the present value to the black (log-normal) implied volatilities
-   * used to calibrate the data structure.
-   */
-  public static final Measure BLACK_VEGA = Measure.of(StandardMeasures.BLACK_VEGA.getName());
+  public static final Measure VEGA_MARKET_QUOTE_BUCKETED = Measure.of(StandardMeasures.VEGA_MARKET_QUOTE_BUCKETED.getName());
+
   //-------------------------------------------------------------------------
   /**
    * Measure representing the par rate of the calculation target.
@@ -111,23 +99,22 @@ public final class Measures {
   /**
    * Measure representing the cash flows of the calculation target.
    * <p>
-   * Cash flows provide details about the payments of the target.
-   * The result is expressed in the reporting currency.
+   * Cash flows provide details about the payments of the target. The result is expressed in the reporting currency.
    */
   public static final Measure CASH_FLOWS = Measure.of(StandardMeasures.CASH_FLOWS.getName());
   /**
    * Measure representing the currency exposure of the calculation target.
    * <p>
-   * Currency exposure is the currency risk, expressed as the equivalent amount in each currency.
-   * Calculated values are not converted to the reporting currency and may contain values in multiple currencies
-   * if the target contains multiple currencies.
+   * Currency exposure is the currency risk, expressed as the equivalent amount in each currency. Calculated values are
+   * not converted to the reporting currency and may contain values in multiple currencies if the target contains
+   * multiple currencies.
    */
   public static final Measure CURRENCY_EXPOSURE = Measure.of(StandardMeasures.CURRENCY_EXPOSURE.getName());
   /**
    * Measure representing the current cash of the calculation target.
    * <p>
-   * Current cash is the sum of all cash flows paid on the valuation date.
-   * The result is expressed in the reporting currency.
+   * Current cash is the sum of all cash flows paid on the valuation date. The result is expressed in the reporting
+   * currency.
    */
   public static final Measure CURRENT_CASH = Measure.of(StandardMeasures.CURRENT_CASH.getName());
   /**
@@ -137,16 +124,16 @@ public final class Measures {
   /**
    * Measure representing the unit price of the instrument.
    * <p>
-   * This is the price of a single unit of a security using Strata market conventions.
-   * The price is represented as a {@code double}, even if it is actually a currency amount.
+   * This is the price of a single unit of a security using Strata market conventions. The price is represented as a
+   * {@code double}, even if it is actually a currency amount.
    */
   public static final Measure UNIT_PRICE = Measure.of(StandardMeasures.UNIT_PRICE.getName());
   /**
    * Measure representing the resolved form of the calculation target.
    * <p>
-   * Many calculation targets have a {@linkplain Resolvable resolved} form that is optimized for pricing.
-   * This measure allows the resolved form to be obtained.
-   * Since the target is the same for all scenarios, the result is not wrapped in {@link ScenarioArray}.
+   * Many calculation targets have a {@linkplain Resolvable resolved} form that is optimized for pricing. This measure
+   * allows the resolved form to be obtained. Since the target is the same for all scenarios, the result is not wrapped
+   * in {@link ScenarioArray}.
    */
   public static final Measure RESOLVED_TARGET = Measure.of(StandardMeasures.RESOLVED_TARGET.getName());
 

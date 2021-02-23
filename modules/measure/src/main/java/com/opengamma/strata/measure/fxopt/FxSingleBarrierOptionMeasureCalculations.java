@@ -315,7 +315,7 @@ final class FxSingleBarrierOptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates present value volatility sensitivities for all scenarios
-  ScenarioArray<CurrencyParameterSensitivities> blackVega(
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData,
