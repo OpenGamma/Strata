@@ -8,6 +8,7 @@ package com.opengamma.strata.measure.fxopt;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRateProvider;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.pricer.fxopt.BlackFxOptionSmileVolatilities;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionVolatilities;
 import com.opengamma.strata.pricer.fxopt.FxOptionVolatilities;
 import com.opengamma.strata.product.option.Barrier;
@@ -22,19 +23,29 @@ class FxCalculationUtils {
   private FxCalculationUtils() {
   }
 
-  /**
-   * Convert the passed volatilities to {@link BlackFxOptionVolatilities}, throwing an exception if the type
-   * of the passed volatilities is not compatible.
-   *
-   * @param volatilities the volatilities
-   * @return black fx option volatilities
-   * @throws IllegalArgumentException if the passed volatilities do not implement BlackFxOptionVolatilities
-   */
-  static BlackFxOptionVolatilities toBlackVolatilities(FxOptionVolatilities volatilities) {
+  //-------------------------------------------------------------------------
+  // ensures that the volatilities are correct
+  static BlackFxOptionVolatilities checkBlackVolatilities(FxOptionVolatilities volatilities) {
     if (volatilities instanceof BlackFxOptionVolatilities) {
       return (BlackFxOptionVolatilities) volatilities;
     }
-    throw new IllegalArgumentException("FX single barrier option Black pricing requires BlackFxOptionVolatilities");
+    throw new IllegalArgumentException("FX option Black pricing requires BlackFxOptionVolatilities");
+  }
+
+  // ensures that the volatilities are correct
+  static BlackFxOptionSmileVolatilities checkVannaVolgaVolatilities(FxOptionVolatilities volatilities) {
+    if (volatilities instanceof BlackFxOptionSmileVolatilities) {
+      return (BlackFxOptionSmileVolatilities) volatilities;
+    }
+    throw new IllegalArgumentException("FX option Vanna Volga pricing requires BlackFxOptionSmileVolatilities");
+  }
+
+  // ensures that the volatilities are correct
+  static BlackFxOptionVolatilities checkTrinomialTreeVolatilities(FxOptionVolatilities volatilities) {
+    if (volatilities instanceof BlackFxOptionVolatilities) {
+      return (BlackFxOptionVolatilities) volatilities;
+    }
+    throw new IllegalArgumentException("FX option Trinomial Tree pricing requires BlackFxOptionVolatilities");
   }
 
   /**
