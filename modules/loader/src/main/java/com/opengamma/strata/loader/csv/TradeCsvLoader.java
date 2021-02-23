@@ -5,6 +5,15 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TIME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_ZONE_FIELD;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
@@ -17,41 +26,29 @@ import java.util.Locale;
 import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.io.CsvIterator;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
 import com.opengamma.strata.loader.LoaderUtils;
-import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.ResolvableSecurityTrade;
-import com.opengamma.strata.product.SecurityQuantityTrade;
-import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.TradeInfoBuilder;
-import com.opengamma.strata.product.credit.CdsIndexTrade;
-import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.deposit.type.TermDepositConventions;
-import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
-import com.opengamma.strata.product.fx.FxSingleTrade;
-import com.opengamma.strata.product.fx.FxSwapTrade;
-import com.opengamma.strata.product.fx.FxTrade;
-import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
-import com.opengamma.strata.product.payment.BulletPaymentTrade;
-import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swap.type.SingleCurrencySwapConvention;
-import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Loads trades from CSV files.
@@ -208,66 +205,20 @@ public final class TradeCsvLoader {
   private static final String DEFAULT_TRADE_SCHEME = StandardSchemes.OG_TRADE_SCHEME;
   private static final String DEFAULT_CPTY_SCHEME = StandardSchemes.OG_COUNTERPARTY;
 
-  // common CSV headers
-  static final String CONVENTION_FIELD = "Convention";
-  static final String BUY_SELL_FIELD = "Buy Sell";
-  static final String DIRECTION_FIELD = "Direction";
-  static final String CURRENCY_FIELD = "Currency";
-  static final String NOTIONAL_FIELD = "Notional";
-  static final String INDEX_FIELD = "Index";
-  static final String INTERPOLATED_INDEX_FIELD = "Interpolated Index";
-  static final String FIXED_RATE_FIELD = "Fixed Rate";
-  static final String PERIOD_TO_START_FIELD = "Period To Start";
-  static final String TENOR_FIELD = "Tenor";
-  static final String START_DATE_FIELD = "Start Date";
-  static final String END_DATE_FIELD = "End Date";
-  static final String DATE_ADJ_CNV_FIELD = "Date Convention";
-  static final String DATE_ADJ_CAL_FIELD = "Date Calendar";
-  static final String DAY_COUNT_FIELD = "Day Count";
-  static final String FX_RATE_FIELD = "FX Rate";
-  static final String PAYMENT_DATE_FIELD = "Payment Date";
-  static final String PAYMENT_DATE_CNV_FIELD = "Payment Date Convention";
-  static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";
-  static final String LONG_SHORT_FIELD = "Long Short";
-  static final String EXPIRY_DATE_FIELD = "Expiry Date";
-  static final String EXPIRY_DATE_CNV_FIELD = "Expiry Date Convention";
-  static final String EXPIRY_DATE_CAL_FIELD = "Expiry Date Calendar";
-  static final String EXPIRY_TIME_FIELD = "Expiry Time";
-  static final String EXPIRY_ZONE_FIELD = "Expiry Zone";
-  static final String PREMIUM_CURRENCY_FIELD = "Premium Currency";
-  static final String PREMIUM_AMOUNT_FIELD = "Premium Amount";
-  static final String PREMIUM_DIRECTION_FIELD = "Premium Direction";
-  static final String PREMIUM_DATE_FIELD = "Premium Date";
-  static final String PREMIUM_DATE_CNV_FIELD = "Premium Date Convention";
-  static final String PREMIUM_DATE_CAL_FIELD = "Premium Date Calendar";
-  static final String FRA_DISCOUNTING_FIELD = "FRA Discounting Method";
-
-  static final String FREQUENCY_FIELD = "Frequency";
-  static final String START_DATE_CNV_FIELD = "Start Date Convention";
-  static final String START_DATE_CAL_FIELD = "Start Date Calendar";
-  static final String END_DATE_CNV_FIELD = "End Date Convention";
-  static final String END_DATE_CAL_FIELD = "End Date Calendar";
-  static final String ROLL_CONVENTION_FIELD = "Roll Convention";
-  static final String STUB_CONVENTION_FIELD = "Stub Convention";
-  static final String FIRST_REGULAR_START_DATE_FIELD = "First Regular Start Date";
-  static final String LAST_REGULAR_END_DATE_FIELD = "Last Regular End Date";
-  static final String OVERRIDE_START_DATE_FIELD = "Override Start Date";
-  static final String OVERRIDE_START_DATE_CNV_FIELD = "Override Start Date Convention";
-  static final String OVERRIDE_START_DATE_CAL_FIELD = "Override Start Date Calendar";
-
-  // basic CSV column headers
-  static final String TYPE_FIELD = "Strata Trade Type";
-  static final String ID_SCHEME_FIELD = "Id Scheme";
-  static final String ID_FIELD = "Id";
-  static final String DESCRIPTION_FIELD = "Description";
-  static final String NAME_FIELD = "Name";
-  static final String CCP_FIELD = "CCP";
-  static final String CPTY_SCHEME_FIELD = "Counterparty Scheme";
-  static final String CPTY_FIELD = "Counterparty";
-  static final String TRADE_DATE_FIELD = "Trade Date";
-  static final String TRADE_TIME_FIELD = "Trade Time";
-  static final String TRADE_ZONE_FIELD = "Trade Zone";
-  static final String SETTLEMENT_DATE_FIELD = "Settlement Date";
+  /**
+   * The lookup of trade parsers.
+   */
+  static final ExtendedEnum<TradeCsvParserPlugin> ENUM_LOOKUP = ExtendedEnum.of(TradeCsvParserPlugin.class);
+  /**
+   * The lookup of trade parsers.
+   */
+  private static final ImmutableMap<String, TradeCsvParserPlugin> PLUGINS =
+      MapStream.of(TradeCsvParserPlugin.extendedEnum().lookupAllNormalized().values())
+          .flatMapKeys(plugin -> plugin.tradeTypeNames().stream())
+          .toMap((a, b) -> {
+            System.err.println("Two plugins declare the same product type: " + a.tradeTypeNames());
+            return a;
+          });
 
   /**
    * The resolver, providing additional information.
@@ -351,7 +302,7 @@ public final class TradeCsvLoader {
    */
   public boolean isKnownFormat(CharSource charSource) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
-      return csv.containsHeader(TYPE_FIELD);
+      return csv.containsHeader(TRADE_TYPE_FIELD);
     } catch (RuntimeException ex) {
       return false;
     }
@@ -436,10 +387,11 @@ public final class TradeCsvLoader {
   // loads a single CSV file, filtering by trade type
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CharSource charSource, Class<T> tradeType) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
-      if (!csv.headers().contains(TYPE_FIELD)) {
+      if (!csv.headers().contains(TRADE_TYPE_FIELD)) {
         return ValueWithFailures.of(
             ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TYPE_FIELD, charSource));
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TRADE_TYPE_FIELD,
+                charSource));
       }
       return parseFile(csv, tradeType);
 
@@ -452,126 +404,65 @@ public final class TradeCsvLoader {
   }
 
   // loads a single CSV file
+  @SuppressWarnings("unchecked")
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
+    rows:
     for (CsvRow row : csv.asIterable()) {
+      String typeRaw = row.findField(TRADE_TYPE_FIELD).orElse("");
+      String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
       try {
-        String typeRaw = row.getField(TYPE_FIELD);
         TradeInfo info = parseTradeInfo(row);
-        String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
         // allow type matching to be overridden
         Optional<Trade> overrideOpt = resolver.overrideParseTrade(typeUpper, row, info);
         if (overrideOpt.isPresent()) {
           if (tradeType.isInstance(overrideOpt.get())) {
             trades.add(tradeType.cast(overrideOpt.get()));
           }
-          continue;
+          continue rows;
         }
         // standard type matching
-        switch (typeUpper) {
-          case "FRA":
-            if (tradeType == FraTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseFraTrade(row, info)));
-            }
-            break;
-          case "SECURITY":
-            if (tradeType == SecurityTrade.class || tradeType == GenericSecurityTrade.class ||
-                tradeType == ResolvableSecurityTrade.class || tradeType == Trade.class) {
-              SecurityQuantityTrade parsed = resolver.parseSecurityTrade(row, info);
-              if (tradeType.isInstance(parsed)) {
-                trades.add(tradeType.cast(parsed));
-              }
-            }
-            break;
-          case "SWAP":
-            if (tradeType == SwapTrade.class || tradeType == Trade.class) {
-              List<CsvRow> variableRows = new ArrayList<>();
-              while (csv.hasNext() && csv.peek().getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE")) {
-                variableRows.add(csv.next());
-              }
-              trades.add(tradeType.cast(resolver.parseSwapTrade(row, variableRows, info)));
-            }
-            break;
-          case "SWAPTION":
-            if (tradeType == SwaptionTrade.class || tradeType == Trade.class) {
-              List<CsvRow> variableRows = new ArrayList<>();
-              while (csv.hasNext() && csv.peek().getField(TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE")) {
-                variableRows.add(csv.next());
-              }
-              trades.add(tradeType.cast(resolver.parseSwaptionTrade(row, variableRows, info)));
-            }
-            break;
-          case "BULLET":
-          case "BULLETPAYMENT":
-          case "BULLET PAYMENT":
-            if (tradeType == BulletPaymentTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseBulletPaymentTrade(row, info)));
-            }
-            break;
-          case "TERMDEPOSIT":
-          case "TERM DEPOSIT":
-            if (tradeType == TermDepositTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseTermDepositTrade(row, info)));
-            }
-            break;
-          case "VARIABLE":
-            failures.add(FailureItem.of(
-                FailureReason.PARSING,
-                "CSV file contained a 'Variable' type at line {lineNumber} that was not preceeded by a 'Swap' or 'Swaption'",
-                row.lineNumber()));
-            break;
-          case "FX":
-          case "FXSINGLE":
-          case "FX SINGLE":
-            if (tradeType == FxSingleTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseFxSingleTrade(row, info)));
-            }
-            break;
-          case "FXSWAP":
-          case "FX SWAP":
-            if (tradeType == FxSwapTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseFxSwapTrade(row, info)));
-            }
-            break;
-          case "FXVANILLAOPTION":
-          case "FX VANILLA OPTION":
-            if (tradeType == FxVanillaOptionTrade.class || tradeType == FxTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseFxVanillaOptionTrade(row, info)));
-            }
-            break;
-          case "CDS":
-            if (tradeType == CdsTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseCdsTrade(row, info)));
-            }
-            break;
-          case "CDSINDEX":
-          case "CDS INDEX":
-            if (tradeType == CdsIndexTrade.class || tradeType == Trade.class) {
-              trades.add(tradeType.cast(resolver.parseCdsIndexTrade(row, info)));
-            }
-            break;
-          default:
-            // type is not a standard one
-            Optional<Trade> parsedOpt = resolver.parseOtherTrade(typeUpper, row, info);
-            if (parsedOpt.isPresent()) {
-              if (tradeType.isInstance(parsedOpt.get())) {
-                trades.add(tradeType.cast(parsedOpt.get()));
-              }
-            } else {
-              failures.add(FailureItem.of(
-                  FailureReason.PARSING,
-                  "CSV file trade type '{tradeType}' is not known at line {lineNumber}",
-                  typeRaw,
-                  row.lineNumber()));
-            }
-            break;
+        TradeCsvParserPlugin plugin = PLUGINS.get(typeUpper);
+        if (plugin != null) {
+          List<CsvRow> additionalRows = new ArrayList<>();
+          while (csv.hasNext() && plugin.isAdditionalRow(row, csv.peek())) {
+            additionalRows.add(csv.next());
+          }
+          plugin.parseTrade(tradeType, row, additionalRows, info, resolver)
+              .filter(parsed -> tradeType.isInstance(parsed))
+              .ifPresent(parsed -> trades.add((T) parsed));
+          continue rows;
         }
+        // match type using the resolver
+        Optional<Trade> parsedOpt = resolver.parseOtherTrade(typeUpper, row, info);
+        if (parsedOpt.isPresent()) {
+          if (tradeType.isInstance(parsedOpt.get())) {
+            trades.add(tradeType.cast(parsedOpt.get()));
+          }
+          continue rows;
+        }
+        // better error for VARIABLE
+        if (typeUpper.equals("VARIABLE")) {
+          failures.add(FailureItem.of(
+              FailureReason.PARSING,
+              "CSV file contained a 'Variable' type at line {lineNumber} that was not preceeded by a 'Swap' or 'Swaption'",
+              row.lineNumber()));
+        } else {
+          // failed to find the type
+          failures.add(FailureItem.of(
+              FailureReason.PARSING,
+              "CSV trade file type '{tradeType}' is not known at line {lineNumber}",
+              typeRaw,
+              row.lineNumber()));
+        }
+
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
             ex,
-            "CSV file trade could not be parsed at line {lineNumber}: {exceptionMessage}",
+            "CSV trade file type '{tradeType}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+            typeRaw,
             row.lineNumber(),
             ex.getMessage()));
       }
@@ -589,7 +480,8 @@ public final class TradeCsvLoader {
     row.findValue(TRADE_DATE_FIELD).ifPresent(dateStr -> infoBuilder.tradeDate(LoaderUtils.parseDate(dateStr)));
     row.findValue(TRADE_TIME_FIELD).ifPresent(timeStr -> infoBuilder.tradeTime(LoaderUtils.parseTime(timeStr)));
     row.findValue(TRADE_ZONE_FIELD).ifPresent(zoneStr -> infoBuilder.zone(ZoneId.of(zoneStr)));
-    row.findValue(SETTLEMENT_DATE_FIELD).ifPresent(dateStr -> infoBuilder.settlementDate(LoaderUtils.parseDate(dateStr)));
+    row.findValue(SETTLEMENT_DATE_FIELD)
+        .ifPresent(dateStr -> infoBuilder.settlementDate(LoaderUtils.parseDate(dateStr)));
     resolver.parseStandardAttributes(row, infoBuilder);
     resolver.parseTradeInfo(row, infoBuilder);
     return infoBuilder.build();

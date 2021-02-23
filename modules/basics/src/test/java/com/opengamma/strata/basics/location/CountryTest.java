@@ -186,6 +186,44 @@ public class CountryTest {
 
   //-----------------------------------------------------------------------
   @Test
+  public void test_from3CharString_constants() {
+    assertThat(Country.of3Char("GBR")).isEqualTo(Country.GB);
+    assertThat(Country.of3Char("FRA")).isEqualTo(Country.FR);
+    assertThat(Country.of3Char("USA")).isEqualTo(Country.US);
+  }
+
+  //-----------------------------------------------------------------------
+  @Test
+  public void test_from3CharString_nonConstants() {
+    assertThat(Country.of3Char("CRI")).isEqualTo(Country.of("CR"));
+    assertThat(Country.of3Char("GIB")).isEqualTo(Country.of("GI"));
+  }
+
+  //-----------------------------------------------------------------------
+  @Test
+  public void test_from3CharString_missing() {
+    assertThatIllegalArgumentException().isThrownBy(() -> Country.of3Char("ZZZ"));
+    assertThatIllegalArgumentException().isThrownBy(() -> Country.of3Char(null));
+  }
+
+  //-----------------------------------------------------------------------
+  @Test
+  public void test_get3CharString() {
+    assertThat(Country.GB.getCode3Char()).isEqualTo("GBR");
+    assertThat(Country.FR.getCode3Char()).isEqualTo("FRA");
+    assertThat(Country.US.getCode3Char()).isEqualTo("USA");
+    assertThat(Country.of("CR").getCode3Char()).isEqualTo("CRI");
+    assertThat(Country.of("GI").getCode3Char()).isEqualTo("GIB");
+  }
+
+  //-----------------------------------------------------------------------
+  @Test
+  public void test_get3CharString_missing() {
+    assertThatIllegalArgumentException().isThrownBy(() -> Country.of("ZZ").getCode3Char());
+  }
+
+  //-----------------------------------------------------------------------
+  @Test
   public void test_equals_hashCode() {
     Country a1 = Country.GB;
     Country a2 = Country.of("GB");

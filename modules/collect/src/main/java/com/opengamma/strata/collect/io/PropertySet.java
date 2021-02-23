@@ -17,6 +17,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 
 /**
  * A map of key-value properties.
@@ -93,6 +94,18 @@ public final class PropertySet {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns the keys and values as a {@code MapStream}.
+   * <p>
+   * There may be multiple values for the same key.
+   * The iteration order of the stream matches that of the input data.
+   * 
+   * @return the map stream
+   */
+  public MapStream<String, String> stream() {
+    return MapStream.of(keyValueMap);
+  }
+
   /**
    * Returns the set of keys of this property set.
    * <p>

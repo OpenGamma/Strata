@@ -6,25 +6,32 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.EXPIRY_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.EXPIRY_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.EXPIRY_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.EXPIRY_TIME_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.EXPIRY_ZONE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.LONG_SHORT_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_AMOUNT_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PREMIUM_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_TIME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_ZONE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LONG_SHORT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYOFF_SETTLEMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYOFF_SETTLEMENT_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
 
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -33,6 +40,7 @@ import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.loader.csv.FullSwapTradeCsvPlugin.VariableElements;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
@@ -48,17 +56,46 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Handles the CSV file format for Swaption trades.
  */
-final class SwaptionTradeCsvPlugin implements TradeTypeCsvWriter<SwaptionTrade> {
+final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<SwaptionTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
-  static final SwaptionTradeCsvPlugin INSTANCE = new SwaptionTradeCsvPlugin();
+  public static final SwaptionTradeCsvPlugin INSTANCE = new SwaptionTradeCsvPlugin();
 
-  private static final String PAYOFF_SETTLEMENT_TYPE_FIELD = "Payoff Settlement Type";
-  private static final String PAYOFF_SETTLEMENT_DATE_FIELD = "Payoff Settlement Date";
   private static final String PHYSICAL = "PHYSICAL";
 
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("SWAPTION");
+  }
+
+  @Override
+  public boolean isAdditionalRow(CsvRow baseRow, CsvRow additionalRow) {
+    return additionalRow.getField(TRADE_TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    if (requiredJavaType.isAssignableFrom(SwaptionTrade.class)) {
+      return Optional.of(resolver.parseSwaptionTrade(baseRow, additionalRows, info));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "Swaption";
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
    * 
@@ -145,23 +182,23 @@ final class SwaptionTradeCsvPlugin implements TradeTypeCsvWriter<SwaptionTrade> 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, SwaptionTrade trade) {
     Swaption product = trade.getProduct();
-    csv.writeCell(TradeCsvLoader.TYPE_FIELD, "Swaption");
+    csv.writeCell(TRADE_TYPE_FIELD, "Swaption");
     VariableElements variableElements = FullSwapTradeCsvPlugin.INSTANCE.writeProduct(csv, product.getUnderlying());
-    csv.writeCell(TradeCsvLoader.LONG_SHORT_FIELD, product.getLongShort());
+    csv.writeCell(LONG_SHORT_FIELD, product.getLongShort());
     writeSettlement(csv, product);
-    csv.writeCell(TradeCsvLoader.EXPIRY_DATE_FIELD, product.getExpiryDate().getUnadjusted());
+    csv.writeCell(EXPIRY_DATE_FIELD, product.getExpiryDate().getUnadjusted());
     if (!product.getExpiryDate().getAdjustment().equals(BusinessDayAdjustment.NONE)) {
-      csv.writeCell(TradeCsvLoader.EXPIRY_DATE_CNV_FIELD, product.getExpiryDate().getAdjustment().getConvention());
-      csv.writeCell(TradeCsvLoader.EXPIRY_DATE_CAL_FIELD, product.getExpiryDate().getAdjustment().getCalendar());
+      csv.writeCell(EXPIRY_DATE_CNV_FIELD, product.getExpiryDate().getAdjustment().getConvention());
+      csv.writeCell(EXPIRY_DATE_CAL_FIELD, product.getExpiryDate().getAdjustment().getCalendar());
     }
-    csv.writeCell(TradeCsvLoader.EXPIRY_TIME_FIELD, product.getExpiryTime());
-    csv.writeCell(TradeCsvLoader.EXPIRY_ZONE_FIELD, product.getExpiryZone().getId());
-    csv.writeCell(TradeCsvLoader.PREMIUM_DATE_FIELD, trade.getPremium().getDate().getUnadjusted());
-    csv.writeCell(TradeCsvLoader.PREMIUM_DATE_CNV_FIELD, trade.getPremium().getDate().getAdjustment().getConvention());
-    csv.writeCell(TradeCsvLoader.PREMIUM_DATE_CAL_FIELD, trade.getPremium().getDate().getAdjustment().getCalendar());
-    csv.writeCell(TradeCsvLoader.PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(trade.getPremium().getAmount()));
-    csv.writeCell(TradeCsvLoader.PREMIUM_CURRENCY_FIELD, trade.getPremium().getCurrency());
-    csv.writeCell(TradeCsvLoader.PREMIUM_AMOUNT_FIELD, trade.getPremium().getAmount());
+    csv.writeCell(EXPIRY_TIME_FIELD, product.getExpiryTime());
+    csv.writeCell(EXPIRY_ZONE_FIELD, product.getExpiryZone().getId());
+    csv.writeCell(PREMIUM_DATE_FIELD, trade.getPremium().getDate().getUnadjusted());
+    csv.writeCell(PREMIUM_DATE_CNV_FIELD, trade.getPremium().getDate().getAdjustment().getConvention());
+    csv.writeCell(PREMIUM_DATE_CAL_FIELD, trade.getPremium().getDate().getAdjustment().getCalendar());
+    csv.writeCell(PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(trade.getPremium().getAmount()));
+    csv.writeCell(PREMIUM_CURRENCY_FIELD, trade.getPremium().getCurrency());
+    csv.writeCell(PREMIUM_AMOUNT_FIELD, trade.getPremium().getAmount());
     csv.writeNewLine();
     variableElements.writeLines(csv);
   }

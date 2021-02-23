@@ -86,6 +86,12 @@ public final class OvernightIndices {
    */
   public static final OvernightIndex USD_SOFR = OvernightIndex.of("USD-SOFR");
   /**
+   * The AMERIBOR index for USD.
+   * <p>
+   * The AMERIBOR index.
+   */
+  public static final OvernightIndex USD_AMERIBOR = OvernightIndex.of("USD-AMERIBOR");
+  /**
    * The AONIA index for AUD.
    * <p>
    * AONIA is an "Overnight" index.

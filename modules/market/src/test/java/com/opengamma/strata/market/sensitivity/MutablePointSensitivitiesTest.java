@@ -26,6 +26,8 @@ public class MutablePointSensitivitiesTest {
   private static final PointSensitivity CS2 = DummyPointSensitivity.of(GBP, date(2015, 7, 30), 22d);
   private static final PointSensitivity CS3 = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 32d);
   private static final PointSensitivity CS3B = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 3d);
+  private static final PointSensitivity CS3C = DummyPointSensitivity.of(GBP, date(2015, 8, 30), 10d);
+  private static final PointSensitivity CS3D = DummyPointSensitivity.of(GBP, date(2015, 8, 30), -2d);
   private static final Object ANOTHER_TYPE = "";
 
   //-------------------------------------------------------------------------
@@ -167,6 +169,14 @@ public class MutablePointSensitivitiesTest {
     test.addAll(Lists.newArrayList(CS3, CS2, CS1, CS3B));
     test.normalize();
     assertThat(test.getSensitivities()).containsExactly(CS1, CS2, CS3.withSensitivity(35d));
+  }
+
+  @Test
+  public void test_normalize_4() {
+    MutablePointSensitivities test = new MutablePointSensitivities();
+    test.addAll(Lists.newArrayList(CS3, CS2, CS3D, CS1, CS3B, CS3C));
+    test.normalize();
+    assertThat(test.getSensitivities()).containsExactly(CS1, CS2, CS3.withSensitivity(43d));
   }
 
   //-------------------------------------------------------------------------

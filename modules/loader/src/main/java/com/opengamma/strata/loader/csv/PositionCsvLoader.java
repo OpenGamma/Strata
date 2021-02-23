@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.POSITION_TYPE_FIELD;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
@@ -12,27 +15,27 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Guavate;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.io.CsvIterator;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.io.UnicodeBom;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.collect.result.FailureItem;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.ValueWithFailures;
-import com.opengamma.strata.product.GenericSecurityPosition;
 import com.opengamma.strata.product.Position;
 import com.opengamma.strata.product.PositionInfo;
 import com.opengamma.strata.product.PositionInfoBuilder;
-import com.opengamma.strata.product.ResolvableSecurityPosition;
 import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.etd.EtdContractSpec;
 import com.opengamma.strata.product.etd.EtdContractSpecId;
@@ -40,7 +43,6 @@ import com.opengamma.strata.product.etd.EtdFuturePosition;
 import com.opengamma.strata.product.etd.EtdIdUtils;
 import com.opengamma.strata.product.etd.EtdOptionPosition;
 import com.opengamma.strata.product.etd.EtdOptionType;
-import com.opengamma.strata.product.etd.EtdPosition;
 import com.opengamma.strata.product.etd.EtdSettlementType;
 
 /**
@@ -141,13 +143,20 @@ public final class PositionCsvLoader {
   static final String DEFAULT_POSITION_SCHEME = StandardSchemes.OG_POSITION_SCHEME;
   static final String DEFAULT_SECURITY_SCHEME = StandardSchemes.OG_SECURITY_SCHEME;
 
-  // CSV column headers
-  private static final String TYPE_FIELD = "Strata Position Type";
-  private static final String ID_SCHEME_FIELD = "Id Scheme";
-  private static final String ID_FIELD = "Id";
-  static final String DESCRIPTION_FIELD = "Description";
-  static final String NAME_FIELD = "Name";
-  static final String CCP_FIELD = "CCP";
+  /**
+   * The lookup of position parsers.
+   */
+  static final ExtendedEnum<PositionCsvParserPlugin> ENUM_LOOKUP = ExtendedEnum.of(PositionCsvParserPlugin.class);
+  /**
+   * The lookup of position parsers.
+   */
+  private static final ImmutableMap<String, PositionCsvParserPlugin> PLUGINS =
+      MapStream.of(PositionCsvParserPlugin.extendedEnum().lookupAllNormalized().values())
+          .flatMapKeys(plugin -> plugin.positionTypeNames().stream())
+          .toMap((a, b) -> {
+            System.err.println("Two plugins declare the same product type: " + a.positionTypeNames());
+            return a;
+          });
 
   /**
    * The resolver, providing additional information.
@@ -231,7 +240,7 @@ public final class PositionCsvLoader {
    */
   public boolean isKnownFormat(CharSource charSource) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
-      return csv.containsHeader(TYPE_FIELD);
+      return csv.containsHeader(POSITION_TYPE_FIELD);
     } catch (RuntimeException ex) {
       return false;
     }
@@ -307,10 +316,10 @@ public final class PositionCsvLoader {
   // loads a single CSV file, filtering by position type
   private <T extends Position> ValueWithFailures<List<T>> parseFile(CharSource charSource, Class<T> positionType) {
     try (CsvIterator csv = CsvIterator.of(charSource, true)) {
-      if (!csv.headers().contains(TYPE_FIELD)) {
+      if (!csv.headers().contains(POSITION_TYPE_FIELD)) {
         return ValueWithFailures.of(
             ImmutableList.of(),
-            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", TYPE_FIELD, charSource));
+            FailureItem.of(FailureReason.PARSING, "CSV file does not contain '{header}' header: {}", POSITION_TYPE_FIELD, charSource));
       }
       return parseFile(csv, positionType);
 
@@ -323,75 +332,38 @@ public final class PositionCsvLoader {
   }
 
   // loads a single CSV file
+  @SuppressWarnings("unchecked")
   private <T extends Position> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> posType) {
     List<T> positions = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
-    int line = 2;
     for (CsvRow row : csv.asIterable()) {
+      String typeRaw = row.findValue(POSITION_TYPE_FIELD).orElse("SMART");
+      String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
       try {
         PositionInfo info = parsePositionInfo(row);
-        Optional<String> typeRawOpt = row.findValue(TYPE_FIELD);
-        if (typeRawOpt.isPresent()) {
-          // type specified
-          String type = typeRawOpt.get().toUpperCase(Locale.ENGLISH);
-          switch (type.toUpperCase(Locale.ENGLISH)) {
-            case "SEC":
-            case "SECURITY":
-              if (posType == SecurityPosition.class || posType == ResolvableSecurityPosition.class) {
-                positions.add(posType.cast(resolver.parseNonEtdSecurityPosition(row, info)));
-              } else if (posType == GenericSecurityPosition.class || posType == Position.class) {
-                Position parsed = resolver.parseNonEtdPosition(row, info);
-                if (posType.isInstance(parsed)) {
-                  positions.add(posType.cast(parsed));
-                }
-              }
-              break;
-            case "FUT":
-            case "FUTURE":
-              if (posType == EtdPosition.class || posType == EtdFuturePosition.class ||
-                  posType == ResolvableSecurityPosition.class || posType == Position.class) {
-                positions.add(posType.cast((Position) resolver.parseEtdFuturePosition(row, info)));
-              } else if (posType == SecurityPosition.class) {
-                positions.add(posType.cast(resolver.parseEtdFutureSecurityPosition(row, info)));
-              }
-              break;
-            case "OPT":
-            case "OPTION":
-              if (posType == EtdPosition.class || posType == EtdOptionPosition.class ||
-                  posType == ResolvableSecurityPosition.class || posType == Position.class) {
-                positions.add(posType.cast(resolver.parseEtdOptionPosition(row, info)));
-              } else if (posType == SecurityPosition.class) {
-                positions.add(posType.cast(resolver.parseEtdOptionSecurityPosition(row, info)));
-              }
-              break;
-            default:
-              failures.add(FailureItem.of(
-                  FailureReason.PARSING,
-                  "CSV file position type '{positionType}' is not known at line {lineNumber}",
-                  typeRawOpt.get(),
-                  line));
-              break;
-          }
+        // type specified
+        PositionCsvParserPlugin plugin = PLUGINS.get(typeUpper);
+        if (plugin != null) {
+          plugin.parsePosition(posType, row, info, resolver)
+              .filter(parsed -> posType.isInstance(parsed))
+              .ifPresent(parsed -> positions.add((T) parsed));
         } else {
-          // infer type
-          if (posType == SecurityPosition.class) {
-            positions.add(posType.cast(SecurityCsvPlugin.parsePositionLightweight(row, info, resolver)));
-          } else {
-            Position position = SecurityCsvPlugin.parsePosition(row, info, resolver);
-            if (posType.isInstance(position)) {
-              positions.add(posType.cast(position));
-            }
-          }
+          // failed to find the type
+          failures.add(FailureItem.of(
+              FailureReason.PARSING,
+              "CSV position file type '{tradeType}' is not known at line {lineNumber}",
+              typeRaw,
+              row.lineNumber()));
         }
       } catch (RuntimeException ex) {
         failures.add(FailureItem.of(
             FailureReason.PARSING,
             ex,
-            "CSV file position could not be parsed at line {lineNumber}: {exceptionMessage}",
-            line,
+            "CSV position file type '{tradeType}' could not be parsed at line {lineNumber}: {exceptionMessage}",
+            typeRaw,
+            row.lineNumber(),
             ex.getMessage()));
       }
-      line++;
     }
     return ValueWithFailures.of(positions, failures);
   }

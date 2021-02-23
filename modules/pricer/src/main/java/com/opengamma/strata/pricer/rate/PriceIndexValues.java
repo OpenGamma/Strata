@@ -10,13 +10,11 @@ import java.time.LocalDate;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.index.PriceIndex;
 import com.opengamma.strata.basics.index.PriceIndexObservation;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.MarketDataView;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
-import com.opengamma.strata.market.curve.NodalCurve;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
 import com.opengamma.strata.market.param.ParameterPerturbation;
@@ -52,12 +50,7 @@ public interface PriceIndexValues
       Curve forwardCurve,
       LocalDateDoubleTimeSeries fixings) {
 
-    if (forwardCurve instanceof NodalCurve) {
-      return SimplePriceIndexValues.of(index, valuationDate, (NodalCurve) forwardCurve, fixings);
-    }
-    throw new IllegalArgumentException(Messages.format(
-        "Unknown curve type for PriceIndexValues, must be 'NodalCurve' but was '{}'",
-        forwardCurve.getClass().getName()));
+    return SimplePriceIndexValues.of(index, valuationDate, forwardCurve, fixings);
   }
 
   //-------------------------------------------------------------------------

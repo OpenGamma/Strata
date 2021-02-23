@@ -5,28 +5,37 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CONVENTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FX_RATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PERIOD_TO_START_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TENOR_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIRST_REGULAR_START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FX_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.KNOWN_AMOUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LAST_REGULAR_END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PERIOD_TO_START_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ROLL_CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STUB_CONVENTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TENOR_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
@@ -42,6 +51,7 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.basics.value.ValueStep;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
@@ -56,15 +66,44 @@ import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
 /**
  * Loads Swap trades from CSV files.
  */
-final class SwapTradeCsvPlugin {
+final class SwapTradeCsvPlugin implements TradeCsvParserPlugin {
 
-  // CSV column headers
-  private static final String ROLL_CONVENTION_FIELD = "Roll Convention";
-  private static final String STUB_CONVENTION_FIELD = "Stub Convention";
-  private static final String FIRST_REGULAR_START_DATE_FIELD = "First Regular Start Date";
-  private static final String LAST_REGULAR_END_DATE_FIELD = "Last Regular End Date";
-  static final String KNOWN_AMOUNT_FIELD = "Known Amount";
+  /**
+   * The singleton instance of the plugin.
+   */
+  public static final SwapTradeCsvPlugin INSTANCE = new SwapTradeCsvPlugin();
 
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("SWAP");
+  }
+
+  @Override
+  public boolean isAdditionalRow(CsvRow baseRow, CsvRow additionalRow) {
+    return additionalRow.getField(TRADE_TYPE_FIELD).toUpperCase(Locale.ENGLISH).equals("VARIABLE");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    if (requiredJavaType.isAssignableFrom(SwapTrade.class)) {
+      return Optional.of(resolver.parseSwapTrade(baseRow, additionalRows, info));
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "Swap";
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
    * 

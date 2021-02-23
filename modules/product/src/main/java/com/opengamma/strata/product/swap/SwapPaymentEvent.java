@@ -56,4 +56,15 @@ public interface SwapPaymentEvent {
    */
   public abstract SwapPaymentEvent adjustPaymentDate(TemporalAdjuster adjuster);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Checks whether the payment amount of an event is known at a given date.
+   * <p>
+   * Each payment event may be a known amount at a given date, else it could be fixed at a later date
+   *
+   * @param date  the date to check whether payment amount is known or not
+   * @return true if payment is fixed at given date
+   */
+  public abstract boolean isKnownAmountAt(LocalDate date);
+
 }

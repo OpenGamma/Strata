@@ -135,6 +135,37 @@ public final class StandardSchemes {
    * https://ihsmarkit.com/products/red-cds.html
    */
   public static final String RED9_SCHEME = "RED9";
+  /**
+   * The scheme for OPRA option codes.
+   * <p>
+   * These codes have:
+   * <ul>
+   * <li>1 to 5 characters for the underlying root symbol
+   * <li>1 letter representing the month and put/call
+   * <li>2 digits for the day-of-month
+   * <li>2 digits for the year
+   * <li>1 character flag indicating the scale of the strike
+   * <li>6 digits for the strike
+   * </ul>
+   * https://customers.refinitiv.com/wetfetch/index.aspx?CID=27348&doc=OSI_FAQ_18th_Feb_2010.pdf&base=/support/datasupport/option_symbology_change.aspx
+   */
+  public static final String OPRA_SCHEME = "OPRA";
+  /**
+   * The scheme for OCC option codes.
+   * <p>
+   * These codes have:
+   * <ul>
+   * <li>1 to 6 characters for the underlying root symbol
+   * <li>2 digits for the year
+   * <li>2 digits for the month
+   * <li>2 digits for the day-of-month
+   * <li>1 letter representing put/call
+   * <li>8 digits for the strike multiplied by 1000
+   * </ul>
+   * https://customers.refinitiv.com/wetfetch/index.aspx?CID=27348&doc=OSI_FAQ_18th_Feb_2010.pdf&base=/support/datasupport/option_symbology_change.aspx
+   * https://ibkr.info/node/972
+   */
+  public static final String OCC_SCHEME = "OCC";
 
   // restricted constructor
   private StandardSchemes() {

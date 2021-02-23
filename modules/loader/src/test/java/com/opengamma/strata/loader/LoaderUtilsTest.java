@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
@@ -69,8 +70,21 @@ public class LoaderUtilsTest {
   @Test
   public void test_parseInteger() {
     assertThat(LoaderUtils.parseInteger("2")).isEqualTo(2);
+    assertThat(LoaderUtils.parseInteger("1,234,000")).isEqualTo(1_234_000);
     assertThat(LoaderUtils.parseInteger("(2)")).isEqualTo(-2);
     assertThat(LoaderUtils.parseInteger("(23)")).isEqualTo(-23);
+    assertThat(LoaderUtils.parseInteger("(12,345,000)")).isEqualTo(-12_345_000);
+    assertThat(LoaderUtils.parseInteger("12,345,6,7,8")).isEqualTo(12_345_678);
+    assertThat(LoaderUtils.parseInteger("(12,345,6,7,8)")).isEqualTo(-12_345_678);
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseInteger("12,,000"))
+        .withMessage("Unable to parse integer from '12,,000'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseInteger("12,000,"))
+        .withMessage("Unable to parse integer from '12,000,'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseInteger("(12,120,)"))
+        .withMessage("Unable to parse integer from '(12,120,)'");
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseInteger("()"))
         .withMessage("Unable to parse integer from '()'");
@@ -86,6 +100,23 @@ public class LoaderUtilsTest {
   public void test_parseDouble() {
     assertThat(LoaderUtils.parseDouble("1.2")).isEqualTo(1.2d, within(1e-10));
     assertThat(LoaderUtils.parseDouble("(1.2)")).isEqualTo(-1.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("1,234,567.2")).isEqualTo(1_234_567.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("(1,234,567.2)")).isEqualTo(-1_234_567.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("1,234,5,6,7.2")).isEqualTo(1_234_567.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("(1,234,5,6,7.2)")).isEqualTo(-1_234_567.2d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("1,234.")).isEqualTo(1_234.0d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("(1,234.)")).isEqualTo(-1_234.0d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble(".123")).isEqualTo(0.123d, within(1e-10));
+    assertThat(LoaderUtils.parseDouble("(.123)")).isEqualTo(-0.123d, within(1e-10));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("12,,000.2"))
+        .withMessage("Unable to parse double from '12,,000.2'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("12,000.2,"))
+        .withMessage("Unable to parse double from '12,000.2,'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseDouble("12.345.678,12"))
+        .withMessage("Unable to parse double from '12.345.678,12'"); // European formats are not supported
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseDouble("()"))
         .withMessage("Unable to parse double from '()'");
@@ -116,6 +147,23 @@ public class LoaderUtilsTest {
   public void test_parseBigDecimal() {
     assertThat(LoaderUtils.parseBigDecimal("1.2")).isEqualTo(BigDecimal.valueOf(1.2d));
     assertThat(LoaderUtils.parseBigDecimal("(1.2)")).isEqualTo(BigDecimal.valueOf(-1.2d));
+    assertThat(LoaderUtils.parseBigDecimal("1,234,567.2")).isEqualTo(BigDecimal.valueOf(1_234_567.2d));
+    assertThat(LoaderUtils.parseBigDecimal("(1,234,567.2)")).isEqualTo(BigDecimal.valueOf(-1_234_567.2d));
+    assertThat(LoaderUtils.parseBigDecimal("1,234,5,6,7.2")).isEqualTo(BigDecimal.valueOf(1_234_567.2d));
+    assertThat(LoaderUtils.parseBigDecimal("(1,234,5,6,7.2)")).isEqualTo(BigDecimal.valueOf(-1_234_567.2d));
+    assertThat(LoaderUtils.parseBigDecimal("1,234.")).isEqualTo(BigDecimal.valueOf(1_234d).setScale(0));
+    assertThat(LoaderUtils.parseBigDecimal("(1,234.)")).isEqualTo(BigDecimal.valueOf(-1_234d).setScale(0));
+    assertThat(LoaderUtils.parseBigDecimal(".123")).isEqualTo(BigDecimal.valueOf(0.123d));
+    assertThat(LoaderUtils.parseBigDecimal("(.123)")).isEqualTo(BigDecimal.valueOf(-0.123d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,,000.2"))
+        .withMessage("Unable to parse BigDecimal from '12,,000.2'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("12,000.2,"))
+        .withMessage("Unable to parse BigDecimal from '12,000.2,'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimal("12.345.678,12"))
+        .withMessage("Unable to parse BigDecimal from '12.345.678,12'"); // European formats are not supported
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseBigDecimal("()"))
         .withMessage("Unable to parse BigDecimal from '()'");
@@ -140,6 +188,21 @@ public class LoaderUtilsTest {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> LoaderUtils.parseBigDecimalPercent("Rubbish"))
         .withMessage("Unable to parse BigDecimal percentage from 'Rubbish'");
+  }
+
+  @Test
+  public void test_parseBigDecimalBasisPoint() {
+    assertThat(LoaderUtils.parseBigDecimalBasisPoint("1.2")).isEqualTo(BigDecimal.valueOf(0.00012d));
+    assertThat(LoaderUtils.parseBigDecimalBasisPoint("(1.2)")).isEqualTo(BigDecimal.valueOf(-0.00012d));
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("()"))
+        .withMessage("Unable to parse BigDecimal basis point from '()'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("(1.2(3)"))
+        .withMessage("Unable to parse BigDecimal basis point from '(1.2(3)'");
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> LoaderUtils.parseBigDecimalBasisPoint("Rubbish"))
+        .withMessage("Unable to parse BigDecimal basis point from 'Rubbish'");
   }
 
   //-------------------------------------------------------------------------
@@ -218,6 +281,39 @@ public class LoaderUtilsTest {
   }
 
   @Test
+  public void test_tryParsePeriod() {
+    assertThat(LoaderUtils.tryParsePeriod("P2D")).hasValue(Period.ofDays(2));
+    assertThat(LoaderUtils.tryParsePeriod("2D")).hasValue(Period.ofDays(2));
+    assertThat(LoaderUtils.tryParsePeriod("2X")).isEmpty();
+    assertThat(LoaderUtils.tryParsePeriod("2")).isEmpty();
+    assertThat(LoaderUtils.tryParsePeriod("")).isEmpty();
+    assertThat(LoaderUtils.tryParsePeriod(null)).isEmpty();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parseMarketTenor() {
+    assertThat(LoaderUtils.parseMarketTenor("P2D")).isEqualTo(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.parseMarketTenor("2D")).isEqualTo(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.parseMarketTenor("ON")).isEqualTo(MarketTenor.ON);
+    assertThat(LoaderUtils.parseMarketTenor("TN")).isEqualTo(MarketTenor.TN);
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseMarketTenor("2"));
+  }
+
+  @Test
+  public void test_tryParseMarketTenor() {
+    assertThat(LoaderUtils.tryParseMarketTenor("P2D")).hasValue(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.tryParseMarketTenor("2D")).hasValue(MarketTenor.ofSpotDays(2));
+    assertThat(LoaderUtils.tryParseMarketTenor("ON")).hasValue(MarketTenor.ON);
+    assertThat(LoaderUtils.tryParseMarketTenor("TN")).hasValue(MarketTenor.TN);
+    assertThat(LoaderUtils.tryParseMarketTenor("2X")).isEmpty();
+    assertThat(LoaderUtils.tryParseMarketTenor("2")).isEmpty();
+    assertThat(LoaderUtils.tryParseMarketTenor("")).isEmpty();
+    assertThat(LoaderUtils.tryParseMarketTenor(null)).isEmpty();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_parseTenor() {
     assertThat(LoaderUtils.parseTenor("P2D")).isEqualTo(Tenor.ofDays(2));
     assertThat(LoaderUtils.parseTenor("2D")).isEqualTo(Tenor.ofDays(2));
@@ -234,6 +330,7 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.tryParseTenor(null)).isEmpty();
   }
 
+  //-------------------------------------------------------------------------
   @Test
   public void test_parseFrequency() {
     assertThat(LoaderUtils.parseFrequency("P2D")).isEqualTo(Frequency.ofDays(2));
@@ -243,6 +340,20 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseFrequency("0T")).isEqualTo(Frequency.TERM);
     assertThat(LoaderUtils.parseFrequency("1T")).isEqualTo(Frequency.TERM);
     assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseFrequency("2"));
+  }
+
+  @Test
+  public void test_tryParseFrequency() {
+    assertThat(LoaderUtils.tryParseFrequency("P2D")).hasValue(Frequency.ofDays(2));
+    assertThat(LoaderUtils.tryParseFrequency("2D")).hasValue(Frequency.ofDays(2));
+    assertThat(LoaderUtils.tryParseFrequency("TERM")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("T")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("0T")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("1T")).hasValue(Frequency.TERM);
+    assertThat(LoaderUtils.tryParseFrequency("2X")).isEmpty();
+    assertThat(LoaderUtils.tryParseFrequency("2")).isEmpty();
+    assertThat(LoaderUtils.tryParseFrequency("")).isEmpty();
+    assertThat(LoaderUtils.tryParseFrequency(null)).isEmpty();
   }
 
   //-------------------------------------------------------------------------

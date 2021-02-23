@@ -16,9 +16,9 @@ import com.opengamma.strata.report.cashflow.CashFlowReportTemplateIniLoader;
 import com.opengamma.strata.report.trade.TradeReportTemplateIniLoader;
 
 /**
- * Loads report templates from ini files by delegating to specific loaders for the different report types.
+ * Loads report templates from ini files by dispatching to specific loaders for the different report types.
  */
-final class MasterReportTemplateIniLoader {
+final class DispatchingReportTemplateIniLoader {
 
   /**
    * The known report template loaders.
@@ -28,7 +28,7 @@ final class MasterReportTemplateIniLoader {
       new CashFlowReportTemplateIniLoader());
 
   // restricted constructor
-  private MasterReportTemplateIniLoader() {
+  private DispatchingReportTemplateIniLoader() {
   }
 
   //-------------------------------------------------------------------------

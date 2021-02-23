@@ -5,24 +5,27 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_SIZE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CURRENCY;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXPIRY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PRICE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.QUANTITY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_SCHEME_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_SIZE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_VALUE;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONTRACT_SIZE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXERCISE_PRICE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PRICE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.QUANTITY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_SIZE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
@@ -38,23 +41,63 @@ import com.opengamma.strata.product.SecurityPosition;
 import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.SecurityQuantityTrade;
 import com.opengamma.strata.product.SecurityTrade;
+import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 
 /**
  * Handles the CSV file format for security trades.
  */
-final class SecurityCsvPlugin {
+final class SecurityCsvPlugin implements TradeCsvParserPlugin {
 
+  /**
+   * The singleton instance of the plugin.
+   */
+  public static final SecurityCsvPlugin INSTANCE = new SecurityCsvPlugin();
+
+  //-------------------------------------------------------------------------
+  @Override
+  public Set<String> tradeTypeNames() {
+    return ImmutableSet.of("SECURITY");
+  }
+
+  @Override
+  public Optional<Trade> parseTrade(
+      Class<?> requiredJavaType,
+      CsvRow baseRow,
+      List<CsvRow> additionalRows,
+      TradeInfo info,
+      TradeCsvInfoResolver resolver) {
+
+    boolean isGenericSecurityTradeRequired = requiredJavaType.isAssignableFrom(GenericSecurityTrade.class);
+    if (isGenericSecurityTradeRequired || requiredJavaType.isAssignableFrom(SecurityTrade.class)) {
+      // for legacy reasons, this code parses either a SecurityTrade or a GenericSecurityTrade
+      // once parsed, if we parsed GenericSecurityTrade we downgrade it to SecurityTrade if necessary
+      SecurityQuantityTrade parsed = resolver.parseSecurityTrade(baseRow, info);
+      if (parsed instanceof GenericSecurityTrade && !isGenericSecurityTradeRequired) {
+        parsed = SecurityTrade.of(parsed.getInfo(), parsed.getSecurityId(), parsed.getQuantity(), parsed.getPrice());
+      }
+      // the calling code does further checks to ensure the returned object is of the correct type
+      return Optional.of(parsed);
+    }
+    return Optional.empty();
+  }
+
+  @Override
+  public String getName() {
+    return "Security";
+  }
+
+  //-------------------------------------------------------------------------
   // parses a trade from the CSV row
-  static SecurityQuantityTrade parseTrade(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+  static SecurityQuantityTrade parseTradeWithPriceInfo(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     SecurityTrade trade = parseSecurityTrade(row, info, resolver);
     SecurityTrade base = resolver.completeTrade(row, trade);
 
-    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE).map(str -> LoaderUtils.parseDouble(str));
-    Optional<Currency> currencyOpt = row.findValue(CURRENCY).map(str -> Currency.of(str));
-    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE).map(str -> LoaderUtils.parseDouble(str));
-    double contractSize = row.findValue(CONTRACT_SIZE).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
+    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE_FIELD).map(str -> LoaderUtils.parseDouble(str));
+    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(str -> Currency.of(str));
+    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE_FIELD).map(str -> LoaderUtils.parseDouble(str));
+    double contractSize = row.findValue(CONTRACT_SIZE_FIELD).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
     if (tickSizeOpt.isPresent() && currencyOpt.isPresent() && tickValueOpt.isPresent()) {
       SecurityPriceInfo priceInfo =
           SecurityPriceInfo.of(tickSizeOpt.get(), CurrencyAmount.of(currencyOpt.get(), tickValueOpt.get()), contractSize);
@@ -144,7 +187,7 @@ final class SecurityCsvPlugin {
 
     @Override
     public void writeCsv(CsvRowOutputWithHeaders csv, SecurityQuantityTrade trade) {
-      csv.writeCell(TradeCsvLoader.TYPE_FIELD, "Security");
+      csv.writeCell(TRADE_TYPE_FIELD, "Security");
       csv.writeCell(SECURITY_ID_SCHEME_FIELD, trade.getSecurityId().getStandardId().getScheme());
       csv.writeCell(SECURITY_ID_FIELD, trade.getSecurityId().getStandardId().getValue());
       csv.writeCell(BUY_SELL_FIELD, trade.getQuantity() < 0 ? BuySell.SELL : BuySell.BUY);
@@ -170,10 +213,10 @@ final class SecurityCsvPlugin {
         .add(BUY_SELL_FIELD)
         .add(QUANTITY_FIELD)
         .add(PRICE_FIELD)
-        .add(TICK_SIZE)
-        .add(CURRENCY)
-        .add(TICK_VALUE)
-        .add(CONTRACT_SIZE)
+        .add(TICK_SIZE_FIELD)
+        .add(CURRENCY_FIELD)
+        .add(TICK_VALUE_FIELD)
+        .add(CONTRACT_SIZE_FIELD)
         .build();
 
     @Override
@@ -183,16 +226,16 @@ final class SecurityCsvPlugin {
 
     @Override
     public void writeCsv(CsvRowOutputWithHeaders csv, GenericSecurityTrade trade) {
-      csv.writeCell(TradeCsvLoader.TYPE_FIELD, "Security");
+      csv.writeCell(TRADE_TYPE_FIELD, "Security");
       csv.writeCell(SECURITY_ID_SCHEME_FIELD, trade.getSecurityId().getStandardId().getScheme());
       csv.writeCell(SECURITY_ID_FIELD, trade.getSecurityId().getStandardId().getValue());
       csv.writeCell(BUY_SELL_FIELD, trade.getQuantity() < 0 ? BuySell.SELL : BuySell.BUY);
       csv.writeCell(QUANTITY_FIELD, Math.abs(trade.getQuantity()));
       csv.writeCell(PRICE_FIELD, trade.getPrice());
-      csv.writeCell(TICK_SIZE, trade.getProduct().getInfo().getPriceInfo().getTickSize());
-      csv.writeCell(CURRENCY, trade.getProduct().getInfo().getPriceInfo().getTickValue().getCurrency());
-      csv.writeCell(TICK_VALUE, trade.getProduct().getInfo().getPriceInfo().getTickValue().getAmount());
-      csv.writeCell(CONTRACT_SIZE, trade.getProduct().getInfo().getPriceInfo().getContractSize());
+      csv.writeCell(TICK_SIZE_FIELD, trade.getProduct().getInfo().getPriceInfo().getTickSize());
+      csv.writeCell(CURRENCY_FIELD, trade.getProduct().getInfo().getPriceInfo().getTickValue().getCurrency());
+      csv.writeCell(TICK_VALUE_FIELD, trade.getProduct().getInfo().getPriceInfo().getTickValue().getAmount());
+      csv.writeCell(CONTRACT_SIZE_FIELD, trade.getProduct().getInfo().getPriceInfo().getContractSize());
       csv.writeNewLine();
     }
   }
