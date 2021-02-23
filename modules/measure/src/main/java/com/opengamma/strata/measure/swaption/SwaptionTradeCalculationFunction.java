@@ -63,7 +63,7 @@ public class SwaptionTradeCalculationFunction
           .put(Measures.PV01_CALIBRATED_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesCalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
-          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::bachelierVega)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, SwaptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, SwaptionMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
