@@ -61,9 +61,9 @@ final class FxSingleBarrierOptionMeasureCalculations {
 
   /**
    * Creates an instance.
-   *
-   * @param blackPricer the pricer for {@link ResolvedFxSingleBarrierOptionTrade}
-   * @param trinomialTreePricer the pricer for {@link ResolvedFxSingleBarrierOptionTrade} SABR
+   * 
+   * @param blackPricer  the pricer for {@link ResolvedFxSingleBarrierOptionTrade}
+   * @param trinomialTreePricer  the pricer for {@link ResolvedFxSingleBarrierOptionTrade} SABR
    */
   FxSingleBarrierOptionMeasureCalculations(
       BlackFxSingleBarrierOptionTradePricer blackPricer,

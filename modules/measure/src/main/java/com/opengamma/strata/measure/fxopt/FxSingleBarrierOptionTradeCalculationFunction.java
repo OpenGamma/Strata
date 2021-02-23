@@ -32,11 +32,12 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
 /**
  * Perform calculations on an FX single barrier option trade for each of a set of scenarios.
  * <p>
- * This uses Black FX option volatilities, which must be specified using {@link FxOptionMarketDataLookup}. An instance
- * of {@link RatesMarketDataLookup} must also be specified.
+ * This uses Black FX option volatilities, which must be specified using {@link FxOptionMarketDataLookup}.
+ * An instance of {@link RatesMarketDataLookup} must also be specified.
  * <p>
- * Two pricing methods are available, 'Black' and 'TrinomialTree'. By default, 'Black' will be used. To control the
- * method, pass an instance of {@link FxSingleBarrierOptionMethod} in the calculation parameters.
+ * Two pricing methods are available, 'Black' and 'TrinomialTree'.
+ * By default, 'Black' will be used.
+ * To control the method, pass an instance of {@link FxSingleBarrierOptionMethod} in the calculation parameters.
  * <p>
  * The supported built-in measures are:
  * <ul>

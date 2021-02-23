@@ -62,9 +62,9 @@ final class FxVanillaOptionMeasureCalculations {
 
   /**
    * Creates an instance.
-   *
-   * @param blackPricer the pricer for {@link ResolvedFxVanillaOptionTrade} using Black
-   * @param vannaVolgaPricer the pricer for {@link ResolvedFxVanillaOptionTrade} using Vanna-Volga
+   * 
+   * @param blackPricer  the pricer for {@link ResolvedFxVanillaOptionTrade} using Black
+   * @param vannaVolgaPricer  the pricer for {@link ResolvedFxVanillaOptionTrade} using Vanna-Volga
    */
   FxVanillaOptionMeasureCalculations(
       BlackFxVanillaOptionTradePricer blackPricer,
