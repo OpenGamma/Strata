@@ -5,6 +5,9 @@
  */
 package com.opengamma.strata.measure.fxopt;
 
+import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkBlackVolatilities;
+import static com.opengamma.strata.measure.fxopt.FxCalculationUtils.checkTrinomialTreeVolatilities;
+
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -235,6 +238,47 @@ final class FxSingleBarrierOptionMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
+  // calculates vega (present value volatility sensitivities) for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesScenarioMarketData ratesMarketData,
+      FxOptionScenarioMarketData optionMarketData,
+      FxSingleBarrierOptionMethod method) {
+
+    CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
+    if (method == FxSingleBarrierOptionMethod.TRINOMIAL_TREE) {
+      throw new IllegalArgumentException(
+          "FX single barrier option Trinomial Tree pricer does not currently support vega calculation");
+    } else {
+      return ScenarioArray.of(
+          ratesMarketData.getScenarioCount(),
+          i -> vegaMarketQuoteBucketed(
+              trade,
+              ratesMarketData.scenario(i).ratesProvider(),
+              optionMarketData.scenario(i).volatilities(currencyPair),
+              method));
+    }
+  }
+
+  // point sensitivity
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesProvider ratesProvider,
+      FxOptionVolatilities volatilities,
+      FxSingleBarrierOptionMethod method) {
+
+    if (method == FxSingleBarrierOptionMethod.TRINOMIAL_TREE) {
+      throw new IllegalArgumentException(
+          "FX single barrier option Trinomial Tree pricer does not currently support vega calculation");
+    } else {
+      BlackFxOptionVolatilities blackVols = checkBlackVolatilities(volatilities);
+      PointSensitivities pointSens =
+          blackPricer.presentValueSensitivityModelParamsVolatility(trade, ratesProvider, blackVols);
+      return blackVols.parameterSensitivity(pointSens);
+    }
+  }
+
+  //-------------------------------------------------------------------------
   // calculates currency exposure for all scenarios
   MultiCurrencyScenarioArray currencyExposure(
       ResolvedFxSingleBarrierOptionTrade trade,
@@ -293,23 +337,6 @@ final class FxSingleBarrierOptionMeasureCalculations {
     } else {
       return blackPricer.currentCash(trade, valuationDate);
     }
-  }
-
-  //-------------------------------------------------------------------------
-  // ensures that the volatilities are correct
-  private BlackFxOptionVolatilities checkBlackVolatilities(FxOptionVolatilities volatilities) {
-    if (volatilities instanceof BlackFxOptionVolatilities) {
-      return (BlackFxOptionVolatilities) volatilities;
-    }
-    throw new IllegalArgumentException("FX single barrier option Black pricing requires BlackFxOptionVolatilities");
-  }
-
-  // ensures that the volatilities are correct
-  private BlackFxOptionVolatilities checkTrinomialTreeVolatilities(FxOptionVolatilities volatilities) {
-    if (volatilities instanceof BlackFxOptionVolatilities) {
-      return (BlackFxOptionVolatilities) volatilities;
-    }
-    throw new IllegalArgumentException("FX single barrier option Trinomial Tree pricing requires BlackFxOptionVolatilities");
   }
 
 }
