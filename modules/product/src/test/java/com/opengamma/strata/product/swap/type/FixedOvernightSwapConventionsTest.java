@@ -41,6 +41,8 @@ public class FixedOvernightSwapConventionsTest {
 
   public static Object[][] data_spot_lag() {
     return new Object[][] {
+        {FixedOvernightSwapConventions.USD_FIXED_TERM_SOFR_OIS, 2},
+        {FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS, 2},
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, 2},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, 2},
         {FixedOvernightSwapConventions.CHF_FIXED_TERM_SARON_OIS, 2},
@@ -65,6 +67,8 @@ public class FixedOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_period() {
     return new Object[][] {
+        {FixedOvernightSwapConventions.USD_FIXED_TERM_SOFR_OIS, Frequency.TERM},
+        {FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS, Frequency.P12M},
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, Frequency.TERM},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, Frequency.P12M},
         {FixedOvernightSwapConventions.CHF_FIXED_TERM_SARON_OIS, Frequency.TERM},
@@ -95,6 +99,8 @@ public class FixedOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_day_count() {
     return new Object[][] {
+        {FixedOvernightSwapConventions.USD_FIXED_TERM_SOFR_OIS, DayCounts.ACT_360},
+        {FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS, DayCounts.ACT_360},
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, DayCounts.ACT_360},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, DayCounts.ACT_360},
         {FixedOvernightSwapConventions.CHF_FIXED_TERM_SARON_OIS, DayCounts.ACT_360},
@@ -119,6 +125,8 @@ public class FixedOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_float_leg() {
     return new Object[][] {
+        {FixedOvernightSwapConventions.USD_FIXED_TERM_SOFR_OIS, OvernightIndices.USD_SOFR},
+        {FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS, OvernightIndices.USD_SOFR},
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, OvernightIndices.USD_FED_FUND},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, OvernightIndices.USD_FED_FUND},
         {FixedOvernightSwapConventions.CHF_FIXED_TERM_SARON_OIS, OvernightIndices.CHF_SARON},
@@ -143,6 +151,8 @@ public class FixedOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_day_convention() {
     return new Object[][] {
+        {FixedOvernightSwapConventions.USD_FIXED_TERM_SOFR_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
+        {FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedOvernightSwapConventions.USD_FIXED_TERM_FED_FUND_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
         {FixedOvernightSwapConventions.CHF_FIXED_TERM_SARON_OIS, BusinessDayConventions.MODIFIED_FOLLOWING},
@@ -167,6 +177,7 @@ public class FixedOvernightSwapConventionsTest {
   //-------------------------------------------------------------------------
   public static Object[][] data_stub_on() {
     return new Object[][] {
+        {FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS, Tenor.TENOR_18M},
         {FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS, Tenor.TENOR_18M},
         {FixedOvernightSwapConventions.CHF_FIXED_1Y_SARON_OIS, Tenor.TENOR_18M},
         {FixedOvernightSwapConventions.EUR_FIXED_1Y_EONIA_OIS, Tenor.TENOR_18M},
