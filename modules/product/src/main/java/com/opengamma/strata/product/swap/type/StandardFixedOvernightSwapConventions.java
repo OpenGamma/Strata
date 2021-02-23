@@ -72,6 +72,16 @@ final class StandardFixedOvernightSwapConventions {
       makeConvention("CHF-FIXED-1Y-SARON-OIS", CHF_SARON, ACT_360, P12M, 2, 2);
 
   //-------------------------------------------------------------------------
+
+  /**
+   * USD fixed vs SOFR OIS swap for terms less than or equal to one year.
+   * <p>
+   * Both legs pay annually and use day count 'Act/360'.
+   * The spot date offset is 2 days and the payment date offset is 2 days.
+   */
+  public static final FixedOvernightSwapConvention USD_FIXED_TERM_SOFR_OIS =
+      makeConvention("USD-FIXED-TERM-SOFR-OIS", USD_SOFR, ACT_360, TERM, 2, 2);
+
   /**
    * USD fixed vs SOFR OIS swap for terms greater than one year.
    * <p>
