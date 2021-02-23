@@ -66,9 +66,7 @@ public final class CurrencyParameterSensitivitiesScenarioArray
    * @param valueFunction the function used to obtain each value
    * @return an instance initialized using the function
    */
-  public static List<CurrencyParameterSensitivities> buildIt(
-      int size,
-      IntFunction<CurrencyParameterSensitivities> valueFunction) {
+  public static List<CurrencyParameterSensitivities> buildIt( int size,  IntFunction<CurrencyParameterSensitivities> valueFunction) {
     List listOfSensis = new ArrayList<>();
     for (int i = 0; i < size; i++) {
       listOfSensis.add(valueFunction.apply(i));
@@ -86,9 +84,7 @@ public final class CurrencyParameterSensitivitiesScenarioArray
    * @return an instance initialized using the function
    * @throws IllegalArgumentException is size is zero or less
    */
-  public static CurrencyParameterSensitivitiesScenarioArray of(
-      int size,
-      IntFunction<CurrencyParameterSensitivities> amountFunction) {
+  public static CurrencyParameterSensitivitiesScenarioArray of( int size, IntFunction<CurrencyParameterSensitivities> amountFunction) {
     return CurrencyParameterSensitivitiesScenarioArray.of(buildIt(size, amountFunction));
   }
 
