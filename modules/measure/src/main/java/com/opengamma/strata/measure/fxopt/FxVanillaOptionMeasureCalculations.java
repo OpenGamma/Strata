@@ -18,6 +18,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesScenarioArray;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionSmileVolatilities;
@@ -62,9 +63,9 @@ final class FxVanillaOptionMeasureCalculations {
 
   /**
    * Creates an instance.
-   * 
-   * @param blackPricer  the pricer for {@link ResolvedFxVanillaOptionTrade} using Black
-   * @param vannaVolgaPricer  the pricer for {@link ResolvedFxVanillaOptionTrade} using Vanna-Volga
+   *
+   * @param blackPricer the pricer for {@link ResolvedFxVanillaOptionTrade} using Black
+   * @param vannaVolgaPricer the pricer for {@link ResolvedFxVanillaOptionTrade} using Vanna-Volga
    */
   FxVanillaOptionMeasureCalculations(
       BlackFxVanillaOptionTradePricer blackPricer,
@@ -241,14 +242,14 @@ final class FxVanillaOptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates vega (present value volatility sensitivities) for all scenarios
-  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+  CurrencyParameterSensitivitiesScenarioArray vegaMarketQuoteBucketed(
       ResolvedFxVanillaOptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData,
       FxVanillaOptionMethod method) {
 
     CurrencyPair currencyPair = trade.getProduct().getCurrencyPair();
-    return ScenarioArray.of(
+    return CurrencyParameterSensitivitiesScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> vegaMarketQuoteBucketed(
             trade,

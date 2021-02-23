@@ -17,6 +17,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesScenarioArray;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -217,13 +218,13 @@ final class SwaptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates normal vega for all scenarios
-  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+  CurrencyParameterSensitivitiesScenarioArray vegaMarketQuoteBucketed(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
     IborIndex index = trade.getProduct().getIndex();
-    return ScenarioArray.of(
+    return CurrencyParameterSensitivitiesScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> vegaMarketQuoteBucketed(
             trade,

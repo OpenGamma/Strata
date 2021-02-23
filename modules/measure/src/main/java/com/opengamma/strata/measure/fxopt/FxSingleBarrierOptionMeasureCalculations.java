@@ -18,6 +18,7 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesScenarioArray;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.fxopt.BlackFxOptionVolatilities;
@@ -239,7 +240,7 @@ final class FxSingleBarrierOptionMeasureCalculations {
 
   //-------------------------------------------------------------------------
   // calculates vega (present value volatility sensitivities) for all scenarios
-  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+  CurrencyParameterSensitivitiesScenarioArray vegaMarketQuoteBucketed(
       ResolvedFxSingleBarrierOptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       FxOptionScenarioMarketData optionMarketData,
@@ -250,7 +251,7 @@ final class FxSingleBarrierOptionMeasureCalculations {
       throw new IllegalArgumentException(
           "FX single barrier option Trinomial Tree pricer does not currently support vega calculation");
     } else {
-      return ScenarioArray.of(
+      return CurrencyParameterSensitivitiesScenarioArray.of(
           ratesMarketData.getScenarioCount(),
           i -> vegaMarketQuoteBucketed(
               trade,
