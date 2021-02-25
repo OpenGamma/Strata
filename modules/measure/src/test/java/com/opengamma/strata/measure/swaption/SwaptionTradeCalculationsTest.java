@@ -17,12 +17,14 @@ import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesScenarioArray;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionTradePricer;
 import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
+
 
 /**
  * Test {@link SwaptionTradeCalculations}.
@@ -66,7 +68,7 @@ public class SwaptionTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01VegaCal = VOLS.parameterSensitivity(pvVegaPointSens);
 
     assertThat(SwaptionTradeCalculations.DEFAULT.vegaMarketQuoteBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
-        .isEqualTo(ScenarioArray.of(expectedPv01VegaCal));
+        .isEqualTo(CurrencyParameterSensitivitiesScenarioArray.of(ImmutableList.of(expectedPv01VegaCal)));
     assertThat(SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
         .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertThat(SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
