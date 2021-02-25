@@ -25,7 +25,6 @@ import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
 import com.opengamma.strata.pricer.swaption.VolatilitySwaptionTradePricer;
 import com.opengamma.strata.product.swaption.ResolvedSwaptionTrade;
 
-
 /**
  * Test {@link SwaptionTradeCalculations}.
  */
