@@ -137,12 +137,12 @@ public class CurveScenarioExample {
     // TODO Replace the results processing below with a report once the reporting framework supports scenarios
 
     // The results are lists of currency amounts containing one value for each scenario
-    ScenarioArray<?> pvList = (ScenarioArray<?>) results.get(0, 0).getValue();
-    ScenarioArray<?> pv01List = (ScenarioArray<?>) results.get(0, 1).getValue();
+    ScenarioArray<CurrencyAmount> pvList = results.getScenarios(0, 0, CurrencyAmount.class).getValue();
+    ScenarioArray<CurrencyAmount> pv01List = results.getScenarios(0, 1, CurrencyAmount.class).getValue();
 
-    double pvBase = ((CurrencyAmount) pvList.get(0)).getAmount();
-    double pvShifted = ((CurrencyAmount) pvList.get(1)).getAmount();
-    double pv01Base = ((CurrencyAmount) pv01List.get(0)).getAmount();
+    double pvBase = pvList.get(0).getAmount();
+    double pvShifted = pvList.get(1).getAmount();
+    double pv01Base = pv01List.get(0).getAmount();
     NumberFormat numberFormat = new DecimalFormat("###,##0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 
     System.out.println("                         PV (base) = " + numberFormat.format(pvBase));
