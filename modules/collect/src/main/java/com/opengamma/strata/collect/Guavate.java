@@ -1255,6 +1255,29 @@ public final class Guavate {
 
   //-------------------------------------------------------------------------
   /**
+   * Returns a generified {@code Class} instance.
+   * <p>
+   * It is not possible in Java generics to get a {@code Class} object with the desired generic
+   * signature, such as {@code Class<List<String>>}. This method provides a way to get such a value.
+   * The method returns the input parameter, but the compiler sees the result as being a different type.
+   * <p>
+   * Note that the generic part of the resulting type is not checked and can be unsound.
+   * The safest choice is to explicitly specify the type you want, by assigning to a variable or constant:
+   * <pre>
+   *   Class&lt;List&lt;String&gt;&gt; cls = genericClass(List.class);
+   * </pre>
+   *
+   * @param <T> the partially specified generic type, such as {@code List} from a constant such as {@code List.class}
+   * @param <S> the fully specified generic type, such as {@code List<String>}
+   * @param cls  the class instance to base the result in, such as {@code List.class}
+   * @return the class instance from the input, with whatever generic parameter is desired
+   */
+  @SuppressWarnings("unchecked")
+  public static <T, S extends T> Class<S> genericClass(Class<T> cls) {
+    return (Class<S>) cls;
+  }
+
+  /**
    * Finds the caller class.
    * <p>
    * This takes an argument which is the number of stack levels to look back.
