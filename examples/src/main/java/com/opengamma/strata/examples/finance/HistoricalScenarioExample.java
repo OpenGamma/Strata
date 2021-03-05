@@ -137,7 +137,7 @@ public class HistoricalScenarioExample {
     Results results = runner.calculateMultiScenario(rules, trades, columns, scenarioMarketData, refData);
 
     // the results contain the one measure requested (Present Value) for each scenario
-    ScenarioArray<?> scenarioValuations = (ScenarioArray<?>) results.get(0, 0).getValue();
+    ScenarioArray<CurrencyAmount> scenarioValuations = results.getScenarios(0, 0, CurrencyAmount.class).getValue();
     outputPnl(scenarioDates, scenarioValuations);
   }
 
@@ -202,14 +202,14 @@ public class HistoricalScenarioExample {
     return builder.build();
   }
 
-  private static void outputPnl(List<LocalDate> scenarioDates, ScenarioArray<?> scenarioValuations) {
+  private static void outputPnl(List<LocalDate> scenarioDates, ScenarioArray<CurrencyAmount> scenarioValuations) {
     NumberFormat numberFormat = new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH));
-    double basePv = ((CurrencyAmount) scenarioValuations.get(0)).getAmount();
+    double basePv = scenarioValuations.get(0).getAmount();
     System.out.println("Base PV (USD): " + numberFormat.format(basePv));
     System.out.println();
     System.out.println("P&L series (USD):");
     for (int i = 1; i < scenarioValuations.getScenarioCount(); i++) {
-      double scenarioPv = ((CurrencyAmount) scenarioValuations.get(i)).getAmount();
+      double scenarioPv = scenarioValuations.get(i).getAmount();
       double pnl = scenarioPv - basePv;
       LocalDate scenarioDate = scenarioDates.get(i);
       System.out.println(Messages.format("{} = {}", scenarioDate, numberFormat.format(pnl)));
