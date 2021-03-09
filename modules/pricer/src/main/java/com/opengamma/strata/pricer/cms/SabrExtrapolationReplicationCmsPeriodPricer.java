@@ -150,7 +150,7 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
    * 
    * @return the pricer
    */
-  public DiscountingSwapProductPricer swapPricer() {
+  public DiscountingSwapProductPricer getSwapPricer() {
     return swapPricer;
   }
 
@@ -159,7 +159,7 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
    * 
    * @return the parameter
    */
-  public double mu() {
+  public double getMu() {
     return mu;
   }
 
@@ -168,7 +168,7 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
    * 
    * @return the strike
    */
-  public double cutOffStrike() {
+  public double getCutOffStrike() {
     return cutOffStrike;
   }
 

@@ -137,13 +137,13 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
   
   @Test
   public void swap_pricer() {
-    assertThat(PRICER.swapPricer()).isEqualTo(DiscountingSwapProductPricer.DEFAULT);
+    assertThat(PRICER.getSwapPricer()).isEqualTo(DiscountingSwapProductPricer.DEFAULT);
   }
   
   @Test
   public void parameters() {
-    assertThat(PRICER.mu()).isEqualTo(MU);
-    assertThat(PRICER.cutOffStrike()).isEqualTo(CUT_OFF_STRIKE);
+    assertThat(PRICER.getMu()).isEqualTo(MU);
+    assertThat(PRICER.getCutOffStrike()).isEqualTo(CUT_OFF_STRIKE);
   }
 
   @Test
