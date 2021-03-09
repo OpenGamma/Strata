@@ -144,7 +144,35 @@ public final class SabrExtrapolationReplicationCmsPeriodPricer {
   public static SabrExtrapolationReplicationCmsPeriodPricer of(double cutOffStrike, double mu) {
     return of(DiscountingSwapProductPricer.DEFAULT, cutOffStrike, mu);
   }
+  
+  /**
+   * Returns the underlying swap pricer.
+   * 
+   * @return the pricer
+   */
+  public DiscountingSwapProductPricer swapPricer() {
+    return swapPricer;
+  }
 
+  /**
+   * Returns the tail thickness parameter.
+   * 
+   * @return the parameter
+   */
+  public double mu() {
+    return mu;
+  }
+
+  /**
+   * Returns the cut-off strike.
+   * 
+   * @return the strike
+   */
+  public double cutOffStrike() {
+    return cutOffStrike;
+  }
+
+  // Private constructor
   private SabrExtrapolationReplicationCmsPeriodPricer(
       DiscountingSwapProductPricer swapPricer,
       double cutOffStrike,
