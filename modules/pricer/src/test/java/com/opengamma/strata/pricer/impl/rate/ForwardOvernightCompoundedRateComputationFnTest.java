@@ -88,25 +88,28 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 13), REF_DATA),
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 14), REF_DATA),
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 15), REF_DATA)};
-  private static final LocalDate FIXING_START_DATE_XMAS = date(2015, 12, 17);
-  private static final LocalDate FIXING_END_DATE_XMAS = date(2015, 12, 25); // 1w only to decrease data
-  private static final LocalDate FIXING_FINAL_DATE_XMAS = date(2015, 12, 24);
+
+  // XMAS dates
+  private static final LocalDate DUM_ACC_START_XMAS = date(2015, 12, 1);
+  private static final LocalDate DUM_ACC_END_XMAS = date(2015, 12, 31);
+  private static final LocalDate FIXING_START_DATE_XMAS = date(2015, 12, 23);
+  private static final LocalDate FIXING_END_DATE_XMAS = date(2015, 12, 31); // 1w only to decrease data
   private static final LocalDate[] FIXING_DATES_XMAS = new LocalDate[]{
-      date(2015, 12, 17),
-      date(2015, 12, 18),
-      date(2015, 12, 21),
       date(2015, 12, 22),
       date(2015, 12, 23),
       date(2015, 12, 24),
-      date(2015, 12, 25)};
+      date(2015, 12, 28),
+      date(2015, 12, 29),
+      date(2015, 12, 30),
+      date(2015, 12, 31)};
   private static final OvernightIndexObservation[] USD_OBS_XMAS = new OvernightIndexObservation[]{
-      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 17), REF_DATA),
-      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 18), REF_DATA),
-      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 21), REF_DATA),
       OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 22), REF_DATA),
       OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 23), REF_DATA),
       OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 24), REF_DATA),
-      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 25), REF_DATA)};
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 28), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 29), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 30), REF_DATA),
+      OvernightIndexObservation.of(USD_FED_FUND, date(2015, 12, 31), REF_DATA)};
   private static final double[] FIXING_RATES = {
       0.0012, 0.0023, 0.0034,
       0.0045, 0.0056, 0.0067, 0.0078};
@@ -1184,56 +1187,16 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Valuation date on a holiday. Two days cutoff, all ON rates already fixed.
-   * No cutoff, all ON rates already fixed. Time series up to 14-Jan (last fixing date used).
-   */
-  @Test
-  public void rateFedFund0CutOffValuationEndTsHoliday() {
-    // publication=1, cutoff=0, effective offset=0, TS: Fixing all
-    LocalDate[] valuationDate = {date(2015, 1, 15), date(2015, 1, 16), date(2015, 1, 17)};
-    OvernightCompoundedRateComputation ro =
-        OvernightCompoundedRateComputation.of(USD_FED_FUND, FIXING_START_DATE, FIXING_END_DATE, 0, REF_DATA);
-    OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
-    when(mockRates.getIndex()).thenReturn(USD_FED_FUND);
-    SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
-
-    LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
-    int lastFixing = 6;
-    for (int i = 0; i < lastFixing; i++) {
-      tsb.put(FIXING_DATES[i], FIXING_RATES[i]);
-    }
-    when(mockRates.getFixings()).thenReturn(tsb.build());
-    for (int i = 0; i < lastFixing; i++) {
-      when(mockRates.rate(USD_OBS[i])).thenReturn(FIXING_RATES[i]);
-    }
-    for (int i = lastFixing; i < USD_OBS.length; i++) {
-      when(mockRates.rate(USD_OBS[i])).thenReturn(FORWARD_RATES[i]);
-    }
-    double afKnown = 0.0d;
-    double investmentFactorKnown = 1.0d;
-    for (int i = 0; i < 5; i++) {
-      LocalDate fixingknown = FIXING_DATES[i + 1];
-      LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
-      double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
-      afKnown += af;
-      investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
-    }
-    double rateExpected = (investmentFactorKnown - 1.0d) / afKnown;
-    for (int loopvaldate = 0; loopvaldate < valuationDate.length; loopvaldate++) {
-      when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
-      assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
-    }
-  }
 
   /**
-   * Valuation date on a holiday. No cutoff and two already fixed ON rate. ON index is Fed Fund.
+   * Valuation date is on a holiday (Christmas holiday). No cutoff and two already fixed ON rate. ON index is Fed Fund.
+   * Should trigger flag isHolidayJump inside ForwardOvernightCompoundedRateComputationFn::valuationCompositionFactor().
    */
   @Test
-  public void holidayRateFedFund0CutOffValuation2() {
+  public void rateFedFund0CutOffValuationXmas() {
     // publication=1, cutoff=0, effective offset=0, TS: Fixing 2
-    LocalDate[] valuationDate = {date(2015, 12, 24), date(2015, 12, 25)};
+    LocalDate[] valuationDate = {date(2015, 12, 25)};
+
     OvernightCompoundedRateComputation ro =
         OvernightCompoundedRateComputation.of(USD_FED_FUND, FIXING_START_DATE_XMAS, FIXING_END_DATE_XMAS, 0, REF_DATA);
     OvernightIndexRates mockRates = mock(OvernightIndexRates.class);
@@ -1241,7 +1204,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     SimpleRatesProvider simpleProv = new SimpleRatesProvider(mockRates);
 
     LocalDateDoubleTimeSeriesBuilder tsb = LocalDateDoubleTimeSeries.builder();
-    int lastFixing = 5;
+    int lastFixing = 3;
     for (int i = 0; i < lastFixing; i++) {
       tsb.put(FIXING_DATES_XMAS[i], FIXING_RATES[i]);
     }
@@ -1249,23 +1212,20 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     for (int i = 0; i < lastFixing; i++) {
       when(mockRates.rate(USD_OBS_XMAS[i])).thenReturn(FIXING_RATES[i]);
     }
-    for (int i = lastFixing; i < USD_OBS_XMAS.length; i++) {
+    for (int i = lastFixing; i < USD_OBS.length; i++) {
       when(mockRates.rate(USD_OBS_XMAS[i])).thenReturn(FORWARD_RATES[i]);
     }
-
-    // calculate contribution from previous fixings
     double afKnown = 0.0d;
     double investmentFactorKnown = 1.0d;
-    for (int i = 0; i < lastFixing - 1; i++) {
-      LocalDate fixingknown = FIXING_DATES_XMAS[i + 1];
+    // start from second FIXING_DATES_XMAS because this corresponds to FIXING_START_DATE_XMAS
+    for (int i = 1; i < lastFixing; i++) {
+      LocalDate fixingknown = FIXING_DATES_XMAS[i];
       LocalDate endDateKnown = USD_FED_FUND.calculateMaturityFromEffective(fixingknown, REF_DATA);
       double af = USD_FED_FUND.getDayCount().yearFraction(fixingknown, endDateKnown);
       afKnown += af;
-      investmentFactorKnown *= 1.0d + FIXING_RATES[i + 1] * af;
+      investmentFactorKnown *= 1.0d + FIXING_RATES[i] * af;
     }
-
     double investmentFactor = 1.0;
-    // calculate contribution from previous fixings
     double afNoCutoff = 0.0;
     for (int i = lastFixing; i < 6; i++) {
       LocalDate endDate = USD_FED_FUND.calculateMaturityFromEffective(FIXING_DATES_XMAS[i], REF_DATA);
@@ -1277,9 +1237,9 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     when(mockRates.periodRate(USD_OBS_XMAS[lastFixing], FIXING_DATES_XMAS[6])).thenReturn(rateCmp);
     double rateExpected = (investmentFactorKnown * (1.0 + rateCmp * afNoCutoff) - 1.0d)
         / (afKnown + afNoCutoff);
-    for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
+    for (int loopvaldate = 0; loopvaldate < valuationDate.length; loopvaldate++) {
       when(mockRates.getValuationDate()).thenReturn(valuationDate[loopvaldate]);
-      double rateComputed = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProv);
+      double rateComputed = OBS_FWD_ONCMP.rate(ro, DUM_ACC_START_XMAS, DUM_ACC_END_XMAS, simpleProv);
       assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
   }
