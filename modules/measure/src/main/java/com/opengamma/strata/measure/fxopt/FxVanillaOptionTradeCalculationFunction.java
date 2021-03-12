@@ -48,6 +48,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOptionTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED Vega market quote bucketed on volatility curves/surfaces}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
@@ -68,6 +69,7 @@ public class FxVanillaOptionTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, FxVanillaOptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, FxVanillaOptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FxVanillaOptionMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, FxVanillaOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m, meth) -> rt)
           .build();
 

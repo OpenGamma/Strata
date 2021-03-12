@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
 import com.opengamma.strata.collect.result.Result;
+import com.opengamma.strata.data.scenario.ScenarioArray;
 
 /**
  * Test {@link Results}.
@@ -86,6 +87,10 @@ public class ResultsTest {
         .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
     assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.get(0, NAME_A, Integer.class))
         .withMessage("Result queried with type 'java.lang.Integer' but was 'java.lang.String'");
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.getScenarios(0, 0, String.class))
+        .withMessage("Result queried with type 'ScenarioArray' but was 'java.lang.String'");
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.getScenarios(0, NAME_A, String.class))
+        .withMessage("Result queried with type 'ScenarioArray' but was 'java.lang.String'");
   }
 
   @Test
@@ -123,6 +128,44 @@ public class ResultsTest {
     assertThat(collected).hasSize(1000);
     assertThat(collected.get(0).getValue().toString()).startsWith("0 ");
     assertThat(collected.get(999).getValue().toString()).startsWith("999 ");
+  }
+
+  @Test
+  public void scenario() {
+    ScenarioArray<String> array1 = ScenarioArray.of("1a", "1b");
+    ScenarioArray<String> array2 = ScenarioArray.of("2a", "2b");
+    ScenarioArray<String> array3 = ScenarioArray.of("3a", "3b");
+    ScenarioArray<String> array4 = ScenarioArray.of("4a", "4b");
+    ScenarioArray<String> array5 = ScenarioArray.of("5a", "5b");
+    ScenarioArray<String> array6 = ScenarioArray.of("6a", "6b");
+    Results test = Results.of(
+        ImmutableList.of(HEADER1, HEADER2, HEADER3), results(array1, array2, array3, array4, array5, array6));
+    assertThat(test.getColumns()).containsExactly(HEADER1, HEADER2, HEADER3);
+    assertThat(test.getRowCount()).isEqualTo(2);
+    assertThat(test.getColumnCount()).isEqualTo(3);
+
+    assertThat(test.get(0, 0).getValue()).isEqualTo(array1);
+    assertThat(test.get(0, NAME_A).getValue()).isEqualTo(array1);
+
+    @SuppressWarnings("rawtypes")
+    Result<ScenarioArray> standardByIndex = test.get(0, 0, ScenarioArray.class);
+    assertThat(standardByIndex.getValue()).isEqualTo(array1);
+    @SuppressWarnings("rawtypes")
+    Result<ScenarioArray> standardByName = test.get(0, NAME_A, ScenarioArray.class);
+    assertThat(standardByName.getValue()).isEqualTo(array1);
+
+    Result<ScenarioArray<String>> scenariosByIndex = test.getScenarios(0, 0, String.class);
+    assertThat(scenariosByIndex.getValue()).isEqualTo(array1);
+    Result<ScenarioArray<String>> scenariosByName = test.getScenarios(0, NAME_B, String.class);
+    assertThat(scenariosByName.getValue()).isEqualTo(array2);
+
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.getScenarios(0, 0, Integer.class))
+        .withMessage("Result queried with component type 'java.lang.Integer' but was 'java.lang.String'");
+    assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> test.getScenarios(0, NAME_A, Integer.class))
+        .withMessage("Result queried with component type 'java.lang.Integer' but was 'java.lang.String'");
+
+    assertThat(test.columnResultsScenarios(0, String.class))
+        .containsExactly(Result.success(array1), Result.success(array4));
   }
 
   /**

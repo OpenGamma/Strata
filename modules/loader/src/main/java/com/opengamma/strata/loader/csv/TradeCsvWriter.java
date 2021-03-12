@@ -6,50 +6,52 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_SIZE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PRICE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.QUANTITY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_SCHEME_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_SIZE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_VALUE;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.BUY_SELL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CCP_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CPTY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CPTY_SCHEME_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DATE_ADJ_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DAY_COUNT_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DESCRIPTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.END_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FIXED_RATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.FRA_DISCOUNTING_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.ID_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.ID_SCHEME_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.INDEX_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.INTERPOLATED_INDEX_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NAME_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CAL_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_CNV_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.PAYMENT_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.SETTLEMENT_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.START_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_TIME_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TRADE_ZONE_FIELD;
-import static com.opengamma.strata.loader.csv.TradeCsvLoader.TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CCP_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONTRACT_SIZE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CPTY_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DAY_COUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DESCRIPTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIXED_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FRA_DISCOUNTING_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INDEX_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INTERPOLATED_INDEX_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NAME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PRICE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.QUANTITY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_SIZE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TIME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_ZONE_FIELD;
 import static java.util.stream.Collectors.groupingBy;
 
 import java.io.UncheckedIOException;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -125,7 +127,7 @@ public final class TradeCsvWriter {
    * This sorts some of the columns (not all of them).
    */
   private static final ImmutableList<String> HEADER_ORDER = ImmutableList.of(
-      TYPE_FIELD,
+      TRADE_TYPE_FIELD,
       ID_SCHEME_FIELD,
       ID_FIELD,
       DESCRIPTION_FIELD,
@@ -143,9 +145,9 @@ public final class TradeCsvWriter {
       SECURITY_ID_SCHEME_FIELD,
       SECURITY_ID_FIELD,
       PRICE_FIELD,
-      TICK_SIZE,
-      TICK_VALUE,
-      CONTRACT_SIZE,
+      TICK_SIZE_FIELD,
+      TICK_VALUE_FIELD,
+      CONTRACT_SIZE_FIELD,
       CURRENCY_FIELD,
       NOTIONAL_FIELD,
       START_DATE_FIELD,
@@ -244,7 +246,7 @@ public final class TradeCsvWriter {
     Set<String> headers = new LinkedHashSet<>();
 
     // common headers
-    headers.add(TYPE_FIELD);
+    headers.add(TRADE_TYPE_FIELD);
     if (trades.stream().anyMatch(trade -> trade.getInfo().getId().isPresent())) {
       headers.add(ID_SCHEME_FIELD);
       headers.add(ID_FIELD);
@@ -281,14 +283,17 @@ public final class TradeCsvWriter {
         .collect(toImmutableList()));
 
     // types
-    Map<Class<?>, List<Trade>> splitByType = trades.stream().collect(groupingBy(t -> t.getClass()));
+    Map<Class<?>, List<Trade>> splitByType = trades.stream().collect(groupingBy(
+        Object::getClass,
+        LinkedHashMap<Class<?>, List<Trade>>::new,
+        Collectors.<Trade>toList()));
     for (Entry<Class<?>, List<Trade>> entry : splitByType.entrySet()) {
       TradeTypeCsvWriter detailsWriter = WRITERS.get(entry.getKey());
       if (detailsWriter == null) {
         throw new IllegalArgumentException(
             "Unable to write trade type to CSV: " + entry.getKey().getSimpleName());
       }
-      headers.addAll(detailsWriter.headers((List) entry.getValue()));
+      headers.addAll(detailsWriter.headers(entry.getValue()));
     }
     return headers.stream().sorted(HEADER_COMPARATOR).collect(toImmutableList());
   }

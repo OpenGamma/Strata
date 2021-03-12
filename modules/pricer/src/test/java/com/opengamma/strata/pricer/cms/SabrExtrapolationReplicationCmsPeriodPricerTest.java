@@ -134,6 +134,17 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
       new RatesFiniteDifferenceSensitivityCalculator(EPS);  
   private static final DiscountingSwapProductPricer PRICER_SWAP =
       DiscountingSwapProductPricer.DEFAULT;
+  
+  @Test
+  public void swap_pricer() {
+    assertThat(PRICER.getSwapPricer()).isEqualTo(DiscountingSwapProductPricer.DEFAULT);
+  }
+  
+  @Test
+  public void parameters() {
+    assertThat(PRICER.getMu()).isEqualTo(MU);
+    assertThat(PRICER.getCutOffStrike()).isEqualTo(CUT_OFF_STRIKE);
+  }
 
   @Test
   public void test_presentValue_zero() {

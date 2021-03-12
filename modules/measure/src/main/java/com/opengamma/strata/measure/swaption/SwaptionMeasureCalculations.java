@@ -17,9 +17,6 @@ import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivitiesBuilder;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesScenarioMarketData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -219,8 +216,8 @@ final class SwaptionMeasureCalculations {
   }
 
   //-------------------------------------------------------------------------
-  // calculates bachelier (normal) vega for all scenarios
-  ScenarioArray<CurrencyParameterSensitivities> bachelierVega(
+  // calculates normal vega for all scenarios
+  ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
       ResolvedSwaptionTrade trade,
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
@@ -228,50 +225,27 @@ final class SwaptionMeasureCalculations {
     IborIndex index = trade.getProduct().getIndex();
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
-        i -> bachelierVega(
+        i -> vegaMarketQuoteBucketed(
             trade,
             ratesMarketData.scenario(i).ratesProvider(),
             swaptionMarketData.scenario(i).volatilities(index)));
   }
 
-  //  bachelier (normal) vega for one scenario
-  CurrencyParameterSensitivities bachelierVega(
+  //  normal vega for one scenario
+  CurrencyParameterSensitivities vegaMarketQuoteBucketed(
       ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SwaptionVolatilities volatilities) {
 
     if (!volatilities.getVolatilityType().equals(NORMAL_VOLATILITY)) {
-      throw new IllegalArgumentException("Bachelier vega calculation requires normal volatilities.");
+      throw new IllegalArgumentException("Vega calculation requires normal volatilities");
     }
-
-    PointSensitivities pointSensitivity = pointSensitivityBachelierVega(trade, ratesProvider, volatilities);
-    CurrencyParameterSensitivities sensitivities = volatilities.parameterSensitivity(pointSensitivity);
-    return adjustVega(sensitivities, volatilities);
+    PointSensitivities pointSensitivity = pointSensitivityVega(trade, ratesProvider, volatilities);
+    return volatilities.parameterSensitivity(pointSensitivity);
   }
 
-  // multiply the calculated vega by the volatility
-  private static CurrencyParameterSensitivities adjustVega(
-      CurrencyParameterSensitivities vega,
-      SwaptionVolatilities vols) {
-
-    CurrencyParameterSensitivitiesBuilder builder = CurrencyParameterSensitivities.builder();
-    for (CurrencyParameterSensitivity sens : vega.getSensitivities()) {
-      for (int i = 0; i < sens.getParameterCount(); i++) {
-        ParameterMetadata sensMeta = sens.getParameterMetadata(i);
-        double sensValue = sens.getSensitivity().get(i);
-        if (sensValue != 0d) {
-          int paramIndex = vols.findParameterIndex(sensMeta)
-              .orElseThrow(() -> new IllegalArgumentException("Unable to match parameter metadata: " + sensMeta));
-          double vol = vols.getParameter(paramIndex);
-          builder.add(sens.getMarketDataName(), sens.getCurrency(), sensMeta, vol * sensValue);
-        }
-      }
-    }
-    return builder.build();
-  }
-
-  //  bachelier (normal) vega point sensitivity
-  private PointSensitivities pointSensitivityBachelierVega(
+  //  normal vega point sensitivity
+  private PointSensitivities pointSensitivityVega(
       ResolvedSwaptionTrade trade,
       RatesProvider ratesProvider,
       SwaptionVolatilities volatilities) {
