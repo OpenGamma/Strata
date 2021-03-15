@@ -212,8 +212,10 @@ public class SabrIborCapletFloorletVolatilityCalibrator
       @Override
       public DoubleArray apply(DoubleArray x) {
         SabrParametersIborCapletFloorletVolatilities volsNew = updateParameters(sabrDefinition, volatilities, x);
-        return DoubleArray.of(capList.size(),
+        DoubleArray result = DoubleArray.of(
+            capList.size(),
             n -> sabrPricer.presentValue(capList.get(n), ratesProvider, volsNew).getAmount() / priceList.get(n));
+        return result;
       }
     };
     return priceFunction;

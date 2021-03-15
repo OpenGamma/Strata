@@ -84,7 +84,7 @@ public class CapletStrippingSetup {
 
   private static final double[] CAP_BLACK_STRIKES = new double[] {
       0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12};
-  private static final int[] CAP_BLACK_END_TIMES = new int[] {1, 2, 3, 4, 5, 7, 10};
+  private static final int[] CAP_BLACK_END_TIMES = new int[] {1, 2, 3, 5, 10, 15, 20};
   private static final int NUM_BLACK_MATURITIES = CAP_BLACK_END_TIMES.length;
   protected static final int NUM_BLACK_STRIKES = CAP_BLACK_STRIKES.length;
   private static final double[] CAP_NORMAL_STRIKES = new double[] {

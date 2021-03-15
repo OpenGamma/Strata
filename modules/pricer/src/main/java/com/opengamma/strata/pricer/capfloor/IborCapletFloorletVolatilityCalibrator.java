@@ -14,10 +14,12 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.function.Function;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.surface.ConstantSurface;
 import com.opengamma.strata.market.surface.Surface;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
@@ -128,7 +130,7 @@ abstract class IborCapletFloorletVolatilityCalibrator {
       RawOptionData capFloorData) {
 
     IborIndex index = definition.getIndex();
-    if (capFloorData.getStrikeType().equals(STRIKE)) {
+    if (getSupportedStrikeTypes().contains(capFloorData.getStrikeType())) {
       if (capFloorData.getDataType().equals(BLACK_VOLATILITY)) {
         return blackVolatilitiesFunction(index, calibrationDateTime);
       } else if (capFloorData.getDataType().equals(NORMAL_VOLATILITY)) {
@@ -137,6 +139,10 @@ abstract class IborCapletFloorletVolatilityCalibrator {
       throw new IllegalArgumentException("Data type not supported");
     }
     throw new IllegalArgumentException("strike type must be ValueType.STRIKE");
+  }
+
+  protected ImmutableList<ValueType> getSupportedStrikeTypes() {
+    return ImmutableList.of(STRIKE);
   }
 
   private Function<Surface, IborCapletFloorletVolatilities> blackVolatilitiesFunction(

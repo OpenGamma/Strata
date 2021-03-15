@@ -19,8 +19,14 @@ import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.market.surface.SurfaceMetadata;
 import com.opengamma.strata.pricer.option.RawOptionData;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.IborRateCalculation;
+import com.opengamma.strata.product.swap.SwapTrade;
+import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
+import com.opengamma.strata.product.swap.type.ImmutableFixedIborSwapConvention;
 
 /**
  * Definition of caplet volatilities calibration.
@@ -81,6 +87,28 @@ public interface IborCapletFloorletVolatilityDefinition {
                 RollConventions.NONE))
         .payReceive(PayReceive.RECEIVE)
         .build();
+  }
+
+  /**
+   * Creates a standard swap from start date, end data and strike.
+   *
+   * @param tradeDate the trade date
+   * @param startDate the start date
+   * @param endDate the end date
+   * @param strike the strike
+   * @return the swap
+   */
+  public default SwapTrade createPayerSwap(LocalDate tradeDate, LocalDate startDate, LocalDate endDate, double strike) {
+    IborIndex index = getIndex();
+    FixedIborSwapConvention swapConvention = ImmutableFixedIborSwapConvention.of(
+        "CapFloorDefinitionSwapConvention",
+        FixedRateSwapLegConvention.of(
+            index.getCurrency(),
+            getDayCount(),
+            Frequency.of(index.getTenor().getPeriod()),
+            BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, index.getFixingCalendar())),
+        IborRateSwapLegConvention.of(index));
+    return swapConvention.toTrade(tradeDate, startDate, endDate, BuySell.BUY, 1.0, strike);
   }
 
 }

@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_ACT_ISDA;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.market.ValueType.BLACK_VOLATILITY;
 import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
+import static com.opengamma.strata.market.ValueType.SIMPLE_MONEYNESS;
 import static com.opengamma.strata.market.ValueType.STRIKE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -118,6 +119,42 @@ public class DirectIborCapletFloorletVolatilityCalibratorTest
     assertThat(resVols.getName()).isEqualTo(definition.getName());
     assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
     assertThat(resVols.getShiftCurve()).isEqualTo(definition.getShiftCurve().get());
+  }
+
+  @Test
+  public void test_recovery_black_relativeStrike() {
+    double lambdaT = 0.07;
+    double lambdaK = 0.07;
+    double error = 1.0e-5;
+    DirectIborCapletFloorletVolatilityDefinition definition = DirectIborCapletFloorletVolatilityDefinition.of(
+        NAME, USD_LIBOR_3M, ACT_ACT_ISDA, lambdaT, lambdaK, INTERPOLATOR);
+    ImmutableList<Period> maturities = createBlackMaturities();
+    DoubleArray strikes = DoubleArray.of(0);
+    DoubleMatrix errorMatrix = DoubleMatrix.filled(maturities.size(), strikes.size(), error);
+    RawOptionData data = RawOptionData.of(
+        maturities, strikes, SIMPLE_MONEYNESS, createAtmBlackDataMatrix(), errorMatrix, BLACK_VOLATILITY);
+    IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
+    BlackIborCapletFloorletExpiryStrikeVolatilities resVols =
+        (BlackIborCapletFloorletExpiryStrikeVolatilities) res.getVolatilities();
+    for (int i = 0; i < NUM_BLACK_STRIKES; ++i) {
+      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackVols(i);
+      List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
+      List<Double> vols = capsAndVols.getSecond();
+      int nCaps = caps.size();
+      for (int j = 0; j < nCaps; ++j) {
+        ConstantSurface volSurface = ConstantSurface.of(
+            Surfaces.blackVolatilityByExpiryStrike("test", ACT_ACT_ISDA), vols.get(j));
+        BlackIborCapletFloorletExpiryStrikeVolatilities constVol = BlackIborCapletFloorletExpiryStrikeVolatilities.of(
+            USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
+        double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
+        double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVols).getAmount();
+        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL * 5d));
+      }
+    }
+    assertThat(res.getChiSquare() > 0d).isTrue();
+    assertThat(resVols.getIndex()).isEqualTo(USD_LIBOR_3M);
+    assertThat(resVols.getName()).isEqualTo(definition.getName());
+    assertThat(resVols.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
   }
 
   @Test

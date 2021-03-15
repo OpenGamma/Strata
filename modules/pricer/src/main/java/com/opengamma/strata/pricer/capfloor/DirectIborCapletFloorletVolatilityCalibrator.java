@@ -6,6 +6,8 @@
 package com.opengamma.strata.pricer.capfloor;
 
 import static com.opengamma.strata.market.ValueType.NORMAL_VOLATILITY;
+import static com.opengamma.strata.market.ValueType.SIMPLE_MONEYNESS;
+import static com.opengamma.strata.market.ValueType.STRIKE;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -14,12 +16,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.collect.tuple.Triple;
+import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.surface.InterpolatedNodalSurface;
@@ -33,7 +37,9 @@ import com.opengamma.strata.math.impl.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.strata.math.impl.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
 import com.opengamma.strata.pricer.option.RawOptionData;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.swap.DiscountingSwapTradePricer;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
+import com.opengamma.strata.product.swap.ResolvedSwapTrade;
 
 /**
  * Caplet volatilities calibration to cap volatilities. 
@@ -78,6 +84,8 @@ public class DirectIborCapletFloorletVolatilityCalibrator
    * The non-linear least square with penalty. 
    */
   private final NonLinearLeastSquareWithPenalty solver;
+
+  private final DiscountingSwapTradePricer swapPricer = DiscountingSwapTradePricer.DEFAULT;
 
   //-------------------------------------------------------------------------
   /**
@@ -140,7 +148,7 @@ public class DirectIborCapletFloorletVolatilityCalibrator
         directDefinition, calibrationDateTime, capFloorData);
     SurfaceMetadata metadata = directDefinition.createMetadata(capFloorData);
     List<Period> expiries = capFloorData.getExpiries();
-    DoubleArray strikes = capFloorData.getStrikes();
+    DoubleArray strikes = resolveStrikes(definition, capFloorData, ratesProvider, baseDate, startDate);
     int nExpiries = expiries.size();
     List<Double> timeList = new ArrayList<>();
     List<Double> strikeList = new ArrayList<>();
@@ -154,7 +162,7 @@ public class DirectIborCapletFloorletVolatilityCalibrator
       LocalDate endDate = baseDate.plus(expiries.get(i));
       DoubleArray volatilityForTime = capFloorData.getData().row(i);
       DoubleArray errorForTime = errorMatrix.row(i);
-      reduceRawData(directDefinition, ratesProvider, capFloorData.getStrikes(), volatilityForTime, errorForTime, startDate,
+      reduceRawData(directDefinition, ratesProvider, strikes, volatilityForTime, errorForTime, startDate,
           endDate, metadata, volatilitiesFunction, timeList, strikeList, volList, capList, priceList, errorList);
       startIndex[i + 1] = volList.size();
       ArgChecker.isTrue(startIndex[i + 1] > startIndex[i], "no valid option data for {}", expiries.get(i));
@@ -199,6 +207,50 @@ public class DirectIborCapletFloorletVolatilityCalibrator
     InterpolatedNodalSurface resSurface = InterpolatedNodalSurface.of(
         metadata, capletNodes.getFirst(), capletNodes.getSecond(), res.getFitParameters(), directDefinition.getInterpolator());
     return IborCapletFloorletVolatilityCalibrationResult.ofLeastSquare(volatilitiesFunction.apply(resSurface), res.getChiSq());
+  }
+
+  private DoubleArray resolveStrikes(
+      IborCapletFloorletVolatilityDefinition definition,
+      RawOptionData capFloorData,
+      RatesProvider ratesProvider,
+      LocalDate baseDate,
+      LocalDate startDate) {
+
+    if (capFloorData.getStrikeType() == STRIKE) {
+      return capFloorData.getStrikes();
+    } else if (capFloorData.getStrikeType() == SIMPLE_MONEYNESS) {
+      return convertToRelativeStrikes(definition, capFloorData, ratesProvider, baseDate, startDate);
+    } else {
+      throw new IllegalArgumentException("Strike must be either ValueType.STRIKE or ValueType.SIMPLE_MONEYNESS");
+    }
+  }
+
+  private DoubleArray convertToRelativeStrikes(
+      IborCapletFloorletVolatilityDefinition definition,
+      RawOptionData capFloorData,
+      RatesProvider ratesProvider,
+      LocalDate baseDate,
+      LocalDate startDate) {
+
+    ImmutableList<Period> expiries = capFloorData.getExpiries();
+    DoubleArray strikes = capFloorData.getStrikes();
+    double[] resolvedStrikes = new double[expiries.size() * strikes.size()];
+    int nStrike = 0;
+    for (int j = 0; j < strikes.size(); j++) {
+      for (int i = 0; i < expiries.size(); i++) {
+        LocalDate endDate = baseDate.plus(expiries.get(i));
+        ResolvedSwapTrade payerSwap = definition.createPayerSwap(baseDate, startDate, endDate, strikes.get(j))
+            .resolve(getReferenceData());
+        resolvedStrikes[nStrike] = swapPricer.parRate(payerSwap, ratesProvider);
+        nStrike += 1;
+      }
+    }
+    return DoubleArray.copyOf(resolvedStrikes);
+  }
+
+  @Override
+  protected ImmutableList<ValueType> getSupportedStrikeTypes() {
+    return ImmutableList.of(STRIKE, SIMPLE_MONEYNESS);
   }
 
   private Function<Surface, IborCapletFloorletVolatilities> createShiftedBlackVolatilitiesFunction(
