@@ -168,9 +168,7 @@ public final class ZeroRateDiscountFactors
   @Override
   public double discountFactor(double yearFraction) {
     // convert zero rate to discount factor
-    double v = curve.yValue(yearFraction);
-    double exp = Math.exp(-yearFraction * v);
-    return exp;
+    return Math.exp(-yearFraction * curve.yValue(yearFraction));
   }
 
   @Override

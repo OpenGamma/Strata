@@ -72,15 +72,11 @@ public class VolatilityIborCapFloorLegPricer {
       IborCapletFloorletVolatilities volatilities) {
 
     validate(ratesProvider, volatilities);
-    for (IborCapletFloorletPeriod capletFloorletPeriod : capFloorLeg.getCapletFloorletPeriods()) {
-      periodPricer.presentValue(capletFloorletPeriod, ratesProvider, volatilities);
-    }
-    CurrencyAmount result = capFloorLeg.getCapletFloorletPeriods()
+    return capFloorLeg.getCapletFloorletPeriods()
         .stream()
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
         .reduce((c1, c2) -> c1.plus(c2))
         .get();
-    return result;
   }
 
   //-------------------------------------------------------------------------

@@ -41,42 +41,21 @@ public class SabrIborCapletFloorletVolatilityCalibratorTest
   private static final IborCapletFloorletVolatilitiesName NAME = IborCapletFloorletVolatilitiesName.of("test");
   private static final SabrVolatilityFormula HAGAN = SabrVolatilityFormula.hagan();
   // choose nodes close to expiries of caps - 0.25y before end dates
-  private static final DoubleArray ALPHA_KNOTS = DoubleArray.of(
-      0.7638888888888888,
-      1.7833333333333334,
-      2.7944444444444443,
-      4.822222222222222,
-      9.894444444444444,
-      14.966666666666667,
-      20.041666666666668);
-  private static final DoubleArray BETA_RHO_KNOTS = DoubleArray.of(
-      0.7638888888888888,
-      1.7833333333333334,
-      2.7944444444444443,
-      4.822222222222222,
-      9.894444444444444,
-      14.966666666666667,
-      20.041666666666668);
-  private static final DoubleArray NU_KNOTS = DoubleArray.of(
-      0.7638888888888888,
-      1.7833333333333334,
-      2.7944444444444443,
-      4.822222222222222,
-      9.894444444444444,
-      14.966666666666667,
-      20.041666666666668);
-  private static final double TOL = 1.0e-5;
+  private static final DoubleArray ALPHA_KNOTS = DoubleArray.of(0.75, 1.75, 2.75, 4.75, 6.75, 9.75);
+  private static final DoubleArray BETA_RHO_KNOTS = DoubleArray.of(0.75, 2.75, 4.75);
+  private static final DoubleArray NU_KNOTS = DoubleArray.of(0.75, 1.75, 2.75, 4.75, 6.75, 9.75);
+  private static final double TOL = 1.0e-3;
 
   @Test
   public void recovery_test_black() {
     double beta = 0.7;
     SabrIborCapletFloorletVolatilityCalibrationDefinition definition =
         SabrIborCapletFloorletVolatilityCalibrationDefinition.ofFixedBeta(
-            NAME, USD_LIBOR_3M, ACT_ACT_ISDA, beta, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, LINEAR, FLAT, FLAT, HAGAN);
+            NAME, USD_LIBOR_3M, ACT_ACT_ISDA, beta, ALPHA_KNOTS, BETA_RHO_KNOTS, NU_KNOTS, DOUBLE_QUADRATIC, FLAT, FLAT, HAGAN);
     ImmutableList<Period> maturities = createBlackMaturities();
     DoubleArray strikes = createBlackStrikes();
     DoubleMatrix volData = createFullBlackDataMatrix();
-    DoubleMatrix error = DoubleMatrix.filled(volData.rowCount(), volData.columnCount(), 1.0e-5);
+    DoubleMatrix error = DoubleMatrix.filled(volData.rowCount(), volData.columnCount(), 1.0e-3);
     RawOptionData data = RawOptionData.of(
         maturities, strikes, ValueType.STRIKE, volData, error, ValueType.BLACK_VOLATILITY);
     IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);

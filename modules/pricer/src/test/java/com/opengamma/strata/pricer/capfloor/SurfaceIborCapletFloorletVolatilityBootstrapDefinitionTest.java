@@ -46,14 +46,8 @@ import com.opengamma.strata.market.surface.interpolator.GridSurfaceInterpolator;
 import com.opengamma.strata.pricer.common.GenericVolatilitySurfacePeriodParameterMetadata;
 import com.opengamma.strata.pricer.option.RawOptionData;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.IborRateCalculation;
-import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedRateSwapLegConvention;
-import com.opengamma.strata.product.swap.type.IborRateSwapLegConvention;
-import com.opengamma.strata.product.swap.type.ImmutableFixedIborSwapConvention;
 
 /**
  * Test {@link SurfaceIborCapletFloorletVolatilityBootstrapDefinition}.
@@ -133,26 +127,6 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapDefinitionTest {
         .payReceive(PayReceive.RECEIVE)
         .build();
     IborCapFloorLeg computed = base.createCap(startDate, endDate, strike);
-    assertThat(computed).isEqualTo(expected);
-  }
-
-  @Test
-  public void test_createSwap() {
-    SurfaceIborCapletFloorletVolatilityBootstrapDefinition base = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
-        NAME, USD_LIBOR_3M, ACT_ACT_ISDA, TIME_SQUARE, DOUBLE_QUADRATIC);
-    LocalDate startDate = LocalDate.of(2012, 4, 20);
-    LocalDate endDate = LocalDate.of(2017, 4, 20);
-    double strike = 0.01;
-    FixedIborSwapConvention swapConvention = ImmutableFixedIborSwapConvention.of(
-        "TestSwapConvention",
-        FixedRateSwapLegConvention.of(
-            USD_LIBOR_3M.getCurrency(),
-            ACT_ACT_ISDA,
-            Frequency.of(USD_LIBOR_3M.getTenor().getPeriod()),
-            BusinessDayAdjustment.of(BusinessDayConventions.MODIFIED_FOLLOWING, USD_LIBOR_3M.getFixingCalendar())),
-        IborRateSwapLegConvention.of(USD_LIBOR_3M));
-    SwapTrade expected = swapConvention.toTrade(startDate, startDate, endDate, BuySell.BUY, 1.0, strike);
-    SwapTrade computed = base.createPayerSwap(startDate, startDate, endDate, strike);
     assertThat(computed).isEqualTo(expected);
   }
 

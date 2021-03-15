@@ -78,43 +78,6 @@ public class SurfaceIborCapletFloorletVolatilityBootstrapperTest extends CapletS
   }
 
   @Test
-  public void recovery_test_blackAtmVolSurface() {
-    SurfaceIborCapletFloorletVolatilityBootstrapDefinition definition = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
-        IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, LINEAR);
-    DoubleArray strikes = DoubleArray.of(0.0);
-    RawOptionData data = RawOptionData.of(
-        createBlackMaturities(), strikes, ValueType.SIMPLE_MONEYNESS, createFullBlackDataMatrix(), ValueType.BLACK_VOLATILITY);
-    IborCapletFloorletVolatilityCalibrationResult res = CALIBRATOR.calibrate(definition, CALIBRATION_TIME, data, RATES_PROVIDER);
-    BlackIborCapletFloorletExpiryStrikeVolatilities resVol =
-        (BlackIborCapletFloorletExpiryStrikeVolatilities) res.getVolatilities();
-    for (int i = 0; i < strikes.size(); ++i) {
-      Pair<List<ResolvedIborCapFloorLeg>, List<Double>> capsAndVols = getCapsBlackVols(i);
-      List<ResolvedIborCapFloorLeg> caps = capsAndVols.getFirst();
-      List<Double> vols = capsAndVols.getSecond();
-      int nCaps = caps.size();
-      for (int j = 0; j < nCaps; ++j) {
-        ConstantSurface volSurface = ConstantSurface.of(
-            Surfaces.blackVolatilityByExpiryStrike("test", ACT_ACT_ISDA), vols.get(j));
-        BlackIborCapletFloorletExpiryStrikeVolatilities constVol = BlackIborCapletFloorletExpiryStrikeVolatilities.of(
-            USD_LIBOR_3M, CALIBRATION_TIME, volSurface);
-        double priceOrg = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, constVol).getAmount();
-        double priceCalib = LEG_PRICER_BLACK.presentValue(caps.get(j), RATES_PROVIDER, resVol).getAmount();
-        assertThat(priceOrg).isCloseTo(priceCalib, offset(Math.max(priceOrg, 1d) * TOL));
-      }
-    }
-    assertThat(res.getChiSquare()).isEqualTo(0d);
-    assertThat(resVol.getIndex()).isEqualTo(USD_LIBOR_3M);
-    assertThat(resVol.getName()).isEqualTo(definition.getName());
-    assertThat(resVol.getValuationDateTime()).isEqualTo(CALIBRATION_TIME);
-    InterpolatedNodalSurface surface = (InterpolatedNodalSurface) resVol.getSurface();
-    for (int i = 0; i < surface.getParameterCount(); ++i) {
-      GenericVolatilitySurfacePeriodParameterMetadata metadata =
-          (GenericVolatilitySurfacePeriodParameterMetadata) surface.getParameterMetadata(i);
-      assertThat(metadata.getStrike().getValue()).isEqualTo(surface.getYValues().get(i));
-    }
-  }
-
-  @Test
   public void test_invalid_data() {
     SurfaceIborCapletFloorletVolatilityBootstrapDefinition definition = SurfaceIborCapletFloorletVolatilityBootstrapDefinition.of(
         IborCapletFloorletVolatilitiesName.of("test"), USD_LIBOR_3M, ACT_ACT_ISDA, LINEAR, LINEAR);

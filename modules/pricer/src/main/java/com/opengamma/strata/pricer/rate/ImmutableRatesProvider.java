@@ -251,8 +251,7 @@ public final class ImmutableRatesProvider
   public IborIndexRates iborIndexRates(IborIndex index) {
     Curve curve = indexCurves.get(index);
     if (curve == null) {
-      IborIndexRates iborIndexRates = historicCurve(index);
-      return iborIndexRates;
+      return historicCurve(index);
     }
     return IborIndexRates.of(index, valuationDate, curve, timeSeries(index));
   }

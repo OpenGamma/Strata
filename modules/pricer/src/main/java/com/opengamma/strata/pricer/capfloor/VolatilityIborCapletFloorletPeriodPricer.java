@@ -7,11 +7,8 @@ package com.opengamma.strata.pricer.capfloor;
 
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
-import com.opengamma.strata.pricer.rate.IborIndexRates;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.common.PutCall;
@@ -59,10 +56,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
     double strike = period.getStrike();
-    IborIndexObservation observation = period.getIborRate().getObservation();
-    IborIndex index = period.getIndex();
-    IborIndexRates iborIndexRates = ratesProvider.iborIndexRates(index);
-    double indexRate = iborIndexRates.rate(observation);
+    double indexRate = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
     if (expiry < 0d) { // Option has expired already
       double sign = putCall.isCall() ? 1d : -1d;
       double payoff = Math.max(sign * (indexRate - strike), 0d);
