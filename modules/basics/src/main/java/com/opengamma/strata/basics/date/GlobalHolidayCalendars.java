@@ -500,6 +500,7 @@ final class GlobalHolidayCalendars {
   // http://eco.mtk.nao.ac.jp/koyomi/faq/holiday.html.en
   // https://www.jpx.co.jp/english/announce/market-holidays.html
   // https://www.loc.gov/law/foreign-news/article/japan-three-holidays-to-be-moved-to-ease-2020-olympic-ceremony-traffic/
+  // https://www.nippon.com/en/japan-data/h00738/
   static ImmutableHolidayCalendar generateTokyo() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -544,7 +545,10 @@ final class GlobalHolidayCalendars {
         holidays.add(bumpSunToMon(date(year, 5, 5)));
       }
       // marine
-      if (year == 2020) {
+      if (year == 2021) {
+        // moved because of the Olympics
+        holidays.add(date(year, 7, 22));
+      } else if (year == 2020) {
         // moved because of the Olympics (day prior to opening ceremony)
         holidays.add(date(year, 7, 23));
       } else if (year >= 2003) {
@@ -553,7 +557,10 @@ final class GlobalHolidayCalendars {
         holidays.add(bumpSunToMon(date(year, 7, 20)));
       }
       // mountain
-      if (year == 2020) {
+      if (year == 2021) {
+        // moved because of the Olympics
+        holidays.add(date(year, 8, 9));
+      } else if (year == 2020) {
         // moved because of the Olympics (day after closing ceremony)
         holidays.add(date(year, 8, 10));
       } else if (year >= 2016) {
@@ -574,9 +581,12 @@ final class GlobalHolidayCalendars {
       citizensDay(holidays, date(year, 9, 20), date(year, 9, 22));
       citizensDay(holidays, date(year, 9, 21), date(year, 9, 23));
       // health-sports
-      if (year == 2020) {
+      if (year == 2021) {
+        // moved because of the Olympics
+        holidays.add(date(year, 7, 23));
+      } else if (year == 2020) {
         // moved because of the Olympics (day of opening ceremony)
-        holidays.add(date(2020, 7, 24));
+        holidays.add(date(year, 7, 24));
       } else if (year >= 2000) {
         holidays.add(date(year, 10, 1).with(dayOfWeekInMonth(2, MONDAY)));
       } else if (year >= 1966) {

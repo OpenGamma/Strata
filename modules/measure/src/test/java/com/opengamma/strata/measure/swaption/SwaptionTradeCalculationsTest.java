@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.measure.swaption;
 
-import static java.util.stream.Collectors.collectingAndThen;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -19,8 +17,6 @@ import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
-import com.opengamma.strata.market.param.CurrencyParameterSensitivity;
-import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
 import com.opengamma.strata.pricer.rate.RatesProvider;
@@ -68,24 +64,13 @@ public class SwaptionTradeCalculationsTest {
     CurrencyParameterSensitivities expectedPv01CalBucketed = pvParamSens.multipliedBy(1e-4);
     PointSensitivities pvVegaPointSens = pricer.presentValueSensitivityModelParamsVolatility(RTRADE, provider, VOLS);
     CurrencyParameterSensitivities expectedPv01VegaCal = VOLS.parameterSensitivity(pvVegaPointSens);
-    CurrencyParameterSensitivities expectedPv01VegaCalAdjusted = expectedPv01VegaCal.toBuilder()
-        .filterSensitivity(value -> value != 0.0)
-        .mapSensitivities((metadata, value) -> getVolatility(VOLS, metadata) * value)
-        .build();
 
-    assertThat(SwaptionTradeCalculations.DEFAULT.bachelierVega(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
-        .isEqualTo(ScenarioArray.of(expectedPv01VegaCalAdjusted));
+    assertThat(SwaptionTradeCalculations.DEFAULT.vegaMarketQuoteBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
+        .isEqualTo(ScenarioArray.of(expectedPv01VegaCal));
     assertThat(SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedSum(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
         .isEqualTo(MultiCurrencyScenarioArray.of(ImmutableList.of(expectedPv01Cal)));
     assertThat(SwaptionTradeCalculations.DEFAULT.pv01RatesCalibratedBucketed(RTRADE, RATES_LOOKUP, SWAPTION_LOOKUP, md))
         .isEqualTo(ScenarioArray.of(expectedPv01CalBucketed));
-  }
-
-  private double getVolatility(SwaptionVolatilities vols, ParameterMetadata metadata) {
-    int index = vols.findParameterIndex(metadata)
-        .orElseThrow(() -> new IllegalStateException("Could not find parameter"));
-
-    return vols.getParameter(index);
   }
 
 }

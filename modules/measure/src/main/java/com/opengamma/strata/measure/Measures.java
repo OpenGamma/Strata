@@ -68,13 +68,12 @@ public final class Measures {
    */
   public static final Measure PV01_MARKET_QUOTE_BUCKETED = Measure.of(StandardMeasures.PV01_MARKET_QUOTE_BUCKETED.getName());
   /**
-   * Measure representing the bachelier (normal) vega on the calculation target.
+   * Measure representing the market quote bucketed vega on the calculation target.
    * <p>
-   * This is the sensitivity of the present value to the bachelier (normal) implied volatilities
-   * used to calibrate the data structure.
-   * The resulting sensitivity is multiplied by the applicable volatility.
+   * This is the sensitivity of the present value to the market implied volatilities used to calibrate the data structure.
    */
-  public static final Measure BACHELIER_VEGA = Measure.of(StandardMeasures.BACHELIER_VEGA.getName());
+  public static final Measure VEGA_MARKET_QUOTE_BUCKETED = Measure.of(StandardMeasures.VEGA_MARKET_QUOTE_BUCKETED.getName());
+
   //-------------------------------------------------------------------------
   /**
    * Measure representing the par rate of the calculation target.

@@ -304,6 +304,55 @@ public class FxVanillaOptionTradeCalculations {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates present value vega sensitivity across one or more scenarios.
+   * <p>
+   * This is the sensitivity of present value to the implied volatilities
+   * used to calibrate the curves.
+   *
+   * @param trade  the trade
+   * @param ratesLookup  the lookup used to query the market data
+   * @param marketData  the market data
+   * @param fxLookup  the lookup used to query the option market data
+   * @param method  the pricing method
+   * @return the present value sensitivity, one entry per scenario
+   */
+  public ScenarioArray<CurrencyParameterSensitivities> vegaMarketQuoteBucketed(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesMarketDataLookup ratesLookup,
+      FxOptionMarketDataLookup fxLookup,
+      ScenarioMarketData marketData,
+      FxVanillaOptionMethod method) {
+
+    return calc.vegaMarketQuoteBucketed(
+        trade,
+        ratesLookup.marketDataView(marketData),
+        fxLookup.marketDataView(marketData),
+        method);
+  }
+
+  /**
+   * Calculates present value vega sensitivity for a single set of market data.
+   * <p>
+   * This is the sensitivity of present value of the implied volatilities
+   * used to calibrate the curves.
+   *
+   * @param trade  the trade
+   * @param ratesProvider  the market data
+   * @param volatilities  the option volatilities
+   * @param method  the pricing method
+   * @return the present value sensitivity
+   */
+  public CurrencyParameterSensitivities vegaMarketQuoteBucketed(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      FxOptionVolatilities volatilities,
+      FxVanillaOptionMethod method) {
+
+    return calc.vegaMarketQuoteBucketed(trade, ratesProvider, volatilities, method);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates currency exposure across one or more scenarios.
    * <p>
    * The currency risk, expressed as the equivalent amount in each currency.
