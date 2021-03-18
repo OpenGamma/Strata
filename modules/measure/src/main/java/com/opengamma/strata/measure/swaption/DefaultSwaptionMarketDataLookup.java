@@ -20,7 +20,6 @@ import org.joda.beans.impl.light.LightMetaBean;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
@@ -50,7 +49,7 @@ final class DefaultSwaptionMarketDataLookup
    * The volatility identifiers, keyed by index.
    */
   @PropertyDefinition(validate = "notNull")
-  private final ImmutableMap<IborIndex, SwaptionVolatilitiesId> volatilityIds;
+  private final ImmutableMap<Index, SwaptionVolatilitiesId> volatilityIds;
 
   //-------------------------------------------------------------------------
   /**
@@ -58,11 +57,11 @@ final class DefaultSwaptionMarketDataLookup
    * <p>
    * The lookup provides volatilities for the specified index.
    *
-   * @param index  the Ibor index
+   * @param index  the index
    * @param volatilityId  the volatility identifier
    * @return the swaption lookup containing the specified mapping
    */
-  public static DefaultSwaptionMarketDataLookup of(IborIndex index, SwaptionVolatilitiesId volatilityId) {
+  public static DefaultSwaptionMarketDataLookup of(Index index, SwaptionVolatilitiesId volatilityId) {
     return new DefaultSwaptionMarketDataLookup(ImmutableMap.of(index, volatilityId));
   }
 
@@ -74,18 +73,18 @@ final class DefaultSwaptionMarketDataLookup
    * @param volatilityIds  the volatility identifiers, keyed by index
    * @return the swaption lookup containing the specified volatilities
    */
-  public static DefaultSwaptionMarketDataLookup of(Map<IborIndex, SwaptionVolatilitiesId> volatilityIds) {
+  public static DefaultSwaptionMarketDataLookup of(Map<Index, SwaptionVolatilitiesId> volatilityIds) {
     return new DefaultSwaptionMarketDataLookup(volatilityIds);
   }
 
   //-------------------------------------------------------------------------
   @Override
-  public ImmutableSet<IborIndex> getVolatilityIndices() {
+  public ImmutableSet<Index> getVolatilityIndices() {
     return volatilityIds.keySet();
   }
 
   @Override
-  public ImmutableSet<MarketDataId<?>> getVolatilityIds(IborIndex index) {
+  public ImmutableSet<MarketDataId<?>> getVolatilityIds(Index index) {
     SwaptionVolatilitiesId id = volatilityIds.get(index);
     if (id == null) {
       throw new IllegalArgumentException(msgIndexNotFound(index));
@@ -95,7 +94,7 @@ final class DefaultSwaptionMarketDataLookup
 
   //-------------------------------------------------------------------------
   @Override
-  public FunctionRequirements requirements(Set<IborIndex> indices) {
+  public FunctionRequirements requirements(Set<Index> indices) {
     for (Index index : indices) {
       if (!volatilityIds.keySet().contains(index)) {
         throw new IllegalArgumentException(msgIndexNotFound(index));
@@ -108,7 +107,7 @@ final class DefaultSwaptionMarketDataLookup
 
   //-------------------------------------------------------------------------
   @Override
-  public SwaptionVolatilities volatilities(IborIndex index, MarketData marketData) {
+  public SwaptionVolatilities volatilities(Index index, MarketData marketData) {
     SwaptionVolatilitiesId volatilityId = volatilityIds.get(index);
     if (volatilityId == null) {
       throw new MarketDataNotFoundException(msgIndexNotFound(index));
@@ -151,7 +150,7 @@ final class DefaultSwaptionMarketDataLookup
   private static final long serialVersionUID = 1L;
 
   private DefaultSwaptionMarketDataLookup(
-      Map<IborIndex, SwaptionVolatilitiesId> volatilityIds) {
+      Map<Index, SwaptionVolatilitiesId> volatilityIds) {
     JodaBeanUtils.notNull(volatilityIds, "volatilityIds");
     this.volatilityIds = ImmutableMap.copyOf(volatilityIds);
   }
@@ -166,7 +165,7 @@ final class DefaultSwaptionMarketDataLookup
    * Gets the volatility identifiers, keyed by index.
    * @return the value of the property, not null
    */
-  public ImmutableMap<IborIndex, SwaptionVolatilitiesId> getVolatilityIds() {
+  public ImmutableMap<Index, SwaptionVolatilitiesId> getVolatilityIds() {
     return volatilityIds;
   }
 

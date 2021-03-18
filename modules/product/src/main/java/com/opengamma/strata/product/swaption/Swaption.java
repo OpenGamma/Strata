@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
@@ -44,7 +44,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * <p>
  * A swaption is a financial instrument that provides an option based on the future value of a swap.
  * The option is European, exercised only on the exercise date.
- * The underlying swap must be a single currency, Fixed-Ibor swap with a single Ibor index and no interpolated stubs.
+ * The underlying swap must be a single currency, Fixed-Float (IBOR or overnight) swap with a single index.
  */
 @BeanDefinition
 public final class Swaption
@@ -105,9 +105,9 @@ public final class Swaption
         expiryDate.getUnadjusted(), underlying.getStartDate().getUnadjusted(), "expiryDate", "underlying.startDate.unadjusted");
     ArgChecker.isTrue(!underlying.isCrossCurrency(), "Underlying swap must not be cross-currency");
     ArgChecker.isTrue(underlying.getLegs(SwapLegType.FIXED).size() == 1, "Underlying swap must have one fixed leg");
-    ArgChecker.isTrue(underlying.getLegs(SwapLegType.IBOR).size() == 1, "Underlying swap must have one Ibor leg");
+    ArgChecker.isTrue((underlying.getLegs(SwapLegType.IBOR).size() == 1) || (underlying.getLegs(SwapLegType.OVERNIGHT).size() == 1), 
+        "Underlying swap must have one Ibor or Overnight leg");
     ArgChecker.isTrue(underlying.allIndices().size() == 1, "Underlying swap must have one index");
-    ArgChecker.isTrue(underlying.allIndices().iterator().next() instanceof IborIndex, "Underlying swap must have one Ibor index");
   }
 
   //-------------------------------------------------------------------------
@@ -150,8 +150,8 @@ public final class Swaption
    * 
    * @return the Ibor index of the underlying swap
    */
-  public IborIndex getIndex() {
-    return (IborIndex) underlying.allIndices().iterator().next();
+  public Index getIndex() {
+    return underlying.allIndices().iterator().next();
   }
 
   //-------------------------------------------------------------------------
