@@ -231,7 +231,7 @@ public final class CashFlowReportRunner
   private int compareNestedEntries(ExplainMap m1, ExplainMap m2) {
     Optional<LocalDate> paymentDate1 = m1.get(ExplainKey.PAYMENT_DATE);
     Optional<LocalDate> paymentDate2 = m2.get(ExplainKey.PAYMENT_DATE);
-    if (paymentDate1.isPresent() && paymentDate1.isPresent()) {
+    if (paymentDate1.isPresent() && paymentDate2.isPresent()) {
       return paymentDate1.get().compareTo(paymentDate2.get());
     }
     if (!paymentDate2.isPresent()) {
