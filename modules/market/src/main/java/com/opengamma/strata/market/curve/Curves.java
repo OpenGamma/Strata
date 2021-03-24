@@ -526,4 +526,67 @@ public final class Curves {
         .build();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Creates curve metadata for a curve providing correlation by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   *
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata correlationByExpiry(String name, DayCount dayCount) {
+    return correlationByExpiry(CurveName.of(name), dayCount);
+  }
+
+  /**
+   * Creates curve metadata for a curve providing correlation by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   *
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @return the curve metadata
+   */
+  public static CurveMetadata correlationByExpiry(CurveName name, DayCount dayCount) {
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.CORRELATION)
+        .dayCount(dayCount)
+        .build();
+  }
+
+  /**
+   * Creates curve metadata for a curve providing correlation by expiry.
+   * <p>
+   * The x-values represent year fractions relative to an unspecified base date
+   * as defined by the specified day count.
+   *
+   * @param name  the curve name
+   * @param dayCount  the day count
+   * @param parameterMetadata  the parameter metadata
+   * @return the curve metadata
+   */
+  public static CurveMetadata correlationByExpiry(
+      CurveName name,
+      DayCount dayCount,
+      List<? extends ParameterMetadata> parameterMetadata) {
+
+    ArgChecker.notNull(name, "name");
+    ArgChecker.notNull(dayCount, "dayCount");
+    return DefaultCurveMetadata.builder()
+        .curveName(name)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.CORRELATION)
+        .dayCount(dayCount)
+        .parameterMetadata(parameterMetadata)
+        .build();
+  }
+
 }

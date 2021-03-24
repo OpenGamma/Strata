@@ -330,6 +330,44 @@ public class CurvesTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void correlationByExpiry_string() {
+    CurveMetadata test = Curves.correlationByExpiry(NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.CORRELATION)
+        .dayCount(ACT_360)
+        .build();
+    assertThat(test).isEqualTo(expected);
+  }
+
+  @Test
+  public void correlationByExpiry_curveName() {
+    CurveMetadata test = Curves.correlationByExpiry(CURVE_NAME, ACT_360);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.CORRELATION)
+        .dayCount(ACT_360)
+        .build();
+    assertThat(test).isEqualTo(expected);
+  }
+
+  @Test
+  public void correlationByExpiry_curveNameParams() {
+    CurveMetadata test = Curves.correlationByExpiry(CURVE_NAME, ACT_360, PARAMS);
+    CurveMetadata expected = DefaultCurveMetadata.builder()
+        .curveName(CURVE_NAME)
+        .xValueType(ValueType.YEAR_FRACTION)
+        .yValueType(ValueType.CORRELATION)
+        .dayCount(ACT_360)
+        .parameterMetadata(PARAMS)
+        .build();
+    assertThat(test).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void coverage() {
     coverPrivateConstructor(Curves.class);
   }
