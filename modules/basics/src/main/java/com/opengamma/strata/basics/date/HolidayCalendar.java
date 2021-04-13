@@ -212,7 +212,7 @@ public interface HolidayCalendar
    * Given a date, this method returns the date of the last business day of the month.
    * 
    * @param date  the date to check
-   * @return true if the specified date is the last business day of the month
+   * @return the date of the last business day of the month
    * @throws IllegalArgumentException if the date is outside the supported range
    */
   public default LocalDate lastBusinessDayOfMonth(LocalDate date) {
