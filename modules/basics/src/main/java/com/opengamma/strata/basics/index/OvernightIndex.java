@@ -72,14 +72,14 @@ public interface OvernightIndex
   public abstract int getPublicationDateOffset();
 
   /**
-   * Gets the number of days to add to the fixing date to obtain the effective date.
+   * Gets the number of business days to add to the fixing date to obtain the effective date.
    * <p>
    * In most cases, the settlement date and start of the implied deposit is on the fixing date.
    * In a few cases, the settlement date is the following business day.
    * This property is zero if settlement is on the fixing date, or one if it is the next day.
    * Maturity is always one business day after the settlement date.
    * 
-   * @return the effective date offset
+   * @return the effective date offset in business days
    */
   public abstract int getEffectiveDateOffset();
 

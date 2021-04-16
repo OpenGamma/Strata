@@ -57,6 +57,7 @@ import com.opengamma.strata.market.curve.node.IborFutureCurveNode;
 import com.opengamma.strata.market.curve.node.IborIborSwapCurveNode;
 import com.opengamma.strata.market.curve.node.OvernightFutureCurveNode;
 import com.opengamma.strata.market.curve.node.OvernightIborSwapCurveNode;
+import com.opengamma.strata.market.curve.node.OvernightOvernightSwapCurveNode;
 import com.opengamma.strata.market.curve.node.TermDepositCurveNode;
 import com.opengamma.strata.market.curve.node.ThreeLegBasisSwapCurveNode;
 import com.opengamma.strata.market.curve.node.XCcyIborIborSwapCurveNode;
@@ -83,6 +84,8 @@ import com.opengamma.strata.product.swap.type.IborIborSwapConvention;
 import com.opengamma.strata.product.swap.type.IborIborSwapTemplate;
 import com.opengamma.strata.product.swap.type.OvernightIborSwapConvention;
 import com.opengamma.strata.product.swap.type.OvernightIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.OvernightOvernightSwapConvention;
+import com.opengamma.strata.product.swap.type.OvernightOvernightSwapTemplate;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapConvention;
 import com.opengamma.strata.product.swap.type.ThreeLegBasisSwapTemplate;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConvention;
@@ -453,6 +456,9 @@ public final class RatesCalibrationCsvLoader {
     if ("ONI".equalsIgnoreCase(typeStr) || "OvernightIborBasisSwap".equalsIgnoreCase(typeStr)) {
       return curveOvernightIborCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
+    if ("ONO".equalsIgnoreCase(typeStr) || "OvernightOvernightSwap".equalsIgnoreCase(typeStr)) {
+      return curveOvernightOvernightCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
+    }
     if ("XCS".equalsIgnoreCase(typeStr) || "XCcyIborIborSwap".equalsIgnoreCase(typeStr)) {
       return curveXCcyIborIborCurveNode(conventionStr, timeStr, label, quoteId, spread, date, order);
     }
@@ -768,6 +774,33 @@ public final class RatesCalibrationCsvLoader {
     OvernightIborSwapConvention convention = OvernightIborSwapConvention.of(conventionStr);
     OvernightIborSwapTemplate template = OvernightIborSwapTemplate.of(Tenor.of(periodToEnd), convention);
     return OvernightIborSwapCurveNode.builder()
+        .template(template)
+        .rateId(quoteId)
+        .additionalSpread(spread)
+        .label(label)
+        .date(date)
+        .dateOrder(order)
+        .build();
+  }
+
+  private static CurveNode curveOvernightOvernightCurveNode(
+      String conventionStr,
+      String timeStr,
+      String label,
+      QuoteId quoteId,
+      double spread,
+      CurveNodeDate date,
+      CurveNodeDateOrder order) {
+  
+    Matcher matcher = SIMPLE_YM_TIME_REGEX.matcher(timeStr.toUpperCase(Locale.ENGLISH));
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException(
+          Messages.format("Invalid time format for Overnight-Overnight swap: {}", timeStr));
+    }
+    Period periodToEnd = Period.parse("P" + matcher.group(1));
+    OvernightOvernightSwapConvention convention = OvernightOvernightSwapConvention.of(conventionStr);
+    OvernightOvernightSwapTemplate template = OvernightOvernightSwapTemplate.of(Tenor.of(periodToEnd), convention);
+    return OvernightOvernightSwapCurveNode.builder()
         .template(template)
         .rateId(quoteId)
         .additionalSpread(spread)
