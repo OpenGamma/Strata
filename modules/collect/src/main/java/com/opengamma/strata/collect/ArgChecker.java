@@ -1148,6 +1148,7 @@ public final class ArgChecker {
    *  this.duration = ArgChecker.inRange(duration, Duration.ZERO, Duration.ofHours(1), "duration");
    * </pre>
    *
+   * @param <T>  the type of the value
    * @param argument  the value to check
    * @param lowInclusive  the low value of the range
    * @param highExclusive  the high value of the range
@@ -1172,6 +1173,7 @@ public final class ArgChecker {
    *  this.duration = ArgChecker.inRangeInclusive(duration, Duration.ZERO, Duration.ofHours(1), "duration");
    * </pre>
    *
+   * @param <T>  the type of the value
    * @param argument  the value to check
    * @param lowInclusive  the low value of the range
    * @param highInclusive  the high value of the range
@@ -1196,6 +1198,7 @@ public final class ArgChecker {
    *  this.duration = ArgChecker.inRangeExclusive(duration, Duration.ZERO, Duration.ofHours(1), "duration");
    * </pre>
    *
+   * @param <T>  the type of the value
    * @param argument  the value to check
    * @param lowExclusive  the low value of the range
    * @param highExclusive  the high value of the range
