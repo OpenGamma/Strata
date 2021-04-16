@@ -773,28 +773,28 @@ public class ArgCheckerTest {
     Duration low = Duration.ZERO;
     Duration mid = Duration.ofSeconds(1);
     Duration high = Duration.ofSeconds(2);
-    assertThat(ArgChecker.inRange(mid, low, high, "name")).isEqualTo(mid);
-    assertThat(ArgChecker.inRange(low, low, high, "name")).isEqualTo(low);
+    assertThat(ArgChecker.inRangeComparable(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeComparable(low, low, high, "name")).isEqualTo(low);
 
-    assertThat(ArgChecker.inRangeInclusive(mid, low, high, "name")).isEqualTo(mid);
-    assertThat(ArgChecker.inRangeInclusive(low, low, high, "name")).isEqualTo(low);
-    assertThat(ArgChecker.inRangeInclusive(high, low, high, "name")).isEqualTo(high);
+    assertThat(ArgChecker.inRangeComparableInclusive(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeComparableInclusive(low, low, high, "name")).isEqualTo(low);
+    assertThat(ArgChecker.inRangeComparableInclusive(high, low, high, "name")).isEqualTo(high);
 
-    assertThat(ArgChecker.inRangeExclusive(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeComparableExclusive(mid, low, high, "name")).isEqualTo(mid);
   }
 
   @Test
   public void test_generic_inRange_outOfRange() {
     Duration low = Duration.ZERO;
     Duration high = Duration.ofSeconds(1);
-    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRange(low.minusSeconds(1), low, high, "name"));
-    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRange(high, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparable(low.minusSeconds(1), low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparable(high, low, high, "name"));
 
-    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeInclusive(low.minusSeconds(1), low, high, "name"));
-    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeInclusive(high.plusSeconds(1), low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableInclusive(low.minusSeconds(1), low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableInclusive(high.plusSeconds(1), low, high, "name"));
 
-    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
-    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableExclusive(low, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableExclusive(high, low, high, "name"));
   }
 
   @Test

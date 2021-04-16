@@ -1145,7 +1145,7 @@ public final class ArgChecker {
    * lower boundary but excluding the upper boundary.
    * For example, in a constructor:
    * <pre>
-   *  this.duration = ArgChecker.inRange(duration, Duration.ZERO, Duration.ofHours(1), "duration");
+   *  this.duration = ArgChecker.inRangeComparable(duration, Duration.ZERO, Duration.ofHours(1), "duration");
    * </pre>
    *
    * @param <T>  the type of the value
@@ -1156,7 +1156,7 @@ public final class ArgChecker {
    * @return the input {@code argument}
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
-  public static <T extends Comparable<T>> T inRange(T argument, T lowInclusive, T highExclusive, String name) {
+  public static <T extends Comparable<T>> T inRangeComparable(T argument, T lowInclusive, T highExclusive, String name) {
     if (argument == null || argument.compareTo(lowInclusive) < 0 || argument.compareTo(highExclusive) >= 0) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} <= '{}' < {}, but found {}", lowInclusive, name, highExclusive, argument));
@@ -1170,7 +1170,7 @@ public final class ArgChecker {
    * Given a value, this returns true if it is within the specified range including both boundaries.
    * For example, in a constructor:
    * <pre>
-   *  this.duration = ArgChecker.inRangeInclusive(duration, Duration.ZERO, Duration.ofHours(1), "duration");
+   *  this.duration = ArgChecker.inRangeComparableInclusive(duration, Duration.ZERO, Duration.ofHours(1), "duration");
    * </pre>
    *
    * @param <T>  the type of the value
@@ -1181,7 +1181,7 @@ public final class ArgChecker {
    * @return the input {@code argument}
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
-  public static <T extends Comparable<T>> T inRangeInclusive(T argument, T lowInclusive, T highInclusive, String name) {
+  public static <T extends Comparable<T>> T inRangeComparableInclusive(T argument, T lowInclusive, T highInclusive, String name) {
     if (argument == null || argument.compareTo(lowInclusive) < 0 || argument.compareTo(highInclusive) > 0) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} <= '{}' <= {}, but found {}", lowInclusive, name, highInclusive, argument));
@@ -1195,7 +1195,7 @@ public final class ArgChecker {
    * Given a value, this returns true if it is within the specified range excluding both boundaries.
    * For example, in a constructor:
    * <pre>
-   *  this.duration = ArgChecker.inRangeExclusive(duration, Duration.ZERO, Duration.ofHours(1), "duration");
+   *  this.duration = ArgChecker.inRangeComparableExclusive(duration, Duration.ZERO, Duration.ofHours(1), "duration");
    * </pre>
    *
    * @param <T>  the type of the value
@@ -1206,7 +1206,7 @@ public final class ArgChecker {
    * @return the input {@code argument}
    * @throws IllegalArgumentException if the argument is outside the valid range
    */
-  public static <T extends Comparable<T>> T inRangeExclusive(T argument, T lowExclusive, T highExclusive, String name) {
+  public static <T extends Comparable<T>> T inRangeComparableExclusive(T argument, T lowExclusive, T highExclusive, String name) {
     if (argument == null || argument.compareTo(lowExclusive) <= 0 || argument.compareTo(highExclusive) >= 0) {
       throw new IllegalArgumentException(
           Messages.format("Expected {} < '{}' < {}, but found {}", lowExclusive, name, highExclusive, argument));
