@@ -7,7 +7,7 @@ package com.opengamma.strata.measure.swaption;
 
 import java.time.LocalDate;
 
-import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.MarketDataNotFoundException;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
@@ -63,6 +63,6 @@ public interface SwaptionMarketData {
    * @return the volatilities for the index
    * @throws MarketDataNotFoundException if the index is not found
    */
-  public abstract SwaptionVolatilities volatilities(Index index);
+  public abstract SwaptionVolatilities volatilities(RateIndex index);
 
 }

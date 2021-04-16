@@ -32,7 +32,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
@@ -44,7 +44,8 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * <p>
  * A swaption is a financial instrument that provides an option based on the future value of a swap.
  * The option is European, exercised only on the exercise date.
- * The underlying swap must be a single currency, Fixed-Float (IBOR or overnight) swap with a single index.
+ * The underlying swap must be a single currency, Fixed-Float swap with a single index.
+ * The index may be Ibor or Overnight.
  */
 @BeanDefinition
 public final class Swaption
@@ -148,10 +149,10 @@ public final class Swaption
   /**
    * Gets the index of the underlying swap.
    * 
-   * @return the Ibor index of the underlying swap
+   * @return the index of the underlying swap
    */
-  public Index getIndex() {
-    return underlying.allIndices().iterator().next();
+  public RateIndex getIndex() {
+    return (RateIndex) underlying.allIndices().iterator().next();
   }
 
   //-------------------------------------------------------------------------
