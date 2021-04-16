@@ -36,8 +36,8 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
  * An instance of {@link RatesMarketDataLookup} must also be specified.
  * <p>
  * Two pricing methods are available, 'Black' and 'TrinomialTree'.
- * By default, 'Black' will be used. To control the method, pass an instance of
- * {@link FxSingleBarrierOptionMethod} in the calculation parameters.
+ * By default, 'Black' will be used.
+ * To control the method, pass an instance of {@link FxSingleBarrierOptionMethod} in the calculation parameters.
  * <p>
  * The supported built-in measures are:
  * <ul>
@@ -48,6 +48,7 @@ import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOptionTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED Vega market quote bucketed on volatility curves/surfaces}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
@@ -69,6 +70,8 @@ public class FxSingleBarrierOptionTradeCalculationFunction
               FxSingleBarrierOptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, FxSingleBarrierOptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, FxSingleBarrierOptionMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED,
+              FxSingleBarrierOptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m, meth) -> rt)
           .build();
 

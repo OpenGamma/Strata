@@ -143,11 +143,9 @@ public class SwapPricingTest {
     CalculationRunner runner = CalculationRunner.of(MoreExecutors.newDirectExecutorService());
     Results results = runner.calculate(rules, trades, columns, suppliedData, REF_DATA);
 
-    Result<?> result = results.get(0, 0);
+    Result<CurrencyAmount> result = results.get(0, 0, CurrencyAmount.class);
     assertThat(result).isSuccess();
-
-    CurrencyAmount pv = (CurrencyAmount) result.getValue();
-    assertThat(pv.getAmount()).isCloseTo(-1003684.8402, offset(TOLERANCE_PV));
+    assertThat(result.getValue().getAmount()).isCloseTo(-1003684.8402, offset(TOLERANCE_PV));
   }
 
   private static SwapLeg fixedLeg(

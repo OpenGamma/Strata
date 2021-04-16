@@ -120,6 +120,7 @@ final class GlobalHolidayCalendars {
   // 1968, 3rd Jun, 2nd Sep - http://hansard.millbanksystems.com/written_answers/1965/jun/03/bank-holidays-1967-and-1968
   // 1969, 26th May, 1st Sep - http://hansard.millbanksystems.com/written_answers/1967/mar/21/bank-holidays-1969-dates
   // 1970, 25th May, 31st Aug - http://hansard.millbanksystems.com/written_answers/1967/jul/28/bank-holidays
+  // 2022, 2nd and 3rd Jun - https://www.gov.uk/government/news/extra-bank-holiday-to-mark-the-queens-platinum-jubilee-in-2022
   static ImmutableHolidayCalendar generateLondon() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -146,6 +147,10 @@ final class GlobalHolidayCalendars {
         // diamond jubilee
         holidays.add(date(2012, 6, 4));
         holidays.add(date(2012, 6, 5));
+      } else if (year == 2022) {
+        // platinum jubilee
+        holidays.add(date(2022, 6, 2));
+        holidays.add(date(2022, 6, 3));
       } else if (year == 1967 || year == 1970) {
         holidays.add(first(year, 5).with(lastInMonth(MONDAY)));
       } else if (year < 1971) {
@@ -495,6 +500,7 @@ final class GlobalHolidayCalendars {
   // http://eco.mtk.nao.ac.jp/koyomi/faq/holiday.html.en
   // https://www.jpx.co.jp/english/announce/market-holidays.html
   // https://www.loc.gov/law/foreign-news/article/japan-three-holidays-to-be-moved-to-ease-2020-olympic-ceremony-traffic/
+  // https://www.nippon.com/en/japan-data/h00738/
   static ImmutableHolidayCalendar generateTokyo() {
     List<LocalDate> holidays = new ArrayList<>(2000);
     for (int year = 1950; year <= 2099; year++) {
@@ -539,7 +545,10 @@ final class GlobalHolidayCalendars {
         holidays.add(bumpSunToMon(date(year, 5, 5)));
       }
       // marine
-      if (year == 2020) {
+      if (year == 2021) {
+        // moved because of the Olympics
+        holidays.add(date(year, 7, 22));
+      } else if (year == 2020) {
         // moved because of the Olympics (day prior to opening ceremony)
         holidays.add(date(year, 7, 23));
       } else if (year >= 2003) {
@@ -548,7 +557,10 @@ final class GlobalHolidayCalendars {
         holidays.add(bumpSunToMon(date(year, 7, 20)));
       }
       // mountain
-      if (year == 2020) {
+      if (year == 2021) {
+        // moved because of the Olympics
+        holidays.add(date(year, 8, 9));
+      } else if (year == 2020) {
         // moved because of the Olympics (day after closing ceremony)
         holidays.add(date(year, 8, 10));
       } else if (year >= 2016) {
@@ -569,9 +581,12 @@ final class GlobalHolidayCalendars {
       citizensDay(holidays, date(year, 9, 20), date(year, 9, 22));
       citizensDay(holidays, date(year, 9, 21), date(year, 9, 23));
       // health-sports
-      if (year == 2020) {
+      if (year == 2021) {
+        // moved because of the Olympics
+        holidays.add(date(year, 7, 23));
+      } else if (year == 2020) {
         // moved because of the Olympics (day of opening ceremony)
-        holidays.add(date(2020, 7, 24));
+        holidays.add(date(year, 7, 24));
       } else if (year >= 2000) {
         holidays.add(date(year, 10, 1).with(dayOfWeekInMonth(2, MONDAY)));
       } else if (year >= 1966) {

@@ -17,7 +17,7 @@ import org.joda.beans.gen.ImmutableConstructor;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.light.LightMetaBean;
 
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.pricer.swaption.SwaptionVolatilities;
@@ -77,7 +77,7 @@ final class DefaultSwaptionMarketData
 
   //-------------------------------------------------------------------------
   @Override
-  public SwaptionVolatilities volatilities(IborIndex index) {
+  public SwaptionVolatilities volatilities(RateIndex index) {
     return lookup.volatilities(index, marketData);
   }
 

@@ -146,7 +146,7 @@ public final class FxResetCalculation
    * @throws ReferenceDataNotFoundException if an identifier cannot be resolved in the reference data
    * @throws RuntimeException if the calculation is invalid
    */
-  BiFunction<Integer, SchedulePeriod, Optional<FxReset>> resolve(ReferenceData refData) {
+  public BiFunction<Integer, SchedulePeriod, Optional<FxReset>> resolve(ReferenceData refData) {
     DateAdjuster fixingDateAdjuster = fixingDateOffset.resolve(refData);
     Function<LocalDate, FxIndexObservation> obsFn = index.resolve(refData);
     return (periodIndex, period) -> buildFxReset(periodIndex, period, fixingDateAdjuster, obsFn);

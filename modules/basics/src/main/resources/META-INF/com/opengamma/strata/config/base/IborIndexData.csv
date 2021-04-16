@@ -187,6 +187,11 @@ HUF-BUBOR-10M,HUF,false,Act/360,HUBU,2,HUBU,HUBU,10M,ModifiedFollowing,11:00,Eur
 HUF-BUBOR-11M,HUF,false,Act/360,HUBU,2,HUBU,HUBU,11M,ModifiedFollowing,11:00,Europe/Budapest,Act/365F
 HUF-BUBOR-12M,HUF,true,Act/360,HUBU,2,HUBU,HUBU,12M,ModifiedFollowing,11:00,Europe/Budapest,Act/365F
 ,,,,,,,,,,,
+ILS-TELBOR-1M,ILS,true,Act/365F,ILTA,0,ILTA,ILTA,1M,ModifiedFollowing,11:00,Asia/Jerusalem,Act/365F
+ILS-TELBOR-3M,ILS,true,Act/365F,ILTA,0,ILTA,ILTA,3M,ModifiedFollowing,11:00,Asia/Jerusalem,Act/365F
+ILS-TELBOR-6M,ILS,true,Act/365F,ILTA,0,ILTA,ILTA,6M,ModifiedFollowing,11:00,Asia/Jerusalem,Act/365F
+ILS-TELBOR-12M,ILS,true,Act/365F,ILTA,0,ILTA,ILTA,12M,ModifiedFollowing,11:00,Asia/Jerusalem,Act/365F
+,,,,,,,,,,,
 KRW-CD-13W,KRW,true,Act/365F,KRSE,1,KRSE,KRSE,13W,Following,15:30,Asia/Seoul,Act/365F
 ,,,,,,,,,,,
 MXN-TIIE-4W,MXN,true,Act/360,MXMC,1,MXMC,MXMC,4W,Following,11:00,America/Mexico_City,Act/360
@@ -218,6 +223,12 @@ PLN-WIBOR-3M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,3M,ModifiedFollowing,11:00,Europ
 PLN-WIBOR-6M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,6M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-9M,PLN,false,Act/365F,PLWA,2,PLWA,PLWA,9M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
 PLN-WIBOR-12M,PLN,true,Act/365F,PLWA,2,PLWA,PLWA,12M,ModifiedFollowing,11:00,Europe/Warsaw,Act/Act ISDA
+,,,,,,,,,,,
+SAR-SAIBOR-1W,SAR,true,Act/360,SARI,0,SARI,SARI,1W,Following,11:00,Asia/Riyadh,Act/360
+SAR-SAIBOR-1M,SAR,true,Act/360,SARI,0,SARI,SARI,1M,ModifiedFollowing,11:00,Asia/Riyadh,Act/360
+SAR-SAIBOR-3M,SAR,true,Act/360,SARI,0,SARI,SARI,3M,ModifiedFollowing,11:00,Asia/Riyadh,Act/360
+SAR-SAIBOR-6M,SAR,true,Act/360,SARI,0,SARI,SARI,6M,ModifiedFollowing,11:00,Asia/Riyadh,Act/360
+SAR-SAIBOR-12M,SAR,true,Act/360,SARI,0,SARI,SARI,12M,ModifiedFollowing,11:00,Asia/Riyadh,Act/360
 ,,,,,,,,,,,
 SEK-STIBOR-1W,SEK,true,Act/360,SEST,2,SEST,SEST,1W,Following,11:00,Europe/Stockholm,30U/360
 SEK-STIBOR-1M,SEK,true,Act/360,SEST,2,SEST,SEST,1M,ModifiedFollowing,11:00,Europe/Stockholm,30U/360

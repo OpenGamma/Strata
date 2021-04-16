@@ -5,19 +5,22 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_CODE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CONTRACT_SIZE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.CURRENCY;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CCP_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONTRACT_CODE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONTRACT_SIZE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DESCRIPTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXCHANGE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXERCISE_PRICE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NAME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PUT_CALL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_SIZE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.UNDERLYING_EXPIRY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.DEFAULT_OPTION_VERSION_NUMBER;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXCHANGE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.EXERCISE_PRICE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.PUT_CALL_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.SECURITY_ID_SCHEME_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_SIZE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.TICK_VALUE;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.UNDERLYING_EXPIRY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderUtils.VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
 
 import java.time.YearMonth;
@@ -100,11 +103,11 @@ public interface PositionCsvInfoResolver {
    * @param builder  the builder to update
    */
   public default void parseStandardAttributes(CsvRow row, PositionInfoBuilder builder) {
-    row.findValue(PositionCsvLoader.DESCRIPTION_FIELD)
+    row.findValue(DESCRIPTION_FIELD)
         .ifPresent(str -> builder.addAttribute(AttributeType.DESCRIPTION, str));
-    row.findValue(PositionCsvLoader.NAME_FIELD)
+    row.findValue(NAME_FIELD)
         .ifPresent(str -> builder.addAttribute(AttributeType.NAME, str));
-    row.findValue(PositionCsvLoader.CCP_FIELD)
+    row.findValue(CCP_FIELD)
         .ifPresent(str -> builder.addAttribute(AttributeType.CCP, CcpId.of(str)));
   }
 
@@ -182,10 +185,10 @@ public interface PositionCsvInfoResolver {
    */
   public default Position parseNonEtdPosition(CsvRow row, PositionInfo info) {
     SecurityPosition base = parseNonEtdSecurityPosition(row, info);
-    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE).map(str -> LoaderUtils.parseDouble(str));
-    Optional<Currency> currencyOpt = row.findValue(CURRENCY).map(str -> Currency.of(str));
-    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE).map(str -> LoaderUtils.parseDouble(str));
-    double contractSize = row.findValue(CONTRACT_SIZE).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
+    Optional<Double> tickSizeOpt = row.findValue(TICK_SIZE_FIELD).map(str -> LoaderUtils.parseDouble(str));
+    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(str -> Currency.of(str));
+    Optional<Double> tickValueOpt = row.findValue(TICK_VALUE_FIELD).map(str -> LoaderUtils.parseDouble(str));
+    double contractSize = row.findValue(CONTRACT_SIZE_FIELD).map(str -> LoaderUtils.parseDouble(str)).orElse(1d);
     if (tickSizeOpt.isPresent() && currencyOpt.isPresent() && tickValueOpt.isPresent()) {
       SecurityPriceInfo priceInfo =
           SecurityPriceInfo.of(tickSizeOpt.get(), CurrencyAmount.of(currencyOpt.get(), tickValueOpt.get()), contractSize);

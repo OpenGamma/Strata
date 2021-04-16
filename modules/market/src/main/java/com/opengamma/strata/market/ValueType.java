@@ -119,6 +119,10 @@ public final class ValueType
    */
   public static final ValueType SABR_NU = of("SabrNu");
   /**
+   * Type used when each value is the SABR shift parameter - 'SabrShift'.
+   */
+  public static final ValueType SABR_SHIFT = of("SabrShift");
+  /**
    * Type used when each value is a risk reversal - 'RiskReversal'.
    */
   public static final ValueType RISK_REVERSAL = of("RiskReversal");
@@ -126,6 +130,10 @@ public final class ValueType
    * Type used when each value is a strangle - 'Strangle'.
    */
   public static final ValueType STRANGLE = of("Strangle");
+  /**
+   * Type used when each value is a correlation - 'CORRELATION'.
+   */
+  public static final ValueType CORRELATION = of("CORRELATION");
 
   //-------------------------------------------------------------------------
   /**

@@ -99,9 +99,12 @@ public final class UriByteSource extends BeanByteSource implements ImmutableBean
 
   @Override
   public Optional<String> getFileName() {
-    String path = uri.getPath().toString();
-    int lastSlash = path.lastIndexOf('/');
-    return Optional.of(path.substring(lastSlash + 1));
+    if (!uri.isOpaque()) {
+      String path = uri.getPath();
+      int lastSlash = path.lastIndexOf('/');
+      return Optional.of(path.substring(lastSlash + 1));
+    }
+    return Optional.empty();
   }
 
   /**

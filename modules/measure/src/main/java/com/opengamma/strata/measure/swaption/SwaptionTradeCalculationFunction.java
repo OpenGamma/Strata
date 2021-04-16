@@ -14,7 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.calc.Measure;
 import com.opengamma.strata.calc.runner.CalculationFunction;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -43,6 +43,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
  *   <li>{@linkplain Measures#PV01_CALIBRATED_BUCKETED PV01 calibrated bucketed on rate curves}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_SUM PV01 market quote sum on rate curves}
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
+ *   <li>{@linkplain Measures#VEGA_MARKET_QUOTE_BUCKETED normal vega market quote bucketed on vol curves/surfaces}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
  *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
@@ -63,6 +64,7 @@ public class SwaptionTradeCalculationFunction
           .put(Measures.PV01_CALIBRATED_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesCalibratedBucketed)
           .put(Measures.PV01_MARKET_QUOTE_SUM, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteSum)
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
+          .put(Measures.VEGA_MARKET_QUOTE_BUCKETED, SwaptionMeasureCalculations.DEFAULT::vegaMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, SwaptionMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, SwaptionMeasureCalculations.DEFAULT::currentCash)
           .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
@@ -108,7 +110,7 @@ public class SwaptionTradeCalculationFunction
     // extract data from product
     Swaption product = trade.getProduct();
     Currency currency = product.getCurrency();
-    IborIndex index = product.getIndex();
+    RateIndex index = product.getIndex();
 
     // use lookup to build requirements
     RatesMarketDataLookup ratesLookup = parameters.getParameter(RatesMarketDataLookup.class);

@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.date.DayCounts.ACT_360;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.basics.index.OvernightIndices.CHF_SARON;
 import static com.opengamma.strata.basics.index.OvernightIndices.EUR_EONIA;
+import static com.opengamma.strata.basics.index.OvernightIndices.EUR_ESTR;
 import static com.opengamma.strata.basics.index.OvernightIndices.GBP_SONIA;
 import static com.opengamma.strata.basics.index.OvernightIndices.JPY_TONAR;
 import static com.opengamma.strata.basics.index.OvernightIndices.USD_FED_FUND;
@@ -71,6 +72,16 @@ final class StandardFixedOvernightSwapConventions {
       makeConvention("CHF-FIXED-1Y-SARON-OIS", CHF_SARON, ACT_360, P12M, 2, 2);
 
   //-------------------------------------------------------------------------
+
+  /**
+   * USD fixed vs SOFR OIS swap for terms less than or equal to one year.
+   * <p>
+   * Both legs pay annually and use day count 'Act/360'.
+   * The spot date offset is 2 days and the payment date offset is 2 days.
+   */
+  public static final FixedOvernightSwapConvention USD_FIXED_TERM_SOFR_OIS =
+      makeConvention("USD-FIXED-TERM-SOFR-OIS", USD_SOFR, ACT_360, TERM, 2, 2);
+
   /**
    * USD fixed vs SOFR OIS swap for terms greater than one year.
    * <p>
@@ -98,6 +109,23 @@ final class StandardFixedOvernightSwapConventions {
    */
   public static final FixedOvernightSwapConvention EUR_FIXED_1Y_EONIA_OIS =
       makeConvention("EUR-FIXED-1Y-EONIA-OIS", EUR_EONIA, ACT_360, P12M, 1, 2);
+  /**
+   * EUR fixed vs ESTR OIS swap for terms less than or equal to one year.
+   * <p>
+   * Both legs pay once at the end and use day count 'Act/360'.
+   * The spot date offset is 2 days and the payment date offset is 2 days.
+   */
+  public static final FixedOvernightSwapConvention EUR_FIXED_TERM_ESTR_OIS =
+      makeConvention("EUR-FIXED-TERM-ESTR-OIS", EUR_ESTR, ACT_360, TERM, 2, 2);
+
+  /**
+   * EUR fixed vs ESTR OIS swap for terms greater than one year.
+   * <p>
+   * Both legs pay annually and use day count 'Act/360'.
+   * The spot date offset is 2 days and the payment date offset is 2 days.
+   */
+  public static final FixedOvernightSwapConvention EUR_FIXED_1Y_ESTR_OIS =
+      makeConvention("EUR-FIXED-1Y-ESTR-OIS", EUR_ESTR, ACT_360, P12M, 2, 2);
 
   //-------------------------------------------------------------------------
   /**

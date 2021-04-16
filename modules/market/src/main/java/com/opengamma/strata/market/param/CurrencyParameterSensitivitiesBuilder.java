@@ -11,6 +11,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.BiFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.UnaryOperator;
 
@@ -115,6 +116,19 @@ public final class CurrencyParameterSensitivitiesBuilder {
   public CurrencyParameterSensitivitiesBuilder mapMetadata(UnaryOperator<ParameterMetadata> metadataFn) {
     for (CurrencyParameterSensitivityBuilder builder : data.values()) {
       builder.mapMetadata(metadataFn);
+    }
+    return this;
+  }
+
+  /**
+   * Maps the sensitivity.
+   *
+   * @param mapFn  the function to adjust the sensitivity
+   * @return this, for chaining
+   */
+  public CurrencyParameterSensitivitiesBuilder mapSensitivities(BiFunction<ParameterMetadata, Double, Double> mapFn) {
+    for (CurrencyParameterSensitivityBuilder builder : data.values()) {
+      builder.mapSensitivity(mapFn);
     }
     return this;
   }

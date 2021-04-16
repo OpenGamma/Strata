@@ -66,10 +66,10 @@ commands:
           name: Triggering release of new version
           command: |
             RELEASE_SHA=$(git rev-parse HEAD)
-            git checkout master
+            git checkout main
             MASTER_SHA=$(git rev-parse HEAD)
             if [[ "$RELEASE_SHA" != "$MASTER_SHA" ]]; then
-              echo "release tag SHA != master HEAD SHA, $RELEASE_SHA $MASTER_SHA"
+              echo "release tag SHA != main HEAD SHA, $RELEASE_SHA $MASTER_SHA"
               exit 1
             fi
             git config --local user.email "cibot@opengamma.com"
@@ -204,7 +204,7 @@ commands:
       - run:
           name: Deploy snapshot
           command: |
-            if [ "$CIRCLE_BRANCH" == "master" ] && [[ "${POM_VERSION}" =~ "-SNAPSHOT" ]]
+            if [ "$CIRCLE_BRANCH" == "main" ] && [[ "${POM_VERSION}" =~ "-SNAPSHOT" ]]
             then
               mvn deploy -DaltSnapshotDeploymentRepository="opengamma-repo::https://opengamma.jfrog.io/opengamma/libs-snapshots-local/" -DskipTests -Dcheckstyle.skip=true
             fi

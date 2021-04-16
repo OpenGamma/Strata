@@ -58,6 +58,10 @@ final class StandardMeasures {
   public static final Measure PV01_SINGLE_NODE_GAMMA_BUCKETED = ImmutableMeasure.of("PV01SingleNodeGammaBucketed");
 
   //-------------------------------------------------------------------------
+  // Vega market quote bucketed
+  public static final Measure VEGA_MARKET_QUOTE_BUCKETED = ImmutableMeasure.of("VegaMarketQuoteBucketed");
+
+  //-------------------------------------------------------------------------
   // restricted constructor
   private StandardMeasures() {
   }

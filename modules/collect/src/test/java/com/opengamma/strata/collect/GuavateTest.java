@@ -851,6 +851,15 @@ public class GuavateTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_genericClass() {
+    Class<List<String>> test1 = Guavate.genericClass(List.class);
+    assertThat(test1).isEqualTo(List.class);
+    Class<List<Number>> test2 = Guavate.genericClass(List.class);
+    assertThat(test2).isEqualTo(List.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_callerClass() {
     assertThat(Guavate.callerClass(0)).isEqualTo(Guavate.CallerClassSecurityManager.class);
     assertThat(Guavate.callerClass(1)).isEqualTo(Guavate.class);

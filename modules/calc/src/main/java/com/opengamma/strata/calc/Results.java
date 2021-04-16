@@ -265,6 +265,51 @@ public final class Results implements ImmutableBean {
 
   //-------------------------------------------------------------------------
   /**
+   * Returns multi-scenario results for a target and column index, casting the result to a known type.
+   * <p>
+   * The result is a multi-scenario {@link ScenarioArray}.
+   * Typed subclasses of {@code ScenarioArray} can also be obtained using {@link #get(int, int, Class)}.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param <C>  the type parameter of {@code ScenarioArray}
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnIndex  the index of the column
+   * @param componentType  the type parameter of {@code ScenarioArray}
+   * @return the result for the specified row and column for a set of scenarios, cast to the specified type
+   * @throws IllegalArgumentException if the row or column index is invalid
+   * @throws ClassCastException if the result is not of the specified type
+   */
+  public <C> Result<ScenarioArray<C>> getScenarios(int rowIndex, int columnIndex, Class<C> componentType) {
+    return castScenario(get(rowIndex, columnIndex), componentType);
+  }
+
+  /**
+   * Returns multi-scenario results for a target and column name, casting the result to a known type.
+   * <p>
+   * The result is a multi-scenario {@link ScenarioArray}.
+   * Typed subclasses of {@code ScenarioArray} can also be obtained using {@link #get(int, ColumnName, Class)}.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   *
+   * @param <C>  the type parameter of {@code ScenarioArray}
+   * @param rowIndex   the index of the row containing the results for a target
+   * @param columnName  the name of the column
+   * @param componentType  the type parameter of {@code ScenarioArray}
+   * @return the result for the specified row and column for a set of scenarios, cast to the specified type
+   * @throws IllegalArgumentException if the row or column index is invalid
+   * @throws ClassCastException if the result is not of the specified type
+   */
+  public <C> Result<ScenarioArray<C>> getScenarios(int rowIndex, ColumnName columnName, Class<C> componentType) {
+    return castScenario(get(rowIndex, columnName), componentType);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Returns a stream of results for a single column by column index.
    * <p>
    * The result may be a single value or a multi-scenario value.
@@ -312,6 +357,30 @@ public final class Results implements ImmutableBean {
    */
   public <T> Stream<Result<T>> columnResults(int columnIndex, Class<T> type) {
     return columnResults(columnIndex).map(result -> cast(result, type));
+  }
+
+  /**
+   * Returns a stream of multi-scenario results for a single column by column index.
+   * <p>
+   * The result is a multi-scenario {@link ScenarioArray}.
+   * Typed subclasses of {@code ScenarioArray} can also be obtained using {@link #columnResults}.
+   * <p>
+   * If the calculation did not complete successfully, a failure result will be returned
+   * explaining the problem. Callers must check whether the result is a success or failure
+   * before examining the result value.
+   * <p>
+   * Large streams can be processed in parallel via {@link Stream#parallel()}.
+   * See {@link Guavate#zipWithIndex(Stream)} if the row index is required.
+   * The stream will throw {@code ClassCastException} if the result is not of the specified type.
+   *
+   * @param <C>  the type parameter of {@code ScenarioArray}
+   * @param columnIndex  the index of the column
+   * @param componentType  the type parameter of {@code ScenarioArray}
+   * @return the stream of results for the specified column, cast to the specified type
+   * @throws IllegalArgumentException if the column index is invalid
+   */
+  public <C> Stream<Result<ScenarioArray<C>>> columnResultsScenarios(int columnIndex, Class<C> componentType) {
+    return columnResults(columnIndex).map(result -> castScenario(result, componentType));
   }
 
   // efficient spliterator for larger result sets
@@ -379,6 +448,7 @@ public final class Results implements ImmutableBean {
   }
 
   //-------------------------------------------------------------------------
+  // casts the result, ensuring the type is the expected one
   @SuppressWarnings("unchecked")
   private static <T> Result<T> cast(Result<?> result, Class<T> type) {
     // cannot use result.map() as we want the exception to be thrown
@@ -387,6 +457,27 @@ public final class Results implements ImmutableBean {
     }
     throw new ClassCastException(Messages.format(
         "Result queried with type '{}' but was '{}'", type.getName(), result.getValue().getClass().getName()));
+  }
+
+  // casts the result, ensuring the type is a ScenarioArray and the first element is of the expected type
+  // choosing to do only the first element is done to avoid the performance hit from checking large scenarios
+  @SuppressWarnings("unchecked")
+  private static <C> Result<ScenarioArray<C>> castScenario(Result<?> result, Class<C> componentType) {
+    if (result.isFailure()) {
+      return (Result<ScenarioArray<C>>) result;
+    }
+    if (ScenarioArray.class.isInstance(result.getValue())) {
+      ScenarioArray<?> array = (ScenarioArray<?>) result.getValue();
+      if (array.getScenarioCount() > 0 && !componentType.isInstance(array.get(0))) {
+        throw new ClassCastException(Messages.format(
+            "Result queried with component type '{}' but was '{}'",
+            componentType.getName(),
+            array.get(0).getClass().getName()));
+      }
+      return (Result<ScenarioArray<C>>) result;
+    }
+    throw new ClassCastException(Messages.format(
+        "Result queried with type 'ScenarioArray' but was '{}'", result.getValue().getClass().getName()));
   }
 
   //------------------------- AUTOGENERATED START -------------------------

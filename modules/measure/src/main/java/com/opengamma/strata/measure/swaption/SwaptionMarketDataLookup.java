@@ -10,7 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.calc.CalculationRules;
 import com.opengamma.strata.calc.runner.CalculationParameter;
 import com.opengamma.strata.calc.runner.CalculationParameters;
@@ -40,11 +40,11 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * <p>
    * The lookup provides volatilities for the specified index.
    *
-   * @param index  the Ibor index
+   * @param index  the index
    * @param volatilityId  the volatility identifier
    * @return the swaption lookup containing the specified mapping
    */
-  public static SwaptionMarketDataLookup of(IborIndex index, SwaptionVolatilitiesId volatilityId) {
+  public static SwaptionMarketDataLookup of(RateIndex index, SwaptionVolatilitiesId volatilityId) {
     return DefaultSwaptionMarketDataLookup.of(ImmutableMap.of(index, volatilityId));
   }
 
@@ -56,7 +56,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @param volatilityIds  the volatility identifiers, keyed by index
    * @return the swaption lookup containing the specified volatilities
    */
-  public static SwaptionMarketDataLookup of(Map<IborIndex, SwaptionVolatilitiesId> volatilityIds) {
+  public static SwaptionMarketDataLookup of(Map<RateIndex, SwaptionVolatilitiesId> volatilityIds) {
     return DefaultSwaptionMarketDataLookup.of(volatilityIds);
   }
 
@@ -81,7 +81,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    *
    * @return the set of indices
    */
-  public abstract ImmutableSet<IborIndex> getVolatilityIndices();
+  public abstract ImmutableSet<RateIndex> getVolatilityIndices();
 
   /**
    * Gets the identifiers used to obtain the volatilities for the specified currency.
@@ -93,7 +93,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @return the set of market data identifiers 
    * @throws IllegalArgumentException if the index is not found
    */
-  public abstract ImmutableSet<MarketDataId<?>> getVolatilityIds(IborIndex index);
+  public abstract ImmutableSet<MarketDataId<?>> getVolatilityIds(RateIndex index);
 
   //-------------------------------------------------------------------------
   /**
@@ -102,7 +102,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @param indices  the indices, for which volatilities are required
    * @return the requirements
    */
-  public default FunctionRequirements requirements(IborIndex... indices) {
+  public default FunctionRequirements requirements(RateIndex... indices) {
     return requirements(ImmutableSet.copyOf(indices));
   }
 
@@ -112,7 +112,7 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    * @param indices  the indices, for which volatilities are required
    * @return the requirements
    */
-  public abstract FunctionRequirements requirements(Set<IborIndex> indices);
+  public abstract FunctionRequirements requirements(Set<RateIndex> indices);
 
   //-------------------------------------------------------------------------
   /**
@@ -156,11 +156,11 @@ public interface SwaptionMarketDataLookup extends CalculationParameter {
    *  SwaptionVolatilities vols = view.volatilities(index);
    * </pre>
    * 
-   * @param index  the Ibor index
+   * @param index  the index
    * @param marketData  the complete set of market data for one scenario
    * @return the volatilities
    * @throws MarketDataNotFoundException if the index is not found
    */
-  public abstract SwaptionVolatilities volatilities(IborIndex index, MarketData marketData);
+  public abstract SwaptionVolatilities volatilities(RateIndex index, MarketData marketData);
 
 }
