@@ -130,6 +130,10 @@ public final class ValueType
    * Type used when each value is a strangle - 'Strangle'.
    */
   public static final ValueType STRANGLE = of("Strangle");
+  /**
+   * Type used when each value is a correlation - 'CORRELATION'.
+   */
+  public static final ValueType CORRELATION = of("CORRELATION");
 
   //-------------------------------------------------------------------------
   /**

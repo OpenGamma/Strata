@@ -244,13 +244,10 @@ public final class ImmutableHolidayCalendar
 
     ArgChecker.notNull(id, "id");
     int weekends = weekendDays.stream().mapToInt(dow -> 1 << (dow.getValue() - 1)).sum();
+    // initial case where no holiday dates are specified
     int startYear = 0;
     int[] lookup = new int[0];
-    if (holidays.isEmpty()) {
-      // special case where no holiday dates are specified
-      startYear = 0;
-      lookup = new int[0];
-    } else {
+    if (!holidays.isEmpty()) {
       // normal case where holidays are specified
       startYear = holidays.first().getYear();
       int endYearExclusive = holidays.last().getYear() + 1;
