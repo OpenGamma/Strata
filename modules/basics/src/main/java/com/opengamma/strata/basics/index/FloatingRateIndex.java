@@ -7,6 +7,9 @@ package com.opengamma.strata.basics.index;
 
 import java.util.Optional;
 
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
@@ -120,7 +123,33 @@ public interface FloatingRateIndex
         });
   }
 
+  /**
+   * Obtains an instance from the specified unique name.
+   * <p>
+   * This parses names from {@link IborIndex}, {@link OvernightIndex} and {@link PriceIndex}.
+   * 
+   * @param uniqueName  the unique name
+   * @return the index
+   * @throws IllegalArgumentException if the name is not known
+   */
+  @FromString
+  public static FloatingRateIndex of(String uniqueName) {
+    ArgChecker.notNull(uniqueName, "uniqueName");
+    return Indices.FLOATING_RATE_INDEX_LOOKUP.lookup(uniqueName);
+  }
+
   //-------------------------------------------------------------------------
+  /**
+   * Gets the name that uniquely identifies this index.
+   * <p>
+   * This name is used in serialization and can be parsed using {@link #of(String)}.
+   * 
+   * @return the unique name
+   */
+  @ToString
+  @Override
+  public abstract String getName();
+
   /**
    * Gets the currency of the index.
    * 
