@@ -31,7 +31,7 @@ import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.type.FixedIborSwapConventions;
-import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
+import com.opengamma.strata.product.swap.type.FixedInflationSwapConventions;
 import com.opengamma.strata.product.swap.type.IborIborSwapConventions;
 import com.opengamma.strata.product.swap.type.XCcyIborIborSwapConventions;
 
@@ -55,7 +55,7 @@ public class SwaptionTest {
   private static final SwaptionSettlement PHYSICAL_SETTLE = PhysicalSwaptionSettlement.DEFAULT;
   private static final SwaptionSettlement CASH_SETTLE =
       CashSwaptionSettlement.of(SWAP.getStartDate().getUnadjusted(), CashSwaptionSettlementMethod.PAR_YIELD);
-  private static final Swap SWAP_OIS = FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS
+  private static final Swap SWAP_INFL = FixedInflationSwapConventions.USD_FIXED_ZC_US_CPI
       .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE, REF_DATA).getProduct();
   private static final Swap SWAP_BASIS = IborIborSwapConventions.USD_LIBOR_1M_LIBOR_3M
       .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE, REF_DATA).getProduct();
@@ -94,7 +94,7 @@ public class SwaptionTest {
   }
 
   @Test
-  public void test_builder_invalidSwapOis() {
+  public void test_builder_invalidSwapInflation() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Swaption.builder()
             .expiryDate(ADJUSTABLE_EXPIRY_DATE)
@@ -102,7 +102,7 @@ public class SwaptionTest {
             .expiryZone(ZONE)
             .longShort(LONG)
             .swaptionSettlement(PHYSICAL_SETTLE)
-            .underlying(SWAP_OIS)
+            .underlying(SWAP_INFL)
             .build());
   }
 

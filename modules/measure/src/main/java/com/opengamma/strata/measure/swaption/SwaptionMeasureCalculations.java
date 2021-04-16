@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.data.scenario.CurrencyScenarioArray;
 import com.opengamma.strata.data.scenario.MultiCurrencyScenarioArray;
@@ -78,7 +78,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return CurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> presentValue(
@@ -103,7 +103,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesCalibratedSum(
@@ -129,7 +129,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesCalibratedBucketed(
@@ -155,7 +155,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesMarketQuoteSum(
@@ -182,7 +182,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> pv01RatesMarketQuoteBucketed(
@@ -222,7 +222,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return ScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> vegaMarketQuoteBucketed(
@@ -260,7 +260,7 @@ final class SwaptionMeasureCalculations {
       RatesScenarioMarketData ratesMarketData,
       SwaptionScenarioMarketData swaptionMarketData) {
 
-    IborIndex index = trade.getProduct().getIndex();
+    RateIndex index = trade.getProduct().getIndex();
     return MultiCurrencyScenarioArray.of(
         ratesMarketData.getScenarioCount(),
         i -> currencyExposure(

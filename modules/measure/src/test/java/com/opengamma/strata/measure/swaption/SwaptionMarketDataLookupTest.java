@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.data.MarketData;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
@@ -66,7 +66,7 @@ public class SwaptionMarketDataLookupTest {
 
   @Test
   public void test_of_map() {
-    ImmutableMap<IborIndex, SwaptionVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1);
+    ImmutableMap<RateIndex, SwaptionVolatilitiesId> ids = ImmutableMap.of(USD_LIBOR_3M, VOL_ID1, USD_LIBOR_6M, VOL_ID1);
     SwaptionMarketDataLookup test = SwaptionMarketDataLookup.of(ids);
     assertThat(test.queryType()).isEqualTo(SwaptionMarketDataLookup.class);
     assertThat(test.getVolatilityIndices()).containsOnly(USD_LIBOR_3M, USD_LIBOR_6M);
