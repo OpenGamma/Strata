@@ -74,6 +74,9 @@ public class BlackFxSingleBarrierOptionTradePricer {
     CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, volatilities);
     Payment premium = trade.getPremium();
     CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
+    if (pvProduct.getCurrency().equals(pvPremium.getCurrency())) {
+      return MultiCurrencyAmount.of(pvProduct.plus(pvPremium));
+    }
     return MultiCurrencyAmount.of(pvProduct, pvPremium);
   }
 
