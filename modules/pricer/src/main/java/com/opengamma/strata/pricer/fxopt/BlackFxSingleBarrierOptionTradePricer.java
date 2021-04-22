@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.fxopt;
 
 import java.time.LocalDate;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -74,7 +75,7 @@ public class BlackFxSingleBarrierOptionTradePricer {
     CurrencyAmount pvProduct = productPricer.presentValue(product, ratesProvider, volatilities);
     Payment premium = trade.getPremium();
     CurrencyAmount pvPremium = paymentPricer.presentValue(premium, ratesProvider);
-    return MultiCurrencyAmount.of(pvProduct, pvPremium);
+    return MultiCurrencyAmount.total(ImmutableList.of(pvProduct, pvPremium));
   }
 
   //-------------------------------------------------------------------------
