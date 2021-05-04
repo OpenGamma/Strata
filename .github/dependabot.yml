@@ -1,0 +1,61 @@
+version: 2
+registries:
+  maven-repository-opengamma-jfrog-io-opengamma-all:
+    type: maven-repository
+    url: https://opengamma.jfrog.io/opengamma/all
+    username: dependabot
+    password: "${{secrets.MAVEN_REPOSITORY_OPENGAMMA_JFROG_IO_OPENGAMMA_ALL_PASSWORD}}"
+
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "02:30"
+  open-pull-requests-limit: 20
+  reviewers:
+  - jodastephen
+  assignees:
+  - jodastephen
+  ignore:
+  - dependency-name: com.beust:jcommander
+    versions:
+    - "< 1.73.1, >= 1.73.0.a"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - "< 1.74.1, >= 1.74.0.a"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - ">= 1.75.a, < 1.76"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - ">= 1.80.a, < 1.81"
+  - dependency-name: com.beust:jcommander
+    versions:
+    - ">= 1.81.a, < 1.82"
+  - dependency-name: com.google.guava:guava
+    versions:
+    - ">= 28.a, < 29"
+  - dependency-name: org.mockito:mockito-core
+    versions:
+    - "> 3.3.0, < 3.4"
+  - dependency-name: org.openjfx:javafx-controls
+    versions:
+    - ">= 12.a, < 13"
+  - dependency-name: org.openjfx:javafx-controls
+    versions:
+    - ">= 13.a, < 14"
+  - dependency-name: org.openjfx:javafx-controls
+    versions:
+    - ">= 14.a, < 15"
+  - dependency-name: org.openjfx:javafx-controls
+    versions:
+    - ">= 15.a, < 16"
+  - dependency-name: org.openjfx:javafx-controls
+    versions:
+    - ">= 16.a, < 17"
+  - dependency-name: org.testng:testng
+    versions:
+    - "> 6.14.2, < 6.15"
+  registries:
+  - maven-repository-opengamma-jfrog-io-opengamma-all

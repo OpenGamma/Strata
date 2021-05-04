@@ -9,6 +9,7 @@ import static com.opengamma.strata.collect.TestHelper.assertUtilityClass;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -765,6 +766,35 @@ public class ArgCheckerTest {
 
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(low, low, high, "name"));
     assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeExclusive(high, low, high, "name"));
+  }
+
+  @Test
+  public void test_generic_inRange() {
+    Duration low = Duration.ZERO;
+    Duration mid = Duration.ofSeconds(1);
+    Duration high = Duration.ofSeconds(2);
+    assertThat(ArgChecker.inRangeComparable(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeComparable(low, low, high, "name")).isEqualTo(low);
+
+    assertThat(ArgChecker.inRangeComparableInclusive(mid, low, high, "name")).isEqualTo(mid);
+    assertThat(ArgChecker.inRangeComparableInclusive(low, low, high, "name")).isEqualTo(low);
+    assertThat(ArgChecker.inRangeComparableInclusive(high, low, high, "name")).isEqualTo(high);
+
+    assertThat(ArgChecker.inRangeComparableExclusive(mid, low, high, "name")).isEqualTo(mid);
+  }
+
+  @Test
+  public void test_generic_inRange_outOfRange() {
+    Duration low = Duration.ZERO;
+    Duration high = Duration.ofSeconds(1);
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparable(low.minusSeconds(1), low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparable(high, low, high, "name"));
+
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableInclusive(low.minusSeconds(1), low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableInclusive(high.plusSeconds(1), low, high, "name"));
+
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableExclusive(low, low, high, "name"));
+    assertThatIllegalArgumentException().isThrownBy(() -> ArgChecker.inRangeComparableExclusive(high, low, high, "name"));
   }
 
   @Test
