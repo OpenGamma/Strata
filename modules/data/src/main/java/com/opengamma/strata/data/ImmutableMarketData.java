@@ -130,13 +130,26 @@ public final class ImmutableMarketData
    * @return the combined market data
    */
   public ImmutableMarketData combinedWith(ImmutableMarketData other) {
-    Map<MarketDataId<?>, Object> combinedValues = new HashMap<>(other.values);
-    combinedValues.putAll(values);
-    HashMap<ObservableId, LocalDateDoubleTimeSeries> combinedTimeSeries = new HashMap<>(other.timeSeries);
-    combinedTimeSeries.putAll(timeSeries);
-
     if (!valuationDate.equals(other.valuationDate)) {
-      throw new IllegalArgumentException("Unable to combine market data instances with different valuation dates");
+      throw new IllegalArgumentException(Messages.format(
+          "Unable to combine market data instances with different valuation dates: {}, {}",
+          valuationDate,
+          other.valuationDate));
+    }
+
+    Map<MarketDataId<?>, Object> combinedValues;
+    if (other.values.isEmpty()) {
+      combinedValues = values;
+    } else {
+      combinedValues = new HashMap<>(other.values);
+      combinedValues.putAll(values);
+    }
+    Map<ObservableId, LocalDateDoubleTimeSeries> combinedTimeSeries;
+    if (other.timeSeries.isEmpty()) {
+      combinedTimeSeries = timeSeries;
+    } else {
+      combinedTimeSeries = new HashMap<>(other.timeSeries);
+      combinedTimeSeries.putAll(timeSeries);
     }
     return new ImmutableMarketData(valuationDate, combinedValues, combinedTimeSeries);
   }
