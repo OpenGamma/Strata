@@ -147,11 +147,10 @@ public final class ImmutableMarketData
       return current;
     } else if (current.isEmpty()) {
       return other;
-    } else {
-      Map<K, V> combinedValues = new HashMap<>(other);
-      combinedValues.putAll(current);
-      return combinedValues;
     }
+    Map<K, V> combinedValues = new HashMap<>(other);
+    combinedValues.putAll(current);
+    return combinedValues;
   }
 
   @Override
