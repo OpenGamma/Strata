@@ -137,25 +137,21 @@ public final class ImmutableMarketData
           other.valuationDate));
     }
 
-    Map<MarketDataId<?>, Object> combinedValues;
-    if (other.values.isEmpty()) {
-      combinedValues = values;
-    } else if (values.isEmpty()) {
-      combinedValues = other.values;
-    } else {
-      combinedValues = new HashMap<>(other.values);
-      combinedValues.putAll(values);
-    }
-    Map<ObservableId, LocalDateDoubleTimeSeries> combinedTimeSeries;
-    if (other.timeSeries.isEmpty()) {
-      combinedTimeSeries = timeSeries;
-    } else if (timeSeries.isEmpty()) {
-      combinedTimeSeries = other.timeSeries;
-    } else {
-      combinedTimeSeries = new HashMap<>(other.timeSeries);
-      combinedTimeSeries.putAll(timeSeries);
-    }
+    Map<MarketDataId<?>, Object> combinedValues = combineValues(values, other.values);
+    Map<ObservableId, LocalDateDoubleTimeSeries> combinedTimeSeries = combineValues(timeSeries, other.timeSeries);
     return new ImmutableMarketData(valuationDate, combinedValues, combinedTimeSeries);
+  }
+
+  private static <K, V> Map<K, V> combineValues(Map<K, V> current, Map<K, V> other) {
+    if (other.isEmpty()) {
+      return current;
+    } else if (current.isEmpty()) {
+      return other;
+    } else {
+      Map<K, V> combinedValues = new HashMap<>(other);
+      combinedValues.putAll(current);
+      return combinedValues;
+    }
   }
 
   @Override
