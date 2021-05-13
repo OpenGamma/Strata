@@ -140,6 +140,8 @@ public final class ImmutableMarketData
     Map<MarketDataId<?>, Object> combinedValues;
     if (other.values.isEmpty()) {
       combinedValues = values;
+    } else if (values.isEmpty()) {
+      combinedValues = other.values;
     } else {
       combinedValues = new HashMap<>(other.values);
       combinedValues.putAll(values);
@@ -147,6 +149,8 @@ public final class ImmutableMarketData
     Map<ObservableId, LocalDateDoubleTimeSeries> combinedTimeSeries;
     if (other.timeSeries.isEmpty()) {
       combinedTimeSeries = timeSeries;
+    } else if (timeSeries.isEmpty()) {
+      combinedTimeSeries = other.timeSeries;
     } else {
       combinedTimeSeries = new HashMap<>(other.timeSeries);
       combinedTimeSeries.putAll(timeSeries);
