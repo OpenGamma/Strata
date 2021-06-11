@@ -5,11 +5,9 @@
  */
 package com.opengamma.strata.product.fx;
 
-
 /**
  * A foreign exchange option trade such as a FxVanillaOptionTrade.
  */
-
 public interface FxOptionTrade extends FxTrade {
 
 }
