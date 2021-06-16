@@ -10,4 +10,7 @@ package com.opengamma.strata.product.fx;
  */
 public interface FxOptionTrade extends FxTrade {
 
+  @Override
+  public abstract FxOptionProduct getProduct();
+
 }

@@ -1,0 +1,14 @@
+/*
+ * Copyright (C) 2021 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.strata.product.fx;
+
+import java.time.ZonedDateTime;
+
+public interface FxOptionProduct extends FxProduct {
+
+  public ZonedDateTime getExpiry();
+
+}
