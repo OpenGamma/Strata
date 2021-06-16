@@ -124,6 +124,14 @@ public final class FxSingleBarrierOption
     return underlyingOption.getCurrencyPair();
   }
 
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying Fx vanilla option's expiry.
+   * @return the expiry
+   */
+  @Override
+  public ZonedDateTime getExpiry() { return underlyingOption.getExpiry(); }
+
   //-------------------------------------------------------------------------
   @Override
   public ResolvedFxSingleBarrierOption resolve(ReferenceData refData) {
@@ -184,14 +192,6 @@ public final class FxSingleBarrierOption
   public FxVanillaOption getUnderlyingOption() {
     return underlyingOption;
   }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the underlying Fx vanilla option's expiry.
-   * @return the expiry
-   */
-  @Override
-  public ZonedDateTime getExpiry() { return underlyingOption.getExpiry(); }
 
   //-----------------------------------------------------------------------
   /**
