@@ -12,6 +12,10 @@ import java.time.ZonedDateTime;
  */
 public interface FxOptionProduct extends FxProduct {
 
-  public ZonedDateTime getExpiry();
+  /**
+   * Returns the product's expiry.
+   * @return the expiry
+   */
+  public abstract ZonedDateTime getExpiry();
 
 }
