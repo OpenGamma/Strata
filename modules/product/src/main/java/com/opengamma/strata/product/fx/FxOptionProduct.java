@@ -7,6 +7,9 @@ package com.opengamma.strata.product.fx;
 
 import java.time.ZonedDateTime;
 
+/**
+ * A foreign exchange product that is an option.
+ */
 public interface FxOptionProduct extends FxProduct {
 
   public ZonedDateTime getExpiry();
