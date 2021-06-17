@@ -32,19 +32,19 @@ import com.opengamma.strata.product.ProductType;
 import com.opengamma.strata.product.ResolvableTrade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.SummarizerUtils;
-import com.opengamma.strata.product.fx.FxTrade;
+import com.opengamma.strata.product.fx.FxOptionTrade;
 
 /**
  * A trade in an FX single barrier option.
  * <p>
  * An Over-The-Counter (OTC) trade in an {@link FxSingleBarrierOption}.
  * <p>
- * An FX option is a financial instrument that provides an option to exchange two currencies at a specified future time 
+ * An FX option is a financial instrument that provides an option to exchange two currencies at a specified future time
  * only when barrier event occurs (knock-in option) or does not occur (knock-out option).
  */
 @BeanDefinition
 public final class FxSingleBarrierOptionTrade
-    implements FxTrade, ResolvableTrade<ResolvedFxSingleBarrierOptionTrade>, ImmutableBean, Serializable {
+    implements FxOptionTrade, ResolvableTrade<ResolvedFxSingleBarrierOptionTrade>, ImmutableBean, Serializable {
 
   /**
   * The additional trade information, defaulted to an empty instance.
