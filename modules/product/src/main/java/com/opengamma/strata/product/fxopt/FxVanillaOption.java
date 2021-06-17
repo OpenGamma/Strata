@@ -161,6 +161,7 @@ public final class FxVanillaOption
    *
    * @return the expiry date and time
    */
+  @Override
   public ZonedDateTime getExpiry() {
     return expiryDate.atTime(expiryTime).atZone(expiryZone);
   }

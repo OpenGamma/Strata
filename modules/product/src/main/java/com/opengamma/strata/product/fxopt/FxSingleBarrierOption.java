@@ -130,7 +130,9 @@ public final class FxSingleBarrierOption
    * @return the expiry
    */
   @Override
-  public ZonedDateTime getExpiry() { return underlyingOption.getExpiry(); }
+  public ZonedDateTime getExpiry() {
+    return underlyingOption.getExpiry();
+  }
 
   //-------------------------------------------------------------------------
   @Override
