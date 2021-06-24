@@ -1850,7 +1850,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertThat(trades.getValue()).hasSize(6);
-    assertThat(trades.getFailures()).hasSize(20);
+    assertThat(trades.getFailures()).hasSize(22);
     assertThat(trades.getFailures().get(0).getMessage()).isEqualTo(
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
