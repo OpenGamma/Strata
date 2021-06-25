@@ -109,7 +109,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
   //-------------------------------------------------------------------------
   @Override
   public Set<String> tradeTypeNames() {
-    return ImmutableSet.of("CAPFLOOR");
+    return ImmutableSet.of("IBORCAPFLOOR", "CAPFLOOR", "IBOR CAPFLOOR");
   }
 
   @Override
@@ -128,7 +128,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   @Override
   public String getName() {
-    return "CapFloor";
+    return "IborCapFloor";
   }
 
   //-------------------------------------------------------------------------
@@ -249,8 +249,9 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
       PayReceive premiumDirection = row.getValue(PREMIUM_DIRECTION_FIELD, LoaderUtils::parsePayReceive);
       LocalDate premiumDate = row.getValue(PREMIUM_DATE_FIELD, LoaderUtils::parseDate);
       CurrencyAmount premiumAmount = CurrencyAmount.of(premiumCurrency, premiumAmountOpt.get());
-      AdjustablePayment payment = premiumDirection.isPay() ? AdjustablePayment.ofPay(premiumAmount, premiumDate)
-          : AdjustablePayment.ofReceive(premiumAmount, premiumDate);
+      AdjustablePayment payment = premiumDirection.isPay() ?
+          AdjustablePayment.ofPay(premiumAmount, premiumDate) :
+          AdjustablePayment.ofReceive(premiumAmount, premiumDate);
       return Optional.of(payment);
     }
     return Optional.empty();
