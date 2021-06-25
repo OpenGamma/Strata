@@ -69,6 +69,7 @@ import com.opengamma.strata.product.bond.BillTrade;
 import com.opengamma.strata.product.bond.BondFutureOptionTrade;
 import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
 import com.opengamma.strata.product.bond.FixedCouponBondTrade;
+import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
@@ -123,6 +124,7 @@ public final class TradeCsvWriter {
           .put(IborFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)
           .put(OvernightFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)
           .put(GenericSecurityTrade.class, GenericSecurityTradeCsvPlugin.INSTANCE)
+          .put(IborCapFloorTrade.class, IborCapFloorTradeCsvPlugin.INSTANCE)
           .build();
   /**
    * The header order.
