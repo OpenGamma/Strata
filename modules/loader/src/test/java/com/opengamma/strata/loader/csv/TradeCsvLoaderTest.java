@@ -61,6 +61,7 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
+import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
@@ -86,6 +87,9 @@ import com.opengamma.strata.product.SecurityPriceInfo;
 import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.capfloor.IborCapFloor;
+import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
+import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
 import com.opengamma.strata.product.common.CcpIds;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.credit.Cds;
@@ -1846,7 +1850,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertThat(trades.getValue()).hasSize(6);
-    assertThat(trades.getFailures()).hasSize(20);
+    assertThat(trades.getFailures()).hasSize(22);
     assertThat(trades.getFailures().get(0).getMessage()).isEqualTo(
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
@@ -1994,6 +1998,65 @@ public class TradeCsvLoaderTest {
     assertBeanEquals(expected0, filtered.get(0));
 
     checkRoundtrip(GenericSecurityTrade.class, filtered, expected0);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_load_CapFloor() {
+    TradeCsvLoader test = TradeCsvLoader.standard();
+    ValueWithFailures<List<Trade>> trades = test.load(FILE);
+
+    List<IborCapFloorTrade> filtered = trades.getValue().stream()
+        .flatMap(filtering(IborCapFloorTrade.class))
+        .collect(toImmutableList());
+    assertThat(filtered).hasSize(2);
+
+    IborCapFloorTrade expected0 = IborCapFloorTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123452"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(IborCapFloor.of(IborCapFloorLeg.builder()
+            .payReceive(RECEIVE)
+            .paymentSchedule(PeriodicSchedule.of(
+                date(2020, 3, 10),
+                date(2025, 3, 10),
+                Frequency.P3M,
+                BusinessDayAdjustment.NONE,
+                StubConvention.NONE,
+                false))
+            .currency(USD)
+            .notional(ValueSchedule.of(10_000_000))
+            .calculation(IborRateCalculation.of(IborIndices.USD_LIBOR_3M))
+            .capSchedule(ValueSchedule.of(0.021))
+            .build()))
+        .build();
+    assertBeanEquals(expected0, filtered.get(0));
+
+    IborCapFloorTrade expected1 = IborCapFloorTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123453"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(IborCapFloor.of(IborCapFloorLeg.builder()
+            .payReceive(PAY)
+            .paymentSchedule(PeriodicSchedule.of(
+                date(2020, 3, 10),
+                date(2030, 3, 10),
+                Frequency.P6M,
+                BusinessDayAdjustment.NONE,
+                StubConvention.NONE,
+                false))
+            .currency(EUR)
+            .notional(ValueSchedule.of(15_000_000))
+            .calculation(IborRateCalculation.of(IborIndices.EUR_EURIBOR_6M))
+            .floorSchedule(ValueSchedule.of(0.005))
+            .build()))
+        .premium(AdjustablePayment.ofReceive(CurrencyAmount.of(EUR, 5000), date(2020, 3, 10)))
+        .build();
+    assertBeanEquals(expected1, filtered.get(1));
+
+    checkRoundtrip(IborCapFloorTrade.class, filtered, expected0, expected1);
   }
 
   //-------------------------------------------------------------------------
