@@ -61,7 +61,7 @@ public final class FxRate
    * The rate applicable to the currency pair.
    * One unit of the base currency is exchanged for this amount of the counter currency.
    */
-  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero")
+  @PropertyDefinition(validate = "ArgChecker.notNegativeOrZero", get = "private")
   private final double rate;
 
   //-------------------------------------------------------------------------
@@ -288,7 +288,7 @@ public final class FxRate
    * One unit of the base currency is exchanged for this amount of the counter currency.
    * @return the value of the property
    */
-  public double getRate() {
+  private double getRate() {
     return rate;
   }
 

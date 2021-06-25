@@ -24,7 +24,6 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.collect.Messages;
-import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -107,7 +106,6 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
     Currency nonDeliverableCurrency = row.getField(NON_DELIVERABLE_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     CurrencyPair currencyPair = CurrencyPair.of(settlementCurrency, nonDeliverableCurrency).toConventional();
     FxRate agreedFxRate = FxRate.of(currencyPair, row.getField(FX_RATE_FIELD, LoaderUtils::parseDouble));
-    FxIndex.extendedEnum();
     FxIndex index = parseFxIndex(currencyPair)
         .orElseThrow(() -> new IllegalArgumentException(Messages.format(
         "No FX Index found for currency pair {}. Known FX Index required to construct NDF trade",
@@ -147,7 +145,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
         fxNdf.getSettlementCurrencyNotional().isNegative() ? PayReceive.PAY : PayReceive.RECEIVE);
     csv.writeCell(SETTLEMENT_CURRENCY_NOTIONAL_FIELD, Math.abs(fxNdf.getSettlementCurrencyNotional().getAmount()));
     csv.writeCell(NON_DELIVERABLE_CURRENCY_FIELD, fxNdf.getNonDeliverableCurrency());
-    csv.writeCell(FX_RATE_FIELD, fxNdf.getAgreedFxRate().getRate());
+    csv.writeCell(FX_RATE_FIELD, fxNdf.getAgreedFxRate().fxRate(fxNdf.getCurrencyPair()));
     csv.writeNewLine();
   }
 
