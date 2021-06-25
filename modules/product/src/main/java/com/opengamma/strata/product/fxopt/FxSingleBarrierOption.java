@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.fxopt;
 
 import java.io.Serializable;
+import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -28,28 +29,28 @@ import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.fx.FxProduct;
+import com.opengamma.strata.product.fx.FxOptionProduct;
 import com.opengamma.strata.product.option.Barrier;
 
 /**
  * FX (European) single barrier option.
  * <p>
- * An FX option is a financial instrument that provides an option to exchange two currencies at a specified future time 
+ * An FX option is a financial instrument that provides an option to exchange two currencies at a specified future time
  * only when barrier event occurs (knock-in option) or does not occur (knock-out option).
  * <p>
- * Depending on the barrier defined in {@link Barrier}, the options are classified into four types: up-and-in, 
+ * Depending on the barrier defined in {@link Barrier}, the options are classified into four types: up-and-in,
  * down-and-in, up-and-out and down-and-out.
  * <p>
  * For example, an up-and-out call on a 'EUR 1.00 / USD -1.41' exchange with barrier of 1.5 is the option to
  * perform a foreign exchange on the expiry date, where USD 1.41 is paid to receive EUR 1.00, only when EUR/USD rate does
  * not exceed 1.5 during the barrier event observation period.
  * <p>
- * In case of the occurrence (non-occurrence for knock-in options) of the barrier event, the option becomes worthless, 
+ * In case of the occurrence (non-occurrence for knock-in options) of the barrier event, the option becomes worthless,
  * or alternatively, a rebate is made.
  */
 @BeanDefinition
 public final class FxSingleBarrierOption
-    implements FxProduct, Resolvable<ResolvedFxSingleBarrierOption>, ImmutableBean, Serializable {
+    implements FxOptionProduct, Resolvable<ResolvedFxSingleBarrierOption>, ImmutableBean, Serializable {
 
   /**
    * The underlying FX vanilla option.
@@ -59,7 +60,7 @@ public final class FxSingleBarrierOption
   /**
    * The barrier description.
    * <p>
-   * The barrier level stored in this field must be represented based on the direction of the currency pair in the 
+   * The barrier level stored in this field must be represented based on the direction of the currency pair in the
    * underlying FX transaction.
    * <p>
    * For example, if the underlying option is an option on EUR/GBP, the barrier should be a certain level of EUR/GBP rate.
@@ -67,7 +68,7 @@ public final class FxSingleBarrierOption
   @PropertyDefinition(validate = "notNull")
   private final Barrier barrier;
   /**
-   * For a 'out' option, the amount is paid when the barrier is reached; 
+   * For a 'out' option, the amount is paid when the barrier is reached;
    * for a 'in' option, the amount is paid at expiry if the barrier is not reached.
    * <p>
    * This is the notional amount represented in one of the currency pair.
@@ -79,7 +80,7 @@ public final class FxSingleBarrierOption
   //-------------------------------------------------------------------------
   /**
    * Obtains FX single barrier option with rebate.
-   * 
+   *
    * @param underlyingOption  the underlying FX vanilla option
    * @param barrier  the barrier
    * @param rebate  the rebate
@@ -91,7 +92,7 @@ public final class FxSingleBarrierOption
 
   /**
    * Obtains FX single barrier option without rebate.
-   * 
+   *
    * @param underlyingOption  the underlying FX vanilla option
    * @param barrier  the barrier
    * @return the instance
@@ -115,12 +116,22 @@ public final class FxSingleBarrierOption
    * Gets currency pair of the base currency and counter currency.
    * <p>
    * This currency pair is conventional, thus indifferent to the direction of FX.
-   * 
+   *
    * @return the currency pair
    */
   @Override
   public CurrencyPair getCurrencyPair() {
     return underlyingOption.getCurrencyPair();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the underlying Fx vanilla option's expiry.
+   * @return the expiry
+   */
+  @Override
+  public ZonedDateTime getExpiry() {
+    return underlyingOption.getExpiry();
   }
 
   //-------------------------------------------------------------------------

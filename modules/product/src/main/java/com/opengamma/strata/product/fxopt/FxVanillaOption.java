@@ -35,7 +35,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PutCall;
-import com.opengamma.strata.product.fx.FxProduct;
+import com.opengamma.strata.product.fx.FxOptionProduct;
 import com.opengamma.strata.product.fx.FxSingle;
 
 /**
@@ -49,7 +49,7 @@ import com.opengamma.strata.product.fx.FxSingle;
  */
 @BeanDefinition
 public final class FxVanillaOption
-    implements FxProduct, Resolvable<ResolvedFxVanillaOption>, ImmutableBean, Serializable {
+    implements FxOptionProduct, Resolvable<ResolvedFxVanillaOption>, ImmutableBean, Serializable {
 
   /**
    * Whether the option is long or short.
@@ -161,6 +161,7 @@ public final class FxVanillaOption
    *
    * @return the expiry date and time
    */
+  @Override
   public ZonedDateTime getExpiry() {
     return expiryDate.atTime(expiryTime).atZone(expiryZone);
   }
