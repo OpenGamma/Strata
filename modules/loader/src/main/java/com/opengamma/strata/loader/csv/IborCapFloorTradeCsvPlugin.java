@@ -286,10 +286,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
     csv.writeCell(NOTIONAL_FIELD, capFloorLeg.getNotional().getInitialValue());
     csv.writeCell(INDEX_FIELD, capFloorLeg.getCalculation().getIndex());
     trade.getPremium().ifPresent(premium -> {
-      csv.writeCell(PREMIUM_AMOUNT_FIELD, premium.getAmount());
-      csv.writeCell(PREMIUM_CURRENCY_FIELD, premium.getCurrency());
-      csv.writeCell(PREMIUM_DIRECTION_FIELD, premium.getValue().isNegative() ? PayReceive.PAY : PayReceive.RECEIVE);
-      csv.writeCell(PREMIUM_DATE_FIELD, premium.getDate().getUnadjusted());
+      CsvWriterUtils.writePremiumFields(csv, premium);
     });
     csv.writeNewLine();
   }

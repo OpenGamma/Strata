@@ -89,7 +89,6 @@ import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
@@ -409,7 +408,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
       csv.writeCell(TRADE_TYPE_FIELD, "Cds");
       csv.writeCell(LEGAL_ENTITY_ID_SCHEME_FIELD, product.getLegalEntityId().getScheme());
       csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityId().getValue());
-      trade.getUpfrontFee().ifPresent(premium -> writeCdsPremium(csv, premium));
+      trade.getUpfrontFee().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
       writeCdsDetails(
           csv,
           product.getBuySell(),
@@ -470,7 +469,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
       csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityIds().stream()
           .map(StandardId::getValue)
           .collect(joining(";")));
-      trade.getUpfrontFee().ifPresent(premium -> writeCdsPremium(csv, premium));
+      trade.getUpfrontFee().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
       writeCdsDetails(
           csv,
           product.getBuySell(),
@@ -617,15 +616,4 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     csv.writeCell(DATE_ADJ_CAL_FIELD, accrual.getBusinessDayAdjustment().getCalendar());
     csv.writeNewLine();
   }
-
-  // write the premium
-  private static void writeCdsPremium(CsvRowOutputWithHeaders csv, AdjustablePayment premium) {
-    csv.writeCell(PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(premium.getAmount()));
-    csv.writeCell(PREMIUM_CURRENCY_FIELD, premium.getCurrency());
-    csv.writeCell(PREMIUM_AMOUNT_FIELD, premium.getAmount());
-    csv.writeCell(PREMIUM_DATE_FIELD, premium.getDate().getUnadjusted());
-    csv.writeCell(PREMIUM_DATE_CNV_FIELD, premium.getDate().getAdjustment().getConvention());
-    csv.writeCell(PREMIUM_DATE_CAL_FIELD, premium.getDate().getAdjustment().getCalendar());
-  }
-
 }

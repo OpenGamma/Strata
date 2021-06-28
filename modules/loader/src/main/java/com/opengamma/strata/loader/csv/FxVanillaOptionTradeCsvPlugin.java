@@ -8,6 +8,14 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_TIME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_ZONE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LONG_SHORT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
@@ -18,14 +26,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_1_PAYMENT_DATE_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_DIRECTION_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_NOTIONAL_FIELD;
-import static com.opengamma.strata.loader.csv.FxSingleTradeCsvPlugin.LEG_2_PAYMENT_DATE_FIELD;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -45,7 +45,6 @@ import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
-import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
@@ -159,19 +158,9 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCs
 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxVanillaOptionTrade trade) {
-    FxVanillaOption product = trade.getProduct();
     csv.writeCell(TRADE_TYPE_FIELD, "FxVanillaOption");
-    csv.writeCell(LONG_SHORT_FIELD, product.getLongShort());
-    csv.writeCell(EXPIRY_DATE_FIELD, product.getExpiryDate());
-    csv.writeCell(EXPIRY_TIME_FIELD, product.getExpiryTime());
-    csv.writeCell(EXPIRY_ZONE_FIELD, product.getExpiryZone());
-    csv.writeCell(PREMIUM_DATE_FIELD, trade.getPremium().getDate().getUnadjusted());
-    csv.writeCell(PREMIUM_DATE_CNV_FIELD, trade.getPremium().getDate().getAdjustment().getConvention());
-    csv.writeCell(PREMIUM_DATE_CAL_FIELD, trade.getPremium().getDate().getAdjustment().getCalendar());
-    csv.writeCell(PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(trade.getPremium().getAmount()));
-    csv.writeCell(PREMIUM_CURRENCY_FIELD, trade.getPremium().getCurrency());
-    csv.writeCell(PREMIUM_AMOUNT_FIELD, trade.getPremium().getAmount());
-    FxSingleTradeCsvPlugin.INSTANCE.writeProduct(csv, "", product.getUnderlying());
+    CsvWriterUtils.writeFxVanillaOption(csv, trade.getProduct());
+    CsvWriterUtils.writePremiumFields(csv, trade.getPremium());
     csv.writeNewLine();
   }
 
