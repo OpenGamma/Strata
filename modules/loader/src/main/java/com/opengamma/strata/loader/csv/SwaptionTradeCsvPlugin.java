@@ -43,7 +43,6 @@ import com.opengamma.strata.loader.csv.FullSwapTradeCsvPlugin.VariableElements;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.LongShort;
-import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.Swap;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
@@ -193,12 +192,7 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsv
     }
     csv.writeCell(EXPIRY_TIME_FIELD, product.getExpiryTime());
     csv.writeCell(EXPIRY_ZONE_FIELD, product.getExpiryZone().getId());
-    csv.writeCell(PREMIUM_DATE_FIELD, trade.getPremium().getDate().getUnadjusted());
-    csv.writeCell(PREMIUM_DATE_CNV_FIELD, trade.getPremium().getDate().getAdjustment().getConvention());
-    csv.writeCell(PREMIUM_DATE_CAL_FIELD, trade.getPremium().getDate().getAdjustment().getCalendar());
-    csv.writeCell(PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(trade.getPremium().getAmount()));
-    csv.writeCell(PREMIUM_CURRENCY_FIELD, trade.getPremium().getCurrency());
-    csv.writeCell(PREMIUM_AMOUNT_FIELD, trade.getPremium().getAmount());
+    CsvWriterUtils.writePremiumFields(csv, trade.getPremium());
     csv.writeNewLine();
     variableElements.writeLines(csv);
   }
