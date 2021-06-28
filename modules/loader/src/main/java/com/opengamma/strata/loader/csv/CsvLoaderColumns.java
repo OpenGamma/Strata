@@ -159,6 +159,14 @@ public final class CsvLoaderColumns {
   public static final String SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD = "Settlement Date Offset Adjustment Convention";
   /** CSV header (CDS). */
   public static final String SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD = "Settlement Date Offset Adjustment Calendar";
+  /** CSV header (CDS). */
+  public static final String RED_CODE_FIELD = "RED Code";
+  /** CSV header (CDS). */
+  public static final String SENIORITY_FIELD = "Seniority";
+  /** CSV header (CDS). */
+  public static final String INDEX_SERIES_FIELD = "Index Series";
+  /** CSV header (CDS). */
+  public static final String INDEX_VERSION_FIELD = "Index Version";
 
   /** CSV header (Swap). */
   public static final String PAYMENT_FREQUENCY_FIELD = "Payment Frequency";

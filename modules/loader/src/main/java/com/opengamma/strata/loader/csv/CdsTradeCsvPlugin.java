@@ -36,6 +36,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PROTECTION_START_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.RED_CODE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ROLL_CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD;
@@ -176,7 +177,10 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
         .splitToList(row.findValue(LEGAL_ENTITY_ID_SCHEME_FIELD).orElse(DEFAULT_LEGAL_ENTITY_SCHEME));
     List<String> entityIdStrs = Splitter.on(';').splitToList(row.getValue(LEGAL_ENTITY_ID_FIELD));
     List<StandardId> entityIds;
-    if (entitySchemeStrs.size() >= entityIdStrs.size()) {
+    if (entityIdStrs.size() == 0) {
+      entityIds = ImmutableList.of();
+    }
+    else if (entitySchemeStrs.size() >= entityIdStrs.size()) {
       entityIds = zip(entitySchemeStrs.stream(), entityIdStrs.stream())
           .map(pair -> StandardId.of(pair.getFirst(), pair.getSecond()))
           .collect(toImmutableList());
@@ -322,6 +326,9 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
             SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD,
             SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD))
         .ifPresent(settleOffset -> cdsBuilder.settlementDateOffset(settleOffset));
+    row.findValue(RED_CODE_FIELD)
+        .map(s -> LoaderUtils.parseRedCode(s))
+        .ifPresent(redCode -> cdsBuilder.redCode(redCode));
 
     return CdsTrade.builder()
         .info(info)
