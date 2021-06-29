@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.math.BigDecimal;
@@ -195,10 +196,10 @@ public final class CsvLoaderUtils {
    */
   public static Pair<YearMonth, EtdVariant> parseEtdVariant(CsvRow row, EtdType type) {
     YearMonth yearMonth = row.getValue(EXPIRY_FIELD, LoaderUtils::parseYearMonth);
-    int week = row.findValue(EXPIRY_WEEK_FIELD).map(s -> LoaderUtils.parseInteger(s)).orElse(0);
-    int day = row.findValue(EXPIRY_DAY_FIELD).map(s -> LoaderUtils.parseInteger(s)).orElse(0);
-    Optional<EtdSettlementType> settleType = row.findValue(SETTLEMENT_TYPE_FIELD).map(s -> parseEtdSettlementType(s));
-    Optional<EtdOptionType> optionType = row.findValue(EXERCISE_STYLE_FIELD).map(s -> parseEtdOptionType(s));
+    int week = row.findValue(EXPIRY_WEEK_FIELD, LoaderUtils::parseInteger).orElse(0);
+    int day = row.findValue(EXPIRY_DAY_FIELD, LoaderUtils::parseInteger).orElse(0);
+    Optional<EtdSettlementType> settleType = row.findValue(SETTLEMENT_TYPE_FIELD, CsvLoaderUtils::parseEtdSettlementType);
+    Optional<EtdOptionType> optionType = row.findValue(EXERCISE_STYLE_FIELD, CsvLoaderUtils::parseEtdOptionType);
     // check valid combinations
     if (!settleType.isPresent()) {
       if (day == 0) {
@@ -276,13 +277,13 @@ public final class CsvLoaderUtils {
    * @throws IllegalArgumentException if the row cannot be parsed
    */
   public static DoublesPair parseQuantity(CsvRow row) {
-    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (quantityOpt.isPresent()) {
       double quantity = quantityOpt.get();
       return DoublesPair.of(quantity >= 0 ? quantity : 0, quantity >= 0 ? 0 : -quantity);
     }
-    Optional<Double> longQuantityOpt = row.findValue(LONG_QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
-    Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    Optional<Double> longQuantityOpt = row.findValue(LONG_QUANTITY_FIELD, LoaderUtils::parseDouble);
+    Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (!longQuantityOpt.isPresent() && !shortQuantityOpt.isPresent()) {
       throw new IllegalArgumentException(
           Messages.format("Security must contain a quantity column, either '{}' or '{}' and '{}'",
@@ -391,8 +392,7 @@ public final class CsvLoaderUtils {
       String calField) {
 
     int days = row.getValue(daysField, LoaderUtils::parseInteger);
-    HolidayCalendarId daysCal = row.findValue(daysCalField)
-        .map(s -> HolidayCalendarId.of(s))
+    HolidayCalendarId daysCal = row.findValue(daysCalField, HolidayCalendarId::of)
         .orElse(HolidayCalendarIds.NO_HOLIDAYS);
     BusinessDayAdjustment bda = parseBusinessDayAdjustment(row, cnvField, calField)
         .orElse(BusinessDayAdjustment.NONE);
@@ -439,6 +439,31 @@ public final class CsvLoaderUtils {
     double amount = row.getValue(amountField, LoaderUtils::parseDouble);
     PayReceive direction = row.getValue(directionField, LoaderUtils::parsePayReceive);
     return CurrencyAmount.of(currency, direction.normalize(amount));
+  }
+
+  /**
+   * Parses a currency amount with direction.
+   *
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @return the currency amount, or a zero USD currency amount if one or multiple field(s) are missing.
+   */
+  public static CurrencyAmount parseCurrencyAmountWithDirectionOrZero(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField) {
+
+    Optional<Currency> currency = row.findValue(currencyField, LoaderUtils::parseCurrency);
+    Optional<Double> amount = row.findValue(amountField, LoaderUtils::parseDouble);
+    Optional<PayReceive> direction = row.findValue(directionField, LoaderUtils::parsePayReceive);
+
+    if (currency.isPresent() && amount.isPresent() && direction.isPresent()) {
+      return CurrencyAmount.of(currency.get(), direction.get().normalize(amount.get()));
+    }
+    return CurrencyAmount.zero(USD);
   }
 
   //-------------------------------------------------------------------------

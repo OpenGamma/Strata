@@ -98,7 +98,11 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";
   /** CSV header. */
-  public static final String REBATE_FIELD = "Rebate";
+  public static final String REBATE_AMOUNT_FIELD = "Rebate Amount";
+  /** CSV header. */
+  public static final String REBATE_CURRENCY_FIELD = "Rebate Currency";
+  /** CSV header. */
+  public static final String REBATE_DIRECTION_FIELD = "Rebate Direction";
   /** CSV header. */
   public static final String LONG_SHORT_FIELD = "Long Short";
   /** CSV header. */

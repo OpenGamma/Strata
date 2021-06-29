@@ -9,6 +9,14 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FX_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
@@ -28,12 +36,14 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 
@@ -173,8 +183,25 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxSingleTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxSingle");
-    CsvWriterUtils.writeFxSingle(csv, "", trade.getProduct());
+    writeFxSingle(csv, "", trade.getProduct());
     csv.writeNewLine();
+  }
+
+  protected void writeFxSingle(CsvOutput.CsvRowOutputWithHeaders csv, String prefix, FxSingle product) {
+    Payment basePayment = product.getBaseCurrencyPayment();
+    csv.writeCell(prefix + LEG_1_DIRECTION_FIELD, PayReceive.ofSignedAmount(basePayment.getAmount()));
+    csv.writeCell(prefix + LEG_1_CURRENCY_FIELD, basePayment.getCurrency());
+    csv.writeCell(prefix + LEG_1_NOTIONAL_FIELD, basePayment.getAmount());
+    csv.writeCell(prefix + LEG_1_PAYMENT_DATE_FIELD, basePayment.getDate());
+    Payment counterPayment = product.getCounterCurrencyPayment();
+    csv.writeCell(prefix + LEG_2_DIRECTION_FIELD, PayReceive.ofSignedAmount(counterPayment.getAmount()));
+    csv.writeCell(prefix + LEG_2_CURRENCY_FIELD, counterPayment.getCurrency());
+    csv.writeCell(prefix + LEG_2_NOTIONAL_FIELD, counterPayment.getAmount());
+    csv.writeCell(prefix + LEG_2_PAYMENT_DATE_FIELD, counterPayment.getDate());
+    product.getPaymentDateAdjustment().ifPresent(bda -> {
+      csv.writeCell(PAYMENT_DATE_CAL_FIELD, bda.getCalendar());
+      csv.writeCell(PAYMENT_DATE_CNV_FIELD, bda.getConvention());
+    });
   }
 
   //-------------------------------------------------------------------------

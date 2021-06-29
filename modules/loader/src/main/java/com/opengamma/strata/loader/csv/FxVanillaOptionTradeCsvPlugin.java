@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -159,9 +160,17 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCs
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxVanillaOptionTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxVanillaOption");
-    CsvWriterUtils.writeFxVanillaOption(csv, trade.getProduct());
+    writeFxVanillaOption(csv, trade.getProduct());
     CsvWriterUtils.writePremiumFields(csv, trade.getPremium());
     csv.writeNewLine();
+  }
+
+  protected void writeFxVanillaOption(CsvOutput.CsvRowOutputWithHeaders csv, FxVanillaOption product) {
+    csv.writeCell(LONG_SHORT_FIELD, product.getLongShort());
+    csv.writeCell(EXPIRY_DATE_FIELD, product.getExpiryDate());
+    csv.writeCell(EXPIRY_TIME_FIELD, product.getExpiryTime());
+    csv.writeCell(EXPIRY_ZONE_FIELD, product.getExpiryZone());
+    CsvWriterUtils.writeFxSingle(csv, "", product.getUnderlying());
   }
 
   //-------------------------------------------------------------------------
