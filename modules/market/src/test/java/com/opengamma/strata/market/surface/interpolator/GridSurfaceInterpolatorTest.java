@@ -147,9 +147,9 @@ public class GridSurfaceInterpolatorTest {
         LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
     BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
     double eps = 1e-8;
-    double low = bci.interpolate(0.2, 3.5);
-    double high = bci.interpolate(0.2, 3.5 + eps);
-    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(0.2, 3.5);
+    double low = bci.interpolate(1.4, 3.5);
+    double high = bci.interpolate(1.4, 3.5 + eps);
+    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(1.4, 3.5);
     double expected = (high - low) / eps;
     assertThat(valueDerivatives.getDerivative(1)).isCloseTo(expected, offset(1e-6));
   }
@@ -159,9 +159,9 @@ public class GridSurfaceInterpolatorTest {
     GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
     BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
     double eps = 1e-8;
-    double low = bci.interpolate(-0.2, 3.5);
-    double high = bci.interpolate(-0.2, 3.5 + eps);
-    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(-0.2, 3.5);
+    double low = bci.interpolate(-0.2, 0.2);
+    double high = bci.interpolate(-0.2, 0.2 + eps);
+    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(-0.2, 0.2);
     double expected = (high - low) / eps;
     assertThat(valueDerivatives.getDerivative(1)).isCloseTo(expected, offset(1e-6));
   }
