@@ -110,6 +110,12 @@ public final class DeformedSurface
   }
 
   //-------------------------------------------------------------------------
+  @Override
+  public ValueDerivatives firstPartialDerivatives(double x, double y) {
+    throw new UnsupportedOperationException("First partial derivatives not supported for deformed surfaces");
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
    * 

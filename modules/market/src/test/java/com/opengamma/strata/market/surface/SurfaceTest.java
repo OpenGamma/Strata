@@ -10,6 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.LabelParameterMetadata;
 import com.opengamma.strata.market.param.ParameterMetadata;
@@ -95,6 +96,11 @@ public class SurfaceTest {
     @Override
     public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
       return createParameterSensitivity(DoubleArray.filled(1));
+    }
+
+    @Override
+    public ValueDerivatives firstPartialDerivatives(double x, double y) {
+      return null;
     }
   }
 
