@@ -21,8 +21,6 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
-import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
-import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 
 /**
  * Test {@link GridSurfaceInterpolator}.
