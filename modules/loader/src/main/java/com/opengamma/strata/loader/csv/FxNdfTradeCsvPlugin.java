@@ -5,25 +5,23 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FX_RATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
-import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -43,10 +41,13 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
    */
   public static final FxNdfTradeCsvPlugin INSTANCE = new FxNdfTradeCsvPlugin();
 
+  private static final String FX_INDEX_FIELD = "FX Index";
   private static final String NON_DELIVERABLE_CURRENCY_FIELD = "ND Currency";
   private static final String SETTLEMENT_CURRENCY_FIELD = "Settlement Currency";
   private static final String SETTLEMENT_CURRENCY_DIRECTION_FIELD = "Settlement Currency Direction";
   private static final String SETTLEMENT_CURRENCY_NOTIONAL_FIELD = "Settlement Currency Notional";
+
+  private static final Map<String, FxIndex> FX_INDICES = FxIndex.extendedEnum().lookupAll();
 
   private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
       .add(PAYMENT_DATE_FIELD)
@@ -55,6 +56,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
       .add(SETTLEMENT_CURRENCY_NOTIONAL_FIELD)
       .add(NON_DELIVERABLE_CURRENCY_FIELD)
       .add(FX_RATE_FIELD)
+      .add(FX_INDEX_FIELD)
       .build();
 
   //-------------------------------------------------------------------------
@@ -104,12 +106,9 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
     LocalDate paymentDate = row.getField(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
     Currency settlementCurrency = row.getField(SETTLEMENT_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     Currency nonDeliverableCurrency = row.getField(NON_DELIVERABLE_CURRENCY_FIELD, LoaderUtils::parseCurrency);
-    CurrencyPair currencyPair = CurrencyPair.of(settlementCurrency, nonDeliverableCurrency).toConventional();
+    CurrencyPair currencyPair = CurrencyPair.of(settlementCurrency, nonDeliverableCurrency);
     FxRate agreedFxRate = FxRate.of(currencyPair, row.getField(FX_RATE_FIELD, LoaderUtils::parseDouble));
-    FxIndex index = parseFxIndex(currencyPair)
-        .orElseThrow(() -> new IllegalArgumentException(Messages.format(
-        "No FX Index found for currency pair {}. Known FX Index required to construct NDF trade",
-        currencyPair.toString())));
+    FxIndex index = parseFxIndex(row, currencyPair);
     FxNdf fxNdf = FxNdf.builder()
         .settlementCurrencyNotional(settlementCurrencyNotional)
         .agreedFxRate(agreedFxRate)
@@ -119,14 +118,14 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
     return FxNdfTrade.of(info, fxNdf);
   }
 
-  // parses the FX Index from a currency pair
-  private static Optional<FxIndex> parseFxIndex(CurrencyPair currencyPair) {
-    ImmutableMap<CurrencyPair, FxIndex> ccyFxIndexMap = FxIndex.extendedEnum().lookupAll().values().stream()
-        .collect(toImmutableMap(
-            fxIndex -> fxIndex.getCurrencyPair().toConventional(),
-            fxIndex -> fxIndex,
-            (fxIndex1, fxIndex2) -> fxIndex1)); //arbitrarily chose when we have multiple indices for the same pair
-    return Optional.of(ccyFxIndexMap.get(currencyPair));
+  // parses the FX Index
+  private static FxIndex parseFxIndex(CsvRow row, CurrencyPair currencyPair) {
+    // prioritize value in fx index field if present
+    try {
+      return FxIndex.of(row.getValue(FX_INDEX_FIELD));
+    } catch (IllegalArgumentException ex) {
+      return FxIndex.of(currencyPair);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -146,6 +145,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
     csv.writeCell(SETTLEMENT_CURRENCY_NOTIONAL_FIELD, Math.abs(fxNdf.getSettlementCurrencyNotional().getAmount()));
     csv.writeCell(NON_DELIVERABLE_CURRENCY_FIELD, fxNdf.getNonDeliverableCurrency());
     csv.writeCell(FX_RATE_FIELD, fxNdf.getAgreedFxRate().fxRate(fxNdf.getCurrencyPair()));
+    csv.writeCell(FX_INDEX_FIELD, fxNdf.getIndex());
     csv.writeNewLine();
   }
 
