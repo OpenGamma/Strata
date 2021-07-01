@@ -62,11 +62,12 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndices;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -421,7 +422,7 @@ public class TradeCsvLoaderTest {
     assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
 
     List<FxNdfTrade> loadedTrades = loadedData.getValue();
-    assertThat(loadedTrades).hasSize(2);
+    assertThat(loadedTrades).hasSize(3);
 
     FxNdfTrade expectedTrade0 = FxNdfTrade.builder()
         .info(TradeInfo.builder()
@@ -451,7 +452,28 @@ public class TradeCsvLoaderTest {
         .build();
     assertBeanEquals(loadedTrades.get(1), expectedTrade1);
 
-    checkRoundtrip(FxNdfTrade.class, loadedTrades, expectedTrade0, expectedTrade1);
+    HolidayCalendarId usdBrlCalId = HolidayCalendarId.defaultByCurrency(USD)
+        .combinedWith(HolidayCalendarId.defaultByCurrency(BRL));
+    FxNdfTrade expectedTrade2 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId43"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, -30_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, BRL), 5.5))
+            .index(ImmutableFxIndex.builder()
+                .name("USD/BRL")
+                .currencyPair(CurrencyPair.of(USD, BRL))
+                .fixingCalendar(usdBrlCalId)
+                .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, usdBrlCalId))
+                .build())
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(2), expectedTrade2);
+
+    checkRoundtrip(FxNdfTrade.class, loadedTrades, expectedTrade0, expectedTrade1, expectedTrade2);
   }
 
   //-------------------------------------------------------------------------
