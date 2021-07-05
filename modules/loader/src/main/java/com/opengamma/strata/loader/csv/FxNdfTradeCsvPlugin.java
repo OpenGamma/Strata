@@ -5,13 +5,15 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FX_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,19 +44,17 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
   public static final FxNdfTradeCsvPlugin INSTANCE = new FxNdfTradeCsvPlugin();
 
   private static final String FX_INDEX_FIELD = "FX Index";
-  private static final String NON_DELIVERABLE_CURRENCY_FIELD = "ND Currency";
-  private static final String SETTLEMENT_CURRENCY_FIELD = "Settlement Currency";
-  private static final String SETTLEMENT_CURRENCY_DIRECTION_FIELD = "Settlement Currency Direction";
-  private static final String SETTLEMENT_CURRENCY_NOTIONAL_FIELD = "Settlement Currency Notional";
-
-  private static final Map<String, FxIndex> FX_INDICES = FxIndex.extendedEnum().lookupAll();
+  private static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
+  private static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
+  private static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
+  private static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
 
   private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
       .add(PAYMENT_DATE_FIELD)
-      .add(SETTLEMENT_CURRENCY_FIELD)
-      .add(SETTLEMENT_CURRENCY_DIRECTION_FIELD)
-      .add(SETTLEMENT_CURRENCY_NOTIONAL_FIELD)
-      .add(NON_DELIVERABLE_CURRENCY_FIELD)
+      .add(LEG_1_CURRENCY_FIELD)
+      .add(LEG_1_DIRECTION_FIELD)
+      .add(LEG_1_NOTIONAL_FIELD)
+      .add(LEG_2_CURRENCY_FIELD)
       .add(FX_RATE_FIELD)
       .add(FX_INDEX_FIELD)
       .build();
@@ -102,10 +102,10 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
   // parses the row to a trade
   private static FxNdfTrade parseRow(CsvRow row, TradeInfo info) {
     CurrencyAmount settlementCurrencyNotional = CsvLoaderUtils.parseCurrencyAmountWithDirection(
-        row, SETTLEMENT_CURRENCY_FIELD, SETTLEMENT_CURRENCY_NOTIONAL_FIELD, SETTLEMENT_CURRENCY_DIRECTION_FIELD);
+        row, LEG_1_CURRENCY_FIELD, LEG_1_NOTIONAL_FIELD, LEG_1_DIRECTION_FIELD);
     LocalDate paymentDate = row.getField(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
-    Currency settlementCurrency = row.getField(SETTLEMENT_CURRENCY_FIELD, LoaderUtils::parseCurrency);
-    Currency nonDeliverableCurrency = row.getField(NON_DELIVERABLE_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    Currency settlementCurrency = row.getField(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    Currency nonDeliverableCurrency = row.getField(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
     CurrencyPair currencyPair = CurrencyPair.of(settlementCurrency, nonDeliverableCurrency);
     FxRate agreedFxRate = FxRate.of(currencyPair, row.getField(FX_RATE_FIELD, LoaderUtils::parseDouble));
     FxIndex index = parseFxIndex(row, currencyPair);
@@ -135,11 +135,11 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
     FxNdf fxNdf = trade.getProduct();
     csv.writeCell(TRADE_TYPE_FIELD, "FxNdf");
     csv.writeCell(PAYMENT_DATE_FIELD, fxNdf.getPaymentDate());
-    csv.writeCell(SETTLEMENT_CURRENCY_FIELD, fxNdf.getSettlementCurrency());
-    csv.writeCell(SETTLEMENT_CURRENCY_DIRECTION_FIELD,
+    csv.writeCell(LEG_1_CURRENCY_FIELD, fxNdf.getSettlementCurrency());
+    csv.writeCell(LEG_1_DIRECTION_FIELD,
         fxNdf.getSettlementCurrencyNotional().isNegative() ? PayReceive.PAY : PayReceive.RECEIVE);
-    csv.writeCell(SETTLEMENT_CURRENCY_NOTIONAL_FIELD, Math.abs(fxNdf.getSettlementCurrencyNotional().getAmount()));
-    csv.writeCell(NON_DELIVERABLE_CURRENCY_FIELD, fxNdf.getNonDeliverableCurrency());
+    csv.writeCell(LEG_1_NOTIONAL_FIELD, Math.abs(fxNdf.getSettlementCurrencyNotional().getAmount()));
+    csv.writeCell(LEG_2_CURRENCY_FIELD, fxNdf.getNonDeliverableCurrency());
     csv.writeCell(FX_RATE_FIELD, fxNdf.getAgreedFxRate().fxRate(fxNdf.getCurrencyPair()));
     csv.writeCell(FX_INDEX_FIELD, fxNdf.getIndex());
     csv.writeNewLine();

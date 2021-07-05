@@ -416,7 +416,7 @@ public class TradeCsvLoaderTest {
   @Test
   public void test_load_fx_ndf() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
-    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
     ValueWithFailures<List<FxNdfTrade>> loadedData = standard.parse(charSources, FxNdfTrade.class);
     assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
@@ -427,7 +427,7 @@ public class TradeCsvLoaderTest {
     FxNdfTrade expectedTrade0 = FxNdfTrade.builder()
         .info(TradeInfo.builder()
             .tradeDate(date(2016, 12, 6))
-            .id(StandardId.of("OG", "tradeId41"))
+            .id(StandardId.of("OG", "tradeId11"))
             .build())
         .product(FxNdf.builder()
             .settlementCurrencyNotional(CurrencyAmount.of(USD, 10_000_000))
@@ -441,7 +441,7 @@ public class TradeCsvLoaderTest {
     FxNdfTrade expectedTrade1 = FxNdfTrade.builder()
         .info(TradeInfo.builder()
             .tradeDate(date(2016, 12, 6))
-            .id(StandardId.of("OG", "tradeId42"))
+            .id(StandardId.of("OG", "tradeId12"))
             .build())
         .product(FxNdf.builder()
             .settlementCurrencyNotional(CurrencyAmount.of(USD, -20_000_000))
@@ -457,7 +457,7 @@ public class TradeCsvLoaderTest {
     FxNdfTrade expectedTrade2 = FxNdfTrade.builder()
         .info(TradeInfo.builder()
             .tradeDate(date(2016, 12, 6))
-            .id(StandardId.of("OG", "tradeId43"))
+            .id(StandardId.of("OG", "tradeId13"))
             .build())
         .product(FxNdf.builder()
             .settlementCurrencyNotional(CurrencyAmount.of(USD, -30_000_000))
