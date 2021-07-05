@@ -19,6 +19,7 @@ import static org.assertj.core.data.Offset.offset;
 
 import org.junit.jupiter.api.Test;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -111,6 +112,56 @@ public class GridSurfaceInterpolatorTest {
     for (int i = 0; i < X_TEST.size(); i++) {
       assertThat(bci.interpolate(X_TEST.get(i), Y_TEST.get(i))).isCloseTo(Z_TEST.get(i), offset(TOL));
     }
+  }
+
+  @Test
+  public void test_firstDerivativeInterpolatorX() {
+    GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
+        LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
+    BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
+    double eps = 1e-8;
+    double low = bci.interpolate(0.2, 3.5);
+    double high = bci.interpolate(0.2 + eps, 3.5);
+    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(0.2, 3.5);
+    double expected = (high - low) / eps;
+    assertThat(valueDerivatives.getDerivative(0)).isCloseTo(expected, offset(1e-6));
+  }
+
+  @Test
+  public void test_firstDerivativeExtrapolateX() {
+    GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
+    BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
+    double eps = 1e-8;
+    double low = bci.interpolate(-0.2, 3.5);
+    double high = bci.interpolate(-0.2 + eps, 3.5);
+    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(-0.2, 3.5);
+    double expected = (high - low) / eps;
+    assertThat(valueDerivatives.getDerivative(0)).isCloseTo(expected, offset(1e-6));
+  }
+
+  @Test
+  public void test_firstDerivativeInterpolatorY() {
+    GridSurfaceInterpolator test = GridSurfaceInterpolator.of(
+        LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
+    BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
+    double eps = 1e-8;
+    double low = bci.interpolate(1.4, 3.5);
+    double high = bci.interpolate(1.4, 3.5 + eps);
+    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(1.4, 3.5);
+    double expected = (high - low) / eps;
+    assertThat(valueDerivatives.getDerivative(1)).isCloseTo(expected, offset(1e-6));
+  }
+
+  @Test
+  public void test_firstDerivativeExtrapolateY() {
+    GridSurfaceInterpolator test = GridSurfaceInterpolator.of(LINEAR, FLAT, FLAT, LINEAR, FLAT, FLAT);
+    BoundSurfaceInterpolator bci = test.bind(X_DATA, Y_DATA, Z_DATA);
+    double eps = 1e-8;
+    double low = bci.interpolate(-0.2, 0.2);
+    double high = bci.interpolate(-0.2, 0.2 + eps);
+    ValueDerivatives valueDerivatives = bci.firstPartialDerivatives(-0.2, 0.2);
+    double expected = (high - low) / eps;
+    assertThat(valueDerivatives.getDerivative(1)).isCloseTo(expected, offset(1e-6));
   }
 
   //-------------------------------------------------------------------------

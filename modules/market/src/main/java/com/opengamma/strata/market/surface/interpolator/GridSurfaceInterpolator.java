@@ -26,6 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.curve.interpolator.BoundCurveExtrapolator;
 import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
@@ -240,6 +241,21 @@ public final class GridSurfaceInterpolator
           .parameterSensitivity(x);
 
       return project(xSens, ySens);
+    }
+
+    //-------------------------------------------------------------------------
+    @Override
+    public ValueDerivatives firstPartialDerivatives(double x, double y) {
+      int uniqueX = yInterpolators.length;
+      DoubleArray zValuesEffective = DoubleArray.of(uniqueX, i -> yInterpolators[i].interpolate(y));
+      yInterpolators[0].interpolate(y);
+      double xDerivative =
+          xInterpolator.bind(xValuesUnique, zValuesEffective, xExtrapolatorLeft, xExtrapolatorRight).firstDerivative(x);
+      DoubleArray yDerivatives = DoubleArray.of(uniqueX, i -> yInterpolators[i].firstDerivative(y));
+      double yDerivative =
+          xInterpolator.bind(xValuesUnique, yDerivatives, xExtrapolatorLeft, xExtrapolatorRight).interpolate(x);
+      double zValue = interpolate(x, y);
+      return ValueDerivatives.of(zValue, DoubleArray.of(xDerivative, yDerivative));
     }
 
     // project sensitivities back to parameters
