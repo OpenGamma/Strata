@@ -73,7 +73,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
   //-------------------------------------------------------------------------
   @Override
   public Set<String> tradeTypeNames() {
-    return ImmutableSet.of("FX", "FXSINGLE", "FX SINGLE", "FXSINGLETRADE");
+    return ImmutableSet.of("FX", "FXSINGLE", "FX SINGLE");
   }
 
   @Override
