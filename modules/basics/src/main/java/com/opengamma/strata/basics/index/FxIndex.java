@@ -6,6 +6,8 @@
 package com.opengamma.strata.basics.index;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.joda.convert.FromString;
@@ -49,11 +51,15 @@ public interface FxIndex
   @FromString
   public static FxIndex of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
+    Optional<FxIndex> fxIndexOpt = extendedEnum().find(uniqueName);
+    if (fxIndexOpt.isPresent()) {
+      return fxIndexOpt.get();
+    }
     try {
-      return extendedEnum().lookup(uniqueName);
-    } catch (IllegalArgumentException ex) {
       CurrencyPair currencyPair = CurrencyPair.parse(uniqueName);
       return FxIndex.of(currencyPair);
+    } catch (IllegalArgumentException ex) {
+      throw new IllegalArgumentException("Unable to create FX index from " + uniqueName);
     }
   }
 
@@ -69,7 +75,7 @@ public interface FxIndex
     ArgChecker.notNull(currencyPair, "currencyPair");
     return extendedEnum().lookupAll().values().stream()
         .filter(index -> index.getCurrencyPair().equals(currencyPair))
-        .findFirst()
+        .min(Comparator.comparing(FxIndex::getName))
         .orElseGet(() -> createFxIndex(currencyPair));
   }
 

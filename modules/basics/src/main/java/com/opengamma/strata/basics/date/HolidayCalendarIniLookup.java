@@ -108,10 +108,8 @@ final class HolidayCalendarIniLookup
   // finds a default
   HolidayCalendarId defaultByCurrency(Currency currency) {
     Optional<HolidayCalendarId> calId = findDefaultByCurrency(currency);
-    if (!calId.isPresent()) {
-      throw new IllegalArgumentException("No default Holiday Calendar for currency " + currency);
-    }
-    return calId.get();
+    return calId.orElseThrow(() -> new IllegalArgumentException(
+        "No default Holiday Calendar for currency " + currency));
   }
 
   // try to find a default
