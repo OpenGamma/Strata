@@ -847,12 +847,12 @@ public final class LoaderUtils {
    */
   public static KnockType parseKnockType(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
-      case "IN":
+      case "KNOCKIN":
         return KnockType.KNOCK_IN;
-      case "OUT":
+      case "KNOCKOUT":
         return KnockType.KNOCK_OUT;
       default:
-        throw new IllegalArgumentException("Unknown KnockType value, must be 'In' or 'Out' but was'" + str
+        throw new IllegalArgumentException("Unknown KnockType value, must be 'KnockIn' or 'KnockOut' but was'" + str
             + "'. The parser is case insensitive.");
     }
   }

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -49,7 +48,7 @@ import com.opengamma.strata.product.fx.FxSwapTrade;
 /**
  * Handles the CSV file format for FX Swap trades.
  */
-class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<FxSwapTrade> {
+class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<FxSwapTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -59,7 +58,7 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<F
   private static final String FAR = "Far ";
 
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
       .add(LEG_1_DIRECTION_FIELD)
       .add(LEG_1_PAYMENT_DATE_FIELD)
       .add(LEG_1_CURRENCY_FIELD)
@@ -104,7 +103,12 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<F
 
   @Override
   public String getName() {
-    return "FxSwap";
+    return FxSwapTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<String> supportedTradeTypes() {
+    return ImmutableSet.of(FxSwapTrade.class.getSimpleName());
   }
 
   //-------------------------------------------------------------------------
@@ -160,7 +164,7 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<F
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<FxSwapTrade> trades) {
+  public Set<String> headers(List<FxSwapTrade> trades) {
     return HEADERS;
   }
 

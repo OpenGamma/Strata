@@ -18,6 +18,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.AdjustablePayment;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
@@ -52,6 +53,27 @@ public final class CsvWriterUtils {
   }
 
   /**
+   * Writes a currency amount using the provided fields
+   * <p>
+   * @param csv the csv row output
+   * @param ccyAmount the currency amount to write
+   * @param amountField the amount header
+   * @param currencyField the currency header
+   * @param directionField the direction header
+   */
+  public static void writeCurrencyAmount(
+      CsvOutput.CsvRowOutputWithHeaders csv,
+      CurrencyAmount ccyAmount,
+      String amountField,
+      String currencyField,
+      String directionField) {
+
+    csv.writeCell(amountField, ccyAmount.getAmount());
+    csv.writeCell(currencyField, ccyAmount.getCurrency());
+    csv.writeCell(directionField, PayReceive.ofSignedAmount(ccyAmount.getAmount()));
+  }
+
+  /**
    * Writes a Barrier object to CSV
    * <p>
    *
@@ -60,8 +82,8 @@ public final class CsvWriterUtils {
    * @param obsDate the barrier observation date
    */
   public static void writeBarrierFields(CsvOutput.CsvRowOutputWithHeaders csv, Barrier barrier, LocalDate obsDate) {
-    csv.writeCell(KNOCK_TYPE_FIELD, barrier.getKnockType());
     csv.writeCell(BARRIER_TYPE_FIELD, barrier.getBarrierType());
+    csv.writeCell(KNOCK_TYPE_FIELD, barrier.getKnockType());
     csv.writeCell(BARRIER_LEVEL_FIELD, barrier.getBarrierLevel(obsDate));
   }
 

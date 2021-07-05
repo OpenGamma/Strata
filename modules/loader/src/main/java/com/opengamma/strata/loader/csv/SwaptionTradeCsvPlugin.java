@@ -25,7 +25,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -55,7 +55,7 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Handles the CSV file format for Swaption trades.
  */
-final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<SwaptionTrade> {
+final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<SwaptionTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -91,13 +91,18 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsv
 
   @Override
   public String getName() {
-    return "Swaption";
+    return SwaptionTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<String> supportedTradeTypes() {
+    return ImmutableSet.of(SwaptionTrade.class.getSimpleName());
   }
 
   //-------------------------------------------------------------------------
   /**
    * Parses from the CSV row.
-   * 
+   *
    * @param row  the CSV row
    * @param info  the trade info
    * @param resolver  the resolver used to parse additional information
@@ -152,8 +157,8 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsv
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<SwaptionTrade> trades) {
-    List<String> headers = new ArrayList<>();
+  public Set<String> headers(List<SwaptionTrade> trades) {
+    Set<String> headers = new HashSet<>();
     headers.addAll(FullSwapTradeCsvPlugin.INSTANCE.headers(trades.stream()
         .map(t -> t.getProduct().getUnderlying())
         .map(swap -> SwapTrade.of(TradeInfo.empty(), swap))

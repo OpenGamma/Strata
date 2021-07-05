@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -33,7 +32,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
 /**
  * Handles the CSV file format for Bullet Payment trades.
  */
-final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<BulletPaymentTrade> {
+final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<BulletPaymentTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -41,7 +40,7 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
   public static final BulletPaymentTradeCsvPlugin INSTANCE = new BulletPaymentTradeCsvPlugin();
 
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
       .add(DIRECTION_FIELD)
       .add(CURRENCY_FIELD)
       .add(NOTIONAL_FIELD)
@@ -72,7 +71,12 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   @Override
   public String getName() {
-    return "BulletPayment";
+    return BulletPaymentTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<String> supportedTradeTypes() {
+    return ImmutableSet.of(BulletPaymentTrade.class.getSimpleName());
   }
 
   //-------------------------------------------------------------------------
@@ -106,7 +110,7 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<BulletPaymentTrade> trades) {
+  public Set<String> headers(List<BulletPaymentTrade> trades) {
     return HEADERS;
   }
 

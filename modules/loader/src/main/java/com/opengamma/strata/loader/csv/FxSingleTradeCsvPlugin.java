@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -50,7 +49,7 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
 /**
  * Handles the CSV file format for FX Single trades.
  */
-class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<FxSingleTrade> {
+class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<FxSingleTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -58,7 +57,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
   public static final FxSingleTradeCsvPlugin INSTANCE = new FxSingleTradeCsvPlugin();
 
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+  private static final Set<String> HEADERS = ImmutableSet.<String>builder()
       .add(CsvLoaderColumns.LEG_1_DIRECTION_FIELD)
       .add(CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD)
       .add(CsvLoaderColumns.LEG_1_CURRENCY_FIELD)
@@ -74,7 +73,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
   //-------------------------------------------------------------------------
   @Override
   public Set<String> tradeTypeNames() {
-    return ImmutableSet.of("FX", "FXSINGLE", "FX SINGLE");
+    return ImmutableSet.of("FX", "FXSINGLE", "FX SINGLE", "FXSINGLETRADE");
   }
 
   @Override
@@ -93,7 +92,12 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
 
   @Override
   public String getName() {
-    return "FxSingle";
+    return FxSingleTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<String> supportedTradeTypes() {
+    return ImmutableSet.of(FxSingleTrade.class.getSimpleName());
   }
 
   //-------------------------------------------------------------------------
@@ -176,7 +180,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<FxSingleTrade> trades) {
+  public Set<String> headers(List<FxSingleTrade> trades) {
     return HEADERS;
   }
 

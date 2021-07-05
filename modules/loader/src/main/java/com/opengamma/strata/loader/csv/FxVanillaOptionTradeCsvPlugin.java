@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -54,7 +53,7 @@ import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 /**
  * Handles the CSV file format for FX vanilla option trades.
  */
-class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<FxVanillaOptionTrade> {
+class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<FxVanillaOptionTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -62,7 +61,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCs
   public static final FxVanillaOptionTradeCsvPlugin INSTANCE = new FxVanillaOptionTradeCsvPlugin();
 
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
       .add(LONG_SHORT_FIELD)
       .add(EXPIRY_DATE_FIELD)
       .add(EXPIRY_TIME_FIELD)
@@ -107,7 +106,12 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCs
 
   @Override
   public String getName() {
-    return "FxVanillaOption";
+    return FxVanillaOptionTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<String> supportedTradeTypes() {
+    return ImmutableSet.of(FxVanillaOptionTrade.class.getSimpleName());
   }
 
   //-------------------------------------------------------------------------
@@ -153,7 +157,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCs
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<FxVanillaOptionTrade> trades) {
+  public Set<String> headers(List<FxVanillaOptionTrade> trades) {
     return HEADERS;
   }
 

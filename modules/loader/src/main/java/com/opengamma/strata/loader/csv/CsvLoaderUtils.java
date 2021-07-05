@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
 
 import java.math.BigDecimal;
@@ -442,15 +441,15 @@ public final class CsvLoaderUtils {
   }
 
   /**
-   * Parses a currency amount with direction.
+   * Tells if a valid currency amount can be read from the mentioned fields in the csv row.
    *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
    * @param amountField  the amount field
    * @param directionField  the direction field
-   * @return the currency amount, or a zero USD currency amount if one or multiple field(s) are missing.
+   * @return if a valid currency amount can be read
    */
-  public static CurrencyAmount parseCurrencyAmountWithDirectionOrZero(
+  public static boolean hasValidCurrencyAmount(
       CsvRow row,
       String currencyField,
       String amountField,
@@ -460,10 +459,7 @@ public final class CsvLoaderUtils {
     Optional<Double> amount = row.findValue(amountField, LoaderUtils::parseDouble);
     Optional<PayReceive> direction = row.findValue(directionField, LoaderUtils::parsePayReceive);
 
-    if (currency.isPresent() && amount.isPresent() && direction.isPresent()) {
-      return CurrencyAmount.of(currency.get(), direction.get().normalize(amount.get()));
-    }
-    return CurrencyAmount.zero(USD);
+    return (currency.isPresent() && amount.isPresent() && direction.isPresent());
   }
 
   //-------------------------------------------------------------------------

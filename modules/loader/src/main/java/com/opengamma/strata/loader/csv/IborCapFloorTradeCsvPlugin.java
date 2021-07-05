@@ -22,6 +22,8 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.OVERRIDE_START_DA
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_FREQUENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ROLL_CONVENTION_FIELD;
@@ -38,7 +40,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
@@ -66,7 +67,7 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 /**
  * Handles the CSV file format for CapFloor trades.
  */
-public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<IborCapFloorTrade> {
+public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<IborCapFloorTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -77,7 +78,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   private static final String STRIKE_FIELD = "Strike";
 
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
       .add(CAP_FLOOR_FIELD)
       .add(START_DATE_FIELD)
       .add(END_DATE_FIELD)
@@ -91,6 +92,8 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
       .add(PREMIUM_CURRENCY_FIELD)
       .add(PREMIUM_DIRECTION_FIELD)
       .add(PREMIUM_DATE_FIELD)
+      .add(PREMIUM_DATE_CNV_FIELD)
+      .add(PREMIUM_DATE_CAL_FIELD)
       .add(DATE_ADJ_CNV_FIELD)
       .add(DATE_ADJ_CAL_FIELD)
       .add(START_DATE_CNV_FIELD)
@@ -128,7 +131,12 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   @Override
   public String getName() {
-    return "IborCapFloor";
+    return IborCapFloorTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<String> supportedTradeTypes() {
+    return ImmutableSet.of(IborCapFloorTrade.class.getSimpleName());
   }
 
   //-------------------------------------------------------------------------
@@ -259,7 +267,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<IborCapFloorTrade> trades) {
+  public Set<String> headers(List<IborCapFloorTrade> trades) {
     return HEADERS;
   }
 

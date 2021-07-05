@@ -33,7 +33,7 @@ public interface TradeCsvParserPlugin
   /**
    * Obtains an instance from the specified unique name.
    * 
-   * @param uniqueName  the unique name
+   * @param uniqueName the unique name
    * @return the parser
    * @throws IllegalArgumentException if the name is not known
    */
