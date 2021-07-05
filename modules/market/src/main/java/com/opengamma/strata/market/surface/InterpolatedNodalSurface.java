@@ -31,6 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.tuple.DoublesPair;
@@ -287,6 +288,12 @@ public final class InterpolatedNodalSurface
   public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     DoubleArray sensitivityValues = boundInterpolator.parameterSensitivity(x, y);
     return createParameterSensitivity(sensitivityValues);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ValueDerivatives firstPartialDerivatives(double x, double y) {
+    return boundInterpolator.firstPartialDerivatives(x, y);
   }
 
   //-------------------------------------------------------------------------

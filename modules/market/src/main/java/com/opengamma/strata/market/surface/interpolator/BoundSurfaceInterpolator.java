@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.market.surface.interpolator;
 
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 
 /**
@@ -25,6 +26,23 @@ public interface BoundSurfaceInterpolator {
    * @throws RuntimeException if the z-value cannot be calculated
    */
   public abstract double interpolate(double x, double y);
+
+  /**
+   * Computes the partial derivatives of the surface.
+   * <p>
+   * The first derivatives are {@code dz/dx and dz/dy}.
+   * The derivatives are in the following order:
+   * <ul>
+   * <li>[0] derivative with respect to x
+   * <li>[1] derivative with respect to y
+   * </ul>
+   *
+   * @param x  the x-value at which the partial derivative is taken
+   * @param y  the y-value at which the partial derivative is taken
+   * @return the z-value and it's partial first derivatives
+   * @throws RuntimeException if the derivative cannot be calculated
+   */
+  public abstract ValueDerivatives firstPartialDerivatives(double x, double y);
 
   /**
    * Computes the sensitivity of the x-y-value with respect to the surface parameters.
