@@ -121,11 +121,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
   // parses the FX Index
   private static FxIndex parseFxIndex(CsvRow row, CurrencyPair currencyPair) {
     // prioritize value in fx index field if present
-    try {
-      return FxIndex.of(row.getValue(FX_INDEX_FIELD));
-    } catch (IllegalArgumentException ex) {
-      return FxIndex.of(currencyPair);
-    }
+    return FxIndex.of(row.findValue(FX_INDEX_FIELD).orElse(currencyPair.toString()));
   }
 
   //-------------------------------------------------------------------------
