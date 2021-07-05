@@ -28,7 +28,7 @@ public interface BoundSurfaceInterpolator {
   public abstract double interpolate(double x, double y);
 
   /**
-   * Computes the partial derivatives of the curve.
+   * Computes the partial derivatives of the surface.
    * <p>
    * The first derivatives are {@code dz/dx and dz/dy}.
    * The derivatives are in the following order:
