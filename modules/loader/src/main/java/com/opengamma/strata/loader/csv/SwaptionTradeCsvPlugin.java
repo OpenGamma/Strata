@@ -25,7 +25,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -157,9 +157,9 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<SwaptionTrade> trades) {
-    Set<String> headers = new HashSet<>();
-    headers.addAll(FullSwapTradeCsvPlugin.INSTANCE.headers(trades.stream()
+  public LinkedHashSet<String> headers(List<SwaptionTrade> trades) {
+    LinkedHashSet<String> headers = new LinkedHashSet<>(
+        FullSwapTradeCsvPlugin.INSTANCE.headers(trades.stream()
         .map(t -> t.getProduct().getUnderlying())
         .map(swap -> SwapTrade.of(TradeInfo.empty(), swap))
         .collect(toImmutableList())));

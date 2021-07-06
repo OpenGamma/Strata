@@ -28,7 +28,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -216,8 +216,8 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<FraTrade> trades) {
-    Set<String> headers = new HashSet<>();
+  public LinkedHashSet<String> headers(List<FraTrade> trades) {
+    LinkedHashSet<String> headers = new LinkedHashSet<>();
     headers.add(BUY_SELL_FIELD);
     headers.add(START_DATE_FIELD);
     headers.add(END_DATE_FIELD);

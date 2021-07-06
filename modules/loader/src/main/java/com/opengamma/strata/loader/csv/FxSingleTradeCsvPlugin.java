@@ -24,10 +24,12 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -57,18 +59,17 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
   public static final FxSingleTradeCsvPlugin INSTANCE = new FxSingleTradeCsvPlugin();
 
   /** The headers. */
-  private static final Set<String> HEADERS = ImmutableSet.<String>builder()
-      .add(LEG_1_DIRECTION_FIELD)
-      .add(LEG_1_PAYMENT_DATE_FIELD)
-      .add(LEG_1_CURRENCY_FIELD)
-      .add(LEG_1_NOTIONAL_FIELD)
-      .add(LEG_2_DIRECTION_FIELD)
-      .add(LEG_2_PAYMENT_DATE_FIELD)
-      .add(LEG_2_CURRENCY_FIELD)
-      .add(LEG_2_NOTIONAL_FIELD)
-      .add(PAYMENT_DATE_CNV_FIELD)
-      .add(PAYMENT_DATE_CAL_FIELD)
-      .build();
+  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+      LEG_1_DIRECTION_FIELD,
+      LEG_1_PAYMENT_DATE_FIELD,
+      LEG_1_CURRENCY_FIELD,
+      LEG_1_NOTIONAL_FIELD,
+      LEG_2_DIRECTION_FIELD,
+      LEG_2_PAYMENT_DATE_FIELD,
+      LEG_2_CURRENCY_FIELD,
+      LEG_2_NOTIONAL_FIELD,
+      PAYMENT_DATE_CNV_FIELD,
+      PAYMENT_DATE_CAL_FIELD));
 
   //-------------------------------------------------------------------------
   @Override
@@ -178,7 +179,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<FxSingleTrade> trades) {
+  public LinkedHashSet<String> headers(List<FxSingleTrade> trades) {
     return HEADERS;
   }
 

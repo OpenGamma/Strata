@@ -26,10 +26,12 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -58,28 +60,27 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin
   private static final String FAR = "Far ";
 
   /** The headers. */
-  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
-      .add(LEG_1_DIRECTION_FIELD)
-      .add(LEG_1_PAYMENT_DATE_FIELD)
-      .add(LEG_1_CURRENCY_FIELD)
-      .add(LEG_1_NOTIONAL_FIELD)
-      .add(LEG_2_DIRECTION_FIELD)
-      .add(LEG_2_PAYMENT_DATE_FIELD)
-      .add(LEG_2_CURRENCY_FIELD)
-      .add(LEG_2_NOTIONAL_FIELD)
-      .add(PAYMENT_DATE_CNV_FIELD)
-      .add(PAYMENT_DATE_CAL_FIELD)
-      .add(FAR + LEG_1_DIRECTION_FIELD)
-      .add(FAR + LEG_1_PAYMENT_DATE_FIELD)
-      .add(FAR + LEG_1_CURRENCY_FIELD)
-      .add(FAR + LEG_1_NOTIONAL_FIELD)
-      .add(FAR + LEG_2_DIRECTION_FIELD)
-      .add(FAR + LEG_2_PAYMENT_DATE_FIELD)
-      .add(FAR + LEG_2_CURRENCY_FIELD)
-      .add(FAR + LEG_2_NOTIONAL_FIELD)
-      .add(FAR + PAYMENT_DATE_CNV_FIELD)
-      .add(FAR + PAYMENT_DATE_CAL_FIELD)
-      .build();
+  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+      LEG_1_DIRECTION_FIELD,
+      LEG_1_PAYMENT_DATE_FIELD,
+      LEG_1_CURRENCY_FIELD,
+      LEG_1_NOTIONAL_FIELD,
+      LEG_2_DIRECTION_FIELD,
+      LEG_2_PAYMENT_DATE_FIELD,
+      LEG_2_CURRENCY_FIELD,
+      LEG_2_NOTIONAL_FIELD,
+      PAYMENT_DATE_CNV_FIELD,
+      PAYMENT_DATE_CAL_FIELD,
+      FAR + LEG_1_DIRECTION_FIELD,
+      FAR + LEG_1_PAYMENT_DATE_FIELD,
+      FAR + LEG_1_CURRENCY_FIELD,
+      FAR + LEG_1_NOTIONAL_FIELD,
+      FAR + LEG_2_DIRECTION_FIELD,
+      FAR + LEG_2_PAYMENT_DATE_FIELD,
+      FAR + LEG_2_CURRENCY_FIELD,
+      FAR + LEG_2_NOTIONAL_FIELD,
+      FAR + PAYMENT_DATE_CNV_FIELD,
+      FAR + PAYMENT_DATE_CAL_FIELD));
 
   //-------------------------------------------------------------------------
   @Override
@@ -164,7 +165,7 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<FxSwapTrade> trades) {
+  public LinkedHashSet<String> headers(List<FxSwapTrade> trades) {
     return HEADERS;
   }
 

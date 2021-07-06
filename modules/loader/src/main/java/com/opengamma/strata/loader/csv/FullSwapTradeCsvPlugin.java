@@ -816,7 +816,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<SwapTrade> trades) {
+  public LinkedHashSet<String> headers(List<SwapTrade> trades) {
     // determine what elements of trades are present
     int legs = 0;
     Set<SwapLegType> legTypes = new HashSet<>();
@@ -864,7 +864,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
       }
     }
     // select the correct headers
-    Set<String> headers = new HashSet<>();
+    LinkedHashSet<String> headers = new LinkedHashSet<>();
     if (variable) {
       headers.add(START_DATE_FIELD);
     }

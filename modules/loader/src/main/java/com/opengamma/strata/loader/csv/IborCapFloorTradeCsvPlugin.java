@@ -35,11 +35,13 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
@@ -78,36 +80,35 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
 
   private static final String STRIKE_FIELD = "Strike";
 
-  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
-      .add(CAP_FLOOR_FIELD)
-      .add(START_DATE_FIELD)
-      .add(END_DATE_FIELD)
-      .add(PAYMENT_FREQUENCY_FIELD)
-      .add(DIRECTION_FIELD)
-      .add(CURRENCY_FIELD)
-      .add(STRIKE_FIELD)
-      .add(NOTIONAL_FIELD)
-      .add(INDEX_FIELD)
-      .add(PREMIUM_AMOUNT_FIELD)
-      .add(PREMIUM_CURRENCY_FIELD)
-      .add(PREMIUM_DIRECTION_FIELD)
-      .add(PREMIUM_DATE_FIELD)
-      .add(PREMIUM_DATE_CNV_FIELD)
-      .add(PREMIUM_DATE_CAL_FIELD)
-      .add(DATE_ADJ_CNV_FIELD)
-      .add(DATE_ADJ_CAL_FIELD)
-      .add(START_DATE_CNV_FIELD)
-      .add(START_DATE_CAL_FIELD)
-      .add(END_DATE_CNV_FIELD)
-      .add(END_DATE_CAL_FIELD)
-      .add(STUB_CONVENTION_FIELD)
-      .add(ROLL_CONVENTION_FIELD)
-      .add(FIRST_REGULAR_START_DATE_FIELD)
-      .add(LAST_REGULAR_END_DATE_FIELD)
-      .add(OVERRIDE_START_DATE_FIELD)
-      .add(OVERRIDE_START_DATE_CNV_FIELD)
-      .add(OVERRIDE_START_DATE_CAL_FIELD)
-      .build();
+  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+      CAP_FLOOR_FIELD,
+      START_DATE_FIELD,
+      END_DATE_FIELD,
+      PAYMENT_FREQUENCY_FIELD,
+      DIRECTION_FIELD,
+      CURRENCY_FIELD,
+      STRIKE_FIELD,
+      NOTIONAL_FIELD,
+      INDEX_FIELD,
+      PREMIUM_AMOUNT_FIELD,
+      PREMIUM_CURRENCY_FIELD,
+      PREMIUM_DIRECTION_FIELD,
+      PREMIUM_DATE_FIELD,
+      PREMIUM_DATE_CNV_FIELD,
+      PREMIUM_DATE_CAL_FIELD,
+      DATE_ADJ_CNV_FIELD,
+      DATE_ADJ_CAL_FIELD,
+      START_DATE_CNV_FIELD,
+      START_DATE_CAL_FIELD,
+      END_DATE_CNV_FIELD,
+      END_DATE_CAL_FIELD,
+      STUB_CONVENTION_FIELD,
+      ROLL_CONVENTION_FIELD,
+      FIRST_REGULAR_START_DATE_FIELD,
+      LAST_REGULAR_END_DATE_FIELD,
+      OVERRIDE_START_DATE_FIELD,
+      OVERRIDE_START_DATE_CNV_FIELD,
+      OVERRIDE_START_DATE_CAL_FIELD));
 
   //-------------------------------------------------------------------------
   @Override
@@ -267,7 +268,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
 
   //-------------------------------------------------------------------------
   @Override
-  public Set<String> headers(List<IborCapFloorTrade> trades) {
+  public LinkedHashSet<String> headers(List<IborCapFloorTrade> trades) {
     return HEADERS;
   }
 

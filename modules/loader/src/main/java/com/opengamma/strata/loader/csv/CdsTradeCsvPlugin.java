@@ -55,7 +55,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
 
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -187,9 +187,9 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
     double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
     double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
-    Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD).map(s -> LoaderUtils.parseTenor(s));
-    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
-    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
+    Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD, LoaderUtils::parseTenor);
+    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD, LoaderUtils::parseDate);
+    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD, LoaderUtils::parseDate);
     Optional<AdjustablePayment> premiumOpt = row.findValue(PREMIUM_DIRECTION_FIELD)
         .map(ignored -> {
           CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
@@ -200,7 +200,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
         });
 
     // parse by convention
-    Optional<CdsConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> CdsConvention.of(s));
+    Optional<CdsConvention> conventionOpt = row.findValue(CONVENTION_FIELD, CdsConvention::of);
     if (conventionOpt.isPresent()) {
       CdsConvention convention = conventionOpt.get();
       // explicit dates take precedence over relative ones
@@ -262,15 +262,9 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
         .fixedRate(fixedRate)
         .paymentSchedule(parseSchedule(row, currency));
 
-    row.findValue(DAY_COUNT_FIELD)
-        .map(s -> LoaderUtils.parseDayCount(s))
-        .ifPresent(dayCount -> cdsBuilder.dayCount(dayCount));
-    row.findValue(PAYMENT_ON_DEFAULT_FIELD)
-        .map(s -> PaymentOnDefault.of(s))
-        .ifPresent(pay -> cdsBuilder.paymentOnDefault(pay));
-    row.findValue(PROTECTION_START_FIELD)
-        .map(s -> ProtectionStartOfDay.of(s))
-        .ifPresent(protect -> cdsBuilder.protectionStart(protect));
+    row.findValue(DAY_COUNT_FIELD, LoaderUtils::parseDayCount).ifPresent(cdsBuilder::dayCount);
+    row.findValue(PAYMENT_ON_DEFAULT_FIELD, PaymentOnDefault::of).ifPresent(cdsBuilder::paymentOnDefault);
+    row.findValue(PROTECTION_START_FIELD, ProtectionStartOfDay::of).ifPresent(cdsBuilder::protectionStart);
     row.findValue(STEP_IN_DATE_OFFSET_DAYS_FIELD)
         .map(ignored -> CsvLoaderUtils.parseDaysAdjustment(
             row,
@@ -313,18 +307,11 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     CsvLoaderUtils.parseBusinessDayAdjustment(row, END_DATE_CNV_FIELD, END_DATE_CAL_FIELD)
         .ifPresent(bda -> builder.endDateBusinessDayAdjustment(bda));
     // optionals
-    builder.stubConvention(row.findValue(STUB_CONVENTION_FIELD)
-        .map(s -> StubConvention.of(s))
+    builder.stubConvention(row.findValue(STUB_CONVENTION_FIELD, StubConvention::of)
         .orElse(StubConvention.SMART_INITIAL));
-    row.findValue(ROLL_CONVENTION_FIELD)
-        .map(s -> LoaderUtils.parseRollConvention(s))
-        .ifPresent(v -> builder.rollConvention(v));
-    row.findValue(FIRST_REGULAR_START_DATE_FIELD)
-        .map(s -> LoaderUtils.parseDate(s))
-        .ifPresent(v -> builder.firstRegularStartDate(v));
-    row.findValue(LAST_REGULAR_END_DATE_FIELD)
-        .map(s -> LoaderUtils.parseDate(s))
-        .ifPresent(v -> builder.lastRegularEndDate(v));
+    row.findValue(ROLL_CONVENTION_FIELD, LoaderUtils::parseRollConvention).ifPresent(builder::rollConvention);
+    row.findValue(FIRST_REGULAR_START_DATE_FIELD, LoaderUtils::parseDate).ifPresent(builder::firstRegularStartDate);
+    row.findValue(LAST_REGULAR_END_DATE_FIELD, LoaderUtils::parseDate).ifPresent(builder::lastRegularEndDate);
     Optional<AdjustableDate> overrideDateOpt = row.findValue(OVERRIDE_START_DATE_FIELD)
         .map(ignored -> CsvLoaderUtils.parseAdjustableDate(
             row,
@@ -338,7 +325,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   @Override
-  public Set<String> headers(List<CdsTrade> trades) {
+  public LinkedHashSet<String> headers(List<CdsTrade> trades) {
     // determine what elements of trades are present
     boolean premium = false;
     boolean stepInOffset = false;
@@ -396,7 +383,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   // creates the correct set of headers
-  protected static Set<String> createHeaders(
+  protected static LinkedHashSet<String> createHeaders(
       boolean cdsIndex,
       boolean premium,
       boolean stepInOffset,
@@ -406,7 +393,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       boolean overrideStart) {
 
     // select the headers
-    Set<String> headers = new HashSet<>();
+    LinkedHashSet<String> headers = new LinkedHashSet<>();
     headers.add(BUY_SELL_FIELD);
     headers.add(CURRENCY_FIELD);
     headers.add(NOTIONAL_FIELD);
