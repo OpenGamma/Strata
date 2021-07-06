@@ -163,6 +163,7 @@ public final class BlackFxOptionSmileVolatilities
       double expiry,
       double strike,
       double forward) {
+
     if (currencyPair.isInverse(this.currencyPair)) {
       return smile.partialFirstDerivatives(expiry, 1d / strike, 1d / forward);
     }

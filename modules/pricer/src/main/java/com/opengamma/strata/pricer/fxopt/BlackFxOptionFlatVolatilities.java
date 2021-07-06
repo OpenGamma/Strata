@@ -207,6 +207,7 @@ public final class BlackFxOptionFlatVolatilities
       double expiry,
       double strike,
       double forward) {
+
     double vol = volatility(currencyPair, expiry, strike, forward);
     double dVoldStrike = 0d;
     double dVoldExpiry = curve.firstDerivative(expiry);
