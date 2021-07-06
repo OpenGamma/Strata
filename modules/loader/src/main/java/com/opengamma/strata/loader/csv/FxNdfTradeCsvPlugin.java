@@ -24,6 +24,7 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.index.FxIndex;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -44,10 +45,14 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
   public static final FxNdfTradeCsvPlugin INSTANCE = new FxNdfTradeCsvPlugin();
 
   private static final String FX_INDEX_FIELD = "FX Index";
+
   private static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
   private static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
   private static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
+
   private static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
+  private static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
+  private static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
 
   private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
       .add(PAYMENT_DATE_FIELD)
@@ -55,6 +60,8 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
       .add(LEG_1_DIRECTION_FIELD)
       .add(LEG_1_NOTIONAL_FIELD)
       .add(LEG_2_CURRENCY_FIELD)
+      .add(LEG_2_DIRECTION_FIELD)
+      .add(LEG_2_NOTIONAL_FIELD)
       .add(FX_RATE_FIELD)
       .add(FX_INDEX_FIELD)
       .build();
@@ -101,16 +108,41 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
   //-------------------------------------------------------------------------
   // parses the row to a trade
   private static FxNdfTrade parseRow(CsvRow row, TradeInfo info) {
-    CurrencyAmount settlementCurrencyNotional = CsvLoaderUtils.parseCurrencyAmountWithDirection(
-        row, LEG_1_CURRENCY_FIELD, LEG_1_NOTIONAL_FIELD, LEG_1_DIRECTION_FIELD);
-    LocalDate paymentDate = row.getField(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
-    Currency settlementCurrency = row.getField(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
-    Currency nonDeliverableCurrency = row.getField(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    CurrencyAmount settlementNotional;
+    Currency settlementCurrency;
+    Currency nonDeliverableCurrency;
+    Optional<String> leg1NotionalOpt = row.findValue(LEG_1_NOTIONAL_FIELD);
+    Optional<String> leg2NotionalOpt = row.findValue(LEG_2_NOTIONAL_FIELD);
+    if (leg1NotionalOpt.isPresent() && leg2NotionalOpt.isPresent()) {
+      throw new IllegalArgumentException(
+          "Notional found for both legs; only one leg can contain notional amount to determine settlement leg");
+    } else if (leg1NotionalOpt.isPresent()) {
+      settlementNotional = CsvLoaderUtils.parseCurrencyAmountWithDirection(
+          row, LEG_1_CURRENCY_FIELD, LEG_1_NOTIONAL_FIELD, LEG_1_DIRECTION_FIELD);
+      settlementCurrency = row.getField(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+      nonDeliverableCurrency = row.getField(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    } else if (row.findValue(LEG_2_NOTIONAL_FIELD).isPresent()) {
+      settlementNotional = CsvLoaderUtils.parseCurrencyAmountWithDirection(
+          row, LEG_2_CURRENCY_FIELD, LEG_2_NOTIONAL_FIELD, LEG_2_DIRECTION_FIELD);
+      settlementCurrency = row.getField(LEG_2_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+      nonDeliverableCurrency = row.getField(LEG_1_CURRENCY_FIELD, LoaderUtils::parseCurrency);
+    } else {
+      throw new IllegalArgumentException("Notional could not be found to determine settlement leg");
+    }
+
+    PayReceive leg1Direction = row.getValue(LEG_1_DIRECTION_FIELD, LoaderUtils::parsePayReceive);
+    PayReceive leg2Direction = row.getValue(LEG_2_DIRECTION_FIELD, LoaderUtils::parsePayReceive);
+    if (leg1Direction.equals(leg2Direction)) {
+      throw new IllegalArgumentException(Messages.format(
+          "FxNdf legs must not have the same direction: {}, {}", leg1Direction, leg2Direction));
+    }
+
     CurrencyPair currencyPair = CurrencyPair.of(settlementCurrency, nonDeliverableCurrency);
+    LocalDate paymentDate = row.getField(PAYMENT_DATE_FIELD, LoaderUtils::parseDate);
     FxRate agreedFxRate = FxRate.of(currencyPair, row.getField(FX_RATE_FIELD, LoaderUtils::parseDouble));
     FxIndex index = parseFxIndex(row, currencyPair);
     FxNdf fxNdf = FxNdf.builder()
-        .settlementCurrencyNotional(settlementCurrencyNotional)
+        .settlementCurrencyNotional(settlementNotional)
         .agreedFxRate(agreedFxRate)
         .index(index)
         .paymentDate(paymentDate)
@@ -140,6 +172,8 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
         fxNdf.getSettlementCurrencyNotional().isNegative() ? PayReceive.PAY : PayReceive.RECEIVE);
     csv.writeCell(LEG_1_NOTIONAL_FIELD, Math.abs(fxNdf.getSettlementCurrencyNotional().getAmount()));
     csv.writeCell(LEG_2_CURRENCY_FIELD, fxNdf.getNonDeliverableCurrency());
+    csv.writeCell(LEG_2_DIRECTION_FIELD,
+        fxNdf.getSettlementCurrencyNotional().isNegative() ? PayReceive.RECEIVE : PayReceive.PAY);
     csv.writeCell(FX_RATE_FIELD, fxNdf.getAgreedFxRate().fxRate(fxNdf.getCurrencyPair()));
     csv.writeCell(FX_INDEX_FIELD, fxNdf.getIndex());
     csv.writeNewLine();
