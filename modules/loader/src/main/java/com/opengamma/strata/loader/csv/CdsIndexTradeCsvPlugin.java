@@ -12,7 +12,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_S
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static java.util.stream.Collectors.joining;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -59,7 +58,7 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
   }
 
   @Override
-  public LinkedHashSet<String> headers(List<CdsIndexTrade> trades) {
+  public Set<String> headers(List<CdsIndexTrade> trades) {
     // determine what elements of trades are present
     boolean premium = false;
     boolean stepInOffset = false;

@@ -30,16 +30,12 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
-import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
@@ -63,7 +59,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   public static final FxVanillaOptionTradeCsvPlugin INSTANCE = new FxVanillaOptionTradeCsvPlugin();
 
   /** The headers. */
-  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
       LONG_SHORT_FIELD,
       EXPIRY_DATE_FIELD,
       EXPIRY_TIME_FIELD,
@@ -83,7 +79,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
       LEG_2_CURRENCY_FIELD,
       LEG_2_NOTIONAL_FIELD,
       PAYMENT_DATE_CNV_FIELD,
-      PAYMENT_DATE_CAL_FIELD));
+      PAYMENT_DATE_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -136,11 +132,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     LocalDate expiryDate = row.getValue(EXPIRY_DATE_FIELD, LoaderUtils::parseDate);
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
-    CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
-        row, PREMIUM_CURRENCY_FIELD, PREMIUM_AMOUNT_FIELD, PREMIUM_DIRECTION_FIELD);
-    AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(
-        row, PREMIUM_DATE_FIELD, PREMIUM_DATE_CNV_FIELD, PREMIUM_DATE_CAL_FIELD);
-    AdjustablePayment premium = AdjustablePayment.of(amount, date);
+    AdjustablePayment premium = CsvLoaderUtils.parsePremiumFromDefaultFields(row);
 
     FxVanillaOption option = FxVanillaOption.builder()
         .longShort(longShort)
@@ -158,7 +150,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<FxVanillaOptionTrade> trades) {
+  public Set<String> headers(List<FxVanillaOptionTrade> trades) {
     return HEADERS;
   }
 

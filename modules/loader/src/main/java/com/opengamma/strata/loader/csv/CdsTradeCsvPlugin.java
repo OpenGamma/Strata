@@ -325,7 +325,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   @Override
-  public LinkedHashSet<String> headers(List<CdsTrade> trades) {
+  public Set<String> headers(List<CdsTrade> trades) {
     // determine what elements of trades are present
     boolean premium = false;
     boolean stepInOffset = false;

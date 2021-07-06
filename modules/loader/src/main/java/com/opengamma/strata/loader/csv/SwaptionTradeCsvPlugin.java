@@ -157,7 +157,7 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<SwaptionTrade> trades) {
+  public Set<String> headers(List<SwaptionTrade> trades) {
     LinkedHashSet<String> headers = new LinkedHashSet<>(
         FullSwapTradeCsvPlugin.INSTANCE.headers(trades.stream()
         .map(t -> t.getProduct().getUnderlying())

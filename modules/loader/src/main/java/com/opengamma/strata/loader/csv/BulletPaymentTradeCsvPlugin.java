@@ -14,12 +14,10 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -42,13 +40,13 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
   public static final BulletPaymentTradeCsvPlugin INSTANCE = new BulletPaymentTradeCsvPlugin();
 
   /** The headers. */
-  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+  private static final Set<String> HEADERS = ImmutableSet.of(
           DIRECTION_FIELD,
           CURRENCY_FIELD,
           NOTIONAL_FIELD,
           PAYMENT_DATE_FIELD,
           PAYMENT_DATE_CNV_FIELD,
-          PAYMENT_DATE_CAL_FIELD));
+          PAYMENT_DATE_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -111,7 +109,7 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<BulletPaymentTrade> trades) {
+  public Set<String> headers(List<BulletPaymentTrade> trades) {
     return HEADERS;
   }
 

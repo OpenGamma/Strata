@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -63,7 +62,7 @@ public interface TradeCsvWriterPlugin<T extends Trade> extends Named {
    * @param trades  the trades to output
    * @return the set of additional headers
    */
-  public abstract LinkedHashSet<String> headers(List<T> trades);
+  public abstract Set<String> headers(List<T> trades);
 
   /**
    * Writes the CSV for the specified trade.

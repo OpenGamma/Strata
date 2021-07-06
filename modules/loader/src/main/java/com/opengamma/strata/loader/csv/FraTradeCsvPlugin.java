@@ -216,7 +216,7 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<FraTrade> trades) {
+  public Set<String> headers(List<FraTrade> trades) {
     LinkedHashSet<String> headers = new LinkedHashSet<>();
     headers.add(BUY_SELL_FIELD);
     headers.add(START_DATE_FIELD);

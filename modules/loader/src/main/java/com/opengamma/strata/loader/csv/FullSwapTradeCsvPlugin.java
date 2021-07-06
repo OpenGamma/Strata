@@ -816,7 +816,7 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<SwapTrade> trades) {
+  public Set<String> headers(List<SwapTrade> trades) {
     // determine what elements of trades are present
     int legs = 0;
     Set<SwapLegType> legTypes = new HashSet<>();

@@ -22,7 +22,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -56,7 +55,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
   public static final TermDepositTradeCsvPlugin INSTANCE = new TermDepositTradeCsvPlugin();
 
   /** The headers. */
-  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
       BUY_SELL_FIELD,
       CURRENCY_FIELD,
       NOTIONAL_FIELD,
@@ -65,7 +64,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
       FIXED_RATE_FIELD,
       DAY_COUNT_FIELD,
       DATE_ADJ_CNV_FIELD,
-      DATE_ADJ_CAL_FIELD));
+      DATE_ADJ_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -212,7 +211,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<TermDepositTrade> trades) {
+  public Set<String> headers(List<TermDepositTrade> trades) {
     return HEADERS;
   }
 

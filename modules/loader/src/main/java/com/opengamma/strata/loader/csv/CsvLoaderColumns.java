@@ -88,6 +88,8 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String PAYMENT_CURRENCY_FIELD = "Payment Currency";
   /** CSV header. */
+  public static final String PAYMENT_DIRECTION_FIELD = "Payment Direction";
+  /** CSV header. */
   public static final String PAYMENT_DATE_FIELD = "Payment Date";
   /** CSV header. */
   static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
@@ -132,8 +134,9 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String PUT_CALL_FIELD = "Put Call";
   /** CSV header. */
-  public static final String STRIKE = "Strike";
-
+  public static final String STRIKE_FIELD = "Strike";
+  /** CSV header. */
+  public static final String CAP_FLOOR_FIELD = "CapFloor";
   /** CSV header. */
   public static final String FREQUENCY_FIELD = "Frequency";
   /** CSV header. */

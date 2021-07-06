@@ -21,12 +21,10 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_SIZE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
 import static com.opengamma.strata.loader.csv.PositionCsvLoader.DEFAULT_SECURITY_SCHEME;
 
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -68,13 +66,12 @@ public class SecurityTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   public static final SecurityTradeCsvPlugin INSTANCE = new SecurityTradeCsvPlugin();
 
   /** The headers. */
-  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(
-      ImmutableList.of(
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
           SECURITY_ID_SCHEME_FIELD,
           SECURITY_ID_FIELD,
           BUY_SELL_FIELD,
           QUANTITY_FIELD,
-          PRICE_FIELD));
+          PRICE_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -174,7 +171,7 @@ public class SecurityTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   }
 
   @Override
-  public LinkedHashSet<String> headers(List<SecurityQuantityTrade> trades) {
+  public Set<String> headers(List<SecurityQuantityTrade> trades) {
     return HEADERS;
   }
 

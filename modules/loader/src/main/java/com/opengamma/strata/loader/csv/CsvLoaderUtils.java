@@ -6,6 +6,12 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -187,7 +194,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses the year-month and variant.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param type  the ETD type
    * @return the expiry year-month and variant
@@ -234,7 +241,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses the ETD settlement type from the short code or full name.
-   * 
+   *
    * @param str  the string to parse
    * @return the settlement type
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -247,7 +254,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses the ETD option type from the short code or full name.
-   * 
+   *
    * @param str  the string to parse
    * @return the option type
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -270,7 +277,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses the quantity.
-   * 
+   *
    * @param row  the CSV row to parse
    * @return the quantity, long first, short second
    * @throws IllegalArgumentException if the row cannot be parsed
@@ -296,7 +303,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a business day adjustment, without defaulting the adjustment.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param dateField  the date field
    * @param conventionField  the convention field
@@ -318,7 +325,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses a business day adjustment, defaulting the adjustment using the currency.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param dateField  the date field
    * @param conventionField  the convention field
@@ -342,10 +349,54 @@ public final class CsvLoaderUtils {
     return AdjustableDate.of(date, adj);
   }
 
+  /**
+   * Parses an adjustable payment.
+   *
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @param dateField  the date field
+   * @param conventionField  the convention field
+   * @param calendarField  the calendar field
+   * @return the adjustable payment
+   */
+  public static AdjustablePayment parseAdjustablePayment(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField,
+      String dateField,
+      String conventionField,
+      String calendarField) {
+
+    CurrencyAmount ccyAmount = parseCurrencyAmountWithDirection(row, currencyField, amountField, directionField);
+    AdjustableDate adjustableDate = parseAdjustableDate(row, dateField, calendarField, conventionField);
+    return AdjustablePayment.of(ccyAmount, adjustableDate);
+  }
+
+  /**
+   * Parses the premium using the default premium fields.
+   *
+   * @param row  the CSV row to parse
+   * @return the adjustable payment
+   */
+  public static AdjustablePayment parsePremiumFromDefaultFields(CsvRow row) {
+
+    return parseAdjustablePayment(
+        row,
+        PREMIUM_CURRENCY_FIELD,
+        PREMIUM_AMOUNT_FIELD,
+        PREMIUM_DIRECTION_FIELD,
+        PREMIUM_DATE_FIELD,
+        PREMIUM_DATE_CAL_FIELD,
+        PREMIUM_DATE_CNV_FIELD);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a business day adjustment.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param conventionField  the convention field
    * @param calendarField  the calendar field
@@ -374,7 +425,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses days adjustment from CSV.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param daysField  the days field
    * @param daysCalField  the days calendar field
@@ -405,7 +456,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a currency amount.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
    * @param amountField  the amount field
@@ -420,7 +471,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses a currency amount with direction.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
    * @param amountField  the amount field
@@ -467,7 +518,7 @@ public final class CsvLoaderUtils {
    * Returns a value formatted as a percentage.
    * <p>
    * Using this method avoids nasty effects from floating point arithmetic.
-   * 
+   *
    * @param value  the value in decimal format (to be multiplied by 100)
    * @return the formatted percentage value
    */
@@ -480,7 +531,7 @@ public final class CsvLoaderUtils {
    * Returns a value formatted as a double.
    * <p>
    * Using this method avoids nasty effects from floating point arithmetic.
-   * 
+   *
    * @param value  the value
    * @return the formatted value
    */

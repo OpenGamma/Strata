@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CAP_FLOOR_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CNV_FIELD;
@@ -30,18 +31,17 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ROLL_CONVENTION_F
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STRIKE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STUB_CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
@@ -76,11 +76,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
    */
   public static final IborCapFloorTradeCsvPlugin INSTANCE = new IborCapFloorTradeCsvPlugin();
 
-  private static final String CAP_FLOOR_FIELD = "CapFloor";
-
-  private static final String STRIKE_FIELD = "Strike";
-
-  private static final LinkedHashSet<String> HEADERS = new LinkedHashSet<>(ImmutableList.of(
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
       CAP_FLOOR_FIELD,
       START_DATE_FIELD,
       END_DATE_FIELD,
@@ -108,7 +104,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
       LAST_REGULAR_END_DATE_FIELD,
       OVERRIDE_START_DATE_FIELD,
       OVERRIDE_START_DATE_CNV_FIELD,
-      OVERRIDE_START_DATE_CAL_FIELD));
+      OVERRIDE_START_DATE_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -268,7 +264,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
 
   //-------------------------------------------------------------------------
   @Override
-  public LinkedHashSet<String> headers(List<IborCapFloorTrade> trades) {
+  public Set<String> headers(List<IborCapFloorTrade> trades) {
     return HEADERS;
   }
 
