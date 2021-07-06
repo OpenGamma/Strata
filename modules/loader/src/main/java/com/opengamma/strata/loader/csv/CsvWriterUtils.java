@@ -46,7 +46,6 @@ public final class CsvWriterUtils {
 
   /**
    * Writes an AdjustablePayment object to CSV
-   * <p>
    *
    * @param csv  the csv row output
    * @param premium  the premium
