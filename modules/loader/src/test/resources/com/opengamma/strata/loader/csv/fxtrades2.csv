@@ -5,6 +5,6 @@ FX SINGLE,OG,tradeId6,25/01/2017,11:00,Europe/London,29/01/2018,Pay,EUR,1920000,
 fx single,OG,tradeId7,25/01/2017,,,29/01/2018,Pay,EUR,1920000,,Receive,CZK,12256000,,,,,,,,,,,,,
 FX,OG,tradeId8,25/01/2017,,,,Receive,EUR,1920000,29/01/2018,Pay,CZK,12256000,30/01/2018,ModifiedFollowing,CZPR+EUTA,,,,,,,,,,
 FX Swap,OG,tradeId9,25/01/2017,,,,Receive,EUR,1920000,29/01/2018,Pay,CZK,12256000,30/01/2018,ModifiedFollowing,CZPR+EUTA,Pay,EUR,1920000,29/04/2018,Receive,CZK,12258000,30/04/2018,,
-FxNdf,OG,tradeId11,06/12/2016,,,08/12/2016,Receive,USD,10000000,,,INR,,,,,,,,,,,,,,6.5
-FxNdf,OG,tradeId12,06/12/2016,,,08/12/2016,Pay,USD,20000000,,,CLP,,,,,,,,,,,,,USD/CLP-DOLAR-OBS-CLP10,5.8
-FxNdf,OG,tradeId13,06/12/2016,,,08/12/2016,Pay,USD,30000000,,,BRL,,,,,,,,,,,,,,5.5
+FxNdf,OG,tradeId11,06/12/2016,,,08/12/2016,Receive,USD,10000000,,Pay,INR,,,,,,,,,,,,,,6.5
+FxNdf,OG,tradeId12,06/12/2016,,,08/12/2016,Pay,USD,20000000,,Receive,CLP,,,,,,,,,,,,,USD/CLP-DOLAR-OBS-CLP10,5.8
+FxNdf,OG,tradeId13,06/12/2016,,,08/12/2016,Pay,USD,30000000,,Receive,BRL,,,,,,,,,,,,,,5.5
