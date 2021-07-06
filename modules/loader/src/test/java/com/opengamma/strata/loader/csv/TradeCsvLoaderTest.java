@@ -2255,7 +2255,7 @@ public class TradeCsvLoaderTest {
     coverPrivateConstructor(FraTradeCsvPlugin.class);
     coverPrivateConstructor(FxSingleTradeCsvPlugin.class);
     coverPrivateConstructor(FxSwapTradeCsvPlugin.class);
-    coverPrivateConstructor(SecurityCsvPlugin.class);
+    coverPrivateConstructor(SecurityTradeCsvPlugin.class);
     coverPrivateConstructor(SwapTradeCsvPlugin.class);
     coverPrivateConstructor(TermDepositTradeCsvPlugin.class);
     coverPrivateConstructor(FullSwapTradeCsvPlugin.class);

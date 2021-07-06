@@ -107,8 +107,8 @@ class FxSwapTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(FxSwapTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(FxSwapTrade.class);
   }
 
   //-------------------------------------------------------------------------

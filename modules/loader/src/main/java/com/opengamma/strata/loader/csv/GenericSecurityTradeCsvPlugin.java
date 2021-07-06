@@ -14,7 +14,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_FIELD
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_SCHEME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_SIZE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TICK_VALUE_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.util.List;
 import java.util.Set;
@@ -22,10 +21,10 @@ import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.SecurityPriceInfo;
 
 /**
- * here
+ * Handles the CSV file format for Generic Security trades.
  */
 public class GenericSecurityTradeCsvPlugin implements TradeCsvWriterPlugin<GenericSecurityTrade> {
 
@@ -54,16 +53,12 @@ public class GenericSecurityTradeCsvPlugin implements TradeCsvWriterPlugin<Gener
 
   @Override
   public void writeCsv(CsvOutput.CsvRowOutputWithHeaders csv, GenericSecurityTrade trade) {
-    csv.writeCell(TRADE_TYPE_FIELD, "Security");
-    csv.writeCell(SECURITY_ID_SCHEME_FIELD, trade.getSecurityId().getStandardId().getScheme());
-    csv.writeCell(SECURITY_ID_FIELD, trade.getSecurityId().getStandardId().getValue());
-    csv.writeCell(BUY_SELL_FIELD, trade.getQuantity() < 0 ? BuySell.SELL : BuySell.BUY);
-    csv.writeCell(QUANTITY_FIELD, Math.abs(trade.getQuantity()));
-    csv.writeCell(PRICE_FIELD, trade.getPrice());
-    csv.writeCell(TICK_SIZE_FIELD, trade.getProduct().getInfo().getPriceInfo().getTickSize());
-    csv.writeCell(CURRENCY_FIELD, trade.getProduct().getInfo().getPriceInfo().getTickValue().getCurrency());
-    csv.writeCell(TICK_VALUE_FIELD, trade.getProduct().getInfo().getPriceInfo().getTickValue().getAmount());
-    csv.writeCell(CONTRACT_SIZE_FIELD, trade.getProduct().getInfo().getPriceInfo().getContractSize());
+    CsvWriterUtils.writeSecurityQuantityTrade(csv, trade);
+    SecurityPriceInfo securityPriceInfo = trade.getProduct().getInfo().getPriceInfo();
+    csv.writeCell(TICK_SIZE_FIELD, securityPriceInfo.getTickSize());
+    csv.writeCell(CURRENCY_FIELD, securityPriceInfo.getTickValue().getCurrency());
+    csv.writeCell(TICK_VALUE_FIELD, securityPriceInfo.getTickValue().getAmount());
+    csv.writeCell(CONTRACT_SIZE_FIELD, securityPriceInfo.getContractSize());
     csv.writeNewLine();
   }
 
@@ -73,7 +68,7 @@ public class GenericSecurityTradeCsvPlugin implements TradeCsvWriterPlugin<Gener
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(GenericSecurityTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(GenericSecurityTrade.class);
   }
 }

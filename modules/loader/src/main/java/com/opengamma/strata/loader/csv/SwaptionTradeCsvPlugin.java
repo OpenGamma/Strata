@@ -95,8 +95,8 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(SwaptionTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(SwaptionTrade.class);
   }
 
   //-------------------------------------------------------------------------

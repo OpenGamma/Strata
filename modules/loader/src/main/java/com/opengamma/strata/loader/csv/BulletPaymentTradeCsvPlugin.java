@@ -75,8 +75,8 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(BulletPaymentTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(BulletPaymentTrade.class);
   }
 
   //-------------------------------------------------------------------------

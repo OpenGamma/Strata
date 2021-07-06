@@ -93,8 +93,8 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvW
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(TermDepositTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(TermDepositTrade.class);
   }
 
   //-------------------------------------------------------------------------

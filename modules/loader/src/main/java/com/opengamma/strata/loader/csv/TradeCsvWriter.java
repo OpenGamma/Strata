@@ -79,7 +79,7 @@ public final class TradeCsvWriter {
   /**
    * The lookup of trade parsers.
    */
-  private static final ImmutableMap<String, TradeCsvWriterPlugin> PLUGINS =
+  private static final ImmutableMap<Class<?>, TradeCsvWriterPlugin> PLUGINS =
       MapStream.of(TradeCsvWriterPlugin.extendedEnum().lookupAllNormalized().values())
           .flatMapKeys(plugin -> plugin.supportedTradeTypes().stream())
           .toMap((a, b) -> {
@@ -197,7 +197,7 @@ public final class TradeCsvWriter {
       info.getZone().ifPresent(zone -> csv.writeCell(TRADE_ZONE_FIELD, zone.toString()));
       info.getSettlementDate().ifPresent(date -> csv.writeCell(SETTLEMENT_DATE_FIELD, date.toString()));
       csv.writeCells(supplier.values(headers, trade));
-      TradeCsvWriterPlugin detailsWriter = PLUGINS.get(trade.getClass().getSimpleName());
+      TradeCsvWriterPlugin detailsWriter = PLUGINS.get(trade.getClass());
       if (detailsWriter == null) {
         throw new IllegalArgumentException("Unable to write trade to CSV: " + trade.getClass().getSimpleName());
       }
@@ -253,7 +253,11 @@ public final class TradeCsvWriter {
         LinkedHashMap<Class<?>, List<Trade>>::new,
         Collectors.<Trade>toList()));
     for (Entry<Class<?>, List<Trade>> entry : splitByType.entrySet()) {
-      TradeCsvWriterPlugin detailsWriter = PLUGINS.get(entry.getKey().getSimpleName());
+      TradeCsvWriterPlugin detailsWriter = PLUGINS.get(entry.getKey());
+      if (detailsWriter == null) {
+        throw new IllegalArgumentException(
+            "Unable to write trade type to CSV: " + entry.getKey().getSimpleName());
+      }
       headers.addAll(detailsWriter.headers(entry.getValue()));
     }
     return headers.stream().sorted(HEADER_COMPARATOR).collect(toImmutableList());

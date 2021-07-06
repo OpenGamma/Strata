@@ -92,6 +92,6 @@ public interface TradeCsvWriterPlugin<T extends Trade> extends Named {
    *
    * @return the set of supported trade types.
    */
-  public abstract Set<String> supportedTradeTypes();
+  public abstract Set<Class<?>> supportedTradeTypes();
 
 }

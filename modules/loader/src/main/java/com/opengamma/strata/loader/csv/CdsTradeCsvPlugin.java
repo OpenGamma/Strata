@@ -387,8 +387,8 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(CdsTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(CdsTrade.class);
   }
 
   // Restricted constructor.

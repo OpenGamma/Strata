@@ -38,9 +38,9 @@ final class SmartPositionCsvPlugin implements PositionCsvParserPlugin {
       PositionCsvInfoResolver resolver) {
 
     if (requiredJavaType == SecurityPosition.class) {
-      return Optional.of(SecurityCsvPlugin.parsePositionLightweight(row, info, resolver));
+      return Optional.of(SecurityTradeCsvPlugin.parsePositionLightweight(row, info, resolver));
     } else {
-      return Optional.of(SecurityCsvPlugin.parsePosition(row, info, resolver));
+      return Optional.of(SecurityTradeCsvPlugin.parsePosition(row, info, resolver));
     }
   }
 

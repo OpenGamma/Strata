@@ -110,8 +110,8 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(FxVanillaOptionTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(FxVanillaOptionTrade.class);
   }
 
   //-------------------------------------------------------------------------

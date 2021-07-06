@@ -58,14 +58,14 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
 
   /** The headers. */
   private static final Set<String> HEADERS = ImmutableSet.<String>builder()
-      .add(CsvLoaderColumns.LEG_1_DIRECTION_FIELD)
-      .add(CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD)
-      .add(CsvLoaderColumns.LEG_1_CURRENCY_FIELD)
-      .add(CsvLoaderColumns.LEG_1_NOTIONAL_FIELD)
-      .add(CsvLoaderColumns.LEG_2_DIRECTION_FIELD)
-      .add(CsvLoaderColumns.LEG_2_PAYMENT_DATE_FIELD)
-      .add(CsvLoaderColumns.LEG_2_CURRENCY_FIELD)
-      .add(CsvLoaderColumns.LEG_2_NOTIONAL_FIELD)
+      .add(LEG_1_DIRECTION_FIELD)
+      .add(LEG_1_PAYMENT_DATE_FIELD)
+      .add(LEG_1_CURRENCY_FIELD)
+      .add(LEG_1_NOTIONAL_FIELD)
+      .add(LEG_2_DIRECTION_FIELD)
+      .add(LEG_2_PAYMENT_DATE_FIELD)
+      .add(LEG_2_CURRENCY_FIELD)
+      .add(LEG_2_NOTIONAL_FIELD)
       .add(PAYMENT_DATE_CNV_FIELD)
       .add(PAYMENT_DATE_CAL_FIELD)
       .build();
@@ -96,8 +96,8 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(FxSingleTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(FxSingleTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -149,21 +149,19 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
   // parse an FxSingle
   static FxSingle parseFxSingle(CsvRow row, String prefix) {
     CurrencyAmount amount1 = CsvLoaderUtils.parseCurrencyAmountWithDirection(
-        row, prefix + CsvLoaderColumns.LEG_1_CURRENCY_FIELD, prefix + CsvLoaderColumns.LEG_1_NOTIONAL_FIELD, prefix + CsvLoaderColumns.LEG_1_DIRECTION_FIELD);
-    LocalDate paymentDate1 = row.findValue(prefix + CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD)
-        .map(str -> LoaderUtils.parseDate(str))
+        row, prefix + LEG_1_CURRENCY_FIELD, prefix + LEG_1_NOTIONAL_FIELD, prefix + LEG_1_DIRECTION_FIELD);
+    LocalDate paymentDate1 = row.findValue(prefix + LEG_1_PAYMENT_DATE_FIELD, LoaderUtils::parseDate)
         .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     CurrencyAmount amount2 = CsvLoaderUtils.parseCurrencyAmountWithDirection(
-        row, prefix + CsvLoaderColumns.LEG_2_CURRENCY_FIELD, prefix + CsvLoaderColumns.LEG_2_NOTIONAL_FIELD, prefix + CsvLoaderColumns.LEG_2_DIRECTION_FIELD);
-    LocalDate paymentDate2 = row.findValue(prefix + CsvLoaderColumns.LEG_2_PAYMENT_DATE_FIELD)
-        .map(str -> LoaderUtils.parseDate(str))
+        row, prefix + LEG_2_CURRENCY_FIELD, prefix + LEG_2_NOTIONAL_FIELD, prefix + LEG_2_DIRECTION_FIELD);
+    LocalDate paymentDate2 = row.findValue(prefix + LEG_2_PAYMENT_DATE_FIELD, LoaderUtils::parseDate)
         .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
     if (amount1.isPositive() == amount2.isPositive()) {
       throw new IllegalArgumentException(Messages.format(
           "FxSingle legs must not have the same direction: {}, {}",
-          row.getValue(prefix + CsvLoaderColumns.LEG_1_DIRECTION_FIELD),
-          row.getValue(prefix + CsvLoaderColumns.LEG_2_DIRECTION_FIELD)));
+          row.getValue(prefix + LEG_1_DIRECTION_FIELD),
+          row.getValue(prefix + LEG_2_DIRECTION_FIELD)));
     }
     Payment payment1 = Payment.of(amount1, paymentDate1);
     Payment payment2 = Payment.of(amount2, paymentDate2);
@@ -191,7 +189,7 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlug
     csv.writeNewLine();
   }
 
-  protected void writeFxSingle(CsvOutput.CsvRowOutputWithHeaders csv, String prefix, FxSingle product) {
+  void writeFxSingle(CsvOutput.CsvRowOutputWithHeaders csv, String prefix, FxSingle product) {
     Payment basePayment = product.getBaseCurrencyPayment();
     csv.writeCell(prefix + LEG_1_DIRECTION_FIELD, PayReceive.ofSignedAmount(basePayment.getAmount()));
     csv.writeCell(prefix + LEG_1_CURRENCY_FIELD, basePayment.getCurrency());

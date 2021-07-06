@@ -764,7 +764,7 @@ public final class LoaderUtils {
    * Other strings are rejected.
    *
    * @param str  the string to parse
-   * @return the parsed value
+   * @return  the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
    */
   public static PutCall parsePutCall(String str) {
@@ -791,8 +791,8 @@ public final class LoaderUtils {
    * Other strings are rejected.
    *
    * @param str  the string to parse
-   * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @return  the parsed value
+   * @throws  IllegalArgumentException if the string cannot be parsed
    */
   public static LongShort parseLongShort(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -814,12 +814,12 @@ public final class LoaderUtils {
    * <p>
    * Parsing is case insensitive.
    * Up is parsed as 'UP'.
-   * Long is parsed as 'LONG'.
+   * Down is parsed as 'DOWN'.
    * Other strings are rejected.
    *
-   * @param str the string to parse
-   * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @param  str the string to parse
+   * @return  the parsed value
+   * @throws  IllegalArgumentException if the string cannot be parsed
    */
   public static BarrierType parseBarrierType(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -837,23 +837,25 @@ public final class LoaderUtils {
    * Parses knock type from the input string.
    * <p>
    * Parsing is case insensitive.
-   * In is parsed as 'IN'.
-   * Out is parsed as 'OUT'.
+   * KnockIn is parsed as 'KNOCKIN', 'IN'.
+   * KnockOut is parsed as 'KNOCKOUT', 'OUT'.
    * Other strings are rejected.
    *
-   * @param str the string to parse
-   * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @param str  the string to parse
+   * @return  the parsed value
+   * @throws  IllegalArgumentException if the string cannot be parsed
    */
   public static KnockType parseKnockType(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
       case "KNOCKIN":
+      case "IN":
         return KnockType.KNOCK_IN;
       case "KNOCKOUT":
+      case "OUT":
         return KnockType.KNOCK_OUT;
       default:
         throw new IllegalArgumentException("Unknown KnockType value, must be 'KnockIn' or 'KnockOut' but was'" + str
-            + "'. The parser is case insensitive.");
+            + "'. The parser is case insensitive and also accepts 'In' or 'Out'.");
     }
   }
 

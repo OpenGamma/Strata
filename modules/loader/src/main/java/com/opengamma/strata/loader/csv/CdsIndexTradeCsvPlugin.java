@@ -119,8 +119,8 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(CdsIndexTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(CdsIndexTrade.class);
   }
 
 }

@@ -135,8 +135,8 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(IborCapFloorTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(IborCapFloorTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -276,7 +276,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
     IborCapFloorLeg capFloorLeg = trade.getProduct().getCapFloorLeg();
     csv.writeCell(TRADE_TYPE_FIELD, "CapFloor");
     String capFloorType;
-    Double strike;
+    double strike;
     if (capFloorLeg.getCapSchedule().isPresent()) {
       capFloorType = "Cap";
       strike = capFloorLeg.getCapSchedule().get().getInitialValue();
@@ -293,9 +293,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCs
     csv.writeCell(STRIKE_FIELD, formattedPercentage(strike));
     csv.writeCell(NOTIONAL_FIELD, capFloorLeg.getNotional().getInitialValue());
     csv.writeCell(INDEX_FIELD, capFloorLeg.getCalculation().getIndex());
-    trade.getPremium().ifPresent(premium -> {
-      CsvWriterUtils.writePremiumFields(csv, premium);
-    });
+    trade.getPremium().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
     csv.writeNewLine();
   }
 

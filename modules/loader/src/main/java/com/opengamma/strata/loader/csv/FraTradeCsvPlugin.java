@@ -89,8 +89,8 @@ final class FraTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(FraTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(FraTrade.class);
   }
 
   //-------------------------------------------------------------------------

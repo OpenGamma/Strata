@@ -988,8 +988,8 @@ final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
   }
 
   @Override
-  public Set<String> supportedTradeTypes() {
-    return ImmutableSet.of(SwapTrade.class.getSimpleName());
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(SwapTrade.class);
   }
 
   // writes the product to CSV
