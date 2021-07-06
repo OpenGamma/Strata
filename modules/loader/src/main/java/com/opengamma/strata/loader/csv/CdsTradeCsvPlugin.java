@@ -383,7 +383,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   // creates the correct set of headers
-  protected static LinkedHashSet<String> createHeaders(
+  static LinkedHashSet<String> createHeaders(
       boolean cdsIndex,
       boolean premium,
       boolean stepInOffset,
@@ -454,7 +454,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   // writes the details to CSV
-  protected static void writeCdsDetails(
+  static void writeCdsDetails(
       CsvRowOutputWithHeaders csv,
       BuySell buySell,
       Currency currency,
