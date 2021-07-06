@@ -16,9 +16,11 @@ import static org.assertj.core.data.Offset.offset;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
 import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
@@ -52,6 +54,8 @@ public class InterpolatedStrikeSmileDeltaTermStructureTest {
       {0.0340, 0.0140}});
   private static final int NB_EXP = TIME_TO_EXPIRY.size();
   private static final List<SmileDeltaParameters> VOLATILITY_TERM = new ArrayList<>(NB_EXP);
+  public static final Percentage DERIV_TOL = Percentage.withPercentage(1);
+
   static {
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       VOLATILITY_TERM.add(SmileDeltaParameters.of(
@@ -277,6 +281,26 @@ public class InterpolatedStrikeSmileDeltaTermStructureTest {
         }
       }
     }
+  }
+
+  @Test
+  void partialFirstDerivatives() {
+    double forward = 1.70;
+    double timeToExpiry = 1.3;
+    double[] strikes = SMILE_TERM.getVolatilityTerm().get(2).strike(forward).toArray();
+    double volExpected = SMILE_TERM.volatility(timeToExpiry, strikes[1], forward);
+
+    double eps = 1e-10;
+    double volHighTime = SMILE_TERM.volatility(timeToExpiry + eps, strikes[1], forward);
+    double timeDerivativeExpected = (volHighTime - volExpected) / eps;
+    ValueDerivatives valueDerivativesComputed = SMILE_TERM.partialFirstDerivatives(timeToExpiry, strikes[1], forward);
+    assertThat(valueDerivativesComputed.getValue()).isCloseTo(volExpected, offset(TOLERANCE_VOL));
+    assertThat(valueDerivativesComputed.getDerivative(0)).isCloseTo(timeDerivativeExpected, DERIV_TOL);
+
+    double volHighStrike = SMILE_TERM.volatility(timeToExpiry, strikes[1] + eps, forward);
+    double strikeDerivativeExpected = (volHighStrike - volExpected) / eps;
+    assertThat(valueDerivativesComputed.getDerivative(1)).isCloseTo(strikeDerivativeExpected, DERIV_TOL);
+
   }
 
   //-------------------------------------------------------------------------

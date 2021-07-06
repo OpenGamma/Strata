@@ -29,7 +29,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DayCount;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.data.MarketDataName;
 import com.opengamma.strata.market.ValueType;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -246,6 +248,19 @@ public final class BlackFxOptionSurfaceVolatilities
       }
     }
     return sens;
+  }
+
+  @Override
+  public ValueDerivatives firstPartialDerivatives(
+      CurrencyPair currencyPair,
+      double expiry,
+      double strike,
+      double forward) {
+
+    if (currencyPair.isInverse(this.currencyPair)) {
+      return surface.firstPartialDerivatives(expiry, 1d / strike);
+    }
+    return surface.firstPartialDerivatives(expiry, strike);
   }
 
   private CurrencyParameterSensitivity parameterSensitivity(FxOptionSensitivity point) {

@@ -9,12 +9,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.market.curve.interpolator.BoundCurveInterpolator;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
+import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.option.DeltaStrike;
 import com.opengamma.strata.market.param.ParameterMetadata;
 import com.opengamma.strata.pricer.common.GenericVolatilitySurfaceYearFractionParameterMetadata;
@@ -40,6 +44,10 @@ public class SmileDeltaParametersTest {
 
   private static final SmileDeltaParameters SMILE = SmileDeltaParameters.of(
       TIME_TO_EXPIRY, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+  private static final double EPS = 1e-6;
+  private static final SmileDeltaParameters SMILE_BUMPED_EXPIRY = SmileDeltaParameters.of(
+      TIME_TO_EXPIRY + EPS, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+
 
   @Test
   public void testNullDelta() {
@@ -130,5 +138,33 @@ public class SmileDeltaParametersTest {
         FORWARD, strike[nbDelta], TIME_TO_EXPIRY, volatility.get(nbDelta), true);
     assertThat(0.0).as("Strike: ATM").isCloseTo(dCall.getDerivative(0) + dPut.getDerivative(0), offset(1e-8));
   }
+
+  @Test
+  public void strikeDerivatives() {
+    DoubleArray strikes = SMILE.strike(FORWARD);
+    DoubleArray strikesBumped = SMILE_BUMPED_EXPIRY.strike(FORWARD);
+    BoundCurveInterpolator bound = CurveInterpolators.LINEAR.bind(
+        strikes, SMILE.getVolatility(), CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+    BoundCurveInterpolator boundUp = CurveInterpolators.LINEAR.bind(
+        strikesBumped, SMILE.getVolatility(), CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+    double strikeValue = 2.133;
+    double vol = bound.interpolate(strikeValue);
+    double derivs = -bound.firstDerivative(strikeValue);
+    double volUp = boundUp.interpolate(strikeValue);
+    double expected = (volUp - vol) / EPS;
+    DoubleArray derivatives = SMILE.impliedStrikesDerivativeToExpiry(FORWARD);
+    assertThat(derivatives.get(0)).isCloseTo((strikesBumped.get(0) - strikes.get(0)) / EPS, Percentage.withPercentage(1));
+    BoundCurveInterpolator boundDerivative = CurveInterpolators.LINEAR.bind(
+        strikes, derivatives, CurveExtrapolators.FLAT, CurveExtrapolators.FLAT);
+    double strikeDerivativeToExpiry = boundDerivative.interpolate(strikeValue);
+    double volDerivativeToExpiry = strikeDerivativeToExpiry * derivs;
+    assertThat(volDerivativeToExpiry).isCloseTo(expected, Percentage.withPercentage(1));
+  }
+
+  SmileDeltaParameters createSmileThetaBump(double shiftSize) {
+    double timeToExpiry = TIME_TO_EXPIRY + shiftSize;
+    return SmileDeltaParameters.of(timeToExpiry, ATM, DELTA, RISK_REVERSAL, STRANGLE);
+  }
+
 
 }
