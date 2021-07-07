@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CAP_FLOOR_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DATE_ADJ_CNV_FIELD;
@@ -22,12 +23,15 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.OVERRIDE_START_DA
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_FREQUENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.ROLL_CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_CNV_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.START_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STRIKE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.STUB_CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
@@ -38,7 +42,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
@@ -66,45 +69,42 @@ import com.opengamma.strata.product.swap.IborRateCalculation;
 /**
  * Handles the CSV file format for CapFloor trades.
  */
-public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<IborCapFloorTrade> {
+public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<IborCapFloorTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
   public static final IborCapFloorTradeCsvPlugin INSTANCE = new IborCapFloorTradeCsvPlugin();
 
-  private static final String CAP_FLOOR_FIELD = "CapFloor";
-
-  private static final String STRIKE_FIELD = "Strike";
-
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
-      .add(CAP_FLOOR_FIELD)
-      .add(START_DATE_FIELD)
-      .add(END_DATE_FIELD)
-      .add(PAYMENT_FREQUENCY_FIELD)
-      .add(DIRECTION_FIELD)
-      .add(CURRENCY_FIELD)
-      .add(STRIKE_FIELD)
-      .add(NOTIONAL_FIELD)
-      .add(INDEX_FIELD)
-      .add(PREMIUM_AMOUNT_FIELD)
-      .add(PREMIUM_CURRENCY_FIELD)
-      .add(PREMIUM_DIRECTION_FIELD)
-      .add(PREMIUM_DATE_FIELD)
-      .add(DATE_ADJ_CNV_FIELD)
-      .add(DATE_ADJ_CAL_FIELD)
-      .add(START_DATE_CNV_FIELD)
-      .add(START_DATE_CAL_FIELD)
-      .add(END_DATE_CNV_FIELD)
-      .add(END_DATE_CAL_FIELD)
-      .add(STUB_CONVENTION_FIELD)
-      .add(ROLL_CONVENTION_FIELD)
-      .add(FIRST_REGULAR_START_DATE_FIELD)
-      .add(LAST_REGULAR_END_DATE_FIELD)
-      .add(OVERRIDE_START_DATE_FIELD)
-      .add(OVERRIDE_START_DATE_CNV_FIELD)
-      .add(OVERRIDE_START_DATE_CAL_FIELD)
-      .build();
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
+      CAP_FLOOR_FIELD,
+      START_DATE_FIELD,
+      END_DATE_FIELD,
+      PAYMENT_FREQUENCY_FIELD,
+      DIRECTION_FIELD,
+      CURRENCY_FIELD,
+      STRIKE_FIELD,
+      NOTIONAL_FIELD,
+      INDEX_FIELD,
+      PREMIUM_AMOUNT_FIELD,
+      PREMIUM_CURRENCY_FIELD,
+      PREMIUM_DIRECTION_FIELD,
+      PREMIUM_DATE_FIELD,
+      PREMIUM_DATE_CNV_FIELD,
+      PREMIUM_DATE_CAL_FIELD,
+      DATE_ADJ_CNV_FIELD,
+      DATE_ADJ_CAL_FIELD,
+      START_DATE_CNV_FIELD,
+      START_DATE_CAL_FIELD,
+      END_DATE_CNV_FIELD,
+      END_DATE_CAL_FIELD,
+      STUB_CONVENTION_FIELD,
+      ROLL_CONVENTION_FIELD,
+      FIRST_REGULAR_START_DATE_FIELD,
+      LAST_REGULAR_END_DATE_FIELD,
+      OVERRIDE_START_DATE_FIELD,
+      OVERRIDE_START_DATE_CNV_FIELD,
+      OVERRIDE_START_DATE_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -128,7 +128,12 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   @Override
   public String getName() {
-    return "IborCapFloor";
+    return IborCapFloorTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(IborCapFloorTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -259,7 +264,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<IborCapFloorTrade> trades) {
+  public Set<String> headers(List<IborCapFloorTrade> trades) {
     return HEADERS;
   }
 
@@ -268,7 +273,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
     IborCapFloorLeg capFloorLeg = trade.getProduct().getCapFloorLeg();
     csv.writeCell(TRADE_TYPE_FIELD, "CapFloor");
     String capFloorType;
-    Double strike;
+    double strike;
     if (capFloorLeg.getCapSchedule().isPresent()) {
       capFloorType = "Cap";
       strike = capFloorLeg.getCapSchedule().get().getInitialValue();
@@ -285,12 +290,7 @@ public class IborCapFloorTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
     csv.writeCell(STRIKE_FIELD, formattedPercentage(strike));
     csv.writeCell(NOTIONAL_FIELD, capFloorLeg.getNotional().getInitialValue());
     csv.writeCell(INDEX_FIELD, capFloorLeg.getCalculation().getIndex());
-    trade.getPremium().ifPresent(premium -> {
-      csv.writeCell(PREMIUM_AMOUNT_FIELD, premium.getAmount());
-      csv.writeCell(PREMIUM_CURRENCY_FIELD, premium.getCurrency());
-      csv.writeCell(PREMIUM_DIRECTION_FIELD, premium.getValue().isNegative() ? PayReceive.PAY : PayReceive.RECEIVE);
-      csv.writeCell(PREMIUM_DATE_FIELD, premium.getDate().getUnadjusted());
-    });
+    trade.getPremium().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
     csv.writeNewLine();
   }
 

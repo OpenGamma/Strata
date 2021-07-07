@@ -95,6 +95,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import com.opengamma.strata.basics.currency.Currency;
@@ -158,7 +159,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
 /**
  * Handles the CSV file format for Swap trades.
  */
-final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
+final class FullSwapTradeCsvPlugin implements TradeCsvWriterPlugin<SwapTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -815,7 +816,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<SwapTrade> trades) {
+  public Set<String> headers(List<SwapTrade> trades) {
     // determine what elements of trades are present
     int legs = 0;
     Set<SwapLegType> legTypes = new HashSet<>();
@@ -863,7 +864,7 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
       }
     }
     // select the correct headers
-    List<String> headers = new ArrayList<>();
+    LinkedHashSet<String> headers = new LinkedHashSet<>();
     if (variable) {
       headers.add(START_DATE_FIELD);
     }
@@ -979,6 +980,16 @@ final class FullSwapTradeCsvPlugin implements TradeTypeCsvWriter<SwapTrade> {
     VariableElements variableElements = writeProduct(csv, trade.getProduct());
     csv.writeNewLine();
     variableElements.writeLines(csv);
+  }
+
+  @Override
+  public String getName() {
+    return SwapTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(SwapTrade.class);
   }
 
   // writes the product to CSV
