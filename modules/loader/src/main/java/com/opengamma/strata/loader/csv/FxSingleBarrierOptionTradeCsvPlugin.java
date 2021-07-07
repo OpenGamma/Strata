@@ -39,10 +39,14 @@ import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
  */
 public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<FxSingleBarrierOptionTrade> {
 
-  /** The singleton instance of the plugin. */
+  /**
+   * The singleton instance of the plugin.
+   */
   public static final FxSingleBarrierOptionTradeCsvPlugin INSTANCE = new FxSingleBarrierOptionTradeCsvPlugin();
 
-  /** The CSV headers. */
+  /**
+   * The CSV headers.
+   */
   public static final Set<String> HEADERS = ImmutableSet.<String>builder()
       .addAll(FxVanillaOptionTradeCsvPlugin.INSTANCE.headers(ImmutableList.of()))
       .add(BARRIER_TYPE_FIELD)
@@ -53,8 +57,10 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
       .add(REBATE_DIRECTION_FIELD)
       .build();
 
-  /** Restricted constructor */
-  private FxSingleBarrierOptionTradeCsvPlugin(){
+  /**
+   * Restricted constructor
+   */
+  private FxSingleBarrierOptionTradeCsvPlugin() {
   }
 
   @Override
@@ -88,17 +94,12 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
         .underlyingOption(vanillaOptionTrade.getProduct())
         .barrier(SimpleConstantContinuousBarrier.of(barrierType, knockType, barrierLevel));
 
-    if (CsvLoaderUtils.hasValidCurrencyAmount(
+    CsvLoaderUtils.tryParseCurrencyAmountWithDirection(
         row,
         REBATE_CURRENCY_FIELD,
         REBATE_AMOUNT_FIELD,
-        REBATE_DIRECTION_FIELD)) {
-      productBuilder.rebate(
-          CsvLoaderUtils.parseCurrencyAmountWithDirection(row,
-          REBATE_CURRENCY_FIELD,
-          REBATE_AMOUNT_FIELD,
-          REBATE_DIRECTION_FIELD));
-    }
+        REBATE_DIRECTION_FIELD
+    ).ifPresent(productBuilder::rebate);
 
     return FxSingleBarrierOptionTrade.builder()
         .product(productBuilder.build())

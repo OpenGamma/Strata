@@ -500,7 +500,7 @@ public final class CsvLoaderUtils {
    * @param directionField  the direction field
    * @return if a valid currency amount can be read
    */
-  public static boolean hasValidCurrencyAmount(
+  public static Optional<CurrencyAmount> tryParseCurrencyAmountWithDirection(
       CsvRow row,
       String currencyField,
       String amountField,
@@ -510,7 +510,10 @@ public final class CsvLoaderUtils {
     Optional<Double> amount = row.findValue(amountField, LoaderUtils::parseDouble);
     Optional<PayReceive> direction = row.findValue(directionField, LoaderUtils::parsePayReceive);
 
-    return (currency.isPresent() && amount.isPresent() && direction.isPresent());
+    if (currency.isPresent() && amount.isPresent() && direction.isPresent()) {
+      return Optional.of(CurrencyAmount.of(currency.get(), direction.get().normalize(amount.get())));
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

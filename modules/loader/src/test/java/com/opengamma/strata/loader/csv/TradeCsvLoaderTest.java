@@ -1618,7 +1618,6 @@ public class TradeCsvLoaderTest {
   }
 
   private FxVanillaOptionTrade expectedFxVanillaOption() {
-
     return FxVanillaOptionTrade.builder()
         .product(FxVanillaOption.builder()
             .longShort(SHORT)
@@ -1632,7 +1631,6 @@ public class TradeCsvLoaderTest {
   }
 
   private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithRebate() {
-
     return FxSingleBarrierOptionTrade.builder()
         .product(FxSingleBarrierOption.of(
             expectedFxVanillaOption().getProduct(),
@@ -1643,7 +1641,6 @@ public class TradeCsvLoaderTest {
   }
 
   private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithoutRebate() {
-
     return FxSingleBarrierOptionTrade.builder()
         .product(FxSingleBarrierOption.of(
             expectedFxVanillaOption().getProduct(),
@@ -2286,19 +2283,6 @@ public class TradeCsvLoaderTest {
 
   @Test
   public void test_load_invalidTermDeposit() {
-    TradeCsvLoader test = TradeCsvLoader.standard();
-    ValueWithFailures<List<Trade>> trades =
-        test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nTermDeposit,Buy")));
-
-    assertThat(trades.getFailures()).hasSize(1);
-    FailureItem failure = trades.getFailures().get(0);
-    assertThat(failure.getReason()).isEqualTo(FailureReason.PARSING);
-    assertThat(failure.getMessage())
-        .isEqualTo("CSV trade file type 'TermDeposit' could not be parsed at line 2: Header not found: 'Notional'");
-  }
-
-  @Test
-  public void test_load_invalid_fxSingleBarrierOption() {
     TradeCsvLoader test = TradeCsvLoader.standard();
     ValueWithFailures<List<Trade>> trades =
         test.parse(ImmutableList.of(CharSource.wrap("Strata Trade Type,Buy Sell\nTermDeposit,Buy")));
