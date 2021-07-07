@@ -130,8 +130,7 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
     csv.writeNewLine();
   }
 
-  // Add a public static method in CsvWriterUtils when this is moved to Granite.
-  protected void writeSingleBarrierOption(CsvOutput.CsvRowOutputWithHeaders csv, FxSingleBarrierOption product) {
+  void writeSingleBarrierOption(CsvOutput.CsvRowOutputWithHeaders csv, FxSingleBarrierOption product) {
     CsvWriterUtils.writeFxVanillaOption(csv, product.getUnderlyingOption());
     CsvWriterUtils.writeBarrierFields(csv, product.getBarrier(), LocalDate.now(ZoneId.systemDefault()));
     product.getRebate().ifPresent(ccyAmount -> CsvWriterUtils.writeCurrencyAmount(

@@ -32,7 +32,6 @@ import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.joda.beans.test.BeanAssert.assertBeanEquals;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Period;
@@ -1607,7 +1606,7 @@ public class TradeCsvLoaderTest {
     return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
   }
 
-  private FxSingleTrade expectedFxSingle(){
+  private FxSingleTrade expectedFxSingle() {
     double notional = 1.0e6;
     double fxRate = 1.1d;
     return FxSingleTrade.of(
@@ -1618,7 +1617,8 @@ public class TradeCsvLoaderTest {
             LocalDate.of(2014, 5, 13)));
   }
 
-  private FxVanillaOptionTrade expectedFxVanillaOption(){
+  private FxVanillaOptionTrade expectedFxVanillaOption() {
+
     return FxVanillaOptionTrade.builder()
         .product(FxVanillaOption.builder()
             .longShort(SHORT)
@@ -1631,7 +1631,7 @@ public class TradeCsvLoaderTest {
         .build();
   }
 
-  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithRebate(){
+  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithRebate() {
 
     return FxSingleBarrierOptionTrade.builder()
         .product(FxSingleBarrierOption.of(
@@ -1642,7 +1642,7 @@ public class TradeCsvLoaderTest {
         .build();
   }
 
-  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithoutRebate(){
+  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithoutRebate() {
 
     return FxSingleBarrierOptionTrade.builder()
         .product(FxSingleBarrierOption.of(
@@ -2054,30 +2054,18 @@ public class TradeCsvLoaderTest {
   //-------------------------------------------------------------------------
 
   @Test
-  public void test_FxSingleBarrierOption() throws IOException {
+  public void test_FxSingleBarrierOption() {
     ResourceLocator file = ResourceLocator.of(
         "classpath:com/opengamma/strata/loader/csv/fx_single_barrier_option_trade.csv");
 
-    // Test write
-    StringBuilder testBuilder = new StringBuilder(1024);
-    TradeCsvWriter.standard().write(
-        ImmutableList.of(
-            expectedFxSingleBarrierOptionWithRebate(),
-            expectedFxSingleBarrierOptionWithoutRebate()),
-        testBuilder);
+    ValueWithFailures<List<FxSingleBarrierOptionTrade>> trades = TradeCsvLoader.standard().parse(
+        ImmutableList.of(file.getCharSource()), FxSingleBarrierOptionTrade.class);
 
-    StringBuilder sampleBuilder = new StringBuilder();
-    file.getCharSource().lines().forEach(l -> sampleBuilder.append(l).append("\n"));
-
-    assertThat(testBuilder.toString()).isEqualTo(sampleBuilder.toString());
-
-    // Test read
-    ValueWithFailures<List<Trade>> trades = TradeCsvLoader.standard().parse(
-        ImmutableList.of(file.getCharSource()), Trade.class);
-
-    assertThat(trades.getFailures()).isEmpty();
-    assertThat(trades.getValue().get(0)).isEqualTo(expectedFxSingleBarrierOptionWithRebate());
-    assertThat(trades.getValue().get(1)).isEqualTo(expectedFxSingleBarrierOptionWithoutRebate());
+    checkRoundtrip(
+        FxSingleBarrierOptionTrade.class,
+        trades.getValue(),
+        expectedFxSingleBarrierOptionWithRebate(),
+        expectedFxSingleBarrierOptionWithoutRebate());
   }
 
   @Test
