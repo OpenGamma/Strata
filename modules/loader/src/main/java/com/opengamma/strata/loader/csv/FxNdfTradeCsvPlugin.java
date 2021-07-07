@@ -13,6 +13,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +38,7 @@ import com.opengamma.strata.product.fx.FxNdfTrade;
 /**
  * Handles the CSV file format for FxNdf trades.
  */
-public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<FxNdfTrade> {
+public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<FxNdfTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -89,6 +90,11 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
   @Override
   public String getName() {
     return "FxNdf";
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(FxNdfTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -158,8 +164,8 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWr
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<FxNdfTrade> trades) {
-    return HEADERS;
+  public Set<String> headers(List<FxNdfTrade> trades) {
+    return new LinkedHashSet<>(HEADERS);
   }
 
   @Override
