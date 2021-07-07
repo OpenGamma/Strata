@@ -24,15 +24,12 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
-import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fxopt.FxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
-import com.opengamma.strata.product.option.BarrierType;
-import com.opengamma.strata.product.option.KnockType;
-import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
+import com.opengamma.strata.product.option.Barrier;
 
 /**
  * Handles the CSV files format for FX Single Barrier Option trades.
@@ -84,15 +81,12 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
 
   private FxSingleBarrierOptionTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     FxVanillaOptionTrade vanillaOptionTrade = resolver.parseFxVanillaOptionTrade(row, info);
-
-    BarrierType barrierType = row.getValue(BARRIER_TYPE_FIELD, LoaderUtils::parseBarrierType);
-    KnockType knockType = row.getValue(KNOCK_TYPE_FIELD, LoaderUtils::parseKnockType);
-    double barrierLevel = row.getValue(BARRIER_LEVEL_FIELD, LoaderUtils::parseDouble);
+    Barrier barrier = CsvLoaderUtils.parseBarrierFromDefaultFields(row);
     AdjustablePayment premium = CsvLoaderUtils.parsePremiumFromDefaultFields(row);
 
     FxSingleBarrierOption.Builder productBuilder = FxSingleBarrierOption.builder()
         .underlyingOption(vanillaOptionTrade.getProduct())
-        .barrier(SimpleConstantContinuousBarrier.of(barrierType, knockType, barrierLevel));
+        .barrier(barrier);
 
     CsvLoaderUtils.tryParseCurrencyAmountWithDirection(
         row,
@@ -133,7 +127,7 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
 
   void writeSingleBarrierOption(CsvOutput.CsvRowOutputWithHeaders csv, FxSingleBarrierOption product) {
     CsvWriterUtils.writeFxVanillaOption(csv, product.getUnderlyingOption());
-    CsvWriterUtils.writeBarrierFields(csv, product.getBarrier(), LocalDate.now(ZoneId.systemDefault()));
+    CsvWriterUtils.writeBarrier(csv, product.getBarrier(), LocalDate.now(ZoneId.systemDefault()));
     product.getRebate().ifPresent(ccyAmount -> CsvWriterUtils.writeCurrencyAmount(
         csv,
         ccyAmount,
