@@ -47,7 +47,7 @@ import com.opengamma.strata.product.deposit.type.TermDepositConvention;
 /**
  * Handles the CSV file format for Term Deposit trades.
  */
-final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<TermDepositTrade> {
+final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<TermDepositTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -55,17 +55,16 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeType
   public static final TermDepositTradeCsvPlugin INSTANCE = new TermDepositTradeCsvPlugin();
 
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
-      .add(BUY_SELL_FIELD)
-      .add(CURRENCY_FIELD)
-      .add(NOTIONAL_FIELD)
-      .add(START_DATE_FIELD)
-      .add(END_DATE_FIELD)
-      .add(FIXED_RATE_FIELD)
-      .add(DAY_COUNT_FIELD)
-      .add(DATE_ADJ_CNV_FIELD)
-      .add(DATE_ADJ_CAL_FIELD)
-      .build();
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
+      BUY_SELL_FIELD,
+      CURRENCY_FIELD,
+      NOTIONAL_FIELD,
+      START_DATE_FIELD,
+      END_DATE_FIELD,
+      FIXED_RATE_FIELD,
+      DAY_COUNT_FIELD,
+      DATE_ADJ_CNV_FIELD,
+      DATE_ADJ_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -89,7 +88,12 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeType
 
   @Override
   public String getName() {
-    return "TermDeposit";
+    return TermDepositTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(TermDepositTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -111,15 +115,15 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeType
     BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
     double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
     double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
-    Optional<TermDepositConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> TermDepositConvention.of(s));
-    Optional<Period> tenorOpt = row.findValue(TENOR_FIELD).map(s -> LoaderUtils.parseTenor(s).getPeriod());
-    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
-    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
-    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD).map(s -> Currency.parse(s));
-    Optional<DayCount> dayCountOpt = row.findValue(DAY_COUNT_FIELD).map(s -> LoaderUtils.parseDayCount(s));
+    Optional<TermDepositConvention> conventionOpt = row.findValue(CONVENTION_FIELD, TermDepositConvention::of);
+    Optional<Period> tenorOpt = row.findValue(TENOR_FIELD, s -> LoaderUtils.parseTenor(s).getPeriod());
+    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD, LoaderUtils::parseDate);
+    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD, LoaderUtils::parseDate);
+    Optional<Currency> currencyOpt = row.findValue(CURRENCY_FIELD, Currency::parse);
+    Optional<DayCount> dayCountOpt = row.findValue(DAY_COUNT_FIELD, LoaderUtils::parseDayCount);
     BusinessDayConvention dateCnv = row.findValue(DATE_ADJ_CNV_FIELD)
-        .map(s -> LoaderUtils.parseBusinessDayConvention(s)).orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
-    Optional<HolidayCalendarId> dateCalOpt = row.findValue(DATE_ADJ_CAL_FIELD).map(s -> HolidayCalendarId.of(s));
+        .map(LoaderUtils::parseBusinessDayConvention).orElse(BusinessDayConventions.MODIFIED_FOLLOWING);
+    Optional<HolidayCalendarId> dateCalOpt = row.findValue(DATE_ADJ_CAL_FIELD, HolidayCalendarId::of);
 
     // use convention if available
     if (conventionOpt.isPresent()) {
@@ -207,7 +211,7 @@ final class TermDepositTradeCsvPlugin implements TradeCsvParserPlugin, TradeType
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<TermDepositTrade> trades) {
+  public Set<String> headers(List<TermDepositTrade> trades) {
     return HEADERS;
   }
 

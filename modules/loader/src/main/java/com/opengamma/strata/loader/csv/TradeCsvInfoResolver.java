@@ -342,7 +342,7 @@ public interface TradeCsvInfoResolver {
    * @throws RuntimeException if the row contains invalid data
    */
   public default SecurityQuantityTrade parseSecurityTrade(CsvRow row, TradeInfo info) {
-    return SecurityCsvPlugin.parseTradeWithPriceInfo(row, info, this);
+    return SecurityTradeCsvPlugin.parseTradeWithPriceInfo(row, info, this);
   }
 
   /**

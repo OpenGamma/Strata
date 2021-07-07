@@ -6,6 +6,12 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CNV_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION_FIELD;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -187,7 +194,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses the year-month and variant.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param type  the ETD type
    * @return the expiry year-month and variant
@@ -195,10 +202,10 @@ public final class CsvLoaderUtils {
    */
   public static Pair<YearMonth, EtdVariant> parseEtdVariant(CsvRow row, EtdType type) {
     YearMonth yearMonth = row.getValue(EXPIRY_FIELD, LoaderUtils::parseYearMonth);
-    int week = row.findValue(EXPIRY_WEEK_FIELD).map(s -> LoaderUtils.parseInteger(s)).orElse(0);
-    int day = row.findValue(EXPIRY_DAY_FIELD).map(s -> LoaderUtils.parseInteger(s)).orElse(0);
-    Optional<EtdSettlementType> settleType = row.findValue(SETTLEMENT_TYPE_FIELD).map(s -> parseEtdSettlementType(s));
-    Optional<EtdOptionType> optionType = row.findValue(EXERCISE_STYLE_FIELD).map(s -> parseEtdOptionType(s));
+    int week = row.findValue(EXPIRY_WEEK_FIELD, LoaderUtils::parseInteger).orElse(0);
+    int day = row.findValue(EXPIRY_DAY_FIELD, LoaderUtils::parseInteger).orElse(0);
+    Optional<EtdSettlementType> settleType = row.findValue(SETTLEMENT_TYPE_FIELD, CsvLoaderUtils::parseEtdSettlementType);
+    Optional<EtdOptionType> optionType = row.findValue(EXERCISE_STYLE_FIELD, CsvLoaderUtils::parseEtdOptionType);
     // check valid combinations
     if (!settleType.isPresent()) {
       if (day == 0) {
@@ -234,7 +241,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses the ETD settlement type from the short code or full name.
-   * 
+   *
    * @param str  the string to parse
    * @return the settlement type
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -247,7 +254,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses the ETD option type from the short code or full name.
-   * 
+   *
    * @param str  the string to parse
    * @return the option type
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -270,19 +277,19 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses the quantity.
-   * 
+   *
    * @param row  the CSV row to parse
    * @return the quantity, long first, short second
    * @throws IllegalArgumentException if the row cannot be parsed
    */
   public static DoublesPair parseQuantity(CsvRow row) {
-    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    Optional<Double> quantityOpt = row.findValue(QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (quantityOpt.isPresent()) {
       double quantity = quantityOpt.get();
       return DoublesPair.of(quantity >= 0 ? quantity : 0, quantity >= 0 ? 0 : -quantity);
     }
-    Optional<Double> longQuantityOpt = row.findValue(LONG_QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
-    Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD).map(s -> LoaderUtils.parseDouble(s));
+    Optional<Double> longQuantityOpt = row.findValue(LONG_QUANTITY_FIELD, LoaderUtils::parseDouble);
+    Optional<Double> shortQuantityOpt = row.findValue(SHORT_QUANTITY_FIELD, LoaderUtils::parseDouble);
     if (!longQuantityOpt.isPresent() && !shortQuantityOpt.isPresent()) {
       throw new IllegalArgumentException(
           Messages.format("Security must contain a quantity column, either '{}' or '{}' and '{}'",
@@ -296,7 +303,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a business day adjustment, without defaulting the adjustment.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param dateField  the date field
    * @param conventionField  the convention field
@@ -318,7 +325,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses a business day adjustment, defaulting the adjustment using the currency.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param dateField  the date field
    * @param conventionField  the convention field
@@ -342,10 +349,54 @@ public final class CsvLoaderUtils {
     return AdjustableDate.of(date, adj);
   }
 
+  /**
+   * Parses an adjustable payment.
+   *
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @param dateField  the date field
+   * @param conventionField  the convention field
+   * @param calendarField  the calendar field
+   * @return the adjustable payment
+   */
+  public static AdjustablePayment parseAdjustablePayment(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField,
+      String dateField,
+      String conventionField,
+      String calendarField) {
+
+    CurrencyAmount ccyAmount = parseCurrencyAmountWithDirection(row, currencyField, amountField, directionField);
+    AdjustableDate adjustableDate = parseAdjustableDate(row, dateField, calendarField, conventionField);
+    return AdjustablePayment.of(ccyAmount, adjustableDate);
+  }
+
+  /**
+   * Parses the premium using the default premium fields.
+   *
+   * @param row  the CSV row to parse
+   * @return the adjustable payment
+   */
+  public static AdjustablePayment parsePremiumFromDefaultFields(CsvRow row) {
+
+    return parseAdjustablePayment(
+        row,
+        PREMIUM_CURRENCY_FIELD,
+        PREMIUM_AMOUNT_FIELD,
+        PREMIUM_DIRECTION_FIELD,
+        PREMIUM_DATE_FIELD,
+        PREMIUM_DATE_CAL_FIELD,
+        PREMIUM_DATE_CNV_FIELD);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a business day adjustment.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param conventionField  the convention field
    * @param calendarField  the calendar field
@@ -374,7 +425,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses days adjustment from CSV.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param daysField  the days field
    * @param daysCalField  the days calendar field
@@ -391,8 +442,7 @@ public final class CsvLoaderUtils {
       String calField) {
 
     int days = row.getValue(daysField, LoaderUtils::parseInteger);
-    HolidayCalendarId daysCal = row.findValue(daysCalField)
-        .map(s -> HolidayCalendarId.of(s))
+    HolidayCalendarId daysCal = row.findValue(daysCalField, HolidayCalendarId::of)
         .orElse(HolidayCalendarIds.NO_HOLIDAYS);
     BusinessDayAdjustment bda = parseBusinessDayAdjustment(row, cnvField, calField)
         .orElse(BusinessDayAdjustment.NONE);
@@ -406,7 +456,7 @@ public final class CsvLoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a currency amount.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
    * @param amountField  the amount field
@@ -421,7 +471,7 @@ public final class CsvLoaderUtils {
 
   /**
    * Parses a currency amount with direction.
-   * 
+   *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
    * @param amountField  the amount field
@@ -441,12 +491,34 @@ public final class CsvLoaderUtils {
     return CurrencyAmount.of(currency, direction.normalize(amount));
   }
 
+  /**
+   * Tells if a valid currency amount can be read from the mentioned fields in the csv row.
+   *
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @return if a valid currency amount can be read
+   */
+  public static boolean hasValidCurrencyAmount(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField) {
+
+    Optional<Currency> currency = row.findValue(currencyField, LoaderUtils::parseCurrency);
+    Optional<Double> amount = row.findValue(amountField, LoaderUtils::parseDouble);
+    Optional<PayReceive> direction = row.findValue(directionField, LoaderUtils::parsePayReceive);
+
+    return (currency.isPresent() && amount.isPresent() && direction.isPresent());
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a value formatted as a percentage.
    * <p>
    * Using this method avoids nasty effects from floating point arithmetic.
-   * 
+   *
    * @param value  the value in decimal format (to be multiplied by 100)
    * @return the formatted percentage value
    */
@@ -459,7 +531,7 @@ public final class CsvLoaderUtils {
    * Returns a value formatted as a double.
    * <p>
    * Using this method avoids nasty effects from floating point arithmetic.
-   * 
+   *
    * @param value  the value
    * @return the formatted value
    */

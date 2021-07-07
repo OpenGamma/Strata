@@ -61,7 +61,6 @@ import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.FxIndices;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
@@ -2256,7 +2255,7 @@ public class TradeCsvLoaderTest {
     coverPrivateConstructor(FraTradeCsvPlugin.class);
     coverPrivateConstructor(FxSingleTradeCsvPlugin.class);
     coverPrivateConstructor(FxSwapTradeCsvPlugin.class);
-    coverPrivateConstructor(SecurityCsvPlugin.class);
+    coverPrivateConstructor(SecurityTradeCsvPlugin.class);
     coverPrivateConstructor(SwapTradeCsvPlugin.class);
     coverPrivateConstructor(TermDepositTradeCsvPlugin.class);
     coverPrivateConstructor(FullSwapTradeCsvPlugin.class);

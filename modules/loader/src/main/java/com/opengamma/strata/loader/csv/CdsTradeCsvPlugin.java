@@ -54,18 +54,14 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TENOR_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage;
-import static java.util.stream.Collectors.joining;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.joda.beans.Bean;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.MetaBean;
-import org.joda.beans.MetaProperty;
+import org.joda.beans.JodaBeanUtils;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
@@ -90,7 +86,6 @@ import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
-import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
@@ -100,22 +95,14 @@ import com.opengamma.strata.product.credit.ProtectionStartOfDay;
 import com.opengamma.strata.product.credit.type.CdsConvention;
 
 /**
- * Handles the CSV file format for CDS and CDS index trades.
+ * Handles the CSV file format for CDS trades.
  */
-final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
+final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<CdsTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
   public static final CdsTradeCsvPlugin INSTANCE = new CdsTradeCsvPlugin();
-  /**
-   * The singleton instance of the plugin.
-   */
-  public static final TradeTypeCsvWriter<CdsTrade> CDS_INSTANCE = new CdsTradeCsvWriter();
-  /**
-   * The singleton instance of the plugin.
-   */
-  public static final TradeTypeCsvWriter<CdsIndexTrade> CDS_INDEX_INSTANCE = new CdsIndexTradeCsvWriter();
 
   private static final String DEFAULT_CDS_INDEX_SCHEME = "OG-CDS";
   private static final String DEFAULT_LEGAL_ENTITY_SCHEME = "OG-Entity";
@@ -138,11 +125,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
       return Optional.of(resolver.parseCdsTrade(baseRow, info));
     }
     return Optional.empty();
-  }
-
-  @Override
-  public String getName() {
-    return "Cds";
   }
 
   //-------------------------------------------------------------------------
@@ -195,7 +177,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     CdsIndex.Builder indexBuilder = CdsIndex.builder()
         .cdsIndexId(indexId)
         .legalEntityIds(entityIds);
-    copyInto(cds, CdsIndex.meta(), indexBuilder);
+    JodaBeanUtils.copyInto(cds, CdsIndex.meta(), indexBuilder);
     CdsIndexTrade trade = CdsIndexTrade.builder()
         .info(info)
         .product(indexBuilder.build())
@@ -204,31 +186,14 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     return resolver.completeTrade(row, trade);
   }
 
-  // TODO: Remove once method in JodaBeanUtils is released
-  private static <T extends Bean> BeanBuilder<T> copyInto(Bean srcBean, MetaBean destMeta, BeanBuilder<T> destBuilder) {
-    MetaBean sourceMeta = srcBean.metaBean();
-    for (MetaProperty<?> sourceProp : sourceMeta.metaPropertyIterable()) {
-      if (destMeta.metaPropertyExists(sourceProp.name())) {
-        MetaProperty<?> destProp = destMeta.metaProperty(sourceProp.name());
-        if (destProp.propertyType().isAssignableFrom(sourceProp.propertyType())) {
-          Object sourceValue = sourceProp.get(srcBean);
-          if (sourceValue != null) {
-            destBuilder.set(destProp, sourceValue);
-          }
-        }
-      }
-    }
-    return destBuilder;
-  }
-
   // parse the row to a trade
   private static CdsTrade parseCdsRow(CsvRow row, TradeInfo info, StandardId entityId, TradeCsvInfoResolver resolver) {
     BuySell buySell = row.getValue(BUY_SELL_FIELD, LoaderUtils::parseBuySell);
     double notional = row.getValue(NOTIONAL_FIELD, LoaderUtils::parseDouble);
     double fixedRate = row.getValue(FIXED_RATE_FIELD, LoaderUtils::parseDoublePercent);
-    Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD).map(s -> LoaderUtils.parseTenor(s));
-    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
-    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD).map(s -> LoaderUtils.parseDate(s));
+    Optional<Tenor> tenorOpt = row.findValue(TENOR_FIELD, LoaderUtils::parseTenor);
+    Optional<LocalDate> startDateOpt = row.findValue(START_DATE_FIELD, LoaderUtils::parseDate);
+    Optional<LocalDate> endDateOpt = row.findValue(END_DATE_FIELD, LoaderUtils::parseDate);
     Optional<AdjustablePayment> premiumOpt = row.findValue(PREMIUM_DIRECTION_FIELD)
         .map(ignored -> {
           CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
@@ -239,7 +204,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
         });
 
     // parse by convention
-    Optional<CdsConvention> conventionOpt = row.findValue(CONVENTION_FIELD).map(s -> CdsConvention.of(s));
+    Optional<CdsConvention> conventionOpt = row.findValue(CONVENTION_FIELD, CdsConvention::of);
     if (conventionOpt.isPresent()) {
       CdsConvention convention = conventionOpt.get();
       // explicit dates take precedence over relative ones
@@ -301,15 +266,9 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
         .fixedRate(fixedRate)
         .paymentSchedule(parseSchedule(row, currency));
 
-    row.findValue(DAY_COUNT_FIELD)
-        .map(s -> LoaderUtils.parseDayCount(s))
-        .ifPresent(dayCount -> cdsBuilder.dayCount(dayCount));
-    row.findValue(PAYMENT_ON_DEFAULT_FIELD)
-        .map(s -> PaymentOnDefault.of(s))
-        .ifPresent(pay -> cdsBuilder.paymentOnDefault(pay));
-    row.findValue(PROTECTION_START_FIELD)
-        .map(s -> ProtectionStartOfDay.of(s))
-        .ifPresent(protect -> cdsBuilder.protectionStart(protect));
+    row.findValue(DAY_COUNT_FIELD, LoaderUtils::parseDayCount).ifPresent(cdsBuilder::dayCount);
+    row.findValue(PAYMENT_ON_DEFAULT_FIELD, PaymentOnDefault::of).ifPresent(cdsBuilder::paymentOnDefault);
+    row.findValue(PROTECTION_START_FIELD, ProtectionStartOfDay::of).ifPresent(cdsBuilder::protectionStart);
     row.findValue(STEP_IN_DATE_OFFSET_DAYS_FIELD)
         .map(ignored -> CsvLoaderUtils.parseDaysAdjustment(
             row,
@@ -355,18 +314,11 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     CsvLoaderUtils.parseBusinessDayAdjustment(row, END_DATE_CNV_FIELD, END_DATE_CAL_FIELD)
         .ifPresent(bda -> builder.endDateBusinessDayAdjustment(bda));
     // optionals
-    builder.stubConvention(row.findValue(STUB_CONVENTION_FIELD)
-        .map(s -> StubConvention.of(s))
+    builder.stubConvention(row.findValue(STUB_CONVENTION_FIELD, StubConvention::of)
         .orElse(StubConvention.SMART_INITIAL));
-    row.findValue(ROLL_CONVENTION_FIELD)
-        .map(s -> LoaderUtils.parseRollConvention(s))
-        .ifPresent(v -> builder.rollConvention(v));
-    row.findValue(FIRST_REGULAR_START_DATE_FIELD)
-        .map(s -> LoaderUtils.parseDate(s))
-        .ifPresent(v -> builder.firstRegularStartDate(v));
-    row.findValue(LAST_REGULAR_END_DATE_FIELD)
-        .map(s -> LoaderUtils.parseDate(s))
-        .ifPresent(v -> builder.lastRegularEndDate(v));
+    row.findValue(ROLL_CONVENTION_FIELD, LoaderUtils::parseRollConvention).ifPresent(builder::rollConvention);
+    row.findValue(FIRST_REGULAR_START_DATE_FIELD, LoaderUtils::parseDate).ifPresent(builder::firstRegularStartDate);
+    row.findValue(LAST_REGULAR_END_DATE_FIELD, LoaderUtils::parseDate).ifPresent(builder::lastRegularEndDate);
     Optional<AdjustableDate> overrideDateOpt = row.findValue(OVERRIDE_START_DATE_FIELD)
         .map(ignored -> CsvLoaderUtils.parseAdjustableDate(
             row,
@@ -379,122 +331,66 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     return builder.build();
   }
 
+  @Override
+  public Set<String> headers(List<CdsTrade> trades) {
+    // determine what elements of trades are present
+    boolean premium = false;
+    boolean stepInOffset = false;
+    boolean settleOffset = false;
+    boolean startConv = false;
+    boolean endConv = false;
+    boolean overrideStart = false;
+    for (CdsTrade trade : trades) {
+      Cds cds = trade.getProduct();
+      PeriodicSchedule schedule = cds.getPaymentSchedule();
+      premium |= trade.getUpfrontFee().isPresent();
+      stepInOffset |= !cds.getStepinDateOffset().equals(DaysAdjustment.ofCalendarDays(1));
+      settleOffset |= !cds.getSettlementDateOffset().equals(
+          DaysAdjustment.ofBusinessDays(3, schedule.getBusinessDayAdjustment().getCalendar()));
+      startConv |= schedule.getStartDateBusinessDayAdjustment().isPresent();
+      endConv |= schedule.getEndDateBusinessDayAdjustment().isPresent();
+      overrideStart |= schedule.getOverrideStartDate().isPresent();
+    }
+    return createHeaders(false, premium, stepInOffset, settleOffset, startConv, endConv, overrideStart);
+  }
+
+  @Override
+  public void writeCsv(CsvRowOutputWithHeaders csv, CdsTrade trade) {
+    Cds product = trade.getProduct();
+    csv.writeCell(TRADE_TYPE_FIELD, "Cds");
+    csv.writeCell(LEGAL_ENTITY_ID_SCHEME_FIELD, product.getLegalEntityId().getScheme());
+    csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityId().getValue());
+    trade.getUpfrontFee().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
+    writeCdsDetails(
+        csv,
+        product.getBuySell(),
+        product.getCurrency(),
+        product.getNotional(),
+        product.getFixedRate(),
+        product.getDayCount(),
+        product.getPaymentOnDefault(),
+        product.getProtectionStart(),
+        product.getStepinDateOffset(),
+        product.getSettlementDateOffset(),
+        product.getPaymentSchedule());
+  }
+
+  @Override
+  public String getName() {
+    return CdsTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(CdsTrade.class);
+  }
+
   // Restricted constructor.
   private CdsTradeCsvPlugin() {
   }
 
-  //-------------------------------------------------------------------------
-  // write CDS
-  static final class CdsTradeCsvWriter implements TradeTypeCsvWriter<CdsTrade> {
-
-    @Override
-    public List<String> headers(List<CdsTrade> trades) {
-      // determine what elements of trades are present
-      boolean premium = false;
-      boolean stepInOffset = false;
-      boolean settleOffset = false;
-      boolean startConv = false;
-      boolean endConv = false;
-      boolean overrideStart = false;
-      for (CdsTrade trade : trades) {
-        Cds cds = trade.getProduct();
-        PeriodicSchedule schedule = cds.getPaymentSchedule();
-        premium |= trade.getUpfrontFee().isPresent();
-        stepInOffset |= !cds.getStepinDateOffset().equals(DaysAdjustment.ofCalendarDays(1));
-        settleOffset |= !cds.getSettlementDateOffset().equals(
-            DaysAdjustment.ofBusinessDays(3, schedule.getBusinessDayAdjustment().getCalendar()));
-        startConv |= schedule.getStartDateBusinessDayAdjustment().isPresent();
-        endConv |= schedule.getEndDateBusinessDayAdjustment().isPresent();
-        overrideStart |= schedule.getOverrideStartDate().isPresent();
-      }
-      return createHeaders(false, premium, stepInOffset, settleOffset, startConv, endConv, overrideStart);
-    }
-
-    @Override
-    public void writeCsv(CsvRowOutputWithHeaders csv, CdsTrade trade) {
-      Cds product = trade.getProduct();
-      csv.writeCell(TRADE_TYPE_FIELD, "Cds");
-      csv.writeCell(LEGAL_ENTITY_ID_SCHEME_FIELD, product.getLegalEntityId().getScheme());
-      csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityId().getValue());
-      trade.getUpfrontFee().ifPresent(premium -> writeCdsPremium(csv, premium));
-      writeCdsDetails(
-          csv,
-          product.getBuySell(),
-          product.getCurrency(),
-          product.getNotional(),
-          product.getFixedRate(),
-          product.getDayCount(),
-          product.getPaymentOnDefault(),
-          product.getProtectionStart(),
-          product.getStepinDateOffset(),
-          product.getSettlementDateOffset(),
-          product.getPaymentSchedule());
-    }
-  }
-
-  //-------------------------------------------------------------------------
-  // write CDS
-  static final class CdsIndexTradeCsvWriter implements TradeTypeCsvWriter<CdsIndexTrade> {
-
-    @Override
-    public List<String> headers(List<CdsIndexTrade> trades) {
-      // determine what elements of trades are present
-      boolean premium = false;
-      boolean stepInOffset = false;
-      boolean settleOffset = false;
-      boolean startConv = false;
-      boolean endConv = false;
-      boolean overrideStart = false;
-      for (CdsIndexTrade trade : trades) {
-        CdsIndex cds = trade.getProduct();
-        PeriodicSchedule schedule = cds.getPaymentSchedule();
-        premium |= trade.getUpfrontFee().isPresent();
-        stepInOffset |= !cds.getStepinDateOffset().equals(DaysAdjustment.ofCalendarDays(1));
-        settleOffset |= !cds.getSettlementDateOffset().equals(
-            DaysAdjustment.ofBusinessDays(3, schedule.getBusinessDayAdjustment().getCalendar()));
-        startConv |= schedule.getStartDateBusinessDayAdjustment().isPresent();
-        endConv |= schedule.getEndDateBusinessDayAdjustment().isPresent();
-        overrideStart |= schedule.getOverrideStartDate().isPresent();
-      }
-      return createHeaders(true, premium, stepInOffset, settleOffset, startConv, endConv, overrideStart);
-    }
-
-    @Override
-    public void writeCsv(CsvRowOutputWithHeaders csv, CdsIndexTrade trade) {
-      CdsIndex product = trade.getProduct();
-      csv.writeCell(TRADE_TYPE_FIELD, "CdsIndex");
-      csv.writeCell(CDS_INDEX_ID_SCHEME_FIELD, product.getCdsIndexId().getScheme());
-      csv.writeCell(CDS_INDEX_ID_FIELD, product.getCdsIndexId().getValue());
-      String scheme = "";
-      if (product.getLegalEntityIds().stream().map(StandardId::getScheme).distinct().count() == 1) {
-        scheme = product.getLegalEntityIds().get(0).getScheme();
-      } else {
-        scheme = product.getLegalEntityIds().stream()
-            .map(StandardId::getScheme)
-            .collect(joining(";"));
-      }
-      csv.writeCell(LEGAL_ENTITY_ID_SCHEME_FIELD, scheme);
-      csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityIds().stream()
-          .map(StandardId::getValue)
-          .collect(joining(";")));
-      trade.getUpfrontFee().ifPresent(premium -> writeCdsPremium(csv, premium));
-      writeCdsDetails(
-          csv,
-          product.getBuySell(),
-          product.getCurrency(),
-          product.getNotional(),
-          product.getFixedRate(),
-          product.getDayCount(),
-          product.getPaymentOnDefault(),
-          product.getProtectionStart(),
-          product.getStepinDateOffset(),
-          product.getSettlementDateOffset(),
-          product.getPaymentSchedule());
-    }
-  }
-
   // creates the correct set of headers
-  private static List<String> createHeaders(
+  static LinkedHashSet<String> createHeaders(
       boolean cdsIndex,
       boolean premium,
       boolean stepInOffset,
@@ -504,7 +400,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
       boolean overrideStart) {
 
     // select the headers
-    List<String> headers = new ArrayList<>();
+    LinkedHashSet<String> headers = new LinkedHashSet<>();
     headers.add(BUY_SELL_FIELD);
     headers.add(CURRENCY_FIELD);
     headers.add(NOTIONAL_FIELD);
@@ -565,7 +461,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
   }
 
   // writes the details to CSV
-  private static void writeCdsDetails(
+  static void writeCdsDetails(
       CsvRowOutputWithHeaders csv,
       BuySell buySell,
       Currency currency,
@@ -624,15 +520,4 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin {
     csv.writeCell(DATE_ADJ_CAL_FIELD, accrual.getBusinessDayAdjustment().getCalendar());
     csv.writeNewLine();
   }
-
-  // write the premium
-  private static void writeCdsPremium(CsvRowOutputWithHeaders csv, AdjustablePayment premium) {
-    csv.writeCell(PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(premium.getAmount()));
-    csv.writeCell(PREMIUM_CURRENCY_FIELD, premium.getCurrency());
-    csv.writeCell(PREMIUM_AMOUNT_FIELD, premium.getAmount());
-    csv.writeCell(PREMIUM_DATE_FIELD, premium.getDate().getUnadjusted());
-    csv.writeCell(PREMIUM_DATE_CNV_FIELD, premium.getDate().getAdjustment().getConvention());
-    csv.writeCell(PREMIUM_DATE_CAL_FIELD, premium.getDate().getAdjustment().getCalendar());
-  }
-
 }
