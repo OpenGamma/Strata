@@ -13,12 +13,10 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_FIEL
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -55,7 +53,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriter
   private static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
   private static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
 
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.<String>builder()
       .add(PAYMENT_DATE_FIELD)
       .add(LEG_1_CURRENCY_FIELD)
       .add(LEG_1_DIRECTION_FIELD)
@@ -165,7 +163,7 @@ public class FxNdfTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriter
   //-------------------------------------------------------------------------
   @Override
   public Set<String> headers(List<FxNdfTrade> trades) {
-    return new LinkedHashSet<>(HEADERS);
+    return HEADERS;
   }
 
   @Override
