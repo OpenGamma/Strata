@@ -7,7 +7,9 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.StandardSchemes.OG_COUNTERPARTY;
 import static com.opengamma.strata.basics.StandardSchemes.OG_SECURITY_SCHEME;
+import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CAD;
+import static com.opengamma.strata.basics.currency.Currency.CLP;
 import static com.opengamma.strata.basics.currency.Currency.CZK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -52,6 +54,7 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -59,9 +62,12 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndices;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -104,6 +110,8 @@ import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwap;
@@ -402,6 +410,70 @@ public class TradeCsvLoaderTest {
             AdjustableDate.of(LocalDate.of(2016, 12, 8))))
         .build();
     assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_load_fx_ndf() {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<FxNdfTrade>> loadedData = standard.parse(charSources, FxNdfTrade.class);
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
+
+    List<FxNdfTrade> loadedTrades = loadedData.getValue();
+    assertThat(loadedTrades).hasSize(3);
+
+    FxNdfTrade expectedTrade0 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId11"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, 10_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, INR), 6.5))
+            .index(FxIndex.of("USD/INR-FBIL-INR01"))
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+
+    FxNdfTrade expectedTrade1 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId12"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, -20_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, CLP), 5.8))
+            .index(FxIndex.of("USD/CLP-DOLAR-OBS-CLP10"))
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(1), expectedTrade1);
+
+    HolidayCalendarId usdBrlCalId = HolidayCalendarId.defaultByCurrency(USD)
+        .combinedWith(HolidayCalendarId.defaultByCurrency(BRL));
+    FxNdfTrade expectedTrade2 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId13"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, -30_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, BRL), 5.5))
+            .index(ImmutableFxIndex.builder()
+                .name("USD/BRL")
+                .currencyPair(CurrencyPair.of(USD, BRL))
+                .fixingCalendar(usdBrlCalId)
+                .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, usdBrlCalId))
+                .build())
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(2), expectedTrade2);
+
+    checkRoundtrip(FxNdfTrade.class, loadedTrades, expectedTrade0, expectedTrade1, expectedTrade2);
   }
 
   //-------------------------------------------------------------------------
