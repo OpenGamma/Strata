@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,7 @@ import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 
 /**
  * Test {@link HolidayCalendarId}.
@@ -89,6 +91,24 @@ public class HolidayCalendarIdTest {
     assertThat(HolidayCalendarId.defaultByCurrency(Currency.CZK)).isEqualTo(HolidayCalendarIds.CZPR);
     assertThat(HolidayCalendarId.defaultByCurrency(Currency.HKD)).isEqualTo(HolidayCalendarId.of("HKHK"));
     assertThatIllegalArgumentException().isThrownBy(() -> HolidayCalendarId.defaultByCurrency(Currency.XAG));
+  }
+
+  @Test
+  public void test_findDefaultByCurrency() {
+    assertThat(HolidayCalendarId.findDefaultByCurrency(Currency.GBP)).hasValue(HolidayCalendarIds.GBLO);
+    assertThat(HolidayCalendarId.findDefaultByCurrency(Currency.CZK)).hasValue(HolidayCalendarIds.CZPR);
+    assertThat(HolidayCalendarId.findDefaultByCurrency(Currency.HKD)).hasValue(HolidayCalendarId.of("HKHK"));
+    assertThat(HolidayCalendarId.findDefaultByCurrency(Currency.XAG)).isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void test_defaultByCurrencyPair() {
+    assertThat(HolidayCalendarId.defaultByCurrencyPair(CurrencyPair.of(Currency.USD, Currency.GBP)))
+        .isEqualTo(HolidayCalendarIds.USNY.combinedWith(HolidayCalendarIds.GBLO));
+    assertThat(HolidayCalendarId.defaultByCurrencyPair(CurrencyPair.of(Currency.GBP, Currency.CZK)))
+        .isEqualTo(HolidayCalendarId.of("CZPR+GBLO"));
+    assertThat(HolidayCalendarId.defaultByCurrencyPair(CurrencyPair.of(Currency.USD, Currency.XAG)))
+        .isEqualTo(HolidayCalendarIds.USNY);
   }
 
   //-------------------------------------------------------------------------
