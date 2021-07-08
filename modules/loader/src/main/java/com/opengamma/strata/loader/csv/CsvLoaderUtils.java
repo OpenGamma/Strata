@@ -631,6 +631,9 @@ public final class CsvLoaderUtils {
 
   /**
    * Tries parsing an adjustable payment using the mentioned fields.
+   * <p>
+   * Defaults to {@link #tryParseAdjustablePayment(CsvRow,String,String,String,String)} if the adjustable date parsing
+   * fails as it is often due to a missing calendar or convention.
    *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
