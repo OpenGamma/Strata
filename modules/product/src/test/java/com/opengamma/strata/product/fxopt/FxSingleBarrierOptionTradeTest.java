@@ -70,8 +70,8 @@ public class FxSingleBarrierOptionTradeTest {
     assertThat(test.getProduct()).isEqualTo(PRODUCT);
     assertThat(test.getProduct().getCurrencyPair()).isEqualTo(PRODUCT.getCurrencyPair());
     assertThat(test.getInfo()).isEqualTo(TRADE_INFO);
-    assertThat(test.getPremium()).isEqualTo(PREMIUM);
     assertThat(test.withInfo(TRADE_INFO).getInfo()).isEqualTo(TRADE_INFO);
+    test.getPremium().ifPresent(premium -> assertThat(premium).isEqualTo(PREMIUM));
   }
 
   //-------------------------------------------------------------------------
