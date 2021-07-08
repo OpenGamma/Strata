@@ -202,8 +202,10 @@ final class CdsFpmlParserPlugin
     if (idOpt.isPresent()) {
       XmlElement idElement = idOpt.get();
       String id = idElement.getContent();
-      String indexIdScheme = idElement.findAttribute("indexIdScheme").orElse(StandardSchemes.RED9_SCHEME);
-      return Optional.of(StandardId.of(indexIdScheme, id));
+      if(id.length() == 9) {
+        return Optional.of(StandardId.of(StandardSchemes.RED9_SCHEME, id));
+      }
+      return idElement.findAttribute("indexIdScheme").map(scheme -> StandardId.of(scheme, id));
     }
     return Optional.empty();
   }
