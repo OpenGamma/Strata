@@ -28,6 +28,7 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,8 +119,13 @@ import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fxopt.FxSingleBarrierOption;
+import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.CompoundingMethod;
@@ -184,7 +190,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_forwards() throws Exception {
+  public void test_load_fx_forwards() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -222,7 +228,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_forwards_with_legs_in_same_direction() throws Exception {
+  public void test_load_fx_forwards_with_legs_in_same_direction() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades_legs_same_direction.csv");
     ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
@@ -237,7 +243,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_forwards_fullFormat() throws Exception {
+  public void test_load_fx_forwards_fullFormat() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -313,7 +319,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_load_fx_swaps() throws Exception {
+  public void test_load_fx_swaps() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -351,7 +357,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_swaps_fullFormat() throws Exception {
+  public void test_load_fx_swaps_fullFormat() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -381,7 +387,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_load_fx_vanilla_option() throws Exception {
+  public void test_load_fx_vanilla_option() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -1674,6 +1680,49 @@ public class TradeCsvLoaderTest {
     return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
   }
 
+  private FxSingleTrade expectedFxSingle() {
+    double notional = 1.0e6;
+    double fxRate = 1.1d;
+    return FxSingleTrade.of(
+        TradeInfo.empty(),
+        FxSingle.of(
+            CurrencyAmount.of(EUR, notional),
+            CurrencyAmount.of(USD, -notional * fxRate),
+            LocalDate.of(2014, 5, 13)));
+  }
+
+  private FxVanillaOptionTrade expectedFxVanillaOption() {
+    return FxVanillaOptionTrade.builder()
+        .product(FxVanillaOption.builder()
+            .longShort(SHORT)
+            .expiryDate(LocalDate.of(2014, 5, 9))
+            .expiryTime(LocalTime.of(13, 10))
+            .expiryZone(ZoneId.of("Z"))
+            .underlying(expectedFxSingle().getProduct())
+            .build())
+        .premium(AdjustablePayment.of(Payment.of(CurrencyAmount.of(USD, 230.3), LocalDate.of(2014, 1, 12))))
+        .build();
+  }
+
+  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithRebate() {
+    return FxSingleBarrierOptionTrade.builder()
+        .product(FxSingleBarrierOption.of(
+            expectedFxVanillaOption().getProduct(),
+            SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 17.2),
+            CurrencyAmount.of(USD, 17.666)))
+        .premium(AdjustablePayment.of(Payment.of(CurrencyAmount.of(USD, 230.3), LocalDate.of(2014, 1, 12))))
+        .build();
+  }
+
+  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithoutRebate() {
+    return FxSingleBarrierOptionTrade.builder()
+        .product(FxSingleBarrierOption.of(
+            expectedFxVanillaOption().getProduct(),
+            SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, 17.2)))
+        .premium(AdjustablePayment.of(Payment.of(CurrencyAmount.of(USD, 230.3), LocalDate.of(2014, 1, 12))))
+        .build();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_load_bulletPayment() {
@@ -2081,6 +2130,22 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+
+  @Test
+  public void test_FxSingleBarrierOption() {
+    ResourceLocator file = ResourceLocator.of(
+        "classpath:com/opengamma/strata/loader/csv/fx_single_barrier_option_trade.csv");
+
+    ValueWithFailures<List<FxSingleBarrierOptionTrade>> trades = TradeCsvLoader.standard().parse(
+        ImmutableList.of(file.getCharSource()), FxSingleBarrierOptionTrade.class);
+
+    checkRoundtrip(
+        FxSingleBarrierOptionTrade.class,
+        trades.getValue(),
+        expectedFxSingleBarrierOptionWithRebate(),
+        expectedFxSingleBarrierOptionWithoutRebate());
+  }
+
   @Test
   public void test_load_CapFloor() {
     TradeCsvLoader test = TradeCsvLoader.standard();
@@ -2340,6 +2405,7 @@ public class TradeCsvLoaderTest {
     coverPrivateConstructor(SwapTradeCsvPlugin.class);
     coverPrivateConstructor(TermDepositTradeCsvPlugin.class);
     coverPrivateConstructor(FullSwapTradeCsvPlugin.class);
+    coverPrivateConstructor(FxSingleBarrierOptionTradeCsvPlugin.class);
   }
 
 }

@@ -6,6 +6,9 @@
 package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableMap;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BARRIER_LEVEL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BARRIER_TYPE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.KNOCK_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_AMOUNT_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_CURRENCY_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DATE_CAL_FIELD;
@@ -42,6 +45,10 @@ import com.opengamma.strata.product.etd.EtdOptionType;
 import com.opengamma.strata.product.etd.EtdSettlementType;
 import com.opengamma.strata.product.etd.EtdType;
 import com.opengamma.strata.product.etd.EtdVariant;
+import com.opengamma.strata.product.option.Barrier;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 
 /**
  * CSV information resolver helper.
@@ -376,6 +383,38 @@ public final class CsvLoaderUtils {
   }
 
   /**
+   * Parses a barrier from the csv row.
+   *
+   * @param row the CSV row to parse
+   * @param barrierTypeField the barrier type field
+   * @param knockTypeField the knock type field
+   * @param barrierLevelField the barrier level field
+   * @return the barrier
+   */
+  public static Barrier parseBarrier(
+      CsvRow row,
+      String barrierTypeField,
+      String knockTypeField,
+      String barrierLevelField) {
+
+    BarrierType barrierType = row.getValue(barrierTypeField, LoaderUtils::parseBarrierType);
+    KnockType knockType = row.getValue(knockTypeField, LoaderUtils::parseKnockType);
+    double barrierLevel = row.getValue(barrierLevelField, LoaderUtils::parseDouble);
+
+    return SimpleConstantContinuousBarrier.of(barrierType, knockType, barrierLevel);
+  }
+
+  /**
+   * Parses a barrier using the default barrier fields.
+   *
+   * @param row the CSV row to parse
+   * @return the barrier
+   */
+  public static Barrier parseBarrierFromDefaultFields(CsvRow row) {
+    return parseBarrier(row, BARRIER_TYPE_FIELD, KNOCK_TYPE_FIELD, BARRIER_LEVEL_FIELD);
+  }
+
+  /**
    * Parses the premium using the default premium fields.
    *
    * @param row  the CSV row to parse
@@ -500,7 +539,7 @@ public final class CsvLoaderUtils {
    * @param directionField  the direction field
    * @return if a valid currency amount can be read
    */
-  public static boolean hasValidCurrencyAmount(
+  public static Optional<CurrencyAmount> tryParseCurrencyAmountWithDirection(
       CsvRow row,
       String currencyField,
       String amountField,
@@ -510,7 +549,10 @@ public final class CsvLoaderUtils {
     Optional<Double> amount = row.findValue(amountField, LoaderUtils::parseDouble);
     Optional<PayReceive> direction = row.findValue(directionField, LoaderUtils::parsePayReceive);
 
-    return (currency.isPresent() && amount.isPresent() && direction.isPresent());
+    if (currency.isPresent() && amount.isPresent() && direction.isPresent()) {
+      return Optional.of(CurrencyAmount.of(currency.get(), direction.get().normalize(amount.get())));
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------
