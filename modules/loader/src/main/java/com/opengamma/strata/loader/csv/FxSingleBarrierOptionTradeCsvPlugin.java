@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BARRIER_LEVEL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BARRIER_TYPE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.KNOCK_TYPE_FIELD;
@@ -82,7 +83,6 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
   private FxSingleBarrierOptionTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     FxVanillaOptionTrade vanillaOptionTrade = resolver.parseFxVanillaOptionTrade(row, info);
     Barrier barrier = CsvLoaderUtils.parseBarrierFromDefaultFields(row);
-    AdjustablePayment premium = CsvLoaderUtils.parsePremiumFromDefaultFields(row);
 
     FxSingleBarrierOption.Builder productBuilder = FxSingleBarrierOption.builder()
         .underlyingOption(vanillaOptionTrade.getProduct())
@@ -97,7 +97,8 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
 
     return FxSingleBarrierOptionTrade.builder()
         .product(productBuilder.build())
-        .premium(premium)
+        .premium(CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
+            .orElse(AdjustablePayment.of(USD, 0d, vanillaOptionTrade.getProduct().getExpiryDate())))
         .info(info)
         .build();
   }
