@@ -5,4 +5,4 @@ FxSwap,CME,OG,tradeId11,06/12/2016,,,USD/CAD,Buy,,USD,120000,1.31,08/12/2016,,,1
 Fx Swap,CME,OG,tradeId12,06/12/2016,,,USD/CAD,Sell,,CAD,-160000,1.32,08/12/2016,,,1.34,08/01/2017,,,,,,,,,,
 Bullet,,OG,tradeId21,06/12/2016,,,,,Receive,USD,25000,,08/12/2016,Following,USNY,,,,,,,,,,,,
 BulletPayment,,OG,tradeId22,22/12/2016,,,,,Pay,GBP,35000,,24/12/2016,,,,,,,,,,,,,,
-FxVanillaOption,CME,OG,tradeId31,06/12/2016,,,USD/CAD,Buy,,USD,30000,1.31,10/01/2017,,,,,Long,08/01/2017,11:00,Europe/London,Pay,GBP,2000,08/12/2016,,
+FxVanillaOption,CME,OG,tradeId31,06/12/2016,,,USD/CAD,Buy,,USD,30000,1.31,10/01/2017,,,,,Long,08/01/2017,11:00,Europe/London,Pay,GBP,2000,08/12/2016,NoAdjust,NoHolidays
