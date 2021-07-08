@@ -583,7 +583,7 @@ public final class CsvLoaderUtils {
    * @param currencyField  the currency field
    * @param amountField  the amount field
    * @param directionField  the direction field
-   * @return  the currency amount option
+   * @return the currency amount option
    */
   public static Optional<CurrencyAmount> tryParseCurrencyAmountWithDirection(
       CsvRow row,

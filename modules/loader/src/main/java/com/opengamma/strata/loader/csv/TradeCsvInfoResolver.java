@@ -482,7 +482,7 @@ public interface TradeCsvInfoResolver {
    * @throws RuntimeException if the row contains invalid data
    */
   public default CdsIndexTrade parseCdsIndexTrade(CsvRow row, TradeInfo info) {
-    return CdsTradeCsvPlugin.parseCdsIndex(row, info, this);
+    return CdsIndexTradeCsvPlugin.parseCdsIndex(row, info, this);
   }
 
   /**
