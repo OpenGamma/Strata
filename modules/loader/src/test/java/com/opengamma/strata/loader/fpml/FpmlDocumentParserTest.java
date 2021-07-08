@@ -75,6 +75,7 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -1530,6 +1531,36 @@ public class FpmlDocumentParserTest {
         .build();
     assertEqualsBean(cdsTrade.getProduct(), expected);
     assertThat(cdsTrade.getUpfrontFee().get()).isEqualTo(AdjustablePayment.of(USD, 16000, AdjustableDate.of(date(2004, 3, 23))));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void cdsIndex02() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/cdindex-ex02-indexId.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertThat(trades).hasSize(1);
+    CdsIndexTrade cdsTrade = (CdsIndexTrade) trades.get(0);
+    assertThat(cdsTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2020, 1, 24)));
+
+    CdsIndex expected = CdsIndex.builder()
+        .buySell(BUY)
+        .cdsIndexId(StandardId.of(StandardSchemes.RED9_SCHEME, "2I65BYCM5"))
+        .currency(USD)
+        .notional(25000000d)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2020, 3, 23))
+            .endDate(date(2021, 6, 20))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .frequency(Frequency.P3M)
+            .build())
+        .fixedRate(0.0060)
+        .dayCount(ACT_360)
+        .build();
+    assertEqualsBean(cdsTrade.getProduct(), expected);
+    assertThat(cdsTrade.getUpfrontFee()).hasValue(AdjustablePayment.of(USD, 16000, AdjustableDate.of(date(2020, 3, 23))));
   }
 
   //-------------------------------------------------------------------------

@@ -31,6 +31,7 @@ import java.util.Optional;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -856,6 +857,27 @@ public final class LoaderUtils {
       default:
         throw new IllegalArgumentException("Unknown KnockType value, must be 'KnockIn' or 'KnockOut' but was'" + str
             + "'. The parser is case insensitive and also accepts 'In' or 'Out'.");
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a RED code from the input string.
+   * <p>
+   * The input string but be 6 or 9 characters long to be valid.
+   *
+   * @param str the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static StandardId parseRedCode(String str) {
+    if (str.length() == 9) {
+      return StandardId.of(StandardSchemes.RED9_SCHEME, str);
+    } else if (str.length() == 6) {
+      return StandardId.of(StandardSchemes.RED6_SCHEME, str);
+    } else {
+      throw new IllegalArgumentException(
+          "Unknown RED code format, must be 6 or 9 characters long but was " + str.length());
     }
   }
 

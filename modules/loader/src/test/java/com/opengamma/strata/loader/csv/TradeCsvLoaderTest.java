@@ -52,6 +52,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -101,6 +102,7 @@ import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
+import com.opengamma.strata.product.credit.CdsTier;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
 import com.opengamma.strata.product.credit.ProtectionStartOfDay;
@@ -1879,6 +1881,8 @@ public class TradeCsvLoaderTest {
                 .rollConvention(RollConventions.IMM)
                 .businessDayAdjustment(BusinessDayAdjustment.NONE)
                 .build())
+            .redCode(StandardId.of(StandardSchemes.RED6_SCHEME, "CATCDS"))
+            .seniorityTier(CdsTier.SENIOR_UNSECURED)
             .build())
         .build();
   }
@@ -1908,6 +1912,8 @@ public class TradeCsvLoaderTest {
                 .build())
             .stepinDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
             .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+            .redCode(StandardId.of(StandardSchemes.RED9_SCHEME, "CATCDS123"))
+            .seniorityTier(CdsTier.SECURED_DEBT)
             .build())
         .upfrontFee(
             AdjustablePayment.of(
@@ -1952,6 +1958,9 @@ public class TradeCsvLoaderTest {
             .businessDayAdjustment(BusinessDayAdjustment.NONE)
             .stubConvention(StubConvention.SMART_INITIAL)
             .build())
+        .redCode(StandardId.of(StandardSchemes.RED9_SCHEME, "FOOBARCDS"))
+        .series(1)
+        .version(1)
         .build();
     return CdsIndexTrade.builder()
         .info(TradeInfo.builder()
