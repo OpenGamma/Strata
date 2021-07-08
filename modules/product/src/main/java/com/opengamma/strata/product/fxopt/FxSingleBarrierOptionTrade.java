@@ -8,6 +8,7 @@ package com.opengamma.strata.product.fxopt;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -66,7 +67,7 @@ public final class FxSingleBarrierOptionTrade
   * The premium sign should be compatible with the product Long/Short flag.
   * This means that the premium is negative for long and positive for short.
   */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition(get = "optional")
   private final AdjustablePayment premium;
 
   //-------------------------------------------------------------------------
@@ -149,7 +150,6 @@ public final class FxSingleBarrierOptionTrade
       AdjustablePayment premium) {
     JodaBeanUtils.notNull(info, "info");
     JodaBeanUtils.notNull(product, "product");
-    JodaBeanUtils.notNull(premium, "premium");
     this.info = info;
     this.product = product;
     this.premium = premium;
@@ -190,10 +190,10 @@ public final class FxSingleBarrierOptionTrade
    * <p>
    * The premium sign should be compatible with the product Long/Short flag.
    * This means that the premium is negative for long and positive for short.
-   * @return the value of the property, not null
+   * @return the optional value of the property, not null
    */
-  public AdjustablePayment getPremium() {
-    return premium;
+  public Optional<AdjustablePayment> getPremium() {
+    return Optional.ofNullable(premium);
   }
 
   //-----------------------------------------------------------------------
@@ -341,7 +341,7 @@ public final class FxSingleBarrierOptionTrade
         case -309474065:  // product
           return ((FxSingleBarrierOptionTrade) bean).getProduct();
         case -318452137:  // premium
-          return ((FxSingleBarrierOptionTrade) bean).getPremium();
+          return ((FxSingleBarrierOptionTrade) bean).premium;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -381,7 +381,7 @@ public final class FxSingleBarrierOptionTrade
     private Builder(FxSingleBarrierOptionTrade beanToCopy) {
       this.info = beanToCopy.getInfo();
       this.product = beanToCopy.getProduct();
-      this.premium = beanToCopy.getPremium();
+      this.premium = beanToCopy.premium;
     }
 
     //-----------------------------------------------------------------------
@@ -463,11 +463,10 @@ public final class FxSingleBarrierOptionTrade
      * <p>
      * The premium sign should be compatible with the product Long/Short flag.
      * This means that the premium is negative for long and positive for short.
-     * @param premium  the new value, not null
+     * @param premium  the new value
      * @return this, for chaining, not null
      */
     public Builder premium(AdjustablePayment premium) {
-      JodaBeanUtils.notNull(premium, "premium");
       this.premium = premium;
       return this;
     }

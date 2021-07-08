@@ -21,7 +21,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.product.Trade;
@@ -82,7 +81,6 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
   private FxSingleBarrierOptionTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
     FxVanillaOptionTrade vanillaOptionTrade = resolver.parseFxVanillaOptionTrade(row, info);
     Barrier barrier = CsvLoaderUtils.parseBarrierFromDefaultFields(row);
-    AdjustablePayment premium = CsvLoaderUtils.parsePremiumFromDefaultFields(row);
 
     FxSingleBarrierOption.Builder productBuilder = FxSingleBarrierOption.builder()
         .underlyingOption(vanillaOptionTrade.getProduct())
@@ -95,11 +93,12 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
         REBATE_DIRECTION_FIELD
     ).ifPresent(productBuilder::rebate);
 
-    return FxSingleBarrierOptionTrade.builder()
+    FxSingleBarrierOptionTrade.Builder builder = FxSingleBarrierOptionTrade.builder()
         .product(productBuilder.build())
-        .premium(premium)
-        .info(info)
-        .build();
+        .info(info);
+
+    CsvLoaderUtils.tryParsePremiumFromDefaultFields(row).ifPresent(builder::premium);
+    return builder.build();
   }
 
   @Override
@@ -121,7 +120,7 @@ public class FxSingleBarrierOptionTradeCsvPlugin implements TradeCsvParserPlugin
   public void writeCsv(CsvOutput.CsvRowOutputWithHeaders csv, FxSingleBarrierOptionTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxSingleBarrierOption");
     writeSingleBarrierOption(csv, trade.getProduct());
-    CsvWriterUtils.writePremiumFields(csv, trade.getPremium());
+    trade.getPremium().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
     csv.writeNewLine();
   }
 

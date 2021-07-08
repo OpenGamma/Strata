@@ -35,7 +35,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
@@ -132,7 +131,6 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     LocalDate expiryDate = row.getValue(EXPIRY_DATE_FIELD, LoaderUtils::parseDate);
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
-    AdjustablePayment premium = CsvLoaderUtils.parsePremiumFromDefaultFields(row);
 
     FxVanillaOption option = FxVanillaOption.builder()
         .longShort(longShort)
@@ -141,11 +139,13 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
         .expiryZone(expiryZone)
         .underlying(underlying)
         .build();
-    return FxVanillaOptionTrade.builder()
+
+    FxVanillaOptionTrade.Builder builder = FxVanillaOptionTrade.builder()
         .info(info)
-        .product(option)
-        .premium(premium)
-        .build();
+        .product(option);
+
+    CsvLoaderUtils.tryParsePremiumFromDefaultFields(row).ifPresent(builder::premium);
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -158,7 +158,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
   public void writeCsv(CsvRowOutputWithHeaders csv, FxVanillaOptionTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxVanillaOption");
     writeFxVanillaOption(csv, trade.getProduct());
-    CsvWriterUtils.writePremiumFields(csv, trade.getPremium());
+    trade.getPremium().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
     csv.writeNewLine();
   }
 
