@@ -5,7 +5,6 @@
  */
 package com.opengamma.strata.loader.csv;
 
-import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_TIME_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.EXPIRY_ZONE_FIELD;
@@ -145,7 +144,7 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
         .info(info)
         .product(option)
         .premium(CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
-            .orElse(AdjustablePayment.of(USD, 0d, expiryDate)))
+            .orElse(AdjustablePayment.of(option.getCurrencyPair().getBase(), 0d, expiryDate)))
         .build();
   }
 

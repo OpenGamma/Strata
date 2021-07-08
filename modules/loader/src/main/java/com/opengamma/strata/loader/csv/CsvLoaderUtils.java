@@ -607,7 +607,7 @@ public final class CsvLoaderUtils {
    * @param amountField  the amount field
    * @param directionField  the direction field
    * @param dateField  the date field
-   * @return the adjustable payment option
+   * @return  the adjustable payment option
    */
   public static Optional<AdjustablePayment> tryParseAdjustablePayment(
       CsvRow row,
@@ -642,7 +642,7 @@ public final class CsvLoaderUtils {
    * @param dateField  the date field
    * @param conventionField  the date convention field
    * @param calendarField  the date calendar field
-   * @return the adjustable payment option
+   * @return  the adjustable payment option
    */
   public static Optional<AdjustablePayment> tryParseAdjustablePayment(
       CsvRow row,
