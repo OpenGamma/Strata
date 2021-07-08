@@ -22,7 +22,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_SCHEM
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.currency.AdjustablePayment;
@@ -131,10 +130,8 @@ public final class CsvWriterUtils {
       String timeField,
       String zoneField) {
 
-    csv.writeCell(
-        dateField,
-        LocalDate.of(zonedDateTime.getYear(), zonedDateTime.getMonth(), zonedDateTime.getDayOfMonth()));
-    csv.writeCell(timeField, LocalTime.of(zonedDateTime.getHour(), zonedDateTime.getMinute()));
+    csv.writeCell(dateField, zonedDateTime.toLocalDate());
+    csv.writeCell(timeField, zonedDateTime.toLocalTime());
     csv.writeCell(zoneField, zonedDateTime.getZone());
   }
 
