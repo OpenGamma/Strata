@@ -51,12 +51,45 @@ public final class CsvWriterUtils {
    * @param premium  the premium
    */
   public static void writePremiumFields(CsvOutput.CsvRowOutputWithHeaders csv, AdjustablePayment premium) {
-    csv.writeCell(PREMIUM_DATE_FIELD, premium.getDate().getUnadjusted());
-    csv.writeCell(PREMIUM_DATE_CNV_FIELD, premium.getDate().getAdjustment().getConvention());
-    csv.writeCell(PREMIUM_DATE_CAL_FIELD, premium.getDate().getAdjustment().getCalendar());
-    csv.writeCell(PREMIUM_DIRECTION_FIELD, PayReceive.ofSignedAmount(premium.getAmount()));
-    csv.writeCell(PREMIUM_CURRENCY_FIELD, premium.getCurrency());
-    csv.writeCell(PREMIUM_AMOUNT_FIELD, premium.getAmount());
+    writeAdjustablePayment(
+        csv,
+        premium,
+        PREMIUM_AMOUNT_FIELD,
+        PREMIUM_CURRENCY_FIELD,
+        PREMIUM_DIRECTION_FIELD,
+        PREMIUM_DATE_FIELD,
+        PREMIUM_DATE_CNV_FIELD,
+        PREMIUM_DATE_CAL_FIELD);
+  }
+
+  /**
+   * Writes an AdjustablePayment object to CSV
+   *
+   * @param csv  the csv row
+   * @param adjustablePayment  the adjustable payment
+   * @param amountField  the amount field
+   * @param currencyField  the currency field
+   * @param directionField  the direction field
+   * @param dateField  the date field
+   * @param dateConventionField  the date convention field
+   * @param dateCalendarField  the date calendar field
+   */
+  public static void writeAdjustablePayment(
+      CsvOutput.CsvRowOutputWithHeaders csv,
+      AdjustablePayment adjustablePayment,
+      String amountField,
+      String currencyField,
+      String directionField,
+      String dateField,
+      String dateConventionField,
+      String dateCalendarField) {
+
+    csv.writeCell(amountField, adjustablePayment.getAmount());
+    csv.writeCell(currencyField, adjustablePayment.getCurrency());
+    csv.writeCell(directionField, PayReceive.ofSignedAmount(adjustablePayment.getAmount()));
+    csv.writeCell(dateField, adjustablePayment.getDate().getUnadjusted());
+    csv.writeCell(dateConventionField, adjustablePayment.getDate().getAdjustment().getConvention());
+    csv.writeCell(dateCalendarField, adjustablePayment.getDate().getAdjustment().getCalendar());
   }
 
   /**
@@ -87,7 +120,7 @@ public final class CsvWriterUtils {
    * @param barrier  the barrier
    * @param obsDate  the barrier observation date
    */
-  public static void writeBarrierFields(CsvOutput.CsvRowOutputWithHeaders csv, Barrier barrier, LocalDate obsDate) {
+  public static void writeBarrier(CsvOutput.CsvRowOutputWithHeaders csv, Barrier barrier, LocalDate obsDate) {
     csv.writeCell(BARRIER_TYPE_FIELD, barrier.getBarrierType());
     csv.writeCell(KNOCK_TYPE_FIELD, barrier.getKnockType());
     csv.writeCell(BARRIER_LEVEL_FIELD, barrier.getBarrierLevel(obsDate));
