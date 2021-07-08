@@ -131,11 +131,11 @@ public final class CsvWriterUtils {
       String timeField,
       String zoneField) {
 
-    csv.writeCell(dateField, zonedDateTime.getZone());
-    csv.writeCell(timeField, LocalTime.of(zonedDateTime.getHour(), zonedDateTime.getMinute()));
     csv.writeCell(
-        zoneField,
+        dateField,
         LocalDate.of(zonedDateTime.getYear(), zonedDateTime.getMonth(), zonedDateTime.getDayOfMonth()));
+    csv.writeCell(timeField, LocalTime.of(zonedDateTime.getHour(), zonedDateTime.getMinute()));
+    csv.writeCell(zoneField, zonedDateTime.getZone());
   }
 
   /**

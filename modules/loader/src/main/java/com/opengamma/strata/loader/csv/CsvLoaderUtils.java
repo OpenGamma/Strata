@@ -320,10 +320,10 @@ public final class CsvLoaderUtils {
    * @return  the zoned date time
    */
   public static ZonedDateTime parseZonedDateTime(CsvRow row, String dateField, String timeField, String zoneField) {
-    LocalDate expiryDay = row.getValue(dateField, LoaderUtils::parseDate);
-    LocalTime expiryTime = row.getValue(timeField, LoaderUtils::parseTime);
-    ZoneId expiryZone = row.getValue(zoneField, LoaderUtils::parseZoneId);
-    return ZonedDateTime.of(expiryDay, expiryTime, expiryZone);
+    LocalDate date = row.getValue(dateField, LoaderUtils::parseDate);
+    LocalTime time = row.getValue(timeField, LoaderUtils::parseTime);
+    ZoneId zone = row.getValue(zoneField, LoaderUtils::parseZoneId);
+    return ZonedDateTime.of(date, time, zone);
   }
 
   //-------------------------------------------------------------------------
