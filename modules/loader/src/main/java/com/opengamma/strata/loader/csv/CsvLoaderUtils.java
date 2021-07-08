@@ -18,7 +18,10 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -305,6 +308,22 @@ public final class CsvLoaderUtils {
     double longQuantity = ArgChecker.notNegative(longQuantityOpt.orElse(0d), LONG_QUANTITY_FIELD);
     double shortQuantity = ArgChecker.notNegative(shortQuantityOpt.orElse(0d), SHORT_QUANTITY_FIELD);
     return DoublesPair.of(longQuantity, shortQuantity);
+  }
+
+  /**
+   * Parse a ZonedDateTime from the provided fields.
+   *
+   * @param row  the CSV row
+   * @param dateField  the date field
+   * @param timeField  the time field
+   * @param zoneField  the zone field
+   * @return  the zoned date time
+   */
+  public static ZonedDateTime parseZonedDateTime(CsvRow row, String dateField, String timeField, String zoneField) {
+    LocalDate expiryDay = row.getValue(dateField, LoaderUtils::parseDate);
+    LocalTime expiryTime = row.getValue(timeField, LoaderUtils::parseTime);
+    ZoneId expiryZone = row.getValue(zoneField, LoaderUtils::parseZoneId);
+    return ZonedDateTime.of(expiryDay, expiryTime, expiryZone);
   }
 
   //-------------------------------------------------------------------------
