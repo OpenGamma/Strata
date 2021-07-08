@@ -537,7 +537,7 @@ public final class CsvLoaderUtils {
    * @param dateField  the date field
    * @param conventionField  the convention field
    * @param calendarField  the calendar field
-   * @return the adjustable date
+   * @return  the adjustable date option
    */
   public static Optional<AdjustableDate> tryParseAdjustableDate(
       CsvRow row,
@@ -564,7 +564,7 @@ public final class CsvLoaderUtils {
    * @param currencyField  the currency field
    * @param amountField  the amount field
    * @param directionField  the direction field
-   * @return the currency amount or empty
+   * @return  the currency amount option
    */
   public static Optional<CurrencyAmount> tryParseCurrencyAmountWithDirection(
       CsvRow row,
@@ -586,7 +586,7 @@ public final class CsvLoaderUtils {
    * Tries parsing the premium using the default premium fields.
    *
    * @param row  the CSV row to parse
-   * @return the premium or empty
+   * @return  the premium option
    */
   public static Optional<AdjustablePayment> tryParsePremiumFromDefaultFields(CsvRow row) {
     return tryParseAdjustablePayment(
@@ -602,14 +602,14 @@ public final class CsvLoaderUtils {
   /**
    * Tries parsing an adjustable payment using the mentioned fields.
    *
-   * @param row the CSV row to parse
-   * @param currencyField the currency field
-   * @param amountField the amount field
-   * @param directionField the direction field
-   * @param dateField the date field
-   * @param conventionField the date convention field
-   * @param calendarField the date calendar field
-   * @return the adjustable payment or empty
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @param dateField  the date field
+   * @param conventionField  the date convention field
+   * @param calendarField  the date calendar field
+   * @return the adjustable payment option
    */
   public static Optional<AdjustablePayment> tryParseAdjustablePayment(
       CsvRow row,
