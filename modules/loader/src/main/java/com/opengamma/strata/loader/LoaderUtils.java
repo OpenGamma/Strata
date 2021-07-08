@@ -863,7 +863,7 @@ public final class LoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a RED code from the input string.
-   *
+   * <p>
    * The input string but be 6 or 9 characters long to be valid.
    *
    * @param str the string to parse
