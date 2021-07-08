@@ -1,9 +1,17 @@
+/*
+ * Copyright (C) 2021 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
 package com.opengamma.strata.product.credit;
 
 import org.joda.convert.FromString;
 
 import com.opengamma.strata.collect.TypedString;
 
+/**
+ * The tier (seniority) of a CDS.
+ */
 public class CdsTier extends TypedString<CdsTier> {
 
   /** Serialization version. */

@@ -5,10 +5,15 @@
  */
 package com.opengamma.strata.loader.csv;
 
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.zip;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CDS_INDEX_ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CDS_INDEX_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INDEX_SERIES_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INDEX_VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_SCHEME_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.RED_CODE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 import static java.util.stream.Collectors.joining;
 
@@ -16,16 +21,23 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joda.beans.JodaBeanUtils;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvRow;
+import com.opengamma.strata.loader.LoaderUtils;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
+import com.opengamma.strata.product.credit.CdsTrade;
 
 /**
  * Handles the CSV file format for CDS index trades.
@@ -36,6 +48,9 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
    * The singleton instance of the plugin.
    */
   public static final CdsIndexTradeCsvPlugin INSTANCE = new CdsIndexTradeCsvPlugin();
+
+  private static final String DEFAULT_CDS_INDEX_SCHEME = "OG-CDS";
+  private static final String DEFAULT_LEGAL_ENTITY_SCHEME = "OG-Entity";
 
   //-------------------------------------------------------------------------
   @Override
@@ -57,6 +72,54 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     return Optional.empty();
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Parses from the CSV row.
+   *
+   * @param row  the CSV row
+   * @param info  the trade info
+   * @param resolver  the resolver used to parse additional information
+   * @return the parsed trade
+   */
+  static CdsIndexTrade parseCdsIndex(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+    String indexScheme = row.findValue(CDS_INDEX_ID_SCHEME_FIELD).orElse(DEFAULT_CDS_INDEX_SCHEME);
+    StandardId indexId = StandardId.of(indexScheme, row.getValue(CDS_INDEX_ID_FIELD));
+    // handle either one scheme for all IDs, or one scheme for each ID
+    List<String> entitySchemeStrs = Splitter.on(';')
+        .splitToList(row.findValue(LEGAL_ENTITY_ID_SCHEME_FIELD).orElse(DEFAULT_LEGAL_ENTITY_SCHEME));
+    List<String> entityIdStrs = Splitter.on(';').splitToList(row.getValue(LEGAL_ENTITY_ID_FIELD));
+    List<StandardId> entityIds;
+    if (entityIdStrs.size() == 0) {
+      entityIds = ImmutableList.of();
+    } else if (entitySchemeStrs.size() >= entityIdStrs.size()) {
+      entityIds = zip(entitySchemeStrs.stream(), entityIdStrs.stream())
+          .map(pair -> StandardId.of(pair.getFirst(), pair.getSecond()))
+          .collect(toImmutableList());
+    } else {
+      String entityScheme = entitySchemeStrs.get(0);
+      entityIds = entityIdStrs.stream()
+          .map(entityIdStr -> StandardId.of(entityScheme, entityIdStr))
+          .collect(toImmutableList());
+    }
+    CdsTrade cdsTrade = CdsTradeCsvPlugin.parseCdsRow(row, info, indexId, resolver);
+    Cds cds = cdsTrade.getProduct();
+    CdsIndex.Builder indexBuilder = CdsIndex.builder()
+        .cdsIndexId(indexId)
+        .legalEntityIds(entityIds);
+    row.findValue(INDEX_SERIES_FIELD, LoaderUtils::parseInteger)
+        .ifPresent(indexSeries -> indexBuilder.series(indexSeries));
+    row.findValue(INDEX_VERSION_FIELD, LoaderUtils::parseInteger)
+        .ifPresent(indexVersion -> indexBuilder.version(indexVersion));
+    JodaBeanUtils.copyInto(cds, CdsIndex.meta(), indexBuilder);
+    CdsIndexTrade trade = CdsIndexTrade.builder()
+        .info(info)
+        .product(indexBuilder.build())
+        .upfrontFee(cdsTrade.getUpfrontFee().orElse(null))
+        .build();
+    return resolver.completeTrade(row, trade);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public Set<String> headers(List<CdsIndexTrade> trades) {
     // determine what elements of trades are present
@@ -66,6 +129,9 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     boolean startConv = false;
     boolean endConv = false;
     boolean overrideStart = false;
+    boolean redCode = false;
+    boolean indexSeries = false;
+    boolean indexVersion = false;
     for (CdsIndexTrade trade : trades) {
       CdsIndex cds = trade.getProduct();
       PeriodicSchedule schedule = cds.getPaymentSchedule();
@@ -76,8 +142,22 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
       startConv |= schedule.getStartDateBusinessDayAdjustment().isPresent();
       endConv |= schedule.getEndDateBusinessDayAdjustment().isPresent();
       overrideStart |= schedule.getOverrideStartDate().isPresent();
+      redCode |= cds.getRedCode().isPresent();
+      indexSeries |= cds.getSeries().isPresent();
+      indexVersion |= cds.getVersion().isPresent();
     }
-    return CdsTradeCsvPlugin.createHeaders(true, premium, stepInOffset, settleOffset, startConv, endConv, overrideStart);
+    return CdsTradeCsvPlugin.createHeaders(
+        true,
+        premium,
+        stepInOffset,
+        settleOffset,
+        startConv,
+        endConv,
+        overrideStart,
+        redCode,
+        false,
+        indexSeries,
+        indexVersion);
   }
 
   @Override
@@ -99,6 +179,9 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
         .map(StandardId::getValue)
         .collect(joining(";")));
     trade.getUpfrontFee().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
+    product.getRedCode().ifPresent(redCode -> csv.writeCell(RED_CODE_FIELD, redCode.getValue()));
+    product.getSeries().ifPresent(series -> csv.writeCell(INDEX_SERIES_FIELD, series));
+    product.getVersion().ifPresent(version -> csv.writeCell(INDEX_VERSION_FIELD, version));
     CdsTradeCsvPlugin.writeCdsDetails(
         csv,
         product.getBuySell(),
