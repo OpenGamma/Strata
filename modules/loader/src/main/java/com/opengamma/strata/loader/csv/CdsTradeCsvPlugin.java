@@ -314,8 +314,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     boolean startConv = false;
     boolean endConv = false;
     boolean overrideStart = false;
-    boolean redCode = false;
-    boolean seniority = false;
     for (CdsTrade trade : trades) {
       Cds cds = trade.getProduct();
       PeriodicSchedule schedule = cds.getPaymentSchedule();
