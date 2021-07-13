@@ -18,7 +18,10 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PREMIUM_DIRECTION
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -307,6 +310,22 @@ public final class CsvLoaderUtils {
     return DoublesPair.of(longQuantity, shortQuantity);
   }
 
+  /**
+   * Parse a ZonedDateTime from the provided fields.
+   *
+   * @param row  the CSV row
+   * @param dateField  the date field
+   * @param timeField  the time field
+   * @param zoneField  the zone field
+   * @return  the zoned date time
+   */
+  public static ZonedDateTime parseZonedDateTime(CsvRow row, String dateField, String timeField, String zoneField) {
+    LocalDate date = row.getValue(dateField, LoaderUtils::parseDate);
+    LocalTime time = row.getValue(timeField, LoaderUtils::parseTime);
+    ZoneId zone = row.getValue(zoneField, LoaderUtils::parseZoneId);
+    return ZonedDateTime.of(date, time, zone);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Parses a business day adjustment, without defaulting the adjustment.
@@ -531,13 +550,40 @@ public final class CsvLoaderUtils {
   }
 
   /**
-   * Tells if a valid currency amount can be read from the mentioned fields in the csv row.
+   * Tries parsing an adjustable date from the mentioned fields in the csv row.
+   *
+   * @param row  the CSV row to parse
+   * @param dateField  the date field
+   * @param conventionField  the convention field
+   * @param calendarField  the calendar field
+   * @return  the adjustable date option
+   */
+  public static Optional<AdjustableDate> tryParseAdjustableDate(
+      CsvRow row,
+      String dateField,
+      String conventionField,
+      String calendarField) {
+
+    Optional<LocalDate> date = row.findValue(dateField, LoaderUtils::parseDate);
+    Optional<BusinessDayConvention> convention = row.findValue(
+        conventionField,
+        LoaderUtils::parseBusinessDayConvention);
+    Optional<HolidayCalendarId> direction = row.findValue(calendarField, HolidayCalendarId::of);
+
+    if (date.isPresent() && convention.isPresent() && direction.isPresent()) {
+      return Optional.of(AdjustableDate.of(date.get(), BusinessDayAdjustment.of(convention.get(), direction.get())));
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Tries parsing a currency amount from the mentioned fields in the csv row.
    *
    * @param row  the CSV row to parse
    * @param currencyField  the currency field
    * @param amountField  the amount field
    * @param directionField  the direction field
-   * @return if a valid currency amount can be read
+   * @return the currency amount option
    */
   public static Optional<CurrencyAmount> tryParseCurrencyAmountWithDirection(
       CsvRow row,
@@ -551,6 +597,95 @@ public final class CsvLoaderUtils {
 
     if (currency.isPresent() && amount.isPresent() && direction.isPresent()) {
       return Optional.of(CurrencyAmount.of(currency.get(), direction.get().normalize(amount.get())));
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Tries parsing the premium using the default premium fields.
+   *
+   * @param row  the CSV row to parse
+   * @return  the premium option
+   */
+  public static Optional<AdjustablePayment> tryParsePremiumFromDefaultFields(CsvRow row) {
+    return tryParseAdjustablePayment(
+        row,
+        PREMIUM_CURRENCY_FIELD,
+        PREMIUM_AMOUNT_FIELD,
+        PREMIUM_DIRECTION_FIELD,
+        PREMIUM_DATE_FIELD,
+        PREMIUM_DATE_CNV_FIELD,
+        PREMIUM_DATE_CAL_FIELD);
+  }
+
+  /**
+   * Tries parsing an adjustable payment, defaulting the AdjustableDate to no BusinessDayAdjustment.
+   *
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @param dateField  the date field
+   * @return  the adjustable payment option
+   */
+  public static Optional<AdjustablePayment> tryParseAdjustablePayment(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField,
+      String dateField) {
+
+    Optional<CurrencyAmount> currencyAmount = tryParseCurrencyAmountWithDirection(
+        row,
+        currencyField,
+        amountField,
+        directionField);
+    Optional<LocalDate> localDate = row.findValue(dateField, LoaderUtils::parseDate);
+
+    if (currencyAmount.isPresent() && localDate.isPresent()) {
+      return Optional.of(AdjustablePayment.of(currencyAmount.get(), localDate.get()));
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Tries parsing an adjustable payment using the mentioned fields.
+   * <p>
+   * Defaults to {@link #tryParseAdjustablePayment(CsvRow,String,String,String,String)} if the adjustable date parsing
+   * fails as it is often due to a missing calendar or convention.
+   *
+   * @param row  the CSV row to parse
+   * @param currencyField  the currency field
+   * @param amountField  the amount field
+   * @param directionField  the direction field
+   * @param dateField  the date field
+   * @param conventionField  the date convention field
+   * @param calendarField  the date calendar field
+   * @return  the adjustable payment option
+   */
+  public static Optional<AdjustablePayment> tryParseAdjustablePayment(
+      CsvRow row,
+      String currencyField,
+      String amountField,
+      String directionField,
+      String dateField,
+      String conventionField,
+      String calendarField) {
+
+    Optional<CurrencyAmount> currencyAmount = tryParseCurrencyAmountWithDirection(
+        row,
+        currencyField,
+        amountField,
+        directionField);
+    Optional<AdjustableDate> adjustableDate = tryParseAdjustableDate(
+        row,
+        dateField,
+        conventionField,
+        calendarField);
+    if (currencyAmount.isPresent() && adjustableDate.isPresent()) {
+      return Optional.of(AdjustablePayment.of(currencyAmount.get(), adjustableDate.get()));
+    } else if (!adjustableDate.isPresent()) {
+      return tryParseAdjustablePayment(row, currencyField, amountField, directionField, dateField);
     }
     return Optional.empty();
   }

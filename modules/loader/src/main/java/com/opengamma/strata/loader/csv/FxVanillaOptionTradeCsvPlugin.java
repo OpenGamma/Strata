@@ -132,7 +132,6 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     LocalDate expiryDate = row.getValue(EXPIRY_DATE_FIELD, LoaderUtils::parseDate);
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
-    AdjustablePayment premium = CsvLoaderUtils.parsePremiumFromDefaultFields(row);
 
     FxVanillaOption option = FxVanillaOption.builder()
         .longShort(longShort)
@@ -144,7 +143,8 @@ class FxVanillaOptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWri
     return FxVanillaOptionTrade.builder()
         .info(info)
         .product(option)
-        .premium(premium)
+        .premium(CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
+            .orElse(AdjustablePayment.of(option.getCurrencyPair().getBase(), 0d, expiryDate)))
         .build();
   }
 

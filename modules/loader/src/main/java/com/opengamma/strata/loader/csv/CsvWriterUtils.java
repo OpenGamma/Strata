@@ -22,6 +22,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.SECURITY_ID_SCHEM
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.TRADE_TYPE_FIELD;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -111,6 +112,27 @@ public final class CsvWriterUtils {
     csv.writeCell(amountField, ccyAmount.getAmount());
     csv.writeCell(currencyField, ccyAmount.getCurrency());
     csv.writeCell(directionField, PayReceive.ofSignedAmount(ccyAmount.getAmount()));
+  }
+
+  /**
+   * Writes a zoned date time using the provided field
+   *
+   * @param csv  the csv row output
+   * @param zonedDateTime  the zoned date time object
+   * @param dateField  the date field
+   * @param timeField  the time field
+   * @param zoneField  the zone field
+   */
+  public static void writeZonedDateTime(
+      CsvOutput.CsvRowOutputWithHeaders csv,
+      ZonedDateTime zonedDateTime,
+      String dateField,
+      String timeField,
+      String zoneField) {
+
+    csv.writeCell(dateField, zonedDateTime.toLocalDate());
+    csv.writeCell(timeField, zonedDateTime.toLocalTime());
+    csv.writeCell(zoneField, zonedDateTime.getZone());
   }
 
   /**
