@@ -52,7 +52,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
-import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
@@ -102,7 +101,6 @@ import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.credit.Cds;
 import com.opengamma.strata.product.credit.CdsIndex;
 import com.opengamma.strata.product.credit.CdsIndexTrade;
-import com.opengamma.strata.product.credit.CdsTier;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
 import com.opengamma.strata.product.credit.ProtectionStartOfDay;
@@ -1869,7 +1867,7 @@ public class TradeCsvLoaderTest {
             .build())
         .product(Cds.builder()
             .buySell(BUY)
-            .legalEntityId(StandardId.of("BLUE", "CAT"))
+            .legalEntityId(StandardId.of("OG-Ticker", "CATCDS-CDS-SNRFOR"))
             .fixedRate(0.026)
             .currency(EUR)
             .notional(1_500_000)
@@ -1881,8 +1879,6 @@ public class TradeCsvLoaderTest {
                 .rollConvention(RollConventions.IMM)
                 .businessDayAdjustment(BusinessDayAdjustment.NONE)
                 .build())
-            .redCode(StandardId.of(StandardSchemes.RED6_SCHEME, "CATCDS"))
-            .seniorityTier(CdsTier.SENIOR_UNSECURED)
             .build())
         .build();
   }
@@ -1895,7 +1891,7 @@ public class TradeCsvLoaderTest {
             .build())
         .product(Cds.builder()
             .buySell(BUY)
-            .legalEntityId(StandardId.of("BLUE", "CAT"))
+            .legalEntityId(StandardId.of("OG-Ticker", "CATCDS-CDS-SECDOM"))
             .fixedRate(0.026)
             .currency(EUR)
             .notional(1_500_000)
@@ -1912,8 +1908,6 @@ public class TradeCsvLoaderTest {
                 .build())
             .stepinDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
             .settlementDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
-            .redCode(StandardId.of(StandardSchemes.RED9_SCHEME, "CATCDS123"))
-            .seniorityTier(CdsTier.SECURED_DEBT)
             .build())
         .upfrontFee(
             AdjustablePayment.of(
@@ -1934,11 +1928,12 @@ public class TradeCsvLoaderTest {
     assertThat(filtered).hasSize(2);
 
     CdsIndexTrade expected0 = expectedCdsIndex0();
+    CdsIndexTrade expected1 = expectedCdsIndex1();
 
     assertBeanEquals(expected0, filtered.get(0));
-    assertBeanEquals(expected0, filtered.get(1));
+    assertBeanEquals(expected1, filtered.get(1));
 
-    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected0);
+    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected1);
   }
 
   private CdsIndexTrade expectedCdsIndex0() {
@@ -1958,9 +1953,33 @@ public class TradeCsvLoaderTest {
             .businessDayAdjustment(BusinessDayAdjustment.NONE)
             .stubConvention(StubConvention.SMART_INITIAL)
             .build())
-        .redCode(StandardId.of(StandardSchemes.RED9_SCHEME, "FOOBARCDS"))
-        .series(1)
-        .version(1)
+        .build();
+    return CdsIndexTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123451"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(cdsIndex)
+        .build();
+  }
+
+  private CdsIndexTrade expectedCdsIndex1() {
+    StandardId legEnt1 = StandardId.of("OG-Entity", "FOO");
+    StandardId legEnt2 = StandardId.of("OG-Entity", "BAR");
+    CdsIndex cdsIndex = CdsIndex.builder()
+        .buySell(BUY)
+        .currency(GBP)
+        .notional(1_000_000)
+        .fixedRate(0.05)
+        .cdsIndexId(StandardId.of("OG-Ticker", "FOOBARCDS-CDX-S1V1"))
+        .legalEntityIds(legEnt1, legEnt2)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2017, 6, 1))
+            .endDate(date(2022, 6, 1))
+            .frequency(Frequency.P12M)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .stubConvention(StubConvention.SMART_INITIAL)
+            .build())
         .build();
     return CdsIndexTrade.builder()
         .info(TradeInfo.builder()
