@@ -54,7 +54,7 @@ public class InterpolatedStrikeSmileDeltaTermStructureTest {
       {0.0340, 0.0140}});
   private static final int NB_EXP = TIME_TO_EXPIRY.size();
   private static final List<SmileDeltaParameters> VOLATILITY_TERM = new ArrayList<>(NB_EXP);
-  public static final Percentage DERIV_TOL = Percentage.withPercentage(1);
+  private static final Percentage DERIV_TOL = Percentage.withPercentage(0.001);
 
   static {
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
@@ -287,17 +287,17 @@ public class InterpolatedStrikeSmileDeltaTermStructureTest {
   void partialFirstDerivatives() {
     double forward = 1.70;
     double timeToExpiry = 1.3;
-    double[] strikes = SMILE_TERM.getVolatilityTerm().get(2).strike(forward).toArray();
-    double volExpected = SMILE_TERM.volatility(timeToExpiry, strikes[1], forward);
+    double strike = 1.5;
+    double eps = 1e-6;
+    double volExpected = SMILE_TERM.volatility(timeToExpiry, strike, forward);
 
-    double eps = 1e-10;
-    double volHighTime = SMILE_TERM.volatility(timeToExpiry + eps, strikes[1], forward);
-    double timeDerivativeExpected = (volHighTime - volExpected) / eps;
-    ValueDerivatives valueDerivativesComputed = SMILE_TERM.partialFirstDerivatives(timeToExpiry, strikes[1], forward);
+    double volHighTime = SMILE_TERM.volatility(timeToExpiry + eps, strike, forward);
+    double timeDerivativeExpected = (volHighTime - volExpected) / (eps);
+    ValueDerivatives valueDerivativesComputed = SMILE_TERM.partialFirstDerivatives(timeToExpiry, strike, forward);
     assertThat(valueDerivativesComputed.getValue()).isCloseTo(volExpected, offset(TOLERANCE_VOL));
     assertThat(valueDerivativesComputed.getDerivative(0)).isCloseTo(timeDerivativeExpected, DERIV_TOL);
 
-    double volHighStrike = SMILE_TERM.volatility(timeToExpiry, strikes[1] + eps, forward);
+    double volHighStrike = SMILE_TERM.volatility(timeToExpiry, strike + eps, forward);
     double strikeDerivativeExpected = (volHighStrike - volExpected) / eps;
     assertThat(valueDerivativesComputed.getDerivative(1)).isCloseTo(strikeDerivativeExpected, DERIV_TOL);
 
