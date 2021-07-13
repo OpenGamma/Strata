@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -151,22 +150,6 @@ public final class Cds
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
-  /**
-   * The RED code of the CDS.
-   * <p>
-   * The RED code for a CDS uniquely identifies the reference entity and a reference obligation.
-   */
-  @PropertyDefinition(get = "optional")
-  private final StandardId redCode;
-  /**
-   * The seniority of the CDS.
-   * <p>
-   * The seniority determines the order of repayment in the case of a credit event.
-   * <p>
-   * Senior debt must be repaid first before more junior debt.
-   */
-  @PropertyDefinition(get = "optional")
-  private final CdsTier seniorityTier;
 
   //-------------------------------------------------------------------------
   /**
@@ -215,9 +198,7 @@ public final class Cds
         PaymentOnDefault.ACCRUED_PREMIUM,
         ProtectionStartOfDay.BEGINNING,
         DaysAdjustment.ofCalendarDays(1),
-        DaysAdjustment.ofBusinessDays(3, calendar),
-        null,
-        null);
+        DaysAdjustment.ofBusinessDays(3, calendar));
   }
 
   @ImmutableDefaults
@@ -332,9 +313,7 @@ public final class Cds
       PaymentOnDefault paymentOnDefault,
       ProtectionStartOfDay protectionStart,
       DaysAdjustment stepinDateOffset,
-      DaysAdjustment settlementDateOffset,
-      StandardId redCode,
-      CdsTier seniorityTier) {
+      DaysAdjustment settlementDateOffset) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(legalEntityId, "legalEntityId");
     JodaBeanUtils.notNull(currency, "currency");
@@ -357,8 +336,6 @@ public final class Cds
     this.protectionStart = protectionStart;
     this.stepinDateOffset = stepinDateOffset;
     this.settlementDateOffset = settlementDateOffset;
-    this.redCode = redCode;
-    this.seniorityTier = seniorityTier;
   }
 
   @Override
@@ -504,30 +481,6 @@ public final class Cds
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the RED code of the CDS.
-   * <p>
-   * The RED code for a CDS uniquely identifies the reference entity and a reference obligation.
-   * @return the optional value of the property, not null
-   */
-  public Optional<StandardId> getRedCode() {
-    return Optional.ofNullable(redCode);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the seniority of the CDS.
-   * <p>
-   * The seniority determines the order of repayment in the case of a credit event.
-   * <p>
-   * Senior debt must be repaid first before more junior debt.
-   * @return the optional value of the property, not null
-   */
-  public Optional<CdsTier> getSeniorityTier() {
-    return Optional.ofNullable(seniorityTier);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -552,9 +505,7 @@ public final class Cds
           JodaBeanUtils.equal(paymentOnDefault, other.paymentOnDefault) &&
           JodaBeanUtils.equal(protectionStart, other.protectionStart) &&
           JodaBeanUtils.equal(stepinDateOffset, other.stepinDateOffset) &&
-          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
-          JodaBeanUtils.equal(redCode, other.redCode) &&
-          JodaBeanUtils.equal(seniorityTier, other.seniorityTier);
+          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset);
     }
     return false;
   }
@@ -573,14 +524,12 @@ public final class Cds
     hash = hash * 31 + JodaBeanUtils.hashCode(protectionStart);
     hash = hash * 31 + JodaBeanUtils.hashCode(stepinDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(redCode);
-    hash = hash * 31 + JodaBeanUtils.hashCode(seniorityTier);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(448);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("Cds{");
     buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
     buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
@@ -592,9 +541,7 @@ public final class Cds
     buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
     buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
     buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
-    buf.append("redCode").append('=').append(JodaBeanUtils.toString(redCode)).append(',').append(' ');
-    buf.append("seniorityTier").append('=').append(JodaBeanUtils.toString(seniorityTier));
+    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();
   }
@@ -665,16 +612,6 @@ public final class Cds
     private final MetaProperty<DaysAdjustment> settlementDateOffset = DirectMetaProperty.ofImmutable(
         this, "settlementDateOffset", Cds.class, DaysAdjustment.class);
     /**
-     * The meta-property for the {@code redCode} property.
-     */
-    private final MetaProperty<StandardId> redCode = DirectMetaProperty.ofImmutable(
-        this, "redCode", Cds.class, StandardId.class);
-    /**
-     * The meta-property for the {@code seniorityTier} property.
-     */
-    private final MetaProperty<CdsTier> seniorityTier = DirectMetaProperty.ofImmutable(
-        this, "seniorityTier", Cds.class, CdsTier.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -689,9 +626,7 @@ public final class Cds
         "paymentOnDefault",
         "protectionStart",
         "stepinDateOffset",
-        "settlementDateOffset",
-        "redCode",
-        "seniorityTier");
+        "settlementDateOffset");
 
     /**
      * Restricted constructor.
@@ -724,10 +659,6 @@ public final class Cds
           return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
-        case 1082206750:  // redCode
-          return redCode;
-        case 1702482816:  // seniorityTier
-          return seniorityTier;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -836,22 +767,6 @@ public final class Cds
       return settlementDateOffset;
     }
 
-    /**
-     * The meta-property for the {@code redCode} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> redCode() {
-      return redCode;
-    }
-
-    /**
-     * The meta-property for the {@code seniorityTier} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<CdsTier> seniorityTier() {
-      return seniorityTier;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -878,10 +793,6 @@ public final class Cds
           return ((Cds) bean).getStepinDateOffset();
         case 135924714:  // settlementDateOffset
           return ((Cds) bean).getSettlementDateOffset();
-        case 1082206750:  // redCode
-          return ((Cds) bean).redCode;
-        case 1702482816:  // seniorityTier
-          return ((Cds) bean).seniorityTier;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -914,8 +825,6 @@ public final class Cds
     private ProtectionStartOfDay protectionStart;
     private DaysAdjustment stepinDateOffset;
     private DaysAdjustment settlementDateOffset;
-    private StandardId redCode;
-    private CdsTier seniorityTier;
 
     /**
      * Restricted constructor.
@@ -940,8 +849,6 @@ public final class Cds
       this.protectionStart = beanToCopy.getProtectionStart();
       this.stepinDateOffset = beanToCopy.getStepinDateOffset();
       this.settlementDateOffset = beanToCopy.getSettlementDateOffset();
-      this.redCode = beanToCopy.redCode;
-      this.seniorityTier = beanToCopy.seniorityTier;
     }
 
     //-----------------------------------------------------------------------
@@ -970,10 +877,6 @@ public final class Cds
           return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
-        case 1082206750:  // redCode
-          return redCode;
-        case 1702482816:  // seniorityTier
-          return seniorityTier;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1015,12 +918,6 @@ public final class Cds
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
           break;
-        case 1082206750:  // redCode
-          this.redCode = (StandardId) newValue;
-          break;
-        case 1702482816:  // seniorityTier
-          this.seniorityTier = (CdsTier) newValue;
-          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1047,9 +944,7 @@ public final class Cds
           paymentOnDefault,
           protectionStart,
           stepinDateOffset,
-          settlementDateOffset,
-          redCode,
-          seniorityTier);
+          settlementDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -1211,36 +1106,10 @@ public final class Cds
       return this;
     }
 
-    /**
-     * Sets the RED code of the CDS.
-     * <p>
-     * The RED code for a CDS uniquely identifies the reference entity and a reference obligation.
-     * @param redCode  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder redCode(StandardId redCode) {
-      this.redCode = redCode;
-      return this;
-    }
-
-    /**
-     * Sets the seniority of the CDS.
-     * <p>
-     * The seniority determines the order of repayment in the case of a credit event.
-     * <p>
-     * Senior debt must be repaid first before more junior debt.
-     * @param seniorityTier  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder seniorityTier(CdsTier seniorityTier) {
-      this.seniorityTier = seniorityTier;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(448);
+      StringBuilder buf = new StringBuilder(384);
       buf.append("Cds.Builder{");
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("legalEntityId").append('=').append(JodaBeanUtils.toString(legalEntityId)).append(',').append(' ');
@@ -1252,9 +1121,7 @@ public final class Cds
       buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
       buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
       buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
-      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
-      buf.append("redCode").append('=').append(JodaBeanUtils.toString(redCode)).append(',').append(' ');
-      buf.append("seniorityTier").append('=').append(JodaBeanUtils.toString(seniorityTier));
+      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
       buf.append('}');
       return buf.toString();
     }

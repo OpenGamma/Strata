@@ -51,6 +51,7 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
 
   private static final String DEFAULT_CDS_INDEX_SCHEME = "OG-CDS";
   private static final String DEFAULT_LEGAL_ENTITY_SCHEME = "OG-Entity";
+  private static final String DEFAULT_TICKER_SCHEME = "OG-Ticker";
 
   //-------------------------------------------------------------------------
   @Override
@@ -82,8 +83,7 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
    * @return the parsed trade
    */
   static CdsIndexTrade parseCdsIndex(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    String indexScheme = row.findValue(CDS_INDEX_ID_SCHEME_FIELD).orElse(DEFAULT_CDS_INDEX_SCHEME);
-    StandardId indexId = StandardId.of(indexScheme, row.getValue(CDS_INDEX_ID_FIELD));
+    StandardId indexId = parseCdsIndexId(row);
     // handle either one scheme for all IDs, or one scheme for each ID
     List<String> entitySchemeStrs = Splitter.on(';')
         .splitToList(row.findValue(LEGAL_ENTITY_ID_SCHEME_FIELD).orElse(DEFAULT_LEGAL_ENTITY_SCHEME));
@@ -106,10 +106,6 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     CdsIndex.Builder indexBuilder = CdsIndex.builder()
         .cdsIndexId(indexId)
         .legalEntityIds(entityIds);
-    row.findValue(INDEX_SERIES_FIELD, LoaderUtils::parseInteger)
-        .ifPresent(indexSeries -> indexBuilder.series(indexSeries));
-    row.findValue(INDEX_VERSION_FIELD, LoaderUtils::parseInteger)
-        .ifPresent(indexVersion -> indexBuilder.version(indexVersion));
     JodaBeanUtils.copyInto(cds, CdsIndex.meta(), indexBuilder);
     CdsIndexTrade trade = CdsIndexTrade.builder()
         .info(info)
@@ -117,6 +113,20 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
         .upfrontFee(cdsTrade.getUpfrontFee().orElse(null))
         .build();
     return resolver.completeTrade(row, trade);
+  }
+
+  private static StandardId parseCdsIndexId(CsvRow row) {
+    Optional<String> redCodeOpt = row.findValue(RED_CODE_FIELD);
+    Optional<String> seriesOpt = row.findValue(INDEX_SERIES_FIELD);
+    Optional<String> versionOpt = row.findValue(INDEX_VERSION_FIELD);
+    if (redCodeOpt.isPresent() && seriesOpt.isPresent() && versionOpt.isPresent()) {
+      StandardId redCode = LoaderUtils.parseRedCode(redCodeOpt.get());
+      String stem = redCode.getValue() + "-CDX";
+      String variant = "S" + seriesOpt.get() + "V" + versionOpt.get();
+      return StandardId.of(DEFAULT_TICKER_SCHEME, stem + '-' + variant);
+    }
+    String indexScheme = row.findValue(CDS_INDEX_ID_SCHEME_FIELD).orElse(DEFAULT_CDS_INDEX_SCHEME);
+    return StandardId.of(indexScheme, row.getValue(CDS_INDEX_ID_FIELD));
   }
 
   //-------------------------------------------------------------------------
@@ -129,9 +139,6 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     boolean startConv = false;
     boolean endConv = false;
     boolean overrideStart = false;
-    boolean redCode = false;
-    boolean indexSeries = false;
-    boolean indexVersion = false;
     for (CdsIndexTrade trade : trades) {
       CdsIndex cds = trade.getProduct();
       PeriodicSchedule schedule = cds.getPaymentSchedule();
@@ -142,9 +149,6 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
       startConv |= schedule.getStartDateBusinessDayAdjustment().isPresent();
       endConv |= schedule.getEndDateBusinessDayAdjustment().isPresent();
       overrideStart |= schedule.getOverrideStartDate().isPresent();
-      redCode |= cds.getRedCode().isPresent();
-      indexSeries |= cds.getSeries().isPresent();
-      indexVersion |= cds.getVersion().isPresent();
     }
     return CdsTradeCsvPlugin.createHeaders(
         true,
@@ -153,11 +157,7 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
         settleOffset,
         startConv,
         endConv,
-        overrideStart,
-        redCode,
-        false,
-        indexSeries,
-        indexVersion);
+        overrideStart);
   }
 
   @Override
@@ -179,9 +179,6 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
         .map(StandardId::getValue)
         .collect(joining(";")));
     trade.getUpfrontFee().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
-    product.getRedCode().ifPresent(redCode -> csv.writeCell(RED_CODE_FIELD, redCode.getValue()));
-    product.getSeries().ifPresent(series -> csv.writeCell(INDEX_SERIES_FIELD, series));
-    product.getVersion().ifPresent(version -> csv.writeCell(INDEX_VERSION_FIELD, version));
     CdsTradeCsvPlugin.writeCdsDetails(
         csv,
         product.getBuySell(),

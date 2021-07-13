@@ -10,8 +10,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.OptionalInt;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -159,28 +157,6 @@ public final class CdsIndex
    */
   @PropertyDefinition(validate = "notNull")
   private final DaysAdjustment settlementDateOffset;
-  /**
-   * The RED code of the CDS index.
-   * <p>
-   * The RED code identifies which index family is being referred to and the series and version of the index.
-   */
-  @PropertyDefinition(get = "optional")
-  private final StandardId redCode;
-  /**
-   * The series of the CDS index.
-   * <p>
-   * A new series is issued every 6 months which will determine which entities become constituents of the index.
-   */
-  @PropertyDefinition(get = "optional")
-  private final Integer series;
-  /**
-   * The version of the CDS index.
-   * <p>
-   * When a credit event has happened within the index, the index version will increment for each name that
-   * defaulted in the index.
-   */
-  @PropertyDefinition(get = "optional")
-  private final Integer version;
 
   //-------------------------------------------------------------------------
   /**
@@ -232,10 +208,7 @@ public final class CdsIndex
         PaymentOnDefault.ACCRUED_PREMIUM,
         ProtectionStartOfDay.BEGINNING,
         DaysAdjustment.ofCalendarDays(1),
-        DaysAdjustment.ofBusinessDays(3, calendar),
-        null,
-        null,
-        null);
+        DaysAdjustment.ofBusinessDays(3, calendar));
   }
 
   @ImmutableDefaults
@@ -353,10 +326,7 @@ public final class CdsIndex
       PaymentOnDefault paymentOnDefault,
       ProtectionStartOfDay protectionStart,
       DaysAdjustment stepinDateOffset,
-      DaysAdjustment settlementDateOffset,
-      StandardId redCode,
-      Integer series,
-      Integer version) {
+      DaysAdjustment settlementDateOffset) {
     JodaBeanUtils.notNull(buySell, "buySell");
     JodaBeanUtils.notNull(cdsIndexId, "cdsIndexId");
     JodaBeanUtils.notNull(legalEntityIds, "legalEntityIds");
@@ -381,9 +351,6 @@ public final class CdsIndex
     this.protectionStart = protectionStart;
     this.stepinDateOffset = stepinDateOffset;
     this.settlementDateOffset = settlementDateOffset;
-    this.redCode = redCode;
-    this.series = series;
-    this.version = version;
   }
 
   @Override
@@ -540,40 +507,6 @@ public final class CdsIndex
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the RED code of the CDS index.
-   * <p>
-   * The RED code identifies which index family is being referred to and the series and version of the index.
-   * @return the optional value of the property, not null
-   */
-  public Optional<StandardId> getRedCode() {
-    return Optional.ofNullable(redCode);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the series of the CDS index.
-   * <p>
-   * A new series is issued every 6 months which will determine which entities become constituents of the index.
-   * @return the optional value of the property, not null
-   */
-  public OptionalInt getSeries() {
-    return series != null ? OptionalInt.of(series) : OptionalInt.empty();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the version of the CDS index.
-   * <p>
-   * When a credit event has happened within the index, the index version will increment for each name that
-   * defaulted in the index.
-   * @return the optional value of the property, not null
-   */
-  public OptionalInt getVersion() {
-    return version != null ? OptionalInt.of(version) : OptionalInt.empty();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -599,10 +532,7 @@ public final class CdsIndex
           JodaBeanUtils.equal(paymentOnDefault, other.paymentOnDefault) &&
           JodaBeanUtils.equal(protectionStart, other.protectionStart) &&
           JodaBeanUtils.equal(stepinDateOffset, other.stepinDateOffset) &&
-          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset) &&
-          JodaBeanUtils.equal(redCode, other.redCode) &&
-          JodaBeanUtils.equal(series, other.series) &&
-          JodaBeanUtils.equal(version, other.version);
+          JodaBeanUtils.equal(settlementDateOffset, other.settlementDateOffset);
     }
     return false;
   }
@@ -622,15 +552,12 @@ public final class CdsIndex
     hash = hash * 31 + JodaBeanUtils.hashCode(protectionStart);
     hash = hash * 31 + JodaBeanUtils.hashCode(stepinDateOffset);
     hash = hash * 31 + JodaBeanUtils.hashCode(settlementDateOffset);
-    hash = hash * 31 + JodaBeanUtils.hashCode(redCode);
-    hash = hash * 31 + JodaBeanUtils.hashCode(series);
-    hash = hash * 31 + JodaBeanUtils.hashCode(version);
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(512);
+    StringBuilder buf = new StringBuilder(416);
     buf.append("CdsIndex{");
     buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
     buf.append("cdsIndexId").append('=').append(JodaBeanUtils.toString(cdsIndexId)).append(',').append(' ');
@@ -643,10 +570,7 @@ public final class CdsIndex
     buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
     buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
     buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
-    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
-    buf.append("redCode").append('=').append(JodaBeanUtils.toString(redCode)).append(',').append(' ');
-    buf.append("series").append('=').append(JodaBeanUtils.toString(series)).append(',').append(' ');
-    buf.append("version").append('=').append(JodaBeanUtils.toString(version));
+    buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
     buf.append('}');
     return buf.toString();
   }
@@ -723,21 +647,6 @@ public final class CdsIndex
     private final MetaProperty<DaysAdjustment> settlementDateOffset = DirectMetaProperty.ofImmutable(
         this, "settlementDateOffset", CdsIndex.class, DaysAdjustment.class);
     /**
-     * The meta-property for the {@code redCode} property.
-     */
-    private final MetaProperty<StandardId> redCode = DirectMetaProperty.ofImmutable(
-        this, "redCode", CdsIndex.class, StandardId.class);
-    /**
-     * The meta-property for the {@code series} property.
-     */
-    private final MetaProperty<Integer> series = DirectMetaProperty.ofImmutable(
-        this, "series", CdsIndex.class, Integer.class);
-    /**
-     * The meta-property for the {@code version} property.
-     */
-    private final MetaProperty<Integer> version = DirectMetaProperty.ofImmutable(
-        this, "version", CdsIndex.class, Integer.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -753,10 +662,7 @@ public final class CdsIndex
         "paymentOnDefault",
         "protectionStart",
         "stepinDateOffset",
-        "settlementDateOffset",
-        "redCode",
-        "series",
-        "version");
+        "settlementDateOffset");
 
     /**
      * Restricted constructor.
@@ -791,12 +697,6 @@ public final class CdsIndex
           return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
-        case 1082206750:  // redCode
-          return redCode;
-        case -905838985:  // series
-          return series;
-        case 351608024:  // version
-          return version;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -913,30 +813,6 @@ public final class CdsIndex
       return settlementDateOffset;
     }
 
-    /**
-     * The meta-property for the {@code redCode} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<StandardId> redCode() {
-      return redCode;
-    }
-
-    /**
-     * The meta-property for the {@code series} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> series() {
-      return series;
-    }
-
-    /**
-     * The meta-property for the {@code version} property.
-     * @return the meta-property, not null
-     */
-    public MetaProperty<Integer> version() {
-      return version;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -965,12 +841,6 @@ public final class CdsIndex
           return ((CdsIndex) bean).getStepinDateOffset();
         case 135924714:  // settlementDateOffset
           return ((CdsIndex) bean).getSettlementDateOffset();
-        case 1082206750:  // redCode
-          return ((CdsIndex) bean).redCode;
-        case -905838985:  // series
-          return ((CdsIndex) bean).series;
-        case 351608024:  // version
-          return ((CdsIndex) bean).version;
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1004,9 +874,6 @@ public final class CdsIndex
     private ProtectionStartOfDay protectionStart;
     private DaysAdjustment stepinDateOffset;
     private DaysAdjustment settlementDateOffset;
-    private StandardId redCode;
-    private Integer series;
-    private Integer version;
 
     /**
      * Restricted constructor.
@@ -1032,9 +899,6 @@ public final class CdsIndex
       this.protectionStart = beanToCopy.getProtectionStart();
       this.stepinDateOffset = beanToCopy.getStepinDateOffset();
       this.settlementDateOffset = beanToCopy.getSettlementDateOffset();
-      this.redCode = beanToCopy.redCode;
-      this.series = beanToCopy.series;
-      this.version = beanToCopy.version;
     }
 
     //-----------------------------------------------------------------------
@@ -1065,12 +929,6 @@ public final class CdsIndex
           return stepinDateOffset;
         case 135924714:  // settlementDateOffset
           return settlementDateOffset;
-        case 1082206750:  // redCode
-          return redCode;
-        case -905838985:  // series
-          return series;
-        case 351608024:  // version
-          return version;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1116,15 +974,6 @@ public final class CdsIndex
         case 135924714:  // settlementDateOffset
           this.settlementDateOffset = (DaysAdjustment) newValue;
           break;
-        case 1082206750:  // redCode
-          this.redCode = (StandardId) newValue;
-          break;
-        case -905838985:  // series
-          this.series = (Integer) newValue;
-          break;
-        case 351608024:  // version
-          this.version = (Integer) newValue;
-          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -1152,10 +1001,7 @@ public final class CdsIndex
           paymentOnDefault,
           protectionStart,
           stepinDateOffset,
-          settlementDateOffset,
-          redCode,
-          series,
-          version);
+          settlementDateOffset);
     }
 
     //-----------------------------------------------------------------------
@@ -1340,47 +1186,10 @@ public final class CdsIndex
       return this;
     }
 
-    /**
-     * Sets the RED code of the CDS index.
-     * <p>
-     * The RED code identifies which index family is being referred to and the series and version of the index.
-     * @param redCode  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder redCode(StandardId redCode) {
-      this.redCode = redCode;
-      return this;
-    }
-
-    /**
-     * Sets the series of the CDS index.
-     * <p>
-     * A new series is issued every 6 months which will determine which entities become constituents of the index.
-     * @param series  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder series(Integer series) {
-      this.series = series;
-      return this;
-    }
-
-    /**
-     * Sets the version of the CDS index.
-     * <p>
-     * When a credit event has happened within the index, the index version will increment for each name that
-     * defaulted in the index.
-     * @param version  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder version(Integer version) {
-      this.version = version;
-      return this;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(512);
+      StringBuilder buf = new StringBuilder(416);
       buf.append("CdsIndex.Builder{");
       buf.append("buySell").append('=').append(JodaBeanUtils.toString(buySell)).append(',').append(' ');
       buf.append("cdsIndexId").append('=').append(JodaBeanUtils.toString(cdsIndexId)).append(',').append(' ');
@@ -1393,10 +1202,7 @@ public final class CdsIndex
       buf.append("paymentOnDefault").append('=').append(JodaBeanUtils.toString(paymentOnDefault)).append(',').append(' ');
       buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(protectionStart)).append(',').append(' ');
       buf.append("stepinDateOffset").append('=').append(JodaBeanUtils.toString(stepinDateOffset)).append(',').append(' ');
-      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset)).append(',').append(' ');
-      buf.append("redCode").append('=').append(JodaBeanUtils.toString(redCode)).append(',').append(' ');
-      buf.append("series").append('=').append(JodaBeanUtils.toString(series)).append(',').append(' ');
-      buf.append("version").append('=').append(JodaBeanUtils.toString(version));
+      buf.append("settlementDateOffset").append('=').append(JodaBeanUtils.toString(settlementDateOffset));
       buf.append('}');
       return buf.toString();
     }

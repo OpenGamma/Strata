@@ -19,8 +19,6 @@ import static com.opengamma.strata.loader.csv.CsvLoaderColumns.END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIRST_REGULAR_START_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FIXED_RATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FREQUENCY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INDEX_SERIES_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.INDEX_VERSION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LAST_REGULAR_END_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEGAL_ENTITY_ID_SCHEME_FIELD;
@@ -59,6 +57,7 @@ import static com.opengamma.strata.loader.csv.CsvLoaderUtils.formattedPercentage
 import java.time.LocalDate;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -85,7 +84,6 @@ import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.credit.Cds;
-import com.opengamma.strata.product.credit.CdsTier;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.credit.PaymentOnDefault;
 import com.opengamma.strata.product.credit.ProtectionStartOfDay;
@@ -102,7 +100,10 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   public static final CdsTradeCsvPlugin INSTANCE = new CdsTradeCsvPlugin();
 
   private static final String DEFAULT_LEGAL_ENTITY_SCHEME = "OG-Entity";
+  private static final String DEFAULT_TICKER_SCHEME = "OG-Ticker";
 
+  private static final Set<String> ACCEPTED_SENIORITY_VALUES = ImmutableSet.of(
+      "JRSUBUT2", "PREFT1", "SECDOM", "SNRLAC", "SNRFOR", "SUBLT2");
   //-------------------------------------------------------------------------
   @Override
   public Set<String> tradeTypeNames() {
@@ -133,8 +134,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
    * @return the parsed trade
    */
   static CdsTrade parseCds(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    String entityScheme = row.findValue(LEGAL_ENTITY_ID_SCHEME_FIELD).orElse(DEFAULT_LEGAL_ENTITY_SCHEME);
-    StandardId entityId = StandardId.of(entityScheme, row.getValue(LEGAL_ENTITY_ID_FIELD));
+    StandardId entityId = parseLegalEntityId(row);
     CdsTrade trade = parseCdsRow(row, info, entityId, resolver);
     return resolver.completeTrade(row, trade);
   }
@@ -238,12 +238,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
             SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD,
             SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD))
         .ifPresent(settleOffset -> cdsBuilder.settlementDateOffset(settleOffset));
-    row.findValue(RED_CODE_FIELD)
-        .map(s -> LoaderUtils.parseRedCode(s))
-        .ifPresent(redCode -> cdsBuilder.redCode(redCode));
-    row.findValue(SENIORITY_FIELD)
-        .map(s -> CdsTier.of(s))
-        .ifPresent(cdsTier -> cdsBuilder.seniorityTier(cdsTier));
 
     return CdsTrade.builder()
         .info(info)
@@ -253,6 +247,29 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
   }
 
   //-------------------------------------------------------------------------
+  // parse the legal entity ID
+  private static StandardId parseLegalEntityId(CsvRow row) {
+    Optional<String> redCodeOpt = row.findValue(RED_CODE_FIELD);
+    Optional<String> seniorityOpt = row.findValue(SENIORITY_FIELD);
+    if (redCodeOpt.isPresent() && seniorityOpt.isPresent()) {
+      StandardId redCode = LoaderUtils.parseRedCode(redCodeOpt.get());
+      String stem = redCode.getValue().substring(0, 6) + "-CDS";
+      return StandardId.of(DEFAULT_TICKER_SCHEME, stem + '-' + parseSeniority(seniorityOpt.get()));
+    }
+    String entityScheme = row.findValue(LEGAL_ENTITY_ID_SCHEME_FIELD).orElse(DEFAULT_LEGAL_ENTITY_SCHEME);
+    return StandardId.of(entityScheme, row.getValue(LEGAL_ENTITY_ID_FIELD));
+  }
+
+  // checks seniority is valid
+  private static String parseSeniority(String seniority) {
+    String seniorityUpper = seniority.toUpperCase(Locale.ENGLISH);
+    if (ACCEPTED_SENIORITY_VALUES.contains(seniorityUpper)) {
+      return seniorityUpper;
+    }
+    throw new IllegalArgumentException("Unknown Seniority value, must be : " + ACCEPTED_SENIORITY_VALUES + " but was '"
+        + seniority + "'. The parser is case insensitive.");
+  }
+
   // accrual schedule
   private static PeriodicSchedule parseSchedule(CsvRow row, Currency currency) {
     PeriodicSchedule.Builder builder = PeriodicSchedule.builder();
@@ -297,8 +314,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     boolean startConv = false;
     boolean endConv = false;
     boolean overrideStart = false;
-    boolean redCode = false;
-    boolean seniority = false;
     for (CdsTrade trade : trades) {
       Cds cds = trade.getProduct();
       PeriodicSchedule schedule = cds.getPaymentSchedule();
@@ -309,8 +324,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       startConv |= schedule.getStartDateBusinessDayAdjustment().isPresent();
       endConv |= schedule.getEndDateBusinessDayAdjustment().isPresent();
       overrideStart |= schedule.getOverrideStartDate().isPresent();
-      redCode |= cds.getRedCode().isPresent();
-      seniority |= cds.getSeniorityTier().isPresent();
     }
     return createHeaders(
         false,
@@ -319,11 +332,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
         settleOffset,
         startConv,
         endConv,
-        overrideStart,
-        redCode,
-        seniority,
-        false,
-        false);
+        overrideStart);
   }
 
   @Override
@@ -333,8 +342,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     csv.writeCell(LEGAL_ENTITY_ID_SCHEME_FIELD, product.getLegalEntityId().getScheme());
     csv.writeCell(LEGAL_ENTITY_ID_FIELD, product.getLegalEntityId().getValue());
     trade.getUpfrontFee().ifPresent(premium -> CsvWriterUtils.writePremiumFields(csv, premium));
-    product.getRedCode().ifPresent(redCode -> csv.writeCell(RED_CODE_FIELD, redCode.getValue()));
-    product.getSeniorityTier().ifPresent(seniority -> csv.writeCell(SENIORITY_FIELD, seniority));
     writeCdsDetails(
         csv,
         product.getBuySell(),
@@ -371,11 +378,7 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
       boolean settleOffset,
       boolean startConv,
       boolean endConv,
-      boolean overrideStart,
-      boolean redCode,
-      boolean seniority,
-      boolean indexSeries,
-      boolean indexVersion) {
+      boolean overrideStart) {
 
     // select the headers
     LinkedHashSet<String> headers = new LinkedHashSet<>();
@@ -435,18 +438,6 @@ final class CdsTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlu
     headers.add(LAST_REGULAR_END_DATE_FIELD);
     headers.add(DATE_ADJ_CNV_FIELD);
     headers.add(DATE_ADJ_CAL_FIELD);
-    if (redCode) {
-      headers.add(RED_CODE_FIELD);
-    }
-    if (seniority) {
-      headers.add(SENIORITY_FIELD);
-    }
-    if (indexSeries) {
-      headers.add(INDEX_SERIES_FIELD);
-    }
-    if (indexVersion) {
-      headers.add(INDEX_VERSION_FIELD);
-    }
     return headers;
   }
 
