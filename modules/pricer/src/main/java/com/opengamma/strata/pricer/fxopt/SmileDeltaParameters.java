@@ -350,7 +350,7 @@ public final class SmileDeltaParameters
     double[] dStrikedVol = new double[2 * nbDelta + 1];
     double[] valueDerivatives = new double[4];
     double atmVol = volatility.get(nbDelta);
-    dStrikedVol[nbDelta] = 2 * atmVol * expiry / 2 * forward * Math.exp(atmVol * atmVol * expiry / 2.0);
+    dStrikedVol[nbDelta] = atmVol * expiry * forward * Math.exp(atmVol * atmVol * expiry / 2.0);
     for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
       BlackFormulaRepository.impliedStrike(
           -delta.get(loopdelta), false, forward, expiry, volatility.get(loopdelta), valueDerivatives); // Put
