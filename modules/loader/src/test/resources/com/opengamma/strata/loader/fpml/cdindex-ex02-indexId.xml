@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--View is confirmation-->
+<!--Version is 5-8-->
+<!--NS is http://www.fpml.org/FpML-5/confirmation-->
+<!--
+        == Copyright (c) 2014-2015 All rights reserved.
+        == Financial Products Markup Language is subject to the FpML public license.
+        == A copy of this license is available at http://www.fpml.org/license/license.html
+-->
+<!--5.0:Message type is a Root of the message-->
+<dataDocument xmlns="http://www.fpml.org/FpML-5/confirmation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" fpmlVersion="5-8" xsi:schemaLocation="http://www.fpml.org/FpML-5/confirmation ../../fpml-main-5-8.xsd http://www.w3.org/2000/09/xmldsig# ../../xmldsig-core-schema.xsd">
+  <trade>
+    <tradeHeader>
+      <partyTradeIdentifier>
+        <partyReference href="party1" />
+        <tradeId tradeIdScheme="http://www.newbank.com/trade-id">CDX1234</tradeId>
+      </partyTradeIdentifier>
+      <partyTradeIdentifier>
+        <partyReference href="party2" />
+        <tradeId tradeIdScheme="http://www.massivebank.com/trade-id">1234A6</tradeId>
+      </partyTradeIdentifier>
+      <tradeDate>2020-01-24</tradeDate>
+    </tradeHeader>
+    <creditDefaultSwap>
+      <generalTerms>
+        <effectiveDate>
+          <unadjustedDate>2020-03-23</unadjustedDate>
+        </effectiveDate>
+        <scheduledTerminationDate>
+          <unadjustedDate>2021-06-20</unadjustedDate>
+        </scheduledTerminationDate>
+        <buyerPartyReference href="party2" />
+        <sellerPartyReference href="party1" />
+        <indexReferenceInformation>
+          <indexName>CDX.NA.IG</indexName>
+          <indexId>2I65BYCM5</indexId>
+          <indexSeries>16</indexSeries>
+          <indexAnnexDate>2018-03-12</indexAnnexDate>
+          <indexAnnexSource>Publisher</indexAnnexSource>
+        </indexReferenceInformation>
+      </generalTerms>
+      <feeLeg>
+        <initialPayment>
+          <payerPartyReference href="party1" />
+          <receiverPartyReference href="party2" />
+          <paymentAmount>
+            <currency>USD</currency>
+            <amount>16000</amount>
+          </paymentAmount>
+        </initialPayment>
+        <periodicPayment>
+          <fixedAmountCalculation>
+            <fixedRate>0.0060</fixedRate>
+          </fixedAmountCalculation>
+        </periodicPayment>
+      </feeLeg>
+      <protectionTerms>
+        <calculationAmount>
+          <currency>USD</currency>
+          <amount>25000000</amount>
+        </calculationAmount>
+      </protectionTerms>
+    </creditDefaultSwap>
+    <documentation>
+      <masterConfirmation>
+        <masterConfirmationType>CDX.NA.IG</masterConfirmationType>
+        <masterConfirmationDate>2020-10-18</masterConfirmationDate>
+      </masterConfirmation>
+    </documentation>
+  </trade>
+  <party id="party1">
+    <partyId>Party1</partyId>
+  </party>
+  <party id="party2">
+    <partyId>Party2</partyId>
+  </party>
+</dataDocument>

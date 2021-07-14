@@ -7,7 +7,9 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.StandardSchemes.OG_COUNTERPARTY;
 import static com.opengamma.strata.basics.StandardSchemes.OG_SECURITY_SCHEME;
+import static com.opengamma.strata.basics.currency.Currency.BRL;
 import static com.opengamma.strata.basics.currency.Currency.CAD;
+import static com.opengamma.strata.basics.currency.Currency.CLP;
 import static com.opengamma.strata.basics.currency.Currency.CZK;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
@@ -26,6 +28,7 @@ import static com.opengamma.strata.collect.TestHelper.coverPrivateConstructor;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
+import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +55,7 @@ import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -59,10 +63,12 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
 import com.opengamma.strata.basics.date.DayCounts;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.index.FxIndex;
 import com.opengamma.strata.basics.index.FxIndices;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndices;
+import com.opengamma.strata.basics.index.ImmutableFxIndex;
 import com.opengamma.strata.basics.index.OvernightIndices;
 import com.opengamma.strata.basics.index.PriceIndices;
 import com.opengamma.strata.basics.schedule.Frequency;
@@ -105,12 +111,19 @@ import com.opengamma.strata.product.deposit.type.TermDepositConventions;
 import com.opengamma.strata.product.fra.Fra;
 import com.opengamma.strata.product.fra.FraTrade;
 import com.opengamma.strata.product.fra.type.FraConventions;
+import com.opengamma.strata.product.fx.FxNdf;
+import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwap;
 import com.opengamma.strata.product.fx.FxSwapTrade;
+import com.opengamma.strata.product.fxopt.FxSingleBarrierOption;
+import com.opengamma.strata.product.fxopt.FxSingleBarrierOptionTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
+import com.opengamma.strata.product.option.SimpleConstantContinuousBarrier;
 import com.opengamma.strata.product.payment.BulletPayment;
 import com.opengamma.strata.product.payment.BulletPaymentTrade;
 import com.opengamma.strata.product.swap.CompoundingMethod;
@@ -175,7 +188,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_forwards() throws Exception {
+  public void test_load_fx_forwards() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -213,7 +226,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_forwards_with_legs_in_same_direction() throws Exception {
+  public void test_load_fx_forwards_with_legs_in_same_direction() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades_legs_same_direction.csv");
     ValueWithFailures<List<Trade>> loadedData = standard.load(locator);
@@ -228,7 +241,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_forwards_fullFormat() throws Exception {
+  public void test_load_fx_forwards_fullFormat() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -304,7 +317,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_load_fx_swaps() throws Exception {
+  public void test_load_fx_swaps() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -342,7 +355,7 @@ public class TradeCsvLoaderTest {
   }
 
   @Test
-  public void test_load_fx_swaps_fullFormat() throws Exception {
+  public void test_load_fx_swaps_fullFormat() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -372,7 +385,7 @@ public class TradeCsvLoaderTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_load_fx_vanilla_option() throws Exception {
+  public void test_load_fx_vanilla_option() {
     TradeCsvLoader standard = TradeCsvLoader.standard();
     ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades.csv");
     ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
@@ -403,6 +416,70 @@ public class TradeCsvLoaderTest {
             AdjustableDate.of(LocalDate.of(2016, 12, 8))))
         .build();
     assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_load_fx_ndf() {
+    TradeCsvLoader standard = TradeCsvLoader.standard();
+    ResourceLocator locator = ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/fxtrades2.csv");
+    ImmutableList<CharSource> charSources = ImmutableList.of(locator.getCharSource());
+    ValueWithFailures<List<FxNdfTrade>> loadedData = standard.parse(charSources, FxNdfTrade.class);
+    assertThat(loadedData.getFailures().size()).as(loadedData.getFailures().toString()).isEqualTo(0);
+
+    List<FxNdfTrade> loadedTrades = loadedData.getValue();
+    assertThat(loadedTrades).hasSize(3);
+
+    FxNdfTrade expectedTrade0 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId11"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, 10_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, INR), 6.5))
+            .index(FxIndex.of("USD/INR-FBIL-INR01"))
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(0), expectedTrade0);
+
+    FxNdfTrade expectedTrade1 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId12"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, -20_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, CLP), 5.8))
+            .index(FxIndex.of("USD/CLP-DOLAR-OBS-CLP10"))
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(1), expectedTrade1);
+
+    HolidayCalendarId usdBrlCalId = HolidayCalendarId.defaultByCurrency(USD)
+        .combinedWith(HolidayCalendarId.defaultByCurrency(BRL));
+    FxNdfTrade expectedTrade2 = FxNdfTrade.builder()
+        .info(TradeInfo.builder()
+            .tradeDate(date(2016, 12, 6))
+            .id(StandardId.of("OG", "tradeId13"))
+            .build())
+        .product(FxNdf.builder()
+            .settlementCurrencyNotional(CurrencyAmount.of(USD, -30_000_000))
+            .paymentDate(date(2016, 12, 8))
+            .agreedFxRate(FxRate.of(CurrencyPair.of(USD, BRL), 5.5))
+            .index(ImmutableFxIndex.builder()
+                .name("USD/BRL")
+                .currencyPair(CurrencyPair.of(USD, BRL))
+                .fixingCalendar(usdBrlCalId)
+                .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, usdBrlCalId))
+                .build())
+            .build())
+        .build();
+    assertBeanEquals(loadedTrades.get(2), expectedTrade2);
+
+    checkRoundtrip(FxNdfTrade.class, loadedTrades, expectedTrade0, expectedTrade1, expectedTrade2);
   }
 
   //-------------------------------------------------------------------------
@@ -1601,6 +1678,49 @@ public class TradeCsvLoaderTest {
     return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
   }
 
+  private FxSingleTrade expectedFxSingle() {
+    double notional = 1.0e6;
+    double fxRate = 1.1d;
+    return FxSingleTrade.of(
+        TradeInfo.empty(),
+        FxSingle.of(
+            CurrencyAmount.of(EUR, notional),
+            CurrencyAmount.of(USD, -notional * fxRate),
+            LocalDate.of(2014, 5, 13)));
+  }
+
+  private FxVanillaOptionTrade expectedFxVanillaOption() {
+    return FxVanillaOptionTrade.builder()
+        .product(FxVanillaOption.builder()
+            .longShort(SHORT)
+            .expiryDate(LocalDate.of(2014, 5, 9))
+            .expiryTime(LocalTime.of(13, 10))
+            .expiryZone(ZoneId.of("Z"))
+            .underlying(expectedFxSingle().getProduct())
+            .build())
+        .premium(AdjustablePayment.of(Payment.of(CurrencyAmount.of(USD, 230.3), LocalDate.of(2014, 1, 12))))
+        .build();
+  }
+
+  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithRebate() {
+    return FxSingleBarrierOptionTrade.builder()
+        .product(FxSingleBarrierOption.of(
+            expectedFxVanillaOption().getProduct(),
+            SimpleConstantContinuousBarrier.of(BarrierType.UP, KnockType.KNOCK_IN, 17.2),
+            CurrencyAmount.of(USD, 17.666)))
+        .premium(AdjustablePayment.of(Payment.of(CurrencyAmount.of(USD, 230.3), LocalDate.of(2014, 1, 12))))
+        .build();
+  }
+
+  private FxSingleBarrierOptionTrade expectedFxSingleBarrierOptionWithoutRebate() {
+    return FxSingleBarrierOptionTrade.builder()
+        .product(FxSingleBarrierOption.of(
+            expectedFxVanillaOption().getProduct(),
+            SimpleConstantContinuousBarrier.of(BarrierType.DOWN, KnockType.KNOCK_OUT, 17.2)))
+        .premium(AdjustablePayment.of(Payment.of(CurrencyAmount.of(USD, 230.3), LocalDate.of(2014, 1, 12))))
+        .build();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_load_bulletPayment() {
@@ -1747,7 +1867,7 @@ public class TradeCsvLoaderTest {
             .build())
         .product(Cds.builder()
             .buySell(BUY)
-            .legalEntityId(StandardId.of("BLUE", "CAT"))
+            .legalEntityId(StandardId.of("OG-Ticker", "CATCDS-CDS-SNRFOR"))
             .fixedRate(0.026)
             .currency(EUR)
             .notional(1_500_000)
@@ -1771,7 +1891,7 @@ public class TradeCsvLoaderTest {
             .build())
         .product(Cds.builder()
             .buySell(BUY)
-            .legalEntityId(StandardId.of("BLUE", "CAT"))
+            .legalEntityId(StandardId.of("OG-Ticker", "CATCDS-CDS-SECDOM"))
             .fixedRate(0.026)
             .currency(EUR)
             .notional(1_500_000)
@@ -1808,11 +1928,12 @@ public class TradeCsvLoaderTest {
     assertThat(filtered).hasSize(2);
 
     CdsIndexTrade expected0 = expectedCdsIndex0();
+    CdsIndexTrade expected1 = expectedCdsIndex1();
 
     assertBeanEquals(expected0, filtered.get(0));
-    assertBeanEquals(expected0, filtered.get(1));
+    assertBeanEquals(expected1, filtered.get(1));
 
-    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected0);
+    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected1);
   }
 
   private CdsIndexTrade expectedCdsIndex0() {
@@ -1824,6 +1945,33 @@ public class TradeCsvLoaderTest {
         .notional(1_000_000)
         .fixedRate(0.05)
         .cdsIndexId(StandardId.of("OG-CDS", "IDX"))
+        .legalEntityIds(legEnt1, legEnt2)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2017, 6, 1))
+            .endDate(date(2022, 6, 1))
+            .frequency(Frequency.P12M)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .stubConvention(StubConvention.SMART_INITIAL)
+            .build())
+        .build();
+    return CdsIndexTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123451"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(cdsIndex)
+        .build();
+  }
+
+  private CdsIndexTrade expectedCdsIndex1() {
+    StandardId legEnt1 = StandardId.of("OG-Entity", "FOO");
+    StandardId legEnt2 = StandardId.of("OG-Entity", "BAR");
+    CdsIndex cdsIndex = CdsIndex.builder()
+        .buySell(BUY)
+        .currency(GBP)
+        .notional(1_000_000)
+        .fixedRate(0.05)
+        .cdsIndexId(StandardId.of("OG-Ticker", "FOOBARCDS-CDX-S1V1"))
         .legalEntityIds(legEnt1, legEnt2)
         .paymentSchedule(PeriodicSchedule.builder()
             .startDate(date(2017, 6, 1))
@@ -2001,6 +2149,22 @@ public class TradeCsvLoaderTest {
   }
 
   //-------------------------------------------------------------------------
+
+  @Test
+  public void test_FxSingleBarrierOption() {
+    ResourceLocator file = ResourceLocator.of(
+        "classpath:com/opengamma/strata/loader/csv/fx_single_barrier_option_trade.csv");
+
+    ValueWithFailures<List<FxSingleBarrierOptionTrade>> trades = TradeCsvLoader.standard().parse(
+        ImmutableList.of(file.getCharSource()), FxSingleBarrierOptionTrade.class);
+
+    checkRoundtrip(
+        FxSingleBarrierOptionTrade.class,
+        trades.getValue(),
+        expectedFxSingleBarrierOptionWithRebate(),
+        expectedFxSingleBarrierOptionWithoutRebate());
+  }
+
   @Test
   public void test_load_CapFloor() {
     TradeCsvLoader test = TradeCsvLoader.standard();
@@ -2256,10 +2420,11 @@ public class TradeCsvLoaderTest {
     coverPrivateConstructor(FraTradeCsvPlugin.class);
     coverPrivateConstructor(FxSingleTradeCsvPlugin.class);
     coverPrivateConstructor(FxSwapTradeCsvPlugin.class);
-    coverPrivateConstructor(SecurityCsvPlugin.class);
+    coverPrivateConstructor(SecurityTradeCsvPlugin.class);
     coverPrivateConstructor(SwapTradeCsvPlugin.class);
     coverPrivateConstructor(TermDepositTradeCsvPlugin.class);
     coverPrivateConstructor(FullSwapTradeCsvPlugin.class);
+    coverPrivateConstructor(FxSingleBarrierOptionTradeCsvPlugin.class);
   }
 
 }

@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -173,10 +174,12 @@ final class CdsFpmlParserPlugin
     // CDS index
     Optional<XmlElement> indexOptEl = generalTermsEl.findChild("indexReferenceInformation");
     if (indexOptEl.isPresent()) {
-      String indexName = indexOptEl.get().getChild("indexName").getContent();
+      XmlElement indexInformation = indexOptEl.get();
+      StandardId standardId = tryParseIndexId(indexInformation)
+          .orElseGet(() -> StandardId.of("CDX-Name", indexInformation.getChild("indexName").getContent()));
       CdsIndex cdsIndex = CdsIndex.builder()
           .buySell(buySell)
-          .cdsIndexId(StandardId.of("CDX-Name", indexName))
+          .cdsIndexId(standardId)
           .currency(notional.getCurrency())
           .notional(notional.getAmount())
           .paymentSchedule(scheduleBuilder.build())
@@ -192,6 +195,19 @@ final class CdsFpmlParserPlugin
 
     // unknown type
     throw new FpmlParseException("FpML CDS must be single name or index");
+  }
+
+  private Optional<StandardId> tryParseIndexId(XmlElement indexInformation) {
+    Optional<XmlElement> idOpt = indexInformation.findChild("indexId");
+    if (idOpt.isPresent()) {
+      XmlElement idElement = idOpt.get();
+      String id = idElement.getContent();
+      if (id.length() == 9) {
+        return Optional.of(StandardId.of(StandardSchemes.RED9_SCHEME, id));
+      }
+      return idElement.findAttribute("indexIdScheme").map(scheme -> StandardId.of(scheme, id));
+    }
+    return Optional.empty();
   }
 
   //-------------------------------------------------------------------------

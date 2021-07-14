@@ -22,6 +22,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.MarketTenor;
 import com.opengamma.strata.basics.date.Tenor;
@@ -440,6 +442,14 @@ public class LoaderUtilsTest {
     assertThat(LoaderUtils.parseLongShort("short")).isEqualTo(LongShort.SHORT);
     assertThat(LoaderUtils.parseLongShort("s")).isEqualTo(LongShort.SHORT);
     assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseLongShort("Rubbish"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_parseRedCode() {
+    assertThat(LoaderUtils.parseRedCode("123456")).isEqualTo(StandardId.of(StandardSchemes.RED6_SCHEME, "123456"));
+    assertThat(LoaderUtils.parseRedCode("123456789")).isEqualTo(StandardId.of(StandardSchemes.RED9_SCHEME, "123456789"));
+    assertThatIllegalArgumentException().isThrownBy(() -> LoaderUtils.parseRedCode("0"));
   }
 
   //-------------------------------------------------------------------------

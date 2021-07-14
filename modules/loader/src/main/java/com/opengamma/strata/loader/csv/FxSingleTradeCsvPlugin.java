@@ -8,8 +8,15 @@ package com.opengamma.strata.loader.csv;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.BUY_SELL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CONVENTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.CURRENCY_FIELD;
-import static com.opengamma.strata.loader.csv.CsvLoaderColumns.DIRECTION_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.FX_RATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_1_PAYMENT_DATE_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_CURRENCY_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_DIRECTION_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_NOTIONAL_FIELD;
+import static com.opengamma.strata.loader.csv.CsvLoaderColumns.LEG_2_PAYMENT_DATE_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.NOTIONAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CAL_FIELD;
 import static com.opengamma.strata.loader.csv.CsvLoaderColumns.PAYMENT_DATE_CNV_FIELD;
@@ -21,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -29,6 +35,7 @@ import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.Messages;
+import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
 import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.loader.LoaderUtils;
@@ -42,36 +49,25 @@ import com.opengamma.strata.product.fx.FxSingleTrade;
 /**
  * Handles the CSV file format for FX Single trades.
  */
-class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<FxSingleTrade> {
+class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<FxSingleTrade> {
 
   /**
    * The singleton instance of the plugin.
    */
   public static final FxSingleTradeCsvPlugin INSTANCE = new FxSingleTradeCsvPlugin();
 
-  static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
-  static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
-  static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
-  static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
-
-  static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
-  static final String LEG_2_PAYMENT_DATE_FIELD = "Leg 2 " + PAYMENT_DATE_FIELD;
-  static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
-  static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
-
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
-      .add(LEG_1_DIRECTION_FIELD)
-      .add(LEG_1_PAYMENT_DATE_FIELD)
-      .add(LEG_1_CURRENCY_FIELD)
-      .add(LEG_1_NOTIONAL_FIELD)
-      .add(LEG_2_DIRECTION_FIELD)
-      .add(LEG_2_PAYMENT_DATE_FIELD)
-      .add(LEG_2_CURRENCY_FIELD)
-      .add(LEG_2_NOTIONAL_FIELD)
-      .add(PAYMENT_DATE_CNV_FIELD)
-      .add(PAYMENT_DATE_CAL_FIELD)
-      .build();
+  private static final ImmutableSet<String> HEADERS = ImmutableSet.of(
+      LEG_1_DIRECTION_FIELD,
+      LEG_1_PAYMENT_DATE_FIELD,
+      LEG_1_CURRENCY_FIELD,
+      LEG_1_NOTIONAL_FIELD,
+      LEG_2_DIRECTION_FIELD,
+      LEG_2_PAYMENT_DATE_FIELD,
+      LEG_2_CURRENCY_FIELD,
+      LEG_2_NOTIONAL_FIELD,
+      PAYMENT_DATE_CNV_FIELD,
+      PAYMENT_DATE_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -95,7 +91,12 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
 
   @Override
   public String getName() {
-    return "FxSingle";
+    return FxSingleTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(FxSingleTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -148,13 +149,11 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
   static FxSingle parseFxSingle(CsvRow row, String prefix) {
     CurrencyAmount amount1 = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, prefix + LEG_1_CURRENCY_FIELD, prefix + LEG_1_NOTIONAL_FIELD, prefix + LEG_1_DIRECTION_FIELD);
-    LocalDate paymentDate1 = row.findValue(prefix + LEG_1_PAYMENT_DATE_FIELD)
-        .map(str -> LoaderUtils.parseDate(str))
+    LocalDate paymentDate1 = row.findValue(prefix + LEG_1_PAYMENT_DATE_FIELD, LoaderUtils::parseDate)
         .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     CurrencyAmount amount2 = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, prefix + LEG_2_CURRENCY_FIELD, prefix + LEG_2_NOTIONAL_FIELD, prefix + LEG_2_DIRECTION_FIELD);
-    LocalDate paymentDate2 = row.findValue(prefix + LEG_2_PAYMENT_DATE_FIELD)
-        .map(str -> LoaderUtils.parseDate(str))
+    LocalDate paymentDate2 = row.findValue(prefix + LEG_2_PAYMENT_DATE_FIELD, LoaderUtils::parseDate)
         .orElseGet(() -> row.getValue(prefix + PAYMENT_DATE_FIELD, LoaderUtils::parseDate));
     Optional<BusinessDayAdjustment> paymentAdj = parsePaymentDateAdjustment(row);
     if (amount1.isPositive() == amount2.isPositive()) {
@@ -178,19 +177,18 @@ class FxSingleTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<FxSingleTrade> trades) {
+  public Set<String> headers(List<FxSingleTrade> trades) {
     return HEADERS;
   }
 
   @Override
   public void writeCsv(CsvRowOutputWithHeaders csv, FxSingleTrade trade) {
     csv.writeCell(TRADE_TYPE_FIELD, "FxSingle");
-    writeProduct(csv, "", trade.getProduct());
+    writeFxSingle(csv, "", trade.getProduct());
     csv.writeNewLine();
   }
 
-  // writes the product to CSV
-  void writeProduct(CsvRowOutputWithHeaders csv, String prefix, FxSingle product) {
+  void writeFxSingle(CsvOutput.CsvRowOutputWithHeaders csv, String prefix, FxSingle product) {
     Payment basePayment = product.getBaseCurrencyPayment();
     csv.writeCell(prefix + LEG_1_DIRECTION_FIELD, PayReceive.ofSignedAmount(basePayment.getAmount()));
     csv.writeCell(prefix + LEG_1_CURRENCY_FIELD, basePayment.getCurrency());

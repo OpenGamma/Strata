@@ -26,6 +26,7 @@ import com.opengamma.strata.product.credit.CdsIndexTrade;
 import com.opengamma.strata.product.credit.CdsTrade;
 import com.opengamma.strata.product.deposit.TermDepositTrade;
 import com.opengamma.strata.product.fra.FraTrade;
+import com.opengamma.strata.product.fx.FxNdfTrade;
 import com.opengamma.strata.product.fx.FxSingleTrade;
 import com.opengamma.strata.product.fx.FxSwapTrade;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
@@ -270,6 +271,23 @@ public interface TradeCsvInfoResolver {
   }
 
   /**
+   * Completes the FX NDF trade, potentially parsing additional columns.
+   * <p>
+   * This is called after the trade has been parsed and after
+   * {@link #parseTradeInfo(CsvRow, TradeInfoBuilder)}.
+   * <p>
+   * By default this calls {@link #completeTradeCommon(CsvRow, Trade)}.
+   *
+   * @param row  the CSV row to parse
+   * @param trade  the parsed trade
+   * @return the updated trade
+   */
+  public default FxNdfTrade completeTrade(CsvRow row, FxNdfTrade trade) {
+    //do nothing
+    return completeTradeCommon(row, trade);
+  }
+
+  /**
    * Completes the CDS trade, potentially parsing additional columns.
    * <p>
    * This is called after the trade has been parsed and after
@@ -342,7 +360,7 @@ public interface TradeCsvInfoResolver {
    * @throws RuntimeException if the row contains invalid data
    */
   public default SecurityQuantityTrade parseSecurityTrade(CsvRow row, TradeInfo info) {
-    return SecurityCsvPlugin.parseTradeWithPriceInfo(row, info, this);
+    return SecurityTradeCsvPlugin.parseTradeWithPriceInfo(row, info, this);
   }
 
   /**
@@ -432,6 +450,18 @@ public interface TradeCsvInfoResolver {
   }
 
   /**
+   * Parses a FX NDF trade from CSV.
+   *
+   * @param row  the CSV row to parse
+   * @param info  the trade info
+   * @return the FX NDF trade
+   * @throws RuntimeException if the row contains invalid data
+   */
+  public default FxNdfTrade parseFxNdfTrade(CsvRow row, TradeInfo info) {
+    return FxNdfTradeCsvPlugin.parse(row, info, this);
+  }
+
+  /**
    * Parses a CDS trade from CSV.
    * 
    * @param row  the CSV row to parse
@@ -452,7 +482,7 @@ public interface TradeCsvInfoResolver {
    * @throws RuntimeException if the row contains invalid data
    */
   public default CdsIndexTrade parseCdsIndexTrade(CsvRow row, TradeInfo info) {
-    return CdsTradeCsvPlugin.parseCdsIndex(row, info, this);
+    return CdsIndexTradeCsvPlugin.parseCdsIndex(row, info, this);
   }
 
   /**
