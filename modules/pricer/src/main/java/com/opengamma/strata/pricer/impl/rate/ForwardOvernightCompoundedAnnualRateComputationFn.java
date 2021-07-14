@@ -131,7 +131,13 @@ public class ForwardOvernightCompoundedAnnualRateComputationFn
     private double valuationCompositionFactor() {
       LocalDate currentFixing = nextFixing;
       LocalDate currentPublication = computation.calculatePublicationFromFixing(currentFixing);
-      if (rates.getValuationDate().equals(currentPublication) && !(currentFixing.isAfter(lastFixing))) {
+      // Check if the valuation date either equals current publication date or falls between
+      // the current fixing date and the publication date (because it's on a holiday).
+      // Also check that current fixing date is less than or equal to the last fixing non-cutoff date.
+      LocalDate valuationDate = rates.getValuationDate();
+      boolean isHolidayJump = currentFixing.isBefore(valuationDate) && currentPublication.isAfter(valuationDate);
+      if ((valuationDate.equals(currentPublication) || isHolidayJump) &&
+          !(currentFixing.isAfter(lastFixing))) {
         OptionalDouble fixedRate = indexFixingDateSeries.get(currentFixing);
         if (fixedRate.isPresent()) {
           nextFixing = computation.getFixingCalendar().next(nextFixing);
