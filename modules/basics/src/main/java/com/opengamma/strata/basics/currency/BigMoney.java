@@ -20,7 +20,7 @@ import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * An monetary amount, held to a maximum of 12 decimal places.
+ * A monetary amount, held to a maximum of 12 decimal places.
  * <p>
  * This class is similar to {@link Money}, but permits any number of decimal places.
  * The amount will always have at least the number of decimal places of the currency.
