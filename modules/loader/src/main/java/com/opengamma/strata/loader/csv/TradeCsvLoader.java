@@ -423,6 +423,7 @@ public final class TradeCsvLoader {
           continue rows;
         }
         // standard type matching
+        ImmutableMap<String, TradeCsvParserPlugin> plugins = PLUGINS;
         TradeCsvParserPlugin plugin = PLUGINS.get(typeUpper);
         if (plugin != null) {
           List<CsvRow> additionalRows = new ArrayList<>();

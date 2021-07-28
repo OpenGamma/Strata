@@ -349,6 +349,8 @@ public final class CsvLoaderColumns {
   /** CSV header (Position/Security). */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
   /** CSV header (Position/Security). */
+  public static final String UNDERLYING_CURRENCY_FIELD = "Underlying Currency";
+  /** CSV header (Position/Security). */
   public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
   /** CSV header (Position/Security). */
   public static final String TICK_SIZE_FIELD = "Tick Size";
@@ -356,6 +358,18 @@ public final class CsvLoaderColumns {
   public static final String TICK_VALUE_FIELD = "Tick Value";
   /** CSV header (Position/Security). */
   public static final String CONTRACT_SIZE_FIELD = "Contract Size";
+  /** CSV head (Position/Security). */
+  public static final String OBSERVATION_START_DATE_FIELD = "Observation Start Date";
+  /** CSV head (Position/Security). */
+  public static final String OBSERVATION_END_DATE_FIELD = "Observation End Date";
+  /** CSV head (Position/Security). */
+  public static final String OBSERVATION_TIME_FIELD = "Observation Time";
+  /** CSV head (Position/Security). */
+  public static final String OBSERVATION_ZONE_FIELD = "Observation Zone";
+  /** CSV head (Position/Security). */
+  public static final String OBSERVATION_CAL_FIELD = "Observation Calendar";
+  /** CSV head (Position/Security). */
+  public static final String OBSERVATION_COV_FIELD = "Observation Convention";
 
   /** CSV header (Exotic Options). */
   public static final String BARRIER_LEVEL_FIELD = "Barrier Level";
