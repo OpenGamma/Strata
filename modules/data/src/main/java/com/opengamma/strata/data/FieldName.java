@@ -53,6 +53,10 @@ public final class FieldName
    * The dirty price includes the accrued interest.
    */
   public static final FieldName DIRTY_PRICE = of("DirtyPrice");
+  /**
+   * The field name for the volatility of an asset.
+   */
+  public static final FieldName VOLATILITY = of("Volatility");
 
   //-------------------------------------------------------------------------
   /**
