@@ -87,7 +87,9 @@ final class CdsIndexTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
     // handle either one scheme for all IDs, or one scheme for each ID
     List<String> entitySchemeStrs = Splitter.on(';')
         .splitToList(row.findValue(LEGAL_ENTITY_ID_SCHEME_FIELD).orElse(DEFAULT_LEGAL_ENTITY_SCHEME));
-    List<String> entityIdStrs = Splitter.on(';').splitToList(row.getValue(LEGAL_ENTITY_ID_FIELD));
+    List<String> entityIdStrs = row.findValue(LEGAL_ENTITY_ID_FIELD)
+        .map(Splitter.on(';')::splitToList)
+        .orElse(ImmutableList.of());
     List<StandardId> entityIds;
     if (entityIdStrs.size() == 0) {
       entityIds = ImmutableList.of();
