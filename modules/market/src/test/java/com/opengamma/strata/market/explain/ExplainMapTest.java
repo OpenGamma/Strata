@@ -51,6 +51,12 @@ public class ExplainMapTest {
     assertThat(test.get(ExplainKey.ACCRUAL_DAY_COUNT)).isEqualTo(Optional.empty());
   }
 
+  @Test
+  public void test_empty() {
+    ExplainMap test = ExplainMap.empty();
+    assertThat(test.getMap()).isEmpty();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_builder_simple() {
@@ -151,6 +157,15 @@ public class ExplainMapTest {
         "  }]," + EOL +
         "  PresentValue = GBP 1000" + EOL +
         "}" + EOL);
+  }
+
+  @Test
+  public void test_isEmpty() {
+    ExplainMap test = ExplainMap.empty();
+    assertThat(test.isEmpty()).isTrue();
+
+    ExplainMap test2 = ExplainMap.of(ImmutableMap.of(ExplainKey.DAYS, 2));
+    assertThat(test2.isEmpty()).isFalse();
   }
 
   //-------------------------------------------------------------------------

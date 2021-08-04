@@ -354,7 +354,16 @@ public final class CurrencyAmount
    * @return the equivalent {@code Money}
    */
   public Money toMoney() {
-    return Money.of(this.getCurrency(), this.getAmount());
+    return Money.of(currency, amount);
+  }
+
+  /**
+   * Converts this monetary amount to the equivalent {@code BigMoney}.
+   *
+   * @return the equivalent {@code BigMoney}
+   */
+  public BigMoney toBigMoney() {
+    return BigMoney.of(currency, amount);
   }
 
   /**

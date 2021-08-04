@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2021 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -7,6 +7,7 @@ package com.opengamma.strata.basics.currency;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
@@ -19,16 +20,16 @@ import com.google.common.math.DoubleMath;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * An amount of a currency, rounded to match the currency specifications.
+ * A monetary amount, held to a maximum of 12 decimal places.
  * <p>
- * This class is similar to {@link CurrencyAmount}, but only exposes the rounded amounts.
- * The rounding is done using {@link BigDecimal}, as BigDecimal.ROUND_HALF_UP. Given this operation,
- * it should be assumed that the numbers are an approximation, and not an exact figure.
+ * This class is similar to {@link Money}, but permits any number of decimal places.
+ * The amount will always have at least the number of decimal places of the currency.
+ * Trailing zeroes are stripped.
  * <p>
  * This class is immutable and thread-safe.
  */
-public class Money
-    implements FxConvertible<Money>, Comparable<Money>, Serializable {
+public class BigMoney
+    implements FxConvertible<BigMoney>, Comparable<BigMoney>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -48,60 +49,60 @@ public class Money
 
   //-------------------------------------------------------------------------
   /**
-   * Obtains a zero amount instance of {@code Money} for the specified currency.
+   * Obtains a zero amount instance of {@code BigMoney} for the specified currency.
    *
    * @param currency  the currency the amount is in
    * @return the zero amount instance
    */
-  public static Money zero(Currency currency) {
+  public static BigMoney zero(Currency currency) {
     return of(currency, BigDecimal.ZERO);
   }
 
   /**
-   * Obtains an instance of {@code Money} for the specified {@link CurrencyAmount}.
+   * Obtains an instance of {@code BigMoney} for the specified {@link CurrencyAmount}.
    *
    * @param currencyAmount  the instance of {@link CurrencyAmount} wrapping the currency and amount.
    * @return the currency amount
    */
-  public static Money of(CurrencyAmount currencyAmount) {
-    return new Money(currencyAmount.getCurrency(), BigDecimal.valueOf(currencyAmount.getAmount()));
+  public static BigMoney of(CurrencyAmount currencyAmount) {
+    return new BigMoney(currencyAmount.getCurrency(), BigDecimal.valueOf(currencyAmount.getAmount()));
   }
 
   /**
-   * Obtains an instance of {@code Money} for the specified {@link BigMoney}.
+   * Obtains an instance of {@code BigMoney} for the specified {@link Money}.
    *
-   * @param money  the instance of {@link BigMoney} wrapping the currency and amount.
+   * @param money  the instance of {@link Money} wrapping the currency and amount.
    * @return the currency amount
    */
-  public static Money of(BigMoney money) {
-    return new Money(money.getCurrency(), money.getAmount());
+  public static BigMoney of(Money money) {
+    return new BigMoney(money.getCurrency(), money.getAmount());
   }
 
   /**
-   * Obtains an instance of {@code Money} for the specified currency and amount.
+   * Obtains an instance of {@code BigMoney} for the specified currency and amount.
    *
    * @param currency  the currency the amount is in
    * @param amount  the amount of the currency to represent
    * @return the currency amount
    */
-  public static Money of(Currency currency, double amount) {
-    return new Money(currency, BigDecimal.valueOf(amount));
+  public static BigMoney of(Currency currency, double amount) {
+    return new BigMoney(currency, BigDecimal.valueOf(amount));
   }
 
   /**
-   * Obtains an instance of {@code Money} for the specified currency and amount.
+   * Obtains an instance of {@code BigMoney} for the specified currency and amount.
    *
    * @param currency  the currency the amount is in
    * @param amount  the amount of the currency to represent, as an instance of {@link BigDecimal}
    * @return the currency amount
    */
-  public static Money of(Currency currency, BigDecimal amount) {
-    return new Money(currency, amount);
+  public static BigMoney of(Currency currency, BigDecimal amount) {
+    return new BigMoney(currency, amount);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Parses the string to produce a {@link Money}.
+   * Parses the string to produce a {@link BigMoney}.
    * <p>
    * This parses the {@code toString} format of '${currency} ${amount}'.
    *
@@ -110,7 +111,7 @@ public class Money
    * @throws IllegalArgumentException if the amount cannot be parsed
    */
   @FromString
-  public static Money parse(String amountStr) {
+  public static BigMoney parse(String amountStr) {
     ArgChecker.notNull(amountStr, "amountStr");
     List<String> split = Splitter.on(' ').splitToList(amountStr);
     if (split.size() != 2) {
@@ -118,7 +119,7 @@ public class Money
     }
     try {
       Currency cur = Currency.parse(split.get(0));
-      return new Money(cur, new BigDecimal(split.get(1)));
+      return new BigMoney(cur, new BigDecimal(split.get(1)));
     } catch (RuntimeException ex) {
       throw new IllegalArgumentException("Unable to parse amount: " + amountStr, ex);
     }
@@ -131,11 +132,18 @@ public class Money
    * @param currency  the currency
    * @param amount  the amount
    */
-  private Money(Currency currency, BigDecimal amount) {
+  private BigMoney(Currency currency, BigDecimal amount) {
     ArgChecker.notNull(currency, "currency");
     ArgChecker.notNull(amount, "amount");
     this.currency = currency;
-    this.amount = currency.roundMinorUnits(amount);
+    BigDecimal fixedAmount = amount.stripTrailingZeros();
+    if (fixedAmount.scale() < currency.getMinorUnitDigits()) {
+      fixedAmount = fixedAmount.setScale(currency.getMinorUnitDigits());
+    }
+    if (fixedAmount.scale() > 12) {
+      fixedAmount = fixedAmount.setScale(12, RoundingMode.HALF_UP);
+    }
+    this.amount = fixedAmount;
   }
 
   //-------------------------------------------------------------------------
@@ -153,8 +161,6 @@ public class Money
   /**
    * Gets the amount of the currency.
    * <p>
-   * The amount will be rounded to the currency specifications.
-   * <p>
    * For example, in the value 'GBP 12.34' the amount is 12.34.
    *
    * @return the amount
@@ -165,7 +171,7 @@ public class Money
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a copy of this {@code Money} with the specified amount added.
+   * Returns a copy of this {@code BigMoney} with the specified amount added.
    * <p>
    * This adds the specified amount to this monetary amount, returning a new object.
    * <p>
@@ -175,14 +181,14 @@ public class Money
    * @return an amount based on this with the specified amount added
    * @throws IllegalArgumentException if the currencies are not equal
    */
-  public Money plus(Money amountToAdd) {
+  public BigMoney plus(BigMoney amountToAdd) {
     ArgChecker.notNull(amountToAdd, "amountToAdd");
     ArgChecker.isTrue(amountToAdd.getCurrency().equals(currency), "Unable to add amounts in different currencies");
-    return new Money(currency, amount.add(amountToAdd.amount));
+    return new BigMoney(currency, amount.add(amountToAdd.amount));
   }
 
   /**
-   * Returns a copy of this {@code Money} with the specified amount subtracted.
+   * Returns a copy of this {@code BigMoney} with the specified amount subtracted.
    * <p>
    * This subtracts the specified amount to this monetary amount, returning a new object.
    * <p>
@@ -192,15 +198,15 @@ public class Money
    * @return an amount based on this with the specified amount subtracted
    * @throws IllegalArgumentException if the currencies are not equal
    */
-  public Money minus(Money amountToSubtract) {
+  public BigMoney minus(BigMoney amountToSubtract) {
     ArgChecker.notNull(amountToSubtract, "amountToSubtract");
     ArgChecker.isTrue(amountToSubtract.getCurrency().equals(currency), "Unable to subtract amounts in different currencies");
-    return new Money(currency, amount.subtract(amountToSubtract.amount));
+    return new BigMoney(currency, amount.subtract(amountToSubtract.amount));
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a copy of this {@code Money} with the amount multiplied.
+   * Returns a copy of this {@code BigMoney} with the amount multiplied.
    * <p>
    * This takes this amount and multiplies it by the specified value.
    * <p>
@@ -209,8 +215,8 @@ public class Money
    * @param valueToMultiplyBy  the scalar amount to multiply by
    * @return an amount based on this with the amount multiplied
    */
-  public Money multipliedBy(long valueToMultiplyBy) {
-    return new Money(currency, amount.multiply(BigDecimal.valueOf(valueToMultiplyBy)));
+  public BigMoney multipliedBy(long valueToMultiplyBy) {
+    return new BigMoney(currency, amount.multiply(BigDecimal.valueOf(valueToMultiplyBy)));
   }
 
   /**
@@ -225,9 +231,9 @@ public class Money
    * @param mapper  the operator to be applied to the amount
    * @return a copy of this amount with the mapping applied to the original amount
    */
-  public Money mapAmount(UnaryOperator<BigDecimal> mapper) {
+  public BigMoney mapAmount(UnaryOperator<BigDecimal> mapper) {
     ArgChecker.notNull(mapper, "mapper");
-    return new Money(currency, mapper.apply(amount));
+    return new BigMoney(currency, mapper.apply(amount));
   }
 
   //-------------------------------------------------------------------------
@@ -264,7 +270,7 @@ public class Money
 
   //-------------------------------------------------------------------------
   /**
-   * Returns a copy of this {@code Money} with the amount negated.
+   * Returns a copy of this {@code BigMoney} with the amount negated.
    * <p>
    * This takes this amount and negates it. If the amount is 0.0 or -0.0 the negated amount is 0.0.
    * <p>
@@ -272,15 +278,15 @@ public class Money
    * 
    * @return an amount based on this with the amount negated
    */
-  public Money negated() {
+  public BigMoney negated() {
     if (isZero()) {
       return this;
     }
-    return new Money(currency, amount.negate());
+    return new BigMoney(currency, amount.negate());
   }
 
   /**
-   * Returns a copy of this {@code Money} with a positive amount.
+   * Returns a copy of this {@code BigMoney} with a positive amount.
    * <p>
    * The result of this method will always be positive, where the amount is equal to {@code abs(amount)}.
    * <p>
@@ -288,12 +294,12 @@ public class Money
    * 
    * @return an amount based on this where the amount is positive
    */
-  public Money positive() {
+  public BigMoney positive() {
     return isNegative() ? negated() : this;
   }
 
   /**
-   * Returns a copy of this {@code Money} with a negative amount.
+   * Returns a copy of this {@code BigMoney} with a negative amount.
    * <p>
    * The result of this method will always be negative, equal to {@code -.abs(amount)}.
    * <p>
@@ -301,7 +307,7 @@ public class Money
    * 
    * @return an amount based on this where the amount is negative
    */
-  public Money negative() {
+  public BigMoney negative() {
     return isPositive() ? negated() : this;
   }
 
@@ -316,12 +322,12 @@ public class Money
   }
 
   /**
-   * Converts this monetary amount to the equivalent {@code BigMoney}.
+   * Converts this monetary amount to the equivalent {@code Money}.
    *
-   * @return the equivalent {@code BigMoney}
+   * @return the equivalent {@code Money}
    */
-  public BigMoney toBigMoney() {
-    return BigMoney.of(this);
+  public Money toMoney() {
+    return Money.of(this);
   }
 
   //-------------------------------------------------------------------------
@@ -339,14 +345,14 @@ public class Money
    * @return the converted instance, which should be expressed in the specified currency
    * @throws IllegalArgumentException if the FX is not 1 when no conversion is required
    */
-  public Money convertedTo(Currency resultCurrency, BigDecimal fxRate) {
+  public BigMoney convertedTo(Currency resultCurrency, BigDecimal fxRate) {
     if (currency.equals(resultCurrency)) {
       if (DoubleMath.fuzzyEquals(fxRate.doubleValue(), 1d, 1e-8)) {
         return this;
       }
       throw new IllegalArgumentException("FX rate must be 1 when no conversion required");
     }
-    return Money.of(resultCurrency, amount.multiply(fxRate));
+    return BigMoney.of(resultCurrency, amount.multiply(fxRate));
   }
 
   /**
@@ -361,12 +367,12 @@ public class Money
    * @throws RuntimeException if no FX rate could be found
    */
   @Override
-  public Money convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+  public BigMoney convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     if (currency.equals(resultCurrency)) {
       return this;
     }
     double converted = rateProvider.convert(amount.doubleValue(), currency, resultCurrency);
-    return Money.of(resultCurrency, converted);
+    return BigMoney.of(resultCurrency, converted);
   }
 
   //-------------------------------------------------------------------------
@@ -379,7 +385,7 @@ public class Money
    * @return negative if less, zero if equal, positive if greater
    */
   @Override
-  public int compareTo(Money other) {
+  public int compareTo(BigMoney other) {
     return ComparisonChain.start()
         .compare(currency, other.currency)
         .compare(amount, other.amount)
@@ -399,7 +405,7 @@ public class Money
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      Money other = (Money) obj;
+      BigMoney other = (BigMoney) obj;
       return currency.equals(other.currency) && amount.equals(other.amount);
     }
     return false;

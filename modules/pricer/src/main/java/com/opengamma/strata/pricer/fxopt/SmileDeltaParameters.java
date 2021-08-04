@@ -314,6 +314,54 @@ public final class SmileDeltaParameters
     return DoubleArray.ofUnsafe(strike);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the derivatives of the implied strikes to expiry.
+   *
+   * @param forward  the forward
+   * @return the strikes
+   */
+  public DoubleArray impliedStrikesDerivativeToExpiry(double forward) {
+    int nbDelta = delta.size();
+    double[] dStrikedTime = new double[2 * nbDelta + 1];
+    double atmVol = volatility.get(nbDelta);
+    dStrikedTime[nbDelta] = forward * atmVol * atmVol * Math.exp(atmVol * atmVol * expiry / 2.0) / 2.0;
+    for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
+      double[] valueDerivatives = new double[4];
+      BlackFormulaRepository.impliedStrike(
+          -delta.get(loopdelta), false, forward, expiry, volatility.get(loopdelta), valueDerivatives); // Put
+      dStrikedTime[loopdelta] = valueDerivatives[2];
+      BlackFormulaRepository.impliedStrike(
+          delta.get(loopdelta), true, forward, expiry, volatility.get(2 * nbDelta - loopdelta), valueDerivatives); // Call
+      dStrikedTime[2 * nbDelta - loopdelta] = valueDerivatives[2];
+    }
+    return DoubleArray.ofUnsafe(dStrikedTime);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the derivatives of the implied strikes to volatility.
+   *
+   * @param forward  the forward
+   * @return the strikes
+   */
+  public DoubleArray impliedStrikesDerivativeToSmileVols(double forward) {
+    int nbDelta = delta.size();
+    double[] dStrikedVol = new double[2 * nbDelta + 1];
+    double[] valueDerivatives = new double[4];
+    double atmVol = volatility.get(nbDelta);
+    dStrikedVol[nbDelta] = atmVol * expiry * forward * Math.exp(atmVol * atmVol * expiry / 2.0);
+    for (int loopdelta = 0; loopdelta < nbDelta; loopdelta++) {
+      BlackFormulaRepository.impliedStrike(
+          -delta.get(loopdelta), false, forward, expiry, volatility.get(loopdelta), valueDerivatives); // Put
+      dStrikedVol[loopdelta] = valueDerivatives[3];
+      BlackFormulaRepository.impliedStrike(
+          delta.get(loopdelta), true, forward, expiry, volatility.get(2 * nbDelta - loopdelta), valueDerivatives); // Call
+      dStrikedVol[2 * nbDelta - loopdelta] = valueDerivatives[3];
+    }
+    return DoubleArray.ofUnsafe(dStrikedVol);
+  }
+
   /**
    * Gets the tenor associated with the time to expiry, optional.
    * @return the optional value of the property, not null

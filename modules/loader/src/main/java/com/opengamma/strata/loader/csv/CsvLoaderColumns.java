@@ -349,6 +349,8 @@ public final class CsvLoaderColumns {
   /** CSV header (Position/Security). */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
   /** CSV header (Position/Security). */
+  public static final String UNDERLYING_CURRENCY_FIELD = "Underlying Currency";
+  /** CSV header (Position/Security). */
   public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
   /** CSV header (Position/Security). */
   public static final String TICK_SIZE_FIELD = "Tick Size";

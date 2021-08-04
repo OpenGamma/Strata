@@ -63,7 +63,7 @@ public class InverseTridiagonalMatrixCalculator implements Function<TridiagonalM
         res[i][j] = ((i + j) % 2 == 0 ? 1 : -1) * product * theta[j] * phi[i] / theta[n];
       }
     }
-    return DoubleMatrix.copyOf(res);
+    return DoubleMatrix.ofUnsafe(res);
   }
 
 }
