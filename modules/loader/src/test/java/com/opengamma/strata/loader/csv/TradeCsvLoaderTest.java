@@ -1674,7 +1674,7 @@ public class TradeCsvLoaderTest {
         .expiryZone(ZoneId.of("Europe/London"))
         .underlying(swapTrade.getProduct())
         .build();
-    Payment premium = Payment.of(CurrencyAmount.of(GBP, 1000), date(2017, 6, 3));
+    Payment premium = Payment.of(CurrencyAmount.of(GBP, 0), date(2017, 6, 30));
     return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
   }
 
