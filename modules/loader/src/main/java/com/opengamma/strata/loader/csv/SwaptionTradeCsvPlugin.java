@@ -33,7 +33,6 @@ import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
-import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
@@ -123,11 +122,8 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
         row, EXPIRY_DATE_FIELD, EXPIRY_DATE_CNV_FIELD, EXPIRY_DATE_CAL_FIELD);
     LocalTime expiryTime = row.getValue(EXPIRY_TIME_FIELD, LoaderUtils::parseTime);
     ZoneId expiryZone = row.getValue(EXPIRY_ZONE_FIELD, LoaderUtils::parseZoneId);
-    CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
-        row, PREMIUM_CURRENCY_FIELD, PREMIUM_AMOUNT_FIELD, PREMIUM_DIRECTION_FIELD);
-    AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(
-        row, PREMIUM_DATE_FIELD, PREMIUM_DATE_CNV_FIELD, PREMIUM_DATE_CAL_FIELD);
-    AdjustablePayment premium = AdjustablePayment.of(amount, date);
+    AdjustablePayment premium = CsvLoaderUtils.tryParsePremiumFromDefaultFields(row)
+        .orElse(AdjustablePayment.of(underlying.getLegs().get(0).getCurrency(), 0d, expiryDate));
 
     Swaption swaption = Swaption.builder()
         .longShort(longShort)
