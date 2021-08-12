@@ -44,29 +44,33 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String BUY_SELL_FIELD = "Buy Sell";
   /** CSV header. */
+  public static final String LEG_1_FIELD = "Leg 1";
+  /** CSV header. */
+  public static final String LEG_2_FIELD = "Leg 2";
+  /** CSV header. */
   public static final String DIRECTION_FIELD = "Direction";
   /** CSV header. */
-  public static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
+  public static final String LEG_1_DIRECTION_FIELD = prefix(LEG_1_FIELD, DIRECTION_FIELD);
   /** CSV header. */
-  public static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
+  public static final String LEG_2_DIRECTION_FIELD = prefix(LEG_2_FIELD, DIRECTION_FIELD);
   /** CSV header. */
   public static final String CURRENCY_FIELD = "Currency";
   /** CSV header. */
-  public static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
+  public static final String LEG_1_CURRENCY_FIELD = prefix(LEG_1_FIELD, CURRENCY_FIELD);
   /** CSV header. */
-  public static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
+  public static final String LEG_2_CURRENCY_FIELD = prefix(LEG_2_FIELD, CURRENCY_FIELD);
   /** CSV header. */
   public static final String NOTIONAL_FIELD = "Notional";
   /** CSV header. */
-  public static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
+  public static final String LEG_1_NOTIONAL_FIELD = prefix(LEG_1_FIELD, NOTIONAL_FIELD);
   /** CSV header. */
-  public static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
+  public static final String LEG_2_NOTIONAL_FIELD = prefix(LEG_2_FIELD, NOTIONAL_FIELD);
   /** CSV header. */
   public static final String INDEX_FIELD = "Index";
   /** CSV header. */
-  public static final String LEG_1_INDEX_FIELD = "Leg 1 " + INDEX_FIELD;
+  public static final String LEG_1_INDEX_FIELD = prefix(LEG_1_FIELD, INDEX_FIELD);
   /** CSV header. */
-  public static final String LEG_2_INDEX_FIELD = "Leg 2 " + INDEX_FIELD;
+  public static final String LEG_2_INDEX_FIELD = prefix(LEG_2_FIELD, INDEX_FIELD);
   /** CSV header. */
   public static final String INTERPOLATED_INDEX_FIELD = "Interpolated Index";
   /** CSV header. */
@@ -96,9 +100,9 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String PAYMENT_DATE_FIELD = "Payment Date";
   /** CSV header. */
-  static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
+  static final String LEG_1_PAYMENT_DATE_FIELD = prefix(LEG_1_FIELD, PAYMENT_DATE_FIELD);
   /** CSV header. */
-  public static final String LEG_2_PAYMENT_DATE_FIELD = "Leg 2 " + PAYMENT_DATE_FIELD;
+  public static final String LEG_2_PAYMENT_DATE_FIELD = prefix(LEG_2_FIELD, PAYMENT_DATE_FIELD);
   /** CSV header. */
   public static final String PAYMENT_DATE_CNV_FIELD = "Payment Date Convention";
   /** CSV header. */
@@ -165,6 +169,12 @@ public final class CsvLoaderColumns {
   public static final String OVERRIDE_START_DATE_CNV_FIELD = "Override Start Date Convention";
   /** CSV header. */
   public static final String OVERRIDE_START_DATE_CAL_FIELD = "Override Start Date Calendar";
+  /** CSV header. */
+  public static final String WEIGHT_FIELD = "Weight";
+  /** CSV header. */
+  public static final String LEG_1_WEIGHT_FIELD = prefix(LEG_1_FIELD, WEIGHT_FIELD);
+  /** CSV header. */
+  public static final String LEG_2_WEIGHT_FIELD = prefix(LEG_2_FIELD, WEIGHT_FIELD);
 
   /** CSV header (CDS). */
   public static final String CDS_INDEX_ID_SCHEME_FIELD = "CDS Index Id Scheme";
@@ -374,4 +384,7 @@ public final class CsvLoaderColumns {
   private CsvLoaderColumns() {
   }
 
+  private static String prefix(String prefix, String field) {
+    return String.join(" ", prefix, field);
+  }
 }
