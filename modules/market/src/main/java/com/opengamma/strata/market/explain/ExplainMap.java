@@ -148,11 +148,10 @@ public final class ExplainMap
   @Override
   public ExplainMap convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
     ImmutableMap.Builder<ExplainKey<?>, Object> builder = ImmutableMap.builder();
-    for (Entry<ExplainKey<?>, Object> explainEntry : this.map.entrySet()) {
+    for (Entry<ExplainKey<?>, Object> explainEntry : map.entrySet()) {
       if (explainEntry.getValue() instanceof FxConvertible) {
-        builder.put(
-            explainEntry.getKey(),
-            ((FxConvertible<?>) explainEntry.getValue()).convertedTo(resultCurrency, rateProvider));
+        Object convertedValue = ((FxConvertible<?>) explainEntry.getValue()).convertedTo(resultCurrency, rateProvider);
+        builder.put(explainEntry.getKey(), convertedValue);
       } else {
         builder.put(explainEntry.getKey(), explainEntry.getValue());
       }
