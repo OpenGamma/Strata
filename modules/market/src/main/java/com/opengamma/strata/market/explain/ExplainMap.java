@@ -27,6 +27,9 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import org.joda.convert.StringConvert;
 
 import com.google.common.collect.ImmutableMap;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.FxConvertible;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 
 /**
  * A map of explanatory values.
@@ -35,7 +38,7 @@ import com.google.common.collect.ImmutableMap;
  */
 @BeanDefinition(builderScope = "private")
 public final class ExplainMap
-    implements ImmutableBean, Serializable {
+    implements FxConvertible<ExplainMap>, ImmutableBean, Serializable {
 
   /**
    * The map of explanatory values.
@@ -140,6 +143,20 @@ public final class ExplainMap
       }
       buf.setCharAt(buf.length() - 1, ']');
     }
+  }
+
+  @Override
+  public ExplainMap convertedTo(Currency resultCurrency, FxRateProvider rateProvider) {
+    ImmutableMap.Builder<ExplainKey<?>, Object> builder = ImmutableMap.builder();
+    for (Entry<ExplainKey<?>, Object> explainEntry : map.entrySet()) {
+      if (explainEntry.getValue() instanceof FxConvertible) {
+        Object convertedValue = ((FxConvertible<?>) explainEntry.getValue()).convertedTo(resultCurrency, rateProvider);
+        builder.put(explainEntry.getKey(), convertedValue);
+      } else {
+        builder.put(explainEntry.getKey(), explainEntry.getValue());
+      }
+    }
+    return ExplainMap.of(builder.build());
   }
 
   //-------------------------------------------------------------------------
