@@ -6,6 +6,7 @@
 package com.opengamma.strata.market.explain;
 
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRateProvider;
 
 /**
  * Test {@link ExplainMap}.
@@ -166,6 +168,21 @@ public class ExplainMapTest {
 
     ExplainMap test2 = ExplainMap.of(ImmutableMap.of(ExplainKey.DAYS, 2));
     assertThat(test2.isEmpty()).isFalse();
+  }
+
+  @Test
+  public void test_convertCurrencyEntries() {
+    Map<ExplainKey<?>, Object> map = new HashMap<>();
+    map.put(ExplainKey.START_DATE, DATE1);
+    map.put(ExplainKey.END_DATE, DATE2);
+    map.put(ExplainKey.PRESENT_VALUE, AMOUNT1);
+    ExplainMap test = ExplainMap.of(map);
+    FxRateProvider provider = (ccy1, ccy2) -> 2.5d;
+    ExplainMap testConverted = test.convertedTo(USD, provider);
+    assertThat(testConverted.get(ExplainKey.START_DATE)).isEqualTo(Optional.of(DATE1));
+    assertThat(testConverted.get(ExplainKey.END_DATE)).isEqualTo(Optional.of(DATE2));
+    assertThat(testConverted.get(ExplainKey.PRESENT_VALUE))
+        .isEqualTo(Optional.of(CurrencyAmount.of(USD, AMOUNT1.getAmount() * 2.5d)));
   }
 
   //-------------------------------------------------------------------------

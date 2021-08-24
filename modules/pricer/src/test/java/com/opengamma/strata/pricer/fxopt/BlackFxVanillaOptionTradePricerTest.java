@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.withinPercentage;
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -88,6 +90,7 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final BlackFxVanillaOptionTradePricer PRICER_TRADE = BlackFxVanillaOptionTradePricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   private static final double TOL = 1.0e-13;
+  private static final double PERCENTAGE_TOL = 1.0e-4;
 
   @Test
   public void test_presentValue() {
@@ -135,6 +138,20 @@ public class BlackFxVanillaOptionTradePricerTest {
   @Test
   public void test_currentCash_onSettle() {
     assertThat(PRICER_TRADE.currentCash(OPTION_TRADE, CASH_SETTLE_DATE)).isEqualTo(PREMIUM.getValue());
+  }
+
+  @Test
+  public void test_forwardFxRate() {
+    FxRate fxRate = PRICER_TRADE.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
+    assertThat(fxRate.getPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.39904, withinPercentage(PERCENTAGE_TOL));
+  }
+
+  @Test
+  public void test_impliedVolatility() {
+    double impVolTrade = PRICER_TRADE.impliedVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double imlVolProduct = PRICER_PRODUCT.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+    assertThat(impVolTrade).isEqualTo(imlVolProduct);
   }
 
 }
