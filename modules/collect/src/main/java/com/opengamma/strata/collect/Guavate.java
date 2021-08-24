@@ -316,6 +316,33 @@ public final class Guavate {
     }
   }
 
+  /**
+   * Converts a nullable value to an iterable for use in the for-each statement.
+   * <p>
+   * In most cases {@code if (nullable != null)} would be preferred.
+   * <p>
+   * <pre>
+   *  for (Item item : inNullable(nullable)) {
+   *    // use the nullable value, code not called if the value is null
+   *  }
+   * </pre>
+   * <p>
+   * NOTE: This method is intended only for use with the for-each statement.
+   * It does in fact return a general purpose {@code Iterable}, but the method name
+   * is focussed on the for-each use case.
+   *
+   * @param <T>  the type of the nullable value
+   * @param nullable  the nullable value
+   * @return an iterable representation of the nullable
+   */
+  public static <T> Iterable<T> inNullable(T nullable) {
+    if (nullable != null) {
+      return ImmutableList.of(nullable);
+    } else {
+      return ImmutableList.of();
+    }
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Creates a stream that wraps a stream with the index.

@@ -234,6 +234,24 @@ public class GuavateTest {
     assertThat(extracted).isEmpty();
   }
 
+  @Test
+  public void test_inNullable_present() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inNullable("a")) {
+      extracted.add(str);
+    }
+    assertThat(extracted).containsExactly("a");
+  }
+
+  @Test
+  public void test_inNullable_null() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inNullable((String) null)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_zipWithIndex() {
