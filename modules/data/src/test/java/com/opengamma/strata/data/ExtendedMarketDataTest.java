@@ -60,7 +60,7 @@ public class ExtendedMarketDataTest {
     assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
     assertThat(test.findValue(ID3)).isEqualTo(Optional.of(VAL3));
     assertThat(test.findValue(ID4)).isEqualTo(Optional.empty());
-    assertThat(test.getIds()).containsExactly(ID1, ID2, ID3);
+    assertThat(test.getIds()).containsExactlyInAnyOrder(ID1, ID2, ID3);
     assertThat(test.findIds(ID1.getMarketDataName())).isEqualTo(ImmutableSet.of(ID1));
     assertThat(test.findIds(ID3.getMarketDataName())).isEqualTo(ImmutableSet.of(ID3));
     assertThat(test.getTimeSeries(ID4)).isEqualTo(TIME_SERIES);
@@ -81,7 +81,7 @@ public class ExtendedMarketDataTest {
     assertThat(test.findValue(ID1)).isEqualTo(Optional.of(VAL3));
     assertThat(test.findValue(ID2)).isEqualTo(Optional.of(VAL2));
     assertThat(test.findValue(ID3)).isEqualTo(Optional.empty());
-    assertThat(test.getIds()).containsExactly(ID1, ID2);
+    assertThat(test.getIds()).containsExactlyInAnyOrder(ID1, ID2);
     assertThat(test.getTimeSeries(ID4)).isEqualTo(TIME_SERIES);
   }
 
