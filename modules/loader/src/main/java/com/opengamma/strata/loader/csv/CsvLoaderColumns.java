@@ -46,23 +46,27 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String DIRECTION_FIELD = "Direction";
   /** CSV header. */
-  static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
+  public static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
   /** CSV header. */
-  static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
+  public static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
   /** CSV header. */
   public static final String CURRENCY_FIELD = "Currency";
   /** CSV header. */
-  static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
+  public static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
   /** CSV header. */
-  static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
+  public static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
   /** CSV header. */
   public static final String NOTIONAL_FIELD = "Notional";
   /** CSV header. */
-  static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
+  public static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
   /** CSV header. */
-  static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
+  public static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
   /** CSV header. */
   public static final String INDEX_FIELD = "Index";
+  /** CSV header. */
+  public static final String LEG_1_INDEX_FIELD = "Leg 1 " + INDEX_FIELD;
+  /** CSV header. */
+  public static final String LEG_2_INDEX_FIELD = "Leg 2 " + INDEX_FIELD;
   /** CSV header. */
   public static final String INTERPOLATED_INDEX_FIELD = "Interpolated Index";
   /** CSV header. */
@@ -348,6 +352,8 @@ public final class CsvLoaderColumns {
   public static final String VERSION_FIELD = "Version";
   /** CSV header (Position/Security). */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
+  /** CSV header (Position/Security). */
+  public static final String UNDERLYING_CURRENCY_FIELD = "Underlying Currency";
   /** CSV header (Position/Security). */
   public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
   /** CSV header (Position/Security). */

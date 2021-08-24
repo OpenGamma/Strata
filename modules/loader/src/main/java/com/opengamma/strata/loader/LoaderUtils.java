@@ -47,6 +47,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.CapFloor;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
@@ -726,6 +727,22 @@ public final class LoaderUtils {
             "Unknown BuySell value, must be 'Buy' or 'Sell' but was '" + str + "'; " +
                 "parser is case insensitive and also accepts 'B' and 'S'");
     }
+  }
+
+  /**
+   * Parses cap/floor from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * Cap is parsed as 'CAP'.
+   * Floor is parsed as 'FLOOR'.
+   * Other strings are rejected.
+   *
+   * @param str  the string to parse
+   * @return  the parsed value
+   * @throws IllegalArgumentException  if the string cannot be parsed
+   */
+  public static CapFloor parseCapFloor(String str) {
+    return CapFloor.of(str);
   }
 
   /**

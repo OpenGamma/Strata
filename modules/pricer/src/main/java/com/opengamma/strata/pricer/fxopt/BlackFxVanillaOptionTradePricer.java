@@ -8,12 +8,14 @@ package com.opengamma.strata.pricer.fxopt;
 import java.time.LocalDate;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
@@ -159,6 +161,38 @@ public class BlackFxVanillaOptionTradePricer {
       return CurrencyAmount.of(premium.getCurrency(), premium.getAmount());
     }
     return CurrencyAmount.of(premium.getCurrency(), 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward exchange rate.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public FxRate forwardFxRate(ResolvedFxVanillaOptionTrade trade, RatesProvider ratesProvider) {
+    ResolvedFxSingle resolvedFxSingle = trade.getProduct().getUnderlying();
+    return productPricer.getDiscountingFxSingleProductPricer().forwardFxRate(resolvedFxSingle, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied Black volatility of the foreign exchange vanilla option trade.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the implied volatility of the product
+   * @throws IllegalArgumentException if the option has expired
+   */
+  public double impliedVolatility(
+      ResolvedFxVanillaOptionTrade trade,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    ResolvedFxVanillaOption option = trade.getProduct();
+    return productPricer.impliedVolatility(option, ratesProvider, volatilities);
   }
 
 }

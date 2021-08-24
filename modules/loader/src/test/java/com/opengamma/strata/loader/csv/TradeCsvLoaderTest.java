@@ -1674,7 +1674,7 @@ public class TradeCsvLoaderTest {
         .expiryZone(ZoneId.of("Europe/London"))
         .underlying(swapTrade.getProduct())
         .build();
-    Payment premium = Payment.of(CurrencyAmount.of(GBP, 1000), date(2017, 6, 3));
+    Payment premium = Payment.of(CurrencyAmount.of(GBP, 0), date(2017, 6, 30));
     return SwaptionTrade.of(swapTrade.getInfo(), swaption, premium);
   }
 
@@ -1925,15 +1925,17 @@ public class TradeCsvLoaderTest {
     List<CdsIndexTrade> filtered = trades.getValue().stream()
         .flatMap(filtering(CdsIndexTrade.class))
         .collect(toImmutableList());
-    assertThat(filtered).hasSize(2);
+    assertThat(filtered).hasSize(3);
 
     CdsIndexTrade expected0 = expectedCdsIndex0();
     CdsIndexTrade expected1 = expectedCdsIndex1();
+    CdsIndexTrade expected2 = expectedCdsIndex2();
 
     assertBeanEquals(expected0, filtered.get(0));
     assertBeanEquals(expected1, filtered.get(1));
+    assertBeanEquals(expected2, filtered.get(2));
 
-    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected1);
+    checkRoundtrip(CdsIndexTrade.class, filtered, expected0, expected1, expected2);
   }
 
   private CdsIndexTrade expectedCdsIndex0() {
@@ -1990,6 +1992,30 @@ public class TradeCsvLoaderTest {
         .build();
   }
 
+  private CdsIndexTrade expectedCdsIndex2() {
+    CdsIndex cdsIndex = CdsIndex.builder()
+        .buySell(BUY)
+        .currency(GBP)
+        .notional(1_000_000)
+        .fixedRate(0.05)
+        .cdsIndexId(StandardId.of("OG-Ticker", "FOOBARCDS-CDX-S1V1"))
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2017, 6, 1))
+            .endDate(date(2022, 6, 1))
+            .frequency(Frequency.P12M)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .stubConvention(StubConvention.SMART_INITIAL)
+            .build())
+        .build();
+    return CdsIndexTrade.builder()
+        .info(TradeInfo.builder()
+            .id(StandardId.of("OG", "123454"))
+            .tradeDate(date(2017, 6, 1))
+            .build())
+        .product(cdsIndex)
+        .build();
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_load_filtered() {
@@ -1998,7 +2024,7 @@ public class TradeCsvLoaderTest {
         ImmutableList.of(FILE.getCharSource()), ImmutableList.of(FraTrade.class, TermDepositTrade.class));
 
     assertThat(trades.getValue()).hasSize(6);
-    assertThat(trades.getFailures()).hasSize(22);
+    assertThat(trades.getFailures()).hasSize(23);
     assertThat(trades.getFailures().get(0).getMessage()).isEqualTo(
         "Trade type not allowed " + SwapTrade.class.getName() + ", only these types are supported: FraTrade, TermDepositTrade");
   }
