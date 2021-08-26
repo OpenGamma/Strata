@@ -11,6 +11,7 @@ import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.withinPercentage;
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -92,6 +94,7 @@ public class BlackFxVanillaOptionProductPricerTest {
       .build();
   private static final BlackFxVanillaOptionProductPricer PRICER = BlackFxVanillaOptionProductPricer.DEFAULT;
   private static final double TOL = 1.0e-13;
+  private static final double PERCENTAGE_TOL = 1.0e-4;
   private static final double FD_EPS = 1.0e-7;
   private static final RatesFiniteDifferenceSensitivityCalculator FD_CAL =
       new RatesFiniteDifferenceSensitivityCalculator(FD_EPS);
@@ -419,6 +422,14 @@ public class BlackFxVanillaOptionProductPricerTest {
     CurrencyAmount pvTheta = PRICER.presentValueTheta(CALL_ITM, RATES_PROVIDER_AFTER, VOLS_AFTER);
     assertThat(theta).isCloseTo(0d, offset(TOL));
     assertThat(pvTheta.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardFxRate() {
+    FxRate fxRate = PRICER.forwardFxRate(CALL_ITM, RATES_PROVIDER);
+    assertThat(fxRate.getPair()).isEqualTo(CURRENCY_PAIR);
+    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.39904, withinPercentage(PERCENTAGE_TOL));
   }
 
   //-------------------------------------------------------------------------
