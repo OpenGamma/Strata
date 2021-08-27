@@ -34,6 +34,7 @@ import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.product.rate.FixedOvernightCompoundedAnnualRateComputation;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.RateComputation;
@@ -136,8 +137,7 @@ public final class FixedRateCalculation
     // avoid null stub definitions if there are stubs
     FixedRateStubCalculation initialStub = firstNonNull(this.initialStub, FixedRateStubCalculation.NONE);
     FixedRateStubCalculation finalStub = firstNonNull(this.finalStub, FixedRateStubCalculation.NONE);
-    Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();
-    Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
+
     // resolve data by schedule
     DoubleArray resolvedRates = rate.resolveValues(accrualSchedule);
 
@@ -154,6 +154,12 @@ public final class FixedRateCalculation
       RateAccrualPeriod accrualPeriod = new RateAccrualPeriod(period, yearFraction, rateComputation);
       return ImmutableList.of(accrualPeriod);
     }
+
+    // need to use getStubs(boolean) and not getInitialStub()/getFinalStub() to ensure correct stub allocation
+    Pair<Optional<SchedulePeriod>, Optional<SchedulePeriod>> scheduleStubs =
+        accrualSchedule.getStubs(this.initialStub == null && this.finalStub != null);
+    Optional<SchedulePeriod> scheduleInitialStub = scheduleStubs.getFirst();
+    Optional<SchedulePeriod> scheduleFinalStub = scheduleStubs.getSecond();
 
     // normal case
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();

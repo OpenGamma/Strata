@@ -6,8 +6,6 @@
 package com.opengamma.strata.product.swap;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
-import static com.opengamma.strata.basics.currency.Currency.CNY;
-import static com.opengamma.strata.basics.schedule.Frequency.P1W;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_0;
 import static com.opengamma.strata.basics.value.ValueSchedule.ALWAYS_1;
 import static com.opengamma.strata.product.swap.IborRateResetMethod.UNWEIGHTED;
@@ -46,12 +44,12 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.IborIndexObservation;
 import com.opengamma.strata.basics.index.Index;
-import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.Schedule;
 import com.opengamma.strata.basics.schedule.SchedulePeriod;
 import com.opengamma.strata.basics.value.ValueSchedule;
 import com.opengamma.strata.collect.array.DoubleArray;
+import com.opengamma.strata.collect.tuple.Pair;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborAveragedFixing;
 import com.opengamma.strata.product.rate.IborAveragedRateComputation;
@@ -329,9 +327,14 @@ public final class IborRateCalculation
                 rp.createSchedule(accrualSchedule.getRollConvention(), refData, false))
             .orElse(null);
     Function<LocalDate, IborIndexObservation> iborObservationFn = index.resolve(refData);
+
+    // need to use getStubs(boolean) and not getInitialStub()/getFinalStub() to ensure correct stub allocation
+    Pair<Optional<SchedulePeriod>, Optional<SchedulePeriod>> scheduleStubs =
+        accrualSchedule.getStubs(initialStub == null && finalStub != null);
+    Optional<SchedulePeriod> scheduleInitialStub = scheduleStubs.getFirst();
+    Optional<SchedulePeriod> scheduleFinalStub = scheduleStubs.getSecond();
+
     // build accrual periods
-    Optional<SchedulePeriod> scheduleInitialStub = accrualSchedule.getInitialStub();
-    Optional<SchedulePeriod> scheduleFinalStub = accrualSchedule.getFinalStub();
     ImmutableList.Builder<RateAccrualPeriod> accrualPeriods = ImmutableList.builder();
     for (int i = 0; i < accrualSchedule.size(); i++) {
       SchedulePeriod period = accrualSchedule.getPeriod(i);
