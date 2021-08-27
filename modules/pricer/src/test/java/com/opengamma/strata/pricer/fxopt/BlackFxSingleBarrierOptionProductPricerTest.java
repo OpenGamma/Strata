@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ import com.google.common.math.DoubleMath;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.DoubleArrayMath;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
@@ -69,6 +71,9 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
       FxVolatilitySmileDataSet.createVolatilitySmileProvider5(EXPIRY_DATETIME.plusDays(1));
   private static final ImmutableRatesProvider RATE_PROVIDER_AFTER =
       RatesProviderFxDataSets.createProviderEurUsdActActIsda(EXPIRY_DATE.plusDays(1));
+  // smile term
+  private static final InterpolatedStrikeSmileDeltaTermStructure SMILE_TERM =
+      FxVolatilitySmileDataSet.getSmileDeltaTermStructure6();
 
   private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final double SPOT = RATE_PROVIDER.fxRate(CURRENCY_PAIR);
@@ -647,6 +652,43 @@ public class BlackFxSingleBarrierOptionProductPricerTest {
     assertThat(computedThetaPut).isCloseTo(0d, offset(TOL));
     assertThat(computedPvThetaCall.getAmount()).isCloseTo(0d, offset(TOL));
     assertThat(computedPvThetaPut.getAmount()).isCloseTo(0d, offset(TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardFxRate() {
+    // forward rate is computed by discounting for any RatesProvider input.
+    FxRate computed = PRICER.forwardFxRate(CALL_UKI, RATE_PROVIDER);
+    double df1 = RATE_PROVIDER.discountFactor(EUR, PAY_DATE);
+    double df2 = RATE_PROVIDER.discountFactor(USD, PAY_DATE);
+    double spot = RATE_PROVIDER.fxRate(EUR, USD);
+    FxRate expected = FxRate.of(CURRENCY_PAIR, spot * df1 / df2);
+    assertThat(computed.getPair()).isEqualTo(expected.getPair());
+    assertThat(computed.fxRate(CURRENCY_PAIR)).isCloseTo(expected.fxRate(CURRENCY_PAIR), offset(TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_impliedVolatility() {
+    double computedCall = PRICER.impliedVolatility(CALL_UKI, RATE_PROVIDER, VOLS);
+    double computedPut = PRICER.impliedVolatility(PUT_UKI, RATE_PROVIDER, VOLS);
+    double timeToExpiry = VOLS.relativeTime(EXPIRY_DATETIME);
+    double forward = PRICER.forwardFxRate(CALL_UKI, RATE_PROVIDER).fxRate(CURRENCY_PAIR);
+    double expected = SMILE_TERM.volatility(timeToExpiry, STRIKE_RATE, forward);
+    assertThat(computedCall).isEqualTo(expected);
+    assertThat(computedPut).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_impliedVolatility_atExpiry() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.impliedVolatility(CALL_UKI, RATE_PROVIDER_EXPIRY, VOLS_EXPIRY));
+  }
+
+  @Test
+  public void test_impliedVolatility_afterExpiry() {
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> PRICER.impliedVolatility(CALL_UKI, RATE_PROVIDER_AFTER, VOLS_AFTER));
   }
 
   //-------------------------------------------------------------------------

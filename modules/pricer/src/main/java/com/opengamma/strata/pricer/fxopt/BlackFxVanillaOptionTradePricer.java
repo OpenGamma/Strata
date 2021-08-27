@@ -15,7 +15,6 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.product.fx.ResolvedFxSingle;
 import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
 import com.opengamma.strata.product.fxopt.ResolvedFxSingleBarrierOption;
 import com.opengamma.strata.product.fxopt.ResolvedFxVanillaOption;
@@ -172,8 +171,8 @@ public class BlackFxVanillaOptionTradePricer {
    * @return the forward rate
    */
   public FxRate forwardFxRate(ResolvedFxVanillaOptionTrade trade, RatesProvider ratesProvider) {
-    ResolvedFxSingle resolvedFxSingle = trade.getProduct().getUnderlying();
-    return productPricer.getDiscountingFxSingleProductPricer().forwardFxRate(resolvedFxSingle, ratesProvider);
+    ResolvedFxVanillaOption product = trade.getProduct();
+    return productPricer.forwardFxRate(product, ratesProvider);
   }
 
   //-------------------------------------------------------------------------

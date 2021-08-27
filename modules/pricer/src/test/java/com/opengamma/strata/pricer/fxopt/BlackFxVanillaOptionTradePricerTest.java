@@ -10,7 +10,6 @@ import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.DayCounts.ACT_365F;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.withinPercentage;
 import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
@@ -142,16 +141,16 @@ public class BlackFxVanillaOptionTradePricerTest {
 
   @Test
   public void test_forwardFxRate() {
-    FxRate fxRate = PRICER_TRADE.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
-    assertThat(fxRate.getPair()).isEqualTo(CURRENCY_PAIR);
-    assertThat(fxRate.fxRate(CURRENCY_PAIR)).isCloseTo(1.39904, withinPercentage(PERCENTAGE_TOL));
+    FxRate fxRateComputed = PRICER_TRADE.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
+    FxRate fxRateExpected = PRICER_PRODUCT.forwardFxRate(OPTION_PRODUCT, RATES_PROVIDER);
+    assertThat(fxRateComputed).isEqualTo(fxRateExpected);
   }
 
   @Test
   public void test_impliedVolatility() {
-    double impVolTrade = PRICER_TRADE.impliedVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
-    double imlVolProduct = PRICER_PRODUCT.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
-    assertThat(impVolTrade).isEqualTo(imlVolProduct);
+    double impVolComputed = PRICER_TRADE.impliedVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double imlVolExpected = PRICER_PRODUCT.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+    assertThat(impVolComputed).isEqualTo(imlVolExpected);
   }
 
 }

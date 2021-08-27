@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.ArgChecker;
@@ -159,6 +160,38 @@ public class BlackFxSingleBarrierOptionTradePricer {
       return CurrencyAmount.of(premium.getCurrency(), premium.getAmount());
     }
     return CurrencyAmount.of(premium.getCurrency(), 0d);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward exchange rate.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public FxRate forwardFxRate(ResolvedFxSingleBarrierOptionTrade trade, RatesProvider ratesProvider) {
+    ResolvedFxSingleBarrierOption product = trade.getProduct();
+    return productPricer.forwardFxRate(product, ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied Black volatility of the FX barrier option trade.
+   *
+   * @param trade  the option trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the implied volatility of the product
+   * @throws IllegalArgumentException if the option has expired
+   */
+  public double impliedVolatility(
+      ResolvedFxSingleBarrierOptionTrade trade,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    ResolvedFxSingleBarrierOption option = trade.getProduct();
+    return productPricer.impliedVolatility(option, ratesProvider, volatilities);
   }
 
 }

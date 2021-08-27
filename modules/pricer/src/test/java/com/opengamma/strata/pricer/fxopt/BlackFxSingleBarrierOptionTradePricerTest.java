@@ -18,6 +18,8 @@ import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
@@ -56,6 +58,7 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   private static final double REBATE_AMOUNT = 50_000d;
   private static final CurrencyAmount REBATE = CurrencyAmount.of(USD, REBATE_AMOUNT);
   private static final double STRIKE_RATE = 1.45;
+  private static final CurrencyPair CURRENCY_PAIR = CurrencyPair.of(EUR, USD);
   private static final CurrencyAmount EUR_AMOUNT_REC = CurrencyAmount.of(EUR, NOTIONAL);
   private static final CurrencyAmount USD_AMOUNT_PAY = CurrencyAmount.of(USD, -NOTIONAL * STRIKE_RATE);
   private static final ResolvedFxSingle FX_PRODUCT = ResolvedFxSingle.of(EUR_AMOUNT_REC, USD_AMOUNT_PAY, PAY_DATE);
@@ -79,6 +82,7 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   private static final BlackFxSingleBarrierOptionTradePricer PRICER_TRADE = BlackFxSingleBarrierOptionTradePricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   private static final double TOL = 1.0e-13;
+  private static final double PERCENTAGE_TOL = 1.0e-4;
 
   @Test
   public void test_presentValue() {
@@ -125,6 +129,20 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
   @Test
   public void test_currentCash_onSettle() {
     assertThat(PRICER_TRADE.currentCash(OPTION_TRADE, CASH_SETTLE_DATE)).isEqualTo(PREMIUM.getValue());
+  }
+
+  @Test
+  public void test_forwardFxRate() {
+    FxRate fxRateComputed = PRICER_TRADE.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
+    FxRate fxRateExpected = PRICER_PRODUCT.forwardFxRate(OPTION_PRODUCT, RATES_PROVIDER);
+    assertThat(fxRateComputed).isEqualTo(fxRateExpected);
+  }
+
+  @Test
+  public void test_impliedVolatility() {
+    double impVolComputed = PRICER_TRADE.impliedVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double imlVolExpected = PRICER_PRODUCT.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+    assertThat(impVolComputed).isEqualTo(imlVolExpected);
   }
 
 }

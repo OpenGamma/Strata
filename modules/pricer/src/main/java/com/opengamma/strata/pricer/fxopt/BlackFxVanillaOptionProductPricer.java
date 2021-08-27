@@ -416,6 +416,18 @@ public class BlackFxVanillaOptionProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the forward exchange rate.
+   *
+   * @param option  the option product
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public FxRate forwardFxRate(ResolvedFxVanillaOption option, RatesProvider ratesProvider) {
+    return fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the implied Black volatility of the foreign exchange vanilla option product.
    * 
    * @param option  the option product
@@ -433,7 +445,7 @@ public class BlackFxVanillaOptionProductPricer {
     if (timeToExpiry <= 0d) {
       throw new IllegalArgumentException("valuation is after option's expiry.");
     }
-    FxRate forward = fxPricer.forwardFxRate(option.getUnderlying(), ratesProvider);
+    FxRate forward = forwardFxRate(option, ratesProvider);
     CurrencyPair strikePair = option.getUnderlying().getCurrencyPair();
     return volatilities.volatility(
         strikePair, option.getExpiry(), option.getStrike(), forward.fxRate(strikePair));
