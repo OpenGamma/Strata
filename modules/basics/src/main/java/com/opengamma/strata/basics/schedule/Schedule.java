@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.date.DayCount.ScheduleInfo;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * A complete schedule of periods (date ranges), with both unadjusted and adjusted dates.
@@ -240,6 +241,26 @@ public final class Schedule
   // checks if there is a final stub
   private boolean isFinalStub() {
     return !isSinglePeriod() && !getLastPeriod().isRegular(frequency, rollConvention);
+  }
+
+  /**
+   * Gets the stubs if they exist.
+   * <p>
+   * This method returns the initial and final stub.
+   * A flag is used to handle the case where there are no regular periods and it is unclear whether
+   * the stub is initial or final.
+   * <p>
+   * A period will be allocated to one and only one of {@link #getStubs} and {@link #getRegularPeriods()}.
+   * 
+   * @param preferFinal true to prefer final if there is only one period
+   * @return the stubs, empty if no stub
+   */
+  public Pair<Optional<SchedulePeriod>, Optional<SchedulePeriod>> getStubs(boolean preferFinal) {
+    Optional<SchedulePeriod> initialStub = getInitialStub();
+    if (preferFinal && size() == 1 && initialStub.isPresent()) {
+      return Pair.of(Optional.empty(), initialStub);
+    }
+    return Pair.of(initialStub, getFinalStub());
   }
 
   /**
