@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.fxopt;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -133,6 +134,12 @@ public final class FxSingleBarrierOption
   public ZonedDateTime getExpiry() {
     return underlyingOption.getExpiry();
   }
+
+  @Override
+  public LocalDate getPaymentDate() {
+    return underlyingOption.getUnderlying().getPaymentDate();
+  }
+
 
   //-------------------------------------------------------------------------
   @Override

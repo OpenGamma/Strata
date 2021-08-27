@@ -152,6 +152,10 @@ public final class FxVanillaOption
     return underlying.getCurrencyPair();
   }
 
+  @Override
+  public LocalDate getPaymentDate() { return underlying.getPaymentDate();
+  }
+
   /**
    * Gets the expiry date-time.
    * <p>

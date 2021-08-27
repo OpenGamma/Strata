@@ -103,6 +103,12 @@ public final class FxNdf
     return index.getCurrencyPair().toConventional();
   }
 
+  //@Override
+  //public LocalDate getPaymentDate() {
+  //  return paymentDate;
+  //}
+
+
   @Override
   public ImmutableSet<Currency> allPaymentCurrencies() {
     return ImmutableSet.of(getSettlementCurrency());

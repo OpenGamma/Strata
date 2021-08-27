@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.fx;
 
+import java.time.LocalDate;
+
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyPair;
@@ -37,5 +39,8 @@ public interface FxProduct extends Product {
    * @return the currency pair
    */
   public abstract CurrencyPair getCurrencyPair();
+
+  public abstract LocalDate getPaymentDate();
+
 
 }

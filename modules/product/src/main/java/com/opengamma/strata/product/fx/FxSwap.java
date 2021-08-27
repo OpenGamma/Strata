@@ -260,6 +260,9 @@ public final class FxSwap
   }
 
   @Override
+  public LocalDate getPaymentDate() { return  getFarLeg().getPaymentDate(); }
+
+  @Override
   public ResolvedFxSwap resolve(ReferenceData refData) {
     return ResolvedFxSwap.of(nearLeg.resolve(refData), farLeg.resolve(refData));
   }
