@@ -30,6 +30,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.collect.tuple.Pair;
 
 /**
  * Test {@link Schedule}.
@@ -95,6 +96,8 @@ public class ScheduleTest {
     assertThat(test.getLastPeriod()).isEqualTo(P1_STUB);
     assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
     assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getStubs(true)).isEqualTo(Pair.of(Optional.empty(), Optional.empty()));
+    assertThat(test.getStubs(false)).isEqualTo(Pair.of(Optional.empty(), Optional.empty()));
     assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P1_STUB));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
     assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17);
@@ -123,6 +126,8 @@ public class ScheduleTest {
     assertThat(test.getLastPeriod()).isEqualTo(P1_STUB);
     assertThat(test.getInitialStub()).isEqualTo(Optional.of(P1_STUB));
     assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getStubs(true)).isEqualTo(Pair.of(Optional.empty(), Optional.of(P1_STUB)));
+    assertThat(test.getStubs(false)).isEqualTo(Pair.of(Optional.of(P1_STUB), Optional.empty()));
     assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of());
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
     assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17);
@@ -151,6 +156,8 @@ public class ScheduleTest {
     assertThat(test.getLastPeriod()).isEqualTo(P2_NORMAL);
     assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
     assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getStubs(true)).isEqualTo(Pair.of(Optional.empty(), Optional.empty()));
+    assertThat(test.getStubs(false)).isEqualTo(Pair.of(Optional.empty(), Optional.empty()));
     assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P2_NORMAL));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(1));
     assertThat(test.getUnadjustedDates()).containsExactly(JUL_17, AUG_17);
@@ -180,6 +187,8 @@ public class ScheduleTest {
     assertThat(test.getLastPeriod()).isEqualTo(P2_NORMAL);
     assertThat(test.getInitialStub()).isEqualTo(Optional.of(P1_STUB));
     assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getStubs(true)).isEqualTo(Pair.of(Optional.of(P1_STUB), Optional.empty()));
+    assertThat(test.getStubs(false)).isEqualTo(Pair.of(Optional.of(P1_STUB), Optional.empty()));
     assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P2_NORMAL));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
     assertThat(test.getUnadjustedDates()).containsExactly(JUL_04, JUL_17, AUG_17);
@@ -209,6 +218,8 @@ public class ScheduleTest {
     assertThat(test.getLastPeriod()).isEqualTo(P3_NORMAL);
     assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
     assertThat(test.getFinalStub()).isEqualTo(Optional.empty());
+    assertThat(test.getStubs(true)).isEqualTo(Pair.of(Optional.empty(), Optional.empty()));
+    assertThat(test.getStubs(false)).isEqualTo(Pair.of(Optional.empty(), Optional.empty()));
     assertThat(test.getRegularPeriods()).containsExactly(P2_NORMAL, P3_NORMAL);
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
     assertThat(test.getUnadjustedDates()).containsExactly(JUL_17, AUG_17, SEP_17);
@@ -238,6 +249,8 @@ public class ScheduleTest {
     assertThat(test.getLastPeriod()).isEqualTo(P4_STUB);
     assertThat(test.getInitialStub()).isEqualTo(Optional.empty());
     assertThat(test.getFinalStub()).isEqualTo(Optional.of(P4_STUB));
+    assertThat(test.getStubs(true)).isEqualTo(Pair.of(Optional.empty(), Optional.of(P4_STUB)));
+    assertThat(test.getStubs(false)).isEqualTo(Pair.of(Optional.empty(), Optional.of(P4_STUB)));
     assertThat(test.getRegularPeriods()).isEqualTo(ImmutableList.of(P3_NORMAL));
     assertThatExceptionOfType(IndexOutOfBoundsException.class).isThrownBy(() -> test.getPeriod(2));
     assertThat(test.getUnadjustedDates()).containsExactly(AUG_17, SEP_17, SEP_30);
