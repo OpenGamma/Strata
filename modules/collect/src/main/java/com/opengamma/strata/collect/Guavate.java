@@ -46,6 +46,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.MoreCollectors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.opengamma.strata.collect.tuple.ObjIntPair;
 import com.opengamma.strata.collect.tuple.Pair;
@@ -233,6 +234,48 @@ public final class Guavate {
    */
   public static <K, V> Map.Entry<K, V> entry(K key, V value) {
     return new AbstractMap.SimpleImmutableEntry<>(key, value);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts a list from the first element and remaining varargs.
+   * <p>
+   * This can be used to create a list of at least size one.
+   * 
+   * @param <T>  the type of the elements
+   * @param first  the first element
+   * @param remaining  the remaining elements
+   * @return a list formed from the first and remaining elements
+   */
+  @SafeVarargs
+  public static <T> ImmutableList<T> list(T first, T... remaining) {
+    ImmutableList.Builder<T> builder = ImmutableList.<T>builderWithExpectedSize(remaining.length + 1);
+    builder.add(first);
+    for (T element : remaining) {
+      builder.add(element);
+    }
+    return builder.build();
+  }
+
+  /**
+   * Converts a set from the first element and remaining varargs.
+   * <p>
+   * This can be used to create a set of at least size one.
+   * The input may contain duplicates, which will be combined.
+   * 
+   * @param <T>  the type of the elements
+   * @param first  the first element
+   * @param remaining  the remaining elements
+   * @return a set formed from the first and remaining elements
+   */
+  @SafeVarargs
+  public static <T> ImmutableSet<T> set(T first, T... remaining) {
+    ImmutableSet.Builder<T> builder = ImmutableSet.<T>builderWithExpectedSize(remaining.length + 1);
+    builder.add(first);
+    for (T element : remaining) {
+      builder.add(element);
+    }
+    return builder.build();
   }
 
   //-------------------------------------------------------------------------
@@ -554,6 +597,21 @@ public final class Guavate {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Collector used at the end of a stream to extract either zero or one elements.
+   * <p>
+   * A collector is used to gather data at the end of a stream operation.
+   * This method returns a collector allowing streams to be gathered into an {@link Optional}.
+   * The collector throws {@code IllegalArgumentException} if the stream consists of two or more elements.
+   * The collector throws {@code NullPointerException} if the stream consists of a null element.
+   *
+   * @param <T>  the type of element in the list
+   * @return the immutable list collector
+   */
+  public static <T> Collector<T, ?, Optional<T>> toOptional() {
+    return MoreCollectors.toOptional();
+  }
+
   /**
    * Collector used at the end of a stream to build an immutable list.
    * <p>
