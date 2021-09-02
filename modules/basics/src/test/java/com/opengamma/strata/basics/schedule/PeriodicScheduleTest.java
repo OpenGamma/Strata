@@ -408,6 +408,9 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, BDA, JUN_17, null, null,
             list(JUN_17, JUL_17, AUG_17, SEP_17),
             list(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_04, SEP_04, P1M, SMART_FINAL, null, BDA, JUN_17, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, SEP_04),
+            list(JUN_04, JUN_17, JUL_17, AUG_18, SEP_04), DAY_17},
 
         // explicit final stub
         {JUN_04, SEP_17, P1M, null, null, BDA, null, AUG_04, null,
@@ -419,6 +422,9 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, BDA, null, AUG_17, null,
             list(JUN_17, JUL_17, AUG_17, SEP_17),
             list(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_04, SEP_04, P1M, SMART_INITIAL, null, BDA, null, AUG_17, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, SEP_04),
+            list(JUN_04, JUN_17, JUL_17, AUG_18, SEP_04), DAY_17},
 
         // explicit double stub
         {JUN_04, SEP_17, P1M, null, null, BDA, JUL_11, AUG_11, null,
