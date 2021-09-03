@@ -10,6 +10,7 @@ import static com.opengamma.strata.basics.currency.Currency.GBP;
 import static com.opengamma.strata.basics.date.BusinessDayConventions.FOLLOWING;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -42,6 +43,7 @@ import com.opengamma.strata.basics.value.ValueStep;
 public class KnownAmountSwapLegTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
+  private static final LocalDate DATE_01_02 = date(2014, 1, 2);
   private static final LocalDate DATE_01_05 = date(2014, 1, 5);
   private static final LocalDate DATE_01_06 = date(2014, 1, 6);
   private static final LocalDate DATE_02_05 = date(2014, 2, 5);
@@ -108,6 +110,40 @@ public class KnownAmountSwapLegTest {
     test.collectIndices(builder);
     assertThat(builder.build()).isEmpty();
     assertThat(test.allIndices()).isEmpty();
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_replaceStartDate() {
+    // test case
+    KnownAmountSwapLeg test = KnownAmountSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(DaysAdjustment.ofBusinessDays(2, GBLO))
+            .build())
+        .amount(ValueSchedule.of(123d))
+        .currency(GBP)
+        .build();
+    // expected
+    KnownAmountSwapLeg expected = test.toBuilder()
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_02)
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .stubConvention(SMART_INITIAL)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .build();
+    // assertion
+    assertThat(test.replaceStartDate(DATE_01_02)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

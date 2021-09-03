@@ -20,6 +20,7 @@ import static com.opengamma.strata.basics.schedule.Frequency.P12M;
 import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.basics.schedule.Frequency.P2M;
 import static com.opengamma.strata.basics.schedule.Frequency.P3M;
+import static com.opengamma.strata.basics.schedule.StubConvention.SMART_INITIAL;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
@@ -191,6 +192,43 @@ public class RateCalculationSwapLegTest {
     assertThat(builder.build()).containsOnly(GBP_LIBOR_3M, EUR_GBP_ECB);
     assertThat(test.allIndices()).containsOnly(GBP_LIBOR_3M, EUR_GBP_ECB);
     assertThat(test.allCurrencies()).containsOnly(GBP, EUR);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_replaceStartDate() {
+    // test case
+    RateCalculationSwapLeg test = RateCalculationSwapLeg.builder()
+        .payReceive(PAY)
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_05)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .paymentSchedule(PaymentSchedule.builder()
+            .paymentFrequency(P1M)
+            .paymentDateOffset(PLUS_TWO_DAYS)
+            .build())
+        .notionalSchedule(NotionalSchedule.of(GBP, 1000d))
+        .calculation(FixedRateCalculation.builder()
+            .dayCount(ACT_365F)
+            .rate(ValueSchedule.of(0.025d))
+            .build())
+        .build();
+    // expected
+    RateCalculationSwapLeg expected = test.toBuilder()
+        .accrualSchedule(PeriodicSchedule.builder()
+            .startDate(DATE_01_02)
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDate(DATE_04_05)
+            .frequency(P1M)
+            .stubConvention(SMART_INITIAL)
+            .businessDayAdjustment(BusinessDayAdjustment.of(FOLLOWING, GBLO))
+            .build())
+        .build();
+    // assertion
+    assertThat(test.replaceStartDate(DATE_01_02)).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------

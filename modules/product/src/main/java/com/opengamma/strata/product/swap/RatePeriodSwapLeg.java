@@ -40,6 +40,7 @@ import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DateAdjuster;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.rate.FixedRateComputation;
 import com.opengamma.strata.product.rate.IborRateComputation;
@@ -239,6 +240,38 @@ public final class RatePeriodSwapLeg
   @Override
   public void collectIndices(ImmutableSet.Builder<Index> builder) {
     paymentPeriods.stream().forEach(period -> period.collectIndices(builder));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance based on this leg with a different start date.
+   * <p>
+   * The proposed start date must exactly match the start date of one of the existing periods.
+   * 
+   * @throws IllegalArgumentException if the start date cannot be replaced with the proposed start date
+   */
+  @Override
+  public RatePeriodSwapLeg replaceStartDate(LocalDate adjustedStartDate) {
+    if (adjustedStartDate.isAfter(getEndDate().getUnadjusted())) {
+      throw new IllegalArgumentException("Cannot alter leg to have start date after end date");
+    }
+    ImmutableList<RatePaymentPeriod> filteredPeriods = paymentPeriods.stream()
+        .filter(period -> !period.getStartDate().isBefore(adjustedStartDate))
+        .collect(toImmutableList());
+    ImmutableList<SwapPaymentEvent> filteredEvents = paymentEvents.stream()
+        .filter(event -> !event.getPaymentDate().isBefore(adjustedStartDate))
+        .collect(toImmutableList());
+    RatePeriodSwapLeg result = toBuilder()
+        .paymentPeriods(filteredPeriods)
+        .paymentEvents(filteredEvents)
+        .build();
+    if (!result.getStartDate().getUnadjusted().equals(adjustedStartDate)) {
+      throw new IllegalArgumentException(Messages.format(
+          "Cannot alter leg unless start date {} exactly matches one of the periods: {}",
+          adjustedStartDate,
+          paymentPeriods));
+    }
+    return result;
   }
 
   /**

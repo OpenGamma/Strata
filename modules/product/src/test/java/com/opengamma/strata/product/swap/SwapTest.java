@@ -30,6 +30,7 @@ import static com.opengamma.strata.product.swap.SwapLegType.IBOR;
 import static com.opengamma.strata.product.swap.SwapLegType.OTHER;
 import static com.opengamma.strata.product.swap.SwapLegType.OVERNIGHT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.util.List;
@@ -312,6 +313,13 @@ public class SwapTest {
             .build())
         .build());
     assertThat(test.summaryDescription()).isEqualTo("2Y Pay GBP 145k variable : 12Feb18-12Feb20");
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_replaceStartDate() {
+    assertThatExceptionOfType(UnsupportedOperationException.class)
+        .isThrownBy(() -> Swap.builder().legs(MOCK_GBP1, MOCK_USD1).build().replaceStartDate(date(2000, 1, 1)));
   }
 
   //-------------------------------------------------------------------------
