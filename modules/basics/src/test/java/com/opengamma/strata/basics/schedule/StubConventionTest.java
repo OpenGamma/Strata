@@ -183,8 +183,8 @@ public class StubConventionTest {
 
         {SMART_INITIAL, false, false, SMART_INITIAL},
         {SMART_INITIAL, true, false, NONE},
-        {SMART_INITIAL, false, true, null},
-        {SMART_INITIAL, true, true, null},
+        {SMART_INITIAL, false, true, SMART_INITIAL},
+        {SMART_INITIAL, true, true, BOTH},
 
         {SHORT_FINAL, false, false, SHORT_FINAL},
         {SHORT_FINAL, true, false, null},
@@ -197,9 +197,9 @@ public class StubConventionTest {
         {LONG_FINAL, true, true, null},
 
         {SMART_FINAL, false, false, SMART_FINAL},
-        {SMART_FINAL, true, false, null},
+        {SMART_FINAL, true, false, SMART_FINAL},
         {SMART_FINAL, false, true, NONE},
-        {SMART_FINAL, true, true, null},
+        {SMART_FINAL, true, true, BOTH},
 
         {BOTH, false, false, null},
         {BOTH, true, false, null},
