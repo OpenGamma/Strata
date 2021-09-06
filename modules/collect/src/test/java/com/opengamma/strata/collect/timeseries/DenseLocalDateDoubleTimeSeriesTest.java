@@ -61,17 +61,16 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   private static final LocalDate DATE_2012_01_01 = date(2012, 1, 1);
   private static final LocalDate DATE_2013_01_01 = date(2013, 1, 1);
 
-  private static final LocalDate DATE_2014_01_01 = date(2014, 1, 1);
-
-  private static final LocalDate DATE_2015_01_02 = date(2015, 1, 2);
-  private static final LocalDate DATE_2015_01_03 = date(2015, 1, 3);
-  private static final LocalDate DATE_2015_01_04 = date(2015, 1, 4);
-  private static final LocalDate DATE_2015_01_05 = date(2015, 1, 5);
-  private static final LocalDate DATE_2015_01_06 = date(2015, 1, 6);
-  private static final LocalDate DATE_2015_01_07 = date(2015, 1, 7);
-  private static final LocalDate DATE_2015_01_08 = date(2015, 1, 8);
-  private static final LocalDate DATE_2015_01_09 = date(2015, 1, 9);
-  private static final LocalDate DATE_2015_01_11 = date(2015, 1, 11);
+  private static final LocalDate DATE_2014_01_01 = date(2014, 1, 1);  // Thu
+  private static final LocalDate DATE_2015_01_02 = date(2015, 1, 2);  // Fri
+  private static final LocalDate DATE_2015_01_03 = date(2015, 1, 3);  // Sat
+  private static final LocalDate DATE_2015_01_04 = date(2015, 1, 4);  // Sun
+  private static final LocalDate DATE_2015_01_05 = date(2015, 1, 5);  // Mon
+  private static final LocalDate DATE_2015_01_06 = date(2015, 1, 6);  // Tue
+  private static final LocalDate DATE_2015_01_07 = date(2015, 1, 7);  // Wed
+  private static final LocalDate DATE_2015_01_08 = date(2015, 1, 8);  // Thu
+  private static final LocalDate DATE_2015_01_09 = date(2015, 1, 9);  // Fri
+  private static final LocalDate DATE_2015_01_11 = date(2015, 1, 11);  // Sun
 
   private static final LocalDate DATE_2015_01_12 = date(2015, 1, 12);
 
@@ -673,7 +672,6 @@ public class DenseLocalDateDoubleTimeSeriesTest {
   //-------------------------------------------------------------------------
   @Test
   public void test_union_withMatchingElements() {
-
     List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_06);
     List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_08);
     LocalDateDoubleTimeSeries series1 =
@@ -694,7 +692,6 @@ public class DenseLocalDateDoubleTimeSeriesTest {
 
   @Test
   public void test_union_withNoMatchingElements() {
-
     List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_06);
     List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_04, DATE_2015_01_08);
     LocalDateDoubleTimeSeries series1 =
@@ -712,6 +709,21 @@ public class DenseLocalDateDoubleTimeSeriesTest {
     assertThat(test.get(DATE_2015_01_05)).isEqualTo(OptionalDouble.of(11d));
     assertThat(test.get(DATE_2015_01_06)).isEqualTo(OptionalDouble.of(12d));
     assertThat(test.get(DATE_2015_01_08)).isEqualTo(OptionalDouble.of(3d));
+  }
+
+  @Test
+  public void test_union_weekends() {
+    List<LocalDate> dates1 = dates(DATE_2015_01_03, DATE_2015_01_05, DATE_2015_01_11);  // start/end on weekend
+    List<LocalDate> dates2 = dates(DATE_2015_01_02, DATE_2015_01_05, DATE_2015_01_12);  // no weekend
+    LocalDateDoubleTimeSeries series1 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates1, VALUES_10_12).build();
+    LocalDateDoubleTimeSeries series2 =
+        LocalDateDoubleTimeSeries.builder().putAll(dates2, VALUES_1_3).build();
+
+    LocalDateDoubleTimeSeries test = series1.union(series2, Double::sum);
+    LocalDateDoubleTimeSeries test2 = series2.union(series1, Double::sum);
+    assertThat(test.size()).isEqualTo(5);
+    assertThat(test).isEqualTo(test2);
   }
 
   //-------------------------------------------------------------------------
