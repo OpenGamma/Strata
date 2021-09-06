@@ -155,6 +155,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * @return this builder
    */
   public LocalDateDoubleTimeSeriesBuilder merge(LocalDateDoublePoint point, DoubleBinaryOperator operator) {
+    ArgChecker.notNull(point, "point");
     return merge(point.getDate(), point.getValue(), operator);
   }
 
