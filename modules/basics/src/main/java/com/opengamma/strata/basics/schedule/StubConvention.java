@@ -434,6 +434,20 @@ public enum StubConvention implements NamedEnum {
   }
 
   /**
+   * Checks if this convention tries to produce a final stub.
+   * <p>
+   * If true, then there will typically be a stub at the end of the schedule.
+   * <p>
+   * The 'ShortFinal', 'LongFinal' and 'SmartFinal' conventions return true.
+   * Other conventions return false.
+   * 
+   * @return true if calculation occurs forwards from the start date to the end date
+   */
+  public boolean isFinal() {
+    return this == SHORT_FINAL || this == LONG_FINAL || this == SMART_FINAL;
+  }
+
+  /**
    * Checks if this convention tries to produce a long stub.
    * <p>
    * The 'LongInitial' and 'LongFinal' conventions return true.
