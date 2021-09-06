@@ -86,19 +86,6 @@ public class SwaptionTest {
   }
 
   @Test
-  public void test_builder_expiryAfterStart() {
-    assertThatIllegalArgumentException()
-        .isThrownBy(() -> Swaption.builder()
-            .expiryDate(AdjustableDate.of(LocalDate.of(2014, 6, 17), ADJUSTMENT))
-            .expiryTime(EXPIRY_TIME)
-            .expiryZone(ZONE)
-            .longShort(LONG)
-            .swaptionSettlement(PHYSICAL_SETTLE)
-            .underlying(SWAP)
-            .build());
-  }
-
-  @Test
   public void test_builder_invalidSwapInflation() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> Swaption.builder()

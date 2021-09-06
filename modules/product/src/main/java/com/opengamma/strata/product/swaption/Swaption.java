@@ -120,8 +120,6 @@ public final class Swaption
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderOrEqual(
-        expiryDate.getUnadjusted(), underlying.getStartDate().getUnadjusted(), "expiryDate", "underlying.startDate.unadjusted");
     ArgChecker.isTrue(!underlying.isCrossCurrency(), "Underlying swap must not be cross-currency");
     ArgChecker.isTrue(underlying.getLegs(SwapLegType.FIXED).size() == 1, "Underlying swap must have one fixed leg");
     ArgChecker.isTrue(
