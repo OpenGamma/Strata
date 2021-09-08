@@ -141,39 +141,43 @@ public class SwaptionTest {
   @Test
   public void test_exercise_withInfo() {
     Swaption base = sut();
-    Swaption test = base.exercise(DATE_06_14, REF_DATA);
+    Swaption test = base.selectExerciseDate(DATE_06_14, REF_DATA);
     assertThat(test.getExpiryDate()).isEqualTo(AdjustableDate.of(DATE_06_14, ADJUSTMENT));
     assertThat(test.getExerciseInfo()).isEmpty();
     LocalDate swapStart = OFFSET.adjust(DATE_06_14, REF_DATA);
     assertThat(test.getUnderlying()).isEqualTo(SWAP.replaceStartDate(swapStart));
+    assertThat(base.exercise(DATE_06_14, REF_DATA)).isEqualTo(test.getUnderlying());
   }
 
   @Test
   public void test_exercise_withoutInfo_matchUnadjusted() {
     Swaption base = sut2().toBuilder().expiryDate(AdjustableDate.of(date(2014, 6, 7), ADJUSTMENT)).build();
-    Swaption test = base.exercise(date(2014, 6, 7), REF_DATA);
+    Swaption test = base.selectExerciseDate(date(2014, 6, 7), REF_DATA);
     assertThat(test.getExpiryDate()).isEqualTo(AdjustableDate.of(date(2014, 6, 7), ADJUSTMENT));
     assertThat(test.getExerciseInfo()).isEmpty();
     assertThat(test.getUnderlying()).isEqualTo(base.getUnderlying());
+    assertThat(base.exercise(date(2014, 6, 7), REF_DATA)).isEqualTo(test.getUnderlying());
   }
 
   @Test
   public void test_exercise_withoutInfo_matchAdjusted() {
     Swaption base = sut2().toBuilder().expiryDate(AdjustableDate.of(date(2014, 6, 7), ADJUSTMENT)).build();
-    Swaption test = base.exercise(date(2014, 6, 9), REF_DATA);
+    Swaption test = base.selectExerciseDate(date(2014, 6, 9), REF_DATA);
     assertThat(test.getExpiryDate()).isEqualTo(AdjustableDate.of(date(2014, 6, 9)));
     assertThat(test.getExerciseInfo()).isEmpty();
     assertThat(test.getUnderlying()).isEqualTo(base.getUnderlying());
+    assertThat(base.exercise(date(2014, 6, 9), REF_DATA)).isEqualTo(test.getUnderlying());
   }
 
   @Test
   public void test_exercise_withoutInfo_matchAdjustedAndUnadjusted() {
     Swaption base = sut2();
     LocalDate baseExpiryDate = base.getExpiryDate().getUnadjusted();
-    Swaption test = base.exercise(baseExpiryDate, REF_DATA);
+    Swaption test = base.selectExerciseDate(baseExpiryDate, REF_DATA);
     assertThat(test.getExpiryDate()).isEqualTo(base.getExpiryDate());
     assertThat(test.getExerciseInfo()).isEmpty();
     assertThat(test.getUnderlying()).isEqualTo(base.getUnderlying());
+    assertThat(base.exercise(baseExpiryDate, REF_DATA)).isEqualTo(test.getUnderlying());
   }
 
   @Test

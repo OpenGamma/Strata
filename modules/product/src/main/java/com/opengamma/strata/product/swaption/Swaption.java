@@ -176,37 +176,37 @@ public final class Swaption
 
   //-------------------------------------------------------------------------
   /**
-   * Exercises the swaption at one of the optional exercise dates.
+   * Selects one of the exercise dates.
    * <p>
-   * This returns a European swaption with the {@code exerciseInfo} removed.
+   * This returns a swaption with the {@code exerciseInfo} removed.
    * The expiry date and underlying swap will be set in accordance with the selected exercise date.
    * If the swaption has no exercise information, this checks that the exercise date matches the expiry date.
    * <p>
    * The date is matched as an adjusted date first, then as an unadjusted date.
    * If the date can only be an adjusted date, the result will use {@link BusinessDayAdjustment#NONE}.
    * 
-   * @param proposedExerciseDate  the exercise date, which must be valid for the swaption
+   * @param exerciseDate  the exercise date, which must be valid for the swaption
    * @param refData  the reference data
    * @return the swaption in European form with the specified exercise date
    * @throws IllegalArgumentException if the proposed exercise date is not valid
    */
-  public Swaption exercise(LocalDate proposedExerciseDate, ReferenceData refData) {
+  public Swaption selectExerciseDate(LocalDate exerciseDate, ReferenceData refData) {
     if (exerciseInfo == null) {
       LocalDate adjustedExpiryDate = expiryDate.adjusted(refData);
-      if (proposedExerciseDate.equals(adjustedExpiryDate)) {
-        if (expiryDate.getUnadjusted().equals(proposedExerciseDate)) {
+      if (exerciseDate.equals(adjustedExpiryDate)) {
+        if (expiryDate.getUnadjusted().equals(exerciseDate)) {
           return this;
         } else {
           return toBuilder().expiryDate(AdjustableDate.of(adjustedExpiryDate)).build();
         }
       }
-      if (proposedExerciseDate.equals(expiryDate.getUnadjusted())) {
+      if (exerciseDate.equals(expiryDate.getUnadjusted())) {
         return this;
       }
       throw new IllegalArgumentException(
-          "Unable to exercise swaption, valid exercise dates unknown: " + proposedExerciseDate);
+          "Unable to exercise swaption, valid exercise dates unknown: " + exerciseDate);
     }
-    AdjustableDate adjutableExerciseDate = exerciseInfo.selectDate(proposedExerciseDate, refData);
+    AdjustableDate adjutableExerciseDate = exerciseInfo.selectDate(exerciseDate, refData);
     LocalDate adjustedExerciseDate = adjutableExerciseDate.adjusted(refData);
     LocalDate swapStartDate = exerciseInfo.getSwapStartDateOffset().adjust(adjustedExerciseDate, refData);
     return toBuilder()
@@ -214,6 +214,21 @@ public final class Swaption
         .expiryDate(adjutableExerciseDate)
         .underlying(underlying.replaceStartDate(swapStartDate))
         .build();
+  }
+
+  /**
+   * Exercises the swaption into a swap at one of the optional exercise dates.
+   * <p>
+   * The start date of the swap will be set in accordance with the selected exercise date.
+   * See {@link #selectExerciseDate(LocalDate, ReferenceData)} for more info.
+   * 
+   * @param exerciseDate  the exercise date, which must be valid for the swaption
+   * @param refData  the reference data
+   * @return the exercised swap
+   * @throws IllegalArgumentException if the proposed exercise date is not valid
+   */
+  public Swap exercise(LocalDate exerciseDate, ReferenceData refData) {
+    return selectExerciseDate(exerciseDate, refData).getUnderlying();
   }
 
   //-------------------------------------------------------------------------
