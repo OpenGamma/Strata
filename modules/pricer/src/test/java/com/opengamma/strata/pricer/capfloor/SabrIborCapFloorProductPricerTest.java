@@ -17,6 +17,7 @@ import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,6 +28,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
+import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 import com.opengamma.strata.product.swap.ResolvedSwapLeg;
@@ -178,6 +180,29 @@ public class SabrIborCapFloorProductPricerTest {
     CurrencyAmount ccPay = PRICER_PAY_LEG.currentCash(PAY_LEG, RATES_PAY);
     assertThat(cc1).isEqualTo(MultiCurrencyAmount.of(ccCap));
     assertThat(cc2).isEqualTo(MultiCurrencyAmount.of(ccCap).plus(ccPay));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_impliedVolatility() {
+    Map<IborCapletFloorletPeriod, Double> computed = PRICER.impliedVolatilities(CAP_ONE_LEG, RATES, VOLS);
+    Map<IborCapletFloorletPeriod, Double> expected = PRICER_CAP_LEG.impliedVolatilities(CAP_LEG, RATES, VOLS);
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_impliedVolatility_onFix() {
+    Map<IborCapletFloorletPeriod, Double> computed = PRICER.impliedVolatilities(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
+    Map<IborCapletFloorletPeriod, Double> expected = PRICER_CAP_LEG.impliedVolatilities(CAP_LEG, RATES_PAY, VOLS_PAY);
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardRate() {
+    Map<IborCapletFloorletPeriod, Double> computed = PRICER.forwardRates(CAP_ONE_LEG, RATES);
+    Map<IborCapletFloorletPeriod, Double> expected = PRICER_CAP_LEG.forwardRates(CAP_LEG, RATES);
+    assertThat(computed).isEqualTo(expected);
   }
 
 }

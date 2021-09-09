@@ -263,6 +263,14 @@ public class SabrIborCapletFloorletPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_forwardRate() {
+    double computed = PRICER.forwardRate(CAPLET_LONG, RATES);
+    double expected = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueDelta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES, VOLS);

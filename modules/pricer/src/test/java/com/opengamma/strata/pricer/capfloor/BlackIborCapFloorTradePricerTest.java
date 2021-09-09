@@ -18,6 +18,7 @@ import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
+import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorLeg;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorTrade;
@@ -139,6 +141,26 @@ public class BlackIborCapFloorTradePricerTest {
     MultiCurrencyAmount computedWithPremium = PRICER.currentCash(TRADE_PREMIUM, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount expectedWithPayLeg = PRICER_PRODUCT.currentCash(CAP_TWO_LEGS, RATES_PAY, VOLS_PAY);
     MultiCurrencyAmount expectedWithPremium = PRICER_PRODUCT.currentCash(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
+    assertThat(computedWithPayLeg).isEqualTo(expectedWithPayLeg);
+    assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
+  }
+
+  @Test
+  public void test_forwardRates() {
+    Map<IborCapletFloorletPeriod, Double> computedWithPayLeg = PRICER.forwardRates(TRADE_PAYLEG, RATES_PAY);
+    Map<IborCapletFloorletPeriod, Double> computedWithPremium = PRICER.forwardRates(TRADE_PREMIUM, RATES_PAY);
+    Map<IborCapletFloorletPeriod, Double> expectedWithPayLeg = PRICER_PRODUCT.forwardRates(CAP_TWO_LEGS, RATES_PAY);
+    Map<IborCapletFloorletPeriod, Double> expectedWithPremium = PRICER_PRODUCT.forwardRates(CAP_ONE_LEG, RATES_PAY);
+    assertThat(computedWithPayLeg).isEqualTo(expectedWithPayLeg);
+    assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
+  }
+
+  @Test
+  public void test_impliedVolatilities() {
+    Map<IborCapletFloorletPeriod, Double> computedWithPayLeg = PRICER.impliedVolatilities(TRADE_PAYLEG, RATES_PAY, VOLS_PAY);
+    Map<IborCapletFloorletPeriod, Double> computedWithPremium = PRICER.impliedVolatilities(TRADE_PREMIUM, RATES_PAY, VOLS_PAY);
+    Map<IborCapletFloorletPeriod, Double> expectedWithPayLeg = PRICER_PRODUCT.impliedVolatilities(CAP_TWO_LEGS, RATES_PAY, VOLS_PAY);
+    Map<IborCapletFloorletPeriod, Double> expectedWithPremium = PRICER_PRODUCT.impliedVolatilities(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
     assertThat(computedWithPayLeg).isEqualTo(expectedWithPayLeg);
     assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
   }

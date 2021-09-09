@@ -5,8 +5,11 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
+import java.util.Map;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
@@ -225,6 +228,44 @@ public class VolatilityIborCapFloorLegPricer {
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
         .reduce((c1, c2) -> c1.plus(c2))
         .orElse(CurrencyAmount.zero(capFloorLeg.getCurrency()));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor leg.
+   *
+   * @param capFloorLeg  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public Map<IborCapletFloorletPeriod, Double> forwardRates(
+      ResolvedIborCapFloorLeg capFloorLeg,
+      RatesProvider ratesProvider) {
+
+    return MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+        .mapValues(period -> periodPricer.forwardRate(period, ratesProvider))
+        .toMap();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor leg.
+   *
+   * @param capFloorLeg  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public Map<IborCapletFloorletPeriod, Double> impliedVolatilities(
+      ResolvedIborCapFloorLeg capFloorLeg,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    validate(ratesProvider, volatilities);
+    return MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+        .filterKeys(period -> volatilities.relativeTime(period.getFixingDateTime()) >= 0)
+        .mapValues(period -> periodPricer.impliedVolatility(period, ratesProvider, volatilities))
+        .toMap();
   }
 
   //-------------------------------------------------------------------------

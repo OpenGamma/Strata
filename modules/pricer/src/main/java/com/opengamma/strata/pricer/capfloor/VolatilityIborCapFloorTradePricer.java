@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
+import java.util.Map;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
@@ -14,6 +16,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.IborCapFloorTrade;
+import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorTrade;
 
@@ -184,6 +187,38 @@ public class VolatilityIborCapFloorTradePricer {
       ccProduct = ccProduct.plus(premium.getCurrency(), premium.getAmount());
     }
     return ccProduct;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor trade.
+   *
+   * @param trade  the Ibor cap/floor trade
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public Map<IborCapletFloorletPeriod, Double> forwardRates(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider) {
+
+    return productPricer.forwardRates(trade.getProduct(), ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor trade.
+   *
+   * @param trade  the Ibor cap/floor trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public Map<IborCapletFloorletPeriod, Double> impliedVolatilities(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return productPricer.impliedVolatilities(trade.getProduct(), ratesProvider, volatilities);
   }
 
 }

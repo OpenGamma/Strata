@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
+import java.util.Map;
+
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -12,6 +14,7 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
+import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 import com.opengamma.strata.product.swap.SwapLeg;
 
@@ -254,6 +257,38 @@ public class VolatilityIborCapFloorProductPricer {
     }
     CurrencyAmount ccPayLeg = payLegPricer.currentCash(capFloor.getPayLeg().get(), ratesProvider);
     return MultiCurrencyAmount.of(ccPayLeg).plus(ccCapFloorLeg);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor.
+   *
+   * @param capFloor  the Ibor cap/floor
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public Map<IborCapletFloorletPeriod, Double> forwardRates(
+      ResolvedIborCapFloor capFloor,
+      RatesProvider ratesProvider) {
+
+    return capFloorLegPricer.forwardRates(capFloor.getCapFloorLeg(), ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor.
+   *
+   * @param capFloor  the Ibor cap/floor
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public Map<IborCapletFloorletPeriod, Double> impliedVolatilities(
+      ResolvedIborCapFloor capFloor,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return capFloorLegPricer.impliedVolatilities(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
   }
 
 }
