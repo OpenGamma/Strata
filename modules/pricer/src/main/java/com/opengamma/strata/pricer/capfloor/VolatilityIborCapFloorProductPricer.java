@@ -5,8 +5,6 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
-import java.util.Map;
-
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
@@ -14,7 +12,6 @@ import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
-import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.capfloor.ResolvedIborCapFloor;
 import com.opengamma.strata.product.swap.SwapLeg;
 
@@ -267,7 +264,7 @@ public class VolatilityIborCapFloorProductPricer {
    * @param ratesProvider  the rates provider
    * @return the forward rates
    */
-  public Map<IborCapletFloorletPeriod, Double> forwardRates(
+  public IborCapletFloorletPeriodAmounts forwardRates(
       ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider) {
 
@@ -283,7 +280,7 @@ public class VolatilityIborCapFloorProductPricer {
    * @param volatilities the volatilities
    * @return the implied volatilities
    */
-  public Map<IborCapletFloorletPeriod, Double> impliedVolatilities(
+  public IborCapletFloorletPeriodAmounts impliedVolatilities(
       ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {

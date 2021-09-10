@@ -7,6 +7,7 @@ package com.opengamma.strata.pricer.capfloor;
 
 import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.MapStream;
@@ -238,13 +239,14 @@ public class VolatilityIborCapFloorLegPricer {
    * @param ratesProvider  the rates provider
    * @return the forward rates
    */
-  public Map<IborCapletFloorletPeriod, Double> forwardRates(
+  public IborCapletFloorletPeriodAmounts forwardRates(
       ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider) {
 
-    return MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+    Map<IborCapletFloorletPeriod, Double> forwardRates = MapStream.of(capFloorLeg.getCapletFloorletPeriods())
         .mapValues(period -> periodPricer.forwardRate(period, ratesProvider))
         .toMap();
+    return IborCapletFloorletPeriodAmounts.of(forwardRates);
   }
 
   //-------------------------------------------------------------------------
@@ -256,16 +258,17 @@ public class VolatilityIborCapFloorLegPricer {
    * @param volatilities the volatilities
    * @return the implied volatilities
    */
-  public Map<IborCapletFloorletPeriod, Double> impliedVolatilities(
+  public IborCapletFloorletPeriodAmounts impliedVolatilities(
       ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
 
     validate(ratesProvider, volatilities);
-    return MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+    ImmutableMap<IborCapletFloorletPeriod, Double> impliedVolatilities = MapStream.of(capFloorLeg.getCapletFloorletPeriods())
         .filterKeys(period -> volatilities.relativeTime(period.getFixingDateTime()) >= 0)
         .mapValues(period -> periodPricer.impliedVolatility(period, ratesProvider, volatilities))
         .toMap();
+    return IborCapletFloorletPeriodAmounts.of(impliedVolatilities);
   }
 
   //-------------------------------------------------------------------------
