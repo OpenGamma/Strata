@@ -139,7 +139,6 @@ public enum StubConvention implements NamedEnum {
    * If there is no remaining period when calculating, then there is no stub.
    * For example, a 6 month trade can be exactly divided by a 3 month frequency.
    * <p>
-   * When creating a schedule, there must be no explicit final stub.
    * If there is an explicit initial stub, then this convention is considered to be matched
    * and the remaining period is calculated using the stub convention 'None'.
    */
@@ -147,8 +146,7 @@ public enum StubConvention implements NamedEnum {
     @Override
     StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitFinalStub) {
-        throw new ScheduleException(
-            definition, "Dates specify an explicit final stub, but stub convention is 'SmartInitial'");
+        return (explicitInitialStub ? BOTH : SMART_INITIAL);
       }
       return (explicitInitialStub ? NONE : SMART_INITIAL);
     }
@@ -230,7 +228,6 @@ public enum StubConvention implements NamedEnum {
    * If there is no remaining period when calculating, then there is no stub.
    * For example, a 6 month trade can be exactly divided by a 3 month frequency.
    * <p>
-   * When creating a schedule, there must be no explicit initial stub.
    * If there is an explicit final stub, then this convention is considered to be matched
    * and the remaining period is calculated using the stub convention 'None'.
    */
@@ -238,8 +235,7 @@ public enum StubConvention implements NamedEnum {
     @Override
     StubConvention toImplicit(PeriodicSchedule definition, boolean explicitInitialStub, boolean explicitFinalStub) {
       if (explicitInitialStub) {
-        throw new ScheduleException(
-            definition, "Dates specify an explicit initial stub, but stub convention is 'SmartFinal'");
+        return (explicitFinalStub ? BOTH : SMART_FINAL);
       }
       return (explicitFinalStub ? NONE : SMART_FINAL);
     }
@@ -435,6 +431,20 @@ public enum StubConvention implements NamedEnum {
    */
   public boolean isCalculateBackwards() {
     return this == SHORT_INITIAL || this == LONG_INITIAL || this == SMART_INITIAL;
+  }
+
+  /**
+   * Checks if this convention tries to produce a final stub.
+   * <p>
+   * If true, then there will typically be a stub at the end of the schedule.
+   * <p>
+   * The 'ShortFinal', 'LongFinal' and 'SmartFinal' conventions return true.
+   * Other conventions return false.
+   * 
+   * @return true if calculation occurs forwards from the start date to the end date
+   */
+  public boolean isFinal() {
+    return this == SHORT_FINAL || this == LONG_FINAL || this == SMART_FINAL;
   }
 
   /**

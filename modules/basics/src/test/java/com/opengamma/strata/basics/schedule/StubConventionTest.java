@@ -183,8 +183,8 @@ public class StubConventionTest {
 
         {SMART_INITIAL, false, false, SMART_INITIAL},
         {SMART_INITIAL, true, false, NONE},
-        {SMART_INITIAL, false, true, null},
-        {SMART_INITIAL, true, true, null},
+        {SMART_INITIAL, false, true, SMART_INITIAL},
+        {SMART_INITIAL, true, true, BOTH},
 
         {SHORT_FINAL, false, false, SHORT_FINAL},
         {SHORT_FINAL, true, false, null},
@@ -197,9 +197,9 @@ public class StubConventionTest {
         {LONG_FINAL, true, true, null},
 
         {SMART_FINAL, false, false, SMART_FINAL},
-        {SMART_FINAL, true, false, null},
+        {SMART_FINAL, true, false, SMART_FINAL},
         {SMART_FINAL, false, true, NONE},
-        {SMART_FINAL, true, true, null},
+        {SMART_FINAL, true, true, BOTH},
 
         {BOTH, false, false, null},
         {BOTH, true, false, null},
@@ -257,6 +257,7 @@ public class StubConventionTest {
   public void test_NONE() {
     assertThat(NONE.isCalculateForwards()).isEqualTo(true);
     assertThat(NONE.isCalculateBackwards()).isEqualTo(false);
+    assertThat(NONE.isFinal()).isEqualTo(false);
     assertThat(NONE.isLong()).isEqualTo(false);
     assertThat(NONE.isShort()).isEqualTo(false);
     assertThat(NONE.isSmart()).isEqualTo(false);
@@ -266,6 +267,7 @@ public class StubConventionTest {
   public void test_SHORT_INITIAL() {
     assertThat(SHORT_INITIAL.isCalculateForwards()).isEqualTo(false);
     assertThat(SHORT_INITIAL.isCalculateBackwards()).isEqualTo(true);
+    assertThat(SHORT_INITIAL.isFinal()).isEqualTo(false);
     assertThat(SHORT_INITIAL.isLong()).isEqualTo(false);
     assertThat(SHORT_INITIAL.isShort()).isEqualTo(true);
     assertThat(SHORT_INITIAL.isSmart()).isEqualTo(false);
@@ -275,6 +277,7 @@ public class StubConventionTest {
   public void test_LONG_INITIAL() {
     assertThat(LONG_INITIAL.isCalculateForwards()).isEqualTo(false);
     assertThat(LONG_INITIAL.isCalculateBackwards()).isEqualTo(true);
+    assertThat(LONG_INITIAL.isFinal()).isEqualTo(false);
     assertThat(LONG_INITIAL.isLong()).isEqualTo(true);
     assertThat(LONG_INITIAL.isShort()).isEqualTo(false);
     assertThat(LONG_INITIAL.isSmart()).isEqualTo(false);
@@ -284,6 +287,7 @@ public class StubConventionTest {
   public void test_SMART_INITIAL() {
     assertThat(SMART_INITIAL.isCalculateForwards()).isEqualTo(false);
     assertThat(SMART_INITIAL.isCalculateBackwards()).isEqualTo(true);
+    assertThat(SMART_INITIAL.isFinal()).isEqualTo(false);
     assertThat(SMART_INITIAL.isLong()).isEqualTo(false);
     assertThat(SMART_INITIAL.isShort()).isEqualTo(false);
     assertThat(SMART_INITIAL.isSmart()).isEqualTo(true);
@@ -293,6 +297,7 @@ public class StubConventionTest {
   public void test_SHORT_FINAL() {
     assertThat(SHORT_FINAL.isCalculateForwards()).isEqualTo(true);
     assertThat(SHORT_FINAL.isCalculateBackwards()).isEqualTo(false);
+    assertThat(SHORT_FINAL.isFinal()).isEqualTo(true);
     assertThat(SHORT_FINAL.isLong()).isEqualTo(false);
     assertThat(SHORT_FINAL.isShort()).isEqualTo(true);
     assertThat(SHORT_FINAL.isSmart()).isEqualTo(false);
@@ -302,6 +307,7 @@ public class StubConventionTest {
   public void test_LONG_FINAL() {
     assertThat(LONG_FINAL.isCalculateForwards()).isEqualTo(true);
     assertThat(LONG_FINAL.isCalculateBackwards()).isEqualTo(false);
+    assertThat(LONG_FINAL.isFinal()).isEqualTo(true);
     assertThat(LONG_FINAL.isLong()).isEqualTo(true);
     assertThat(LONG_FINAL.isShort()).isEqualTo(false);
     assertThat(LONG_FINAL.isSmart()).isEqualTo(false);
@@ -311,6 +317,7 @@ public class StubConventionTest {
   public void test_SMART_FINAL() {
     assertThat(SMART_FINAL.isCalculateForwards()).isEqualTo(true);
     assertThat(SMART_FINAL.isCalculateBackwards()).isEqualTo(false);
+    assertThat(SMART_FINAL.isFinal()).isEqualTo(true);
     assertThat(SMART_FINAL.isLong()).isEqualTo(false);
     assertThat(SMART_FINAL.isShort()).isEqualTo(false);
     assertThat(SMART_FINAL.isSmart()).isEqualTo(true);
@@ -320,6 +327,7 @@ public class StubConventionTest {
   public void test_BOTH() {
     assertThat(BOTH.isCalculateForwards()).isEqualTo(false);
     assertThat(BOTH.isCalculateBackwards()).isEqualTo(false);
+    assertThat(BOTH.isFinal()).isEqualTo(false);
     assertThat(BOTH.isLong()).isEqualTo(false);
     assertThat(BOTH.isShort()).isEqualTo(false);
     assertThat(BOTH.isSmart()).isEqualTo(false);

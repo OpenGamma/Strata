@@ -408,6 +408,9 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, BDA, JUN_17, null, null,
             list(JUN_17, JUL_17, AUG_17, SEP_17),
             list(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_04, SEP_04, P1M, SMART_FINAL, null, BDA, JUN_17, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, SEP_04),
+            list(JUN_04, JUN_17, JUL_17, AUG_18, SEP_04), DAY_17},
 
         // explicit final stub
         {JUN_04, SEP_17, P1M, null, null, BDA, null, AUG_04, null,
@@ -419,6 +422,9 @@ public class PeriodicScheduleTest {
         {JUN_17, SEP_17, P1M, null, null, BDA, null, AUG_17, null,
             list(JUN_17, JUL_17, AUG_17, SEP_17),
             list(JUN_17, JUL_17, AUG_18, SEP_17), DAY_17},
+        {JUN_04, SEP_04, P1M, SMART_INITIAL, null, BDA, null, AUG_17, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, SEP_04),
+            list(JUN_04, JUN_17, JUL_17, AUG_18, SEP_04), DAY_17},
 
         // explicit double stub
         {JUN_04, SEP_17, P1M, null, null, BDA, JUL_11, AUG_11, null,
@@ -917,6 +923,93 @@ public class PeriodicScheduleTest {
     assertThat(test.createUnadjustedDates()).containsExactly(date(2014, 10, 4), date(2015, 1, 4), date(2015, 4, 4));
     assertThat(test.createAdjustedDates(REF_DATA))
         .containsExactly(date(2014, 10, 3), date(2015, 1, 5), date(2015, 4, 3));
+  }
+
+  //-------------------------------------------------------------------------
+  public static Object[][] data_replace() {
+    return new Object[][] {
+        // SmartInitial is set
+        {JUN_11, JUN_17, AUG_17, P1M, null, DAY_17, BDA, null, null, BDA_JPY_P,
+            list(JUN_11, JUL_17, AUG_17), SMART_INITIAL, null, DAY_17},
+        // SmartInitial not set
+        {MAY_19, JUN_17, AUG_17, P1M, LONG_INITIAL, DAY_17, BDA, JUN_17, AUG_17, BDA_JPY_P,
+            list(MAY_19, JUL_17, AUG_17), LONG_INITIAL, AUG_17, DAY_17},
+        // start set to be later
+        {JUL_04, JUN_17, AUG_17, P1M, null, DAY_17, BDA, JUN_17, AUG_17, BDA_JPY_P,
+            list(JUL_04, JUL_17, AUG_17), SMART_INITIAL, AUG_17, DAY_17},
+        // original schedule had no stubs and NONE, new schedule uses SmartInitial instead
+        {JUN_04, JUN_17, AUG_17, P1M, STUB_NONE, null, BDA, null, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17), SMART_INITIAL, null, null},
+        // original schedule had double stubs with stub convention and first regular date to determine roll of 17th
+        // new schedule uses SmartInitial and calculated last regular
+        {JUN_04, JUN_03, AUG_30, P1M, SMART_FINAL, null, BDA, JUN_17, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, AUG_30), SMART_INITIAL, AUG_17, null},
+        // original schedule had double explicit stubs, new schedule uses SmartInitial instead of first regular
+        {JUN_04, JUN_03, AUG_30, P1M, null, null, BDA, JUN_17, AUG_17, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, AUG_30), SMART_INITIAL, AUG_17, null},
+        // original schedule had double explicit stubs and BOTH, new schedule uses SmartInitial instead of first regular
+        {JUN_04, JUN_03, AUG_30, P1M, STUB_BOTH, null, BDA, JUN_17, AUG_17, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17, AUG_30), SMART_INITIAL, AUG_17, null},
+        // original schedule had first regular date, new schedule just uses SmartInitial
+        {JUN_04, JUN_03, AUG_17, P1M, null, null, BDA, JUN_17, null, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_17), SMART_INITIAL, null, null},
+        // original schedule had last regular date and uneccessary final stub convention
+        {JUN_04, JUN_17, AUG_04, P1M, SHORT_FINAL, null, BDA, null, JUL_17, null,
+            list(JUN_04, JUN_17, JUL_17, AUG_04), SMART_INITIAL, JUL_17, null},
+        // original schedule was final, but resulted in Term schedule, new schedule retains the stub convention
+        {JUN_04, JUL_17, AUG_17, P1M, SHORT_FINAL, null, BDA, null, null, null,
+            list(JUN_04, JUL_04, AUG_04, AUG_17), SHORT_FINAL, null, null},
+        // cannot set start after end
+        {SEP_04, JUN_17, AUG_17, P1M, null, DAY_17, BDA, JUN_17, AUG_17, BDA_JPY_P, null, null, null, null},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_replace")
+  public void test_replace(
+      LocalDate replaceStart,
+      LocalDate start,
+      LocalDate end,
+      Frequency freq,
+      StubConvention stubConv,
+      RollConvention rollConv,
+      BusinessDayAdjustment businessDayAdjustment,
+      LocalDate firstReg,
+      LocalDate lastReg,
+      BusinessDayAdjustment startBusDayAdjustment,
+      List<LocalDate> unadjusted,
+      StubConvention expectedStubConvention,
+      LocalDate expectedLastRegular,
+      RollConvention expectedRollConvention) {
+
+    PeriodicSchedule base = PeriodicSchedule.builder()
+        .startDate(start)
+        .endDate(end)
+        .frequency(freq)
+        .startDateBusinessDayAdjustment(startBusDayAdjustment)
+        .businessDayAdjustment(businessDayAdjustment)
+        .stubConvention(stubConv)
+        .rollConvention(rollConv)
+        .firstRegularStartDate(firstReg)
+        .lastRegularEndDate(lastReg)
+        .build();
+    if (unadjusted == null) {
+      assertThatIllegalArgumentException()
+          .isThrownBy(() -> base.replaceStartDate(replaceStart).createSchedule(REF_DATA));
+    } else {
+      PeriodicSchedule test = base.replaceStartDate(replaceStart);
+      assertThat(test.getOverrideStartDate()).isEmpty();
+      assertThat(test.getStartDate()).isEqualTo(replaceStart);
+      assertThat(test.getStartDateBusinessDayAdjustment()).hasValue(BDA_NONE);
+      assertThat(test.getFirstRegularStartDate()).isEmpty();
+      assertThat(test.getBusinessDayAdjustment()).isEqualTo(businessDayAdjustment);
+      assertThat(test.getLastRegularEndDate()).isEqualTo(Optional.ofNullable(expectedLastRegular));
+      assertThat(test.getEndDate()).isEqualTo(end);
+      assertThat(test.getEndDateBusinessDayAdjustment()).isEmpty();
+      assertThat(test.getStubConvention()).isEqualTo(Optional.ofNullable(expectedStubConvention));
+      assertThat(test.getRollConvention()).isEqualTo(Optional.ofNullable(expectedRollConvention));
+      assertThat(test.createUnadjustedDates()).isEqualTo(unadjusted);
+    }
   }
 
   //-------------------------------------------------------------------------
