@@ -6,6 +6,9 @@
  */
 package com.opengamma.strata.basics.schedule;
 
+import static com.opengamma.strata.collect.Guavate.inOptional;
+import static com.opengamma.strata.collect.Guavate.tryCatchToOptional;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.AbstractList;
@@ -230,7 +233,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * This is used to identify the boundary date between the initial stub and the first regular schedule period.
    * <p>
    * This is an unadjusted date, and as such it might not be a valid business day.
-   * This date must be on or after 'startDate'.
+   * This date must be on or after 'startDate' and on or before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to determine the schedule.
    * If not present, then the overall schedule start date will be used instead, resulting in no initial stub.
@@ -243,8 +246,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * This is used to identify the boundary date between the last regular schedule period and the final stub.
    * <p>
    * This is an unadjusted date, and as such it might not be a valid business day.
-   * This date must be after 'startDate' and on or after 'firstRegularStartDate'.
-   * This date must be on or before 'endDate'.
+   * This date must be one or after 'startDate', on or after 'firstRegularStartDate' and on or before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to determine the schedule.
    * If not present, then the overall schedule end date will be used instead, resulting in no final stub.
@@ -263,7 +265,8 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * then the override will be used when generating regular periods.
    * <p>
    * If set, it should be different to the start date, although this is not validated.
-   * Validation does check that it is before the 'firstRegularStartDate'.
+   * Validation does check that it is on or before 'firstRegularStartDate' and 'lastRegularEndDate',
+   * and before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to override the start date
    * of the first generated schedule period.
@@ -354,25 +357,37 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderNotEqual(
-        startDate, endDate, "startDate", "endDate");
+    // startDate < endDate
+    ArgChecker.inOrderNotEqual(startDate, endDate, "startDate", "endDate");
+    if (overrideStartDate != null) {
+      ArgChecker.inOrderNotEqual(overrideStartDate.getUnadjusted(), endDate, "overrideStartDate", "endDate");
+    }
     if (firstRegularStartDate != null) {
+      // firstRegularStartDate <= endDate
+      ArgChecker.inOrderOrEqual(firstRegularStartDate, endDate, "firstRegularStartDate", "endDate");
+      // firstRegularStartDate <= lastRegularEndDate
       if (lastRegularEndDate != null) {
         ArgChecker.inOrderOrEqual(
             firstRegularStartDate, lastRegularEndDate, "firstRegularStartDate", "lastRegularEndDate");
       }
-      // Check override start date if present, otherwise use regular start date
+      // startDate (or overrideStartDate) <= firstRegularStartDate
       if (overrideStartDate != null) {
-        ArgChecker.inOrderNotEqual(
+        ArgChecker.inOrderOrEqual(
             overrideStartDate.getUnadjusted(), firstRegularStartDate, "overrideStartDate", "firstRegularStartDate");
       } else {
-        ArgChecker.inOrderOrEqual(
-            startDate, firstRegularStartDate, "unadjusted", "firstRegularStartDate");
+        ArgChecker.inOrderOrEqual(startDate, firstRegularStartDate, "unadjusted", "firstRegularStartDate");
       }
     }
     if (lastRegularEndDate != null) {
-      ArgChecker.inOrderOrEqual(
-          lastRegularEndDate, endDate, "lastRegularEndDate", "endDate");
+      // startDate (or overrideStartDate) < lastRegularEndDate
+      if (overrideStartDate != null) {
+        ArgChecker.inOrderOrEqual(
+            overrideStartDate.getUnadjusted(), lastRegularEndDate, "overrideStartDate", "lastRegularEndDate");
+      } else {
+        ArgChecker.inOrderOrEqual(startDate, lastRegularEndDate, "unadjusted", "lastRegularEndDate");
+      }
+      // lastRegularEndDate <= endDate
+      ArgChecker.inOrderOrEqual(lastRegularEndDate, endDate, "lastRegularEndDate", "endDate");
     }
   }
 
@@ -629,10 +644,8 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       LocalDate end) {
 
     if (stubCnv.isCalculateBackwards()) {
-      // called only when stub is initial, validate that explicit stub flags have been resolved to stub convention NONE
-      ArgChecker.isFalse(explicitInitStub, "Value explicitInitStub must be false");
-      ArgChecker.isFalse(explicitFinalStub, "Value explicitFinalStub must be false");
-      return generateBackwards(this, regStart, regEnd, frequency, rollCnv, stubCnv, overrideStart);
+      return generateBackwards(
+          this, regStart, regEnd, frequency, rollCnv, stubCnv, overrideStart, explicitFinalStub, end);
     } else {
       return generateForwards(
           this, regStart, regEnd, frequency, rollCnv, stubCnv, explicitInitStub, overrideStart, explicitFinalStub, end);
@@ -647,7 +660,9 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
       Frequency frequency,
       RollConvention rollConv,
       StubConvention stubConv,
-      LocalDate explicitStartDate) {
+      LocalDate explicitStartDate,
+      boolean explicitFinalStub,
+      LocalDate explicitEndDate) {
 
     // validate
     if (rollConv.matches(end) == false) {
@@ -656,6 +671,9 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     }
     // generate
     BackwardsList dates = new BackwardsList(estimateNumberPeriods(start, end, frequency));
+    if (explicitFinalStub) {
+      dates.addFirst(explicitEndDate);
+    }
     dates.addFirst(end);
     LocalDate temp = rollConv.previous(end, frequency);
     while (temp.isAfter(start)) {
@@ -1045,6 +1063,54 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
     return AdjustableDate.of(endDate, calculatedEndDateBusinessDayAdjustment());
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance based on this schedule with the start date replaced.
+   * <p>
+   * This returns a new instance with the schedule altered to have the specified start date.
+   * The specified date is considered to be adjusted, thus {@code startDateBusinessDayAdjustment} is set to 'None'.
+   * The {@code firstRegularStartDate} and {@code overrideStartDate} fields are also removed.
+   * <p>
+   * The stub convention is typically altered to be 'SmartInitial'.
+   * The algorithm retains the 'ShortInitial' and 'LongInitial' conventions as is.
+   * The algorithm examines "Final" conventions to try and set the {@code lastRegularEndDate}
+   * via schedule generation allowing the stub convention to become 'SmartInitial'.
+   * 
+   * @param adjustedStartDate the proposed start date, which is considered to be adjusted
+   * @return a schedule with the proposed start date
+   * @throws IllegalArgumentException if the schedule start date cannot be replaced with the proposed start date
+   */
+  public PeriodicSchedule replaceStartDate(LocalDate adjustedStartDate) {
+    if (adjustedStartDate.isAfter(endDate)) {
+      throw new IllegalArgumentException("Cannot alter leg to have start date after end date");
+    }
+    PeriodicSchedule.Builder builder = toBuilder()
+        .startDate(adjustedStartDate)
+        .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+        .firstRegularStartDate(null)
+        .overrideStartDate(null);
+    if (stubConvention == null || stubConvention == StubConvention.BOTH || stubConvention == StubConvention.NONE) {
+      // set the stub convention to SmartInitial to better handle the new start date
+      builder.stubConvention(StubConvention.SMART_INITIAL);
+    } else if (stubConvention.isFinal()) {
+      if (lastRegularEndDate != null) {
+        // last regular is set, so the final stub convention can be safely changed
+        builder.stubConvention(StubConvention.SMART_INITIAL);
+      } else {
+        // calculate the last regular date so that SmartInitial can be used
+        // if schedule generation fails, make no changes
+        for (List<LocalDate> dates : inOptional(tryCatchToOptional(() -> createUnadjustedDates()))) {
+          if (dates.size() > 2) {
+            LocalDate lastRegular = dates.get(dates.size() - 2);
+            builder.lastRegularEndDate(lastRegular);
+            builder.stubConvention(StubConvention.SMART_INITIAL);
+          }
+        }
+      }
+    }
+    return builder.build();
+  }
+
   //------------------------- AUTOGENERATED START -------------------------
   /**
    * The meta-bean for {@code PeriodicSchedule}.
@@ -1256,7 +1322,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * This is used to identify the boundary date between the initial stub and the first regular schedule period.
    * <p>
    * This is an unadjusted date, and as such it might not be a valid business day.
-   * This date must be on or after 'startDate'.
+   * This date must be on or after 'startDate' and on or before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to determine the schedule.
    * If not present, then the overall schedule start date will be used instead, resulting in no initial stub.
@@ -1273,8 +1339,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * This is used to identify the boundary date between the last regular schedule period and the final stub.
    * <p>
    * This is an unadjusted date, and as such it might not be a valid business day.
-   * This date must be after 'startDate' and on or after 'firstRegularStartDate'.
-   * This date must be on or before 'endDate'.
+   * This date must be one or after 'startDate', on or after 'firstRegularStartDate' and on or before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to determine the schedule.
    * If not present, then the overall schedule end date will be used instead, resulting in no final stub.
@@ -1297,7 +1362,8 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
    * then the override will be used when generating regular periods.
    * <p>
    * If set, it should be different to the start date, although this is not validated.
-   * Validation does check that it is before the 'firstRegularStartDate'.
+   * Validation does check that it is on or before 'firstRegularStartDate' and 'lastRegularEndDate',
+   * and before 'endDate'.
    * <p>
    * During schedule generation, if this is present it will be used to override the start date
    * of the first generated schedule period.
@@ -1936,7 +2002,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
      * This is used to identify the boundary date between the initial stub and the first regular schedule period.
      * <p>
      * This is an unadjusted date, and as such it might not be a valid business day.
-     * This date must be on or after 'startDate'.
+     * This date must be on or after 'startDate' and on or before 'endDate'.
      * <p>
      * During schedule generation, if this is present it will be used to determine the schedule.
      * If not present, then the overall schedule start date will be used instead, resulting in no initial stub.
@@ -1954,8 +2020,7 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
      * This is used to identify the boundary date between the last regular schedule period and the final stub.
      * <p>
      * This is an unadjusted date, and as such it might not be a valid business day.
-     * This date must be after 'startDate' and on or after 'firstRegularStartDate'.
-     * This date must be on or before 'endDate'.
+     * This date must be one or after 'startDate', on or after 'firstRegularStartDate' and on or before 'endDate'.
      * <p>
      * During schedule generation, if this is present it will be used to determine the schedule.
      * If not present, then the overall schedule end date will be used instead, resulting in no final stub.
@@ -1979,7 +2044,8 @@ public final class PeriodicSchedule implements ImmutableBean, Serializable {
      * then the override will be used when generating regular periods.
      * <p>
      * If set, it should be different to the start date, although this is not validated.
-     * Validation does check that it is before the 'firstRegularStartDate'.
+     * Validation does check that it is on or before 'firstRegularStartDate' and 'lastRegularEndDate',
+     * and before 'endDate'.
      * <p>
      * During schedule generation, if this is present it will be used to override the start date
      * of the first generated schedule period.
