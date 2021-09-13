@@ -180,4 +180,27 @@ public class SabrIborCapFloorProductPricerTest {
     assertThat(cc2).isEqualTo(MultiCurrencyAmount.of(ccCap).plus(ccPay));
   }
 
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_impliedVolatility() {
+    IborCapletFloorletPeriodAmounts computed = PRICER.impliedVolatilities(CAP_ONE_LEG, RATES, VOLS);
+    IborCapletFloorletPeriodAmounts expected = PRICER_CAP_LEG.impliedVolatilities(CAP_LEG, RATES, VOLS);
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_impliedVolatility_onFix() {
+    IborCapletFloorletPeriodAmounts computed = PRICER.impliedVolatilities(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
+    IborCapletFloorletPeriodAmounts expected = PRICER_CAP_LEG.impliedVolatilities(CAP_LEG, RATES_PAY, VOLS_PAY);
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardRate() {
+    IborCapletFloorletPeriodAmounts computed = PRICER.forwardRates(CAP_ONE_LEG, RATES);
+    IborCapletFloorletPeriodAmounts expected = PRICER_CAP_LEG.forwardRates(CAP_LEG, RATES);
+    assertThat(computed).isEqualTo(expected);
+  }
+
 }
