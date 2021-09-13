@@ -5,14 +5,22 @@
  */
 package com.opengamma.strata.loader.impl.fpml;
 
+import static com.opengamma.strata.collect.Guavate.firstNonEmpty;
+import static com.opengamma.strata.collect.Guavate.inOptional;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.AdjustableDates;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.collect.io.XmlElement;
 import com.opengamma.strata.loader.fpml.FpmlDocument;
 import com.opengamma.strata.loader.fpml.FpmlParseException;
@@ -27,6 +35,7 @@ import com.opengamma.strata.product.swaption.CashSwaptionSettlement;
 import com.opengamma.strata.product.swaption.CashSwaptionSettlementMethod;
 import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.Swaption;
+import com.opengamma.strata.product.swaption.SwaptionExercise;
 import com.opengamma.strata.product.swaption.SwaptionSettlement;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
@@ -59,15 +68,27 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     //  'swaption/premium/receiverPartyReference'
     //  'swaption/premium/paymentAmount'
     //  'swaption/premium/paymentDate'
-    //  'swaption/europeanExercise'
-    //  'swaption/europeanExercise/expirationDate'
-    //  'swaption/europeanExercise/expirationDate/adjustableDate'
     //  'swaption/europeanExercise/expirationDate/adjustableDate/unadjustedDate'
     //  'swaption/europeanExercise/expirationDate/adjustableDate/dateAdjustments'
-    //  'swaption/europeanExercise/expirationTime
+    //  'swaption/europeanExercise/relevantUnderlyingDate/relativeDates'
+    //  'swaption/europeanExercise/expirationTime'
+    //  'swaption/americanExercise/commencementDate/adjustableDate/unadjustedDate'
+    //  'swaption/americanExercise/expirationDate/adjustableDate/unadjustedDate'
+    //  'swaption/europeanExercise/expirationDate/adjustableDate/dateAdjustments'
+    //  'swaption/americanExercise/relevantUnderlyingDate/relativeDates'
+    //  'swaption/americanExercise/expirationTime'
+    //  'swaption/americanExercise/latestExerciseTime'
+    //  'swaption/bermudaExercise/bermudaExerciseDates/adjustableDates'
+    //  'swaption/bermudaExercise/expirationTime'
+    //  'swaption/bermudaExercise/latestExerciseTime'
     //  'swaption/swap'
     // ignored elements:
     //  'Product.model?'
+    //  'swaption/xxxExercise/earliestExerciseTime'
+    //  'swaption/xxxExercise/multipleExercise'
+    //  'swaption/xxxExercise/partialExercise'
+    //  'swaption/xxxExercise/exerciseFee'
+    //  'swaption/xxxExercise/exerciseFeeSchedule'
     //  'swaption/calculationAgent'
     //  'swaption/assetClass'
     //  'swaption/primaryAssestClass'
@@ -78,25 +99,61 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
     //  'swaption/sellerPartyReference'
     //  'swaption/swaptionAdjustedDates'
     //  'swaption/swaptionStraddle'
+    // rejected elements:
+    //  'swaption/xxxExercise/relevantUnderlyingDate/adjustableDates'
+    //  'swaption/europeanExercise/expirationDate/relativeDate'
+    //  'swaption/americanExercise/commencementDate/relativeDate'
+    //  'swaption/bermudaExercise/bermudaExerciseDates/relativeDates'
     TradeInfoBuilder tradeInfoBuilder = document.parseTradeInfo(tradeEl);
 
     XmlElement swaptionEl = tradeEl.getChild("swaption");
-    XmlElement europeanExerciseEl = swaptionEl.getChild("europeanExercise");
-    XmlElement expirationTimeEl = europeanExerciseEl.getChild("expirationTime");
+    XmlElement exerciseEl = firstNonEmpty(
+        () -> swaptionEl.findChild("europeanExercise"),
+        () -> swaptionEl.findChild("americanExercise"),
+        () -> swaptionEl.findChild("bermudaExercise"))
+            .orElseGet(() -> swaptionEl.getChild("europeanExercise")); // trigger exception if not found
 
-    // Parse the premium, expiry date, expiry time and expiry zone, longShort and swaption settlement.
-    AdjustablePayment premium = parsePremium(swaptionEl, document, tradeInfoBuilder);
-    AdjustableDate expiryDate = parseExpiryDate(europeanExerciseEl, document);
+    // advanced exercise info
+    DaysAdjustment swapStartOffset = parseSwapStartOffset(document, exerciseEl);
+    SwaptionExercise exercise = null;
+    AdjustableDate expiryDate;
+    // exercise dates
+    if (exerciseEl.getName().equals("bermudaExercise")) {
+      AdjustableDates adjDates = parseBermudaDates(exerciseEl, document);
+      LocalDate expiry = adjDates.getUnadjusted().get(adjDates.getUnadjusted().size() - 1);
+      expiryDate = AdjustableDate.of(expiry, adjDates.getAdjustment());
+      exercise = SwaptionExercise.ofBermudan(adjDates, swapStartOffset);
+
+    } else if (exerciseEl.getName().equals("americanExercise")) {
+      expiryDate = parseExpirationDate(exerciseEl, document);
+      LocalDate commencementDate = parseCommencementDate(exerciseEl, document);
+      exercise = SwaptionExercise.ofAmerican(
+          commencementDate, expiryDate.getUnadjusted(), expiryDate.getAdjustment(), swapStartOffset);
+
+    } else {
+      expiryDate = parseExpirationDate(exerciseEl, document);
+      exercise = SwaptionExercise.ofEuropean(expiryDate, swapStartOffset);
+    }
+
+    // expiry time
+    XmlElement expirationTimeEl = firstNonEmpty(
+        () -> exerciseEl.findChild("expirationTime"),
+        () -> exerciseEl.findChild("latestExerciseTime"))
+            .orElseGet(() -> exerciseEl.getChild("expirationTime")); // trigger exception if not found
     LocalTime expiryTime = parseExpiryTime(expirationTimeEl, document);
     ZoneId expiryZone = parseExpiryZone(expirationTimeEl, document);
+
+    // parse the premium, longShort and swaption settlement
+    AdjustablePayment premium = parsePremium(swaptionEl, document, tradeInfoBuilder);
     LongShort longShort = parseLongShort(swaptionEl, document, tradeInfoBuilder);
     SwaptionSettlement swaptionSettlement = parseSettlement(swaptionEl, document);
 
-    //Re use the Swap FpML parser to parse the underlying swap on this swaption.
+    // re use the Swap FpML parser to parse the underlying swap on this swaption
     SwapFpmlParserPlugin swapParser = SwapFpmlParserPlugin.INSTANCE;
     Swap swap = swapParser.parseSwap(document, swaptionEl, tradeInfoBuilder);
 
     Swaption swaption = Swaption.builder()
+        .exerciseInfo(exercise)
         .expiryDate(expiryDate)
         .expiryZone(expiryZone)
         .expiryTime(expiryTime)
@@ -112,10 +169,39 @@ final class SwaptionFpmlParserPlugin implements FpmlParserPlugin {
         .build();
   }
 
-  private AdjustableDate parseExpiryDate(XmlElement europeanExerciseEl, FpmlDocument document) {
-    XmlElement expirationDate = europeanExerciseEl.getChild("expirationDate");
+  private DaysAdjustment parseSwapStartOffset(FpmlDocument document, XmlElement exerciseEl) {
+    for (XmlElement relevantUnderlyingDateEl : inOptional(exerciseEl.findChild("relevantUnderlyingDate"))) {
+      document.validateNotPresent(relevantUnderlyingDateEl, "adjustableDates");
+      XmlElement relativeDatesEl = relevantUnderlyingDateEl.getChild("relativeDates");
+      return document.parseRelativeDateOffsetDays(relativeDatesEl);
+    }
+    return null;
+  }
+
+  private AdjustableDates parseBermudaDates(XmlElement exerciseEl, FpmlDocument document) {
+    XmlElement bermudanDatesEl = exerciseEl.getChild("bermudaExerciseDates");
+    document.validateNotPresent(bermudanDatesEl, "relativeDates");
+    XmlElement adjustableDatesEl = bermudanDatesEl.getChild("adjustableDates");
+    List<LocalDate> dates = adjustableDatesEl.getChildren("unadjustedDate").stream()
+        .map(el -> document.parseDate(el))
+        .collect(toImmutableList());
+    BusinessDayAdjustment bda = document.parseBusinessDayAdjustments(adjustableDatesEl.getChild("dateAdjustments"));
+    return AdjustableDates.of(bda, dates);
+  }
+
+  private AdjustableDate parseExpirationDate(XmlElement exerciseEl, FpmlDocument document) {
+    XmlElement expirationDate = exerciseEl.getChild("expirationDate");
+    document.validateNotPresent(expirationDate, "relativeDate");
     return expirationDate.findChild("adjustableDate")
         .map(el -> document.parseAdjustableDate(el)).get();
+  }
+
+  // Strata model cannot handle commencement date with a different convention to expiry date, so only parse unadjusted
+  private LocalDate parseCommencementDate(XmlElement exerciseEl, FpmlDocument document) {
+    XmlElement expirationDate = exerciseEl.getChild("commencementDate");
+    document.validateNotPresent(expirationDate, "relativeDate");
+    XmlElement unadjustedEl = expirationDate.getChild("adjustableDate").getChild("unadjustedDate");
+    return document.parseDate(unadjustedEl);
   }
 
   private LocalTime parseExpiryTime(XmlElement expirationTimeEl, FpmlDocument document) {

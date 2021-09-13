@@ -82,6 +82,7 @@ import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.AdjustableDates;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -146,6 +147,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.Swaption;
+import com.opengamma.strata.product.swaption.SwaptionExercise;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
@@ -398,6 +400,7 @@ public class FpmlDocumentParserTest {
     LocalTime expiryTime = LocalTime.of(11, 0, 0);
     ZoneId expiryZone = ZoneId.of("Europe/Brussels");
     Swaption swaptionExpected = Swaption.builder()
+        .exerciseInfo(SwaptionExercise.ofEuropean(expiryDate, DaysAdjustment.ofBusinessDays(2, EUTA)))
         .expiryDate(expiryDate)
         .expiryZone(expiryZone)
         .expiryTime(expiryTime)
@@ -405,7 +408,57 @@ public class FpmlDocumentParserTest {
         .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
         .underlying(underylingSwap)
         .build();
-    assertEqualsBean((Bean) swaption, swaptionExpected);
+    assertEqualsBean(swaption, swaptionExpected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void swaption_bermuda() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex14-berm-swaption.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1"));
+    assertThat(parser.isKnownFormat(resource)).isTrue();
+    List<Trade> trades = parser.parseTrades(resource);
+    assertThat(trades).hasSize(1);
+    Trade trade = trades.get(0);
+    assertThat(trade.getClass()).isEqualTo(SwaptionTrade.class);
+    SwaptionTrade swaptionTrade = (SwaptionTrade) trade;
+    assertThat(swaptionTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2000, 8, 30)));
+    Swaption swaption = swaptionTrade.getProduct();
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA);
+    assertThat(swaption.getExerciseInfo()).hasValue(
+        SwaptionExercise.ofBermudan(
+            AdjustableDates.of(bda, date(2000, 12, 28), date(2001, 4, 28), date(2001, 8, 28)),
+            DaysAdjustment.ofBusinessDays(2, GBLO_EUTA)));
+    assertThat(swaption.getExpiryDate())
+        .isEqualTo(AdjustableDate.of(date(2001, 8, 28), bda));
+    assertThat(swaption.getExpiryTime()).isEqualTo(LocalTime.of(11, 0));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void swaption_american() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex15-amer-swaption.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1"));
+    assertThat(parser.isKnownFormat(resource)).isTrue();
+    List<Trade> trades = parser.parseTrades(resource);
+    assertThat(trades).hasSize(1);
+    Trade trade = trades.get(0);
+    assertThat(trade.getClass()).isEqualTo(SwaptionTrade.class);
+    SwaptionTrade swaptionTrade = (SwaptionTrade) trade;
+    assertThat(swaptionTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2000, 8, 30)));
+    Swaption swaption = swaptionTrade.getProduct();
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA);
+    assertThat(swaption.getExerciseInfo()).hasValue(
+        SwaptionExercise.ofAmerican(
+            date(2000, 8, 30),
+            date(2002, 8, 30),
+            bda,
+            DaysAdjustment.ofBusinessDays(2, GBLO_EUTA)));
+    assertThat(swaption.getExpiryDate())
+        .isEqualTo(AdjustableDate.of(date(2002, 8, 30), bda));
+    assertThat(swaption.getExpiryTime()).isEqualTo(LocalTime.of(11, 0));
   }
 
   //-------------------------------------------------------------------------
