@@ -256,4 +256,36 @@ public class VolatilityIborCapFloorProductPricer {
     return MultiCurrencyAmount.of(ccPayLeg).plus(ccCapFloorLeg);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor.
+   *
+   * @param capFloor  the Ibor cap/floor
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public IborCapletFloorletPeriodAmounts forwardRates(
+      ResolvedIborCapFloor capFloor,
+      RatesProvider ratesProvider) {
+
+    return capFloorLegPricer.forwardRates(capFloor.getCapFloorLeg(), ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor.
+   *
+   * @param capFloor  the Ibor cap/floor
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public IborCapletFloorletPeriodAmounts impliedVolatilities(
+      ResolvedIborCapFloor capFloor,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return capFloorLegPricer.impliedVolatilities(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+  }
+
 }

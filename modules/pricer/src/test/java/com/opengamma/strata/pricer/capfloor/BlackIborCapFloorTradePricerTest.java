@@ -143,4 +143,24 @@ public class BlackIborCapFloorTradePricerTest {
     assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
   }
 
+  @Test
+  public void test_forwardRates() {
+    IborCapletFloorletPeriodAmounts computedWithPayLeg = PRICER.forwardRates(TRADE_PAYLEG, RATES_PAY);
+    IborCapletFloorletPeriodAmounts computedWithPremium = PRICER.forwardRates(TRADE_PREMIUM, RATES_PAY);
+    IborCapletFloorletPeriodAmounts expectedWithPayLeg = PRICER_PRODUCT.forwardRates(CAP_TWO_LEGS, RATES_PAY);
+    IborCapletFloorletPeriodAmounts expectedWithPremium = PRICER_PRODUCT.forwardRates(CAP_ONE_LEG, RATES_PAY);
+    assertThat(computedWithPayLeg).isEqualTo(expectedWithPayLeg);
+    assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
+  }
+
+  @Test
+  public void test_impliedVolatilities() {
+    IborCapletFloorletPeriodAmounts computedWithPayLeg = PRICER.impliedVolatilities(TRADE_PAYLEG, RATES_PAY, VOLS_PAY);
+    IborCapletFloorletPeriodAmounts computedWithPremium = PRICER.impliedVolatilities(TRADE_PREMIUM, RATES_PAY, VOLS_PAY);
+    IborCapletFloorletPeriodAmounts expectedWithPayLeg = PRICER_PRODUCT.impliedVolatilities(CAP_TWO_LEGS, RATES_PAY, VOLS_PAY);
+    IborCapletFloorletPeriodAmounts expectedWithPremium = PRICER_PRODUCT.impliedVolatilities(CAP_ONE_LEG, RATES_PAY, VOLS_PAY);
+    assertThat(computedWithPayLeg).isEqualTo(expectedWithPayLeg);
+    assertThat(computedWithPremium).isEqualTo(expectedWithPremium);
+  }
+
 }

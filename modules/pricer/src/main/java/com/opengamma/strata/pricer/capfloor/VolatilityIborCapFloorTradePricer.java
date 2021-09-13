@@ -186,4 +186,36 @@ public class VolatilityIborCapFloorTradePricer {
     return ccProduct;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor trade.
+   *
+   * @param trade  the Ibor cap/floor trade
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public IborCapletFloorletPeriodAmounts forwardRates(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider) {
+
+    return productPricer.forwardRates(trade.getProduct(), ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor trade.
+   *
+   * @param trade  the Ibor cap/floor trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public IborCapletFloorletPeriodAmounts impliedVolatilities(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return productPricer.impliedVolatilities(trade.getProduct(), ratesProvider, volatilities);
+  }
+
 }
