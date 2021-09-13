@@ -21,6 +21,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutableValidator;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
@@ -28,7 +29,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.collect.ArgChecker;
 
 /**
  * An adjustable list of dates.
@@ -41,7 +44,7 @@ public final class AdjustableDates
     implements ImmutableBean, Serializable {
 
   /**
-   * The unadjusted dates.
+   * The unadjusted dates, in order.
    * <p>
    * These dates may be non-business days.
    * The business day adjustment is used to ensure each date is a valid business day.
@@ -65,7 +68,7 @@ public final class AdjustableDates
    * is the specified dates.
    * 
    * @param firstDate  the first date
-   * @param remainingDates  the remaining dates
+   * @param remainingDates  the remaining dates, in order
    * @return the adjustable dates
    */
   public static AdjustableDates of(LocalDate firstDate, LocalDate... remainingDates) {
@@ -79,7 +82,7 @@ public final class AdjustableDates
    * No business day adjustment applies, thus the result of {@link #adjusted(ReferenceData)}
    * is the specified dates.
    * 
-   * @param dates  the dates, at least size 1
+   * @param dates  the dates, at least size 1, in order
    * @return the adjustable dates
    */
   public static AdjustableDates of(List<LocalDate> dates) {
@@ -94,7 +97,7 @@ public final class AdjustableDates
    * 
    * @param adjustment  the business day adjustment to apply to the unadjusted date
    * @param firstDate  the first date
-   * @param remainingDates  the remaining dates
+   * @param remainingDates  the remaining dates, in order
    * @return the adjustable dates
    */
   public static AdjustableDates of(BusinessDayAdjustment adjustment, LocalDate firstDate, LocalDate... remainingDates) {
@@ -108,7 +111,7 @@ public final class AdjustableDates
    * The adjusted dates are accessible via {@link #adjusted(ReferenceData)}.
    * 
    * @param adjustment  the business day adjustment to apply to the unadjusted date
-   * @param dates  the dates
+   * @param dates  the dates, in order
    * @return the adjustable dates
    */
   public static AdjustableDates of(BusinessDayAdjustment adjustment, List<LocalDate> dates) {
@@ -116,18 +119,26 @@ public final class AdjustableDates
   }
 
   //-------------------------------------------------------------------------
+  @ImmutableValidator
+  private void validate() {
+    ArgChecker.isTrue(
+        Ordering.natural().isStrictlyOrdered(unadjusted),
+        "Dates must be in order and without duplicates");
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Adjusts the dates using the business day adjustment.
    * <p>
    * This returns the adjusted dates, calculated by applying the business day
-   * adjustment to each unadjusted date.
+   * adjustment to each unadjusted date. Duplicates are removed.
    * 
    * @param refData  the reference data to use
-   * @return the adjusted date
+   * @return the adjusted dates
    */
   public ImmutableList<LocalDate> adjusted(ReferenceData refData) {
     DateAdjuster adjuster = adjustment.resolve(refData);
-    return unadjusted.stream().map(adjuster::adjust).collect(toImmutableList());
+    return unadjusted.stream().map(adjuster::adjust).distinct().collect(toImmutableList());
   }
 
   //-------------------------------------------------------------------------
@@ -182,6 +193,7 @@ public final class AdjustableDates
     JodaBeanUtils.notNull(adjustment, "adjustment");
     this.unadjusted = ImmutableList.copyOf(unadjusted);
     this.adjustment = adjustment;
+    validate();
   }
 
   @Override
@@ -191,7 +203,7 @@ public final class AdjustableDates
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the unadjusted dates.
+   * Gets the unadjusted dates, in order.
    * <p>
    * These dates may be non-business days.
    * The business day adjustment is used to ensure each date is a valid business day.

@@ -10,6 +10,7 @@ import static com.opengamma.strata.collect.Guavate.toImmutableSet;
 import static java.util.stream.Collectors.joining;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.SummarizerUtils;
+import com.opengamma.strata.product.swaption.Swaption;
 
 /**
  * A rate swap.
@@ -330,6 +332,20 @@ public final class Swap
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Returns an instance based on this swap with the start date replaced.
+   * <p>
+   * This is used to change the start date of the swap, and is currently used by {@link Swaption}.
+   * 
+   * @param adjustedStartDate the new adjusted start date
+   * @return the updated swap
+   * @throws IllegalArgumentException if the start date cannot be replaced with the proposed start date
+   * @throws UnsupportedOperationException if changing the start date is not supported
+   */
+  public Swap replaceStartDate(LocalDate adjustedStartDate) {
+    return new Swap(legs.stream().map(leg -> leg.replaceStartDate(adjustedStartDate)).collect(toImmutableList()));
+  }
+
   @Override
   public ResolvedSwap resolve(ReferenceData refData) {
     // avoid streams as profiling showed a hotspot

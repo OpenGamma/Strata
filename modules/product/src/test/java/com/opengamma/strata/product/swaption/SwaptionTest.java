@@ -8,9 +8,11 @@ package com.opengamma.strata.product.swaption;
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.USNY;
+import static com.opengamma.strata.basics.schedule.Frequency.P1M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverBeanEquals;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
+import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +28,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.BusinessDayConventions;
+import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.IborIndices;
 import com.opengamma.strata.product.common.BuySell;
@@ -48,7 +51,9 @@ public class SwaptionTest {
       .createTrade(TRADE_DATE, Tenor.TENOR_10Y, BuySell.BUY, NOTIONAL, FIXED_RATE, REF_DATA).getProduct();
   private static final BusinessDayAdjustment ADJUSTMENT =
       BusinessDayAdjustment.of(BusinessDayConventions.FOLLOWING, GBLO.combinedWith(USNY));
+  private static final DaysAdjustment OFFSET = DaysAdjustment.ofBusinessDays(2, GBLO);
   private static final LocalDate EXPIRY_DATE = LocalDate.of(2014, 6, 14);
+  private static final LocalDate DATE_06_14 = LocalDate.of(2014, 8, 14);
   private static final LocalTime EXPIRY_TIME = LocalTime.of(11, 0);
   private static final ZoneId ZONE = ZoneId.of("Z");
   private static final AdjustableDate ADJUSTABLE_EXPIRY_DATE = AdjustableDate.of(EXPIRY_DATE, ADJUSTMENT);
@@ -134,6 +139,56 @@ public class SwaptionTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_exercise_withInfo() {
+    Swaption base = sut();
+    Swaption test = base.selectExerciseDate(DATE_06_14, REF_DATA);
+    assertThat(test.getExpiryDate()).isEqualTo(AdjustableDate.of(DATE_06_14, ADJUSTMENT));
+    assertThat(test.getExerciseInfo()).isEmpty();
+    LocalDate swapStart = OFFSET.adjust(DATE_06_14, REF_DATA);
+    assertThat(test.getUnderlying()).isEqualTo(SWAP.replaceStartDate(swapStart));
+    assertThat(base.exercise(DATE_06_14, REF_DATA)).isEqualTo(test.getUnderlying());
+  }
+
+  @Test
+  public void test_exercise_withoutInfo_matchUnadjusted() {
+    Swaption base = sut2().toBuilder().expiryDate(AdjustableDate.of(date(2014, 6, 7), ADJUSTMENT)).build();
+    Swaption test = base.selectExerciseDate(date(2014, 6, 7), REF_DATA);
+    assertThat(test.getExpiryDate()).isEqualTo(AdjustableDate.of(date(2014, 6, 7), ADJUSTMENT));
+    assertThat(test.getExerciseInfo()).isEmpty();
+    assertThat(test.getUnderlying()).isEqualTo(base.getUnderlying());
+    assertThat(base.exercise(date(2014, 6, 7), REF_DATA)).isEqualTo(test.getUnderlying());
+  }
+
+  @Test
+  public void test_exercise_withoutInfo_matchAdjusted() {
+    Swaption base = sut2().toBuilder().expiryDate(AdjustableDate.of(date(2014, 6, 7), ADJUSTMENT)).build();
+    Swaption test = base.selectExerciseDate(date(2014, 6, 9), REF_DATA);
+    assertThat(test.getExpiryDate()).isEqualTo(AdjustableDate.of(date(2014, 6, 9)));
+    assertThat(test.getExerciseInfo()).isEmpty();
+    assertThat(test.getUnderlying()).isEqualTo(base.getUnderlying());
+    assertThat(base.exercise(date(2014, 6, 9), REF_DATA)).isEqualTo(test.getUnderlying());
+  }
+
+  @Test
+  public void test_exercise_withoutInfo_matchAdjustedAndUnadjusted() {
+    Swaption base = sut2();
+    LocalDate baseExpiryDate = base.getExpiryDate().getUnadjusted();
+    Swaption test = base.selectExerciseDate(baseExpiryDate, REF_DATA);
+    assertThat(test.getExpiryDate()).isEqualTo(base.getExpiryDate());
+    assertThat(test.getExerciseInfo()).isEmpty();
+    assertThat(test.getUnderlying()).isEqualTo(base.getUnderlying());
+    assertThat(base.exercise(baseExpiryDate, REF_DATA)).isEqualTo(test.getUnderlying());
+  }
+
+  @Test
+  public void test_exercise_withoutInfo_noMatch() {
+    Swaption base = sut2();
+    assertThatIllegalArgumentException()
+        .isThrownBy(() -> base.exercise(base.getExpiryDate().getUnadjusted().minusYears(1), REF_DATA));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_resolve() {
     Swaption base = sut();
     ResolvedSwaption test = base.resolve(REF_DATA);
@@ -163,6 +218,7 @@ public class SwaptionTest {
         .expiryZone(ZONE)
         .longShort(LONG)
         .swaptionSettlement(PHYSICAL_SETTLE)
+        .exerciseInfo(SwaptionExercise.ofBermudan(EXPIRY_DATE, DATE_06_14, ADJUSTMENT, P1M, OFFSET))
         .underlying(SWAP)
         .build();
   }

@@ -142,6 +142,19 @@ public final class KnownAmountSwapLeg
     // no indices
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance based on this leg with the start date replaced.
+   * <p>
+   * This uses {@link PeriodicSchedule#replaceStartDate(LocalDate)}.
+   * 
+   * @throws IllegalArgumentException if the start date cannot be replaced with the proposed start date
+   */
+  @Override
+  public KnownAmountSwapLeg replaceStartDate(LocalDate adjustedStartDate) {
+    return toBuilder().accrualSchedule(accrualSchedule.replaceStartDate(adjustedStartDate)).build();
+  }
+
   /**
    * Converts this swap leg to the equivalent {@code ResolvedSwapLeg}.
    * <p>
