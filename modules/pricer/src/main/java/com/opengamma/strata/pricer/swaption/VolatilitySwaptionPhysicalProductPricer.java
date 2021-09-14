@@ -43,7 +43,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
       new VolatilitySwaptionPhysicalProductPricer(DiscountingSwapProductPricer.DEFAULT);
 
   /**
-   * Pricer for {@link SwapProduct}. 
+   * Pricer for {@link ResolvedSwap}.
    */
   private final DiscountingSwapProductPricer swapPricer;
 
@@ -142,6 +142,18 @@ public class VolatilitySwaptionPhysicalProductPricer {
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     return swaptionVolatilities.volatility(expiry, tenor, strike, forward);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Provides the forward rate of the next fixing date
+   *
+   * @param swaption  the swaption
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
+    return VolatilitySwaptionProductPricer.DEFAULT.forwardRate(swaption, ratesProvider);
   }
 
   //-------------------------------------------------------------------------
