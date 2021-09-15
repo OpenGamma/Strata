@@ -161,7 +161,7 @@ public class VolatilitySwaptionProductPricer {
           ReferenceData.standard()));
     }
     throw new IllegalArgumentException("OvernightIndex and IborIndex are the only expected extensions of RateIndex. " +
-        "Found: " + index.getClass().getSimpleName());
+        "But found: " + index.getClass().getSimpleName());
   }
 
   //-------------------------------------------------------------------------
