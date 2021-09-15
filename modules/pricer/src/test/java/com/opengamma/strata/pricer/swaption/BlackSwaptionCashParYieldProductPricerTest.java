@@ -740,7 +740,7 @@ public class BlackSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  void forward_rate_is_swaption_independent(){
+  void forward_rate_is_swaption_independent() {
     double forwardRate1 = PRICER.forwardRate(SWAPTION_PAY_LONG, RATE_PROVIDER);
     double forwardRate2 = PRICER.forwardRate(SWAPTION_REC_SHORT, RATE_PROVIDER);
     assertThat(forwardRate1).isEqualTo(forwardRate2);

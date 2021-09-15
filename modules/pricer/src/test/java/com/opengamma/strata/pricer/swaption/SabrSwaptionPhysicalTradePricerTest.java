@@ -199,14 +199,14 @@ public class SabrSwaptionPhysicalTradePricerTest {
   }
 
   @Test
-  void implied_volatiltity(){
+  void implied_volatiltity() {
     double impliedVolTrade = PRICER_TRADE.impliedVolatility(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
     double impliedVolProduct = PRICER_PRODUCT.impliedVolatility(SWAPTION_LONG_REC, RATE_PROVIDER, VOLS);
     assertThat(impliedVolProduct).isEqualTo(impliedVolTrade);
   }
 
   @Test
-  void forward_rate(){
+  void forward_rate() {
     double forwardRateTrade = PRICER_TRADE.forwardRate(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER);
     double forwardRateProduct = PRICER_PRODUCT.forwardRate(SWAPTION_LONG_REC, RATE_PROVIDER);
     assertThat(forwardRateTrade).isEqualTo(forwardRateProduct);

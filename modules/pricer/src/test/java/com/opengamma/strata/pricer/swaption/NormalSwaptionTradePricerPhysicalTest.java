@@ -208,18 +208,17 @@ public class NormalSwaptionTradePricerPhysicalTest {
   }
 
   @Test
-  void implied_volatiltity(){
+  void implied_volatiltity() {
     double impliedVolTrade = PRICER_TRADE.impliedVolatility(SWAPTION_PREFWD_LONG_REC, MULTI_USD, NORMAL_VOLS_USD);
     double impliedVolProduct = PRICER_PRODUCT.impliedVolatility(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOLS_USD);
     assertThat(impliedVolProduct).isEqualTo(impliedVolTrade);
   }
 
   @Test
-  void forward_rate(){
+  void forward_rate() {
     double forwardRateTrade = PRICER_TRADE.forwardRate(SWAPTION_PREFWD_LONG_REC, MULTI_USD);
     double forwardRateProduct = PRICER_PRODUCT.forwardRate(SWAPTION_LONG_REC, MULTI_USD);
     assertThat(forwardRateTrade).isEqualTo(forwardRateProduct);
   }
-
 
 }

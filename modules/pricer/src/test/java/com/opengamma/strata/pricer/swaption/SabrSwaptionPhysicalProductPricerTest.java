@@ -687,7 +687,7 @@ public class SabrSwaptionPhysicalProductPricerTest {
   }
 
   @Test
-  void forward_rate_is_swaption_independent(){
+  void forward_rate_is_swaption_independent() {
     double forwardRate1 = SWAPTION_PRICER.forwardRate(SWAPTION_PAY_LONG, RATE_PROVIDER);
     double forwardRate2 = SWAPTION_PRICER.forwardRate(SWAPTION_REC_SHORT, RATE_PROVIDER);
     assertThat(forwardRate1).isEqualTo(forwardRate2);

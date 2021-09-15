@@ -521,7 +521,7 @@ public class BlackSwaptionPhysicalProductPricerTest {
   }
 
   @Test
-  void forward_rate_is_swaption_independent(){
+  void forward_rate_is_swaption_independent() {
     double forwardRate1 = PRICER_SWAPTION_BLACK.forwardRate(SWAPTION_PAST, MULTI_USD);
     double forwardRate2 = PRICER_SWAPTION_BLACK.forwardRate(SWAPTION_LONG_PAY, MULTI_USD);
     assertThat(forwardRate1).isEqualTo(forwardRate2);
