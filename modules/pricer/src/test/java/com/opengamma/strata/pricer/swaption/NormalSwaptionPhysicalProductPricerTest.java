@@ -559,11 +559,4 @@ public class NormalSwaptionPhysicalProductPricerTest {
     assertThat(v.getSensitivity()).isCloseTo(0.0d, offset(TOLERANCE_PV_VEGA));
   }
 
-  @Test
-  void forward_rate_is_swaption_independent() {
-    double forwardRate1 = PRICER_SWAPTION_NORMAL.forwardRate(SWAPTION_LONG_PAY, MULTI_USD);
-    double forwardRate2 = PRICER_SWAPTION_NORMAL.forwardRate(SWAPTION_PAST, MULTI_USD);
-    assertThat(forwardRate1).isEqualTo(forwardRate2);
-  }
-
 }

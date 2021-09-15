@@ -665,11 +665,4 @@ public class NormalSwaptionCashParYieldProductPricerTest {
     assertThat(pvSensiPayShort.getSensitivity()).isCloseTo(pvSensiPayShort.getSensitivity(), offset(NOTIONAL * TOL));
   }
 
-  @Test
-  void forward_rate_is_swaption_independent() {
-    double forwardRate1 = PRICER_SWAPTION.forwardRate(SWAPTION_PAY_LONG, RATE_PROVIDER);
-    double forwardRate2 = PRICER_SWAPTION.forwardRate(SWAPTION_REC_SHORT, RATE_PROVIDER);
-    assertThat(forwardRate1).isEqualTo(forwardRate2);
-  }
-
 }
