@@ -39,7 +39,7 @@ import com.opengamma.strata.product.swaption.ResolvedSwaption;
  * The volatility parameters are not adjusted for the underlying swap convention.
  * <p>
  * The value of the swaption after expiry is 0.
- * For a swaption which already expired, negative number is returned by 
+ * For a swaption which already expired, negative number is returned by
  * {@link SwaptionVolatilities#relativeTime(ZonedDateTime)}.
  */
 public class VolatilitySwaptionCashParYieldProductPricer {
@@ -51,13 +51,13 @@ public class VolatilitySwaptionCashParYieldProductPricer {
       new VolatilitySwaptionCashParYieldProductPricer(DiscountingSwapProductPricer.DEFAULT);
 
   /**
-   * Pricer for {@link SwapProduct}. 
+   * Pricer for {@link ResolvedSwap}.
    */
   private final DiscountingSwapProductPricer swapPricer;
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param swapPricer  the pricer for {@link Swap}
    */
   public VolatilitySwaptionCashParYieldProductPricer(DiscountingSwapProductPricer swapPricer) {
@@ -67,7 +67,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Gets the swap pricer.
-   * 
+   *
    * @return the swap pricer
    */
   protected DiscountingSwapProductPricer getSwapPricer() {
@@ -79,7 +79,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * Calculates the present value of the swaption.
    * <p>
    * The result is expressed using the currency of the swaption.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -97,7 +97,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -112,7 +112,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * Computes the currency exposure of the swaption.
    * <p>
    * This is equivalent to the present value of the swaption.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -129,7 +129,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Computes the implied volatility of the swaption.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -145,10 +145,24 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     ResolvedSwap underlying = swaption.getUnderlying();
     ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     ArgChecker.isTrue(expiry >= 0d, "Option must be before expiry to compute an implied volatility");
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     return swaptionVolatilities.volatility(expiry, tenor, strike, forward);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Provides the forward rate.
+   * <p>
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
+   *
+   * @param swaption  the swaption
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
+    return swapPricer.parRate(swaption.getUnderlying(), ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -159,7 +173,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * is the first derivative of the price with respect to forward.
    * <p>
    * The result is expressed using the currency of the swaption.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -177,7 +191,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -195,7 +209,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * is the second derivative of the price with respect to forward.
    * <p>
    * The result is expressed using the currency of the swaption.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -213,7 +227,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -231,7 +245,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * is the minus of the price sensitivity to {@code timeToExpiry}.
    * <p>
    * The result is expressed using the currency of the swaption.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -249,7 +263,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double strike = calculateStrike(fixedLeg);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -263,10 +277,10 @@ public class VolatilitySwaptionCashParYieldProductPricer {
   /**
    * Calculates the present value sensitivity of the swaption to the rate curves.
    * <p>
-   * The present value sensitivity is computed in a "sticky strike" style, i.e. the sensitivity to the 
-   * curve nodes with the volatility at the swaption strike unchanged. This sensitivity does not include a potential 
+   * The present value sensitivity is computed in a "sticky strike" style, i.e. the sensitivity to the
+   * curve nodes with the volatility at the swaption strike unchanged. This sensitivity does not include a potential
    * change of volatility due to the implicit change of forward rate or moneyness.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -284,7 +298,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     ValueDerivatives annuityDerivative = getSwapPricer().getLegPricer().annuityCashDerivative(fixedLeg, forward);
     double annuityCash = annuityDerivative.getValue();
     double annuityCashDr = annuityDerivative.getDerivative(0);
@@ -310,7 +324,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * Calculates the present value sensitivity to the implied volatility of the swaption.
    * <p>
    * The sensitivity to the implied volatility is also called vega.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -331,7 +345,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
       return SwaptionSensitivity.of(
           swaptionVolatilities.getName(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());
@@ -349,7 +363,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Calculates the numeraire, used to multiply the results.
-   * 
+   *
    * @param swaption  the swap
    * @param fixedLeg  the fixed leg
    * @param forward  the forward rate
@@ -370,7 +384,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
 
   /**
    * Calculates the strike.
-   * 
+   *
    * @param fixedLeg  the fixed leg
    * @return the strike
    */
@@ -386,7 +400,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
 
   /**
    * Checks that there is exactly one fixed leg and returns it.
-   * 
+   *
    * @param swap  the swap
    * @return the fixed leg
    */
@@ -403,7 +417,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
   /**
    * Validates that the rates and volatilities providers are coherent
    * and that the swaption is single currency cash par-yield.
-   * 
+   *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
    * @param swaptionVolatilities  the volatilities
@@ -420,7 +434,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
 
   /**
    * Validates that the swaption is single currency cash par-yield.
-   * 
+   *
    * @param swaption  the swaption
    */
   protected void validateSwaption(ResolvedSwaption swaption) {

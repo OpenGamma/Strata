@@ -77,7 +77,7 @@ public class NormalSwaptionPhysicalProductPricer
     double expiry = dayCount.yearFraction(valuationDate, expiryDate);
     ResolvedSwap underlying = swaption.getUnderlying();
     ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double numeraire = Math.abs(pvbp);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);

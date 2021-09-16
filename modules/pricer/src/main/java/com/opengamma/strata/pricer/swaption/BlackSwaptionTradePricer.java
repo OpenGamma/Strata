@@ -169,6 +169,45 @@ public class BlackSwaptionTradePricer {
   }
 
   /**
+   * Computes the implied volatility of the swaption.
+   *
+   * @param swaptionTrade  the swaption trade
+   * @param ratesProvider  the rates provider
+   * @param swaptionVolatilities  the volatilities
+   * @return the implied volatility
+   */
+  public double impliedVolatility(
+      ResolvedSwaptionTrade swaptionTrade,
+      RatesProvider ratesProvider,
+      SwaptionVolatilities swaptionVolatilities) {
+
+    ResolvedSwaption product = swaptionTrade.getProduct();
+    if (isCash(product)) {
+      return cashParYieldPricer.impliedVolatility(product, ratesProvider, swaptionVolatilities);
+    } else {
+      return physicalPricer.impliedVolatility(product, ratesProvider, swaptionVolatilities);
+    }
+  }
+
+  /**
+   * Provides the forward rate.
+   * <p>
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
+   *
+   * @param swaptionTrade  the swaption trade
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(ResolvedSwaptionTrade swaptionTrade, RatesProvider ratesProvider) {
+    ResolvedSwaption product = swaptionTrade.getProduct();
+    if (isCash(product)) {
+      return cashParYieldPricer.forwardRate(product, ratesProvider);
+    } else {
+      return physicalPricer.forwardRate(product, ratesProvider);
+    }
+  }
+
+  /**
    * Calculates the current cash of the swaption trade.
    * <p>
    * Only the premium is contributing to the current cash for non-cash settle swaptions.

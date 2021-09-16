@@ -43,7 +43,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
       new VolatilitySwaptionPhysicalProductPricer(DiscountingSwapProductPricer.DEFAULT);
 
   /**
-   * Pricer for {@link SwapProduct}. 
+   * Pricer for {@link ResolvedSwap}.
    */
   private final DiscountingSwapProductPricer swapPricer;
 
@@ -89,7 +89,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = swapPricer.parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = swapPricer.getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = swapPricer.getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -137,11 +137,25 @@ public class VolatilitySwaptionPhysicalProductPricer {
     ResolvedSwap underlying = swaption.getUnderlying();
     ResolvedSwapLeg fixedLeg = fixedLeg(underlying);
     ArgChecker.isTrue(expiry >= 0d, "Option must be before expiry to compute an implied volatility");
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
     return swaptionVolatilities.volatility(expiry, tenor, strike, forward);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Provides the forward rate.
+   * <p>
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
+   *
+   * @param swaption  the swaption
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
+    return swapPricer.parRate(swaption.getUnderlying(), ratesProvider);
   }
 
   //-------------------------------------------------------------------------
@@ -176,7 +190,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double numeraire = Math.abs(pvbp);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
@@ -213,7 +227,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double numeraire = Math.abs(pvbp);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
@@ -250,7 +264,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double numeraire = Math.abs(pvbp);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
@@ -286,7 +300,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double pvbp = getSwapPricer().getLegPricer().pvbp(fixedLeg, ratesProvider);
     double strike = getSwapPricer().getLegPricer().couponEquivalent(fixedLeg, ratesProvider, pvbp);
     double tenor = swaptionVolatilities.tenor(fixedLeg.getStartDate(), fixedLeg.getEndDate());
@@ -329,7 +343,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
       return SwaptionSensitivity.of(
           swaptionVolatilities.getName(), expiry, tenor, strike, 0d, fixedLeg.getCurrency(), 0d);
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double numeraire = Math.abs(pvbp);
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     PutCall putCall = PutCall.ofPut(fixedLeg.getPayReceive().isReceive());

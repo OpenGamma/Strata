@@ -128,6 +128,24 @@ public class VolatilitySwaptionProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Provides the forward rate.
+   * <p>
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
+   *
+   * @param swaption the swaption
+   * @param ratesProvider the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
+    if (isCash(swaption)) {
+      return cashParYieldPricer.forwardRate(swaption, ratesProvider);
+    } else {
+      return physicalPricer.forwardRate(swaption, ratesProvider);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value delta of the swaption.
    * <p>
    * The present value delta is given by {@code pvbp * priceDelta} where {@code priceDelta}

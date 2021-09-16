@@ -82,7 +82,7 @@ public class SabrSwaptionCashParYieldProductPricer
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     ValueDerivatives annuityDerivative = getSwapPricer().getLegPricer().annuityCashDerivative(fixedLeg, forward);
     double annuityCash = annuityDerivative.getValue();
     double annuityCashDr = annuityDerivative.getDerivative(0);
@@ -133,7 +133,7 @@ public class SabrSwaptionCashParYieldProductPricer
     if (expiry < 0d) { // Option has expired already
       return PointSensitivityBuilder.none();
     }
-    double forward = getSwapPricer().parRate(underlying, ratesProvider);
+    double forward = forwardRate(swaption, ratesProvider);
     double volatility = swaptionVolatilities.volatility(expiry, tenor, strike, forward);
     double numeraire = calculateNumeraire(swaption, fixedLeg, forward, ratesProvider);
     DoubleArray derivative = swaptionVolatilities.volatilityAdjoint(expiry, tenor, strike, forward).getDerivatives();

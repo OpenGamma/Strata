@@ -100,7 +100,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void present_value_premium_forward() {
+  void present_value_premium_forward() {
     CurrencyAmount pvTrade = PRICER_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, RATE_PROVIDER, VOLS);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_FWD_PAY, RATE_PROVIDER);
@@ -111,7 +111,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
   }
 
   @Test
-  public void present_value_premium_valuedate() {
+  void present_value_premium_valuedate() {
     CurrencyAmount pvTrade = PRICER_TRADE.presentValue(SWAPTION_PRETOD_LONG_REC, RATE_PROVIDER, VOLS);
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, RATE_PROVIDER, VOLS);
     CurrencyAmount pvPremium = PRICER_PAYMENT.presentValue(PREMIUM_TRA_PAY, RATE_PROVIDER);
@@ -119,7 +119,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
   }
 
   @Test
-  public void present_value_premium_past() {
+  void present_value_premium_past() {
     CurrencyAmount pvTrade = PRICER_TRADE.presentValue(SWAPTION_PREPAST_LONG_REC, RATE_PROVIDER, VOLS);
     CurrencyAmount pvProduct = PRICER_PRODUCT.presentValue(SWAPTION_LONG_REC, RATE_PROVIDER, VOLS);
     assertThat(pvTrade.getAmount()).isCloseTo(pvProduct.getAmount(), offset(NOTIONAL * TOL));
@@ -127,7 +127,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void currency_exposure_premium_forward() {
+  void currency_exposure_premium_forward() {
     CurrencyAmount pv = PRICER_TRADE.presentValue(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
     MultiCurrencyAmount ce = PRICER_TRADE.currencyExposure(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
     assertThat(pv.getAmount()).isCloseTo(ce.getAmount(USD).getAmount(), offset(NOTIONAL * TOL));
@@ -135,26 +135,26 @@ public class BlackSwaptionTradePricerCashParYieldTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void current_cash_forward() {
+  void current_cash_forward() {
     CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PREFWD_LONG_REC, VAL_DATE);
     assertThat(ccTrade.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   @Test
-  public void current_cash_vd() {
+  void current_cash_vd() {
     CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PRETOD_LONG_REC, VAL_DATE);
     assertThat(ccTrade.getAmount()).isCloseTo(-PREMIUM_AMOUNT, offset(NOTIONAL * TOL));
   }
 
   @Test
-  public void current_cash_past() {
+  void current_cash_past() {
     CurrencyAmount ccTrade = PRICER_TRADE.currentCash(SWAPTION_PREPAST_LONG_REC, VAL_DATE);
     assertThat(ccTrade.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void present_value_sensitivity_premium_forward() {
+  void present_value_sensitivity_premium_forward() {
     PointSensitivities pvcsTrade =
         PRICER_TRADE.presentValueSensitivityRatesStickyStrike(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
     PointSensitivityBuilder pvcsProduct =
@@ -167,7 +167,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
   }
 
   @Test
-  public void present_value_sensitivity_premium_valuedate() {
+  void present_value_sensitivity_premium_valuedate() {
     PointSensitivities pvcsTrade = PRICER_TRADE
         .presentValueSensitivityRatesStickyStrike(SWAPTION_PRETOD_LONG_REC, RATE_PROVIDER, VOLS);
     PointSensitivityBuilder pvcsProduct = PRICER_PRODUCT
@@ -178,7 +178,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
   }
 
   @Test
-  public void present_value_sensitivity_premium_past() {
+  void present_value_sensitivity_premium_past() {
     PointSensitivities pvcsTrade =
         PRICER_TRADE.presentValueSensitivityRatesStickyStrike(SWAPTION_PREPAST_LONG_REC, RATE_PROVIDER, VOLS);
     PointSensitivityBuilder pvcsProduct =
@@ -190,7 +190,7 @@ public class BlackSwaptionTradePricerCashParYieldTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void present_value_black_vol_sensitivity_premium_forward() {
+  void present_value_black_vol_sensitivity_premium_forward() {
     PointSensitivities vegaTrade = PRICER_TRADE
         .presentValueSensitivityModelParamsVolatility(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
     SwaptionSensitivity vegaProduct = PRICER_PRODUCT
@@ -198,4 +198,18 @@ public class BlackSwaptionTradePricerCashParYieldTest {
     assertThat(vegaTrade.getSensitivities().get(0).getSensitivity()).isCloseTo(vegaProduct.getSensitivity(), offset(NOTIONAL * TOL));
   }
 
+  @Test
+  void implied_volatiltity() {
+    double impliedVolTrade = PRICER_TRADE.impliedVolatility(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER, VOLS);
+    double impliedVolProduct = PRICER_PRODUCT.impliedVolatility(SWAPTION_LONG_REC, RATE_PROVIDER, VOLS);
+    assertThat(impliedVolProduct).isEqualTo(impliedVolTrade);
+  }
+
+  @Test
+  void forward_rate() {
+    double forwardRateTrade = PRICER_TRADE.forwardRate(SWAPTION_PREFWD_LONG_REC, RATE_PROVIDER);
+    double forwardRateProduct = PRICER_PRODUCT.forwardRate(SWAPTION_LONG_REC, RATE_PROVIDER);
+    assertThat(forwardRateTrade).isEqualTo(forwardRateProduct);
+  }
+  
 }

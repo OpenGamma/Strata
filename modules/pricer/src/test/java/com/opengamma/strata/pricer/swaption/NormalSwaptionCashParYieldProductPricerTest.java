@@ -172,7 +172,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_presentValue() {
+  void test_presentValue() {
     CurrencyAmount pvRecComputed = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvPayComputed = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
@@ -192,7 +192,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValue_at_expiry() {
+  void test_presentValue_at_expiry() {
     CurrencyAmount pvRec = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS);
     CurrencyAmount pvPay = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT_AT_EXPIRY, RATE_PROVIDER, VOLS);
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
@@ -203,7 +203,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValue_after_expiry() {
+  void test_presentValue_after_expiry() {
     CurrencyAmount pvRec = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     CurrencyAmount pvPay = PRICER_SWAPTION.presentValue(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOLS);
     assertThat(pvRec.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
@@ -211,7 +211,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValue_parity() {
+  void test_presentValue_parity() {
     CurrencyAmount pvRecLong = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvRecShort = PRICER_SWAPTION.presentValue(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
     CurrencyAmount pvPayLong = PRICER_SWAPTION.presentValue(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
@@ -227,7 +227,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_physicalSettlement() {
+  void test_physicalSettlement() {
     Swaption swaption = Swaption.builder()
         .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
         .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
@@ -242,7 +242,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_presentValueDelta() {
+  void test_presentValueDelta() {
     CurrencyAmount pvDeltaRecComputed =
         PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvDeltaPayComputed =
@@ -264,7 +264,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueDelta_at_expiry() {
+  void test_presentValueDelta_at_expiry() {
     CurrencyAmount pvDeltaRec =
         PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS);
     CurrencyAmount pvDeltaPay =
@@ -277,7 +277,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueDelta_after_expiry() {
+  void test_presentValueDelta_after_expiry() {
     CurrencyAmount pvDeltaRec = PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     CurrencyAmount pvDeltaPay = PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOLS);
     assertThat(pvDeltaRec.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
@@ -285,7 +285,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueDelta_parity() {
+  void test_presentValueDelta_parity() {
     CurrencyAmount pvDeltaRecLong = PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvDeltaRecShort = PRICER_SWAPTION.presentValueDelta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
     CurrencyAmount pvDeltaPayLong = PRICER_SWAPTION.presentValueDelta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
@@ -302,7 +302,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_presentValueGamma() {
+  void test_presentValueGamma() {
     CurrencyAmount pvGammaRecComputed =
         PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvGammaPayComputed =
@@ -324,7 +324,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueGamma_at_expiry() {
+  void test_presentValueGamma_at_expiry() {
     CurrencyAmount pvGammaRec =
         PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS);
     CurrencyAmount pvGammaPay =
@@ -334,7 +334,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueGamma_after_expiry() {
+  void test_presentValueGamma_after_expiry() {
     CurrencyAmount pvGammaRec = PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     CurrencyAmount pvGammaPay = PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOLS);
     assertThat(pvGammaRec.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
@@ -342,7 +342,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueGamma_parity() {
+  void test_presentValueGamma_parity() {
     CurrencyAmount pvGammaRecLong = PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvGammaRecShort = PRICER_SWAPTION.presentValueGamma(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
     CurrencyAmount pvGammaPayLong = PRICER_SWAPTION.presentValueGamma(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
@@ -355,7 +355,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_presentValueTheta() {
+  void test_presentValueTheta() {
     CurrencyAmount pvThetaRecComputed =
         PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvThetaPayComputed =
@@ -378,7 +378,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueTheta_at_expiry() {
+  void test_presentValueTheta_at_expiry() {
     CurrencyAmount pvThetaRec =
         PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS);
     CurrencyAmount pvThetaPay =
@@ -388,7 +388,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueTheta_after_expiry() {
+  void test_presentValueTheta_after_expiry() {
     CurrencyAmount pvThetaRec = PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     CurrencyAmount pvThetaPay = PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_SHORT_PAST, RATE_PROVIDER, VOLS);
     assertThat(pvThetaRec.getAmount()).isCloseTo(0d, offset(NOTIONAL * TOL));
@@ -396,7 +396,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueTheta_parity() {
+  void test_presentValueTheta_parity() {
     CurrencyAmount pvThetaRecLong = PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvThetaRecShort = PRICER_SWAPTION.presentValueTheta(SWAPTION_REC_SHORT, RATE_PROVIDER, VOLS);
     CurrencyAmount pvThetaPayLong = PRICER_SWAPTION.presentValueTheta(SWAPTION_PAY_LONG, RATE_PROVIDER, VOLS);
@@ -409,7 +409,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------  
   @Test
-  public void test_currencyExposure() {
+  void test_currencyExposure() {
     MultiCurrencyAmount computedRec = PRICER_SWAPTION.currencyExposure(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     MultiCurrencyAmount computedPay = PRICER_SWAPTION.currencyExposure(SWAPTION_PAY_SHORT, RATE_PROVIDER, VOLS);
     PointSensitivityBuilder pointRec =
@@ -427,7 +427,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_currencyExposure_at_expiry() {
+  void test_currencyExposure_at_expiry() {
     MultiCurrencyAmount computedRec =
         PRICER_SWAPTION.currencyExposure(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS);
     MultiCurrencyAmount computedPay =
@@ -447,7 +447,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_currencyExposure_after_expiry() {
+  void test_currencyExposure_after_expiry() {
     MultiCurrencyAmount computedRec =
         PRICER_SWAPTION.currencyExposure(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     MultiCurrencyAmount computedPay =
@@ -460,7 +460,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_impliedVolatility() {
+  void test_impliedVolatility() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     double expected = VOLS.volatility(SWAPTION_REC_LONG.getExpiry(), SWAP_TENOR_YEAR, STRIKE, forward);
     double computedRec = PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
@@ -470,7 +470,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_impliedVolatility_at_expiry() {
+  void test_impliedVolatility_at_expiry() {
     double forward = PRICER_SWAP.parRate(RSWAP_REC, RATE_PROVIDER);
     double expected = VOLS.volatility(
         VAL_DATE.atTime(SWAPTION_EXPIRY_TIME).atZone(SWAPTION_EXPIRY_ZONE), SWAP_TENOR_YEAR, STRIKE, forward);
@@ -481,7 +481,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_impliedVolatility_after_expiry() {
+  void test_impliedVolatility_after_expiry() {
     assertThatIllegalArgumentException()
         .isThrownBy(() -> PRICER_SWAPTION.impliedVolatility(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS));
     assertThatIllegalArgumentException()
@@ -490,7 +490,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void implied_volatility_round_trip() { // Compute pv and then implied vol from PV and compare with direct implied vol
+  void implied_volatility_round_trip() { // Compute pv and then implied vol from PV and compare with direct implied vol
     CurrencyAmount pvLongRec =
         PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     double impliedLongRecComputed = PRICER_SWAPTION.impliedVolatilityFromPresentValue(
@@ -517,7 +517,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void implied_volatility_wrong_sign() {
+  void implied_volatility_wrong_sign() {
     CurrencyAmount pvLongRec =
         PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     assertThatIllegalArgumentException()
@@ -527,7 +527,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_presentValueSensitivityRatesStickyStrike() {
+  void test_presentValueSensitivityRatesStickyStrike() {
     PointSensitivities pointRec = PRICER_SWAPTION
         .presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS_FLAT).build();
     CurrencyParameterSensitivities computedRec = RATE_PROVIDER.parameterSensitivity(pointRec);
@@ -543,7 +543,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueSensitivityRatesStickyStrike_at_expiry() {
+  void test_presentValueSensitivityRatesStickyStrike_at_expiry() {
     PointSensitivities pointRec = PRICER_SWAPTION.presentValueSensitivityRatesStickyStrike(
         SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS).build();
     for (PointSensitivity sensi : pointRec.getSensitivities()) {
@@ -558,7 +558,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueSensitivityRatesStickyStrike_after_expiry() {
+  void test_presentValueSensitivityRatesStickyStrike_after_expiry() {
     PointSensitivityBuilder pointRec = PRICER_SWAPTION
         .presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     PointSensitivityBuilder pointPay = PRICER_SWAPTION
@@ -568,7 +568,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueSensitivityRatesStickyStrike_parity() {
+  void test_presentValueSensitivityRatesStickyStrike_parity() {
     CurrencyParameterSensitivities pvSensiRecLong = RATE_PROVIDER.parameterSensitivity(
         PRICER_SWAPTION.presentValueSensitivityRatesStickyStrike(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS).build());
     CurrencyParameterSensitivities pvSensiRecShort = RATE_PROVIDER.parameterSensitivity(
@@ -598,7 +598,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_presentValueSensitivityNormalVolatility() {
+  void test_presentValueSensitivityNormalVolatility() {
     SwaptionSensitivity computedRec = PRICER_SWAPTION
         .presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     CurrencyAmount pvRecUp = PRICER_SWAPTION.presentValue(SWAPTION_REC_LONG, RATE_PROVIDER,
@@ -630,7 +630,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueSensitivityNormalVolatility_at_expiry() {
+  void test_presentValueSensitivityNormalVolatility_at_expiry() {
     SwaptionSensitivity sensiRec =
         PRICER_SWAPTION.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG_AT_EXPIRY, RATE_PROVIDER, VOLS);
     assertThat(sensiRec.getSensitivity()).isCloseTo(0d, offset(NOTIONAL * TOL));
@@ -640,7 +640,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueSensitivityNormalVolatility_after_expiry() {
+  void test_presentValueSensitivityNormalVolatility_after_expiry() {
     SwaptionSensitivity sensiRec =
         PRICER_SWAPTION.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG_PAST, RATE_PROVIDER, VOLS);
     SwaptionSensitivity sensiPay =
@@ -650,7 +650,7 @@ public class NormalSwaptionCashParYieldProductPricerTest {
   }
 
   @Test
-  public void test_presentValueSensitivityNormalVolatility_parity() {
+  void test_presentValueSensitivityNormalVolatility_parity() {
     SwaptionSensitivity pvSensiRecLong =
         PRICER_SWAPTION.presentValueSensitivityModelParamsVolatility(SWAPTION_REC_LONG, RATE_PROVIDER, VOLS);
     SwaptionSensitivity pvSensiRecShort =
