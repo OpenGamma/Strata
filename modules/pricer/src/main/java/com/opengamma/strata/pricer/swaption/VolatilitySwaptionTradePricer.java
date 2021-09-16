@@ -171,14 +171,15 @@ public class VolatilitySwaptionTradePricer {
   }
 
   /**
-   * Provides the forward rate for the next fixing date
+   * Provides the forward rate.
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
    *
    * @param swaptionTrade  the swaption trade
    * @param ratesProvider  the rates provider
    * @return the forward rate
    */
   public double forwardRate(ResolvedSwaptionTrade swaptionTrade, RatesProvider ratesProvider) {
-    return VolatilitySwaptionProductPricer.forwardRate(swaptionTrade.getProduct(), ratesProvider);
+    return productPricer.forwardRate(swaptionTrade.getProduct(), ratesProvider);
   }
 
   /**

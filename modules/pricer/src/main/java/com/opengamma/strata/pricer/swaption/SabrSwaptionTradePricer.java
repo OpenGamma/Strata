@@ -241,7 +241,8 @@ public class SabrSwaptionTradePricer {
   }
 
   /**
-   * Provides the forward rate of the next fixing date
+   * Provides the forward rate.
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
    *
    * @param swaptionTrade  the swaption trade
    * @param ratesProvider  the rates provider

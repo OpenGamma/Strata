@@ -161,7 +161,7 @@ public class VolatilitySwaptionCashParYieldProductPricer {
    * @return the forward rate
    */
   public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
-    return VolatilitySwaptionProductPricer.forwardRate(swaption, ratesProvider);
+    return swapPricer.parRate(swaption.getUnderlying(), ratesProvider);
   }
 
   //-------------------------------------------------------------------------

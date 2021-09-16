@@ -12,9 +12,7 @@ import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
-import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.SettlementType;
-import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 
 /**
@@ -46,10 +44,6 @@ public class VolatilitySwaptionProductPricer {
    * Pricer for physical.
    */
   private final VolatilitySwaptionPhysicalProductPricer physicalPricer;
-  /**
-   * Pricer for {@link ResolvedSwap}.
-   */
-  private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
 
   /**
    * Creates an instance.
@@ -141,8 +135,12 @@ public class VolatilitySwaptionProductPricer {
    * @param ratesProvider the rates provider
    * @return the forward rate
    */
-  public static double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
-    return SWAP_PRICER.parRate(swaption.getUnderlying(), ratesProvider);
+  public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
+    if (isCash(swaption)) {
+      return cashParYieldPricer.forwardRate(swaption, ratesProvider);
+    } else {
+      return physicalPricer.forwardRate(swaption, ratesProvider);
+    }
   }
 
   //-------------------------------------------------------------------------
