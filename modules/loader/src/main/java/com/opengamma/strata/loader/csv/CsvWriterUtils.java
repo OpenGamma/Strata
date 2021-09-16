@@ -33,6 +33,7 @@ import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.fx.FxSingle;
 import com.opengamma.strata.product.fxopt.FxVanillaOption;
 import com.opengamma.strata.product.option.Barrier;
+import com.opengamma.strata.product.swap.Swap;
 
 /**
  * Groups several utilities methods for CsvPlugins
@@ -167,6 +168,16 @@ public final class CsvWriterUtils {
    */
   public static void writeFxVanillaOption(CsvOutput.CsvRowOutputWithHeaders csv, FxVanillaOption product) {
     FxVanillaOptionTradeCsvPlugin.INSTANCE.writeFxVanillaOption(csv, product);
+  }
+
+  /**
+   * Write a Swap to CSV
+   *
+   * @param csv  the csv row output
+   * @param product  the swap to write
+   */
+  public static void writeSwap(CsvOutput.CsvRowOutputWithHeaders csv, Swap product) {
+    FullSwapTradeCsvPlugin.INSTANCE.writeProduct(csv, product);
   }
 
   /**
