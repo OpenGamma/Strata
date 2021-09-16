@@ -242,6 +242,7 @@ public class SabrSwaptionTradePricer {
 
   /**
    * Provides the forward rate.
+   * <p>
    * This is the par rate for the forward starting swap that is the underlying of the swaption.
    *
    * @param swaptionTrade  the swaption trade
