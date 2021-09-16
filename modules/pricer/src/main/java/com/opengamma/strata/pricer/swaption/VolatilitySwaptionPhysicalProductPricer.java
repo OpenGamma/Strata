@@ -147,7 +147,7 @@ public class VolatilitySwaptionPhysicalProductPricer {
   //-------------------------------------------------------------------------
   /**
    * Provides the forward rate.
-   * This is par rate for the forward starting swap that is the underlying of the swaption.
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
    *
    * @param swaption  the swaption
    * @param ratesProvider  the rates provider
