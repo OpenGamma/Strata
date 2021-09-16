@@ -5,23 +5,16 @@
  */
 package com.opengamma.strata.pricer.swaption;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
-import com.opengamma.strata.basics.date.HolidayCalendar;
-import com.opengamma.strata.basics.index.IborIndex;
-import com.opengamma.strata.basics.index.IborIndexObservation;
-import com.opengamma.strata.basics.index.OvernightIndex;
-import com.opengamma.strata.basics.index.OvernightIndexObservation;
-import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
+import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
 import com.opengamma.strata.product.common.SettlementType;
+import com.opengamma.strata.product.swap.ResolvedSwap;
 import com.opengamma.strata.product.swaption.ResolvedSwaption;
 
 /**
@@ -53,6 +46,10 @@ public class VolatilitySwaptionProductPricer {
    * Pricer for physical.
    */
   private final VolatilitySwaptionPhysicalProductPricer physicalPricer;
+  /**
+   * Pricer for {@link ResolvedSwap}.
+   */
+  private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
 
   /**
    * Creates an instance.
@@ -137,31 +134,15 @@ public class VolatilitySwaptionProductPricer {
 
   //-------------------------------------------------------------------------
   /**
-   * Provides the forward rate of the next fixing date
+   * Provides the forward rate.
+   * This is the par rate for the forward starting swap that is the underlying of the swaption.
    *
    * @param swaption the swaption
    * @param ratesProvider the rates provider
    * @return the forward rate
    */
-  public double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
-    RateIndex index = swaption.getIndex();
-    HolidayCalendar holidayCalendar = ReferenceData.standard().getValue(index.getFixingCalendar());
-    if (index instanceof IborIndex) {
-      IborIndex iborIndex = (IborIndex) index;
-      return ratesProvider.iborIndexRates(iborIndex).rate(IborIndexObservation.of(
-          iborIndex,
-          holidayCalendar.next(LocalDate.now(ZoneId.systemDefault())),
-          ReferenceData.standard()));
-    }
-    if (index instanceof OvernightIndex) {
-      OvernightIndex overnightIndex = (OvernightIndex) index;
-      return ratesProvider.overnightIndexRates(overnightIndex).rate(OvernightIndexObservation.of(
-          overnightIndex,
-          holidayCalendar.next(LocalDate.now(ZoneId.systemDefault())),
-          ReferenceData.standard()));
-    }
-    throw new IllegalArgumentException("OvernightIndex and IborIndex are the only expected extensions of RateIndex. " +
-        "But found: " + index.getClass().getSimpleName());
+  public static double forwardRate(ResolvedSwaption swaption, RatesProvider ratesProvider) {
+    return SWAP_PRICER.parRate(swaption.getUnderlying(), ratesProvider);
   }
 
   //-------------------------------------------------------------------------

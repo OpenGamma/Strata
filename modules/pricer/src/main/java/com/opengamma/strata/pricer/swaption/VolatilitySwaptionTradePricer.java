@@ -178,7 +178,7 @@ public class VolatilitySwaptionTradePricer {
    * @return the forward rate
    */
   public double forwardRate(ResolvedSwaptionTrade swaptionTrade, RatesProvider ratesProvider) {
-    return productPricer.forwardRate(swaptionTrade.getProduct(), ratesProvider);
+    return VolatilitySwaptionProductPricer.forwardRate(swaptionTrade.getProduct(), ratesProvider);
   }
 
   /**
