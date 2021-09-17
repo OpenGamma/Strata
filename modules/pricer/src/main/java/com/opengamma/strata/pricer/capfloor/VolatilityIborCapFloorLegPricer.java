@@ -95,7 +95,7 @@ public class VolatilityIborCapFloorLegPricer {
    * @param volatilities  the volatilities
    * @return the present values
    */
-  public IborCapletFloorletPeriodAmounts presentValueCapletFloorletPeriods(
+  public IborCapletFloorletPeriodCurrencyAmounts presentValueCapletFloorletPeriods(
       ResolvedIborCapFloorLeg capFloorLeg,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
@@ -105,7 +105,7 @@ public class VolatilityIborCapFloorLegPricer {
         MapStream.of(capFloorLeg.getCapletFloorletPeriods())
             .mapValues(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
             .toMap();
-    return IborCapletFloorletPeriodAmounts.ofPeriodCurrencyAmounts(periodPresentValues);
+    return IborCapletFloorletPeriodCurrencyAmounts.of(periodPresentValues);
   }
 
   //-------------------------------------------------------------------------
@@ -272,7 +272,7 @@ public class VolatilityIborCapFloorLegPricer {
         .filterKeys(period -> !ratesProvider.getValuationDate().isAfter(period.getFixingDate()))
         .mapValues(period -> periodPricer.forwardRate(period, ratesProvider))
         .toMap();
-    return IborCapletFloorletPeriodAmounts.ofPeriodDoubleAmounts(forwardRates);
+    return IborCapletFloorletPeriodAmounts.of(forwardRates);
   }
 
   //-------------------------------------------------------------------------
@@ -294,7 +294,7 @@ public class VolatilityIborCapFloorLegPricer {
         .filterKeys(period -> volatilities.relativeTime(period.getFixingDateTime()) >= 0)
         .mapValues(period -> periodPricer.impliedVolatility(period, ratesProvider, volatilities))
         .toMap();
-    return IborCapletFloorletPeriodAmounts.ofPeriodDoubleAmounts(impliedVolatilities);
+    return IborCapletFloorletPeriodAmounts.of(impliedVolatilities);
   }
 
   //-------------------------------------------------------------------------

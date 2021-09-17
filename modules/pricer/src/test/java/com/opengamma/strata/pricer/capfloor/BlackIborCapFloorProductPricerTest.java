@@ -85,9 +85,12 @@ public class BlackIborCapFloorProductPricerTest {
 
   @Test
   public void test_presentValueCapletFloorletPeriods() {
-    IborCapletFloorletPeriodAmounts computed1 = PRICER.presentValueCapletFloorletPeriods(CAP_ONE_LEG, RATES, VOLS);
-    IborCapletFloorletPeriodAmounts computed2 = PRICER.presentValueCapletFloorletPeriods(CAP_TWO_LEGS, RATES, VOLS);
-    IborCapletFloorletPeriodAmounts expected = PRICER_CAP_LEG.presentValueCapletFloorletPeriods(CAP_LEG, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts computed1 =
+        PRICER.presentValueCapletFloorletPeriods(CAP_ONE_LEG, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts computed2 =
+        PRICER.presentValueCapletFloorletPeriods(CAP_TWO_LEGS, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts expected =
+        PRICER_CAP_LEG.presentValueCapletFloorletPeriods(CAP_LEG, RATES, VOLS);
     assertThat(computed1).isEqualTo(expected);
     assertThat(computed2).isEqualTo(expected); // calc ignores pay leg pv
   }

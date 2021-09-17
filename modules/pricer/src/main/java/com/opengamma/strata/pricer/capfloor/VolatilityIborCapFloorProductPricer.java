@@ -104,7 +104,7 @@ public class VolatilityIborCapFloorProductPricer {
    * @param volatilities  the volatilities
    * @return the present values
    */
-  public IborCapletFloorletPeriodAmounts presentValueCapletFloorletPeriods(
+  public IborCapletFloorletPeriodCurrencyAmounts presentValueCapletFloorletPeriods(
       ResolvedIborCapFloor capFloor,
       RatesProvider ratesProvider,
       IborCapletFloorletVolatilities volatilities) {
