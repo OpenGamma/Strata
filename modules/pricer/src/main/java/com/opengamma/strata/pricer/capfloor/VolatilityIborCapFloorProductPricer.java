@@ -92,6 +92,28 @@ public class VolatilityIborCapFloorProductPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the present value for each caplet/floorlet of the Ibor cap/floor product.
+   * <p>
+   * The present value of each caplet/floorlet is the value on the valuation date.
+   * The result is returned using the payment currency of the leg.
+   * <p>
+   * The present value will not be calculated for the pay leg if the product has one.
+   *
+   * @param capFloor  the Ibor cap/floor product
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @return the present values
+   */
+  public IborCapletFloorletPeriodAmounts presentValueCapletFloorletPeriods(
+      ResolvedIborCapFloor capFloor,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return capFloorLegPricer.presentValueCapletFloorletPeriods(capFloor.getCapFloorLeg(), ratesProvider, volatilities);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value delta of the Ibor cap/floor product.
    * <p>
    * The present value of the product is the sensitivity value on the valuation date.

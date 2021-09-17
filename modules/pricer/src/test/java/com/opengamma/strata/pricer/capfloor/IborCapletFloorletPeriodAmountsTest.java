@@ -9,6 +9,7 @@ import static com.opengamma.strata.basics.index.IborIndices.EUR_EURIBOR_3M;
 import static com.opengamma.strata.collect.TestHelper.assertSerialization;
 import static com.opengamma.strata.collect.TestHelper.coverImmutableBean;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import java.time.LocalDate;
 import java.util.Map;
@@ -17,9 +18,14 @@ import org.junit.jupiter.api.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
+import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.product.capfloor.IborCapletFloorletPeriod;
 import com.opengamma.strata.product.rate.IborRateComputation;
 
+/**
+ * Test {@link IborCapletFloorletPeriodAmounts}.
+ */
 class IborCapletFloorletPeriodAmountsTest {
 
   private static final ReferenceData REF_DATA = ReferenceData.standard();
@@ -35,23 +41,56 @@ class IborCapletFloorletPeriodAmountsTest {
       .notional(NOTIONAL)
       .iborRate(RATE_COMP)
       .build();
-  private static final Map<IborCapletFloorletPeriod, Double> CAPLET_VALUE_MAP = ImmutableMap.of(CAPLET_LONG, 1d);
+  private static final Map<IborCapletFloorletPeriod, Double> CAPLET_DOUBLE_MAP = ImmutableMap.of(CAPLET_LONG, 1d);
+  private static final CurrencyAmount CURRENCY_AMOUNT = CurrencyAmount.of(Currency.USD, 1d);
+  private static final Map<IborCapletFloorletPeriod, CurrencyAmount> CAPLET_CURRENCY_AMOUNT_MAP = ImmutableMap.of(
+      CAPLET_LONG, CURRENCY_AMOUNT);
 
   @Test
-  void test_of() {
-    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.of(CAPLET_VALUE_MAP);
-    assertThat(test.getPeriodAmounts()).isEqualTo(CAPLET_VALUE_MAP);
+  void test_ofPeriodDoubleAmounts() {
+    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.ofPeriodDoubleAmounts(CAPLET_DOUBLE_MAP);
+    assertThat(test.getPeriodDoubleAmounts()).isEqualTo(CAPLET_DOUBLE_MAP);
+    assertThat(test.getPeriodCurrencyAmounts()).isEqualTo(ImmutableMap.of());
+  }
+
+  @Test
+  void test_getPeriodDoubleAmount() {
+    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.ofPeriodDoubleAmounts(CAPLET_DOUBLE_MAP);
+    assertThat(test.getPeriodDoubleAmount(CAPLET_LONG)).isEqualTo(1d);
+  }
+
+  @Test
+  void test_ofPeriodCurrencyAmounts() {
+    IborCapletFloorletPeriodAmounts test =
+        IborCapletFloorletPeriodAmounts.ofPeriodCurrencyAmounts(CAPLET_CURRENCY_AMOUNT_MAP);
+    assertThat(test.getPeriodCurrencyAmounts()).isEqualTo(CAPLET_CURRENCY_AMOUNT_MAP);
+    assertThat(test.getPeriodDoubleAmounts()).isEqualTo(ImmutableMap.of());
+  }
+
+  @Test
+  void test_getPeriodCurrencyAmount() {
+    IborCapletFloorletPeriodAmounts test =
+        IborCapletFloorletPeriodAmounts.ofPeriodCurrencyAmounts(CAPLET_CURRENCY_AMOUNT_MAP);
+    assertThat(test.getPeriodCurrencyAmount(CAPLET_LONG)).isEqualTo(CURRENCY_AMOUNT);
+  }
+
+  @Test
+  void test_builderFail() {
+    assertThatIllegalArgumentException().isThrownBy(() -> IborCapletFloorletPeriodAmounts.builder()
+        .periodDoubleAmounts(CAPLET_DOUBLE_MAP)
+        .periodCurrencyAmounts(CAPLET_CURRENCY_AMOUNT_MAP)
+        .build());
   }
 
   @Test
   void coverage() {
-    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.of(CAPLET_VALUE_MAP);
+    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.ofPeriodDoubleAmounts(CAPLET_DOUBLE_MAP);
     coverImmutableBean(test);
   }
 
   @Test
   public void test_serialization() {
-    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.of(CAPLET_VALUE_MAP);
+    IborCapletFloorletPeriodAmounts test = IborCapletFloorletPeriodAmounts.ofPeriodDoubleAmounts(CAPLET_DOUBLE_MAP);
     assertSerialization(test);
   }
 }
