@@ -151,7 +151,7 @@ public class SabrIborCapletFloorletPeriodPricerTest {
   // Black vols
   private static final BlackIborCapletFloorletExpiryStrikeVolatilities VOLS_BLACK = IborCapletFloorletDataSet
       .createBlackVolatilities(VALUATION, EUR_EURIBOR_3M);
-  // constatnt shift 
+  // constatnt shift
   private static final double SHIFT = IborCapletFloorletSabrRateVolatilityDataSet.CONST_SHIFT;
 
   private static final double TOL = 1.0e-14;
@@ -267,6 +267,20 @@ public class SabrIborCapletFloorletPeriodPricerTest {
     double computed = PRICER.forwardRate(CAPLET_LONG, RATES);
     double expected = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
     assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_forwardRate_onFix() {
+    double computed = PRICER.forwardRate(CAPLET_LONG, RATES_ON_FIX);
+    double expected = RATES_ON_FIX.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    assertThat(computed).isCloseTo(expected, offset(TOL));
+  }
+
+  @Test
+  public void test_forwardRate_afterFix() {
+    double computed = PRICER.forwardRate(CAPLET_LONG, RATES_AFTER_FIX);
+    double expected = RATES_AFTER_FIX.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    assertThat(computed).isCloseTo(expected, offset(TOL));
   }
 
   //-------------------------------------------------------------------------
