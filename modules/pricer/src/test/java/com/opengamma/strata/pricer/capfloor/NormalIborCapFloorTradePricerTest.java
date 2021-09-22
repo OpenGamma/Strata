@@ -60,6 +60,9 @@ public class NormalIborCapFloorTradePricerTest {
       .createNormalVolatilities(VALUATION, EUR_EURIBOR_6M);
   private static final TradeInfo TRADE_INFO = TradeInfo.builder().tradeDate(VALUATION.toLocalDate()).build();
   private static final Payment PREMIUM = Payment.of(EUR, -NOTIONAL_VALUE * 0.19, VALUATION.toLocalDate());
+  private static final ResolvedIborCapFloorTrade TRADE = ResolvedIborCapFloorTrade.builder()
+      .product(CAP_ONE_LEG)
+      .build();
   private static final ResolvedIborCapFloorTrade TRADE_PAYLEG = ResolvedIborCapFloorTrade.builder()
       .product(CAP_TWO_LEGS)
       .info(TRADE_INFO)
@@ -97,6 +100,20 @@ public class NormalIborCapFloorTradePricerTest {
     CurrencyAmount pvPrem = PRICER_PREMIUM.presentValue(PREMIUM, RATES);
     assertThat(computedWithPayLeg).isEqualTo(pvTwoLegs);
     assertThat(computedWithPremium).isEqualTo(pvOneLeg.plus(pvPrem));
+  }
+
+  @Test
+  public void test_presentValueCapletFloorletPeriods() {
+    IborCapletFloorletPeriodCurrencyAmounts computed = PRICER.presentValueCapletFloorletPeriods(TRADE, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts computedWithPayLeg =
+        PRICER.presentValueCapletFloorletPeriods(TRADE_PAYLEG, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts computedWithPremium =
+        PRICER.presentValueCapletFloorletPeriods(TRADE_PREMIUM, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts expected =
+        PRICER_PRODUCT.presentValueCapletFloorletPeriods(CAP_ONE_LEG, RATES, VOLS);
+    assertThat(computed).isEqualTo(expected);
+    assertThat(computedWithPayLeg).isEqualTo(expected); // calc ignores pay leg pv
+    assertThat(computedWithPremium).isEqualTo(expected); // calc ignores premium pv
   }
 
   @Test

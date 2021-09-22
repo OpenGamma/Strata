@@ -85,6 +85,31 @@ public class VolatilityIborCapFloorLegPricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the present value for each caplet/floorlet of the Ibor cap/floor leg.
+   * <p>
+   * The present value of each caplet/floorlet is the value on the valuation date.
+   * The result is returned using the payment currency of the leg.
+   *
+   * @param capFloorLeg  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @return the present values
+   */
+  public IborCapletFloorletPeriodCurrencyAmounts presentValueCapletFloorletPeriods(
+      ResolvedIborCapFloorLeg capFloorLeg,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    validate(ratesProvider, volatilities);
+    Map<IborCapletFloorletPeriod, CurrencyAmount> periodPresentValues =
+        MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+            .mapValues(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
+            .toMap();
+    return IborCapletFloorletPeriodCurrencyAmounts.of(periodPresentValues);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value delta of the Ibor cap/floor leg.
    * <p>
    * The present value delta of the leg is the sensitivity value on the valuation date.
@@ -244,6 +269,7 @@ public class VolatilityIborCapFloorLegPricer {
       RatesProvider ratesProvider) {
 
     Map<IborCapletFloorletPeriod, Double> forwardRates = MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+        .filterKeys(period -> !ratesProvider.getValuationDate().isAfter(period.getFixingDate()))
         .mapValues(period -> periodPricer.forwardRate(period, ratesProvider))
         .toMap();
     return IborCapletFloorletPeriodAmounts.of(forwardRates);
