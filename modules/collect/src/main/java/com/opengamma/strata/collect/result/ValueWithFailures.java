@@ -39,6 +39,7 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.Guavate;
 
 /**
  * A value with associated failures.
@@ -210,6 +211,24 @@ public final class ValueWithFailures<T>
         StreamBuilder::add,
         StreamBuilder::combine,
         StreamBuilder::build);
+  }
+
+  /**
+   * Returns a collector that can be used to create a combined {@code ValueWithFailure}
+   * from a stream of {@code Result} instances.
+   * <p>
+   * This collects a {@code Stream<Result<T>>} to a {@code ValueWithFailures<List<T>>}.
+   *
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   */
+  public static <T> Collector<Result<T>, ?, ValueWithFailures<List<T>>> toCombinedResultsAsList() {
+    return Collectors.reducing(
+        ValueWithFailures.of(ImmutableList.of()),
+        (Result<T> t) -> ValueWithFailures.of(
+            t.map(ImmutableList::of).getValueOrElse(ImmutableList.of()),
+            t.isSuccess() ? ImmutableList.of() : t.getFailure().getItems()),
+        (t, t2) -> t.combinedWith(t2, Guavate::concatToList));
   }
 
   /**
