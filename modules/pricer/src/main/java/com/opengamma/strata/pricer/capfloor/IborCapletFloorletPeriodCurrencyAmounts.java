@@ -8,6 +8,7 @@ package com.opengamma.strata.pricer.capfloor;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -50,6 +51,16 @@ public final class IborCapletFloorletPeriodCurrencyAmounts implements ImmutableB
       Map<IborCapletFloorletPeriod, CurrencyAmount> currencyAmountMap) {
 
     return new IborCapletFloorletPeriodCurrencyAmounts(currencyAmountMap);
+  }
+
+  /**
+   * Gets a currency amount for the provided Ibor caplet/floorlet.
+   *
+   * @param period the ibor caplet/floorlet
+   * @return the currency amount, empty if missing
+   */
+  public Optional<CurrencyAmount> findAmount(IborCapletFloorletPeriod period) {
+    return Optional.ofNullable(amounts.get(period));
   }
 
   /**
