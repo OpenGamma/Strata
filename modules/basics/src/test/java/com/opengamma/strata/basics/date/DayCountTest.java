@@ -1023,6 +1023,18 @@ public class DayCountTest {
     assertThat(ACT_ACT_ICMA.yearFraction(start, end, info)).isEqualTo((90d / (90d * 4d)) + (3d / (92d * 4d)));
   }
 
+  @Test
+  public void test_actActIcma_middle() {
+    // nominals, 2012-03-30 (P92D) 2012-06-30 (2011, 11, 2012-09-30)
+    LocalDate start = LocalDate.of(2012, 4, 10);
+    LocalDate end = LocalDate.of(2012, 5, 10);
+    LocalDate periodEnd = LocalDate.of(2012, 6, 30);
+    LocalDate scheduleStart = LocalDate.of(2011, 12, 30);
+    LocalDate scheduleEnd = LocalDate.of(2012, 9, 30);
+    ScheduleInfo info = new Info(scheduleStart, scheduleEnd, periodEnd, false, P3M);
+    assertThat(ACT_ACT_ICMA.yearFraction(start, end, info)).isEqualTo(30d / (4 * 92d));
+  }
+
   //-------------------------------------------------------------------------
   // test against official examples - http://www.isda.org/c_and_a/pdf/ACT-ACT-ISDA-1999.pdf
   // this version has an error http://www.isda.org/c_and_a/pdf/mktc1198.pdf
@@ -1401,6 +1413,6 @@ public class DayCountTest {
     public LocalDate getPeriodEndDate(LocalDate date) {
       return periodEnd;
     }
-  };
+  }
 
 }
