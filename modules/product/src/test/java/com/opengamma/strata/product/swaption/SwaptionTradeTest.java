@@ -62,7 +62,7 @@ public class SwaptionTradeTest {
         .portfolioItemType(PortfolioItemType.TRADE)
         .productType(ProductType.SWAPTION)
         .currencies(Currency.USD)
-        .description("Long 10Y USD 100mm Rec USD-LIBOR-3M / Pay 1.5% : 14Jun14")
+        .description("Long 10Y USD 100mm Rec USD-LIBOR-3M / Pay 1.5% : 10Jun14")
         .build();
     assertThat(trade.summarize()).isEqualTo(expected);
   }
