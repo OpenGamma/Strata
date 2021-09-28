@@ -289,7 +289,10 @@ public final class IborIndices {
    * The 2 month TIBOR (Japan) index.
    * <p>
    * The "Tokyo Interbank Offered Rate", unsecured call market.
+   * 
+   * @deprecated Not published as of 2019-04-01
    */
+  @Deprecated
   public static final IborIndex JPY_TIBOR_JAPAN_2M = IborIndex.of("JPY-TIBOR-JAPAN-2M");
   /**
    * The 3 month TIBOR (Japan) index.
@@ -327,7 +330,10 @@ public final class IborIndices {
    * The 2 month TIBOR (Euroyen) index.
    * <p>
    * The "Tokyo Interbank Offered Rate", Japan offshore market.
+   * 
+   * @deprecated Not published as of 2019-04-01
    */
+  @Deprecated
   public static final IborIndex JPY_TIBOR_EUROYEN_2M = IborIndex.of("JPY-TIBOR-EUROYEN-2M");
   /**
    * The 3 month TIBOR (Euroyen) index.
@@ -409,13 +415,19 @@ public final class IborIndices {
    * The 6 month CDOR index.
    * <p>
    * The "Canadian Dollar Offered Rate".
+   * 
+   * @deprecated Not published as of 2021-05-17
    */
+  @Deprecated
   public static final IborIndex CAD_CDOR_6M = IborIndex.of("CAD-CDOR-6M");
   /**
    * The 12 month CDOR index.
    * <p>
    * The "Canadian Dollar Offered Rate".
+   * 
+   * @deprecated Not published as of 2021-05-17
    */
+  @Deprecated
   public static final IborIndex CAD_CDOR_12M = IborIndex.of("CAD-CDOR-12M");
 
   //-------------------------------------------------------------------------
