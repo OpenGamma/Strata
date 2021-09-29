@@ -743,7 +743,7 @@ public final class MapStream<K, V>
    *
    * @param <A>  the internal collector type
    * @param <R>  the type of the combined values
-   * @param valueCollector    the collector used to combined the values
+   * @param valueCollector  the collector used to combined the values
    * @return a stream where the values have been grouped
    */
   public <A, R> MapStream<K, R> groupingAndThen(Collector<? super V, A, R> valueCollector) {

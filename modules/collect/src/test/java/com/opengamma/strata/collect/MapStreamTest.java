@@ -525,7 +525,7 @@ public class MapStreamTest {
   @Test
   public void groupingAndThen() {
     Map<String, Integer> map = ImmutableMap.of("a", 1, "aa", 2, "b", 10, "bb", 20, "c", 1);
-    Map<String, ImmutableList<Integer>> expected =ImmutableMap.of("a", list(1, 2), "b", list(10, 20), "c", list(1));
+    Map<String, ImmutableList<Integer>> expected = ImmutableMap.of("a", list(1, 2), "b", list(10, 20), "c", list(1));
     Map<String, List<Integer>> result = MapStream.of(map).mapKeys(s -> s.substring(0, 1)).groupingAndThen().toMap();
     assertThat(result).isEqualTo(expected);
   }
