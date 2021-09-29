@@ -706,6 +706,17 @@ public final class MapStream<K, V>
   }
 
   /**
+   * Returns a stream built from a map of the entries in the stream, grouped by key.
+   * <p>
+   * Entries are grouped based on the equality of the key.
+   *
+   * @return a stream where the values have been grouped
+   */
+  public MapStream<K, List<V>> groupingAndThen() {
+    return MapStream.of(toMapGrouping());
+  }
+
+  /**
    * Returns an immutable map built from the entries in the stream, grouping by key.
    * <p>
    * Entries are grouped based on the equality of the key.
@@ -716,12 +727,27 @@ public final class MapStream<K, V>
    * @param <A>  the internal collector type
    * @param <R>  the type of the combined values
    * @param valueCollector  the collector used to combined the values
-   * @return a stream where the values have been grouped
+   * @return an immutable map built from the entries in the stream
    */
   public <A, R> ImmutableMap<K, R> toMapGrouping(Collector<? super V, A, R> valueCollector) {
     return underlying.collect(collectingAndThen(
         groupingBy(Entry::getKey, LinkedHashMap::new, mapping(Entry::getValue, valueCollector)),
         ImmutableMap::copyOf));
+  }
+
+  /**
+   * Returns a stream built from a map of the entries in the stream, grouped by key.
+   * <p>
+   * Entries are grouped based on the equality of the key.
+   * The collector allows the values to be flexibly combined.
+   *
+   * @param <A>  the internal collector type
+   * @param <R>  the type of the combined values
+   * @param valueCollector  the collector used to combined the values
+   * @return a stream where the values have been grouped
+   */
+  public <A, R> MapStream<K, R> groupingAndThen(Collector<? super V, A, R> valueCollector) {
+    return MapStream.of(toMapGrouping(valueCollector));
   }
 
   //-------------------------------------------------------------------------
