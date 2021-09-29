@@ -17,6 +17,7 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.gen.BeanDefinition;
+import org.joda.beans.gen.ImmutablePreBuild;
 import org.joda.beans.gen.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectFieldsBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
@@ -62,6 +63,18 @@ public final class ResolvedSwaption
   @PropertyDefinition(validate = "notNull")
   private final SwaptionSettlement swaptionSettlement;
   /**
+   * The exercise information.
+   * <p>
+   * A swaption can have three different kinds of exercise - European, American and Bermudan.
+   * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
+   * can exercise on a fixed set of dates.
+   * <p>
+   * European swaptions will have matching information in this object, expiry date and swap start date.
+   * If this is not set in the builder, it will be defaulted to European from the expiry date and swap start date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final SwaptionExerciseDates exerciseInfo;
+  /**
    * The expiry date-time of the option.
    * <p>
    * The option is European, and can only be exercised on the expiry date.
@@ -76,6 +89,17 @@ public final class ResolvedSwaption
    */
   @PropertyDefinition(validate = "notNull")
   private final ResolvedSwap underlying;
+
+  //-------------------------------------------------------------------------
+  @ImmutablePreBuild
+  private static void preBuild(Builder builder) {
+    if (builder.exerciseInfo == null && builder.expiry != null && builder.underlying != null) {
+      LocalDate exerciseDate = builder.expiry.toLocalDate();
+      LocalDate swapStartDate = builder.underlying.getStartDate();
+      builder.exerciseInfo = SwaptionExerciseDates.ofEuropean(
+          SwaptionExerciseDate.of(exerciseDate, exerciseDate, swapStartDate));
+    }
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -136,14 +160,17 @@ public final class ResolvedSwaption
   private ResolvedSwaption(
       LongShort longShort,
       SwaptionSettlement swaptionSettlement,
+      SwaptionExerciseDates exerciseInfo,
       ZonedDateTime expiry,
       ResolvedSwap underlying) {
     JodaBeanUtils.notNull(longShort, "longShort");
     JodaBeanUtils.notNull(swaptionSettlement, "swaptionSettlement");
+    JodaBeanUtils.notNull(exerciseInfo, "exerciseInfo");
     JodaBeanUtils.notNull(expiry, "expiry");
     JodaBeanUtils.notNull(underlying, "underlying");
     this.longShort = longShort;
     this.swaptionSettlement = swaptionSettlement;
+    this.exerciseInfo = exerciseInfo;
     this.expiry = expiry;
     this.underlying = underlying;
   }
@@ -174,6 +201,22 @@ public final class ResolvedSwaption
    */
   public SwaptionSettlement getSwaptionSettlement() {
     return swaptionSettlement;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exercise information.
+   * <p>
+   * A swaption can have three different kinds of exercise - European, American and Bermudan.
+   * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
+   * can exercise on a fixed set of dates.
+   * <p>
+   * European swaptions will have matching information in this object, expiry date and swap start date.
+   * If this is not set in the builder, it will be defaulted to European from the expiry date and swap start date.
+   * @return the value of the property, not null
+   */
+  public SwaptionExerciseDates getExerciseInfo() {
+    return exerciseInfo;
   }
 
   //-----------------------------------------------------------------------
@@ -217,6 +260,7 @@ public final class ResolvedSwaption
       ResolvedSwaption other = (ResolvedSwaption) obj;
       return JodaBeanUtils.equal(longShort, other.longShort) &&
           JodaBeanUtils.equal(swaptionSettlement, other.swaptionSettlement) &&
+          JodaBeanUtils.equal(exerciseInfo, other.exerciseInfo) &&
           JodaBeanUtils.equal(expiry, other.expiry) &&
           JodaBeanUtils.equal(underlying, other.underlying);
     }
@@ -228,6 +272,7 @@ public final class ResolvedSwaption
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(longShort);
     hash = hash * 31 + JodaBeanUtils.hashCode(swaptionSettlement);
+    hash = hash * 31 + JodaBeanUtils.hashCode(exerciseInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiry);
     hash = hash * 31 + JodaBeanUtils.hashCode(underlying);
     return hash;
@@ -235,10 +280,11 @@ public final class ResolvedSwaption
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("ResolvedSwaption{");
     buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
     buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
+    buf.append("exerciseInfo").append('=').append(JodaBeanUtils.toString(exerciseInfo)).append(',').append(' ');
     buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
     buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
     buf.append('}');
@@ -266,6 +312,11 @@ public final class ResolvedSwaption
     private final MetaProperty<SwaptionSettlement> swaptionSettlement = DirectMetaProperty.ofImmutable(
         this, "swaptionSettlement", ResolvedSwaption.class, SwaptionSettlement.class);
     /**
+     * The meta-property for the {@code exerciseInfo} property.
+     */
+    private final MetaProperty<SwaptionExerciseDates> exerciseInfo = DirectMetaProperty.ofImmutable(
+        this, "exerciseInfo", ResolvedSwaption.class, SwaptionExerciseDates.class);
+    /**
      * The meta-property for the {@code expiry} property.
      */
     private final MetaProperty<ZonedDateTime> expiry = DirectMetaProperty.ofImmutable(
@@ -282,6 +333,7 @@ public final class ResolvedSwaption
         this, null,
         "longShort",
         "swaptionSettlement",
+        "exerciseInfo",
         "expiry",
         "underlying");
 
@@ -298,6 +350,8 @@ public final class ResolvedSwaption
           return longShort;
         case -1937554512:  // swaptionSettlement
           return swaptionSettlement;
+        case -466669914:  // exerciseInfo
+          return exerciseInfo;
         case -1289159373:  // expiry
           return expiry;
         case -1770633379:  // underlying
@@ -339,6 +393,14 @@ public final class ResolvedSwaption
     }
 
     /**
+     * The meta-property for the {@code exerciseInfo} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SwaptionExerciseDates> exerciseInfo() {
+      return exerciseInfo;
+    }
+
+    /**
      * The meta-property for the {@code expiry} property.
      * @return the meta-property, not null
      */
@@ -362,6 +424,8 @@ public final class ResolvedSwaption
           return ((ResolvedSwaption) bean).getLongShort();
         case -1937554512:  // swaptionSettlement
           return ((ResolvedSwaption) bean).getSwaptionSettlement();
+        case -466669914:  // exerciseInfo
+          return ((ResolvedSwaption) bean).getExerciseInfo();
         case -1289159373:  // expiry
           return ((ResolvedSwaption) bean).getExpiry();
         case -1770633379:  // underlying
@@ -389,6 +453,7 @@ public final class ResolvedSwaption
 
     private LongShort longShort;
     private SwaptionSettlement swaptionSettlement;
+    private SwaptionExerciseDates exerciseInfo;
     private ZonedDateTime expiry;
     private ResolvedSwap underlying;
 
@@ -405,6 +470,7 @@ public final class ResolvedSwaption
     private Builder(ResolvedSwaption beanToCopy) {
       this.longShort = beanToCopy.getLongShort();
       this.swaptionSettlement = beanToCopy.getSwaptionSettlement();
+      this.exerciseInfo = beanToCopy.getExerciseInfo();
       this.expiry = beanToCopy.getExpiry();
       this.underlying = beanToCopy.getUnderlying();
     }
@@ -417,6 +483,8 @@ public final class ResolvedSwaption
           return longShort;
         case -1937554512:  // swaptionSettlement
           return swaptionSettlement;
+        case -466669914:  // exerciseInfo
+          return exerciseInfo;
         case -1289159373:  // expiry
           return expiry;
         case -1770633379:  // underlying
@@ -434,6 +502,9 @@ public final class ResolvedSwaption
           break;
         case -1937554512:  // swaptionSettlement
           this.swaptionSettlement = (SwaptionSettlement) newValue;
+          break;
+        case -466669914:  // exerciseInfo
+          this.exerciseInfo = (SwaptionExerciseDates) newValue;
           break;
         case -1289159373:  // expiry
           this.expiry = (ZonedDateTime) newValue;
@@ -455,9 +526,11 @@ public final class ResolvedSwaption
 
     @Override
     public ResolvedSwaption build() {
+      preBuild(this);
       return new ResolvedSwaption(
           longShort,
           swaptionSettlement,
+          exerciseInfo,
           expiry,
           underlying);
     }
@@ -491,6 +564,24 @@ public final class ResolvedSwaption
     }
 
     /**
+     * Sets the exercise information.
+     * <p>
+     * A swaption can have three different kinds of exercise - European, American and Bermudan.
+     * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
+     * can exercise on a fixed set of dates.
+     * <p>
+     * European swaptions will have matching information in this object, expiry date and swap start date.
+     * If this is not set in the builder, it will be defaulted to European from the expiry date and swap start date.
+     * @param exerciseInfo  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder exerciseInfo(SwaptionExerciseDates exerciseInfo) {
+      JodaBeanUtils.notNull(exerciseInfo, "exerciseInfo");
+      this.exerciseInfo = exerciseInfo;
+      return this;
+    }
+
+    /**
      * Sets the expiry date-time of the option.
      * <p>
      * The option is European, and can only be exercised on the expiry date.
@@ -520,10 +611,11 @@ public final class ResolvedSwaption
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("ResolvedSwaption.Builder{");
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
       buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
+      buf.append("exerciseInfo").append('=').append(JodaBeanUtils.toString(exerciseInfo)).append(',').append(' ');
       buf.append("expiry").append('=').append(JodaBeanUtils.toString(expiry)).append(',').append(' ');
       buf.append("underlying").append('=').append(JodaBeanUtils.toString(underlying));
       buf.append('}');

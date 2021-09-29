@@ -6,6 +6,7 @@
 package com.opengamma.strata.product.swaption;
 
 import static com.opengamma.strata.collect.Guavate.toImmutableList;
+import static com.opengamma.strata.collect.Guavate.zip;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -40,7 +41,7 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * The expiration of a swaption.
+ * Details as to when a swaption can be exercised.
  * <p>
  * A swaption can have three different kinds of exercise - European, American and Bermudan.
  * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
@@ -219,6 +220,23 @@ public final class SwaptionExercise
     } else {
       return dateDefinition;
     }
+  }
+
+  //-------------------------------------------------------------------------
+  // resolves the date definition
+  SwaptionExerciseDates resolve(ReferenceData refData) {
+    AdjustableDates defn = isBermudan() ? calculateDates() : dateDefinition;
+    ImmutableList<LocalDate> unadjusted = defn.getUnadjusted();
+    ImmutableList<LocalDate> adjusted = defn.adjusted(refData);
+    DateAdjuster startDateOffset = swapStartDateOffset.resolve(refData);
+    ImmutableList<SwaptionExerciseDate> dates = zip(adjusted.stream(), unadjusted.stream())
+        .map(pair -> SwaptionExerciseDate.builder()
+            .exerciseDate(pair.getFirst())
+            .unadjustedExerciseDate(pair.getSecond())
+            .swapStartDate(startDateOffset.adjust(pair.getFirst()))
+            .build())
+        .collect(toImmutableList());
+    return SwaptionExerciseDates.of(dates, isAmerican());
   }
 
   //-------------------------------------------------------------------------

@@ -84,6 +84,18 @@ public class BlackIborCapFloorProductPricerTest {
   }
 
   @Test
+  public void test_presentValueCapletFloorletPeriods() {
+    IborCapletFloorletPeriodCurrencyAmounts computed1 =
+        PRICER.presentValueCapletFloorletPeriods(CAP_ONE_LEG, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts computed2 =
+        PRICER.presentValueCapletFloorletPeriods(CAP_TWO_LEGS, RATES, VOLS);
+    IborCapletFloorletPeriodCurrencyAmounts expected =
+        PRICER_CAP_LEG.presentValueCapletFloorletPeriods(CAP_LEG, RATES, VOLS);
+    assertThat(computed1).isEqualTo(expected);
+    assertThat(computed2).isEqualTo(expected); // calc ignores pay leg pv
+  }
+
+  @Test
   public void test_presentValueDelta() {
     MultiCurrencyAmount computed1 = PRICER.presentValueDelta(CAP_ONE_LEG, RATES, VOLS);
     MultiCurrencyAmount computed2 = PRICER.presentValueDelta(CAP_TWO_LEGS, RATES, VOLS);
@@ -181,6 +193,13 @@ public class BlackIborCapFloorProductPricerTest {
   public void test_forwardRate() {
     IborCapletFloorletPeriodAmounts computed = PRICER.forwardRates(CAP_ONE_LEG, RATES);
     IborCapletFloorletPeriodAmounts expected = PRICER_CAP_LEG.forwardRates(CAP_LEG, RATES);
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_forwardRate_onFix() {
+    IborCapletFloorletPeriodAmounts computed = PRICER.forwardRates(CAP_ONE_LEG, RATES_PAY);
+    IborCapletFloorletPeriodAmounts expected = PRICER_CAP_LEG.forwardRates(CAP_LEG, RATES_PAY);
     assertThat(computed).isEqualTo(expected);
   }
 

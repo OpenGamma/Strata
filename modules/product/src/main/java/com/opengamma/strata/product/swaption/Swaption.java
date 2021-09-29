@@ -232,10 +232,25 @@ public final class Swaption
   //-------------------------------------------------------------------------
   @Override
   public ResolvedSwaption resolve(ReferenceData refData) {
+    LocalDate unadjustedExpiry = expiryDate.getUnadjusted();
+    LocalDate adjustedExpiry = expiryDate.adjusted(refData);
+
+    // setup suitable exercise info where it was not defined
+    SwaptionExerciseDates exerciseDates;
+    if (exerciseInfo == null) {
+      LocalDate swapStartDate = underlying.getStartDate().adjusted(refData);
+      SwaptionExerciseDate exercise = SwaptionExerciseDate.of(adjustedExpiry, unadjustedExpiry, swapStartDate);
+      exerciseDates = SwaptionExerciseDates.ofEuropean(exercise);
+    } else {
+      exerciseDates = exerciseInfo.resolve(refData);
+    }
+    // trust that the expiry date and swap start date are valid
+    // throwing an exception if they are not seems to harsh
     return ResolvedSwaption.builder()
-        .expiry(expiryDate.adjusted(refData).atTime(expiryTime).atZone(expiryZone))
+        .expiry(unadjustedExpiry.atTime(expiryTime).atZone(expiryZone))
         .longShort(longShort)
         .swaptionSettlement(swaptionSettlement)
+        .exerciseInfo(exerciseDates)
         .underlying(underlying.resolve(refData))
         .build();
   }

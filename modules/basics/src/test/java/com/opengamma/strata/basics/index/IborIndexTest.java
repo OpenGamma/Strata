@@ -122,7 +122,7 @@ public class IborIndexTest {
     assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 13));
     // fixing time and zone
     assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
-        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 55)).atZone(ZoneId.of("Europe/London")));
     // resolve
     assertThat(test.resolve(REF_DATA).apply(date(2014, 10, 13)))
         .isEqualTo(IborIndexObservation.of(test, date(2014, 10, 13), REF_DATA));
@@ -180,7 +180,7 @@ public class IborIndexTest {
     assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // fixing time and zone
     assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
-        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 0)).atZone(ZoneId.of("Europe/London")));
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 55)).atZone(ZoneId.of("Europe/London")));
     // resolve
     assertThat(test.resolve(REF_DATA).apply(date(2014, 10, 27)))
         .isEqualTo(IborIndexObservation.of(test, date(2014, 10, 27), REF_DATA));
@@ -261,7 +261,7 @@ public class IborIndexTest {
     assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // fixing time and zone
     assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
-        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(13, 0)).atZone(ZoneId.of("Asia/Tokyo")));
   }
 
   @Test
@@ -300,7 +300,7 @@ public class IborIndexTest {
     assertThat(test.calculateMaturityFromEffective(date(2014, 10, 12), REF_DATA)).isEqualTo(date(2015, 1, 14));
     // fixing time and zone
     assertThat(test.calculateFixingDateTime(date(2014, 10, 13)))
-        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(11, 50)).atZone(ZoneId.of("Asia/Tokyo")));
+        .isEqualTo(date(2014, 10, 13).atTime(LocalTime.of(13, 0)).atZone(ZoneId.of("Asia/Tokyo")));
   }
 
   @Test
@@ -672,7 +672,7 @@ public class IborIndexTest {
         {IborIndices.JPY_LIBOR_6M, "JPY-LIBOR-6M"},
         {IborIndices.USD_LIBOR_6M, "USD-LIBOR-6M"},
         {IborIndices.EUR_EURIBOR_1M, "EUR-EURIBOR-1M"},
-        {IborIndices.JPY_TIBOR_JAPAN_2M, "JPY-TIBOR-JAPAN-2M"},
+        {IborIndices.JPY_TIBOR_JAPAN_3M, "JPY-TIBOR-JAPAN-3M"},
         {IborIndices.JPY_TIBOR_EUROYEN_6M, "JPY-TIBOR-EUROYEN-6M"},
         {IborIndices.AUD_BBSW_1M, "AUD-BBSW-1M"},
         {IborIndices.AUD_BBSW_2M, "AUD-BBSW-2M"},
