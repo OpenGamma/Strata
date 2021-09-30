@@ -25,6 +25,7 @@ import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.pricer.DiscountingPaymentPricer;
 import com.opengamma.strata.pricer.fx.RatesProviderFxDataSets;
+import com.opengamma.strata.pricer.fxopt.utils.FxUtils;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.product.TradeInfo;
 import com.opengamma.strata.product.fx.ResolvedFxSingle;
@@ -133,7 +134,7 @@ public class BlackFxSingleBarrierOptionTradePricerTest {
 
   @Test
   public void test_forwardFxRate() {
-    FxRate fxRateComputed = PRICER_TRADE.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
+    FxRate fxRateComputed = FxUtils.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
     FxRate fxRateExpected = PRICER_PRODUCT.forwardFxRate(OPTION_PRODUCT, RATES_PROVIDER);
     assertThat(fxRateComputed).isEqualTo(fxRateExpected);
   }

@@ -140,6 +140,10 @@ public final class FxSingleBarrierOption
     return underlyingOption.getUnderlying().getPaymentDate();
   }
 
+  @Override
+  public double getStrike() {
+    return underlyingOption.getStrike();
+  }
 
   //-------------------------------------------------------------------------
   @Override

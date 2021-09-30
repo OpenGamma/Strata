@@ -5,6 +5,7 @@
  */
 package com.opengamma.strata.product.fx;
 
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
 
 /**
@@ -17,5 +18,7 @@ public interface FxOptionProduct extends FxProduct {
    * @return the expiry
    */
   public abstract ZonedDateTime getExpiry();
+
+  public abstract double getStrike();
 
 }
