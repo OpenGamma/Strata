@@ -39,17 +39,17 @@ import com.opengamma.strata.collect.UncheckedReflectiveOperationException;
 public final class SerializedValue implements ImmutableBean {
 
   /**
-   * The config value, as a serialized Joda-Convert string.
+   * The value, as a serialized Joda-Convert string.
    */
   @PropertyDefinition(get = "field")
   private final String convert;
   /**
-   * The config value, as a serialized Joda-Bean.
+   * The value, as a serialized Joda-Bean.
    */
   @PropertyDefinition(get = "field")
   private final byte[] bean;
   /**
-   * The config value, serialized by Java serialization.
+   * The value, serialized by Java serialization.
    */
   @PropertyDefinition(get = "field")
   private final byte[] java;
@@ -70,7 +70,7 @@ public final class SerializedValue implements ImmutableBean {
    * The declared Java type is not necessarily the same as the actual type of the value.
    * For example, the declared type might be an interface and the actual type the implementation class.
    * 
-   * @param <T> the type of the config value
+   * @param <T> the type of the value
    * @param javaType the declared Java type
    * @param value the value, may be null, a Joda-Convert type, Joda-Bean, or Serializable
    * @return the value object
@@ -99,7 +99,7 @@ public final class SerializedValue implements ImmutableBean {
         throw new UncheckedIOException(ex);
       }
     } else {
-      throw new IllegalArgumentException("Config value must be a Joda-Convert type, Joda-Bean or Serializable");
+      throw new IllegalArgumentException("Value must be a Joda-Convert type, Joda-Bean or Serializable");
     }
   }
 
@@ -111,7 +111,7 @@ public final class SerializedValue implements ImmutableBean {
    * As such, it might throw an exception.
    * The intention is that deserialization uses the same Java type as serialization.
    * 
-   * @param <T> the type of the config value
+   * @param <T> the type of the value
    * @param javaType the declared Java type
    * @return the value, null if the serialized value represents null
    * @throws RuntimeException if the value cannot be deserialized
