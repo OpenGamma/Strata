@@ -29,7 +29,7 @@ public enum OvernightAccrualMethod implements NamedEnum {
    */
   COMPOUNDED,
   /**
-   * Defines overnight compounding using an an annual rate.
+   * Defines overnight compounding using an annual rate.
    * <p>
    * Interest is accrued by overnight compounding of each rate during the accrual period using an annual rate.
    * <p>
