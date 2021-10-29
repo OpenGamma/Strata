@@ -295,11 +295,8 @@ public final class ValueWithFailures<T>
     }
 
     private void addResult(Result<? extends T> item) {
-      if (item.isSuccess()) {
-        values.add(item.getValue());
-      } else {
-        failures.addAll(item.getFailure().getItems());
-      }
+      item.ifSuccess(value -> values.add(value));
+      item.ifFailure(failure -> failures.addAll(failure.getItems()));
     }
 
     private StreamBuilder<T, B> combine(StreamBuilder<T, B> builder) {
