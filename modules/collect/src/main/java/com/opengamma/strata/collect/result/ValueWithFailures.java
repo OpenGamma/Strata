@@ -39,7 +39,6 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.collect.Guavate;
 
 /**
  * A value with associated failures.
@@ -223,12 +222,11 @@ public final class ValueWithFailures<T>
    * @return a {@link Collector}
    */
   public static <T> Collector<Result<T>, ?, ValueWithFailures<List<T>>> toCombinedResultsAsList() {
-    return Collectors.reducing(
-        ValueWithFailures.of(ImmutableList.of()),
-        (Result<T> t) -> ValueWithFailures.of(
-            t.map(ImmutableList::of).getValueOrElse(ImmutableList.of()),
-            t.isSuccess() ? ImmutableList.of() : t.getFailure().getItems()),
-        (t, t2) -> t.combinedWith(t2, Guavate::concatToList));
+    return Collector.of(
+        () -> new StreamBuilder<>(ImmutableList.<T>builder()),
+        StreamBuilder::addResult,
+        StreamBuilder::combine,
+        StreamBuilder::build);
   }
 
   /**
@@ -294,6 +292,11 @@ public final class ValueWithFailures<T>
     private void add(ValueWithFailures<? extends T> item) {
       values.add(item.getValue());
       failures.addAll(item.getFailures());
+    }
+
+    private void addResult(Result<? extends T> item) {
+      item.ifSuccess(values::add);
+      item.ifFailure(failure -> failures.addAll(failure.getItems()));
     }
 
     private StreamBuilder<T, B> combine(StreamBuilder<T, B> builder) {
