@@ -31,7 +31,6 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
   private static final double[] SIGMA;
   private static final double[] SIGMA_BLACK = new double[N];
   private static final NormalPriceFunction FUNCTION = new NormalPriceFunction();
-
   static {
     PRICES = new double[N];
     SIGMA = new double[N];
@@ -55,6 +54,24 @@ public class NormalFormulaRepositoryImpliedVolatilityTest {
     for (int i = 0; i < N; i++) {
       impliedVolatility[i] = impliedVolatility(DATA[i], OPTIONS[i], PRICES[i]);
       assertThat(impliedVolatility[i]).isCloseTo(SIGMA[i], offset(1e-6));
+    }
+  }
+  
+  @Test
+  public void implied_volatility_negative() {
+    double forward = -0.0050; // 50 bps
+    double[] strikes = {0.0150, -0.0100, -0.0050, -0.00};
+    int nbTests = strikes.length;
+    double[] volatilities = {0.0075, 0.0100, 0.0050, 0.0200};
+    double[] volatilitiesStart = {0.0100, 0.0010, 0.0049, 0.0400};
+    double[] timesToExpiry = {1.0, 5.0, 0.25, 1.0};
+    PutCall[] putCall = {PutCall.PUT, PutCall.CALL, PutCall.CALL, PutCall.PUT};
+    for (int i = 0; i < nbTests; i++) {
+      double price = NormalFormulaRepository
+          .price(forward, strikes[i], timesToExpiry[i], volatilities[i], putCall[i]);
+      double ivComputed = NormalFormulaRepository
+          .impliedVolatility(price, forward, strikes[i], timesToExpiry[i], volatilitiesStart[i], 1.0d, putCall[i]);
+      assertThat(ivComputed).isCloseTo(volatilities[i], offset(1e-8));   
     }
   }
 
