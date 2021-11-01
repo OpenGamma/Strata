@@ -782,7 +782,7 @@ public final class Result<T>
   /**
    * Returns the failure instance indicating the reason why the calculation failed.
    * <p>
-   * If this result is a success then an an IllegalStateException will be thrown.
+   * If this result is a success then an IllegalStateException will be thrown.
    * To avoid this, call {@link #isSuccess()} or {@link #isFailure()} first.
    *
    * @return the details of the failure, only available if calculation failed
