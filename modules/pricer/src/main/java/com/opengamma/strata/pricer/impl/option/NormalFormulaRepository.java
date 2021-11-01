@@ -279,7 +279,7 @@ public final class NormalFormulaRepository {
     if (Double.doubleToLongBits(optionPrice) == Double.doubleToLongBits(intrinsicPrice)) {
       return 0d;
     }
-    double sigma = (Math.abs(initialNormalVol) < 1e-10 ? 1e-10 : initialNormalVol); // to start with a non zero vol
+    double sigma = Math.min(Math.abs(initialNormalVol), 1e-10); // to start with a positive non zero vol
     double maxChange = 0.5 * sigma; // to avoid jumping around too fast
     ValueDerivatives price = priceAdjoint(forward, strike, timeToExpiry, sigma, numeraire, putCall);
     double vega = price.getDerivative(1);
