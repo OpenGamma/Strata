@@ -221,7 +221,7 @@ public final class ValueWithFailures<T>
    * @param <T>  the type of the success value in the {@link ValueWithFailures}
    * @return a {@link Collector}
    */
-  public static <T> Collector<Result<T>, ?, ValueWithFailures<List<T>>> toCombinedResultsAsList() {
+  public static <T> Collector<Result<? extends T>, ?, ValueWithFailures<List<T>>> toCombinedResultsAsList() {
     return Collector.of(
         () -> new StreamBuilder<>(ImmutableList.<T>builder()),
         StreamBuilder::addResult,
