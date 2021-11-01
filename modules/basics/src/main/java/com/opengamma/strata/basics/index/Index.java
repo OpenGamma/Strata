@@ -35,7 +35,7 @@ public interface Index
   @FromString
   public static Index of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return Indices.ENUM_LOOKUP.lookup(uniqueName);
+    return Indices.INDEX_LOOKUP.lookup(uniqueName);
   }
 
   //-------------------------------------------------------------------------

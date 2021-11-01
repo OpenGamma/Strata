@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -106,11 +107,14 @@ final class HolidayCalendarIniLookup
 
   // finds a default
   HolidayCalendarId defaultByCurrency(Currency currency) {
-    HolidayCalendarId calId = BY_CURRENCY.get(currency);
-    if (calId == null) {
-      throw new IllegalArgumentException("No default Holiday Calendar for currency " + currency);
-    }
-    return calId;
+    Optional<HolidayCalendarId> calId = findDefaultByCurrency(currency);
+    return calId.orElseThrow(() -> new IllegalArgumentException(
+        "No default Holiday Calendar for currency " + currency));
+  }
+
+  // try to find a default
+  Optional<HolidayCalendarId> findDefaultByCurrency(Currency currency) {
+    return Optional.ofNullable(BY_CURRENCY.get(currency));
   }
 
   //-------------------------------------------------------------------------

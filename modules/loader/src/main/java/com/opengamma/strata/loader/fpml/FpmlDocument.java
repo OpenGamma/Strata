@@ -134,6 +134,7 @@ public final class FpmlDocument {
    * The map of holiday calendar ids to zone ids.
    */
   private static final Map<String, ZoneId> HOLIDAY_CALENDARID_MAP = ImmutableMap.<String, ZoneId>builder()
+      .put("EUTA", ZoneId.of("Europe/Berlin"))
       .put("BEBR", ZoneId.of("Europe/Brussels"))
       .put("CATO", ZoneId.of("America/Toronto"))
       .put("CHZU", ZoneId.of("Europe/Zurich"))

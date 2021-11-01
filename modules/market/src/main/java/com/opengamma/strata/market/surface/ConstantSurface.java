@@ -23,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 
 import com.google.common.base.Preconditions;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.market.param.ParameterPerturbation;
 import com.opengamma.strata.market.param.UnitParameterSensitivity;
@@ -130,6 +131,12 @@ public final class ConstantSurface
   @Override
   public UnitParameterSensitivity zValueParameterSensitivity(double x, double y) {
     return createParameterSensitivity(SENSITIVITY);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ValueDerivatives firstPartialDerivatives(double x, double y) {
+    return ValueDerivatives.of(zValue, DoubleArray.of(0d, 0d));
   }
 
   //-------------------------------------------------------------------------

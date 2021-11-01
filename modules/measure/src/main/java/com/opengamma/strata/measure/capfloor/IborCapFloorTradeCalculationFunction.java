@@ -21,7 +21,6 @@ import com.opengamma.strata.calc.runner.CalculationParameters;
 import com.opengamma.strata.calc.runner.FunctionRequirements;
 import com.opengamma.strata.collect.result.FailureReason;
 import com.opengamma.strata.collect.result.Result;
-import com.opengamma.strata.data.scenario.ScenarioArray;
 import com.opengamma.strata.data.scenario.ScenarioMarketData;
 import com.opengamma.strata.measure.Measures;
 import com.opengamma.strata.measure.rate.RatesMarketDataLookup;
@@ -46,6 +45,8 @@ import com.opengamma.strata.product.capfloor.ResolvedIborCapFloorTrade;
  *   <li>{@linkplain Measures#PV01_MARKET_QUOTE_BUCKETED PV01 market quote bucketed on rate curves}
  *   <li>{@linkplain Measures#CURRENCY_EXPOSURE Currency exposure}
  *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#CURRENT_CASH Current cash}
+ *   <li>{@linkplain Measures#RESOLVED_TARGET Resolved trade}
  * </ul>
  * <p>
  * The "natural" currency is determined from the cap/floor leg.
@@ -65,6 +66,7 @@ public class IborCapFloorTradeCalculationFunction
           .put(Measures.PV01_MARKET_QUOTE_BUCKETED, IborCapFloorMeasureCalculations.DEFAULT::pv01RatesMarketQuoteBucketed)
           .put(Measures.CURRENCY_EXPOSURE, IborCapFloorMeasureCalculations.DEFAULT::currencyExposure)
           .put(Measures.CURRENT_CASH, IborCapFloorMeasureCalculations.DEFAULT::currentCash)
+          .put(Measures.RESOLVED_TARGET, (rt, smd, m) -> rt)
           .build();
 
   private static final ImmutableSet<Measure> MEASURES = CALCULATORS.keySet();
@@ -158,7 +160,7 @@ public class IborCapFloorTradeCalculationFunction
   //-------------------------------------------------------------------------
   @FunctionalInterface
   interface SingleMeasureCalculation {
-    public abstract ScenarioArray<?> calculate(
+    public abstract Object calculate(
         ResolvedIborCapFloorTrade trade,
         RatesScenarioMarketData ratesMarketData,
         IborCapFloorScenarioMarketData capFloorMarketData);

@@ -5,6 +5,8 @@
  */
 package com.opengamma.strata.product.swap;
 
+import java.time.LocalDate;
+
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataId;
@@ -14,6 +16,7 @@ import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
 import com.opengamma.strata.basics.index.Index;
 import com.opengamma.strata.product.common.PayReceive;
+import com.opengamma.strata.product.swaption.Swaption;
 
 /**
  * A single leg of a swap.
@@ -138,6 +141,24 @@ public interface SwapLeg extends Resolvable<ResolvedSwapLeg> {
    */
   public abstract void collectIndices(ImmutableSet.Builder<Index> builder);
 
+  //-------------------------------------------------------------------------
+  /**
+   * Returns an instance based on this leg with the start date replaced.
+   * <p>
+   * This is used to change the start date of the leg, and is currently used by {@link Swaption}.
+   * <p>
+   * See each implementation for details of how the override is performed.
+   * 
+   * @param adjustedStartDate the new adjusted start date
+   * @return the updated leg
+   * @throws IllegalArgumentException if the start date cannot be replaced with the proposed start date
+   * @throws UnsupportedOperationException if changing the start date is not supported
+   */
+  public default SwapLeg replaceStartDate(LocalDate adjustedStartDate) {
+    throw new UnsupportedOperationException("Unable to change start date: " + getClass().getSimpleName());
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Resolves this swap leg using the specified reference data.
    * <p>

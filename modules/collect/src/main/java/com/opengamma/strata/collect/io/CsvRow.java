@@ -300,13 +300,28 @@ public final class CsvRow {
    * This returns the value of the first column where the header matches the specified header pattern.
    * If the value is an empty string, then an empty optional is returned.
    * <p>
-   * If the value needs post processing, use {@link Optional#map(Function)}.
+   * If the value needs post processing, use {@link CsvRow#findValue(String, Function)}.
    *
    * @param header  the column header
    * @return the field value, trimmed unless surrounded by quotes, empty if not found
    */
   public Optional<String> findValue(String header) {
     return findField(header).filter(str -> !str.isEmpty());
+  }
+
+  /**
+   * Gets a single value from the row by header pattern, post processing the result.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern. If the value is
+   * an empty string, then an empty optional is returned.
+   *
+   * @param <T> the post process result type
+   * @param header the column header
+   * @param postProcessor the post processor
+   * @return the field value, trimmed unless surrounded by quotes, empty if not found
+   */
+  public <T> Optional<T> findValue(String header, Function<String, T> postProcessor) {
+    return findValue(header).map(postProcessor);
   }
 
   //-------------------------------------------------------------------------
@@ -353,13 +368,28 @@ public final class CsvRow {
    * This returns the value of the first column where the header matches the specified header pattern.
    * If the value is an empty string, then an empty optional is returned.
    * <p>
-   * If the value needs post processing, use {@link Optional#map(Function)}.
+   * If the value needs post processing, use {@link CsvRow#findValue(Pattern, Function)}.
    *
    * @param headerPattern  the header pattern to match
    * @return the field value, trimmed unless surrounded by quotes, empty if not found
    */
   public Optional<String> findValue(Pattern headerPattern) {
     return findField(headerPattern).filter(str -> !str.isEmpty());
+  }
+
+  /**
+   * Gets a single value from the row by header pattern, post processing the result.
+   * <p>
+   * This returns the value of the first column where the header matches the specified header pattern.
+   * If the value is an empty string, then an empty optional is returned.
+   *
+   * @param <T> the post process result type
+   * @param headerPattern the header pattern to match
+   * @param postProcessor the post processor
+   * @return the field value, trimmed unless surrounded by quotes, empty if not found
+   */
+  public <T> Optional<T> findValue(Pattern headerPattern, Function<String, T> postProcessor) {
+    return findValue(headerPattern).map(postProcessor);
   }
 
   //-------------------------------------------------------------------------

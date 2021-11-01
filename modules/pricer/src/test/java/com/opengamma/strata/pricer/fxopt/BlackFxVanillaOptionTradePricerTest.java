@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxMatrix;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.collect.array.DoubleArray;
@@ -88,6 +89,7 @@ public class BlackFxVanillaOptionTradePricerTest {
   private static final BlackFxVanillaOptionTradePricer PRICER_TRADE = BlackFxVanillaOptionTradePricer.DEFAULT;
   private static final DiscountingPaymentPricer PRICER_PAYMENT = DiscountingPaymentPricer.DEFAULT;
   private static final double TOL = 1.0e-13;
+  private static final double PERCENTAGE_TOL = 1.0e-4;
 
   @Test
   public void test_presentValue() {
@@ -135,6 +137,20 @@ public class BlackFxVanillaOptionTradePricerTest {
   @Test
   public void test_currentCash_onSettle() {
     assertThat(PRICER_TRADE.currentCash(OPTION_TRADE, CASH_SETTLE_DATE)).isEqualTo(PREMIUM.getValue());
+  }
+
+  @Test
+  public void test_forwardFxRate() {
+    FxRate fxRateComputed = PRICER_TRADE.forwardFxRate(OPTION_TRADE, RATES_PROVIDER);
+    FxRate fxRateExpected = PRICER_PRODUCT.forwardFxRate(OPTION_PRODUCT, RATES_PROVIDER);
+    assertThat(fxRateComputed).isEqualTo(fxRateExpected);
+  }
+
+  @Test
+  public void test_impliedVolatility() {
+    double impVolComputed = PRICER_TRADE.impliedVolatility(OPTION_TRADE, RATES_PROVIDER, VOLS);
+    double imlVolExpected = PRICER_PRODUCT.impliedVolatility(OPTION_PRODUCT, RATES_PROVIDER, VOLS);
+    assertThat(impVolComputed).isEqualTo(imlVolExpected);
   }
 
 }

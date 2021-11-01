@@ -75,12 +75,14 @@ import com.google.common.io.CharSource;
 import com.opengamma.strata.basics.ImmutableReferenceData;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.StandardId;
+import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.AdjustablePayment;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.AdjustableDates;
 import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.DaysAdjustment;
@@ -145,6 +147,7 @@ import com.opengamma.strata.product.swap.SwapLegType;
 import com.opengamma.strata.product.swap.SwapTrade;
 import com.opengamma.strata.product.swaption.PhysicalSwaptionSettlement;
 import com.opengamma.strata.product.swaption.Swaption;
+import com.opengamma.strata.product.swaption.SwaptionExercise;
 import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
@@ -397,6 +400,7 @@ public class FpmlDocumentParserTest {
     LocalTime expiryTime = LocalTime.of(11, 0, 0);
     ZoneId expiryZone = ZoneId.of("Europe/Brussels");
     Swaption swaptionExpected = Swaption.builder()
+        .exerciseInfo(SwaptionExercise.ofEuropean(expiryDate, DaysAdjustment.ofBusinessDays(2, EUTA)))
         .expiryDate(expiryDate)
         .expiryZone(expiryZone)
         .expiryTime(expiryTime)
@@ -404,7 +408,57 @@ public class FpmlDocumentParserTest {
         .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
         .underlying(underylingSwap)
         .build();
-    assertEqualsBean((Bean) swaption, swaptionExpected);
+    assertEqualsBean(swaption, swaptionExpected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void swaption_bermuda() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex14-berm-swaption.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1"));
+    assertThat(parser.isKnownFormat(resource)).isTrue();
+    List<Trade> trades = parser.parseTrades(resource);
+    assertThat(trades).hasSize(1);
+    Trade trade = trades.get(0);
+    assertThat(trade.getClass()).isEqualTo(SwaptionTrade.class);
+    SwaptionTrade swaptionTrade = (SwaptionTrade) trade;
+    assertThat(swaptionTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2000, 8, 30)));
+    Swaption swaption = swaptionTrade.getProduct();
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA);
+    assertThat(swaption.getExerciseInfo()).hasValue(
+        SwaptionExercise.ofBermudan(
+            AdjustableDates.of(bda, date(2000, 12, 28), date(2001, 4, 28), date(2001, 8, 28)),
+            DaysAdjustment.ofBusinessDays(2, GBLO_EUTA)));
+    assertThat(swaption.getExpiryDate())
+        .isEqualTo(AdjustableDate.of(date(2001, 8, 28), bda));
+    assertThat(swaption.getExpiryTime()).isEqualTo(LocalTime.of(11, 0));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void swaption_american() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/ird-ex15-amer-swaption.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    FpmlDocumentParser parser = FpmlDocumentParser.of(FpmlPartySelector.matching("Party1"));
+    assertThat(parser.isKnownFormat(resource)).isTrue();
+    List<Trade> trades = parser.parseTrades(resource);
+    assertThat(trades).hasSize(1);
+    Trade trade = trades.get(0);
+    assertThat(trade.getClass()).isEqualTo(SwaptionTrade.class);
+    SwaptionTrade swaptionTrade = (SwaptionTrade) trade;
+    assertThat(swaptionTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2000, 8, 30)));
+    Swaption swaption = swaptionTrade.getProduct();
+    BusinessDayAdjustment bda = BusinessDayAdjustment.of(FOLLOWING, GBLO_EUTA);
+    assertThat(swaption.getExerciseInfo()).hasValue(
+        SwaptionExercise.ofAmerican(
+            date(2000, 8, 30),
+            date(2002, 8, 30),
+            bda,
+            DaysAdjustment.ofBusinessDays(2, GBLO_EUTA)));
+    assertThat(swaption.getExpiryDate())
+        .isEqualTo(AdjustableDate.of(date(2002, 8, 30), bda));
+    assertThat(swaption.getExpiryTime()).isEqualTo(LocalTime.of(11, 0));
   }
 
   //-------------------------------------------------------------------------
@@ -1530,6 +1584,36 @@ public class FpmlDocumentParserTest {
         .build();
     assertEqualsBean(cdsTrade.getProduct(), expected);
     assertThat(cdsTrade.getUpfrontFee().get()).isEqualTo(AdjustablePayment.of(USD, 16000, AdjustableDate.of(date(2004, 3, 23))));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void cdsIndex02() {
+    String location = "classpath:com/opengamma/strata/loader/fpml/cdindex-ex02-indexId.xml";
+    ByteSource resource = ResourceLocator.of(location).getByteSource();
+    List<Trade> trades = FpmlDocumentParser.of(FpmlPartySelector.matching("Party2")).parseTrades(resource);
+    assertThat(trades).hasSize(1);
+    CdsIndexTrade cdsTrade = (CdsIndexTrade) trades.get(0);
+    assertThat(cdsTrade.getInfo().getTradeDate()).isEqualTo(Optional.of(date(2020, 1, 24)));
+
+    CdsIndex expected = CdsIndex.builder()
+        .buySell(BUY)
+        .cdsIndexId(StandardId.of(StandardSchemes.RED9_SCHEME, "2I65BYCM5"))
+        .currency(USD)
+        .notional(25000000d)
+        .paymentSchedule(PeriodicSchedule.builder()
+            .startDate(date(2020, 3, 23))
+            .endDate(date(2021, 6, 20))
+            .startDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .endDateBusinessDayAdjustment(BusinessDayAdjustment.NONE)
+            .businessDayAdjustment(BusinessDayAdjustment.NONE)
+            .frequency(Frequency.P3M)
+            .build())
+        .fixedRate(0.0060)
+        .dayCount(ACT_360)
+        .build();
+    assertEqualsBean(cdsTrade.getProduct(), expected);
+    assertThat(cdsTrade.getUpfrontFee()).hasValue(AdjustablePayment.of(USD, 16000, AdjustableDate.of(date(2020, 3, 23))));
   }
 
   //-------------------------------------------------------------------------

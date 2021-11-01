@@ -5,8 +5,11 @@
  */
 package com.opengamma.strata.basics.index;
 
+import static com.opengamma.strata.basics.currency.Currency.CAD;
+import static com.opengamma.strata.basics.currency.Currency.COP;
 import static com.opengamma.strata.basics.currency.Currency.EUR;
 import static com.opengamma.strata.basics.currency.Currency.GBP;
+import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.EUTA;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.GBLO;
 import static com.opengamma.strata.basics.date.HolidayCalendarIds.NO_HOLIDAYS;
@@ -28,6 +31,7 @@ import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.basics.date.DaysAdjustment;
+import com.opengamma.strata.basics.date.HolidayCalendarId;
 
 /**
  * Test {@link FxIndex}.
@@ -83,6 +87,31 @@ public class FxIndexTest {
   @Test
   public void test_of_lookup_null() {
     assertThatIllegalArgumentException().isThrownBy(() -> FxIndex.of((String) null));
+  }
+
+  @Test
+  public void test_of_lookup_parse_currency() {
+    CurrencyPair usdCad = CurrencyPair.of(USD, CAD);
+    HolidayCalendarId calendarId = HolidayCalendarId.defaultByCurrencyPair(usdCad);
+    ImmutableFxIndex fxIndex = ImmutableFxIndex.builder()
+        .name(usdCad.toString())
+        .currencyPair(usdCad)
+        .fixingCalendar(calendarId)
+        .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, calendarId))
+        .build();
+    assertThat(FxIndex.of(usdCad.toString())).usingRecursiveComparison().isEqualTo(fxIndex);
+  }
+
+  @Test
+  public void test_of_lookup_currency_pair_from_extendedEnum() {
+    ImmutableFxIndex fxIndex = ImmutableFxIndex.builder()
+        .name("USD/COP-TRM-COP02")
+        .currencyPair(CurrencyPair.of(USD, COP))
+        .fixingCalendar(HolidayCalendarId.of("COBO"))
+        .maturityDateOffset(DaysAdjustment.ofBusinessDays(0, HolidayCalendarId.of("COBO")))
+        .build();
+    assertThat(FxIndex.of(CurrencyPair.of(USD, COP))).usingRecursiveComparison()
+        .isEqualTo(fxIndex);
   }
 
   //-------------------------------------------------------------------------

@@ -78,21 +78,39 @@ public class MoneyTest {
     assertThat(a.multipliedBy(2)).isEqualTo(Money.of(GBP, 2.46));
   }
 
+  @Test
+  public void testMapAmount() throws Exception {
+    Money a = Money.of(GBP, 1.23);
+    assertThat(a.mapAmount(amount -> amount.multiply(BigDecimal.TEN))).isEqualTo(Money.of(GBP, 12.3));
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void testZeroPositiveNegative() throws Exception {
     Money zero = Money.zero(GBP);
+    Money positive = Money.of(GBP, 200.23);
+    Money negative = Money.of(GBP, -200.23);
+
     assertThat(zero.isZero()).isTrue();
     assertThat(zero.isPositive()).isFalse();
     assertThat(zero.isNegative()).isFalse();
-    Money positive = Money.of(GBP, 200.23);
+    assertThat(zero.negated()).isEqualTo(zero);
+    assertThat(zero.positive()).isEqualTo(zero);
+    assertThat(zero.negated()).isEqualTo(zero);
+
     assertThat(positive.isZero()).isFalse();
     assertThat(positive.isPositive()).isTrue();
     assertThat(positive.isNegative()).isFalse();
-    Money negative = Money.of(GBP, -200.23);
+    assertThat(positive.negated()).isEqualTo(negative);
+    assertThat(positive.positive()).isEqualTo(positive);
+    assertThat(positive.negative()).isEqualTo(negative);
+
     assertThat(negative.isZero()).isFalse();
     assertThat(negative.isPositive()).isFalse();
     assertThat(negative.isNegative()).isTrue();
+    assertThat(negative.negated()).isEqualTo(positive);
+    assertThat(negative.positive()).isEqualTo(positive);
+    assertThat(negative.negative()).isEqualTo(negative);
   }
 
   //-------------------------------------------------------------------------

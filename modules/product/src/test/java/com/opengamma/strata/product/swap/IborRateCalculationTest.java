@@ -399,6 +399,23 @@ public class IborRateCalculationTest {
     assertThat(periods).containsExactly(rap1);
   }
 
+  @Test
+  public void test_expand_singlePeriod_stubCalcsFinalStub_interpolated() {
+    IborRateCalculation test = IborRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .index(GBP_LIBOR_2M)
+        .fixingDateOffset(MINUS_TWO_DAYS)
+        .finalStub(IborRateStubCalculation.ofIborInterpolatedRate(GBP_LIBOR_1W, GBP_LIBOR_1M))
+        .build();
+    RateAccrualPeriod rap1 = RateAccrualPeriod.builder(ACCRUAL1STUB)
+        .yearFraction(ACCRUAL1STUB.yearFraction(ACT_365F, ACCRUAL_SCHEDULE_STUBS))
+        .rateComputation(IborInterpolatedRateComputation.of(GBP_LIBOR_1W, GBP_LIBOR_1M, DATE_01_06, REF_DATA))
+        .build();
+    ImmutableList<RateAccrualPeriod> periods =
+        test.createAccrualPeriods(SINGLE_ACCRUAL_SCHEDULE_STUB, SINGLE_ACCRUAL_SCHEDULE_STUB, REF_DATA);
+    assertThat(periods).containsExactly(rap1);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_expand_firstFixingDateOffsetNoStub() {

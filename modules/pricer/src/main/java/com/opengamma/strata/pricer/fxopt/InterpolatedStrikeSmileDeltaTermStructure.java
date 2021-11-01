@@ -34,6 +34,7 @@ import org.joda.beans.impl.direct.DirectPrivateBeanBuilder;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.date.DayCount;
 import com.opengamma.strata.basics.date.Tenor;
+import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.array.DoubleMatrix;
@@ -676,6 +677,40 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
     return VolatilityAndBucketedSensitivities.of(volatility, smileAndSensitivities.getSensitivities());
   }
 
+  @Override
+  public ValueDerivatives partialFirstDerivatives(double expiry, double strike, double forward) {
+    ArgChecker.isTrue(expiry >= 0, "Positive time");
+    SmileDeltaParameters smile = smileForExpiry(expiry);
+    DoubleArray strikes = smile.strike(forward);
+    BoundCurveInterpolator volBound = strikeInterpolator.bind(
+        strikes, smile.getVolatility(), strikeExtrapolatorLeft, strikeExtrapolatorRight);
+    double vol = volBound.interpolate(strike);
+
+    // vol derivative to strike
+    double dVoldStrike = volBound.firstDerivative(strike);
+
+    DoubleArray smileVolsDerivativeToExpiry = smileVolsDerivativeToExpiry(expiry);
+    BoundCurveInterpolator smileVolDerivativeBound = strikeInterpolator.bind(
+        strikes, smileVolsDerivativeToExpiry, strikeExtrapolatorLeft, strikeExtrapolatorRight);
+    double dSmileVoldExpiry = smileVolDerivativeBound.interpolate(strike);
+
+    // strike derivative to time
+    DoubleArray impliedStrikesDerivativeToTime = smile.impliedStrikesDerivativeToExpiry(forward);
+    DoubleArray impliedStrikesDerivativeToSmileVols = smile.impliedStrikesDerivativeToSmileVols(forward);
+    BoundCurveInterpolator impliedVolDerivativeTimeBound = strikeInterpolator.bind(
+        strikes, impliedStrikesDerivativeToTime, strikeExtrapolatorLeft, strikeExtrapolatorRight);
+    BoundCurveInterpolator impliedVolDerivativeSmileVolBound = strikeInterpolator.bind(
+        strikes, impliedStrikesDerivativeToSmileVols, strikeExtrapolatorLeft, strikeExtrapolatorRight);
+    double dImpliedStrikedExpiry = impliedVolDerivativeTimeBound.interpolate(strike);
+    double dImpliedStrikedSmileVol = impliedVolDerivativeSmileVolBound.interpolate(strike);
+
+    double dStrikedExpiry = dImpliedStrikedSmileVol * dSmileVoldExpiry + dImpliedStrikedExpiry;
+    // take negative of dVoldStrike as increase in x when plotted with same y values is equivalent of negative x shift
+    double negativedVoldStrike = -1d * dVoldStrike;
+    double dVoldExpiry = dStrikedExpiry * negativedVoldStrike + dSmileVoldExpiry;
+    return ValueDerivatives.of(vol, DoubleArray.of(dVoldExpiry, dVoldStrike));
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public SmileDeltaParameters smileForExpiry(double expiry) {
@@ -693,6 +728,24 @@ public final class InterpolatedStrikeSmileDeltaTermStructure
       volatilityT[loopvol] = bound.interpolate(expiry);
     }
     return SmileDeltaParameters.of(expiry, getDelta(), DoubleArray.ofUnsafe(volatilityT));
+  }
+
+  //-------------------------------------------------------------------------
+  private DoubleArray smileVolsDerivativeToExpiry(double expiry) {
+    int nbVol = getStrikeCount();
+    int nbTime = getSmileCount();
+    ArgChecker.isTrue(nbTime > 1, "Need more than one time value to perform interpolation");
+    double[] derivatives = new double[nbVol];
+    for (int loopvol = 0; loopvol < nbVol; loopvol++) {
+      double[] volDelta = new double[nbTime];
+      for (int looptime = 0; looptime < nbTime; looptime++) {
+        volDelta[looptime] = volatilityTerm.get(looptime).getVolatility().get(loopvol);
+      }
+      BoundCurveInterpolator bound = timeInterpolator.bind(
+          getExpiries(), DoubleArray.ofUnsafe(volDelta), timeExtrapolatorLeft, timeExtrapolatorRight);
+      derivatives[loopvol] = bound.firstDerivative(expiry);
+    }
+    return DoubleArray.ofUnsafe(derivatives);
   }
 
   @Override

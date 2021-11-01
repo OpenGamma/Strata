@@ -94,6 +94,29 @@ public class VolatilityIborCapFloorTradePricer {
 
   //-------------------------------------------------------------------------
   /**
+   * Calculates the present value for each caplet/floorlet of the Ibor cap/floor trade.
+   * <p>
+   * The present value of each caplet/floorlet is the value on the valuation date.
+   * The result is returned using the payment currency of the leg.
+   * <p>
+   * The present value will not be calculated for the trade premium or for the pay leg
+   * if the cap/floor product has one.
+   *
+   * @param trade  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @return the present values
+   */
+  public IborCapletFloorletPeriodCurrencyAmounts presentValueCapletFloorletPeriods(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return productPricer.presentValueCapletFloorletPeriods(trade.getProduct(), ratesProvider, volatilities);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Calculates the present value rates sensitivity of the Ibor cap/floor trade.
    * <p>
    * The present value rates sensitivity of the trade is the sensitivity
@@ -184,6 +207,38 @@ public class VolatilityIborCapFloorTradePricer {
       ccProduct = ccProduct.plus(premium.getCurrency(), premium.getAmount());
     }
     return ccProduct;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor trade.
+   *
+   * @param trade  the Ibor cap/floor trade
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public IborCapletFloorletPeriodAmounts forwardRates(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider) {
+
+    return productPricer.forwardRates(trade.getProduct(), ratesProvider);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor trade.
+   *
+   * @param trade  the Ibor cap/floor trade
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public IborCapletFloorletPeriodAmounts impliedVolatilities(
+      ResolvedIborCapFloorTrade trade,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    return productPricer.impliedVolatilities(trade.getProduct(), ratesProvider, volatilities);
   }
 
 }

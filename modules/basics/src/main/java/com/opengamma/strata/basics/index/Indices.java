@@ -15,7 +15,16 @@ final class Indices {
   /**
    * The extended enum lookup from name to instance.
    */
-  static final CombinedExtendedEnum<Index> ENUM_LOOKUP = CombinedExtendedEnum.of(Index.class);
+  static final CombinedExtendedEnum<Index> INDEX_LOOKUP = CombinedExtendedEnum.of(Index.class);
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  static final CombinedExtendedEnum<RateIndex> RATE_INDEX_LOOKUP = CombinedExtendedEnum.of(RateIndex.class);
+  /**
+   * The extended enum lookup from name to instance.
+   */
+  static final CombinedExtendedEnum<FloatingRateIndex> FLOATING_RATE_INDEX_LOOKUP =
+      CombinedExtendedEnum.of(FloatingRateIndex.class);
 
   //-------------------------------------------------------------------------
   /**

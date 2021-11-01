@@ -5,8 +5,12 @@
  */
 package com.opengamma.strata.pricer.capfloor;
 
+import java.util.Map;
+
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.rate.RatesProvider;
 import com.opengamma.strata.product.capfloor.IborCapFloorLeg;
@@ -77,6 +81,31 @@ public class VolatilityIborCapFloorLegPricer {
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
         .reduce((c1, c2) -> c1.plus(c2))
         .get();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the present value for each caplet/floorlet of the Ibor cap/floor leg.
+   * <p>
+   * The present value of each caplet/floorlet is the value on the valuation date.
+   * The result is returned using the payment currency of the leg.
+   *
+   * @param capFloorLeg  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the volatilities
+   * @return the present values
+   */
+  public IborCapletFloorletPeriodCurrencyAmounts presentValueCapletFloorletPeriods(
+      ResolvedIborCapFloorLeg capFloorLeg,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    validate(ratesProvider, volatilities);
+    Map<IborCapletFloorletPeriod, CurrencyAmount> periodPresentValues =
+        MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+            .mapValues(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
+            .toMap();
+    return IborCapletFloorletPeriodCurrencyAmounts.of(periodPresentValues);
   }
 
   //-------------------------------------------------------------------------
@@ -225,6 +254,47 @@ public class VolatilityIborCapFloorLegPricer {
         .map(period -> periodPricer.presentValue(period, ratesProvider, volatilities))
         .reduce((c1, c2) -> c1.plus(c2))
         .orElse(CurrencyAmount.zero(capFloorLeg.getCurrency()));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward rates for each caplet/floorlet of the Ibor cap/floor leg.
+   *
+   * @param capFloorLeg  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @return the forward rates
+   */
+  public IborCapletFloorletPeriodAmounts forwardRates(
+      ResolvedIborCapFloorLeg capFloorLeg,
+      RatesProvider ratesProvider) {
+
+    Map<IborCapletFloorletPeriod, Double> forwardRates = MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+        .filterKeys(period -> !ratesProvider.getValuationDate().isAfter(period.getFixingDate()))
+        .mapValues(period -> periodPricer.forwardRate(period, ratesProvider))
+        .toMap();
+    return IborCapletFloorletPeriodAmounts.of(forwardRates);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied volatilities for each caplet/floorlet of the Ibor cap/floor leg.
+   *
+   * @param capFloorLeg  the Ibor cap/floor leg
+   * @param ratesProvider  the rates provider
+   * @param volatilities the volatilities
+   * @return the implied volatilities
+   */
+  public IborCapletFloorletPeriodAmounts impliedVolatilities(
+      ResolvedIborCapFloorLeg capFloorLeg,
+      RatesProvider ratesProvider,
+      IborCapletFloorletVolatilities volatilities) {
+
+    validate(ratesProvider, volatilities);
+    ImmutableMap<IborCapletFloorletPeriod, Double> impliedVolatilities = MapStream.of(capFloorLeg.getCapletFloorletPeriods())
+        .filterKeys(period -> volatilities.relativeTime(period.getFixingDateTime()) >= 0)
+        .mapValues(period -> periodPricer.impliedVolatility(period, ratesProvider, volatilities))
+        .toMap();
+    return IborCapletFloorletPeriodAmounts.of(impliedVolatilities);
   }
 
   //-------------------------------------------------------------------------

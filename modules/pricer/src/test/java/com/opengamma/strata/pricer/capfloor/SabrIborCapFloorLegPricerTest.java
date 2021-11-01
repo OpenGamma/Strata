@@ -18,11 +18,13 @@ import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.value.ValueSchedule;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
@@ -108,6 +110,55 @@ public class SabrIborCapFloorLegPricerTest {
     assertThat(capComputed.getAmount()).isCloseTo(capExpected, offset(TOL * NOTIONAL_VALUE));
     assertThat(floorComputed.getCurrency()).isEqualTo(EUR);
     assertThat(floorComputed.getAmount()).isCloseTo(floorExpected, offset(TOL * NOTIONAL_VALUE));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_presentValueCapletFloorletPeriods() {
+    CurrencyAmount capComputed = PRICER.presentValue(CAP, RATES, VOLS);
+    CurrencyAmount floorComputed = PRICER.presentValue(FLOOR, RATES, VOLS);
+    Map<IborCapletFloorletPeriod, CurrencyAmount> capletsComputed =
+        PRICER.presentValueCapletFloorletPeriods(CAP, RATES, VOLS).getAmounts();
+    Map<IborCapletFloorletPeriod, CurrencyAmount> floorletsComputed =
+        PRICER.presentValueCapletFloorletPeriods(FLOOR, RATES, VOLS).getAmounts();
+
+    Map<IborCapletFloorletPeriod, CurrencyAmount> capletsExpected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .mapValues(caplet -> PRICER_PERIOD.presentValue(caplet, RATES, VOLS))
+        .toMap();
+    CurrencyAmount capletsTotalExpected = capletsExpected.values().stream().reduce(CurrencyAmount::plus).get();
+    Map<IborCapletFloorletPeriod, CurrencyAmount> floorletsExpected = MapStream.of(FLOOR.getCapletFloorletPeriods())
+        .mapValues(floorlet -> PRICER_PERIOD.presentValue(floorlet, RATES, VOLS))
+        .toMap();
+    CurrencyAmount floorletsTotalExpected = floorletsExpected.values().stream().reduce(CurrencyAmount::plus).get();
+
+    assertThat(capletsComputed).isEqualTo(capletsExpected);
+    assertThat(capComputed).isEqualTo(capletsTotalExpected);
+    assertThat(floorletsComputed).isEqualTo(floorletsExpected);
+    assertThat(floorComputed).isEqualTo(floorletsTotalExpected);
+  }
+
+  @Test
+  public void test_presentValueCapletFloorletPeriods_after() {
+    CurrencyAmount capComputed = PRICER.presentValue(CAP, RATES_AFTER, VOLS_AFTER);
+    CurrencyAmount floorComputed = PRICER.presentValue(FLOOR, RATES_AFTER, VOLS_AFTER);
+    Map<IborCapletFloorletPeriod, CurrencyAmount> capletsComputed =
+        PRICER.presentValueCapletFloorletPeriods(CAP, RATES_AFTER, VOLS_AFTER).getAmounts();
+    Map<IborCapletFloorletPeriod, CurrencyAmount> floorletsComputed =
+        PRICER.presentValueCapletFloorletPeriods(FLOOR, RATES_AFTER, VOLS_AFTER).getAmounts();
+
+    Map<IborCapletFloorletPeriod, CurrencyAmount> capletsExpected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .mapValues(caplet -> PRICER_PERIOD.presentValue(caplet, RATES_AFTER, VOLS_AFTER))
+        .toMap();
+    CurrencyAmount capletsTotalExpected = capletsExpected.values().stream().reduce(CurrencyAmount::plus).get();
+    Map<IborCapletFloorletPeriod, CurrencyAmount> floorletsExpected = MapStream.of(FLOOR.getCapletFloorletPeriods())
+        .mapValues(floorlet -> PRICER_PERIOD.presentValue(floorlet, RATES_AFTER, VOLS_AFTER))
+        .toMap();
+    CurrencyAmount floorletsTotalExpected = floorletsExpected.values().stream().reduce(CurrencyAmount::plus).get();
+
+    assertThat(capletsComputed).isEqualTo(capletsExpected);
+    assertThat(capComputed).isEqualTo(capletsTotalExpected);
+    assertThat(floorletsComputed).isEqualTo(floorletsExpected);
+    assertThat(floorComputed).isEqualTo(floorletsTotalExpected);
   }
 
   //-------------------------------------------------------------------------
@@ -415,6 +466,70 @@ public class SabrIborCapFloorLegPricerTest {
     assertThat(capComputed.getAmount()).isEqualTo(capExpected);
     assertThat(floorComputed.getCurrency()).isEqualTo(EUR);
     assertThat(floorComputed.getAmount()).isCloseTo(floorExpected, offset(TOL * NOTIONAL_VALUE));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_impliedVolatility() {
+    Map<IborCapletFloorletPeriod, Double> computed =
+        PRICER.impliedVolatilities(CAP, RATES, VOLS).getAmounts();
+    Map<IborCapletFloorletPeriod, Double> expected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .mapValues(caplet -> PRICER_PERIOD.impliedVolatility(caplet, RATES, VOLS))
+        .toMap();
+    assertThat(computed).isEqualTo(expected);
+    computed.forEach((caplet, vol) -> assertThat(vol).isCloseTo(expected.get(caplet), offset(TOL)));
+  }
+
+  @Test
+  public void test_impliedVolatility_onFix() {
+    Map<IborCapletFloorletPeriod, Double> computed =
+        PRICER.impliedVolatilities(CAP, RATES_PAY, VOLS_PAY).getAmounts();
+    Map<IborCapletFloorletPeriod, Double> expected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .filterKeys(caplet -> VOLS_PAY.relativeTime(caplet.getFixingDateTime()) >= 0)
+        .mapValues(caplet -> PRICER_PERIOD.impliedVolatility(caplet, RATES_PAY, VOLS_PAY))
+        .toMap();
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_impliedVolatility_afterFix() {
+    Map<IborCapletFloorletPeriod, Double> computed =
+        PRICER.impliedVolatilities(CAP, RATES_AFTER, VOLS_AFTER).getAmounts();
+    Map<IborCapletFloorletPeriod, Double> expected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .filterKeys(caplet -> VOLS_PAY.relativeTime(caplet.getFixingDateTime()) >= 0)
+        .mapValues(caplet -> PRICER_PERIOD.impliedVolatility(caplet, RATES_AFTER, VOLS_AFTER))
+        .toMap();
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_forwardRate() {
+    Map<IborCapletFloorletPeriod, Double> computed = PRICER.forwardRates(CAP, RATES).getAmounts();
+    Map<IborCapletFloorletPeriod, Double> expected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .mapValues(caplet -> PRICER_PERIOD.forwardRate(caplet, RATES))
+        .toMap();
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_forwardRate_onFix() {
+    Map<IborCapletFloorletPeriod, Double> computed = PRICER.forwardRates(CAP, RATES_PAY).getAmounts();
+    Map<IborCapletFloorletPeriod, Double> expected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .filterKeys(caplet -> !RATES_PAY.getValuationDate().isAfter(caplet.getFixingDate()))
+        .mapValues(caplet -> PRICER_PERIOD.forwardRate(caplet, RATES_PAY))
+        .toMap();
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_forwardRate_afterFix() {
+    Map<IborCapletFloorletPeriod, Double> computed = PRICER.forwardRates(CAP, RATES_AFTER).getAmounts();
+    Map<IborCapletFloorletPeriod, Double> expected = MapStream.of(CAP.getCapletFloorletPeriods())
+        .filterKeys(caplet -> !RATES_AFTER.getValuationDate().isAfter(caplet.getFixingDate()))
+        .mapValues(caplet -> PRICER_PERIOD.forwardRate(caplet, RATES_AFTER))
+        .toMap();
+    assertThat(computed).isEqualTo(expected);
   }
 
 }

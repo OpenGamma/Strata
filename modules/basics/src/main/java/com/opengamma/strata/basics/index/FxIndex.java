@@ -6,6 +6,8 @@
 package com.opengamma.strata.basics.index;
 
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.Optional;
 import java.util.function.Function;
 
 import org.joda.convert.FromString;
@@ -39,6 +41,8 @@ public interface FxIndex
 
   /**
    * Obtains an instance from the specified unique name.
+   * <p>
+   * If the unique name can be parsed as a currency pair, an FX index will be looked up on the pair.
    * 
    * @param uniqueName  the unique name
    * @return the index
@@ -47,7 +51,51 @@ public interface FxIndex
   @FromString
   public static FxIndex of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
-    return extendedEnum().lookup(uniqueName);
+    Optional<FxIndex> fxIndexOpt = extendedEnum().find(uniqueName);
+    if (fxIndexOpt.isPresent()) {
+      return fxIndexOpt.get();
+    }
+    try {
+      CurrencyPair currencyPair = CurrencyPair.parse(uniqueName);
+      return FxIndex.of(currencyPair);
+    } catch (IllegalArgumentException ex) {
+      throw new IllegalArgumentException("Unable to create FX index from " + uniqueName);
+    }
+  }
+
+  /**
+   * Obtains an instance from the specified currency pair.
+   * <p>
+   * If a currency pair does not have an implementation, an FX index will be created.
+   *
+   * @param currencyPair the currency pair
+   * @return the index
+   */
+  public static FxIndex of(CurrencyPair currencyPair) {
+    ArgChecker.notNull(currencyPair, "currencyPair");
+    return extendedEnum().lookupAll().values().stream()
+        .filter(index -> index.getCurrencyPair().equals(currencyPair))
+        .min(Comparator.comparing(FxIndex::getName))
+        .orElseGet(() -> createFxIndex(currencyPair));
+  }
+
+  /**
+   * Creates a FX index for the provided currency pair.
+   * <p>
+   * The FX index will be default to the combined holiday calendars for the currency pair.
+   * The maturity day offset will default to 2 days.
+   *
+   * @param currencyPair the currency pair
+   * @return the index
+   */
+  public static FxIndex createFxIndex(CurrencyPair currencyPair) {
+    HolidayCalendarId calendarId = HolidayCalendarId.defaultByCurrencyPair(currencyPair);
+    return ImmutableFxIndex.builder()
+        .name(currencyPair.toString())
+        .currencyPair(currencyPair)
+        .fixingCalendar(calendarId)
+        .maturityDateOffset(DaysAdjustment.ofBusinessDays(2, calendarId))
+        .build();
   }
 
   /**

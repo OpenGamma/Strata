@@ -25,7 +25,7 @@ public enum FixedAccrualMethod implements NamedEnum {
    */
   DEFAULT,
   /**
-   * Defines overnight compounding using an an annual rate.
+   * Defines overnight compounding using an annual rate.
    * <p>
    * The notional accrues interest on an overnight basis using an annual fixed rate.
    * <p>

@@ -31,6 +31,7 @@ import java.util.Optional;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.opengamma.strata.basics.StandardId;
 import com.opengamma.strata.basics.StandardSchemes;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.BusinessDayConvention;
@@ -46,9 +47,12 @@ import com.opengamma.strata.basics.schedule.Frequency;
 import com.opengamma.strata.basics.schedule.RollConvention;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.BuySell;
+import com.opengamma.strata.product.common.CapFloor;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.common.PutCall;
+import com.opengamma.strata.product.option.BarrierType;
+import com.opengamma.strata.product.option.KnockType;
 
 /**
  * Contains utilities for loading market data from input files.
@@ -125,7 +129,7 @@ public final class LoaderUtils {
    * <p>
    * This utility searches {@link IborIndex}, {@link OvernightIndex}, {@link FxIndex}
    * and {@link PriceIndex}.
-   * 
+   *
    * @param reference  the reference name
    * @return the resolved rate index
    */
@@ -141,7 +145,7 @@ public final class LoaderUtils {
    * True is parsed as 'TRUE', 'T', 'YES', 'Y'.
    * False is parsed as 'FALSE', 'F', 'NO', 'N'.
    * Other strings are rejected.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -176,7 +180,7 @@ public final class LoaderUtils {
    * "-12,300" and "-12300" will be parsed as integer "-12300".
    * <p>
    * Note: Comma separated values such as "1,234,5,6" will be parsed as integer "123456".
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws NumberFormatException if the string cannot be parsed
@@ -222,7 +226,7 @@ public final class LoaderUtils {
    * <p>
    * If input value is bracketed, it will be parsed as a negative decimal percentage.
    * For e.g. '(12.34)' will be parsed as -0.1234d.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws NumberFormatException if the string cannot be parsed
@@ -248,7 +252,7 @@ public final class LoaderUtils {
    * "-12,300.12" and "-12300.12" will be parsed as big decimal "-12300.12".
    * <p>
    * Note: Comma separated values such as "1,234,5,6.12" will be parsed as big decimal "123456.12".
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws NumberFormatException if the string cannot be parsed
@@ -336,7 +340,7 @@ public final class LoaderUtils {
    * Parses a date from the input string using the specified formatters.
    * <p>
    * Each formatter is tried in order.
-   * 
+   *
    * @param str  the string to parse
    * @param formatters  the date formats
    * @return the parsed value
@@ -365,7 +369,7 @@ public final class LoaderUtils {
    * Parsing is case insensitive.
    * It accepts formats 'yyyy-MM-dd', 'yyyyMMdd', 'yyyy/M/d', 'd/M/yyyy', 'd-MMM-yyyy' or 'dMMMyyyy'.
    * Some formats also accept two-digits years (use is not recommended): 'd/M/yy', 'd-MMM-yy' or 'dMMMyy'.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -411,7 +415,7 @@ public final class LoaderUtils {
    * Parsing is case insensitive.
    * It accepts formats 'yyyy-MM', 'yyyyMM', 'MMM-yyyy' or 'MMMyyyy'.
    * Some formats also accept two-digits years (use is not recommended): 'MMM-yy' or 'MMMyy'.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -451,7 +455,7 @@ public final class LoaderUtils {
    * Parses time from the input string.
    * <p>
    * It accepts formats 'HH[:mm[:ss.SSS]]'.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -468,7 +472,7 @@ public final class LoaderUtils {
 
   /**
    * Parses time-zone from the input string.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -487,7 +491,7 @@ public final class LoaderUtils {
    * Parses a period from the input string.
    * <p>
    * It accepts the same formats as {@link Period}, but the "P" at the start is optional.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -504,7 +508,7 @@ public final class LoaderUtils {
 
   /**
    * Tries to parse a period from the input string.
-   * 
+   *
    * @param str  the string to parse, may be null
    * @return the parsed period, empty if unable to parse
    */
@@ -518,7 +522,7 @@ public final class LoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a market tenor from the input string.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -534,7 +538,7 @@ public final class LoaderUtils {
 
   /**
    * Tries to parse a market tenor from the input string.
-   * 
+   *
    * @param str  the string to parse, may be null
    * @return the parsed market tenor, empty if unable to parse
    */
@@ -550,7 +554,7 @@ public final class LoaderUtils {
    * Parses a tenor from the input string.
    * <p>
    * A tenor cannot be zero or negative.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -568,7 +572,7 @@ public final class LoaderUtils {
    * Tries to parse a tenor from the input string.
    * <p>
    * Parsing is case insensitive.
-   * 
+   *
    * @param str  the string to parse, may be null
    * @return the parsed tenor, empty if unable to parse
    */
@@ -582,7 +586,7 @@ public final class LoaderUtils {
   //-------------------------------------------------------------------------
   /**
    * Parses a frequency from the input string.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -598,7 +602,7 @@ public final class LoaderUtils {
 
   /**
    * Tries to parse a frequency from the input string.
-   * 
+   *
    * @param str  the string to parse, may be null
    * @return the parsed frequency, empty if unable to parse
    */
@@ -614,7 +618,7 @@ public final class LoaderUtils {
    * Parses currency from the input string.
    * <p>
    * Parsing is case insensitive.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed currency
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -632,7 +636,7 @@ public final class LoaderUtils {
    * Tries to parse a currency from the input string.
    * <p>
    * Parsing is case insensitive.
-   * 
+   *
    * @param str  the string to parse, may be null
    * @return the parsed currency, empty if unable to parse
    */
@@ -649,7 +653,7 @@ public final class LoaderUtils {
    * <p>
    * Parsing is case insensitive.
    * It leniently handles a variety of known variants of day counts.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -667,7 +671,7 @@ public final class LoaderUtils {
    * <p>
    * Parsing is case insensitive.
    * It leniently handles a variety of known variants of business day conventions.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -685,7 +689,7 @@ public final class LoaderUtils {
    * <p>
    * Parsing is case insensitive.
    * It leniently handles a variety of known variants of roll conventions.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -705,7 +709,7 @@ public final class LoaderUtils {
    * Buy is parsed as 'BUY', 'B'.
    * Sell is parsed as 'SELL', 'S'.
    * Other strings are rejected.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -726,13 +730,29 @@ public final class LoaderUtils {
   }
 
   /**
+   * Parses cap/floor from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * Cap is parsed as 'CAP'.
+   * Floor is parsed as 'FLOOR'.
+   * Other strings are rejected.
+   *
+   * @param str  the string to parse
+   * @return  the parsed value
+   * @throws IllegalArgumentException  if the string cannot be parsed
+   */
+  public static CapFloor parseCapFloor(String str) {
+    return CapFloor.of(str);
+  }
+
+  /**
    * Parses pay/receive from the input string.
    * <p>
    * Parsing is case insensitive.
    * Pay is parsed as 'PAY', 'P'.
    * Receive is parsed as 'RECEIVE', 'REC', 'R'.
    * Other strings are rejected.
-   * 
+   *
    * @param str  the string to parse
    * @return the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
@@ -760,9 +780,9 @@ public final class LoaderUtils {
    * Put is parsed as 'PUT', 'P'.
    * Call is parsed as 'CALL', 'C'.
    * Other strings are rejected.
-   * 
+   *
    * @param str  the string to parse
-   * @return the parsed value
+   * @return  the parsed value
    * @throws IllegalArgumentException if the string cannot be parsed
    */
   public static PutCall parsePutCall(String str) {
@@ -787,10 +807,10 @@ public final class LoaderUtils {
    * Long is parsed as 'LONG', 'L'.
    * Short is parsed as 'SHORT', 'S'.
    * Other strings are rejected.
-   * 
+   *
    * @param str  the string to parse
-   * @return the parsed value
-   * @throws IllegalArgumentException if the string cannot be parsed
+   * @return  the parsed value
+   * @throws  IllegalArgumentException if the string cannot be parsed
    */
   public static LongShort parseLongShort(String str) {
     switch (str.toUpperCase(Locale.ENGLISH)) {
@@ -804,6 +824,77 @@ public final class LoaderUtils {
         throw new IllegalArgumentException(
             "Unknown LongShort value, must be 'Long' or 'Short' but was '" + str + "'; " +
                 "parser is case insensitive and also accepts 'L' and 'S'");
+    }
+  }
+
+  /**
+   * Parses barrier type from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * Up is parsed as 'UP'.
+   * Down is parsed as 'DOWN'.
+   * Other strings are rejected.
+   *
+   * @param  str the string to parse
+   * @return  the parsed value
+   * @throws  IllegalArgumentException if the string cannot be parsed
+   */
+  public static BarrierType parseBarrierType(String str) {
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "UP":
+        return BarrierType.UP;
+      case "DOWN":
+        return BarrierType.DOWN;
+      default:
+        throw new IllegalArgumentException("Unknown BarrierType value, must be 'Up' or 'Down' but was'" + str
+            + "'. The parser is case insensitive.");
+    }
+  }
+
+  /**
+   * Parses knock type from the input string.
+   * <p>
+   * Parsing is case insensitive.
+   * KnockIn is parsed as 'KNOCKIN', 'IN'.
+   * KnockOut is parsed as 'KNOCKOUT', 'OUT'.
+   * Other strings are rejected.
+   *
+   * @param str  the string to parse
+   * @return  the parsed value
+   * @throws  IllegalArgumentException if the string cannot be parsed
+   */
+  public static KnockType parseKnockType(String str) {
+    switch (str.toUpperCase(Locale.ENGLISH)) {
+      case "KNOCKIN":
+      case "IN":
+        return KnockType.KNOCK_IN;
+      case "KNOCKOUT":
+      case "OUT":
+        return KnockType.KNOCK_OUT;
+      default:
+        throw new IllegalArgumentException("Unknown KnockType value, must be 'KnockIn' or 'KnockOut' but was'" + str
+            + "'. The parser is case insensitive and also accepts 'In' or 'Out'.");
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses a RED code from the input string.
+   * <p>
+   * The input string but be 6 or 9 characters long to be valid.
+   *
+   * @param str the string to parse
+   * @return the parsed value
+   * @throws IllegalArgumentException if the string cannot be parsed
+   */
+  public static StandardId parseRedCode(String str) {
+    if (str.length() == 9) {
+      return StandardId.of(StandardSchemes.RED9_SCHEME, str);
+    } else if (str.length() == 6) {
+      return StandardId.of(StandardSchemes.RED6_SCHEME, str);
+    } else {
+      throw new IllegalArgumentException(
+          "Unknown RED code format, must be 6 or 9 characters long but was " + str.length());
     }
   }
 

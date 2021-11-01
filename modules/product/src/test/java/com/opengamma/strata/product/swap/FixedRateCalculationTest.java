@@ -142,6 +142,48 @@ public class FixedRateCalculationTest {
     assertThat(periods).containsExactly(rap1, rap2, rap3);
   }
 
+  @Test
+  public void test_expand_onlyInitialStub() {
+    FixedRateCalculation test = FixedRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .rate(ValueSchedule.of(0.025d))
+        .initialStub(FixedRateStubCalculation.ofFixedRate(0.03d))
+        .build();
+    SchedulePeriod period1 = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 9), date(2014, 1, 5), date(2014, 2, 9));
+    Schedule schedule = Schedule.builder()
+        .periods(period1)
+        .frequency(Frequency.P1M)
+        .rollConvention(RollConventions.DAY_5)
+        .build();
+    RateAccrualPeriod rap1 = RateAccrualPeriod.builder(period1)
+        .yearFraction(period1.yearFraction(ACT_365F, schedule))
+        .rateComputation(FixedRateComputation.of(0.03d))
+        .build();
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
+    assertThat(periods).containsExactly(rap1);
+  }
+
+  @Test
+  public void test_expand_onlyFinalStub() {
+    FixedRateCalculation test = FixedRateCalculation.builder()
+        .dayCount(ACT_365F)
+        .rate(ValueSchedule.of(0.025d))
+        .finalStub(FixedRateStubCalculation.ofFixedRate(0.03d))
+        .build();
+    SchedulePeriod period1 = SchedulePeriod.of(date(2014, 1, 6), date(2014, 2, 9), date(2014, 1, 5), date(2014, 2, 9));
+    Schedule schedule = Schedule.builder()
+        .periods(period1)
+        .frequency(Frequency.P1M)
+        .rollConvention(RollConventions.DAY_5)
+        .build();
+    RateAccrualPeriod rap1 = RateAccrualPeriod.builder(period1)
+        .yearFraction(period1.yearFraction(ACT_365F, schedule))
+        .rateComputation(FixedRateComputation.of(0.03d))
+        .build();
+    ImmutableList<RateAccrualPeriod> periods = test.createAccrualPeriods(schedule, schedule, REF_DATA);
+    assertThat(periods).containsExactly(rap1);
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void test_expand_onePeriod_with_futureValueNotional() {

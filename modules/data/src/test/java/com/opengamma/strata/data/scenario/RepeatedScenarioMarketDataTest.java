@@ -59,7 +59,7 @@ public class RepeatedScenarioMarketDataTest {
     assertThat(test.findValue(ID1)).isEqualTo(Optional.of(MarketDataBox.ofSingleValue(VAL1)));
     assertThat(test.findValue(ID2)).isEqualTo(Optional.of(MarketDataBox.ofSingleValue(VAL2)));
     assertThat(test.findValue(ID3)).isEqualTo(Optional.empty());
-    assertThat(test.getIds()).containsExactly(ID1, ID2);
+    assertThat(test.getIds()).containsExactlyInAnyOrder(ID1, ID2);
     assertThat(test.findIds(ID1.getMarketDataName())).isEqualTo(ImmutableSet.of(ID1));
     assertThat(test.getTimeSeries(ID4)).isEqualTo(TIME_SERIES);
   }

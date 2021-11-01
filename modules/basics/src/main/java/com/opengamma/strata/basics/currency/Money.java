@@ -8,6 +8,7 @@ package com.opengamma.strata.basics.currency;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
@@ -64,6 +65,16 @@ public class Money
    */
   public static Money of(CurrencyAmount currencyAmount) {
     return new Money(currencyAmount.getCurrency(), BigDecimal.valueOf(currencyAmount.getAmount()));
+  }
+
+  /**
+   * Obtains an instance of {@code Money} for the specified {@link BigMoney}.
+   *
+   * @param money  the instance of {@link BigMoney} wrapping the currency and amount.
+   * @return the currency amount
+   */
+  public static Money of(BigMoney money) {
+    return new Money(money.getCurrency(), money.getAmount());
   }
 
   /**
@@ -202,6 +213,23 @@ public class Money
     return new Money(currency, amount.multiply(BigDecimal.valueOf(valueToMultiplyBy)));
   }
 
+  /**
+   * Applies an operation to the amount.
+   * <p>
+   * This is generally used to apply a mathematical operation to the amount.
+   * For example, the operator could multiply the amount by a constant, or take the inverse.
+   * <pre>
+   *   abs = base.mapAmount(value -> value.abs());
+   * </pre>
+   *
+   * @param mapper  the operator to be applied to the amount
+   * @return a copy of this amount with the mapping applied to the original amount
+   */
+  public Money mapAmount(UnaryOperator<BigDecimal> mapper) {
+    ArgChecker.notNull(mapper, "mapper");
+    return new Money(currency, mapper.apply(amount));
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Checks if the amount is zero.
@@ -236,12 +264,64 @@ public class Money
 
   //-------------------------------------------------------------------------
   /**
+   * Returns a copy of this {@code Money} with the amount negated.
+   * <p>
+   * This takes this amount and negates it. If the amount is 0.0 or -0.0 the negated amount is 0.0.
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   * 
+   * @return an amount based on this with the amount negated
+   */
+  public Money negated() {
+    if (isZero()) {
+      return this;
+    }
+    return new Money(currency, amount.negate());
+  }
+
+  /**
+   * Returns a copy of this {@code Money} with a positive amount.
+   * <p>
+   * The result of this method will always be positive, where the amount is equal to {@code abs(amount)}.
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   * 
+   * @return an amount based on this where the amount is positive
+   */
+  public Money positive() {
+    return isNegative() ? negated() : this;
+  }
+
+  /**
+   * Returns a copy of this {@code Money} with a negative amount.
+   * <p>
+   * The result of this method will always be negative, equal to {@code -.abs(amount)}.
+   * <p>
+   * This instance is immutable and unaffected by this method.
+   * 
+   * @return an amount based on this where the amount is negative
+   */
+  public Money negative() {
+    return isPositive() ? negated() : this;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Converts this monetary amount to the equivalent {@code CurrencyAmount}.
    *
    * @return the equivalent {@code CurrencyAmount}
    */
   public CurrencyAmount toCurrencyAmount() {
-    return CurrencyAmount.of(this.getCurrency(), this.getAmount().doubleValue());
+    return CurrencyAmount.of(currency, amount.doubleValue());
+  }
+
+  /**
+   * Converts this monetary amount to the equivalent {@code BigMoney}.
+   *
+   * @return the equivalent {@code BigMoney}
+   */
+  public BigMoney toBigMoney() {
+    return BigMoney.of(this);
   }
 
   //-------------------------------------------------------------------------
@@ -347,7 +427,7 @@ public class Money
   @Override
   @ToString
   public String toString() {
-    return currency + " " + amount.toString();
+    return currency + " " + amount.toPlainString();
   }
 
 }

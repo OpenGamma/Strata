@@ -46,11 +46,27 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String DIRECTION_FIELD = "Direction";
   /** CSV header. */
+  public static final String LEG_1_DIRECTION_FIELD = "Leg 1 " + DIRECTION_FIELD;
+  /** CSV header. */
+  public static final String LEG_2_DIRECTION_FIELD = "Leg 2 " + DIRECTION_FIELD;
+  /** CSV header. */
   public static final String CURRENCY_FIELD = "Currency";
+  /** CSV header. */
+  public static final String LEG_1_CURRENCY_FIELD = "Leg 1 " + CURRENCY_FIELD;
+  /** CSV header. */
+  public static final String LEG_2_CURRENCY_FIELD = "Leg 2 " + CURRENCY_FIELD;
   /** CSV header. */
   public static final String NOTIONAL_FIELD = "Notional";
   /** CSV header. */
+  public static final String LEG_1_NOTIONAL_FIELD = "Leg 1 " + NOTIONAL_FIELD;
+  /** CSV header. */
+  public static final String LEG_2_NOTIONAL_FIELD = "Leg 2 " + NOTIONAL_FIELD;
+  /** CSV header. */
   public static final String INDEX_FIELD = "Index";
+  /** CSV header. */
+  public static final String LEG_1_INDEX_FIELD = "Leg 1 " + INDEX_FIELD;
+  /** CSV header. */
+  public static final String LEG_2_INDEX_FIELD = "Leg 2 " + INDEX_FIELD;
   /** CSV header. */
   public static final String INTERPOLATED_INDEX_FIELD = "Interpolated Index";
   /** CSV header. */
@@ -72,11 +88,27 @@ public final class CsvLoaderColumns {
   /** CSV header. */
   public static final String FX_RATE_FIELD = "FX Rate";
   /** CSV header. */
+  public static final String PAYMENT_AMOUNT_FIELD = "Payment Amount";
+  /** CSV header. */
+  public static final String PAYMENT_CURRENCY_FIELD = "Payment Currency";
+  /** CSV header. */
+  public static final String PAYMENT_DIRECTION_FIELD = "Payment Direction";
+  /** CSV header. */
   public static final String PAYMENT_DATE_FIELD = "Payment Date";
+  /** CSV header. */
+  static final String LEG_1_PAYMENT_DATE_FIELD = "Leg 1 " + PAYMENT_DATE_FIELD;
+  /** CSV header. */
+  public static final String LEG_2_PAYMENT_DATE_FIELD = "Leg 2 " + PAYMENT_DATE_FIELD;
   /** CSV header. */
   public static final String PAYMENT_DATE_CNV_FIELD = "Payment Date Convention";
   /** CSV header. */
   public static final String PAYMENT_DATE_CAL_FIELD = "Payment Date Calendar";
+  /** CSV header. */
+  public static final String REBATE_AMOUNT_FIELD = "Rebate Amount";
+  /** CSV header. */
+  public static final String REBATE_CURRENCY_FIELD = "Rebate Currency";
+  /** CSV header. */
+  public static final String REBATE_DIRECTION_FIELD = "Rebate Direction";
   /** CSV header. */
   public static final String LONG_SHORT_FIELD = "Long Short";
   /** CSV header. */
@@ -105,7 +137,10 @@ public final class CsvLoaderColumns {
   public static final String FRA_DISCOUNTING_FIELD = "FRA Discounting Method";
   /** CSV header. */
   public static final String PUT_CALL_FIELD = "Put Call";
-
+  /** CSV header. */
+  public static final String STRIKE_FIELD = "Strike";
+  /** CSV header. */
+  public static final String CAP_FLOOR_FIELD = "CapFloor";
   /** CSV header. */
   public static final String FREQUENCY_FIELD = "Frequency";
   /** CSV header. */
@@ -159,6 +194,14 @@ public final class CsvLoaderColumns {
   public static final String SETTLEMENT_DATE_OFFSET_ADJ_CNV_FIELD = "Settlement Date Offset Adjustment Convention";
   /** CSV header (CDS). */
   public static final String SETTLEMENT_DATE_OFFSET_ADJ_CAL_FIELD = "Settlement Date Offset Adjustment Calendar";
+  /** CSV header (CDS). */
+  public static final String RED_CODE_FIELD = "RED Code";
+  /** CSV header (CDS). */
+  public static final String SENIORITY_FIELD = "Seniority";
+  /** CSV header (CDS). */
+  public static final String INDEX_SERIES_FIELD = "Index Series";
+  /** CSV header (CDS). */
+  public static final String INDEX_VERSION_FIELD = "Index Version";
 
   /** CSV header (Swap). */
   public static final String PAYMENT_FREQUENCY_FIELD = "Payment Frequency";
@@ -271,6 +314,10 @@ public final class CsvLoaderColumns {
   public static final String PAYOFF_SETTLEMENT_DATE_FIELD = "Payoff Settlement Date";
 
   /** CSV header (FX). */
+  public static final String CURRENCY_1_FIELD = "Currency 1";
+  /** CSV header (FX). */
+  public static final String CURRENCY_2_FIELD = "Currency 2";
+  /** CSV header (FX). */
   public static final String FAR_FX_RATE_DATE_FIELD = "Far FX Rate";
   /** CSV header (FX). */
   public static final String FAR_PAYMENT_DATE_FIELD = "Far Payment Date";
@@ -306,6 +353,8 @@ public final class CsvLoaderColumns {
   /** CSV header (Position/Security). */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";
   /** CSV header (Position/Security). */
+  public static final String UNDERLYING_CURRENCY_FIELD = "Underlying Currency";
+  /** CSV header (Position/Security). */
   public static final String UNDERLYING_EXPIRY_FIELD = "Underlying Expiry";
   /** CSV header (Position/Security). */
   public static final String TICK_SIZE_FIELD = "Tick Size";
@@ -313,6 +362,13 @@ public final class CsvLoaderColumns {
   public static final String TICK_VALUE_FIELD = "Tick Value";
   /** CSV header (Position/Security). */
   public static final String CONTRACT_SIZE_FIELD = "Contract Size";
+
+  /** CSV header (Exotic Options). */
+  public static final String BARRIER_LEVEL_FIELD = "Barrier Level";
+  /** CSV header (Exotic Options). */
+  public static final String BARRIER_TYPE_FIELD = "Barrier Type";
+  /** CSV header (Exotic Options). */
+  public static final String KNOCK_TYPE_FIELD = "Knock Type";
 
   // restricted constructor
   private CsvLoaderColumns() {

@@ -5,11 +5,13 @@
  */
 package com.opengamma.strata.basics.date;
 
+import static com.opengamma.strata.collect.Guavate.filteringOptional;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -24,6 +26,7 @@ import com.opengamma.strata.basics.ReferenceDataId;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
+import com.opengamma.strata.basics.currency.CurrencyPair;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.collect.Messages;
 import com.opengamma.strata.collect.named.Named;
@@ -157,6 +160,35 @@ public final class HolidayCalendarId
    */
   public static HolidayCalendarId defaultByCurrency(Currency currency) {
     return HolidayCalendarIniLookup.INSTANCE.defaultByCurrency(currency);
+  }
+
+  /**
+   * Tries to find a default calendar for a currency.
+   * <p>
+   * This uses data from {@code HolidayCalendarDefaultData.ini} to provide a default.
+   *
+   * @param currency  the currency to find the default for
+   * @return the holiday calendar, empty if no calendar found
+   */
+  public static Optional<HolidayCalendarId> findDefaultByCurrency(Currency currency) {
+    return HolidayCalendarIniLookup.INSTANCE.findDefaultByCurrency(currency);
+  }
+
+  /**
+   * Gets the default calendar for a pair of currencies.
+   * <p>
+   * This uses data from {@code HolidayCalendarDefaultData.ini} to provide a default.
+   * <p>
+   * If no calendar is found, the 'NoHolidays' calendar is used as the default.
+   *
+   * @param currencyPair the currency pair to find the defaults for
+   * @return the holiday calendar
+   */
+  public static HolidayCalendarId defaultByCurrencyPair(CurrencyPair currencyPair) {
+    return currencyPair.toSet().stream()
+        .map(HolidayCalendarId::findDefaultByCurrency)
+        .flatMap(filteringOptional())
+        .reduce(HolidayCalendarIds.NO_HOLIDAYS, HolidayCalendarId::combinedWith);
   }
 
   //-------------------------------------------------------------------------

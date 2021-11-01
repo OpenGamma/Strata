@@ -213,6 +213,23 @@ public final class ValueWithFailures<T>
   }
 
   /**
+   * Returns a collector that can be used to create a combined {@code ValueWithFailure}
+   * from a stream of {@code Result} instances.
+   * <p>
+   * This collects a {@code Stream<Result<T>>} to a {@code ValueWithFailures<List<T>>}.
+   *
+   * @param <T>  the type of the success value in the {@link ValueWithFailures}
+   * @return a {@link Collector}
+   */
+  public static <T> Collector<Result<? extends T>, ?, ValueWithFailures<List<T>>> toCombinedResultsAsList() {
+    return Collector.of(
+        () -> new StreamBuilder<>(ImmutableList.<T>builder()),
+        StreamBuilder::addResult,
+        StreamBuilder::combine,
+        StreamBuilder::build);
+  }
+
+  /**
    * Combines separate instances of {@code ValueWithFailure} into a single instance,
    * using a list to collect the values.
    * <p>
@@ -275,6 +292,11 @@ public final class ValueWithFailures<T>
     private void add(ValueWithFailures<? extends T> item) {
       values.add(item.getValue());
       failures.addAll(item.getFailures());
+    }
+
+    private void addResult(Result<? extends T> item) {
+      item.ifSuccess(value -> values.add(value));
+      item.ifFailure(failure -> failures.addAll(failure.getItems()));
     }
 
     private StreamBuilder<T, B> combine(StreamBuilder<T, B> builder) {

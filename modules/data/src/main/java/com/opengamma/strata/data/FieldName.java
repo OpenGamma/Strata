@@ -41,6 +41,22 @@ public final class FieldName
    * This is used to refer to the daily settlement price used in margining.
    */
   public static final FieldName SETTLEMENT_PRICE = of("SettlementPrice");
+  /**
+   * The field name for the clean price of a coupon bond.
+   * <p>
+   * The clean price does not include the accrued interest.
+   */
+  public static final FieldName CLEAN_PRICE = of("CleanPrice");
+  /**
+   * The field name for the dirty price of a coupon bond.
+   * <p>
+   * The dirty price includes the accrued interest.
+   */
+  public static final FieldName DIRTY_PRICE = of("DirtyPrice");
+  /**
+   * The field name for the volatility of an asset.
+   */
+  public static final FieldName VOLATILITY = of("Volatility");
 
   //-------------------------------------------------------------------------
   /**

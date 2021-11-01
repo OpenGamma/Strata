@@ -56,13 +56,13 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     PutCall putCall = period.getPutCall();
     double strike = period.getStrike();
-    double indexRate = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double indexRate = forwardRate(period, ratesProvider);
     if (expiry < 0d) { // Option has expired already
       double sign = putCall.isCall() ? 1d : -1d;
       double payoff = Math.max(sign * (indexRate - strike), 0d);
       return CurrencyAmount.of(currency, df * payoff * period.getYearFraction() * period.getNotional());
     }
-    double volatility = volatilities.volatility(expiry, strike, indexRate);
+    double volatility = impliedVolatility(period, ratesProvider, volatilities);
     double price = df * period.getYearFraction() * volatilities.price(expiry, putCall, strike, indexRate, volatility);
     return CurrencyAmount.of(currency, price * period.getNotional());
   }
@@ -84,9 +84,21 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     validate(volatilities);
     double expiry = volatilities.relativeTime(period.getFixingDateTime());
     ArgChecker.isTrue(expiry >= 0d, "Option must be before expiry to compute an implied volatility");
-    double forward = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double forward = forwardRate(period, ratesProvider);
     double strike = period.getStrike();
     return volatilities.volatility(expiry, strike, forward);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Computes the forward rate for the Ibor caplet/floorlet.
+   *
+   * @param period  the Ibor caplet/floorlet period
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public double forwardRate(IborCapletFloorletPeriod period, RatesProvider ratesProvider) {
+    return ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
   }
 
   //-------------------------------------------------------------------------
@@ -111,7 +123,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(currency, 0d);
     }
-    double forward = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double forward = forwardRate(period, ratesProvider);
     double strike = period.getStrike();
     double volatility = volatilities.volatility(expiry, strike, forward);
     PutCall putCall = period.getPutCall();
@@ -143,7 +155,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(currency, 0d);
     }
-    double forward = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double forward = forwardRate(period, ratesProvider);
     double strike = period.getStrike();
     double volatility = volatilities.volatility(expiry, strike, forward);
     PutCall putCall = period.getPutCall();
@@ -176,7 +188,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     if (expiry < 0d) { // Option has expired already
       return CurrencyAmount.of(currency, 0d);
     }
-    double forward = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double forward = forwardRate(period, ratesProvider);
     double strike = period.getStrike();
     double volatility = volatilities.volatility(expiry, strike, forward);
     PutCall putCall = period.getPutCall();
@@ -211,7 +223,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     double expiry = volatilities.relativeTime(period.getFixingDateTime());
     PutCall putCall = period.getPutCall();
     double strike = period.getStrike();
-    double indexRate = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double indexRate = forwardRate(period, ratesProvider);
     PointSensitivityBuilder dfSensi =
         ratesProvider.discountFactors(currency).zeroRatePointSensitivity(period.getPaymentDate());
     if (expiry < 0d) { // Option has expired already
@@ -221,7 +233,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     }
     PointSensitivityBuilder indexRateSensiSensi =
         ratesProvider.iborIndexRates(period.getIndex()).ratePointSensitivity(period.getIborRate().getObservation());
-    double volatility = volatilities.volatility(expiry, strike, indexRate);
+    double volatility = impliedVolatility(period, ratesProvider, volatilities);
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());
     double factor = period.getNotional() * period.getYearFraction();
     double fwdPv = factor * volatilities.price(expiry, putCall, strike, indexRate, volatility);
@@ -255,7 +267,7 @@ public class VolatilityIborCapletFloorletPeriodPricer {
     if (expiry <= 0d) { // Option has expired already or at expiry
       return PointSensitivityBuilder.none();
     }
-    double forward = ratesProvider.iborIndexRates(period.getIndex()).rate(period.getIborRate().getObservation());
+    double forward = forwardRate(period, ratesProvider);
     double volatility = volatilities.volatility(expiry, strike, forward);
     PutCall putCall = period.getPutCall();
     double df = ratesProvider.discountFactor(currency, period.getPaymentDate());

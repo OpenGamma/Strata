@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
@@ -33,7 +32,7 @@ import com.opengamma.strata.product.payment.BulletPaymentTrade;
 /**
  * Handles the CSV file format for Bullet Payment trades.
  */
-final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTypeCsvWriter<BulletPaymentTrade> {
+final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWriterPlugin<BulletPaymentTrade> {
 
   /**
    * The singleton instance of the plugin.
@@ -41,14 +40,13 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
   public static final BulletPaymentTradeCsvPlugin INSTANCE = new BulletPaymentTradeCsvPlugin();
 
   /** The headers. */
-  private static final ImmutableList<String> HEADERS = ImmutableList.<String>builder()
-      .add(DIRECTION_FIELD)
-      .add(CURRENCY_FIELD)
-      .add(NOTIONAL_FIELD)
-      .add(PAYMENT_DATE_FIELD)
-      .add(PAYMENT_DATE_CNV_FIELD)
-      .add(PAYMENT_DATE_CAL_FIELD)
-      .build();
+  private static final Set<String> HEADERS = ImmutableSet.of(
+          DIRECTION_FIELD,
+          CURRENCY_FIELD,
+          NOTIONAL_FIELD,
+          PAYMENT_DATE_FIELD,
+          PAYMENT_DATE_CNV_FIELD,
+          PAYMENT_DATE_CAL_FIELD);
 
   //-------------------------------------------------------------------------
   @Override
@@ -72,7 +70,12 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   @Override
   public String getName() {
-    return "BulletPayment";
+    return BulletPaymentTrade.class.getSimpleName();
+  }
+
+  @Override
+  public Set<Class<?>> supportedTradeTypes() {
+    return ImmutableSet.of(BulletPaymentTrade.class);
   }
 
   //-------------------------------------------------------------------------
@@ -85,12 +88,12 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
    * @return the parsed trade
    */
   static BulletPaymentTrade parse(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
-    BulletPaymentTrade trade = parseRow(row, info, resolver);
+    BulletPaymentTrade trade = parseRow(row, info);
     return resolver.completeTrade(row, trade);
   }
 
   // parse the row to a trade
-  private static BulletPaymentTrade parseRow(CsvRow row, TradeInfo info, TradeCsvInfoResolver resolver) {
+  private static BulletPaymentTrade parseRow(CsvRow row, TradeInfo info) {
     CurrencyAmount amount = CsvLoaderUtils.parseCurrencyAmountWithDirection(
         row, CURRENCY_FIELD, NOTIONAL_FIELD, DIRECTION_FIELD);
     AdjustableDate date = CsvLoaderUtils.parseAdjustableDate(
@@ -106,7 +109,7 @@ final class BulletPaymentTradeCsvPlugin implements TradeCsvParserPlugin, TradeTy
 
   //-------------------------------------------------------------------------
   @Override
-  public List<String> headers(List<BulletPaymentTrade> trades) {
+  public Set<String> headers(List<BulletPaymentTrade> trades) {
     return HEADERS;
   }
 

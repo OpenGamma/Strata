@@ -10,7 +10,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import java.util.Optional;
 
+import org.joda.convert.StringConvert;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.opengamma.strata.basics.date.Tenor;
 
@@ -61,6 +64,62 @@ public class FloatingRateIndexTest {
     assertThat(FloatingRateIndex.tryParse("GB-RPI", Tenor.TENOR_6M)).isEqualTo(Optional.of(PriceIndices.GB_RPI));
     assertThat(FloatingRateIndex.tryParse(null, Tenor.TENOR_6M)).isEqualTo(Optional.empty());
     assertThat(FloatingRateIndex.tryParse("NotAnIndex", Tenor.TENOR_6M)).isEqualTo(Optional.empty());
+  }
+
+  //-------------------------------------------------------------------------
+  public static Object[][] data_name() {
+    return new Object[][] {
+        {IborIndices.GBP_LIBOR_6M, "GBP-LIBOR-6M"},
+        {IborIndices.CHF_LIBOR_6M, "CHF-LIBOR-6M"},
+        {IborIndices.EUR_LIBOR_6M, "EUR-LIBOR-6M"},
+        {IborIndices.JPY_LIBOR_6M, "JPY-LIBOR-6M"},
+        {IborIndices.USD_LIBOR_6M, "USD-LIBOR-6M"},
+
+        {OvernightIndices.GBP_SONIA, "GBP-SONIA"},
+        {OvernightIndices.CHF_SARON, "CHF-SARON"},
+        {OvernightIndices.EUR_EONIA, "EUR-EONIA"},
+        {OvernightIndices.JPY_TONAR, "JPY-TONAR"},
+        {OvernightIndices.USD_FED_FUND, "USD-FED-FUND"},
+
+        {PriceIndices.GB_HICP, "GB-HICP"},
+        {PriceIndices.CH_CPI, "CH-CPI"},
+        {PriceIndices.EU_AI_CPI, "EU-AI-CPI"},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_name(FloatingRateIndex convention, String name) {
+    assertThat(convention.getName()).isEqualTo(name);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_toString(FloatingRateIndex convention, String name) {
+    assertThat(convention.toString()).isEqualTo(name);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_of_lookup(FloatingRateIndex convention, String name) {
+    assertThat(FloatingRateIndex.of(name)).isEqualTo(convention);
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_name")
+  public void test_of_convert(FloatingRateIndex convention, String name) {
+    assertThat(StringConvert.INSTANCE.convertToString(convention)).isEqualTo(name);
+    assertThat(StringConvert.INSTANCE.convertFromString(FloatingRateIndex.class, name)).isEqualTo(convention);
+  }
+
+  @Test
+  public void test_of_lookup_notFound() {
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.of(FxIndices.EUR_USD_ECB.getName()));
+  }
+
+  @Test
+  public void test_of_lookup_null() {
+    assertThatIllegalArgumentException().isThrownBy(() -> FloatingRateIndex.of((String) null));
   }
 
 }

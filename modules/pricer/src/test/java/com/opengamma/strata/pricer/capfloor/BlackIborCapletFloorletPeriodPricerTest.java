@@ -266,6 +266,28 @@ public class BlackIborCapletFloorletPeriodPricerTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_forwardRate() {
+    double computed = PRICER.forwardRate(CAPLET_LONG, RATES);
+    double expected = RATES.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    assertThat(computed).isEqualTo(expected);
+  }
+
+  @Test
+  public void test_forwardRate_onFix() {
+    double computed = PRICER.forwardRate(CAPLET_LONG, RATES_ON_FIX);
+    double expected = RATES_ON_FIX.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    assertThat(computed).isCloseTo(expected, offset(TOL));
+  }
+
+  @Test
+  public void test_forwardRate_afterFix() {
+    double computed = PRICER.forwardRate(CAPLET_LONG, RATES_AFTER_FIX);
+    double expected = RATES_AFTER_FIX.iborIndexRates(EUR_EURIBOR_3M).rate(RATE_COMP.getObservation());
+    assertThat(computed).isCloseTo(expected, offset(TOL));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_presentValueDelta_formula() {
     CurrencyAmount computedCaplet = PRICER.presentValueDelta(CAPLET_LONG, RATES, VOLS);
     CurrencyAmount computedFloorlet = PRICER.presentValueDelta(FLOORLET_SHORT, RATES, VOLS);

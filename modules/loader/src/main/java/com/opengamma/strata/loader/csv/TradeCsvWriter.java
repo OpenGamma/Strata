@@ -56,35 +56,13 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.strata.collect.ArgChecker;
+import com.opengamma.strata.collect.MapStream;
 import com.opengamma.strata.collect.io.CsvOutput;
 import com.opengamma.strata.collect.io.CsvOutput.CsvRowOutputWithHeaders;
-import com.opengamma.strata.loader.csv.SecurityCsvPlugin.GenericSecurityTradeCsvPlugin;
-import com.opengamma.strata.loader.csv.SecurityCsvPlugin.SecurityTradeCsvPlugin;
+import com.opengamma.strata.collect.named.ExtendedEnum;
 import com.opengamma.strata.product.AttributeType;
-import com.opengamma.strata.product.GenericSecurityTrade;
-import com.opengamma.strata.product.SecurityTrade;
 import com.opengamma.strata.product.Trade;
 import com.opengamma.strata.product.TradeInfo;
-import com.opengamma.strata.product.bond.BillTrade;
-import com.opengamma.strata.product.bond.BondFutureOptionTrade;
-import com.opengamma.strata.product.bond.CapitalIndexedBondTrade;
-import com.opengamma.strata.product.bond.FixedCouponBondTrade;
-import com.opengamma.strata.product.credit.CdsIndexTrade;
-import com.opengamma.strata.product.credit.CdsTrade;
-import com.opengamma.strata.product.deposit.TermDepositTrade;
-import com.opengamma.strata.product.dsf.DsfTrade;
-import com.opengamma.strata.product.etd.EtdFutureTrade;
-import com.opengamma.strata.product.etd.EtdOptionTrade;
-import com.opengamma.strata.product.fra.FraTrade;
-import com.opengamma.strata.product.fx.FxSingleTrade;
-import com.opengamma.strata.product.fx.FxSwapTrade;
-import com.opengamma.strata.product.fxopt.FxVanillaOptionTrade;
-import com.opengamma.strata.product.index.IborFutureOptionTrade;
-import com.opengamma.strata.product.index.IborFutureTrade;
-import com.opengamma.strata.product.index.OvernightFutureTrade;
-import com.opengamma.strata.product.payment.BulletPaymentTrade;
-import com.opengamma.strata.product.swap.SwapTrade;
-import com.opengamma.strata.product.swaption.SwaptionTrade;
 
 /**
  * Writes trades to a CSV file.
@@ -94,34 +72,21 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 public final class TradeCsvWriter {
 
   /**
-   * The writers.
-   * The order of this map affects the order of columns in the CSV, though it is partially sorted later.
+   * The lookup of trade parsers.
    */
-  private static final ImmutableMap<Class<?>, TradeTypeCsvWriter<?>> WRITERS =
-      ImmutableMap.<Class<?>, TradeTypeCsvWriter<?>>builder()
-          .put(BulletPaymentTrade.class, BulletPaymentTradeCsvPlugin.INSTANCE)  // start with rates
-          .put(FraTrade.class, FraTradeCsvPlugin.INSTANCE)
-          .put(TermDepositTrade.class, TermDepositTradeCsvPlugin.INSTANCE)
-          .put(SwapTrade.class, FullSwapTradeCsvPlugin.INSTANCE)  // then swap
-          .put(FxSingleTrade.class, FxSingleTradeCsvPlugin.INSTANCE)  // then FX
-          .put(FxSwapTrade.class, FxSwapTradeCsvPlugin.INSTANCE)
-          .put(SwaptionTrade.class, SwaptionTradeCsvPlugin.INSTANCE)  // then options
-          .put(FxVanillaOptionTrade.class, FxVanillaOptionTradeCsvPlugin.INSTANCE)
-          .put(CdsTrade.class, CdsTradeCsvPlugin.CDS_INSTANCE)  // then credit
-          .put(CdsIndexTrade.class, CdsTradeCsvPlugin.CDS_INDEX_INSTANCE)  // then credit
-          .put(SecurityTrade.class, SecurityTradeCsvPlugin.INSTANCE)  // then securities
-          .put(EtdFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(EtdOptionTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(BillTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(BondFutureOptionTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(CapitalIndexedBondTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(DsfTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(FixedCouponBondTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(IborFutureOptionTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(IborFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(OvernightFutureTrade.class, SecurityTradeCsvPlugin.INSTANCE)
-          .put(GenericSecurityTrade.class, GenericSecurityTradeCsvPlugin.INSTANCE)
-          .build();
+  static final ExtendedEnum<TradeCsvWriterPlugin> ENUM_LOOKUP = ExtendedEnum.of(TradeCsvWriterPlugin.class);
+
+  /**
+   * The lookup of trade parsers.
+   */
+  private static final ImmutableMap<Class<?>, TradeCsvWriterPlugin> PLUGINS =
+      MapStream.of(TradeCsvWriterPlugin.extendedEnum().lookupAllNormalized().values())
+          .flatMapKeys(plugin -> plugin.supportedTradeTypes().stream())
+          .toMap((a, b) -> {
+            System.err.println("Two plugins declare the same product type: " + ((TradeCsvWriterPlugin) a).supportedTradeTypes());
+            return a;
+          });
+
   /**
    * The header order.
    * This sorts some of the columns (not all of them).
@@ -232,7 +197,7 @@ public final class TradeCsvWriter {
       info.getZone().ifPresent(zone -> csv.writeCell(TRADE_ZONE_FIELD, zone.toString()));
       info.getSettlementDate().ifPresent(date -> csv.writeCell(SETTLEMENT_DATE_FIELD, date.toString()));
       csv.writeCells(supplier.values(headers, trade));
-      TradeTypeCsvWriter detailsWriter = WRITERS.get(trade.getClass());
+      TradeCsvWriterPlugin detailsWriter = PLUGINS.get(trade.getClass());
       if (detailsWriter == null) {
         throw new IllegalArgumentException("Unable to write trade to CSV: " + trade.getClass().getSimpleName());
       }
@@ -288,7 +253,7 @@ public final class TradeCsvWriter {
         LinkedHashMap<Class<?>, List<Trade>>::new,
         Collectors.<Trade>toList()));
     for (Entry<Class<?>, List<Trade>> entry : splitByType.entrySet()) {
-      TradeTypeCsvWriter detailsWriter = WRITERS.get(entry.getKey());
+      TradeCsvWriterPlugin detailsWriter = PLUGINS.get(entry.getKey());
       if (detailsWriter == null) {
         throw new IllegalArgumentException(
             "Unable to write trade type to CSV: " + entry.getKey().getSimpleName());

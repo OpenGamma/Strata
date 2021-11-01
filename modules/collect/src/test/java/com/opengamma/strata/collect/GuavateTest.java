@@ -13,6 +13,7 @@ import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -186,6 +187,20 @@ public class GuavateTest {
 
   //-------------------------------------------------------------------------
   @Test
+  public void test_list() {
+    assertThat(Guavate.list("a")).isEqualTo(ImmutableList.of("a"));
+    assertThat(Guavate.list("a", "b", "c")).isEqualTo(ImmutableList.of("a", "b", "c"));
+  }
+
+  @Test
+  public void test_set() {
+    assertThat(Guavate.set("a")).isEqualTo(ImmutableSet.of("a"));
+    assertThat(Guavate.set("a", "b", "c")).isEqualTo(ImmutableSet.of("a", "b", "c"));
+    assertThat(Guavate.set("a", "b", "b")).isEqualTo(ImmutableSet.of("a", "b"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
   public void test_stream_Iterable() {
     Iterable<String> iterable = Arrays.asList("a", "b", "c");
     List<String> test = Guavate.stream(iterable)
@@ -229,6 +244,24 @@ public class GuavateTest {
     Optional<String> optional = Optional.empty();
     List<String> extracted = new ArrayList<>();
     for (String str : Guavate.inOptional(optional)) {
+      extracted.add(str);
+    }
+    assertThat(extracted).isEmpty();
+  }
+
+  @Test
+  public void test_inNullable_present() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inNullable("a")) {
+      extracted.add(str);
+    }
+    assertThat(extracted).containsExactly("a");
+  }
+
+  @Test
+  public void test_inNullable_null() {
+    List<String> extracted = new ArrayList<>();
+    for (String str : Guavate.inNullable((String) null)) {
       extracted.add(str);
     }
     assertThat(extracted).isEmpty();
@@ -326,6 +359,18 @@ public class GuavateTest {
   public void test_filteringOptional() {
     List<Optional<String>> list = ImmutableList.of(Optional.of("A"), Optional.empty(), Optional.of("C"));
     assertThat(list.stream().flatMap(Guavate.filteringOptional()).collect(toList())).isEqualTo(ImmutableList.of("A", "C"));
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_toOptional() {
+    List<String> list = Arrays.asList("a", "ab");
+    assertThat(list.stream().filter(s -> s.length() == 1).collect(Guavate.toOptional()))
+        .isEqualTo(Optional.of("a"));
+    assertThat(list.stream().filter(s -> s.length() == 0).collect(Guavate.toOptional()))
+        .isEqualTo(Optional.empty());
+    assertThatIllegalArgumentException().isThrownBy(() -> list.stream().collect(Guavate.toOptional()));
+    assertThatNullPointerException().isThrownBy(() -> Stream.of((String[]) null).collect(Guavate.toOptional()));
   }
 
   //-------------------------------------------------------------------------

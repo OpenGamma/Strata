@@ -8,11 +8,13 @@ package com.opengamma.strata.product.swaption;
 import static com.opengamma.strata.collect.Guavate.ensureOnlyOne;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.joda.beans.Bean;
 import org.joda.beans.ImmutableBean;
@@ -32,7 +34,8 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.date.AdjustableDate;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.date.BusinessDayAdjustment;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.common.LongShort;
@@ -43,8 +46,11 @@ import com.opengamma.strata.product.swap.SwapLegType;
  * An option on an underlying swap.
  * <p>
  * A swaption is a financial instrument that provides an option based on the future value of a swap.
- * The option is European, exercised only on the exercise date.
- * The underlying swap must be a single currency, Fixed-Ibor swap with a single Ibor index and no interpolated stubs.
+ * The underlying swap must be a single currency, Fixed-Float swap with a single index.
+ * The index may be Ibor or Overnight.
+ * <p>
+ * Strata supports European swaptions for pricing.
+ * However, the trade model supports Bermudan and American exercise.
  */
 @BeanDefinition
 public final class Swaption
@@ -66,9 +72,22 @@ public final class Swaption
   @PropertyDefinition(validate = "notNull")
   private final SwaptionSettlement swaptionSettlement;
   /**
+   * The exercise information, optional.
+   * <p>
+   * A swaption can have three different kinds of exercise - European, American and Bermudan.
+   * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
+   * can exercise on a fixed set of dates.
+   * <p>
+   * If not present, the swaption is considered to be a European swaption as per the expiry date.
+   */
+  @PropertyDefinition(get = "optional")
+  private final SwaptionExercise exerciseInfo;
+  /**
    * The expiry date of the option.
    * <p>
-   * The option is European, and can only be exercised on the expiry date.
+   * This is the last date that the swaption can be exercised.
+   * To represent Bermudan and American swaptions, or to represent a European swaption where the swap start
+   * date is calculated dynamically, see the {@code exerciseOptions} field.
    * <p>
    * This date is typically set to be a valid business day.
    * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
@@ -101,13 +120,12 @@ public final class Swaption
   //-------------------------------------------------------------------------
   @ImmutableValidator
   private void validate() {
-    ArgChecker.inOrderOrEqual(
-        expiryDate.getUnadjusted(), underlying.getStartDate().getUnadjusted(), "expiryDate", "underlying.startDate.unadjusted");
     ArgChecker.isTrue(!underlying.isCrossCurrency(), "Underlying swap must not be cross-currency");
     ArgChecker.isTrue(underlying.getLegs(SwapLegType.FIXED).size() == 1, "Underlying swap must have one fixed leg");
-    ArgChecker.isTrue(underlying.getLegs(SwapLegType.IBOR).size() == 1, "Underlying swap must have one Ibor leg");
+    ArgChecker.isTrue(
+        (underlying.getLegs(SwapLegType.IBOR).size() == 1) || (underlying.getLegs(SwapLegType.OVERNIGHT).size() == 1),
+        "Underlying swap must have one Ibor or Overnight leg");
     ArgChecker.isTrue(underlying.allIndices().size() == 1, "Underlying swap must have one index");
-    ArgChecker.isTrue(underlying.allIndices().iterator().next() instanceof IborIndex, "Underlying swap must have one Ibor index");
   }
 
   //-------------------------------------------------------------------------
@@ -148,19 +166,91 @@ public final class Swaption
   /**
    * Gets the index of the underlying swap.
    * 
-   * @return the Ibor index of the underlying swap
+   * @return the index of the underlying swap
    */
-  public IborIndex getIndex() {
-    return (IborIndex) underlying.allIndices().iterator().next();
+  public RateIndex getIndex() {
+    return (RateIndex) underlying.allIndices().iterator().next();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Selects one of the exercise dates.
+   * <p>
+   * This returns a swaption with the {@code exerciseInfo} removed.
+   * The expiry date and underlying swap will be set in accordance with the selected exercise date.
+   * If the swaption has no exercise information, this checks that the exercise date matches the expiry date.
+   * <p>
+   * The date is matched as an adjusted date first, then as an unadjusted date.
+   * If the date can only be an adjusted date, the result will use {@link BusinessDayAdjustment#NONE}.
+   * 
+   * @param exerciseDate  the exercise date, which must be valid for the swaption
+   * @param refData  the reference data
+   * @return the swaption in European form with the specified exercise date
+   * @throws IllegalArgumentException if the proposed exercise date is not valid
+   */
+  public Swaption selectExerciseDate(LocalDate exerciseDate, ReferenceData refData) {
+    if (exerciseInfo == null) {
+      LocalDate adjustedExpiryDate = expiryDate.adjusted(refData);
+      if (exerciseDate.equals(adjustedExpiryDate)) {
+        if (expiryDate.getUnadjusted().equals(exerciseDate)) {
+          return this;
+        } else {
+          return toBuilder().expiryDate(AdjustableDate.of(adjustedExpiryDate)).build();
+        }
+      }
+      if (exerciseDate.equals(expiryDate.getUnadjusted())) {
+        return this;
+      }
+      throw new IllegalArgumentException(
+          "Unable to exercise swaption, valid exercise dates unknown: " + exerciseDate);
+    }
+    AdjustableDate adjutableExerciseDate = exerciseInfo.selectDate(exerciseDate, refData);
+    LocalDate adjustedExerciseDate = adjutableExerciseDate.adjusted(refData);
+    LocalDate swapStartDate = exerciseInfo.getSwapStartDateOffset().adjust(adjustedExerciseDate, refData);
+    return toBuilder()
+        .exerciseInfo(null)
+        .expiryDate(adjutableExerciseDate)
+        .underlying(underlying.replaceStartDate(swapStartDate))
+        .build();
+  }
+
+  /**
+   * Exercises the swaption into a swap at one of the optional exercise dates.
+   * <p>
+   * The start date of the swap will be set in accordance with the selected exercise date.
+   * See {@link #selectExerciseDate(LocalDate, ReferenceData)} for more info.
+   * 
+   * @param exerciseDate  the exercise date, which must be valid for the swaption
+   * @param refData  the reference data
+   * @return the exercised swap
+   * @throws IllegalArgumentException if the proposed exercise date is not valid
+   */
+  public Swap exercise(LocalDate exerciseDate, ReferenceData refData) {
+    return selectExerciseDate(exerciseDate, refData).getUnderlying();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public ResolvedSwaption resolve(ReferenceData refData) {
+    LocalDate unadjustedExpiry = expiryDate.getUnadjusted();
+    LocalDate adjustedExpiry = expiryDate.adjusted(refData);
+
+    // setup suitable exercise info where it was not defined
+    SwaptionExerciseDates exerciseDates;
+    if (exerciseInfo == null) {
+      LocalDate swapStartDate = underlying.getStartDate().adjusted(refData);
+      SwaptionExerciseDate exercise = SwaptionExerciseDate.of(adjustedExpiry, unadjustedExpiry, swapStartDate);
+      exerciseDates = SwaptionExerciseDates.ofEuropean(exercise);
+    } else {
+      exerciseDates = exerciseInfo.resolve(refData);
+    }
+    // trust that the expiry date and swap start date are valid
+    // throwing an exception if they are not seems to harsh
     return ResolvedSwaption.builder()
-        .expiry(expiryDate.adjusted(refData).atTime(expiryTime).atZone(expiryZone))
+        .expiry(unadjustedExpiry.atTime(expiryTime).atZone(expiryZone))
         .longShort(longShort)
         .swaptionSettlement(swaptionSettlement)
+        .exerciseInfo(exerciseDates)
         .underlying(underlying.resolve(refData))
         .build();
   }
@@ -194,6 +284,7 @@ public final class Swaption
   private Swaption(
       LongShort longShort,
       SwaptionSettlement swaptionSettlement,
+      SwaptionExercise exerciseInfo,
       AdjustableDate expiryDate,
       LocalTime expiryTime,
       ZoneId expiryZone,
@@ -206,6 +297,7 @@ public final class Swaption
     JodaBeanUtils.notNull(underlying, "underlying");
     this.longShort = longShort;
     this.swaptionSettlement = swaptionSettlement;
+    this.exerciseInfo = exerciseInfo;
     this.expiryDate = expiryDate;
     this.expiryTime = expiryTime;
     this.expiryZone = expiryZone;
@@ -243,9 +335,26 @@ public final class Swaption
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the exercise information, optional.
+   * <p>
+   * A swaption can have three different kinds of exercise - European, American and Bermudan.
+   * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
+   * can exercise on a fixed set of dates.
+   * <p>
+   * If not present, the swaption is considered to be a European swaption as per the expiry date.
+   * @return the optional value of the property, not null
+   */
+  public Optional<SwaptionExercise> getExerciseInfo() {
+    return Optional.ofNullable(exerciseInfo);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the expiry date of the option.
    * <p>
-   * The option is European, and can only be exercised on the expiry date.
+   * This is the last date that the swaption can be exercised.
+   * To represent Bermudan and American swaptions, or to represent a European swaption where the swap start
+   * date is calculated dynamically, see the {@code exerciseOptions} field.
    * <p>
    * This date is typically set to be a valid business day.
    * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
@@ -307,6 +416,7 @@ public final class Swaption
       Swaption other = (Swaption) obj;
       return JodaBeanUtils.equal(longShort, other.longShort) &&
           JodaBeanUtils.equal(swaptionSettlement, other.swaptionSettlement) &&
+          JodaBeanUtils.equal(exerciseInfo, other.exerciseInfo) &&
           JodaBeanUtils.equal(expiryDate, other.expiryDate) &&
           JodaBeanUtils.equal(expiryTime, other.expiryTime) &&
           JodaBeanUtils.equal(expiryZone, other.expiryZone) &&
@@ -320,6 +430,7 @@ public final class Swaption
     int hash = getClass().hashCode();
     hash = hash * 31 + JodaBeanUtils.hashCode(longShort);
     hash = hash * 31 + JodaBeanUtils.hashCode(swaptionSettlement);
+    hash = hash * 31 + JodaBeanUtils.hashCode(exerciseInfo);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryDate);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryTime);
     hash = hash * 31 + JodaBeanUtils.hashCode(expiryZone);
@@ -329,10 +440,11 @@ public final class Swaption
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("Swaption{");
     buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
     buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
+    buf.append("exerciseInfo").append('=').append(JodaBeanUtils.toString(exerciseInfo)).append(',').append(' ');
     buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
     buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
     buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');
@@ -362,6 +474,11 @@ public final class Swaption
     private final MetaProperty<SwaptionSettlement> swaptionSettlement = DirectMetaProperty.ofImmutable(
         this, "swaptionSettlement", Swaption.class, SwaptionSettlement.class);
     /**
+     * The meta-property for the {@code exerciseInfo} property.
+     */
+    private final MetaProperty<SwaptionExercise> exerciseInfo = DirectMetaProperty.ofImmutable(
+        this, "exerciseInfo", Swaption.class, SwaptionExercise.class);
+    /**
      * The meta-property for the {@code expiryDate} property.
      */
     private final MetaProperty<AdjustableDate> expiryDate = DirectMetaProperty.ofImmutable(
@@ -388,6 +505,7 @@ public final class Swaption
         this, null,
         "longShort",
         "swaptionSettlement",
+        "exerciseInfo",
         "expiryDate",
         "expiryTime",
         "expiryZone",
@@ -406,6 +524,8 @@ public final class Swaption
           return longShort;
         case -1937554512:  // swaptionSettlement
           return swaptionSettlement;
+        case -466669914:  // exerciseInfo
+          return exerciseInfo;
         case -816738431:  // expiryDate
           return expiryDate;
         case -816254304:  // expiryTime
@@ -451,6 +571,14 @@ public final class Swaption
     }
 
     /**
+     * The meta-property for the {@code exerciseInfo} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<SwaptionExercise> exerciseInfo() {
+      return exerciseInfo;
+    }
+
+    /**
      * The meta-property for the {@code expiryDate} property.
      * @return the meta-property, not null
      */
@@ -490,6 +618,8 @@ public final class Swaption
           return ((Swaption) bean).getLongShort();
         case -1937554512:  // swaptionSettlement
           return ((Swaption) bean).getSwaptionSettlement();
+        case -466669914:  // exerciseInfo
+          return ((Swaption) bean).exerciseInfo;
         case -816738431:  // expiryDate
           return ((Swaption) bean).getExpiryDate();
         case -816254304:  // expiryTime
@@ -521,6 +651,7 @@ public final class Swaption
 
     private LongShort longShort;
     private SwaptionSettlement swaptionSettlement;
+    private SwaptionExercise exerciseInfo;
     private AdjustableDate expiryDate;
     private LocalTime expiryTime;
     private ZoneId expiryZone;
@@ -539,6 +670,7 @@ public final class Swaption
     private Builder(Swaption beanToCopy) {
       this.longShort = beanToCopy.getLongShort();
       this.swaptionSettlement = beanToCopy.getSwaptionSettlement();
+      this.exerciseInfo = beanToCopy.exerciseInfo;
       this.expiryDate = beanToCopy.getExpiryDate();
       this.expiryTime = beanToCopy.getExpiryTime();
       this.expiryZone = beanToCopy.getExpiryZone();
@@ -553,6 +685,8 @@ public final class Swaption
           return longShort;
         case -1937554512:  // swaptionSettlement
           return swaptionSettlement;
+        case -466669914:  // exerciseInfo
+          return exerciseInfo;
         case -816738431:  // expiryDate
           return expiryDate;
         case -816254304:  // expiryTime
@@ -574,6 +708,9 @@ public final class Swaption
           break;
         case -1937554512:  // swaptionSettlement
           this.swaptionSettlement = (SwaptionSettlement) newValue;
+          break;
+        case -466669914:  // exerciseInfo
+          this.exerciseInfo = (SwaptionExercise) newValue;
           break;
         case -816738431:  // expiryDate
           this.expiryDate = (AdjustableDate) newValue;
@@ -604,6 +741,7 @@ public final class Swaption
       return new Swaption(
           longShort,
           swaptionSettlement,
+          exerciseInfo,
           expiryDate,
           expiryTime,
           expiryZone,
@@ -639,9 +777,27 @@ public final class Swaption
     }
 
     /**
+     * Sets the exercise information, optional.
+     * <p>
+     * A swaption can have three different kinds of exercise - European, American and Bermudan.
+     * A European swaption has one exercise date, an American can exercise on any date, and a Bermudan
+     * can exercise on a fixed set of dates.
+     * <p>
+     * If not present, the swaption is considered to be a European swaption as per the expiry date.
+     * @param exerciseInfo  the new value
+     * @return this, for chaining, not null
+     */
+    public Builder exerciseInfo(SwaptionExercise exerciseInfo) {
+      this.exerciseInfo = exerciseInfo;
+      return this;
+    }
+
+    /**
      * Sets the expiry date of the option.
      * <p>
-     * The option is European, and can only be exercised on the expiry date.
+     * This is the last date that the swaption can be exercised.
+     * To represent Bermudan and American swaptions, or to represent a European swaption where the swap start
+     * date is calculated dynamically, see the {@code exerciseOptions} field.
      * <p>
      * This date is typically set to be a valid business day.
      * However, the {@code businessDayAdjustment} property may be set to provide a rule for adjustment.
@@ -697,10 +853,11 @@ public final class Swaption
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(224);
+      StringBuilder buf = new StringBuilder(256);
       buf.append("Swaption.Builder{");
       buf.append("longShort").append('=').append(JodaBeanUtils.toString(longShort)).append(',').append(' ');
       buf.append("swaptionSettlement").append('=').append(JodaBeanUtils.toString(swaptionSettlement)).append(',').append(' ');
+      buf.append("exerciseInfo").append('=').append(JodaBeanUtils.toString(exerciseInfo)).append(',').append(' ');
       buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(expiryDate)).append(',').append(' ');
       buf.append("expiryTime").append('=').append(JodaBeanUtils.toString(expiryTime)).append(',').append(' ');
       buf.append("expiryZone").append('=').append(JodaBeanUtils.toString(expiryZone)).append(',').append(' ');

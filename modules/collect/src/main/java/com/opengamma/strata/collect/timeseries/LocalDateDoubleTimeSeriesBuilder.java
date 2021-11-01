@@ -110,9 +110,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
     ArgChecker.notNull(date, "date");
     ArgChecker.isFalse(Double.isNaN(value), "NaN is not allowed as a value");
     entries.put(date, value);
-    if (!containsWeekends && date.get(ChronoField.DAY_OF_WEEK) > 5) {
-      containsWeekends = true;
-    }
+    updateWeekendFlag(date);
     return this;
   }
 
@@ -143,6 +141,7 @@ public final class LocalDateDoubleTimeSeriesBuilder {
     ArgChecker.notNull(date, "date");
     ArgChecker.notNull(operator, "operator");
     entries.merge(date, value, (a, b) -> operator.applyAsDouble(a, b));
+    updateWeekendFlag(date);
     return this;
   }
 
@@ -157,8 +156,14 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    */
   public LocalDateDoubleTimeSeriesBuilder merge(LocalDateDoublePoint point, DoubleBinaryOperator operator) {
     ArgChecker.notNull(point, "point");
-    entries.merge(point.getDate(), point.getValue(), (a, b) -> operator.applyAsDouble(a, b));
-    return this;
+    return merge(point.getDate(), point.getValue(), operator);
+  }
+
+  // updates the weekend flag, if not updated exceptions will occur during build()
+  private void updateWeekendFlag(LocalDate date) {
+    if (!containsWeekends && date.get(ChronoField.DAY_OF_WEEK) > 5) {
+      containsWeekends = true;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -277,7 +282,6 @@ public final class LocalDateDoubleTimeSeriesBuilder {
    * @return a time-series containing the entries from the builder
    */
   public LocalDateDoubleTimeSeries build() {
-
     if (entries.isEmpty()) {
       return LocalDateDoubleTimeSeries.empty();
     }

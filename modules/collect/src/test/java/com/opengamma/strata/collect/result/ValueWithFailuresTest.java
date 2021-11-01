@@ -245,6 +245,21 @@ public class ValueWithFailuresTest {
   }
 
   @Test
+  public void test_toCombinedResultsAsList() {
+    ValueWithFailures<List<String>> result = Stream.<Result<String>>of(
+        Result.success("Hello"),
+        Result.failure(FailureReason.ERROR, "Uh oh"),
+        Result.success("World"))
+        .collect(ValueWithFailures.toCombinedResultsAsList());
+    assertThat(result.getValue()).isEqualTo(ImmutableList.of("Hello", "World"));
+
+    List<FailureItem> failures = result.getFailures();
+    assertThat(failures).hasSize(1);
+    assertThat(failures.get(0).getReason()).isEqualTo(FailureReason.ERROR);
+    assertThat(failures.get(0).getMessage()).isEqualTo("Uh oh");
+  }
+
+  @Test
   public void test_combineAsList() {
     ImmutableList<ValueWithFailures<Double>> listOfValueWithFailures = Stream.of(5d, 6d, 7d)
         .map(value -> mockCalc(value))

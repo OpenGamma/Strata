@@ -5,9 +5,13 @@
  */
 package com.opengamma.strata.pricer.fxopt;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+
 import com.opengamma.strata.basics.currency.Currency;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.CurrencyPair;
+import com.opengamma.strata.basics.currency.FxRate;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.value.ValueDerivatives;
 import com.opengamma.strata.collect.ArgChecker;
@@ -360,6 +364,47 @@ public class BlackFxSingleBarrierOptionProductPricer {
 
     ValueDerivatives priceDerivatives = priceDerivatives(option, ratesProvider, volatilities);
     return -priceDerivatives.getDerivative(5);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the forward exchange rate.
+   *
+   * @param option  the option product
+   * @param ratesProvider  the rates provider
+   * @return the forward rate
+   */
+  public FxRate forwardFxRate(ResolvedFxSingleBarrierOption option, RatesProvider ratesProvider) {
+    CurrencyPair strikePair = option.getCurrencyPair();
+    LocalDate paymentDate = option.getUnderlyingOption().getUnderlying().getPaymentDate();
+    double forwardRate = ratesProvider.fxForwardRates(strikePair).rate(strikePair.getBase(), paymentDate);
+    return FxRate.of(strikePair, forwardRate);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Calculates the implied Black volatility of the FX barrier option product.
+   *
+   * @param option  the option product
+   * @param ratesProvider  the rates provider
+   * @param volatilities  the Black volatility provider
+   * @return the implied volatility of the product
+   * @throws IllegalArgumentException if the option has expired
+   */
+  public double impliedVolatility(
+      ResolvedFxSingleBarrierOption option,
+      RatesProvider ratesProvider,
+      BlackFxOptionVolatilities volatilities) {
+
+    ZonedDateTime expiry = option.getUnderlyingOption().getExpiry();
+    double timeToExpiry = volatilities.relativeTime(expiry);
+    if (timeToExpiry <= 0d) {
+      throw new IllegalArgumentException("valuation is after option's expiry.");
+    }
+    FxRate forward = forwardFxRate(option, ratesProvider);
+    CurrencyPair strikePair = option.getCurrencyPair();
+    double strike = option.getUnderlyingOption().getStrike();
+    return volatilities.volatility(strikePair, expiry, strike, forward.fxRate(strikePair));
   }
 
   //-------------------------------------------------------------------------

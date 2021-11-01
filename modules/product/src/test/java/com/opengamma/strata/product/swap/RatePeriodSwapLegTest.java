@@ -55,6 +55,8 @@ public class RatePeriodSwapLegTest {
       IborRateComputation.of(GBP_LIBOR_3M, DATE_2014_09_28, REF_DATA);
   private static final NotionalExchange NOTIONAL_EXCHANGE =
       NotionalExchange.of(CurrencyAmount.of(GBP, 2000d), DATE_2014_10_01);
+  private static final NotionalExchange FEE =
+      NotionalExchange.of(CurrencyAmount.of(GBP, 1000d), DATE_2014_06_30);
   private static final RateAccrualPeriod RAP1 = RateAccrualPeriod.builder()
       .startDate(DATE_2014_06_30)
       .endDate(DATE_2014_09_30)
@@ -179,6 +181,28 @@ public class RatePeriodSwapLegTest {
     test.collectIndices(builder);
     assertThat(builder.build()).containsOnly(GBP_LIBOR_3M, GBP_USD_WM);
     assertThat(test.allCurrencies()).containsOnly(GBP, USD);
+  }
+
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_replaceStartDate() {
+    // test case
+    RatePeriodSwapLeg test = RatePeriodSwapLeg.builder()
+        .type(IBOR)
+        .payReceive(RECEIVE)
+        .paymentPeriods(RPP1, RPP2)
+        .paymentEvents(FEE, NOTIONAL_EXCHANGE)
+        .build();
+    // expected
+    RatePeriodSwapLeg expected = test.toBuilder()
+        .paymentPeriods(RPP2)
+        .paymentEvents(NOTIONAL_EXCHANGE)
+        .build();
+    // assertion
+    assertThatIllegalArgumentException().isThrownBy(() -> test.replaceStartDate(DATE_2014_01_02));
+    assertThat(test.replaceStartDate(DATE_2014_06_30)).isEqualTo(test);
+    assertThat(test.replaceStartDate(DATE_2014_09_30)).isEqualTo(expected);
+    assertThatIllegalArgumentException().isThrownBy(() -> test.replaceStartDate(DATE_2014_12_30));
   }
 
   //-------------------------------------------------------------------------
