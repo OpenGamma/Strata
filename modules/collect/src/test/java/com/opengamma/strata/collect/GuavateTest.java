@@ -37,6 +37,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
@@ -915,6 +917,32 @@ public class GuavateTest {
   @Test
   public void test_validUtilityClass() {
     assertUtilityClass(Guavate.class);
+  }
+
+  //-------------------------------------------------------------------------
+  @ParameterizedTest
+  public static Object[][] data_substring() {
+    return new Object[][] {
+        {"a.b.c", ".", "a", "b.c", "a.b", "c"},
+        {"...", ".", "", "..", "..", ""},
+        {"", ".", "", "", "", ""},
+    };
+  }
+
+  @ParameterizedTest
+  @MethodSource("data_substring")
+  public void test_substring(
+      String input,
+      String separator,
+      String beforeFirst,
+      String afterFirst,
+      String beforeLast,
+      String afterLast) {
+
+    assertThat(Guavate.substringBeforeFirst(input, separator)).isEqualTo(beforeFirst);
+    assertThat(Guavate.substringAfterFirst(input, separator)).isEqualTo(afterFirst);
+    assertThat(Guavate.substringBeforeLast(input, separator)).isEqualTo(beforeLast);
+    assertThat(Guavate.substringAfterLast(input, separator)).isEqualTo(afterLast);
   }
 
 }
