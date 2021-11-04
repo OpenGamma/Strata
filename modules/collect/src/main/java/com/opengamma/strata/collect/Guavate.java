@@ -1384,4 +1384,77 @@ public final class Guavate {
     }
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the substring before the first occurrence of the separator.
+   * <p>
+   * This returns the string before the first occurrence of the separator.
+   * If the separator is not found, the input is returned.
+   *
+   * @param str  the input string to search
+   * @param separator  the separator to find
+   * @return the substring
+   */
+  public static String substringBeforeFirst(String str, String separator) {
+    int pos = str.indexOf(separator);
+    if (pos < 0) {
+      return str;
+    }
+    return str.substring(0, pos);
+  }
+
+  /**
+   * Gets the substring after the first occurrence of the separator.
+   * <p>
+   * This returns the string before the first occurrence of the separator.
+   * If the separator is not found, the input is returned.
+   *
+   * @param str  the input string to search
+   * @param separator  the separator to find
+   * @return the substring
+   */
+  public static String substringAfterFirst(String str, String separator) {
+    int pos = str.indexOf(separator);
+    if (pos < 0) {
+      return str;
+    }
+    return str.substring(pos + 1);
+  }
+
+  /**
+   * Gets the substring before the last occurrence of the separator.
+   * <p>
+   * This returns the string before the last occurrence of the separator.
+   * If the separator is not found, the input is returned.
+   *
+   * @param str  the input string to search
+   * @param separator  the separator to find
+   * @return the substring
+   */
+  public static String substringBeforeLast(String str, String separator) {
+    int pos = str.lastIndexOf(separator);
+    if (pos < 0) {
+      return str;
+    }
+    return str.substring(0, pos);
+  }
+
+  /**
+   * Gets the substring after the last occurrence of the separator.
+   * <p>
+   * This returns the string before the last occurrence of the separator.
+   * If the separator is not found, the input is returned.
+   *
+   * @param str  the input string to search
+   * @param separator  the separator to find
+   * @return the substring
+   */
+  public static String substringAfterLast(String str, String separator) {
+    int pos = str.lastIndexOf(separator);
+    if (pos < 0) {
+      return str;
+    }
+    return str.substring(pos + 1);
+  }
+
 }
