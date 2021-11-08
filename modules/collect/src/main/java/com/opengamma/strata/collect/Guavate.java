@@ -1406,7 +1406,7 @@ public final class Guavate {
   /**
    * Gets the substring after the first occurrence of the separator.
    * <p>
-   * This returns the string before the first occurrence of the separator.
+   * This returns the string after the first occurrence of the separator.
    * If the separator is not found, the input is returned.
    *
    * @param str  the input string to search
@@ -1418,7 +1418,7 @@ public final class Guavate {
     if (pos < 0) {
       return str;
     }
-    return str.substring(pos + 1);
+    return str.substring(pos + separator.length());
   }
 
   /**
@@ -1442,7 +1442,7 @@ public final class Guavate {
   /**
    * Gets the substring after the last occurrence of the separator.
    * <p>
-   * This returns the string before the last occurrence of the separator.
+   * This returns the string after the last occurrence of the separator.
    * If the separator is not found, the input is returned.
    *
    * @param str  the input string to search
@@ -1454,7 +1454,7 @@ public final class Guavate {
     if (pos < 0) {
       return str;
     }
-    return str.substring(pos + 1);
+    return str.substring(pos + separator.length());
   }
 
 }
