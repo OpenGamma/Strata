@@ -924,6 +924,7 @@ public class GuavateTest {
   public static Object[][] data_substring() {
     return new Object[][] {
         {"a.b.c", ".", "a", "b.c", "a.b", "c"},
+        {"a..b..c", "..", "a", "b..c", "a..b", "c"},
         {"...", ".", "", "..", "..", ""},
         {"", ".", "", "", "", ""},
     };
