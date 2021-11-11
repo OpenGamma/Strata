@@ -57,24 +57,35 @@ public class MapStreamTest {
     assertThat(result).isEqualTo(ImmutableList.of(1, 2, 3, 4));
   }
 
+  @Test
   public void keys_fromList() {
     List<String> result = MapStream.of(list).keys().collect(toImmutableList());
     assertThat(result).isEqualTo(list);
   }
 
+  @Test
   public void values_fromList() {
     List<String> result = MapStream.of(list).values().collect(toImmutableList());
     assertThat(result).isEqualTo(list);
   }
 
+  @Test
   public void keys_fromStream() {
     List<String> result = MapStream.of(list.stream()).keys().collect(toImmutableList());
     assertThat(result).isEqualTo(list);
   }
 
+  @Test
   public void values_fromStream() {
     List<String> result = MapStream.of(list.stream()).values().collect(toImmutableList());
     assertThat(result).isEqualTo(list);
+  }
+
+  @Test
+  public void inverse() {
+    Map<Integer, String> expected = ImmutableMap.of(1, "one", 2, "two", 3, "three", 4, "four");
+    Map<Integer, String> result = MapStream.of(map).inverse().toMap();
+    assertThat(result).isEqualTo(expected);
   }
 
   //-------------------------------------------------------------------------
@@ -138,6 +149,14 @@ public class MapStreamTest {
   public void mapKeysAndValuesToValues() {
     Map<String, String> expected = ImmutableMap.of("one", "one1", "two", "two2", "three", "three3", "four", "four4");
     Map<String, String> result = MapStream.of(map).mapValues((k, v) -> k + v).toMap();
+    assertThat(result).isEqualTo(expected);
+  }
+
+  @Test
+  public void mapBoth() {
+    Map<String, Short> expected =
+        ImmutableMap.of("one - 1", (short) 0, "two - 1", (short) 1, "three - 1", (short) 2, "four - 1", (short) 3);
+    Map<String, Short> result = MapStream.of(map).mapBoth((k, v) -> entry(k + " - 1", (short) (v - 1))).toMap();
     assertThat(result).isEqualTo(expected);
   }
 
