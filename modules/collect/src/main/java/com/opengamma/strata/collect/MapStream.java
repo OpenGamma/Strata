@@ -270,6 +270,16 @@ public final class MapStream<K, V>
 
   //-------------------------------------------------------------------------
   /**
+   * Returns a stream where the keys and values are swapped.
+   *
+   * @return a stream with swapped keys and values
+   */
+  public MapStream<V, K> inverse() {
+    return wrap(underlying.map(e -> entry(e.getValue(), e.getKey())));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Filters the stream by applying the predicate function to each key and value.
    * <p>
    * Entries are included in the returned stream if the predicate function returns true.
@@ -386,6 +396,20 @@ public final class MapStream<K, V>
    */
   public <R> MapStream<K, R> mapValues(BiFunction<? super K, ? super V, ? extends R> mapper) {
     return wrap(underlying.map(e -> entry(e.getKey(), mapper.apply(e.getKey(), e.getValue()))));
+  }
+
+  /**
+   * Transforms the entries in the stream by applying a mapper function to each key and value.
+   * <p>
+   * The result of this method is a {@code MapStream}, unlike {@link #map(BiFunction)}.
+   *
+   * @param mapper  a mapper function whose return value is the new key-value entry
+   * @param <RK>  the type of the new keys
+   * @param <RV>  the type of the new values
+   * @return a stream of entries with the keys and values transformed
+   */
+  public <RK, RV> MapStream<RK, RV> mapBoth(BiFunction<? super K, ? super V, Entry<RK, RV>> mapper) {
+    return wrap(underlying.map(e -> mapper.apply(e.getKey(), e.getValue())));
   }
 
   /**
