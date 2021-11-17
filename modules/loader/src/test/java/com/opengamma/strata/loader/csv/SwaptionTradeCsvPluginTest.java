@@ -7,7 +7,6 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
-import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.loader.csv.CsvTestUtils.checkRoundtrip;
 import static com.opengamma.strata.product.common.BuySell.SELL;
@@ -60,7 +59,7 @@ final class SwaptionTradeCsvPluginTest {
       .toTrade(VAL_DATE, SWAP_EFFECTIVE_DATE, SWAP_MATURITY_DATE, SELL, 1E6, 0.01).getProduct();
 
   // With no exercise info, the exercise date is the expiry date.
-  private static final Swaption EUROPEAN_SWAPTION_AT_EXPIRY = Swaption.builder()
+  private static final Swaption DEFAULT_EUROPEAN_SWAPTION = Swaption.builder()
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
       .expiryTime(SWAPTION_EXPIRY_TIME)
@@ -69,7 +68,7 @@ final class SwaptionTradeCsvPluginTest {
       .underlying(SWAP_REC)
       .build();
 
-  private static final Swaption EUROPEAN_SWAPTION_AT_EXERCISE = Swaption.builder()
+  private static final Swaption EUROPEAN_SWAPTION_WITH_SPECIFIC_EXERCISE = Swaption.builder()
       .swaptionSettlement(PhysicalSwaptionSettlement.DEFAULT)
       .exerciseInfo(SwaptionExercise.ofEuropean(AdjustableDate.of(date(2018, 6, 14)), DaysAdjustment.NONE))
       .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
@@ -92,21 +91,25 @@ final class SwaptionTradeCsvPluginTest {
       .underlying(SWAP_REC)
       .build();
 
-  private static SwaptionTrade swaptionToSwaptionTrade(Swaption swaption) {
+  private static SwaptionTrade toSwaptionTrade(Swaption swaption) {
     return SwaptionTrade.of(TradeInfo.empty(), swaption, Payment.of(CurrencyAmount.of(USD, 0), VAL_DATE));
   }
 
-  private static final List<SwaptionTrade> TRADES =
-      ImmutableList.of(EUROPEAN_SWAPTION_AT_EXERCISE, EUROPEAN_SWAPTION_AT_EXPIRY, BERMUDAN_SWAPTION)
-          .stream()
-          .map(SwaptionTradeCsvPluginTest::swaptionToSwaptionTrade)
-          .collect(toImmutableList());
+  private static final SwaptionTrade DEFAULT_EUROPEAN_SWAPTION_TRADE = toSwaptionTrade(DEFAULT_EUROPEAN_SWAPTION);
+  private static final SwaptionTrade EUROPEAN_SWAPTION_WITH_SPECIFIC_EXERCISE_TRADE =
+      toSwaptionTrade(EUROPEAN_SWAPTION_WITH_SPECIFIC_EXERCISE);
+  private static final SwaptionTrade BERMUDAN_SWAPTION_TRADE = toSwaptionTrade(BERMUDAN_SWAPTION);
 
   @Test
   void testSwaptionCsvPlugin() {
     ValueWithFailures<List<SwaptionTrade>> trades = TradeCsvLoader.standard()
         .parse(ImmutableList.of(CSV_FILE.getCharSource()), SwaptionTrade.class);
-    checkRoundtrip(SwaptionTrade.class, trades.getValue(), TRADES.get(0), TRADES.get(1), TRADES.get(2));
+    checkRoundtrip(
+        SwaptionTrade.class,
+        trades.getValue(),
+        EUROPEAN_SWAPTION_WITH_SPECIFIC_EXERCISE_TRADE,
+        DEFAULT_EUROPEAN_SWAPTION_TRADE,
+        BERMUDAN_SWAPTION_TRADE);
   }
 
 }
