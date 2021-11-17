@@ -7,6 +7,7 @@ package com.opengamma.strata.loader.csv;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
 import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
+import static com.opengamma.strata.collect.Guavate.toImmutableList;
 import static com.opengamma.strata.collect.TestHelper.date;
 import static com.opengamma.strata.loader.csv.CsvTestUtils.checkRoundtrip;
 import static com.opengamma.strata.product.common.BuySell.SELL;
@@ -40,9 +41,9 @@ import com.opengamma.strata.product.swaption.SwaptionTrade;
 /**
  * Tests for the {@link SwaptionTradeCsvPlugin}
  */
-public class SwaptionTradeCsvPluginTest {
+final class SwaptionTradeCsvPluginTest {
 
-  private static final ResourceLocator file =
+  private static final ResourceLocator CSV_FILE =
       ResourceLocator.of("classpath:com/opengamma/strata/loader/csv/swaption_trades.csv");
 
   private static final SwaptionTradeCsvPlugin PLUGIN = SwaptionTradeCsvPlugin.INSTANCE;
@@ -91,24 +92,21 @@ public class SwaptionTradeCsvPluginTest {
       .underlying(SWAP_REC)
       .build();
 
-  private SwaptionTrade swaptionToSwaptionTrade(Swaption swaption) {
+  private static SwaptionTrade swaptionToSwaptionTrade(Swaption swaption) {
     return SwaptionTrade.of(TradeInfo.empty(), swaption, Payment.of(CurrencyAmount.of(USD, 0), VAL_DATE));
   }
 
-  @Test
-  void testEuropeanSwaptionWithNoExerciseInfo() {
-    ValueWithFailures<List<SwaptionTrade>> trades = TradeCsvLoader.standard().parse(
-        ImmutableList.of(file.getCharSource()), SwaptionTrade.class);
-    checkRoundtrip(SwaptionTrade.class, trades.getValue(), swaptionToSwaptionTrade(EUROPEAN_SWAPTION_AT_EXPIRY));
-  }
+  private static final List<SwaptionTrade> TRADES =
+      ImmutableList.of(EUROPEAN_SWAPTION_AT_EXERCISE, EUROPEAN_SWAPTION_AT_EXPIRY, BERMUDAN_SWAPTION)
+          .stream()
+          .map(SwaptionTradeCsvPluginTest::swaptionToSwaptionTrade)
+          .collect(toImmutableList());
 
   @Test
-  void testEuropeanSwaptionWithExerciseInfo() {
-
+  void testSwaptionCsvPlugin() {
+    ValueWithFailures<List<SwaptionTrade>> trades = TradeCsvLoader.standard()
+        .parse(ImmutableList.of(CSV_FILE.getCharSource()), SwaptionTrade.class);
+    checkRoundtrip(SwaptionTrade.class, trades.getValue(), TRADES.get(0), TRADES.get(1), TRADES.get(2));
   }
 
-  @Test
-  void testBermudanSwaption() {
-
-  }
 }
