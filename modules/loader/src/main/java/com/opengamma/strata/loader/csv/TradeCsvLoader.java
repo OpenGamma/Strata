@@ -350,7 +350,7 @@ public final class TradeCsvLoader {
             FailureReason.PARSING,
             "Trade type not allowed {tradeType}, only these types are supported: {}",
             trade.getClass().getName(),
-            tradeTypes.stream().map(t -> t.getSimpleName()).collect(joining(", "))));
+            tradeTypes.stream().map(Class::getSimpleName).collect(joining(", "))));
       }
     }
     return ValueWithFailures.of(valid, failures);
@@ -408,7 +408,6 @@ public final class TradeCsvLoader {
   private <T extends Trade> ValueWithFailures<List<T>> parseFile(CsvIterator csv, Class<T> tradeType) {
     List<T> trades = new ArrayList<>();
     List<FailureItem> failures = new ArrayList<>();
-    rows:
     for (CsvRow row : csv.asIterable()) {
       String typeRaw = row.findField(TRADE_TYPE_FIELD).orElse("");
       String typeUpper = typeRaw.toUpperCase(Locale.ENGLISH);
@@ -420,7 +419,7 @@ public final class TradeCsvLoader {
           if (tradeType.isInstance(overrideOpt.get())) {
             trades.add(tradeType.cast(overrideOpt.get()));
           }
-          continue rows;
+          continue;
         }
         // standard type matching
         TradeCsvParserPlugin plugin = PLUGINS.get(typeUpper);
@@ -430,9 +429,9 @@ public final class TradeCsvLoader {
             additionalRows.add(csv.next());
           }
           plugin.parseTrade(tradeType, row, additionalRows, info, resolver)
-              .filter(parsed -> tradeType.isInstance(parsed))
+              .filter(tradeType::isInstance)
               .ifPresent(parsed -> trades.add((T) parsed));
-          continue rows;
+          continue;
         }
         // match type using the resolver
         Optional<Trade> parsedOpt = resolver.parseOtherTrade(typeUpper, row, info);
@@ -440,7 +439,7 @@ public final class TradeCsvLoader {
           if (tradeType.isInstance(parsedOpt.get())) {
             trades.add(tradeType.cast(parsedOpt.get()));
           }
-          continue rows;
+          continue;
         }
         // better error for VARIABLE
         if (typeUpper.equals("VARIABLE")) {

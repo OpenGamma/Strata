@@ -156,7 +156,7 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
   public Set<String> headers(List<SwaptionTrade> trades) {
     LinkedHashSet<String> headers = new LinkedHashSet<>(
         FullSwapTradeCsvPlugin.INSTANCE.headers(trades.stream()
-        .map(t -> t.getProduct().getUnderlying())
+        .map(trade -> trade.getProduct().getUnderlying())
         .map(swap -> SwapTrade.of(TradeInfo.empty(), swap))
         .collect(toImmutableList())));
     headers.add(LONG_SHORT_FIELD);
