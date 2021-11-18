@@ -353,8 +353,6 @@ public final class CsvLoaderColumns {
   /** CSV header (Position/Security). */
   public static final String EXERCISE_DATES_CAL_FIELD = "Exercise Dates Calendar";
   /** CSV header (Position/Security). */
-  public static final String EXERCISE_SWAP_START_DATE_OFFSET = "Exercise Swap Start Date Offset";
-  /** CSV header (Position/Security). */
   public static final String EXERCISE_STYLE_FIELD = "Exercise Style";
   /** CSV header (Position/Security). */
   public static final String EXERCISE_PRICE_FIELD = "Exercise Price";

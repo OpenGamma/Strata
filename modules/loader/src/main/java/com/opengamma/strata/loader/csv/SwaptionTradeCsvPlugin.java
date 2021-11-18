@@ -193,7 +193,6 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
       headers.add(EXERCISE_DATES_FIELD);
       headers.add(EXERCISE_DATES_CAL_FIELD);
       headers.add(EXERCISE_DATES_CNV_FIELD);
-      //headers.add(EXERCISE_SWAP_START_DATE_OFFSET);
     }
     return headers;
   }
@@ -233,7 +232,6 @@ final class SwaptionTradeCsvPlugin implements TradeCsvParserPlugin, TradeCsvWrit
       csv.writeCell(EXERCISE_DATES_FIELD, pipeJoined(dates, extractUnadjustedDate));
       csv.writeCell(EXERCISE_DATES_CAL_FIELD, exercise.getDateDefinition().getAdjustment().getCalendar());
       csv.writeCell(EXERCISE_DATES_CNV_FIELD, exercise.getDateDefinition().getAdjustment().getConvention());
-      //csv.writeCell(EXERCISE_SWAP_START_DATE_OFFSET, exercise.getSwapStartDateOffset());
     } else if (exercise.isAmerican()) {
       //To implement if/when we support American swaptions. A frequency might have to be added.
     }
