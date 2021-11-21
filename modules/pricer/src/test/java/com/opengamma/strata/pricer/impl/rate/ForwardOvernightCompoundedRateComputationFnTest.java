@@ -18,10 +18,12 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 
+import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.Test;
 
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.index.OvernightIndexObservation;
 import com.opengamma.strata.collect.array.DoubleArray;
 import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeries;
@@ -29,6 +31,7 @@ import com.opengamma.strata.collect.timeseries.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.strata.market.curve.Curve;
 import com.opengamma.strata.market.curve.Curves;
 import com.opengamma.strata.market.curve.InterpolatedNodalCurve;
+import com.opengamma.strata.market.curve.interpolator.CurveExtrapolators;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolator;
 import com.opengamma.strata.market.curve.interpolator.CurveInterpolators;
 import com.opengamma.strata.market.explain.ExplainKey;
@@ -37,12 +40,18 @@ import com.opengamma.strata.market.explain.ExplainMapBuilder;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
 import com.opengamma.strata.pricer.PricingException;
+import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.rate.OvernightIndexRates;
 import com.opengamma.strata.pricer.rate.OvernightRateSensitivity;
 import com.opengamma.strata.pricer.rate.SimpleRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
+import com.opengamma.strata.pricer.swap.DiscountingSwapLegPricer;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.rate.OvernightCompoundedRateComputation;
+import com.opengamma.strata.product.swap.ResolvedSwap;
+import com.opengamma.strata.product.swap.ResolvedSwapLeg;
+import com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions;
 
 /**
  * Test {@link ForwardOvernightCompoundedRateComputationFn}.
@@ -88,6 +97,8 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 13), REF_DATA),
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 14), REF_DATA),
       OvernightIndexObservation.of(CHF_TOIS, date(2015, 1, 15), REF_DATA)};
+
+  private static final DiscountingSwapLegPricer PRICER_LEG = DiscountingSwapLegPricer.DEFAULT;
 
   // XMAS dates
   private static final LocalDate DUM_ACC_START_XMAS = date(2015, 12, 1);
@@ -1230,5 +1241,44 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
       double rateComputed = OBS_FWD_ONCMP.rate(ro, DUM_ACC_START_XMAS, DUM_ACC_END_XMAS, simpleProv);
       assertThat(rateExpected).isCloseTo(rateComputed, offset(TOLERANCE_RATE));
     }
+  }
+
+  /* Test on a holiday, with publication date of ON fixing after the valuation date. Requires sensitivity to a date in the past. */
+  @Test
+  public void test_ois_leg_present_value_onholiday() {
+
+    ResolvedSwap oisSwap = FixedOvernightSwapConventions.USD_FIXED_1Y_FED_FUND_OIS
+        .createTrade(
+            LocalDate.of(2017, 6, 29),
+            Tenor.TENOR_1Y,
+            BuySell.BUY,
+            1_000_000,
+            0.01,
+            REF_DATA).getProduct().resolve(REF_DATA);
+
+    ResolvedSwapLeg expSwapLeg = oisSwap.getLegs().get(1);
+    LocalDateDoubleTimeSeries ts = LocalDateDoubleTimeSeries.builder()
+        .put(LocalDate.of(2017, 7, 3), 0.0010).build();
+    LocalDate valuationDate = LocalDate.of(2017, 7, 4);
+    ImmutableRatesProvider multicurve = RatesProviderDataSets.multiUsd(valuationDate);
+
+    InterpolatedNodalCurve fedFundCurve = (InterpolatedNodalCurve) RatesProviderDataSets.multiUsd(valuationDate).getIndexCurves().get(
+        USD_FED_FUND);
+
+    DoubleArray xValuesWith0 = fedFundCurve.getXValues().with(0, 0d);
+    DoubleArray yValuesWith0 = fedFundCurve.getYValues().with(0, 1d);
+
+    InterpolatedNodalCurve fedFundCurveMod = InterpolatedNodalCurve.of(
+        fedFundCurve.getMetadata(),
+        xValuesWith0,
+        yValuesWith0,
+        CurveInterpolators.LOG_NATURAL_SPLINE_MONOTONE_CUBIC,
+        CurveExtrapolators.QUADRATIC_LEFT,
+        CurveExtrapolators.FLAT);
+
+    multicurve = multicurve.toBuilder().overnightIndexCurve(USD_FED_FUND, fedFundCurveMod, ts).build();
+    CurrencyAmount pv = PRICER_LEG.presentValue(expSwapLeg, multicurve);
+
+    assertThat(pv.getAmount()).isCloseTo(10459.745502756, Percentage.withPercentage(TOLERANCE_RATE));
   }
 }

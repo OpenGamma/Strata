@@ -277,5 +277,4 @@ public class ForwardOvernightCompoundedRateComputationFn
           "Could not get fixing value of index " + index.getName() + " for date " + currentFixingTs));
     }
   }
-
 }
