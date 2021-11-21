@@ -394,10 +394,18 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
         LocalDate fixingEndDate = USD_FED_FUND.calculateMaturityFromEffective(fixingStartDate, REF_DATA);
         sensitivityBuilderExpected1 = cutoffSensitivity == 0.0 ? sensitivityBuilderExpected1
             : sensitivityBuilderExpected1.combinedWith(
-                OvernightRateSensitivity.ofPeriod(USD_OBS[i], fixingEndDate, cutoffSensitivity));
+            OvernightRateSensitivity.ofPeriod(USD_OBS[i], fixingEndDate, cutoffSensitivity));
       }
-      double ratePeriodUp = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvPeriodUp);
-      double ratePeriodDw = OBS_FWD_ONCMP.rate(ro, DUMMY_ACCRUAL_START_DATE, DUMMY_ACCRUAL_END_DATE, simpleProvPeriodDw);
+      double ratePeriodUp = OBS_FWD_ONCMP.rate(
+          ro,
+          DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE,
+          simpleProvPeriodUp);
+      double ratePeriodDw = OBS_FWD_ONCMP.rate(
+          ro,
+          DUMMY_ACCRUAL_START_DATE,
+          DUMMY_ACCRUAL_END_DATE,
+          simpleProvPeriodDw);
       double periodSensitivity = 0.5 * (ratePeriodUp - ratePeriodDw) / EPS_FD;
       PointSensitivityBuilder sensitivityBuilderExpected2 =
           OvernightRateSensitivity.ofPeriod(USD_OBS[1], FIXING_FINAL_DATE, periodSensitivity);
@@ -604,7 +612,10 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     when(mockRates.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp);
     when(mockRatesUp.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp + EPS_FD);
     when(mockRatesDw.periodRate(GBP_OBS[lastFixing], FIXING_DATES[6])).thenReturn(rateCmp - EPS_FD);
-    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.ofPeriod(GBP_OBS[lastFixing], FIXING_DATES[6], 1.0d);
+    OvernightRateSensitivity periodSensitivity = OvernightRateSensitivity.ofPeriod(
+        GBP_OBS[lastFixing],
+        FIXING_DATES[6],
+        1.0d);
     when(mockRates.periodRatePointSensitivity(GBP_OBS[lastFixing], FIXING_DATES[6]))
         .thenReturn(periodSensitivity);
     for (int loopvaldate = 0; loopvaldate < 2; loopvaldate++) {
@@ -1187,6 +1198,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Valuation date is on a holiday (Christmas holiday). No cutoff and two already fixed ON rate. ON index is Fed Fund.
    * Should trigger flag isHolidayJump inside ForwardOvernightCompoundedRateComputationFn::valuationCompositionFactor().
@@ -1243,7 +1255,7 @@ public class ForwardOvernightCompoundedRateComputationFnTest {
     }
   }
 
-  /* Test on a holiday, with publication date of ON fixing after the valuation date. Requires sensitivity to a date in the past. */
+  /* Test on a holiday, with ON fixing before and publication date of ON fixing after the valuation date. */
   @Test
   public void test_ois_leg_present_value_onholiday() {
 
