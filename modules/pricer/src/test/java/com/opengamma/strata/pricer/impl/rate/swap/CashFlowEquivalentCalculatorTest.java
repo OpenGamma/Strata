@@ -22,7 +22,10 @@ import static org.assertj.core.data.Offset.offset;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +37,10 @@ import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.currency.Payment;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
+import com.opengamma.strata.market.sensitivity.MutablePointSensitivities;
+import com.opengamma.strata.market.sensitivity.PointSensitivity;
 import com.opengamma.strata.market.sensitivity.PointSensitivityBuilder;
+import com.opengamma.strata.pricer.ZeroRateSensitivity;
 import com.opengamma.strata.pricer.datasets.RatesProviderDataSets;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
@@ -467,21 +473,61 @@ public class CashFlowEquivalentCalculatorTest {
 
   @Test
   public void test_cashFlowEquivalent_normalize() {
-    List<NotionalExchange> cfeInput = new ArrayList<>();
-    cfeInput.add(NotionalExchange.of(CurrencyAmount.of(GBP, 1.0), LocalDate.of(2020, 1, 3)));
-    cfeInput.add(NotionalExchange.of(CurrencyAmount.of(GBP, 2.0), LocalDate.of(2020, 1, 5)));
-    cfeInput.add(NotionalExchange.of(CurrencyAmount.of(GBP, 3.0), LocalDate.of(2020, 1, 2)));
-    cfeInput.add(NotionalExchange.of(CurrencyAmount.of(GBP, 4.0), LocalDate.of(2020, 1, 1)));
-    cfeInput.add(NotionalExchange.of(CurrencyAmount.of(GBP, 5.0), LocalDate.of(2020, 1, 5)));
-    cfeInput.add(NotionalExchange.of(CurrencyAmount.of(GBP, -6.0), LocalDate.of(2020, 1, 2)));
-    List<NotionalExchange> cfeComputed = CashFlowEquivalentCalculator.normalize(cfeInput);
+    List<Payment> cfeInput = new ArrayList<>();
+    cfeInput.add(Payment.of(CurrencyAmount.of(GBP, 1.0), LocalDate.of(2020, 1, 3)));
+    cfeInput.add(Payment.of(CurrencyAmount.of(GBP, 2.0), LocalDate.of(2020, 1, 5)));
+    cfeInput.add(Payment.of(CurrencyAmount.of(GBP, 3.0), LocalDate.of(2020, 1, 2)));
+    cfeInput.add(Payment.of(CurrencyAmount.of(GBP, 4.0), LocalDate.of(2020, 1, 1)));
+    cfeInput.add(Payment.of(CurrencyAmount.of(GBP, 5.0), LocalDate.of(2020, 1, 5)));
+    cfeInput.add(Payment.of(CurrencyAmount.of(GBP, -6.0), LocalDate.of(2020, 1, 2)));
+    List<Payment> cfeComputed = CashFlowEquivalentCalculator.normalize(cfeInput);
     assertThat(cfeComputed.size()).isEqualTo(4);
-    List<NotionalExchange> cfeExpected = new ArrayList<>();
-    cfeExpected.add(NotionalExchange.of(CurrencyAmount.of(GBP, 4.0), LocalDate.of(2020, 1, 1)));
-    cfeExpected.add(NotionalExchange.of(CurrencyAmount.of(GBP, -3.0), LocalDate.of(2020, 1, 2)));
-    cfeExpected.add(NotionalExchange.of(CurrencyAmount.of(GBP, 1.0), LocalDate.of(2020, 1, 3)));
-    cfeExpected.add(NotionalExchange.of(CurrencyAmount.of(GBP, 7.0), LocalDate.of(2020, 1, 5)));
+    List<Payment> cfeExpected = new ArrayList<>();
+    cfeExpected.add(Payment.of(CurrencyAmount.of(GBP, 4.0), LocalDate.of(2020, 1, 1)));
+    cfeExpected.add(Payment.of(CurrencyAmount.of(GBP, -3.0), LocalDate.of(2020, 1, 2)));
+    cfeExpected.add(Payment.of(CurrencyAmount.of(GBP, 1.0), LocalDate.of(2020, 1, 3)));
+    cfeExpected.add(Payment.of(CurrencyAmount.of(GBP, 7.0), LocalDate.of(2020, 1, 5)));
     assertThat(cfeExpected).isEqualTo(cfeComputed);
+  }
+
+  @Test
+  public void test_cashFlowEquivalent_normalize_sensi() {
+    Map<Payment, PointSensitivityBuilder> cfeInput = new HashMap<>();
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, 1.0), LocalDate.of(2020, 1, 3)), PointSensitivityBuilder.none());
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, 2.0), LocalDate.of(2020, 1, 5)), ZeroRateSensitivity.of(GBP, 0.01d, 10.0d));
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, 3.0), LocalDate.of(2020, 1, 2)), ZeroRateSensitivity.of(GBP, 1.00d, 25.0d));
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, 4.0), LocalDate.of(2020, 1, 1)), ZeroRateSensitivity.of(GBP, 1.00d, 25.0d));
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, 5.0), LocalDate.of(2020, 1, 5)), ZeroRateSensitivity.of(GBP, 2.50d, -10.0d));
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, -6.0), LocalDate.of(2020, 1, 2)),
+        ZeroRateSensitivity.of(GBP, 2.00d, 25.0d).combinedWith(ZeroRateSensitivity.of(GBP, 3.00d, 45.0d)));
+    cfeInput.put(Payment.of(CurrencyAmount.of(GBP, -7.0), LocalDate.of(2020, 1, 2)),
+        ZeroRateSensitivity.of(GBP, 5.00d, 25.0d));
+    Map<Payment, PointSensitivityBuilder> cfeComputed = CashFlowEquivalentCalculator.normalize(cfeInput);
+    assertThat(cfeComputed.size()).isEqualTo(4);
+    Map<Payment, PointSensitivityBuilder> cfeExpected = new HashMap<>();
+    cfeExpected.put(Payment.of(CurrencyAmount.of(GBP, 4.0), LocalDate.of(2020, 1, 1)),
+        ZeroRateSensitivity.of(GBP, 1.00d, 25.0d));
+    cfeExpected.put(Payment.of(CurrencyAmount.of(GBP, -10.0), LocalDate.of(2020, 1, 2)),
+        ZeroRateSensitivity.of(GBP, 1.00d, 25.0d).combinedWith(ZeroRateSensitivity.of(GBP, 2.00d, 25.0d)
+            .combinedWith(ZeroRateSensitivity.of(GBP, 3.00d, 45.0d))
+            .combinedWith(ZeroRateSensitivity.of(GBP, 5.00d, 25.0d))));
+    cfeExpected.put(Payment.of(CurrencyAmount.of(GBP, 1.0), LocalDate.of(2020, 1, 3)), PointSensitivityBuilder.none());
+    cfeExpected.put(Payment.of(CurrencyAmount.of(GBP, 7.0), LocalDate.of(2020, 1, 5)),
+        ZeroRateSensitivity.of(GBP, 0.01d, 10.0d).combinedWith(ZeroRateSensitivity.of(GBP, 2.50d, -10.0d)));
+    for (Entry<Payment, PointSensitivityBuilder> cf : cfeComputed.entrySet()) {
+      assertThat(cfeExpected.containsKey(cf.getKey())).isTrue();
+      if (cf.getValue() instanceof MutablePointSensitivities) {
+        ImmutableList<PointSensitivity> listComputed = ((MutablePointSensitivities) cf.getValue()).getSensitivities();
+        ImmutableList<PointSensitivity> listExpected =
+            ((MutablePointSensitivities) cfeExpected.get(cf.getKey())).getSensitivities();
+        assertThat(listComputed.size()).isEqualTo(listExpected.size());
+        for (PointSensitivity e : listComputed) {
+          assertThat(listExpected.contains(e)).isTrue();
+        }
+      } else {
+        assertThat(cf.getValue()).isEqualTo(cfeExpected.get(cf.getKey()));
+      }
+    }
   }
 
   @Test
