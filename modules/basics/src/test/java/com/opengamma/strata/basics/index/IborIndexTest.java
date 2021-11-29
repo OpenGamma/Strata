@@ -320,6 +320,20 @@ public class IborIndexTest {
   }
 
   @Test
+  public void test_usdAmeriborTerm() {
+    assertThat(IborIndex.of("USD-AMERIBORTERM-1M").getName()).isEqualTo("USD-AMERIBORTERM-1M");
+    assertThat(IborIndex.of("USD-AMERIBORTERM-3M").getName()).isEqualTo("USD-AMERIBORTERM-3M");
+  }
+
+  @Test
+  public void test_usdBsby() {
+    assertThat(IborIndex.of("USD-BSBY-1M").getName()).isEqualTo("USD-BSBY-1M");
+    assertThat(IborIndex.of("USD-BSBY-3M").getName()).isEqualTo("USD-BSBY-3M");
+    assertThat(IborIndex.of("USD-BSBY-6M").getName()).isEqualTo("USD-BSBY-6M");
+    assertThat(IborIndex.of("USD-BSBY-12M").getName()).isEqualTo("USD-BSBY-12M");
+  }
+
+  @Test
   public void test_bbsw1m() {
     IborIndex test = IborIndex.of("AUD-BBSW-1M");
     assertThat(test.getCurrency()).isEqualTo(AUD);
@@ -680,12 +694,6 @@ public class IborIndexTest {
         {IborIndices.AUD_BBSW_4M, "AUD-BBSW-4M"},
         {IborIndices.AUD_BBSW_5M, "AUD-BBSW-5M"},
         {IborIndices.AUD_BBSW_6M, "AUD-BBSW-6M"},
-        {IborIndices.USD_BSBY_1M, "USD-BSBY-1M"},
-        {IborIndices.USD_BSBY_3M, "USD-BSBY-3M"},
-        {IborIndices.USD_BSBY_6M, "USD-BSBY-6M"},
-        {IborIndices.USD_BSBY_12M, "USD-BSBY-12M"},
-        {IborIndices.USD_AMERIBOR_1M, "USD-AMERIBOR-1M"},
-        {IborIndices.USD_AMERIBOR_3M, "USD-AMERIBOR-3M"},
     };
   }
 

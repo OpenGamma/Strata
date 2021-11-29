@@ -8,7 +8,7 @@ package com.opengamma.strata.basics.index;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
- * Constants and implementations for standard Ibor indices.
+ * Constants and implementations for commonly used Ibor indices.
  * <p>
  * Each constant returns a standard definition of the specified index.
  * <p>
@@ -212,46 +212,6 @@ public final class IborIndices {
    * The "London Interbank Offered Rate".
    */
   public static final IborIndex USD_LIBOR_12M = IborIndex.of("USD-LIBOR-12M");
-
-  //-------------------------------------------------------------------------
-  /**
-   * The 1 month BSBY index for USD.
-   * <p>
-   * The "Bloomberg Short-Term Bank Yield Index".
-   */
-  public static final IborIndex USD_BSBY_1M = IborIndex.of("USD-BSBY-1M");
-  /**
-   * The 3 month BSBY index for USD.
-   * <p>
-   * The "Bloomberg Short-Term Bank Yield Index".
-   */
-  public static final IborIndex USD_BSBY_3M = IborIndex.of("USD-BSBY-3M");
-  /**
-   * The 6 month BSBY index for USD.
-   * <p>
-   * The "Bloomberg Short-Term Bank Yield Index".
-   */
-  public static final IborIndex USD_BSBY_6M = IborIndex.of("USD-BSBY-6M");
-  /**
-   * The 12 month BSBY index for USD.
-   * <p>
-   * The "Bloomberg Short-Term Bank Yield Index".
-   */
-  public static final IborIndex USD_BSBY_12M = IborIndex.of("USD-BSBY-12M");
-
-  //-------------------------------------------------------------------------
-  /**
-   * The AMERIBOR-30T index for USD.
-   * <p>
-   * The "AFX AMERIBOR Term-30".
-   */
-  public static final IborIndex USD_AMERIBOR_1M = IborIndex.of("USD-AMERIBOR-1M");
-  /**
-   * The AMERIBOR-90T index for USD.
-   * <p>
-   * The "AFX AMERIBOR Term-90".
-   */
-  public static final IborIndex USD_AMERIBOR_3M = IborIndex.of("USD-AMERIBOR-3M");
 
   //-------------------------------------------------------------------------
   /**
