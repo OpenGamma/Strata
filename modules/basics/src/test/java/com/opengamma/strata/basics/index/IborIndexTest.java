@@ -680,6 +680,12 @@ public class IborIndexTest {
         {IborIndices.AUD_BBSW_4M, "AUD-BBSW-4M"},
         {IborIndices.AUD_BBSW_5M, "AUD-BBSW-5M"},
         {IborIndices.AUD_BBSW_6M, "AUD-BBSW-6M"},
+        {IborIndices.USD_BSBY_1M, "USD-BSBY-1M"},
+        {IborIndices.USD_BSBY_3M, "USD-BSBY-3M"},
+        {IborIndices.USD_BSBY_6M, "USD-BSBY-6M"},
+        {IborIndices.USD_BSBY_12M, "USD-BSBY-12M"},
+        {IborIndices.USD_AMERIBOR_1M, "USD-AMERIBOR-1M"},
+        {IborIndices.USD_AMERIBOR_3M, "USD-AMERIBOR-3M"},
     };
   }
 

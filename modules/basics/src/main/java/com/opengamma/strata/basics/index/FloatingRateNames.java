@@ -33,6 +33,10 @@ public final class FloatingRateNames {
    */
   public static final FloatingRateName USD_LIBOR = FloatingRateName.of("USD-LIBOR");
   /**
+   * Constant for USD-BSBY.
+   */
+  public static final FloatingRateName USD_BSBY = FloatingRateName.of("USD-BSBY");
+  /**
    * Constant for CHF-LIBOR.
    */
   public static final FloatingRateName CHF_LIBOR = FloatingRateName.of("CHF-LIBOR");
