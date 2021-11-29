@@ -387,25 +387,43 @@ public final class CashFlowEquivalentCalculator {
   }
 
   /**
-   * Generate a new list with the dates sorted and the amounts of elements with same payment date compressed.
+   * Extract the payments from the {@link NotionalExchange} in the SwapLeg.
+   * Generate a list with the dates sorted and the amounts of elements with same payment date compressed.
+   * <p>
+   * The original SwapLeg is unchanged.
+   * 
+   * @param input  the starting swap leg
+   * @return the normalized list
+   */
+  public static List<Payment> normalize(ResolvedSwapLeg input) {
+    List<Payment> cfe2 = new ArrayList<>();
+    for (SwapPaymentEvent cf : input.getPaymentEvents()) {
+      ArgChecker.isTrue(cf instanceof NotionalExchange, "the swap leg must consist of NotionalExchange");
+      cfe2.add(((NotionalExchange) cf).getPayment());
+    }
+    return normalize(cfe2);
+  }
+
+  /**
+   * Generate a new payment list with the dates sorted and the amounts of elements with same payment date compressed.
    * <p>
    * The original list is unchanged.
    * 
    * @param input  the starting list
    * @return the normalized list
    */
-  public static List<NotionalExchange> normalize(List<NotionalExchange> input) {
-    List<NotionalExchange> sorted = new ArrayList<>(input); // copy for sorting
-    Collections.sort(sorted, (a, b) -> (int) (a.getPaymentDate().toEpochDay() - b.getPaymentDate().toEpochDay()));
-    NotionalExchange previous = sorted.get(0);
+  public static List<Payment> normalize(List<Payment> input) {
+    List<Payment> sorted = new ArrayList<>(input); // copy for sorting
+    Collections.sort(sorted, (a, b) -> (int) (a.getDate().toEpochDay() - b.getDate().toEpochDay()));
+    Payment previous = sorted.get(0);
     for (int i = 1; i < sorted.size(); i++) {
-      NotionalExchange current = sorted.get(i);
-      if (current.getPaymentDate().equals(previous.getPaymentDate()) &&
+      Payment current = sorted.get(i);
+      if (current.getDate().equals(previous.getDate()) &&
           current.getCurrency().equals(previous.getCurrency())) {
-        current = NotionalExchange.of(
+        current = Payment.of(
             CurrencyAmount.of(current.getCurrency(),
-                current.getPaymentAmount().getAmount() + previous.getPaymentAmount().getAmount()),
-            current.getPaymentDate());
+                current.getAmount() + previous.getAmount()),
+            current.getDate());
         sorted.set(i - 1, current);
         sorted.remove(i);
         i--;
@@ -413,6 +431,42 @@ public final class CashFlowEquivalentCalculator {
       previous = current;
     }
     return sorted;
+  }
+
+  /**
+   * Generate a new map with each payment date unique and the amounts and sensitivities of elements 
+   * with same payment date compressed.
+   * <p>
+   * The original map is unchanged.
+   * 
+   * @param input  the starting map
+   * @return the normalized map
+   */
+  public static Map<Payment, PointSensitivityBuilder> normalize(Map<Payment, PointSensitivityBuilder> input) {
+    Map<Payment, PointSensitivityBuilder> output = new HashMap<>(input);
+    List<Payment> sortedPayments = new ArrayList<>(input.keySet()); // copy for sorting
+    Collections.sort(sortedPayments, (a, b) -> (int) (a.getDate().toEpochDay() - b.getDate().toEpochDay()));
+    Payment previousPayment = sortedPayments.get(0);
+    for (int i = 1; i < sortedPayments.size(); i++) {
+      Payment currentPayment = sortedPayments.get(i);
+      PointSensitivityBuilder currentSensi = input.get(currentPayment);
+      if (currentPayment.getDate().equals(previousPayment.getDate()) &&
+          currentPayment.getCurrency().equals(previousPayment.getCurrency())) {
+        output.remove(currentPayment);
+        currentPayment = Payment.of(
+            CurrencyAmount.of(currentPayment.getCurrency(),
+                currentPayment.getAmount() + previousPayment.getAmount()),
+            currentPayment.getDate());
+        currentSensi = currentSensi.combinedWith(output.get(previousPayment));
+        output.remove(previousPayment);
+        output.put(currentPayment, currentSensi);
+        sortedPayments.set(i - 1, currentPayment);
+        sortedPayments.remove(i);
+        i--;
+      }
+      previousPayment = currentPayment;
+    }
+    return output;
   }
 
   //-------------------------------------------------------------------------
