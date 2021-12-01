@@ -8,7 +8,7 @@ package com.opengamma.strata.basics.index;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
- * Constants and implementations for standard Floating rate names.
+ * Constants and implementations for commonly used Floating rate names.
  * <p>
  * Each constant refers to a standard definition of the specified index.
  * <p>
@@ -32,6 +32,10 @@ public final class FloatingRateNames {
    * Constant for USD-LIBOR.
    */
   public static final FloatingRateName USD_LIBOR = FloatingRateName.of("USD-LIBOR");
+  /**
+   * Constant for USD-BSBY.
+   */
+  public static final FloatingRateName USD_BSBY = FloatingRateName.of("USD-BSBY");
   /**
    * Constant for CHF-LIBOR.
    */

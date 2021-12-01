@@ -8,7 +8,7 @@ package com.opengamma.strata.basics.index;
 import com.opengamma.strata.collect.named.ExtendedEnum;
 
 /**
- * Constants and implementations for standard Ibor indices.
+ * Constants and implementations for commonly used Ibor indices.
  * <p>
  * Each constant returns a standard definition of the specified index.
  * <p>
