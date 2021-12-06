@@ -1,3 +1,9 @@
+queue_rules:
+  - name: default
+    conditions:
+      - "label=auto-merge"
+      - "check-success=build"
+
 pull_request_rules:
   - name: Auto-Merge
     conditions:
@@ -7,10 +13,9 @@ pull_request_rules:
       - "-conflict"
       - "title~=^((?!(wip|WIP)).)*$"
     actions:
-      merge:
+      queue:
         method: squash
-        rebase_fallback: null
-        strict: smart
+        name: default
   - name: Delete-Branch
     conditions:
       - "merged"
