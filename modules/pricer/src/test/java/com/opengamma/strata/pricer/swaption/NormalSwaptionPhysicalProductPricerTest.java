@@ -11,6 +11,7 @@ import static com.opengamma.strata.basics.index.IborIndices.USD_LIBOR_3M;
 import static com.opengamma.strata.product.common.BuySell.BUY;
 import static com.opengamma.strata.product.common.BuySell.SELL;
 import static com.opengamma.strata.product.swap.type.FixedIborSwapConventions.USD_FIXED_6M_LIBOR_3M;
+import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.data.Offset.offset;
@@ -26,6 +27,7 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.CurrencyAmount;
 import com.opengamma.strata.basics.currency.MultiCurrencyAmount;
 import com.opengamma.strata.basics.date.AdjustableDate;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.market.param.CurrencyParameterSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivities;
 import com.opengamma.strata.market.sensitivity.PointSensitivity;
@@ -37,6 +39,7 @@ import com.opengamma.strata.pricer.impl.option.NormalPriceFunction;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.common.PutCall;
 import com.opengamma.strata.product.swap.ResolvedSwap;
@@ -239,6 +242,34 @@ public class NormalSwaptionPhysicalProductPricerTest {
     double pvExpected = NORMAL.getPriceFunction(option).apply(normalData);
     CurrencyAmount pvComputed =
         PRICER_SWAPTION_NORMAL.presentValue(SWAPTION_LONG_REC, MULTI_USD, NORMAL_VOLS_USD_STD);
+    assertThat(pvComputed.getCurrency()).isEqualTo(USD);
+    assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
+  }
+
+  /* Test the present value of a swaption on OIS */
+  @Test
+  void present_value_formula_OIS() {
+    Swap oisRec = USD_FIXED_1Y_SOFR_OIS.createTrade(
+        SWAPTION_EXERCISE_DATE, Tenor.of(SWAP_TENOR), BuySell.SELL, NOTIONAL, STRIKE, REF_DATA).getProduct();
+    ResolvedSwap oisRecResolved = oisRec.resolve(REF_DATA);
+    ResolvedSwaption swaptionRecLong = Swaption.builder()
+        .expiryDate(AdjustableDate.of(SWAPTION_EXERCISE_DATE))
+        .expiryTime(SWAPTION_EXPIRY_TIME)
+        .expiryZone(SWAPTION_EXPIRY_ZONE)
+        .longShort(LongShort.LONG)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(oisRec)
+        .build().resolve(REF_DATA);
+    double forward = PRICER_SWAP.parRate(oisRecResolved, MULTI_USD);
+    double pvbp = PRICER_SWAP.getLegPricer().pvbp(oisRecResolved.getLegs(SwapLegType.FIXED).get(0), MULTI_USD);
+    double volatility = NORMAL_VOLS_USD_STD.volatility(swaptionRecLong.getExpiry(),
+        SWAP_TENOR_YEAR, STRIKE, forward);
+    NormalFunctionData normalData = NormalFunctionData.of(forward, Math.abs(pvbp), volatility);
+    double expiry = NORMAL_VOLS_USD_STD.relativeTime(swaptionRecLong.getExpiry());
+    EuropeanVanillaOption option = EuropeanVanillaOption.of(STRIKE, expiry, PutCall.PUT);
+    double pvExpected = NORMAL.getPriceFunction(option).apply(normalData);
+    CurrencyAmount pvComputed =
+        PRICER_SWAPTION_NORMAL.presentValue(swaptionRecLong, MULTI_USD, NORMAL_VOLS_USD_STD);
     assertThat(pvComputed.getCurrency()).isEqualTo(USD);
     assertThat(pvComputed.getAmount()).isCloseTo(pvExpected, offset(TOLERANCE_PV));
   }
