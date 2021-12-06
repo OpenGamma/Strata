@@ -32,7 +32,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * To register a specific convention, see {@code FixedOvernightSwapConvention.ini}.
  */
 public interface FixedOvernightSwapConvention
-    extends SingleCurrencySwapConvention, Named {
+    extends FixedFloatSwapConvention<OvernightRateSwapLegConvention>, Named {
 
   /**
    * Obtains an instance from the specified unique name.
@@ -58,21 +58,6 @@ public interface FixedOvernightSwapConvention
   public static ExtendedEnum<FixedOvernightSwapConvention> extendedEnum() {
     return FixedOvernightSwapConventions.ENUM_LOOKUP;
   }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the market convention of the fixed leg.
-   * 
-   * @return the fixed leg convention
-   */
-  public abstract FixedRateSwapLegConvention getFixedLeg();
-
-  /**
-   * Gets the market convention of the floating leg.
-   * 
-   * @return the floating leg convention
-   */
-  public abstract OvernightRateSwapLegConvention getFloatingLeg();
 
   //-------------------------------------------------------------------------
   /**
@@ -104,7 +89,7 @@ public interface FixedOvernightSwapConvention
       ReferenceData refData) {
 
     // override for Javadoc
-    return SingleCurrencySwapConvention.super.createTrade(tradeDate, tenor, buySell, notional, fixedRate, refData);
+    return FixedFloatSwapConvention.super.createTrade(tradeDate, tenor, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -139,7 +124,7 @@ public interface FixedOvernightSwapConvention
       ReferenceData refData) {
 
     // override for Javadoc
-    return SingleCurrencySwapConvention.super.createTrade(tradeDate, periodToStart, tenor, buySell, notional, fixedRate, refData);
+    return FixedFloatSwapConvention.super.createTrade(tradeDate, periodToStart, tenor, buySell, notional, fixedRate, refData);
   }
 
   /**
@@ -169,7 +154,7 @@ public interface FixedOvernightSwapConvention
       double fixedRate) {
 
     // override for Javadoc
-    return SingleCurrencySwapConvention.super.toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
+    return FixedFloatSwapConvention.super.toTrade(tradeDate, startDate, endDate, buySell, notional, fixedRate);
   }
 
   /**

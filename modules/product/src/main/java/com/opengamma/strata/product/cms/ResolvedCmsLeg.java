@@ -29,7 +29,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.google.common.collect.ImmutableList;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.common.PayReceive;
 import com.opengamma.strata.product.swap.SwapIndex;
@@ -136,13 +136,13 @@ public final class ResolvedCmsLeg
   }
 
   /**
-   * Gets the underlying Ibor index that the leg is based on.
+   * Gets the underlying Rate index that the leg is based on.
    * <p>
    * All periods in the leg will have this index.
    * 
    * @return the index
    */
-  public IborIndex getUnderlyingIndex() {
+  public RateIndex getUnderlyingIndex() {
     return getIndex().getTemplate().getConvention().getFloatingLeg().getIndex();
   }
 

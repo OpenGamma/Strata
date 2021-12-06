@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.strata.product.swap.type.FixedFloatSwapTemplate;
 import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
 
 /**
@@ -68,7 +69,7 @@ public final class ImmutableSwapIndex
    * The template for creating Fixed-Ibor swap.
    */
   @PropertyDefinition(validate = "notNull", overrideGet = true)
-  private final FixedIborSwapTemplate template;
+  private final FixedFloatSwapTemplate<?> template;
 
   //-------------------------------------------------------------------------
   /**
@@ -154,7 +155,7 @@ public final class ImmutableSwapIndex
       boolean active,
       LocalTime fixingTime,
       ZoneId fixingZone,
-      FixedIborSwapTemplate template) {
+      FixedFloatSwapTemplate<?> template) {
     JodaBeanUtils.notEmpty(name, "name");
     JodaBeanUtils.notNull(fixingTime, "fixingTime");
     JodaBeanUtils.notNull(fixingZone, "fixingZone");
@@ -220,7 +221,7 @@ public final class ImmutableSwapIndex
    * @return the value of the property, not null
    */
   @Override
-  public FixedIborSwapTemplate getTemplate() {
+  public FixedFloatSwapTemplate<?> getTemplate() {
     return template;
   }
 
@@ -266,8 +267,9 @@ public final class ImmutableSwapIndex
     /**
      * The meta-property for the {@code template} property.
      */
-    private final MetaProperty<FixedIborSwapTemplate> template = DirectMetaProperty.ofImmutable(
-        this, "template", ImmutableSwapIndex.class, FixedIborSwapTemplate.class);
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<FixedFloatSwapTemplate<?>> template = DirectMetaProperty.ofImmutable(
+        this, "template", ImmutableSwapIndex.class, (Class) FixedFloatSwapTemplate.class);
     /**
      * The meta-properties.
      */
@@ -354,7 +356,7 @@ public final class ImmutableSwapIndex
      * The meta-property for the {@code template} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<FixedIborSwapTemplate> template() {
+    public MetaProperty<FixedFloatSwapTemplate<?>> template() {
       return template;
     }
 
@@ -397,7 +399,7 @@ public final class ImmutableSwapIndex
     private boolean active;
     private LocalTime fixingTime;
     private ZoneId fixingZone;
-    private FixedIborSwapTemplate template;
+    private FixedFloatSwapTemplate<?> template;
 
     /**
      * Restricted constructor.
@@ -453,7 +455,7 @@ public final class ImmutableSwapIndex
           this.fixingZone = (ZoneId) newValue;
           break;
         case -1321546630:  // template
-          this.template = (FixedIborSwapTemplate) newValue;
+          this.template = (FixedFloatSwapTemplate<?>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -529,7 +531,7 @@ public final class ImmutableSwapIndex
      * @param template  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder template(FixedIborSwapTemplate template) {
+    public Builder template(FixedFloatSwapTemplate<?> template) {
       JodaBeanUtils.notNull(template, "template");
       this.template = template;
       return this;

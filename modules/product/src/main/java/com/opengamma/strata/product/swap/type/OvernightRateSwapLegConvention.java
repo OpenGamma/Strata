@@ -61,7 +61,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class OvernightRateSwapLegConvention
-    implements SwapLegConvention, ImmutableBean, Serializable {
+    implements FloatRateSwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The Overnight index.

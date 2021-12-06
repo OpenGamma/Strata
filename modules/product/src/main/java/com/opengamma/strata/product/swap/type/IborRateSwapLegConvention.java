@@ -55,7 +55,7 @@ import com.opengamma.strata.product.swap.RateCalculationSwapLeg;
  */
 @BeanDefinition
 public final class IborRateSwapLegConvention
-    implements SwapLegConvention, ImmutableBean, Serializable {
+    implements FloatRateSwapLegConvention, ImmutableBean, Serializable {
 
   /**
    * The Ibor index.

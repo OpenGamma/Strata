@@ -28,7 +28,6 @@ import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.ReferenceDataNotFoundException;
 import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
-import com.opengamma.strata.product.TradeTemplate;
 import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.swap.SwapTrade;
 
@@ -51,7 +50,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  */
 @BeanDefinition
 public final class FixedIborSwapTemplate
-    implements TradeTemplate, ImmutableBean, Serializable {
+    implements FixedFloatSwapTemplate<IborRateSwapLegConvention>, ImmutableBean, Serializable {
 
   /**
    * The period between the spot value date and the start date.
