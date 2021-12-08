@@ -15,6 +15,7 @@ import static com.opengamma.strata.product.common.LongShort.LONG;
 import static com.opengamma.strata.product.common.LongShort.SHORT;
 import static com.opengamma.strata.product.common.PayReceive.PAY;
 import static com.opengamma.strata.product.common.PayReceive.RECEIVE;
+import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.EUR_FIXED_1Y_ESTR_OIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
@@ -39,6 +40,7 @@ import com.opengamma.strata.basics.date.BusinessDayAdjustment;
 import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.date.HolidayCalendarId;
 import com.opengamma.strata.basics.date.HolidayCalendarIds;
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.basics.schedule.PeriodicSchedule;
 import com.opengamma.strata.basics.schedule.RollConventions;
 import com.opengamma.strata.basics.schedule.StubConvention;
@@ -60,6 +62,7 @@ import com.opengamma.strata.pricer.impl.option.BlackFormulaRepository;
 import com.opengamma.strata.pricer.rate.ImmutableRatesProvider;
 import com.opengamma.strata.pricer.sensitivity.RatesFiniteDifferenceSensitivityCalculator;
 import com.opengamma.strata.pricer.swap.DiscountingSwapProductPricer;
+import com.opengamma.strata.product.common.BuySell;
 import com.opengamma.strata.product.common.LongShort;
 import com.opengamma.strata.product.swap.FixedRateCalculation;
 import com.opengamma.strata.product.swap.IborRateCalculation;
@@ -249,6 +252,50 @@ public class SabrSwaptionCashParYieldProductPricerTest {
     double annuityCash = PRICER_SWAP.getLegPricer().annuityCash(RFIXED_LEG_REC, forward);
     double expiry = VOLS.relativeTime(MATURITY);
     double volatility = VOLS.volatility(SWAPTION_REC_LONG.getExpiry(), TENOR_YEAR, RATE, forward);
+    double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
+    double expectedRec = df * annuityCash * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
+        RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility, false);
+    double expectedPay = -df * annuityCash * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
+        RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility, true);
+    assertThat(computedRec.getCurrency()).isEqualTo(EUR);
+    assertThat(computedRec.getAmount()).isCloseTo(expectedRec, offset(NOTIONAL * TOL));
+    assertThat(computedPay.getCurrency()).isEqualTo(EUR);
+    assertThat(computedPay.getAmount()).isCloseTo(expectedPay, offset(NOTIONAL * TOL));
+  }
+
+  /* Test the present value of a swaption on OIS */
+  @Test
+  void test_presentValue_OIS() {
+    int tenorYear = 7;
+    Tenor tenor = Tenor.ofYears(tenorYear);
+    Swap oisRec = EUR_FIXED_1Y_ESTR_OIS.createTrade(
+        MATURITY.toLocalDate(), tenor, BuySell.SELL, NOTIONAL, RATE, REF_DATA).getProduct();
+    ResolvedSwap oisRecResolved = oisRec.resolve(REF_DATA);
+    ResolvedSwaption swaptionRecLong = Swaption.builder()
+        .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
+        .expiryTime(MATURITY.toLocalTime())
+        .expiryZone(MATURITY.getZone())
+        .longShort(LongShort.LONG)
+        .swaptionSettlement(PAR_YIELD)
+        .underlying(oisRec)
+        .build().resolve(REF_DATA);
+    Swap oisPay = EUR_FIXED_1Y_ESTR_OIS.createTrade(
+        MATURITY.toLocalDate(), tenor, BuySell.BUY, NOTIONAL, RATE, REF_DATA).getProduct();
+    ResolvedSwaption swaptionPayShort = Swaption.builder()
+        .expiryDate(AdjustableDate.of(MATURITY.toLocalDate()))
+        .expiryTime(MATURITY.toLocalTime())
+        .expiryZone(MATURITY.getZone())
+        .longShort(LongShort.SHORT)
+        .swaptionSettlement(PAR_YIELD)
+        .underlying(oisPay)
+        .build().resolve(REF_DATA);
+    CurrencyAmount computedRec = PRICER.presentValue(swaptionRecLong, RATE_PROVIDER, VOLS);
+    CurrencyAmount computedPay = PRICER.presentValue(swaptionPayShort, RATE_PROVIDER, VOLS);
+    double forward = PRICER_SWAP.parRate(oisRecResolved, RATE_PROVIDER);
+    double annuityCash = PRICER_SWAP.getLegPricer()
+        .annuityCash(oisRecResolved.getLegs(SwapLegType.FIXED).get(0), forward);
+    double expiry = VOLS.relativeTime(MATURITY);
+    double volatility = VOLS.volatility(swaptionRecLong.getExpiry(), tenorYear, RATE, forward);
     double df = RATE_PROVIDER.discountFactor(EUR, SETTLE);
     double expectedRec = df * annuityCash * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
         RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, expiry, volatility, false);

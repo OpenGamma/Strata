@@ -6,6 +6,7 @@
 package com.opengamma.strata.pricer.swaption;
 
 import static com.opengamma.strata.basics.currency.Currency.USD;
+import static com.opengamma.strata.product.swap.type.FixedOvernightSwapConventions.USD_FIXED_1Y_SOFR_OIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
@@ -142,7 +143,6 @@ public class SabrSwaptionPhysicalProductPricerTest {
   private static final double TOL = 1.0e-13;
   private static final double TOLERANCE_DELTA = 1.0E-2;
   private static final double FD_EPS = 1.0e-6;
-  private static final double TOLERANCE_RATE = 1.0E-8;
   private static final double REGRESSION_TOL = 1.0e-4; // due to tenor computation difference
   private static final SabrSwaptionPhysicalProductPricer SWAPTION_PRICER = SabrSwaptionPhysicalProductPricer.DEFAULT;
   private static final DiscountingSwapProductPricer SWAP_PRICER = DiscountingSwapProductPricer.DEFAULT;
@@ -174,6 +174,49 @@ public class SabrSwaptionPhysicalProductPricerTest {
     assertThat(computedRec.getAmount()).isCloseTo(expectedRec, offset(NOTIONAL * TOL));
     assertThat(computedPay.getCurrency()).isEqualTo(USD);
     assertThat(computedPay.getAmount()).isCloseTo(expectedPay, offset(NOTIONAL * TOL));
+  }
+  
+  /* Test the present value of a swaption on OIS */
+  @Test
+  void test_presentValue_OIS() {
+    Swap oisRec = USD_FIXED_1Y_SOFR_OIS.createTrade(
+        MATURITY_DATE.toLocalDate(), TENOR, BuySell.SELL, NOTIONAL, RATE, REF_DATA).getProduct();
+    ResolvedSwap oisRecResolved = oisRec.resolve(REF_DATA);
+    ResolvedSwaption swaptionRecLong = Swaption.builder()
+        .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
+        .expiryTime(MATURITY_DATE.toLocalTime())
+        .expiryZone(MATURITY_DATE.getZone())
+        .longShort(LongShort.LONG)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(oisRec)
+        .build().resolve(REF_DATA);
+    Swap oisPay = USD_FIXED_1Y_SOFR_OIS.createTrade(
+        MATURITY_DATE.toLocalDate(), TENOR, BuySell.BUY, NOTIONAL, RATE, REF_DATA).getProduct();
+    ResolvedSwaption swaptionPayShort = Swaption.builder()
+        .expiryDate(AdjustableDate.of(MATURITY_DATE.toLocalDate()))
+        .expiryTime(MATURITY_DATE.toLocalTime())
+        .expiryZone(MATURITY_DATE.getZone())
+        .longShort(LongShort.SHORT)
+        .swaptionSettlement(PHYSICAL_SETTLE)
+        .underlying(oisPay)
+        .build().resolve(REF_DATA);
+    CurrencyAmount computedRec = SWAPTION_PRICER.presentValue(swaptionRecLong, RATE_PROVIDER, VOLS);
+    CurrencyAmount computedPay = SWAPTION_PRICER.presentValue(swaptionPayShort, RATE_PROVIDER, VOLS);
+    MultiCurrencyAmount computedSwap = SWAP_PRICER.presentValue(oisRecResolved, RATE_PROVIDER);
+    double forward = SWAP_PRICER.parRate(oisRecResolved, RATE_PROVIDER);
+    double pvbp = SWAP_PRICER.getLegPricer().pvbp(oisRecResolved.getLegs(SwapLegType.FIXED).get(0), RATE_PROVIDER);
+    double volatility = VOLS.volatility(swaptionRecLong.getExpiry(), TENOR_YEAR, RATE, forward);
+    double maturity = VOLS.relativeTime(swaptionRecLong.getExpiry());
+    double expectedRec = pvbp * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
+        RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, maturity, volatility, false);
+    double expectedPay = -pvbp * BlackFormulaRepository.price(forward + SwaptionSabrRateVolatilityDataSet.SHIFT,
+        RATE + SwaptionSabrRateVolatilityDataSet.SHIFT, maturity, volatility, true);
+    assertThat(computedRec.getCurrency()).isEqualTo(USD);
+    assertThat(computedRec.getAmount()).isCloseTo(expectedRec, offset(NOTIONAL * TOL));
+    assertThat(computedPay.getCurrency()).isEqualTo(USD);
+    assertThat(computedPay.getAmount()).isCloseTo(expectedPay, offset(NOTIONAL * TOL));
+    assertThat(computedRec.getAmount() + computedPay.getAmount()).isCloseTo(computedSwap.getAmount(USD).getAmount(),
+        offset(NOTIONAL * TOL));
   }
 
   @Test
