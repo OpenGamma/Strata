@@ -233,7 +233,7 @@ public final class CsvLoaderUtils {
       }
     } else {
       if (settleType.get().getCode().equals("E")) {
-        return Pair.of(yearMonth, EtdVariant.ofEurexGovernmentBondOption());
+        return Pair.of(yearMonth, EtdVariant.ofPhysicallySettledOption());
       }
       if (day == 0) {
         throw new IllegalArgumentException("ETD date columns conflict, must set expiry day for Flex " + type);
