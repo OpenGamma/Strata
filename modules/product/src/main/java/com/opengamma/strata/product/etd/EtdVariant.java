@@ -127,6 +127,15 @@ public final class EtdVariant
   }
 
   /**
+   * The Eurex Government Bond Option.
+   *
+   * @return the variant
+   */
+  public static EtdVariant ofEurexGovernmentBondOption() {
+    return new EtdVariant(EtdExpiryType.MONTHLY, null, EtdSettlementType.PHYSICAL, null);
+  }
+
+  /**
    * Parses the variant code.
    * 
    * @param code the variant code
@@ -178,7 +187,6 @@ public final class EtdVariant
     this.optionType = optionType;
     if (type == EtdExpiryType.MONTHLY) {
       ArgChecker.isTrue(dateCode == null, "Monthly variant must have no dateCode");
-      ArgChecker.isTrue(settlementType == null, "Monthly variant must have no settlementType");
       ArgChecker.isTrue(optionType == null, "Monthly variant must have no optionType");
       this.code = "";
     } else if (type == EtdExpiryType.WEEKLY) {
