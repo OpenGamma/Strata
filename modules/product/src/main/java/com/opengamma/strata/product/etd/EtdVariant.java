@@ -131,7 +131,7 @@ public final class EtdVariant
    *
    * @return the variant
    */
-  public static EtdVariant ofEurexGovernmentBondOption() {
+  public static EtdVariant ofPhysicallySettledOption() {
     return new EtdVariant(EtdExpiryType.MONTHLY, null, EtdSettlementType.PHYSICAL, null);
   }
 
