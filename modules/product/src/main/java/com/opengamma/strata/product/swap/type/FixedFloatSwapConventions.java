@@ -10,12 +10,13 @@ import com.opengamma.strata.collect.named.CombinedExtendedEnum;
 /**
  * Helper for {@code FixedFloatSwapConvention}
  */
-public class FixedFloatSwapConventions {
+class FixedFloatSwapConventions {
   
   /**
    * The extended enum lookup from name to instance.
    */
-  static final CombinedExtendedEnum<FixedFloatSwapConvention> CONVENTIONS_LOOKUP = 
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  static final CombinedExtendedEnum<FixedFloatSwapConvention> CONVENTIONS_LOOKUP =
       CombinedExtendedEnum.of(FixedFloatSwapConvention.class);
 
   //-------------------------------------------------------------------------

@@ -66,8 +66,8 @@ public class SwapIndexTest {
       SwapIndex index = mapAll.get(name);
       assertThat(SwapIndex.of(name)).isEqualTo(index);
       assertThat(index.isActive()).isTrue();
-      FixedFloatSwapTemplate<?> temp = index.getTemplate();
-      FixedFloatSwapConvention<?> conv = temp.getConvention();
+      FixedFloatSwapTemplate temp = index.getTemplate();
+      FixedFloatSwapConvention conv = temp.getConvention();
       Tenor tenor = temp.getTenor();
       LocalTime time = index.getFixingTime();
       ZoneId zone = index.getFixingZone();

@@ -32,7 +32,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * To register a specific convention, see {@code FixedOvernightSwapConvention.ini}.
  */
 public interface FixedOvernightSwapConvention
-    extends FixedFloatSwapConvention<OvernightRateSwapLegConvention>, Named {
+    extends FixedFloatSwapConvention, Named {
 
   /**
    * Obtains an instance from the specified unique name.
@@ -58,6 +58,15 @@ public interface FixedOvernightSwapConvention
   public static ExtendedEnum<FixedOvernightSwapConvention> extendedEnum() {
     return FixedOvernightSwapConventions.ENUM_LOOKUP;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the market convention of the floating leg.
+   * 
+   * @return the floating leg convention
+   */
+  @Override
+  public abstract OvernightRateSwapLegConvention getFloatingLeg();
 
   //-------------------------------------------------------------------------
   /**
@@ -182,6 +191,20 @@ public interface FixedOvernightSwapConvention
       BuySell buySell,
       double notional,
       double fixedRate);
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a template based on the specified tenor.
+   * <p>
+   * The swap will start on the spot date.
+   * 
+   * @param tenor  the tenor of the swap
+   * @return the template
+   */
+  @Override
+  public default FixedOvernightSwapTemplate toTemplate(Tenor tenor) {
+    return FixedOvernightSwapTemplate.of(tenor, this);
+  }
 
   //-------------------------------------------------------------------------
   /**

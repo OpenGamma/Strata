@@ -151,7 +151,7 @@ public class CmsPeriodTest {
 
   //-------------------------------------------------------------------------
   static CmsPeriod sutCap() {
-    FixedFloatSwapConvention<?> conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
         .currency(GBP)
@@ -171,7 +171,7 @@ public class CmsPeriodTest {
   }
 
   static CmsPeriod sutFloor() {
-    FixedFloatSwapConvention<?> conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
         .currency(GBP)
@@ -191,7 +191,7 @@ public class CmsPeriodTest {
   }
 
   static CmsPeriod sutCoupon() {
-    FixedFloatSwapConvention<?> conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING, START, END, BuySell.BUY, 1d, 0.01).getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()
         .currency(GBP)
@@ -210,7 +210,7 @@ public class CmsPeriodTest {
   }
 
   static CmsPeriod sut2() {
-    FixedFloatSwapConvention<?> conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     ResolvedSwap swap = conv.toTrade(FIXING.plusDays(1), START.plusDays(1), END.plusDays(1), BuySell.BUY, 1d, 1d)
         .getProduct().resolve(REF_DATA);
     return CmsPeriod.builder()

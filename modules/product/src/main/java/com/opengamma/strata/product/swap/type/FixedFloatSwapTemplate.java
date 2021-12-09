@@ -16,10 +16,8 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * The trade date, notional and fixed rate are required to complete the template and create the trade.
  * As such, it is often possible to get a market price for a trade based on the template.
  * The market price is typically quoted as a bid/ask on the fixed rate.
- * 
- * @param <C> The float rate swap leg convention type
  */
-public interface FixedFloatSwapTemplate<C extends FloatRateSwapLegConvention>
+public interface FixedFloatSwapTemplate
     extends TradeTemplate {
 
   /**
@@ -27,7 +25,7 @@ public interface FixedFloatSwapTemplate<C extends FloatRateSwapLegConvention>
    * 
    * @return the swap convention
    */
-  public abstract FixedFloatSwapConvention<C> getConvention();
+  public abstract FixedFloatSwapConvention getConvention();
 
   /**
    * The associated swap tenor.

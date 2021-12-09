@@ -180,7 +180,7 @@ public final class CmsLeg
   @ImmutablePreBuild
   private static void preBuild(Builder builder) {
     if (builder.index != null) {
-      FixedFloatSwapConvention<?> swapConvention = builder.index.getTemplate().getConvention();
+      FixedFloatSwapConvention swapConvention = builder.index.getTemplate().getConvention();
       FloatRateSwapLegConvention floatLeg = builder.index.getTemplate().getConvention().getFloatingLeg();
       if (builder.fixingDateOffset == null) {
         DaysAdjustment offset = swapConvention.getSpotDateOffset();
@@ -302,7 +302,7 @@ public final class CmsLeg
 
   // creates and resolves the underlying swap
   private ResolvedSwap createUnderlyingSwap(LocalDate fixingDate, ReferenceData refData) {
-    FixedFloatSwapConvention<?> conv = index.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = index.getTemplate().getConvention();
     LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, refData);
     LocalDate maturityDate = effectiveDate.plus(index.getTemplate().getTenor());
     Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();

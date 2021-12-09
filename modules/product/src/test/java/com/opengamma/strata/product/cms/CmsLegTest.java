@@ -362,7 +362,7 @@ public class CmsLegTest {
   }
 
   private ResolvedSwap createUnderlyingSwap(LocalDate fixingDate) {
-    FixedFloatSwapConvention<?> conv = INDEX.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = INDEX.getTemplate().getConvention();
     LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, REF_DATA);
     LocalDate maturityDate = effectiveDate.plus(INDEX.getTemplate().getTenor());
     Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();

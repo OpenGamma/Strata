@@ -11,33 +11,37 @@ import com.opengamma.strata.basics.date.DaysAdjustment;
 import com.opengamma.strata.basics.index.RateIndex;
 
 /**
- * Ibor and Overnight
+ * A market convention for the floating leg of rate swap trades based on an Ibor index or an Overnight index.
  */
 public interface FloatRateSwapLegConvention
     extends SwapLegConvention {
 
   /**
-   * s
+   * Gets the index of the convention.
+   * 
+   * @return the underlying rate index
+   */
+  public abstract RateIndex getIndex();
+
+  /**
+   * Gets the currency of the convention.
+   * 
    * @return the currency
    */
   public abstract Currency getCurrency();
 
   /**
-   * d
+   * Gets the day count of the convention.
+   * 
    * @return the day count
    */
   public abstract DayCount getDayCount();
 
   /**
-   * o
+   * Gets the offset of the payment date from the base date.
+   * 
    * @return the payment day offset
    */
   public abstract DaysAdjustment getPaymentDateOffset();
-
-  /**
-   * i
-   * @return the underlying rate index
-   */
-  public abstract RateIndex getIndex();
 
 }

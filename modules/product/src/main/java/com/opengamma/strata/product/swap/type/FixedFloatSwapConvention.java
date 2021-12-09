@@ -8,17 +8,16 @@ package com.opengamma.strata.product.swap.type;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
+import com.opengamma.strata.basics.date.Tenor;
 import com.opengamma.strata.collect.ArgChecker;
 
 /**
- * A market convention for Fixed-Float swap trades.
+ * A market convention for Fixed-Float swap trades, covering Ibor and Overnight indices.
  * <p>
  * This is a marker interface, see {@link FixedIborSwapConvention} 
  * and {@link FixedOvernightSwapConvention} for more information.
- * 
- * @param <C> The float rate swap leg convention type
  */
-public interface FixedFloatSwapConvention<C extends FloatRateSwapLegConvention>
+public interface FixedFloatSwapConvention
     extends SingleCurrencySwapConvention {
 
   /**
@@ -29,7 +28,7 @@ public interface FixedFloatSwapConvention<C extends FloatRateSwapLegConvention>
    * @throws IllegalArgumentException if the name is not known
    */
   @FromString
-  public static FixedFloatSwapConvention<?> of(String uniqueName) {
+  public static FixedFloatSwapConvention of(String uniqueName) {
     ArgChecker.notNull(uniqueName, "uniqueName");
     return FixedFloatSwapConventions.CONVENTIONS_LOOKUP.lookup(uniqueName);
   }
@@ -59,6 +58,17 @@ public interface FixedFloatSwapConvention<C extends FloatRateSwapLegConvention>
    * 
    * @return the floating leg convention
    */
-  public abstract C getFloatingLeg();
+  public abstract FloatRateSwapLegConvention getFloatingLeg();
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a template based on the specified tenor.
+   * <p>
+   * The swap will start on the spot date.
+   * 
+   * @param tenor  the tenor of the swap
+   * @return the template
+   */
+  public abstract FixedFloatSwapTemplate toTemplate(Tenor tenor);
 
 }

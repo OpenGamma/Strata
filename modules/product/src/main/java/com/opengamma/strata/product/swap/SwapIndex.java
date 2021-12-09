@@ -92,7 +92,7 @@ public interface SwapIndex
    * 
    * @return the template
    */
-  public abstract FixedFloatSwapTemplate<?> getTemplate();
+  public abstract FixedFloatSwapTemplate getTemplate();
 
   //-------------------------------------------------------------------------
   /**

@@ -772,7 +772,7 @@ public class SabrExtrapolationReplicationCmsPeriodPricerTest {
 
   // creates and resolves the underlying swap
   private static ResolvedSwap createUnderlyingSwap(LocalDate fixingDate) {
-    FixedFloatSwapConvention<?> conv = EUR_EURIBOR_1100_5Y.getTemplate().getConvention();
+    FixedFloatSwapConvention conv = EUR_EURIBOR_1100_5Y.getTemplate().getConvention();
     LocalDate effectiveDate = conv.calculateSpotDateFromTradeDate(fixingDate, REF_DATA);
     LocalDate maturityDate = effectiveDate.plus(EUR_EURIBOR_1100_5Y.getTemplate().getTenor());
     Swap swap = conv.toTrade(fixingDate, effectiveDate, maturityDate, BuySell.BUY, 1d, 1d).getProduct();

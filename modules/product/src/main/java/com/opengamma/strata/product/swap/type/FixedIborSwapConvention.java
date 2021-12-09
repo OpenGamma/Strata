@@ -32,7 +32,7 @@ import com.opengamma.strata.product.swap.SwapTrade;
  * To register a specific convention, see {@code FixedIborSwapConvention.ini}.
  */
 public interface FixedIborSwapConvention
-    extends FixedFloatSwapConvention<IborRateSwapLegConvention>, Named {
+    extends FixedFloatSwapConvention, Named {
 
   /**
    * Obtains an instance from the specified unique name.
@@ -58,6 +58,15 @@ public interface FixedIborSwapConvention
   public static ExtendedEnum<FixedIborSwapConvention> extendedEnum() {
     return FixedIborSwapConventions.ENUM_LOOKUP;
   }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the market convention of the floating leg.
+   * 
+   * @return the floating leg convention
+   */
+  @Override
+  public abstract IborRateSwapLegConvention getFloatingLeg();
 
   //-------------------------------------------------------------------------
   /**
@@ -192,6 +201,20 @@ public interface FixedIborSwapConvention
   @Override
   public default LocalDate calculateSpotDateFromTradeDate(LocalDate tradeDate, ReferenceData refData) {
     return getSpotDateOffset().adjust(tradeDate, refData);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a template based on the specified tenor.
+   * <p>
+   * The swap will start on the spot date.
+   * 
+   * @param tenor  the tenor of the swap
+   * @return the template
+   */
+  @Override
+  public default FixedIborSwapTemplate toTemplate(Tenor tenor) {
+    return FixedIborSwapTemplate.of(tenor, this);
   }
 
   //-------------------------------------------------------------------------
