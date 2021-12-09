@@ -28,8 +28,8 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.strata.basics.ReferenceData;
 import com.opengamma.strata.basics.Resolvable;
 import com.opengamma.strata.basics.currency.Currency;
-import com.opengamma.strata.basics.index.IborIndex;
 import com.opengamma.strata.basics.index.Index;
+import com.opengamma.strata.basics.index.RateIndex;
 import com.opengamma.strata.collect.ArgChecker;
 import com.opengamma.strata.product.Product;
 import com.opengamma.strata.product.swap.SwapIndex;
@@ -147,7 +147,7 @@ public final class Cms
    * @return the set of indices referred to by this CMS
    */
   public ImmutableSet<Index> allRateIndices() {
-    IborIndex cmsIndex = cmsLeg.getUnderlyingIndex();
+    RateIndex cmsIndex = cmsLeg.getUnderlyingIndex();
     if (payLeg == null) {
       return ImmutableSet.of(cmsIndex);
     }

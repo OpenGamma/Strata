@@ -81,6 +81,60 @@ public final class SwapIndices {
 
   //-------------------------------------------------------------------------
   /**
+   * USD SOFR Swap Rates 1100 for tenor of 1 year.
+   */
+  public static final SwapIndex USD_SOFR_1100_1Y = SwapIndex.of("USD-SOFR-1100-1Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 2 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_2Y = SwapIndex.of("USD-SOFR-1100-2Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 3 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_3Y = SwapIndex.of("USD-SOFR-1100-3Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 4 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_4Y = SwapIndex.of("USD-SOFR-1100-4Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 5 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_5Y = SwapIndex.of("USD-SOFR-1100-5Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 6 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_6Y = SwapIndex.of("USD-SOFR-1100-6Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 7 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_7Y = SwapIndex.of("USD-SOFR-1100-7Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 8 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_8Y = SwapIndex.of("USD-SOFR-1100-8Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 9 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_9Y = SwapIndex.of("USD-SOFR-1100-9Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 10 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_10Y = SwapIndex.of("USD-SOFR-1100-10Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 15 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_15Y = SwapIndex.of("USD-SOFR-1100-15Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 20 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_20Y = SwapIndex.of("USD-SOFR-1100-20Y");
+  /**
+   * USD SOFR Swap Rates 1100 for tenor of 30 years.
+   */
+  public static final SwapIndex USD_SOFR_1100_30Y = SwapIndex.of("USD-SOFR-1100-30Y");
+
+  //-------------------------------------------------------------------------
+  /**
    * EUR Rates 1100 for tenor of 1 year.
    */
   public static final SwapIndex EUR_EURIBOR_1100_1Y = SwapIndex.of("EUR-EURIBOR-1100-1Y");
@@ -264,6 +318,68 @@ public final class SwapIndices {
    * GBP Rates 1100 for tenor of 30 years.
    */
   public static final SwapIndex GBP_LIBOR_1100_30Y = SwapIndex.of("GBP-LIBOR-1100-30Y");
+
+  //-------------------------------------------------------------------------
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 1 year.
+   */
+  public static final SwapIndex GBP_SONIA_1100_1Y = SwapIndex.of("GBP-SONIA-1100-1Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 2 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_2Y = SwapIndex.of("GBP-SONIA-1100-2Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 3 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_3Y = SwapIndex.of("GBP-SONIA-1100-3Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 4 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_4Y = SwapIndex.of("GBP-SONIA-1100-4Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 5 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_5Y = SwapIndex.of("GBP-SONIA-1100-5Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 6 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_6Y = SwapIndex.of("GBP-SONIA-1100-6Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 7 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_7Y = SwapIndex.of("GBP-SONIA-1100-7Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 8 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_8Y = SwapIndex.of("GBP-SONIA-1100-8Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 9 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_9Y = SwapIndex.of("GBP-SONIA-1100-9Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 10 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_10Y = SwapIndex.of("GBP-SONIA-1100-10Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 12 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_12Y = SwapIndex.of("GBP-SONIA-1100-12Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 15 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_15Y = SwapIndex.of("GBP-SONIA-1100-15Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 20 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_20Y = SwapIndex.of("GBP-SONIA-1100-20Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 25 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_25Y = SwapIndex.of("GBP-SONIA-1100-25Y");
+  /**
+   * GBP SONIA Swap Rates 1100 for tenor of 30 years.
+   */
+  public static final SwapIndex GBP_SONIA_1100_30Y = SwapIndex.of("GBP-SONIA-1100-30Y");
 
   //-------------------------------------------------------------------------
   /**

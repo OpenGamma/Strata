@@ -22,8 +22,8 @@ import com.opengamma.strata.collect.io.CsvRow;
 import com.opengamma.strata.collect.io.ResourceConfig;
 import com.opengamma.strata.collect.io.ResourceLocator;
 import com.opengamma.strata.collect.named.NamedLookup;
-import com.opengamma.strata.product.swap.type.FixedIborSwapConvention;
-import com.opengamma.strata.product.swap.type.FixedIborSwapTemplate;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapConvention;
+import com.opengamma.strata.product.swap.type.FixedFloatSwapTemplate;
 
 /**
  * Loads standard Swap Index implementations from CSV.
@@ -92,17 +92,18 @@ final class SwapIndexCsvLookup
   private static SwapIndex parseSwapIndex(CsvRow row) {
     String name = row.getField(NAME_FIELD);
     boolean active = Boolean.parseBoolean(row.getField(ACTIVE_FIELD));
-    FixedIborSwapConvention convention = FixedIborSwapConvention.of(row.getField(CONVENTION_FIELD));
+    FixedFloatSwapConvention convention = FixedFloatSwapConvention.of(row.getField(CONVENTION_FIELD));
     Tenor tenor = Tenor.parse(row.getField(TENOR_FIELD));
     LocalTime time = LocalTime.parse(row.getField(FIXING_TIME_FIELD), TIME_FORMAT);
     ZoneId zoneId = ZoneId.of(row.getField(FIXING_ZONE_FIELD));
+    FixedFloatSwapTemplate template = convention.toTemplate(tenor);
     // build result
     return ImmutableSwapIndex.builder()
         .name(name)
         .active(active)
         .fixingTime(time)
         .fixingZone(zoneId)
-        .template(FixedIborSwapTemplate.of(tenor, convention))
+        .template(template)
         .build();
   }
 
